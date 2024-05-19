@@ -352,7 +352,7 @@ int filecount ;
 int keepcount;
 Bounce clicked = Bounce( 32, 50 );
 //Bounce Menub = Bounce( 29, 5 );
-Bounce Backb = Bounce( 41, 5 );
+//Bounce Backb = Bounce( 41, 5 );
 //Bounce buttonRecord = Bounce(34, 8);
 //Bounce buttonStop =   Bounce(35, 8);  // 8 = 8 ms debounce time
 //Bounce buttonPlay =  clicked;
@@ -539,7 +539,8 @@ float filterzoctv[fxiterations] ;
 
 int filterzrange = 14000 ;
 
-
+#include "muxer.h"
+Muxer Muxer;
 
 const int mainfxlines = 3;
 

@@ -154,6 +154,8 @@ Doautoassign() ;
 //    delay(500);
 //Serial.println((char*)(lesSelectedsamplescharix[0]));
 delay(50);
+pseudoconsole((char*)"starting muxer");
+Muxer.start();
 //addtocharix((char*)"SOUNDSET/PACK2/BASST-02.RAW");
 //printthem();
 

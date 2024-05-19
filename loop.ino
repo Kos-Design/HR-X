@@ -101,6 +101,7 @@ Pads.padloop();
   //usbhost queries
    loopmidihost();
   loopusbHub();
+  Muxer.loopy();
 }
 
 
