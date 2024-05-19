@@ -1,7 +1,10 @@
+
+
+
 void updatebuttons() {
   clicked.update();
 //  Menub.update();
-  Backb.update();
+  //Backb.update();
   
 }   
 
@@ -84,8 +87,10 @@ void evalinputs() {
 //      lemenuroot();
 //      
 //  }
-  if ( Backb.fallingEdge() ) {
-    
+bool backed = false;
+backed = Pads.get_back() ;
+  if (backed ) {
+    //Backb.fallingEdge()
    // Serial.println("Back");
     
       sublevels[navlevel] = 0 ;

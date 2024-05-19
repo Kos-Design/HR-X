@@ -1,4 +1,8 @@
 
+
+#include "pads.h"
+Pads Pads;
+
 #include <Metro.h>
 //int startccrecordpos;
 //int stopccrecordpos;
@@ -348,13 +352,13 @@ int filecount ;
 int keepcount;
 Bounce clicked = Bounce( 32, 50 );
 //Bounce Menub = Bounce( 29, 5 );
-Bounce Backb = Bounce( 33, 5 );
+Bounce Backb = Bounce( 41, 5 );
 //Bounce buttonRecord = Bounce(34, 8);
 //Bounce buttonStop =   Bounce(35, 8);  // 8 = 8 ms debounce time
 //Bounce buttonPlay =  clicked;
 Encoder myEnc(30, 31);
-const unsigned int manyinputpins = 3 ;
-const int inputpins[manyinputpins] = {32,33,35};
+const unsigned int manyinputpins = 1 ;
+const int inputpins[manyinputpins] = {32};
 // which input on the audio shield will be used?
 const int myInput = AUDIO_INPUT_LINEIN;
 //rotary encoder

@@ -82,7 +82,7 @@ initextmems();
 //  Serial.print("connected");
 // }
 delay(10);
-
+Pads.begin();
  pseudoconsole((char*)"Setting up I/O");
   for (unsigned int i=0 ; i < manyinputpins ; i++ ) {
 

@@ -74,7 +74,7 @@ void pseudo303() {
 }
 void loop() {
 
-
+Pads.padloop();
  if (initdone) {
   if (noteprint) {
   printlanote();
