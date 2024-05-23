@@ -181,7 +181,7 @@ void MaNoteOn(byte channel, byte data1, byte data2) {
     //printnoteon(channel, data1, data2);
  
 
- if ( channel == synthmidichannel )  {
+ if (( channel == synthmidichannel ) or (synthmidichannel == -1) ) {
   if (!arpegiatorOn) {
   if (!chordson ) {
     initiateasynthliner(data1,data2);          
@@ -215,7 +215,7 @@ void MaNoteOn(byte channel, byte data1, byte data2) {
  }
   
   
-  if ( Sampleassigned[(int)(data1)] != 0 && (channel == (byte)samplermidichannel )  ) {
+  if ( Sampleassigned[(int)(data1)] != 0 && ( (channel == (byte)samplermidichannel ) or (samplermidichannel == -1) ) ){
      // Serial.println("Sampler On ");
     playFlashsample((byte)samplermidichannel, data1, data2);
     }

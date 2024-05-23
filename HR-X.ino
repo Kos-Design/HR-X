@@ -1,7 +1,5 @@
 
 
-#include "pads.h"
-Pads Pads;
 
 #include <Metro.h>
 //int startccrecordpos;
@@ -151,7 +149,7 @@ EXTMEM bool samplesselected[99][999];
 EXTMEM int numberofsamplesselected[99] ;
 EXTMEM bool samplesfoldersselected[99];
 EXTMEM int numofsamplesfoldersselected = 0 ;
-#include "/home/kosmin/Desktop/HR-X/includes/AudioSetup.ino"
+#include "/home/kosmin/HR-X/includes/AudioSetup.ino"
 //current stage to configure [lebiquad] instance
 const int bqstagesnum = 4 ;
 int bqstage[fxiterations] ;
@@ -181,8 +179,8 @@ char newmksamplefullpath[32] = {"SOUNDSET/MABANK00/SAMPLE00.RAW"};
 #include <Bounce.h>
 #include <Encoder.h>
 #include "ParserLib.h"
-#include "/home/kosmin/Desktop/HR-X/includes/images.ino"
-#include "/home/kosmin/Desktop/HR-X/includes/notestofrequency.ino"
+#include "/home/kosmin/HR-X/includes/images.ino"
+#include "/home/kosmin/HR-X/includes/notestofrequency.ino"
 #include <string.h>
 const int nombreofliners = 8 ;
 const int nombreofSamplerliners = 16 ;
@@ -194,6 +192,7 @@ EXTMEM byte bufferR[512];
 const int numbofsettinglabels = 11 ;
 int samplermidichannel = 8 ;
 byte synthmidichannel = 16 ;
+
 byte navrec = 3;
 //various hard to pass params
 int leresultar2[2];
@@ -460,6 +459,9 @@ int navleveloverwrite = 2 ;
 
 const int  allfxes = 146;
 
+#include "pads.h"
+Pads Pads;
+
 //TODO
 
 const char ControlList[allfxes][23] PROGMEM = {
@@ -591,7 +593,7 @@ char* toprint = (char*)"Cosmix";
 
 bool initdone ;
 byte FMmodulated[numberofsynthsw] = {0} ;
-#include "/home/kosmin/Desktop/HR-X/includes/cablages.ino"
+#include "/home/kosmin/HR-X/includes/cablages.ino"
 
 #define FLANGE_DELAY_LENGTH (4*AUDIO_BLOCK_SAMPLES)
 #define CHORUS_DELAY_LENGTH (8*AUDIO_BLOCK_SAMPLES)

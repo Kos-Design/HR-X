@@ -5,9 +5,12 @@
 class Pads {
   public:
     Pads();
-    void padloop();
+    int padloop();
     void begin();
     bool get_back();
+    int check_square_pad(char bitter,bool state);
+    int check_cancel_pad(char bitter,bool state);
+    void pads_to_note();
 
   private:
 
