@@ -14,10 +14,11 @@ void Muxer::start(){
 void Muxer::read_val(int iterat)                     
 {
   val = analogRead(g_common_pin);
+  /*
   Serial.print("analog ");
   Serial.print(iterat);
   Serial.print(" is: ");
-  Serial.println(val);
+  Serial.println(val);*/
   delay(1);
 }
 void Muxer::loopy()

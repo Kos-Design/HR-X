@@ -76,10 +76,10 @@ void pseudo303() {
 void loop() {
 pad_result = Pads.padloop();
 if (pad_result > 0) {
-  MaNoteOn(1,pad_result,64);
+  MaNoteOn(16,pad_result,64);
   //we need note type (ON/OFF) info as well as the note that we get in return
 } else if (pad_result < 0) {
-  MaNoteOff(1,-1*pad_result,0);
+  MaNoteOff(16,-1*pad_result,0);
 }
  if (initdone) {
   if (noteprint) {

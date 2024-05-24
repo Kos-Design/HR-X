@@ -149,7 +149,6 @@ void displayfreqbars(int score) {
         
 }
 
-
 void displayphasebars(int score) {
 
    if (navlevel >= 4 ) {
@@ -182,9 +181,6 @@ void displayphasebars(int score) {
     display.println(phaselevelsL[sublevels[2]]);
     display.display();
 }
-
-
-
 
 void displayModulatedbool(int lesynthb) {
 wavelinemenuBG(lesynthb);

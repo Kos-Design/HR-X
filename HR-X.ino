@@ -189,7 +189,7 @@ const int patternlines = 4 ;
 EXTMEM byte bufferL[512];
 EXTMEM byte bufferR[512];
     
-const int numbofsettinglabels = 11 ;
+const int numbofsettinglabels = 12 ;
 int samplermidichannel = 8 ;
 byte synthmidichannel = 16 ;
 

@@ -13,11 +13,6 @@ float freqtonotes[9*12]= {16.35,17.32,18.35,19.45,20.60,21.83,23.12,24.50,25.96,
                          4186,4435,4699,4978,5274,5588,5920,6272,6645,7040,7459,7902
                          };
 
-
-
-
-
-
 void smixerVpanelAction(){
 
     byte slct = sublevels[3];
@@ -180,8 +175,6 @@ byte slct = sublevels[2];
     //smixerVpanelSelector();
     dodisplay();
 }
-
-
 
 byte getnotefromfreq(float lafreq){
   for (int i = 0 ; i < 9*12 ; i++) {
@@ -454,9 +447,62 @@ for (int i = 0 ; i < 7 ; i++ ) {
 }
 
 
-void displaysettingspanel() {
+void OnBoardVpanelAction(){
   
-   if ( navlevel > 2 && sublevels[1] != 8) {
+}
+
+void OnBoardVpanelSelector(  ) {
+  
+}
+
+void OnBoardVpanel() {
+       
+    OnBoardVpanelAction();
+   /*if (navlevel == 2) {
+     navrange = 6 ;
+    }
+*/
+  byte startlex = 4 ;
+  
+  
+    display.clearDisplay();
+    canvasBIG.fillScreen(SSD1306_BLACK);
+    canvastitle.fillScreen(SSD1306_BLACK);
+    canvastitle.setCursor(0,0);
+    canvastitle.setTextSize(1);
+    canvastitle.print("OnBoard buttons ");
+    //frame
+    canvasBIG.drawRoundRect(2,9,124,55,2, SSD1306_WHITE ) ;
+
+    //pads
+    for (int i = 0 ; i < 16 ; i++ ) {
+      canvasBIG.fillRect((i%4)*13 + 72, ((i/4)%4)*13 + 12 , 10 , 10, SSD1306_WHITE ) ;
+    }
+
+    //switches
+    for (int i = 0 ; i < 18 ; i++ ) {
+      canvasBIG.drawRoundRect((i%9)*7 + 7, (i/9)*7 + 35 , 5 , 5,4, SSD1306_WHITE ) ;
+    }
+    //hdd
+    canvasBIG.drawRoundRect(48, 12 , 19 , 19, 19, SSD1306_WHITE ) ;
+    
+    //pots
+    for (int i = 0 ; i < 9 ; i++ ) {
+      canvasBIG.drawRoundRect((i%3)*7 + 24, (i/3)*7 + 12 , 5 , 5,4, SSD1306_WHITE ) ;
+    }
+    //joystick
+    canvasBIG.drawRoundRect(54, 51 , 10 , 10, 8, SSD1306_WHITE ) ;
+
+    //crossfader
+    canvasBIG.drawRoundRect(18, 53 , 30 , 4, 2, SSD1306_WHITE ) ;
+    
+    OnBoardVpanelSelector();
+    dodisplay();
+}
+
+void displaysettingspanel() {                                                                    
+  
+   if ( navlevel > 2 && sublevels[1] != 8 && sublevels[1] != 11) {
     if ( sublevels[1] == 2 || sublevels[1] == 3 || sublevels[1] == 5 || sublevels[1] == 6 || sublevels[1] == 7 ) {
               
               returntonav(1);
@@ -475,8 +521,8 @@ void displaysettingspanel() {
       makesettingslist();
   dodisplay();
   }
- 
-  if (navlevel == 2 && sublevels[1] != 8) {
+ //2 lines have need this exception for settings menu, find the 2nd
+  if (navlevel == 2 && sublevels[1] != 8 && sublevels[1] != 11) {
         //navrange = 2 ;
 
           switch(sublevels[1]) {
@@ -533,9 +579,7 @@ void displaysettingspanel() {
             }
            // navlevel--;
             break;
-            case 8 :
-            navrange = 8 ;
-            arpegiatorVpanel();
+           //no case for 8 or 11
             
            // navlevel--;
            case 9 :
@@ -550,6 +594,7 @@ void displaysettingspanel() {
             //returntonav(1);
            // navlevel--;
             break;
+
             
             default:
             break;
@@ -562,6 +607,10 @@ void displaysettingspanel() {
      arpegiatorVpanel();
           dodisplay();
   }
+  if (navlevel >= 2 && sublevels[1] == 11 ){  
+     OnBoardVpanel();
+          dodisplay();
+  }
 }
   
 
@@ -569,7 +618,7 @@ void displaysettingspanel() {
 void makesettingslist() {
   char chordslabels[7][12] = {"Major","Minor","Diminished","Augmented","Sus2","Sus4","None"} ;  
   char midichlist[17][4] = {"All","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"};
-  char displaysettingslabels[numbofsettinglabels][24] = {"Echo Midi", "Freeze midi CC", "Synth midi ch", "Sampler midi ch", "Sampler analog touch", "Set Tap note", "Tempo","Chorus","Arpegiator","Ext. Midiclock","Note Spy"};
+  char displaysettingslabels[numbofsettinglabels][24] = {"Echo Midi", "Freeze midi CC", "Synth midi ch", "Sampler midi ch", "Sampler analog touch", "Set Tap note", "Tempo","Chorus","Arpegiator","Ext. Midiclock","Note Spy","OnBoard Knobs"};
    display.clearDisplay();
        canvasBIG.fillScreen(SSD1306_BLACK);
     int startx = 0;
@@ -582,12 +631,13 @@ void makesettingslist() {
     canvastitle.setTextSize(1);
 
     canvastitle.println(textin);
+    
       if (sublevels[1] == 2 ) {
           canvastitle.setCursor(96,0);
           canvastitle.println(midichlist[synthmidichannel]);
           sublevels[2] = (int)synthmidichannel ;
       }
-         if (sublevels[1] == 3 ) {
+      if (sublevels[1] == 3 ) {
           canvastitle.setCursor(96,0);
           canvastitle.println(midichlist[samplermidichannel]);
           sublevels[2] = int(samplermidichannel) ;
@@ -597,13 +647,12 @@ void makesettingslist() {
       canvastitle.println(int(tapnote));
       sublevels[2] = int(tapnote) ;
      }
-
-     if (sublevels[1] == 6 ) {
+      if (sublevels[1] == 6 ) {
       canvastitle.setCursor(96,0);
       canvastitle.println(BPMs,1);
       sublevels[2] = millitickinterval ;
      }
-         if (sublevels[1] == 7 ) {
+      if (sublevels[1] == 7 ) {
       //canvastitle.setCursor(96,0);
       //canvastitle.println(BPMs,1);
       
@@ -612,8 +661,7 @@ void makesettingslist() {
        canvasBIG.setCursor(66,0);
       canvasBIG.println(chordslabels[lasetchord]);
      }
-    
-if (sublevels[1] == 8 ) {
+      if (sublevels[1] == 8 ) {
   canvasBIG.setCursor(96,0);
 if (arpegiatortype !=8){
       canvasBIG.print("On");
@@ -621,8 +669,7 @@ if (arpegiatortype !=8){
       canvasBIG.print("Off");
     }
 }
-     
-  if (sublevels[1] == 9 ) {
+      if (sublevels[1] == 9 ) {
       canvastitle.setCursor(96,0);
       if (externalticker) {
       canvastitle.println("On");
