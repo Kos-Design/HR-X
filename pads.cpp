@@ -20,12 +20,7 @@ char pads4x[4][4] = {
   {'7','8','9','C',},
   {'*','0','#','D',}
 };
-byte notes_pads4x[4][4] = {
-  {65,69,73,77,},
-  {66,70,74,78,},
-  {67,71,75,79},
-  {68,72,76,80}
-};
+
 byte colPins[kCOLS] = {26,27,28,29,33,34}; //connect to the row pinouts of the keypad
 byte rowPins[kROWS] = {35,36,37,38,39,40}; //connect to the column pinouts of the keypad
 bool pads_mode[4][4] ;
@@ -60,27 +55,38 @@ int Pads::check_square_pad(char bitter,bool state){
             if(state) {
               //Serial.println(" pressed ");
                //MaNoteOn(chann, notes_pads4x[erows][ecols], 64);
-               return int(notes_pads4x[erows][ecols]);
+                Serial.println(" ");
+                Serial.print(" row: ");
+                 Serial.print(erows);
+                   Serial.print(" col: ");
+                 Serial.print(ecols);
+               Serial.print(" (1+erows)*(1+ecols) = ");
+                Serial.println((1+erows)*(1+ecols));
+               
+               return int((1+erows)*(1+ecols));
                 }
             else {
                  //Serial.println(" released bit ");
                 //MaNoteOff(chann, notes_pads4x[erows][ecols], 0);
-                return int(-1*notes_pads4x[erows][ecols]);
+                 Serial.print(" -1*((1+erows)*(1+ecols)) = ");
+                Serial.print(-1*((1+erows)*(1+ecols)));
+                return int(-1*((1+erows)*(1+ecols)));
               }
         }
       }
      }
     
-    return -1 ;
+    return 0 ;
   }
 
 int Pads::check_cancel_pad(char bitter,bool state){
   if(bitter=='H'){
       if(state) {
-        Serial.println("back pressed");
+        //Serial.println("back pressed");
         back_pressed = true ;
         return 0 ;
-        } else { Serial.println("back released");}
+        } 
+        //else { Serial.println("back released");}
   }
   return 0;
 }
@@ -91,13 +97,17 @@ int Pads::padloop(){
   bool state;
   while(customKeypad.available()){
     keypadEvent e = customKeypad.read();
-    Serial.print((char)e.bit.KEY);
+    //Serial.print((char)e.bit.KEY);
     if (e.bit.EVENT == KEY_JUST_PRESSED ) {
       state = true;
     } else if(e.bit.EVENT == KEY_JUST_RELEASED) state = false;
     
     check_cancel_pad((char)e.bit.KEY,state) ;
     int result = check_square_pad((char)e.bit.KEY,state);
+         Serial.println(" ");
+         Serial.print(" received ");
+         Serial.print(result);
+                   
     return result ;
     delay(1);
 }

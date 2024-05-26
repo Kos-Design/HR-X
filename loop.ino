@@ -76,10 +76,17 @@ void pseudo303() {
 void loop() {
 pad_result = Pads.padloop();
 if (pad_result > 0) {
-  MaNoteOn(16,pad_result,64);
+  Serial.println(" ");
+  Serial.print(" padloop sent ");
+  Serial.print(pad_result);
+   Serial.print(" pot_assignements @ ");
+    Serial.print(9+pad_result-1);
+    Serial.println(" ");
+  Serial.print(pot_assignements[9+pad_result-1]-allfxes);
+  MaNoteOn(16,(pot_assignements[9+pad_result-1]-allfxes),64);
   //we need note type (ON/OFF) info as well as the note that we get in return
 } else if (pad_result < 0) {
-  MaNoteOff(16,-1*pad_result,0);
+  MaNoteOff(16,(pot_assignements[(-1*pad_result)-1+9]-allfxes),0);
 }
  if (initdone) {
   if (noteprint) {
