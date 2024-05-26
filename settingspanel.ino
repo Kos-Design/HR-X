@@ -446,13 +446,83 @@ for (int i = 0 ; i < 7 ; i++ ) {
     dodisplay();
 }
 
-
+char onboards[46][8] = {"Pot 1","Pot 2","Pot 3","Pot 4","Pot 5","Pot 6","Pot 7","Pot 8","Pot 9","Hdd","Pad 01","Pad 02","Pad 03","Pad 04","Pad 05","Pad 06","Pad 07","Pad 08","Pad 09","Pad 10","Pad 11","Pad 12","Pad 13","Pad 14","Pad 15","Pad 16",
+                        "But 01","But 02","But 03","But 04","But 05","But 06","But 07","But 08","But 09","But 10", "But 11","But 12","But 13","But 14","But 15","But 16","But 17","But 18","Cfd","Jtk"};
+int pot_assignements[46] = {0};
+int notes_assignements[35] = {64};
 void OnBoardVpanelAction(){
-  
+      if (navlevel > 3) {
+     
+   returntonav(2); 
+  }
 }
 
-void OnBoardVpanelSelector(  ) {
+void OnBoardVpanelSelector() {
   
+  int selecta = sublevels[2];
+    
+   
+      //ControlList[allfxes]);
+    //ControlList[allfxes]
+
+   if (navlevel == 2 ) {
+    navrange = 46;
+    sublevels[3] = pot_assignements[sublevels[2]];
+   }
+    
+  if ( selecta < 9 ) {
+    canvasBIG.drawRoundRect((selecta%3)*7 + 22, (selecta/3)*7 + 10 , 9 , 9.,7, SSD1306_WHITE ) ;
+  }
+  if ( selecta == 9 ) {
+    canvasBIG.drawRoundRect(50, 14 , 15 , 15, 15, SSD1306_WHITE ) ;
+  }
+  if (( selecta > 9 ) && ( selecta < 26 )) {
+    canvasBIG.drawRect(((selecta-10)%4)*13 + 70, (((selecta-10)/4)%4)*13 + 10 , 14 , 14, SSD1306_WHITE ) ;
+  }
+  if (( selecta > 25 ) && ( selecta < 44 )) {
+    canvasBIG.drawRoundRect(((selecta-26)%9)*7 + 5, ((selecta-26)/9)*7 + 33 , 9 , 9,9, SSD1306_WHITE ) ;
+ }
+ if ( selecta == 44 ) {
+  canvasBIG.drawRoundRect(16, 51 , 34 , 8, 3, SSD1306_WHITE ) ;
+ }
+ if ( selecta == 45 ) {
+  canvasBIG.drawRoundRect(52, 49 , 14 , 14, 14, SSD1306_WHITE ) ;  
+ }
+ 
+   if (navlevel == 3 ) {
+      navrange = allfxes;
+      sublevels[4] = pot_assignements[sublevels[2]];
+      pot_assignements[sublevels[2]] = sublevels[3];
+      
+   if ( selecta < 9 ) {
+   
+    //canvasBIG.drawRoundRect((selecta%3)*7 + 22, (selecta/3)*7 + 10 , 9 , 9.,7, SSD1306_WHITE ) ;
+  }
+  if ( selecta == 9 ) {
+    
+    //canvasBIG.drawRoundRect(50, 14 , 15 , 15, 15, SSD1306_WHITE ) ;
+  }
+  if (( selecta > 9 ) && ( selecta < 26 )) {
+    // notes_assignements[sublevels[2]] =  ;
+    //canvasBIG.drawRect(((selecta-10)%4)*13 + 70, (((selecta-10)/4)%4)*13 + 10 , 14 , 14, SSD1306_WHITE ) ;
+  }
+  if (( selecta > 25 ) && ( selecta < 44 )) {
+    //canvasBIG.drawRoundRect(((selecta-26)%9)*7 + 5, ((selecta-26)/9)*7 + 33 , 9 , 9,9, SSD1306_WHITE ) ;
+ }
+ if ( selecta == 44 ) {
+  //canvasBIG.drawRoundRect(16, 51 , 34 , 8, 3, SSD1306_WHITE ) ;
+ }
+ if ( selecta == 45 ) {
+  //canvasBIG.drawRoundRect(52, 49 , 14 , 14, 14, SSD1306_WHITE ) ;
+    }
+  }
+  
+   canvastitle.setCursor(0,0);
+    canvastitle.setTextSize(1);
+    canvastitle.print(onboards[selecta]);
+     
+    canvastitle.setCursor(36,0);
+    canvastitle.print(ControlList[pot_assignements[sublevels[2]]]);
 }
 
 void OnBoardVpanel() {
@@ -462,15 +532,10 @@ void OnBoardVpanel() {
      navrange = 6 ;
     }
 */
-  byte startlex = 4 ;
-  
-  
     display.clearDisplay();
     canvasBIG.fillScreen(SSD1306_BLACK);
     canvastitle.fillScreen(SSD1306_BLACK);
-    canvastitle.setCursor(0,0);
-    canvastitle.setTextSize(1);
-    canvastitle.print("OnBoard buttons ");
+
     //frame
     canvasBIG.drawRoundRect(2,9,124,55,2, SSD1306_WHITE ) ;
 
@@ -503,13 +568,9 @@ void OnBoardVpanel() {
 void displaysettingspanel() {                                                                    
   
    if ( navlevel > 2 && sublevels[1] != 8 && sublevels[1] != 11) {
-    if ( sublevels[1] == 2 || sublevels[1] == 3 || sublevels[1] == 5 || sublevels[1] == 6 || sublevels[1] == 7 ) {
-              
-              returntonav(1);
-            
+    if ( sublevels[1] == 2 || sublevels[1] == 3 || sublevels[1] == 5 || sublevels[1] == 6 || sublevels[1] == 7 ) {       
+     returntonav(1);        
     } 
-       
-     
     makesettingslist();
   dodisplay();
             }
@@ -608,6 +669,8 @@ void displaysettingspanel() {
           dodisplay();
   }
   if (navlevel >= 2 && sublevels[1] == 11 ){  
+    //2 selection for joystick
+    
      OnBoardVpanel();
           dodisplay();
   }
