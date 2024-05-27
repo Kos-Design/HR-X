@@ -22,7 +22,7 @@ char pads4x[4][4] = {
 };
 
 byte colPins[kCOLS] = {26,27,28,29,33,34}; //connect to the row pinouts of the keypad
-byte rowPins[kROWS] = {35,36,37,38,39,40}; //connect to the column pinouts of the keypad
+byte rowPins[kROWS] = {38,37,35,36,39,40}; //connect to the column pinouts of the keypad
 bool pads_mode[4][4] ;
 
 //initialize an instance of class NewKeypad
@@ -44,43 +44,9 @@ bool Pads::get_back(){
   };
   return false;
 }
-int Pads::check_square_pad(char bitter,bool state){
-  byte chann = 1;
-      for (int erows = 0 ; erows < 4 ; erows++ ){
-        for (int ecols = 0 ; ecols < 4 ; ecols++ ){
-          if(bitter==pads4x[erows][ecols]) {
-              if (pads_mode[erows][ecols]){
-                chann =  8 ;
-              }
-            if(state) {
-              //Serial.println(" pressed ");
-               //MaNoteOn(chann, notes_pads4x[erows][ecols], 64);
-                Serial.println(" ");
-                Serial.print(" row: ");
-                 Serial.print(erows);
-                   Serial.print(" col: ");
-                 Serial.print(ecols);
-               Serial.print(" (1+erows)*(1+ecols) = ");
-                Serial.println((1+erows)*(1+ecols));
-               
-               return int((1+erows)*(1+ecols));
-                }
-            else {
-                 //Serial.println(" released bit ");
-                //MaNoteOff(chann, notes_pads4x[erows][ecols], 0);
-                 Serial.print(" -1*((1+erows)*(1+ecols)) = ");
-                Serial.print(-1*((1+erows)*(1+ecols)));
-                return int(-1*((1+erows)*(1+ecols)));
-              }
-        }
-      }
-     }
-    
-    return 0 ;
-  }
 
 int Pads::check_cancel_pad(char bitter,bool state){
-  if(bitter=='H'){
+  if(bitter=='L'){
       if(state) {
         //Serial.println("back pressed");
         back_pressed = true ;
@@ -91,7 +57,7 @@ int Pads::check_cancel_pad(char bitter,bool state){
   return 0;
 }
  
-int Pads::padloop(){
+PadResult Pads::padloop(){
   // put your main code here, to run repeatedly:
   customKeypad.tick();
   bool state;
@@ -99,17 +65,17 @@ int Pads::padloop(){
     keypadEvent e = customKeypad.read();
     //Serial.print((char)e.bit.KEY);
     if (e.bit.EVENT == KEY_JUST_PRESSED ) {
+   
       state = true;
     } else if(e.bit.EVENT == KEY_JUST_RELEASED) state = false;
     
     check_cancel_pad((char)e.bit.KEY,state) ;
-    int result = check_square_pad((char)e.bit.KEY,state);
-         Serial.println(" ");
-         Serial.print(" received ");
-         Serial.print(result);
-                   
+    PadResult result = {e.bit.ROW,e.bit.COL,byte(state)};
+             if ((result.pad_result[0] > 3) || (result.pad_result[1] > 3)) {
+              
+             }
     return result ;
     delay(1);
 }
-return 0;
+return (PadResult){(byte)99,(byte)99,(byte)99};
 }

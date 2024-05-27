@@ -500,7 +500,7 @@ void OnBoardVpanelSelector() {
 
   if (( selecta > 9 ) && ( selecta < 44 )) {
     if ( selecta < 25 ) {
-    notes_pads4x[(selecta-9)%4][((selecta-9)/4)] = pot_assignements[sublevels[2]];
+    //notes_pads4x[(selecta-9)%4][((selecta-9)/4)] = pot_assignements[sublevels[2]];
     }
     navrange = allfxes + 128 ;
     //canvasBIG.drawRoundRect(((selecta-26)%9)*7 + 5, ((selecta-26)/9)*7 + 33 , 9 , 9,9, SSD1306_WHITE ) ;

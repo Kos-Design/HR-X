@@ -62,11 +62,13 @@ unsigned long latimeline ;
 
 // unsigned long tickerf = millis();  ;
 
-byte notes_pads4x[4][4] = {
-  {65,69,73,77,},
-  {66,70,74,78,},
-  {67,71,75,79},
-  {68,72,76,80}
+char arranged_buttons[6][6] = {
+  {1,5,9,13,28,19,},
+  {2,6,10,14,27,18,},
+  {3,7,11,15,26,17,},
+  {4,8,12,16,35,36,},
+  {34,33,32,31,30,29,},
+  {25,24,23,22,21,20}
 };
 int pot_assignements[46] = {0};
 bool recorderstop;
