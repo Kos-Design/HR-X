@@ -459,12 +459,7 @@ void OnBoardVpanelAction(){
 void OnBoardVpanelSelector() {
   
   int selecta = sublevels[2];
-    
-   
-      //ControlList[allfxes]);
-    //ControlList[allfxes]
-
-   if (navlevel == 2 ) {
+    if (navlevel == 2 ) {
     navrange = 46;
     sublevels[3] = pot_assignements[sublevels[2]];
    }
@@ -489,29 +484,23 @@ void OnBoardVpanelSelector() {
  }
  
    if (navlevel == 3 ) {
-      //navrange = allfxes;
       sublevels[4] = pot_assignements[sublevels[2]];
       pot_assignements[sublevels[2]] = sublevels[3];
       
    if ( selecta <= 9 ) {
    navrange = allfxes;
-    //canvasBIG.drawRoundRect((selecta%3)*7 + 22, (selecta/3)*7 + 10 , 9 , 9.,7, SSD1306_WHITE ) ;
-  }
+     }
 
   if (( selecta > 9 ) && ( selecta < 44 )) {
     if ( selecta < 25 ) {
-    //notes_pads4x[(selecta-9)%4][((selecta-9)/4)] = pot_assignements[sublevels[2]];
     }
     navrange = allfxes + 127 ;
-    //canvasBIG.drawRoundRect(((selecta-26)%9)*7 + 5, ((selecta-26)/9)*7 + 33 , 9 , 9,9, SSD1306_WHITE ) ;
  }
  if ( selecta == 44 ) {
   navrange = allfxes;
-  //canvasBIG.drawRoundRect(16, 51 , 34 , 8, 3, SSD1306_WHITE ) ;
  }
  if ( selecta == 45 ) {
   navrange = allfxes;
-  //canvasBIG.drawRoundRect(52, 49 , 14 , 14, 14, SSD1306_WHITE ) ;
     }
     if (( selecta <= 9 ) || ( selecta >= 44 )) {
       midiknobassigned[pot_assignements[sublevels[2]]]= pot_assignements[sublevels[2]];
@@ -533,10 +522,6 @@ void OnBoardVpanelSelector() {
 void OnBoardVpanel() {
        
     OnBoardVpanelAction();
-   /*if (navlevel == 2) {
-     navrange = 6 ;
-    }
-*/
     display.clearDisplay();
     canvasBIG.fillScreen(SSD1306_BLACK);
     canvastitle.fillScreen(SSD1306_BLACK);

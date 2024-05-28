@@ -90,7 +90,12 @@ Pads.begin();
   }
   
   
-  //
+ 
+for (int i = 0 ; i<128 ; i++ ) {
+  
+midiknobassigned[i] = 0;
+}
+
   pseudoconsole((char*)"I/O Set !");
    pseudoconsole((char*)"Loading Defaults");
     setupdefaultvalues();
@@ -102,10 +107,6 @@ Serial.println("done3");
 //delay(100);
 //midiknobassigned[16]=2;
 
-for (int i = 0 ; i<128 ; i++ ) {
-  
-midiknobassigned[i] = 0;
-}
 
 //parsefile(3);
 //Volume

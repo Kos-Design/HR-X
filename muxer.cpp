@@ -19,7 +19,7 @@ int Muxer::read_val(int iterer) {
   delay(5);
   val = analogRead(g_common_pin);
    //return val ;
-  if (( val > pots_previous[iterer] + 2 ) || ( val < pots_previous[iterer] - 2 )) {
+  if (( val > pots_previous[iterer] + 4 ) || ( val < pots_previous[iterer] - 4 )) {
             pots_previous[iterer] = val ;
             return val ;
           }

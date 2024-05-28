@@ -71,9 +71,7 @@ PadResult Pads::padloop(){
     
     check_cancel_pad((char)e.bit.KEY,state) ;
     PadResult result = {e.bit.ROW,e.bit.COL,byte(state)};
-             if ((result.pad_result[0] > 3) || (result.pad_result[1] > 3)) {
-              
-             }
+             
     return result ;
     delay(1);
 }

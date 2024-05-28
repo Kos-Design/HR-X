@@ -197,7 +197,16 @@ for (int i = 0; i< fxiterations ; i++ ) {
   MasterR.gain(0,1);
 
    AudioNoInterrupts();
+for (int i = 0; i < 46 ; i++) {
+  pot_assignements[i]=i+allfxes+55 ;
 
+if (( i <= 9 ) || ( i >= 45 )) {
+  pot_assignements[i] = i ;
+      midiknobassigned[pot_assignements[i]] = pot_assignements[i];
+    }
+}
+pot_assignements[35] = 64 ;
+pot_assignements[44] = allfxes + 64 ;
 
 
 
