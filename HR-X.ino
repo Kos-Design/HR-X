@@ -1,5 +1,6 @@
 
-
+#include "muxer.h"
+Muxer Muxer;
 
 #include <Metro.h>
 //int startccrecordpos;
@@ -548,8 +549,6 @@ float filterzoctv[fxiterations] ;
 
 int filterzrange = 14000 ;
 
-#include "muxer.h"
-Muxer Muxer;
 
 const int mainfxlines = 3;
 

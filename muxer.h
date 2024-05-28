@@ -5,9 +5,8 @@
 class Muxer {
   public:
     Muxer();
-    void loopy();
     void start();
-    void read_val(int iterat);  
+    int read_val(int iterer);  
 
   private:
 

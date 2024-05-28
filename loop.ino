@@ -74,26 +74,16 @@ void pseudo303() {
   
 }
 
-
+byte itr = 0;
+int c_change ;
 void loop() {
 PadResult pad_result = Pads.padloop();
 int paddered = arranged_buttons[pad_result.pad_result[0]][pad_result.pad_result[1]] ;
-if (pad_result.pad_result[2] == 0 ) {
-  Serial.println(" ");
-  Serial.print(" padloop sent ");
-  Serial.print(pad_result.pad_result[0]);
-   Serial.print(" , ");
-     Serial.print(pad_result.pad_result[1]);
-   Serial.print(" = ");
-  Serial.print(paddered);
+//36 is the cancel button, should not trigger another note or control.
+if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
    
-   Serial.print(" pot_assignements @ ");
-    Serial.print(10+paddered-1);
-    Serial.println(" ");
-  Serial.print(pot_assignements[9+paddered]-allfxes);
   MaNoteOn(16,(pot_assignements[9+paddered]-allfxes),64);
-  //we need note type (ON/OFF) info as well as the note that we get in return
-} else if (pad_result.pad_result[2] == 1 ) {
+} else if ((pad_result.pad_result[2] == 0 ) && (paddered != 36)) {
   MaNoteOff(16,(pot_assignements[(paddered)+9]-allfxes),0);
 }
  if (initdone) {
@@ -122,7 +112,30 @@ if (pad_result.pad_result[2] == 0 ) {
   //usbhost queries
    loopmidihost();
   loopusbHub();
-  Muxer.loopy();
+  
+    if (( millis() % 10 ) == 0) {
+     c_change = Muxer.read_val(itr);
+     if ((c_change > 0 ) && (pot_assignements[itr] != 0)) {
+            
+      Serial.println(" ");
+      Serial.print("pot ");
+      Serial.print(itr);
+      Serial.print(" received ");
+      Serial.print(c_change);
+      Serial.print(" = ");
+      Serial.print((byte)((c_change/1024.0)*128));
+      Serial.print(" assigned to ");
+      Serial.print((byte)pot_assignements[itr]);
+      Serial.print(" = ");
+      Serial.print(ControlList[(byte)pot_assignements[itr]]);
+      
+      MaControlChange(16, (byte)pot_assignements[itr], (byte)((c_change/1024.0)*128)) ;
+     }
+    }
+     itr++;
+     if (itr >= 9 ) {
+      itr = 1 ;  
+     }
 }
 
 

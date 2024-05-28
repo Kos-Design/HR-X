@@ -502,7 +502,7 @@ void OnBoardVpanelSelector() {
     if ( selecta < 25 ) {
     //notes_pads4x[(selecta-9)%4][((selecta-9)/4)] = pot_assignements[sublevels[2]];
     }
-    navrange = allfxes + 128 ;
+    navrange = allfxes + 127 ;
     //canvasBIG.drawRoundRect(((selecta-26)%9)*7 + 5, ((selecta-26)/9)*7 + 33 , 9 , 9,9, SSD1306_WHITE ) ;
  }
  if ( selecta == 44 ) {
@@ -513,6 +513,9 @@ void OnBoardVpanelSelector() {
   navrange = allfxes;
   //canvasBIG.drawRoundRect(52, 49 , 14 , 14, 14, SSD1306_WHITE ) ;
     }
+    if (( selecta <= 9 ) || ( selecta >= 44 )) {
+      midiknobassigned[pot_assignements[sublevels[2]]]= pot_assignements[sublevels[2]];
+    }
   }
   
    canvastitle.setCursor(0,0);
@@ -520,7 +523,7 @@ void OnBoardVpanelSelector() {
     canvastitle.print(onboards[selecta]);
      
     canvastitle.setCursor(42,0);
-    if (pot_assignements[sublevels[2]] < allfxes ) {
+    if (pot_assignements[sublevels[2]] <= allfxes ) {
     canvastitle.print(ControlList[pot_assignements[sublevels[2]]]);
     } else { canvastitle.print("Note ");
       canvastitle.print(pot_assignements[sublevels[2]]-allfxes);

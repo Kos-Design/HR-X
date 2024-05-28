@@ -8,8 +8,8 @@ short getNewavailableliner(){
        //Serial.println("note available");
      if (patrecord) {
      if ( i+offsetliner < nombreofliners) {
-      Serial.print("playing lineroffset");
-      Serial.println(offsetliner);
+      //Serial.print("playing lineroffset");
+     // Serial.println(offsetliner);
       return i+offsetliner;
      }
     } else {
@@ -1290,10 +1290,12 @@ void MaControlChange(byte channel, byte control, byte value) {
  //Serial.print("Control Change, ch=");
  // Serial.print(lechannel);
  if (stoptick){
+  
   Serial.print("CC=");
  Serial.print(control);
  Serial.print(" V=");
    Serial.println(value);
+   
  }
        
   if ( (patrecord || recordCC) && !stoptick && !isignored ) {
