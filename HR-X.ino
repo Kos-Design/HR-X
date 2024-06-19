@@ -1,7 +1,7 @@
 
 #include "muxer.h"
 Muxer Muxer;
-
+//adcHighPassFilterDisable();
 #include <Metro.h>
 //int startccrecordpos;
 //int stopccrecordpos;

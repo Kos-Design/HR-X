@@ -88,7 +88,11 @@ Pads.begin();
 
     pinMode(inputpins[i] , INPUT_PULLUP);
   }
-  
+  /*
+   pinMode(A0, INPUT);
+   pinMode(A2, INPUT);
+   pinMode(A3, INPUT); 
+   */
   
  
 for (int i = 0 ; i<128 ; i++ ) {

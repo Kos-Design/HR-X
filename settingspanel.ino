@@ -460,7 +460,7 @@ void OnBoardVpanelSelector() {
   
   int selecta = sublevels[2];
     if (navlevel == 2 ) {
-    navrange = 46;
+    navrange = 45;
     sublevels[3] = pot_assignements[sublevels[2]];
    }
     

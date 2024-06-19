@@ -74,7 +74,7 @@ void pseudo303() {
   
 }
 
-byte itr = 1;
+byte itr = 0;
 int c_change ;
 int cc_note_num ;
 void loop() {
@@ -126,9 +126,15 @@ if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
     if (( millis() % 10 ) == 0) {
      c_change = Muxer.read_val(itr);
      if ((c_change > 0 ) && (pot_assignements[itr] != 0)) {
-            /*
+      if (itr < 16 ) {
+   
+      MaControlChange(16, (byte)pot_assignements[itr], (byte)((c_change/1024.0)*128)) ;
+     }
+     //10&12 joystick
+     
+     // if ((itr !=11) && (itr !=13) && (itr !=14) && (itr !=15) ){
       Serial.println(" ");
-      Serial.print("pot ");
+      Serial.print("mux ");
       Serial.print(itr);
       Serial.print(" received ");
       Serial.print(c_change);
@@ -138,17 +144,16 @@ if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
       Serial.print((byte)pot_assignements[itr]);
       Serial.print(" = ");
       Serial.print(ControlList[(byte)pot_assignements[itr]]);
-      */
-      MaControlChange(16, (byte)pot_assignements[itr], (byte)((c_change/1024.0)*128)) ;
-     }
+     
+    // }
     }
      itr++;
-     if (itr >= 9 ) {
-      itr = 1 ;  
+     if (itr >= 16 ) {
+      itr = 0 ;  
      }
 }
-
-
+//hdd_check();
+}
 
 void printit() {
   Serial.print(" navrange: ");
