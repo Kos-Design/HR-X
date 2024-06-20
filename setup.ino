@@ -112,6 +112,10 @@ Serial.println("done3");
 //midiknobassigned[16]=2;
 
 
+//const int myInput = AUDIO_INPUT_LINEIN;
+//const int myInput = AUDIO_INPUT_MIC;
+audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+
 //parsefile(3);
 //Volume
 midiknobassigned[91]=2;

@@ -71,7 +71,7 @@ char arranged_buttons[6][6] = {
   {34,33,32,31,30,29,},
   {25,24,23,22,21,20}
 };
-int pot_assignements[46] = {0};
+int pot_assignements[46] = {10};
 bool recorderstop;
 bool recorderrecord;
 bool recorderplay;

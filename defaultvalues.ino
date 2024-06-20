@@ -93,6 +93,7 @@ void setupdefaultvalues() {
   initializefxmoduleisconnected();
 
    audioShield.enable();
+   
   audioShield.volume(1);
  // audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 
@@ -213,6 +214,8 @@ pot_assignements[44] = allfxes + 64 ;
 //USB Line in
 InMixL.gain(0,1);
 InMixR.gain(0,1);
+InMixL.gain(1,.7);
+InMixR.gain(1,.7);
   //LineIn
   LineInPreAmpL.gain(1);
   LineInPreAmpR.gain(1);

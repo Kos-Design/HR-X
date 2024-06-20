@@ -124,14 +124,16 @@ if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
   loopusbHub();
   
     if (( millis() % 10 ) == 0) {
+      
      c_change = Muxer.read_val(itr);
-     if ((c_change > 0 ) && (pot_assignements[itr] != 0)) {
-      if (itr < 16 ) {
+     if (c_change > 0 )  {
+      if (itr < 15 ) {
    
       MaControlChange(16, (byte)pot_assignements[itr], (byte)((c_change/1024.0)*128)) ;
-     }
-     //10&12 joystick
-     
+     /*
+     //10 & 12 = joystick
+     //11,13,14 = equalizer faders
+     //15 = crossfader
      // if ((itr !=11) && (itr !=13) && (itr !=14) && (itr !=15) ){
       Serial.println(" ");
       Serial.print("mux ");
@@ -144,8 +146,8 @@ if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
       Serial.print((byte)pot_assignements[itr]);
       Serial.print(" = ");
       Serial.print(ControlList[(byte)pot_assignements[itr]]);
-     
-    // }
+     */
+     }
     }
      itr++;
      if (itr >= 16 ) {
