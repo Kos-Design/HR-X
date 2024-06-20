@@ -268,7 +268,7 @@ display.setTextSize(1); // Draw 1X-scale text
         setwavetypefromlist(lesinthy, Waveformstyped[lesinthy]);
         if ( Waveformstyped[lesinthy] == 11) {
     
-          mixlevelsL[lesinthy] = 0 ;
+          mixlevelsL[lesinthy] = 0.0 ;
          
            setwavemixlevel(lesinthy);
         }

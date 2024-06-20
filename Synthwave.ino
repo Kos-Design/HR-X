@@ -569,13 +569,9 @@ xcentershifter = (knobradius * 2 ) + 6 ;
 
 void setwavemixlevel(int lesynth) {
   AudioNoInterrupts();
-
   for (int j = 0; j<8 ; j++ ) {
-Wavesmix[j]->gain(lesynth, mixlevelsL[lesynth]);
-
-
-}
-  
+  Wavesmix[j]->gain(lesynth, mixlevelsL[lesynth]);
+  }
   AudioInterrupts();
 }
 void actionwet1mixer(int linstru) {

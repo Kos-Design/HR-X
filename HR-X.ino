@@ -503,7 +503,7 @@ const char ControlList[allfxes][23] PROGMEM = {
   "Free", "Free", "Free", "Wfreq4", "Pan 4", "Phase4"
   };
   
-float WetMixMasters[4] = {1,0,0,0};
+float WetMixMasters[4] = {1.0,0.0,0.0,0.0};
 
 
 
