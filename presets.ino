@@ -260,7 +260,7 @@ void writesynthpreset() {
    for (int i = 0 ; i<3; i++ ) {
   INTinsertmytxtfile( moduleonfxline[i][0],"effect");
     }
-
+     
   for (int i = 0 ; i<4 ; i++ ) {
     FLOATinsertmytxtfile(WetMixMasters[i],"wetmixes");
     FLOATinsertmytxtfile(mixlevelsL[i],"mixlevelsL");
@@ -285,7 +285,10 @@ void writesynthpreset() {
   }
 
 
-
+   for (int i = 0 ; i<46 ; i++ ) {
+    INTinsertmytxtfile(pot_assignements[i],"pot_assigned");
+    }
+    
    for (int i = 0 ; i<128 ; i++ ) {
   INTinsertmytxtfile(midiknobassigned[i],"Midiknobassigned");
   INTinsertmytxtfile(Sampleassigned[i],"Sampleassigned");
@@ -320,7 +323,8 @@ void writesynthpreset() {
      }
      
   }
-
+ 
+ 
 }
 
 void INTinsertmytxtfile(int leint, char* leparam ) {
@@ -512,7 +516,9 @@ for (int i = 0 ; i<3 ; i++ ) {
  moduleonfxline[i][0] = parser.Read_Int16();
  
  }
+ 
 
+ 
 for (int i = 0 ; i<4 ; i++ ) {
   parser.Read_String('#'); 
   parser.Skip(1); 
@@ -583,6 +589,12 @@ for (int i = 0 ; i<6 ; i++ ) {
   adsrlevels[i]= parser.Read_Int16();
    
 }
+for (int i = 0 ; i<46 ; i++ ) {
+  parser.Read_String('#'); 
+  parser.Skip(1); 
+  pot_assignements[i] = parser.Read_Int16();
+  
+ }
 for (int i = 0 ; i<128; i++ ) {
   parser.Read_String('#'); 
   parser.Skip(1); 
