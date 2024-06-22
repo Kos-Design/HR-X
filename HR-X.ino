@@ -60,9 +60,9 @@ const int pbars = 32 ;
 //not sure if used
 unsigned long latimeline ;
  //unsigned long latimelineshifter = ((60000/19200)*pbars) ;
-
+bool SendMidiOut ;
 // unsigned long tickerf = millis();  ;
-
+#include <MIDIUSB.h>
 char arranged_buttons[6][6] = {
   {1,5,9,13,28,19,},
   {2,6,10,14,27,18,},
@@ -71,7 +71,7 @@ char arranged_buttons[6][6] = {
   {34,33,32,31,30,29,},
   {25,24,23,22,21,20}
 };
-int pot_assignements[46] = {10};
+int pot_assignements[49] = {10};
 bool recorderstop;
 bool recorderrecord;
 bool recorderplay;
@@ -197,7 +197,7 @@ const int patternlines = 4 ;
 EXTMEM byte bufferL[512];
 EXTMEM byte bufferR[512];
     
-const int numbofsettinglabels = 12 ;
+const int numbofsettinglabels = 14 ;
 int samplermidichannel = 8 ;
 byte synthmidichannel = 16 ;
 
@@ -319,9 +319,7 @@ byte fffnote ;
 
 GFXcanvas1 canvasBIG(128, 64);
 GFXcanvas1 canvasBIG2(128, 64);
-
-//char lemot[13];
-//issues with the sd reader on the audio board, using native sd slot instead
+// SD on audio board
 #define SDCARD_CS_PIN    10
 #define SDCARD_MOSI_PIN  7
 #define SDCARD_SCK_PIN   14
@@ -346,7 +344,6 @@ int numTabs = 0 ;
 #define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 //Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire2, OLED_RESET);
 
-#define NUMFLAKES     10 // Number of snowflakes in the animation example
 
 #define LOGO_HEIGHT   32
 #define LOGO_WIDTH    64
@@ -492,7 +489,7 @@ const char ControlList[allfxes][23] PROGMEM = {
 //80
    "reverbVknobs[i][0]", "reverbVknobs[i][1]", "bitcrusherVknobs[i][0]", "bitcrusherVknobs[i][1]", "mixfilterVknobs[i][0]", "mixfilterVknob[i][2]", "mixfilterVknob[i][2]", "filterVknob[i][0]", "filterVknobs[i][1]", "filterVknobs[i][2]",
 //90
-   "flangerVknob[i][0]", "flangerVknob[i][1]", "flangerVknob[i][2]", "delayVknobs[i][0]", "delayVknobs[i][1]", "delayVknobs[i][2]", "bqtype[i][bqstage]", "Free", "Free", "Free", 
+   "flangerVknob[i][0]", "flangerVknob[i][1]", "flangerVknob[i][2]", "delayVknobs[i][0]", "delayVknobs[i][1]", "delayVknobs[i][2]", "bqtype[i][bqstage]", "Audio In level", "Free", "Free", 
 //100
   "Pat. Save", "Pat. Load", "Free", "Free", "Free", "Phase1", "Wtype2", "Wmix2", "Free", "Free", "Free",
 //110

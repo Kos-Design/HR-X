@@ -25,7 +25,10 @@ int fakeselector(float smallv , int maxrange) {
 void controlswitcher(int caser, int valu) {
 
  smallfloat = valu/1023.0;
-
+  if ((SendMidiOut) && (caser < 128 )){
+    MidiUSB.sendMIDI({0x0B, 0xB0 | 16 , caser, smallfloat*128});
+    MidiUSB.flush();
+  }
          switch (caser) {
 
             case 0 :
@@ -553,7 +556,9 @@ void controlswitcher(int caser, int valu) {
           break;
 
            case 97 :
-         
+           //Audio In level
+             InMixL.gain(1,smallfloat);
+              InMixR.gain(1,smallfloat);
           break;
 
           case 98 :

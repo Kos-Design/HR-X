@@ -219,7 +219,11 @@ void MaNoteOn(byte channel, byte data1, byte data2) {
      // Serial.println("Sampler On ");
     playFlashsample((byte)samplermidichannel, data1, data2);
     }
-  
+  if (SendMidiOut){
+    Serial.println("sending Note On");
+    MidiUSB.sendMIDI({0x09, 0x90 | channel,data1,data2});
+    MidiUSB.flush();
+  }
  }
 void allarpegeoffs() {
       for (int i = 0 ; i < nombreofliners ; i++ ) {
@@ -621,7 +625,12 @@ void MaNoteOff(byte channel, byte data1, byte data2) {
       Serial.print(channel, DEC);
       Serial.print(", N=");
       Serial.println(data1, DEC);
-   
+     
+     if (SendMidiOut){
+    Serial.println("sending Note Off");
+       MidiUSB.sendMIDI({0x08, 0x80 | channel,data1,data2});
+        MidiUSB.flush();
+  }
       if (!arpegiatorOn) {
       if (!chordson ) {
         shutlineroff(data1);

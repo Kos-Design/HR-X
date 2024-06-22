@@ -119,11 +119,7 @@ backed = Pads.get_back() ;
     vraipos = sublevels[navlevel];
     myEnc.write(sublevels[navlevel]*4);
 
-        lemenuroot();
-         
-   
-   
-   
+        lemenuroot();   
   }
 
  

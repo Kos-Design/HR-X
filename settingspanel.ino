@@ -1,7 +1,7 @@
 char usnotes[12][4] = {"C","C#","D", "Eb","E", "F", "F#","G", "G#","A", "Bb","B"};
 
 char eunotes[12][4] = {"Do","Do#","Re", "Mib","Mi", "Fa", "Fa#","Sol", "Sol#","La", "Sib","Si"};
-
+bool AudioInSource;
 float freqtonotes[9*12]= {16.35,17.32,18.35,19.45,20.60,21.83,23.12,24.50,25.96,27.50,29.14,30.87,
                          32.70,34.65,36.71,38.89,41.20,43.65,46.25,49.00,51.91,55.00,58.27,61.74,
                          65.41,69.30,73.42,77.78,82.41,87.31,92.50,98.00,103.8,110.0,116.5,123.5,
@@ -446,8 +446,8 @@ for (int i = 0 ; i < 7 ; i++ ) {
     dodisplay();
 }
 
-char onboards[46][8] = {"Pot 1","Pot 2","Pot 3","Pot 4","Pot 5","Pot 6","Pot 7","Pot 8","Pot 9","Hdd","Pad 01","Pad 02","Pad 03","Pad 04","Pad 05","Pad 06","Pad 07","Pad 08","Pad 09","Pad 10","Pad 11","Pad 12","Pad 13","Pad 14","Pad 15","Pad 16",
-                        "But 01","But 02","But 03","But 04","But 05","But 06","But 07","But 08","But 09","But 10", "But 11","But 12","But 13","But 14","But 15","But 16","But 17","But 18","Cfd","Jtk"};
+char onboards[49][8] = {"Pot 1","Pot 2","Pot 3","Pot 4","Pot 5","Pot 6","Pot 7","Pot 8","Pot 9","Fdr 01","Fdr 02","Fdr 03","Pad 01","Pad 02","Pad 03","Pad 04","Pad 05","Pad 06","Pad 07","Pad 08","Pad 09","Pad 10","Pad 11","Pad 12","Pad 13","Pad 14","Pad 15","Pad 16",
+                        "But 01","But 02","But 03","But 04","But 05","But 06","But 07","But 08","But 09","But 10", "But 11","But 12","But 13","But 14","But 15","But 16","But 17","But 18","Cfd","Jk X","Jk Y"};
 
 void OnBoardVpanelAction(){
       if (navlevel > 3) {
@@ -457,30 +457,46 @@ void OnBoardVpanelAction(){
 }
 
 void OnBoardVpanelSelector() {
-  
+  // reshift all indexes (faders + joystick X & Y) !!!
   int selecta = sublevels[2];
     if (navlevel == 2 ) {
-    navrange = 45;
+    navrange = 48;
     sublevels[3] = pot_assignements[sublevels[2]];
    }
     
   if ( selecta < 9 ) {
     canvasBIG.drawRoundRect((selecta%3)*7 + 22, (selecta/3)*7 + 10 , 9 , 9.,7, SSD1306_WHITE ) ;
   }
-  if ( selecta == 9 ) {
-    canvasBIG.drawRoundRect(50, 14 , 15 , 15, 15, SSD1306_WHITE ) ;
+  if ( (selecta >= 9 ) && (selecta < 12 )){
+   
+        canvasBIG.drawRoundRect(46+((selecta-9)*8), 10 , 8 , 23, 3, SSD1306_WHITE ) ;
+    
   }
-  if (( selecta > 9 ) && ( selecta < 26 )) {
-    canvasBIG.drawRect(((selecta-10)%4)*13 + 70, (((selecta-10)/4)%4)*13 + 10 , 14 , 14, SSD1306_WHITE ) ;
+  if (( selecta > 11 ) && ( selecta < 28 )) {
+    canvasBIG.drawRect(((selecta-12)%4)*13 + 70, (((selecta-12)/4)%4)*13 + 10 , 14 , 14, SSD1306_WHITE ) ;
   }
-  if (( selecta > 25 ) && ( selecta < 44 )) {
-    canvasBIG.drawRoundRect(((selecta-26)%9)*7 + 5, ((selecta-26)/9)*7 + 33 , 9 , 9,9, SSD1306_WHITE ) ;
+  if (( selecta > 27 ) && ( selecta < 46 )) {
+    canvasBIG.drawRoundRect(((selecta-28)%9)*7 + 5, ((selecta-28)/9)*7 + 33 , 9 , 9,9, SSD1306_WHITE ) ;
  }
- if ( selecta == 44 ) {
+ if ( selecta == 46 ) {
   canvasBIG.drawRoundRect(16, 51 , 34 , 8, 3, SSD1306_WHITE ) ;
  }
- if ( selecta == 45 ) {
-  canvasBIG.drawRoundRect(52, 49 , 14 , 14, 14, SSD1306_WHITE ) ;  
+ if ( selecta == 47 ) {
+   canvasBIG.setCursor(57,52);
+    canvasBIG.setTextSize(1);
+    canvasBIG.print("X");
+    
+  //canvasBIG.drawCircleHelper(52, 49, 12, 2, SSD1306_WHITE);
+  //canvasBIG.drawLine(52, 49, 52, 53, SSD1306_WHITE);
+  //canvasBIG.drawRoundRect(52, 49 , 14 , 14, 14, SSD1306_WHITE ) ;  
+ }
+ if ( selecta == 48 ) {
+  canvasBIG.setCursor(57,52);
+    canvasBIG.setTextSize(1);
+    canvasBIG.print("Y");
+  //canvasBIG.drawCircleHelper(52, 49, 10, 1, SSD1306_WHITE);
+  //canvasBIG.drawLine(52, 49, 66, 49, SSD1306_WHITE);
+  //canvasBIG.drawRoundRect(52, 49 , 14 , 14, 14, SSD1306_WHITE ) ;  
  }
  
    if (navlevel == 3 ) {
@@ -538,15 +554,17 @@ void OnBoardVpanel() {
     for (int i = 0 ; i < 18 ; i++ ) {
       canvasBIG.drawRoundRect((i%9)*7 + 7, (i/9)*7 + 35 , 5 , 5,4, SSD1306_WHITE ) ;
     }
-    //hdd
-    canvasBIG.drawRoundRect(48, 12 , 19 , 19, 19, SSD1306_WHITE ) ;
+    //faders
+    canvasBIG.drawRoundRect(48, 12 , 4 , 19, 2, SSD1306_WHITE ) ;
+    canvasBIG.drawRoundRect(56, 12 , 4 , 19, 2, SSD1306_WHITE ) ;
+    canvasBIG.drawRoundRect(64, 12 , 4 , 19, 2, SSD1306_WHITE ) ;
     
     //pots
     for (int i = 0 ; i < 9 ; i++ ) {
       canvasBIG.drawRoundRect((i%3)*7 + 24, (i/3)*7 + 12 , 5 , 5,4, SSD1306_WHITE ) ;
     }
     //joystick
-    canvasBIG.drawRoundRect(54, 51 , 10 , 10, 8, SSD1306_WHITE ) ;
+    canvasBIG.drawCircle(59, 55 , 5 , SSD1306_WHITE ) ;
 
     //crossfader
     canvasBIG.drawRoundRect(18, 53 , 30 , 4, 2, SSD1306_WHITE ) ;
@@ -646,6 +664,25 @@ void displaysettingspanel() {
            // navlevel--;
             break;
 
+            case 12 :
+            //navrange = 8 ;
+           AudioInSource = !AudioInSource;
+           if (AudioInSource ) {
+            audioShield.inputSelect(AUDIO_INPUT_MIC);
+           } else {
+            audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+           }
+            returntonav(1);
+           // navlevel--;
+            break;
+            
+            case 13 :
+        
+           SendMidiOut = !SendMidiOut;
+           returntonav(1);
+           // navlevel--;
+            break;
+
             
             default:
             break;
@@ -669,7 +706,7 @@ void displaysettingspanel() {
 void makesettingslist() {
   char chordslabels[7][12] = {"Major","Minor","Diminished","Augmented","Sus2","Sus4","None"} ;  
   char midichlist[17][4] = {"All","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16"};
-  char displaysettingslabels[numbofsettinglabels][24] = {"Echo Midi", "Freeze midi CC", "Synth midi ch", "Sampler midi ch", "Sampler analog touch", "Set Tap note", "Tempo","Chorus","Arpegiator","Ext. Midiclock","Note Spy","OnBoard Knobs"};
+  char displaysettingslabels[numbofsettinglabels][24] = {"Echo Midi", "Freeze midi CC", "Synth midi ch", "Sampler midi ch", "Sampler analog touch", "Set Tap note", "Tempo","Chorus","Arpegiator","Ext. Midiclock","Note Spy","OnBoard Knobs","Audio Source","Midi Out"};
    display.clearDisplay();
        canvasBIG.fillScreen(SSD1306_BLACK);
     int startx = 0;
@@ -729,7 +766,25 @@ if (arpegiatortype !=8){
       }
      canvasBIG.setTextSize(1);
   }
-  
+  if (sublevels[1] == 12 ) {
+      canvastitle.setCursor(96,0);
+      if (AudioInSource) {
+      canvastitle.println("Mic");
+      } else {
+         canvastitle.println("Line");   
+      }
+     //canvasBIG.setTextSize(1);
+  }
+
+  if (sublevels[1] == 13 ) {
+      canvastitle.setCursor(96,0);
+      if (SendMidiOut) {
+      canvastitle.println("On");
+      } else {
+         canvastitle.println("Off");   
+      }
+     //canvasBIG.setTextSize(1);
+  }
   
     for (int filer = 0 ; filer < numbofsettinglabels-1 -(sublevels[1]) ; filer++) {
 
