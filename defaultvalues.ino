@@ -199,12 +199,15 @@ for (int i = 0; i< fxiterations ; i++ ) {
 
    AudioNoInterrupts();
 for (int i = 0; i < 49 ; i++) {
+  
+
+if (!(( i <= 11 ) || ( i >= 46 ))) {
   pot_assignements[i]=i+128+30 ;
-/*
-if (( i <= 11 ) || ( i >= 46 )) {
-  pot_assignements[i] = i ;
-      midiknobassigned[pot_assignements[i]] = pot_assignements[i];
-    }*/
+  //pot_assignements[i] = i ;
+      //midiknobassigned[pot_assignements[i]] = pot_assignements[i];
+    } else {
+      pot_assignements[i] = muxed_pots[potsboards[i]];
+    }
 }
 /*for (int i = 0; i < 15 ; i++) {
   muxed_pots[i] = i ;
