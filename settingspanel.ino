@@ -448,16 +448,22 @@ for (int i = 0 ; i < 7 ; i++ ) {
 
 char onboards[49][8] = {"Pot 1","Pot 2","Pot 3","Pot 4","Pot 5","Pot 6","Pot 7","Pot 8","Pot 9","Fdr 01","Fdr 02","Fdr 03","Pad 01","Pad 02","Pad 03","Pad 04","Pad 05","Pad 06","Pad 07","Pad 08","Pad 09","Pad 10","Pad 11","Pad 12","Pad 13","Pad 14","Pad 15","Pad 16",
                         "But 01","But 02","But 03","But 04","But 05","But 06","But 07","But 08","But 09","But 10", "But 11","But 12","But 13","But 14","But 15","But 16","But 17","But 18","Cfd","Jk X","Jk Y"};
-
+int potsboards[] = {2,1,9,5,4,3,8,7,6,14,13,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,10,12};
 void OnBoardVpanelAction(){
       if (navlevel > 3) {
-     
+     if ((( sublevels[2] <= 11 ) || ( sublevels[2] > 45 )) && (navlevel == 4)) {
+      Serial.print("index=");
+      Serial.println(potsboards[sublevels[2]]);
+      muxed_pots[potsboards[sublevels[2]]] = pot_assignements[sublevels[2]];
+      Serial.print("muxed_pots ");
+      Serial.println( muxed_pots[potsboards[sublevels[2]]]);
+    }
    returntonav(2); 
   }
 }
 
 void OnBoardVpanelSelector() {
-  // reshift all indexes (faders + joystick X & Y) !!!
+  
   int selecta = sublevels[2];
     if (navlevel == 2 ) {
     navrange = 48;
@@ -502,25 +508,22 @@ void OnBoardVpanelSelector() {
    if (navlevel == 3 ) {
       sublevels[4] = pot_assignements[sublevels[2]];
       pot_assignements[sublevels[2]] = sublevels[3];
-      
-   if ( selecta <= 9 ) {
-   navrange = allfxes;
+      Serial.print("setting pot ");
+      Serial.print(sublevels[2]);
+      Serial.print(" to ");
+      Serial.println(sublevels[3]);
+   if ( selecta <= 11 ) {
+   navrange = 128;
      }
 
-  if (( selecta > 9 ) && ( selecta < 44 )) {
-    if ( selecta < 25 ) {
-    }
-    navrange = allfxes + 127 ;
+  if (( selecta > 11 ) && ( selecta <= 45 )) {
+    navrange = 128 + 127 ;
  }
- if ( selecta == 44 ) {
-  navrange = allfxes;
+ if ( selecta > 45 ) {
+  navrange = 128;
  }
- if ( selecta == 45 ) {
-  navrange = allfxes;
-    }
-    if (( selecta <= 9 ) || ( selecta >= 44 )) {
-      midiknobassigned[pot_assignements[sublevels[2]]]= pot_assignements[sublevels[2]];
-    }
+ 
+    
   }
   
    canvastitle.setCursor(0,0);
@@ -528,10 +531,11 @@ void OnBoardVpanelSelector() {
     canvastitle.print(onboards[selecta]);
      
     canvastitle.setCursor(42,0);
-    if (pot_assignements[sublevels[2]] <= allfxes ) {
-    canvastitle.print(ControlList[pot_assignements[sublevels[2]]]);
+    if (pot_assignements[sublevels[2]] <= 128 ) {
+      canvastitle.print("CC ");
+    canvastitle.print(pot_assignements[sublevels[2]]);
     } else { canvastitle.print("Note ");
-      canvastitle.print(pot_assignements[sublevels[2]]-allfxes);
+      canvastitle.print(pot_assignements[sublevels[2]]-128);
     }
 }
 

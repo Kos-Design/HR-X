@@ -25,6 +25,8 @@ int fakeselector(float smallv , int maxrange) {
 void controlswitcher(int caser, int valu) {
 
  smallfloat = valu/1023.0;
+
+ //TODO: Sending CC based on caser is dump, implement proper knob cc assignement
   if ((SendMidiOut) && (caser < 128 )){
     MidiUSB.sendMIDI({0x0B, 0xB0 | 16 , caser, smallfloat*128});
     MidiUSB.flush();
@@ -392,11 +394,12 @@ void controlswitcher(int caser, int valu) {
               break;
 
               case 64:
-              //release
-              adsrlevels[5] = round( smallfloat*512.0 ) ;
+               //free
+
                break;
                 case 65:
-              //free
+                 //release
+              adsrlevels[5] = round( smallfloat*512.0 ) ;
                break;
                case 66:
               

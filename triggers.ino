@@ -220,6 +220,7 @@ void MaNoteOn(byte channel, byte data1, byte data2) {
     playFlashsample((byte)samplermidichannel, data1, data2);
     }
   if (SendMidiOut){
+    //TODO: send midi during sound trigger to use arpegiators (+ note offs if arpegiator doesn't already send Off notes ?)
     Serial.println("sending Note On");
     MidiUSB.sendMIDI({0x09, 0x90 | channel,data1,data2});
     MidiUSB.flush();

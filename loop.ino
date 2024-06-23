@@ -80,7 +80,7 @@ int cc_note_num ;
 void loop() {
 PadResult pad_result = Pads.padloop();
 int paddered = arranged_buttons[pad_result.pad_result[0]][pad_result.pad_result[1]] ;
- cc_note_num = pot_assignements[9+paddered] - allfxes;
+ cc_note_num = pot_assignements[11+paddered] - allfxes;
       //Serial.print(" received ");
       //Serial.print(c_change);
 //36 is the cancel button, should not trigger another note or control.
@@ -89,7 +89,7 @@ if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
       Serial.print("paddered ");
       Serial.print(paddered);
         Serial.println(" ");
-      Serial.print("pot_assignements ([9+paddered])=");
+      Serial.print("pot_assignements ([11+paddered])=");
       Serial.print(cc_note_num);
    
   MaNoteOn(16,cc_note_num,64);
@@ -129,7 +129,7 @@ if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
      if (c_change > 0 )  {
       if (itr < 15 ) {
    
-      MaControlChange(16, (byte)pot_assignements[itr], (byte)((c_change/1024.0)*128)) ;
+      MaControlChange(16, (byte)muxed_pots[itr], (byte)((c_change/1024.0)*128)) ;
      /*
      //10 & 12 = joystick
      //11,13,14 = equalizer faders

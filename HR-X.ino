@@ -64,14 +64,16 @@ bool SendMidiOut ;
 // unsigned long tickerf = millis();  ;
 #include <MIDIUSB.h>
 char arranged_buttons[6][6] = {
-  {1,5,9,13,28,19,},
-  {2,6,10,14,27,18,},
-  {3,7,11,15,26,17,},
+  {1,5,9,13,32,23,},
+  {2,6,10,14,33,24,},
+  {3,7,11,15,34,25,},
   {4,8,12,16,35,36,},
-  {34,33,32,31,30,29,},
-  {25,24,23,22,21,20}
+  {26,27,28,29,30,31,},
+  {17,18,19,20,21,22}
 };
 int pot_assignements[49] = {10};
+int muxed_pots[15]={0,2,1,6,5,4,9,8,7,3,14,12,13,11,10};
+//int muxed_pots[15]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14};
 bool recorderstop;
 bool recorderrecord;
 bool recorderplay;
@@ -483,7 +485,7 @@ const char ControlList[allfxes][23] PROGMEM = {
 //50
   "Waveformstyped", "wave1offset", "phaselevelsL", "LFOlevel", "LFOtype", "LFOfreqs", "LFOphase", "LFOoffset","LFOsync", "Attack Delay",
 ///60
-  "Attack", "Hold", "Decay", "Sustain", "Release", "Free", "le303ffilterzVknobs[0]", "le303filterzgainz[1]", "le303filterzgainz[2]", "FXChannelselector",
+  "Attack", "Hold", "Decay", "Sustain", "Free", "Release", "le303ffilterzVknobs[0]", "le303filterzgainz[1]", "le303filterzgainz[2]", "FXChannelselector",
 //70
   "chorusVknobs[i]", "bqstage[i]", "LFOonfilterz[i]", "bqVpot[i][j][0]","bqVpot[i][j][1]", "bqVpot[i][j][2]", "granularVknobs[i][0]", "granularVknobs[i][1]", "granularVknobs[i][2]", "granularVknobs[i][3]",
 //80

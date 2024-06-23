@@ -118,6 +118,8 @@ audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 
 //parsefile(3);
 //Volume
+
+/*
 midiknobassigned[91]=2;
 
 //play
@@ -135,11 +137,8 @@ midiknobassigned[76]= 7;
 midiknobassigned[77]= 8 ;
 //cueplay on Vbuttons
 midiknobassigned[32]= 35 ;
-
-
 //wet303
 midiknobassigned[73]= 18;
-
 //ccrecord
 midiknobassigned[87]= 44;
 //synthselect
@@ -148,13 +147,13 @@ midiknobassigned[15]= 45;
 midiknobassigned[72]= 69;
 //showallnotes
 midiknobassigned[67]= 100;
-
 //BPM
 midiknobassigned[20]= 15;
+*/
 
-//midiknobassigned[12]=27;
+
 Doautoassign() ;
-//midiknobassigned[43]=2;
+
 //printclock();
    pseudoconsole((char*)"All Done !");
 

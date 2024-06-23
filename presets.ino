@@ -284,11 +284,13 @@ void writesynthpreset() {
   INTinsertmytxtfile(adsrlevels[i],"adsr");
   }
 
-
-   for (int i = 0 ; i<46 ; i++ ) {
+    
+   for (int i = 0 ; i<49 ; i++ ) {
     INTinsertmytxtfile(pot_assignements[i],"pot_assigned");
     }
-    
+    for (int i = 0 ; i<15 ; i++ ) {
+  INTinsertmytxtfile( muxed_pots[i],"muxed_pots");
+    }
    for (int i = 0 ; i<128 ; i++ ) {
   INTinsertmytxtfile(midiknobassigned[i],"Midiknobassigned");
   INTinsertmytxtfile(Sampleassigned[i],"Sampleassigned");
@@ -589,12 +591,18 @@ for (int i = 0 ; i<6 ; i++ ) {
   adsrlevels[i]= parser.Read_Int16();
    
 }
-for (int i = 0 ; i<46 ; i++ ) {
+for (int i = 0 ; i<49 ; i++ ) {
   parser.Read_String('#'); 
   parser.Skip(1); 
   pot_assignements[i] = parser.Read_Int16();
   
  }
+ for (int i = 0 ; i<15 ; i++ ) {
+  parser.Read_String('#'); 
+  parser.Skip(1); 
+  muxed_pots[i] = parser.Read_Int16();
+ }
+ 
 for (int i = 0 ; i<128; i++ ) {
   parser.Read_String('#'); 
   parser.Skip(1); 
