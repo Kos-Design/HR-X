@@ -241,6 +241,7 @@ void notefreqloop() {
      //  pseudoconsole("Note: %3.2f | Probability: %.2f\n", notep, probz);
     }
 }
+
 void arpegiatorVpanelAction(){
   byte lefilter;
   if (navlevel == 3 ) {
@@ -271,46 +272,32 @@ void arpegiatorVpanelAction(){
               }
                stopallnotes();
             }
-    //canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
-   
   }
   //damp
   if (slct == 1) {
    navrange = 7;
-    arpegmode = sublevels[3] ;
-    //canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
-   
+    arpegmode = sublevels[3] ;  
   }
    if (slct == 2) {
    navrange = 3*6;
     arpegstartoffset = sublevels[3] ;
-    //canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
-   
-  }
+ }
    if (slct == 3) {
    navrange = 6;
    arpegnumofnotes = 1+sublevels[3] ;
-    //canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
-   
-  }
+}
    if (slct == 4) {
    navrange = 8;
     arpeggridC = sublevels[3] ;
-    //canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
-   
-  }
+}
   if (slct == 5) {
    navrange = 8;
    arpeggridS = sublevels[3] ;
-    //canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
-   
-  }
+}
    if (slct == 6) {
    navrange = 8;
     arpeglengh = sublevels[3] ;
-    //canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
-   
-  }
+}
  }
   if (navlevel > 3) {
      
@@ -337,46 +324,32 @@ void arpegiatorVpanelSelector(  ) {
   if (slct == 0) {
    
     sublevels[3] = arpegiatortype ;
-    //canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
-   
   }
   //damp
   if (slct == 1) {
    
     sublevels[3] = arpegmode ;
-    //canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
-   
   }
    if (slct == 2) {
    
     sublevels[3] = arpegstartoffset ;
-    //canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
-   
   }
    if (slct == 3) {
    
     sublevels[3] = arpegnumofnotes-1 ;
-    //canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
-   
   }
    if (slct == 4) {
    
     sublevels[3] = arpeggridC ;
-    //canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
-   
   }
   if (slct == 5) {
    
     sublevels[3] = arpeggridS ;
-    //canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
-   
   }
    if (slct == 6) {
    
     sublevels[3] = arpeglengh ;
-    //canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
-   
-  }
+ }
 }
 
 void arpegiatorVpanel() {
@@ -448,7 +421,9 @@ for (int i = 0 ; i < 7 ; i++ ) {
 
 char onboards[49][8] = {"Pot 1","Pot 2","Pot 3","Pot 4","Pot 5","Pot 6","Pot 7","Pot 8","Pot 9","Fdr 01","Fdr 02","Fdr 03","Pad 01","Pad 02","Pad 03","Pad 04","Pad 05","Pad 06","Pad 07","Pad 08","Pad 09","Pad 10","Pad 11","Pad 12","Pad 13","Pad 14","Pad 15","Pad 16",
                         "But 01","But 02","But 03","But 04","But 05","But 06","But 07","But 08","But 09","But 10", "But 11","But 12","But 13","But 14","But 15","But 16","But 17","But 18","Cfd","Jk X","Jk Y"};
-
+byte but_channel[49] = {11,1,1,11,1,1,1,1,1,1,1,1,1,11,1,1,11,1,1,1,1,1,1,1,1,11,1,1,1,1,1,11,1,1,1,1,1,1,1,11,1,1,1,1,11,1,1,1,1};
+char ch_lbl_buffer[3]; // Buffer to hold formatted number
+  
 void OnBoardVpanelAction(){
       if (navlevel > 3) {
      if ((( sublevels[2] <= 11 ) || ( sublevels[2] > 45 )) && (navlevel == 4)) {
@@ -474,9 +449,7 @@ void OnBoardVpanelSelector() {
     canvasBIG.drawRoundRect((selecta%3)*7 + 22, (selecta/3)*7 + 10 , 9 , 9.,7, SSD1306_WHITE ) ;
   }
   if ( (selecta >= 9 ) && (selecta < 12 )){
-   
-        canvasBIG.drawRoundRect(46+((selecta-9)*8), 10 , 8 , 23, 3, SSD1306_WHITE ) ;
-    
+    canvasBIG.drawRoundRect(46+((selecta-9)*8), 10 , 8 , 23, 3, SSD1306_WHITE ) ;  
   }
   if (( selecta > 11 ) && ( selecta < 28 )) {
     canvasBIG.drawRect(((selecta-12)%4)*13 + 70, (((selecta-12)/4)%4)*13 + 10 , 14 , 14, SSD1306_WHITE ) ;
@@ -485,26 +458,25 @@ void OnBoardVpanelSelector() {
     canvasBIG.drawRoundRect(((selecta-28)%9)*7 + 5, ((selecta-28)/9)*7 + 33 , 9 , 9,9, SSD1306_WHITE ) ;
  }
  if ( selecta == 46 ) {
-  canvasBIG.drawRoundRect(16, 51 , 34 , 8, 3, SSD1306_WHITE ) ;
+    canvasBIG.drawRoundRect(16, 51 , 34 , 8, 3, SSD1306_WHITE ) ;
  }
  if ( selecta == 47 ) {
-   canvasBIG.setCursor(57,52);
+    canvasBIG.setCursor(57,52);
     canvasBIG.setTextSize(1);
     canvasBIG.print("X");
-    
-  //canvasBIG.drawCircleHelper(52, 49, 12, 2, SSD1306_WHITE);
-  //canvasBIG.drawLine(52, 49, 52, 53, SSD1306_WHITE);
-  //canvasBIG.drawRoundRect(52, 49 , 14 , 14, 14, SSD1306_WHITE ) ;  
+ 
  }
  if ( selecta == 48 ) {
-  canvasBIG.setCursor(57,52);
+    canvasBIG.setCursor(57,52);
     canvasBIG.setTextSize(1);
     canvasBIG.print("Y");
-  //canvasBIG.drawCircleHelper(52, 49, 10, 1, SSD1306_WHITE);
-  //canvasBIG.drawLine(52, 49, 66, 49, SSD1306_WHITE);
-  //canvasBIG.drawRoundRect(52, 49 , 14 , 14, 14, SSD1306_WHITE ) ;  
  }
- 
+    
+    canvasBIG.setCursor(8,24);
+    //canvasBIG.setTextSize(1);
+    sprintf(ch_lbl_buffer, "%02d", but_channel[sublevels[2]]);
+    canvasBIG.print(ch_lbl_buffer);
+    
    if (navlevel == 3 ) {
       sublevels[4] = pot_assignements[sublevels[2]];
       pot_assignements[sublevels[2]] = sublevels[3];
@@ -526,7 +498,7 @@ void OnBoardVpanelSelector() {
     
   }
   
-   canvastitle.setCursor(0,0);
+    canvastitle.setCursor(0,0);
     canvastitle.setTextSize(1);
     canvastitle.print(onboards[selecta]);
      
@@ -545,6 +517,11 @@ void OnBoardVpanel() {
     display.clearDisplay();
     canvasBIG.fillScreen(SSD1306_BLACK);
     canvastitle.fillScreen(SSD1306_BLACK);
+
+    //channel label
+    canvasBIG.setCursor(8,14);
+    //canvasBIG.setTextSize(1);
+    canvasBIG.print("Ch");
 
     //frame
     canvasBIG.drawRoundRect(2,9,124,55,2, SSD1306_WHITE ) ;

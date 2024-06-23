@@ -163,8 +163,8 @@ void actionvbuttons() {
     if ( sublevels[navlevelvbuttons] < numberofvbuttonslabels  ) {
        int CClaval0 = 70+(sublevels[navlevelvbuttons] + 1 + ( 14+17 )) ;
       moncontrollercc( (byte)1,(byte)CClaval0, (byte)127);
-     Serial.print("sending cc ");
-     Serial.println(CClaval0);
+     //Serial.print("sending cc ");
+     //Serial.println(CClaval0);
     }
       
       if ( sublevels[navlevelvbuttons] < numberofvbuttonslabels +14 && sublevels[navlevelvbuttons] >= numberofvbuttonslabels  ) {
