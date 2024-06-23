@@ -120,35 +120,7 @@ audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 //Volume
 
 /*
-midiknobassigned[91]=2;
 
-//play
-midiknobassigned[85]= 36 ;
-//stop
-midiknobassigned[81]= 37 ;
-//rec
-midiknobassigned[84]= 39 ;
-
-//Wet1
-midiknobassigned[75]= 6 ;
-//wet2
-midiknobassigned[76]= 7;
-//wet3
-midiknobassigned[77]= 8 ;
-//cueplay on Vbuttons
-midiknobassigned[32]= 35 ;
-//wet303
-midiknobassigned[73]= 18;
-//ccrecord
-midiknobassigned[87]= 44;
-//synthselect
-midiknobassigned[15]= 45;
-//fxmoduleselect
-midiknobassigned[72]= 69;
-//showallnotes
-midiknobassigned[67]= 100;
-//BPM
-midiknobassigned[20]= 15;
 */
 
 

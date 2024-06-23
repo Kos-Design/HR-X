@@ -1282,7 +1282,12 @@ void Mytickmidi(byte channel, byte control, byte value) {
 void moncontrollercc(byte channel, byte control, byte value) {
   if (value < 128 ) {
     if ( midiknobassigned[control] != 0 && !freezemidicc ) {
-
+if (SendMidiOut){
+    Serial.println("sending CC");
+    MidiUSB.sendMIDI({0x0B, 0xB0 | channel,control,value});
+      
+        MidiUSB.flush();
+  }
       midiknobs[control] = value  ;
       midiknobs[control] = round((midiknobs[control]/127.0)*1024.0);
      controlswitcher(midiknobassigned[control], midiknobs[control]) ;
@@ -1294,7 +1299,8 @@ void MaControlChange(byte channel, byte control, byte value) {
   bool isignored = noCCrecordlist(control);
 
    if (debugmidion) {debugmidi((char*)("ControlChange"),channel,control,value);}
-   
+     
+     
    moncontrollercc(channel, control, value);
       
  //Serial.print("Control Change, ch=");

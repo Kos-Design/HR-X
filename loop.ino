@@ -80,11 +80,15 @@ int cc_note_num ;
 void loop() {
 PadResult pad_result = Pads.padloop();
 int paddered = arranged_buttons[pad_result.pad_result[0]][pad_result.pad_result[1]] ;
- cc_note_num = pot_assignements[11+paddered] - allfxes;
+ cc_note_num = pot_assignements[11+paddered] - 128;
+
       //Serial.print(" received ");
       //Serial.print(c_change);
 //36 is the cancel button, should not trigger another note or control.
 if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
+   if (cc_note_num <= 0 ){
+      MaControlChange(16, (byte)pot_assignements[11+paddered], 64) ;
+ } else {
   Serial.println(" ");
       Serial.print("paddered ");
       Serial.print(paddered);
@@ -93,9 +97,12 @@ if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
       Serial.print(cc_note_num);
    
   MaNoteOn(16,cc_note_num,64);
-} else if ((pad_result.pad_result[2] == 0 ) && (paddered != 36)) {
+  } 
+}
+else if ((pad_result.pad_result[2] == 0 ) && (paddered != 36) && (cc_note_num > 0)) {
   MaNoteOff(16,cc_note_num,0);
 }
+ 
  if (initdone) {
   if (noteprint) {
   printlanote();

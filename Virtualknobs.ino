@@ -15,14 +15,10 @@ void doposkselector() {
 
   //transportpanel
   if ( sublevels[navlevelvbuttons] < numberofvbuttonslabels ) {
-   // Serial.println( "not a pot");
-  //canvasBIG.fillScreen(SSD1306_BLACK);
-    canvastitle.fillScreen(SSD1306_BLACK);
-   // canvastitle.setCursor(70,0);
-    canvasBIG.setTextSize(1);
-    //canvastitle.print("Playstuff") ;
-       if ( midiknobassigned[ (70+sublevels[navlevelvbuttons] + 1 + ( 14+17 )) ] != 0 ) {
-    printassignedmidi(midiknobassigned[(70+sublevels[navlevelvbuttons] + 1 + ( 14+17 ))]);
+          canvastitle.fillScreen(SSD1306_BLACK);
+          canvasBIG.setTextSize(1);
+        if ( midiknobassigned[ (70+sublevels[navlevelvbuttons] + 1 + ( 14+17 )) ] != 0 ) {
+          printassignedmidi(midiknobassigned[(70+sublevels[navlevelvbuttons] + 1 + ( 14+17 ))]);
      
     } else {
       canvasBIG.setCursor(0,0);
@@ -34,22 +30,16 @@ void doposkselector() {
           canvasBIG.print(70+sublevels[navlevelvbuttons] + 1 + ( 14+17 ));
           canvasBIG.setCursor(110,8); 
           canvasBIG.print(0) ;
-   // canvasBIG.setCursor(110,9);
-   // canvasBIG.print("888") ;
-    // canvasBIG.setCursor(110,0);
-   // canvasBIG.print("888") ;
-   // vbuttonsCC[sublevels[navlevelvbuttons]] ;
-    canvasBIG.drawPixel(ecart*sublevels[navlevelvbuttons]+6, startyp+7, SSD1306_WHITE);
- canvasBIG.drawPixel(ecart*sublevels[navlevelvbuttons]+7, startyp+6, SSD1306_WHITE);
- canvasBIG.drawPixel(ecart*sublevels[navlevelvbuttons]+7, startyp+7, SSD1306_WHITE);
+          canvasBIG.drawPixel(ecart*sublevels[navlevelvbuttons]+6, startyp+7, SSD1306_WHITE);
+          canvasBIG.drawPixel(ecart*sublevels[navlevelvbuttons]+7, startyp+6, SSD1306_WHITE);
+          canvasBIG.drawPixel(ecart*sublevels[navlevelvbuttons]+7, startyp+7, SSD1306_WHITE);
   } else {
-//buttons col
+
    if ( sublevels[navlevelvbuttons] >= numberofvbuttonslabels  && sublevels[navlevelvbuttons] < numberofvbuttonslabels +7 ) {
-    //Serial.println( "not a pot");
           canvasBIG.fillRoundRect(108, 16+((sublevels[navlevelvbuttons]-numberofvbuttonslabels)*7), 9, 6, 1, SSD1306_WHITE);
 
           if ( midiknobassigned[(70+sublevels[navlevelvbuttons] + 1 - ( numberofvbuttonslabels ))] != 0 ) {
-    printassignedmidi(midiknobassigned[(70+sublevels[navlevelvbuttons] + 1 - ( numberofvbuttonslabels ))]);
+            printassignedmidi(midiknobassigned[(70+sublevels[navlevelvbuttons] + 1 - ( numberofvbuttonslabels ))]);
      
     } else {
           canvasBIG.setCursor(0,0);
@@ -78,12 +68,11 @@ void doposkselector() {
        canvasBIG.print("CC") ;
        canvasBIG.print(70+sublevels[navlevelvbuttons] + 1 - ( numberofvbuttonslabels ));
        canvasBIG.setCursor(110,8); 
-      canvasBIG.print(0) ;
+       canvasBIG.print(0) ;
       
         } else {
 
       if ( sublevels[navlevelvbuttons] >= numberofvbuttonslabels +14  && sublevels[navlevelvbuttons] < numberofvbuttonslabels +14 + 6 ) {
-        //Serial.println( "ya pot line 3");
       xcentershifter = 97-(((knobradius * 2 ) + 4 )*(sublevels[navlevelvbuttons] - numberofvbuttonslabels -14   ));
       canvasBIG.drawCircle(xcentershifter, 64-9, knobradius-1, SSD1306_WHITE);
 
@@ -91,8 +80,8 @@ void doposkselector() {
     printassignedmidi(midiknobassigned[(70+sublevels[navlevelvbuttons] + 1 - ( numberofvbuttonslabels ))]);
      
     } else { 
-     canvasBIG.setCursor(0,0);
-      canvasBIG.print("V.Pot ") ;
+       canvasBIG.setCursor(0,0);
+       canvasBIG.print("V.Pot ") ;
        canvasBIG.print(sublevels[navlevelvbuttons] + 1 - (numberofvbuttonslabels + 14 ));
     }
        canvasBIG.setCursor(97,0); 
@@ -104,33 +93,33 @@ void doposkselector() {
       } else {
 
     if ( sublevels[navlevelvbuttons] >= numberofvbuttonslabels +14 + 6 && sublevels[navlevelvbuttons] < numberofvbuttonslabels +14 + 6 + 5 ) {
-        // Serial.println( "ya pot line 2");
+     
       xcentershifter = 16+(((knobradius * 2 ) + 4 )*(sublevels[navlevelvbuttons] - numberofvbuttonslabels -14 - 6  ));
        canvasBIG.drawCircle(xcentershifter, 64-9-16, knobradius-1, SSD1306_WHITE);
        if ( midiknobassigned[ (70+sublevels[navlevelvbuttons] + 1 - ( numberofvbuttonslabels ))] != 0 ) {
     printassignedmidi(midiknobassigned[(70+sublevels[navlevelvbuttons] + 1 - ( numberofvbuttonslabels ))]);
      
     } else {
-     canvasBIG.setCursor(0,0);
-      canvasBIG.print("V.Pot ") ;
+       canvasBIG.setCursor(0,0);
+       canvasBIG.print("V.Pot ") ;
        canvasBIG.print(sublevels[navlevelvbuttons] + 1 - (numberofvbuttonslabels + 14 ));
     }
        canvasBIG.setCursor(97,0); 
        canvasBIG.print("CC") ;
        canvasBIG.print(70+sublevels[navlevelvbuttons] + 1 - ( numberofvbuttonslabels  ));
-      
-      canvasBIG.setCursor(110,8); 
-      canvasBIG.print(vPots[sublevels[navlevelvbuttons]  - (numberofvbuttonslabels + 14 )]) ;
-      
+              
+       canvasBIG.setCursor(110,8); 
+       canvasBIG.print(vPots[sublevels[navlevelvbuttons]  - (numberofvbuttonslabels + 14 )]) ;
+            
       } else {
           if ( sublevels[navlevelvbuttons] >= numberofvbuttonslabels +14+6+5  && sublevels[navlevelvbuttons] < numberofvbuttonslabels +14 + 6 +5 + 6 ) {
-         //Serial.println( "ya pot line 1");
+        
       if ( midiknobassigned[(70+sublevels[navlevelvbuttons] + 1 - ( numberofvbuttonslabels ))] != 0 ) {
-    printassignedmidi(midiknobassigned[(70+sublevels[navlevelvbuttons] + 1 - ( numberofvbuttonslabels ))]);
+           printassignedmidi(midiknobassigned[(70+sublevels[navlevelvbuttons] + 1 - ( numberofvbuttonslabels ))]);
      
     } else {
-      canvasBIG.setCursor(0,0);
-      canvasBIG.print("V.Pot ") ;
+       canvasBIG.setCursor(0,0);
+       canvasBIG.print("V.Pot ") ;
        canvasBIG.print(sublevels[navlevelvbuttons] + 1 - (numberofvbuttonslabels  + 14 ));
     }
        canvasBIG.setCursor(97,0); 
@@ -149,23 +138,21 @@ void doposkselector() {
      }
     }
   }
-  canvasBIG.setCursor(65,0); 
-          canvasBIG.print(BPMs,1) ;
- //17 +14
+        canvasBIG.setCursor(65,0); 
+        canvasBIG.print(BPMs,1) ;
+ 
 }
 
 
 void Vbuttonspanel() {
-  
- // navrange = 5 ;
-
-  actionvbuttons();
+    actionvbuttons();
     displayonscreenbuttons();
-  doposkselector();
-  dodisplay();
+    doposkselector();
+    dodisplay();
 }
+
 void actionvbuttons() {
-//navrange = numberofvbuttonslabels-1 +17+14 ;
+
   if ( sublevels[navlevelvbuttons] < numberofvbuttonslabels +14 ) {
   
     if (navlevel == navlevelvbuttons) {
@@ -173,12 +160,11 @@ void actionvbuttons() {
     }
     if (navlevel == navlevelvbuttons + 1 ) {
     
-   
-      //send cc  128
     if ( sublevels[navlevelvbuttons] < numberofvbuttonslabels  ) {
        int CClaval0 = 70+(sublevels[navlevelvbuttons] + 1 + ( 14+17 )) ;
       moncontrollercc( (byte)1,(byte)CClaval0, (byte)127);
-      //moncontrollercc( (byte)1,(byte)CClaval0, (byte)0);
+     Serial.print("sending cc ");
+     Serial.println(CClaval0);
     }
       
       if ( sublevels[navlevelvbuttons] < numberofvbuttonslabels +14 && sublevels[navlevelvbuttons] >= numberofvbuttonslabels  ) {
