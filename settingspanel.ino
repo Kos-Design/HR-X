@@ -419,9 +419,9 @@ for (int i = 0 ; i < 7 ; i++ ) {
     dodisplay();
 }
 
-char onboards[49][8] = {"Pot 1","Pot 2","Pot 3","Pot 4","Pot 5","Pot 6","Pot 7","Pot 8","Pot 9","Fdr 01","Fdr 02","Fdr 03","Pad 01","Pad 02","Pad 03","Pad 04","Pad 05","Pad 06","Pad 07","Pad 08","Pad 09","Pad 10","Pad 11","Pad 12","Pad 13","Pad 14","Pad 15","Pad 16",
+char onboards[all_buttonns][8] = {"Pot 1","Pot 2","Pot 3","Pot 4","Pot 5","Pot 6","Pot 7","Pot 8","Pot 9","Fdr 01","Fdr 02","Fdr 03","Pad 01","Pad 02","Pad 03","Pad 04","Pad 05","Pad 06","Pad 07","Pad 08","Pad 09","Pad 10","Pad 11","Pad 12","Pad 13","Pad 14","Pad 15","Pad 16",
                         "But 01","But 02","But 03","But 04","But 05","But 06","But 07","But 08","But 09","But 10", "But 11","But 12","But 13","But 14","But 15","But 16","But 17","But 18","Cfd","Jk X","Jk Y"};
-byte but_channel[49] = {11,1,1,11,1,1,1,1,1,1,1,1,1,11,1,1,11,1,1,1,1,1,1,1,1,11,1,1,1,1,1,11,1,1,1,1,1,1,1,11,1,1,1,1,11,1,1,1,1};
+
 char ch_lbl_buffer[3]; // Buffer to hold formatted number
   
 void OnBoardVpanelAction(){
@@ -441,7 +441,7 @@ void OnBoardVpanelSelector() {
   
   int selecta = sublevels[2];
     if (navlevel == 2 ) {
-    navrange = 48;
+    navrange = all_buttonns-1;
     sublevels[3] = pot_assignements[sublevels[2]];
    }
     

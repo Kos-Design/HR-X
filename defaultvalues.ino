@@ -198,7 +198,7 @@ for (int i = 0; i< fxiterations ; i++ ) {
   MasterR.gain(0,1);
 
    AudioNoInterrupts();
-for (int i = 0; i < 49 ; i++) {
+for (int i = 0; i < all_buttonns ; i++) {
   
 
 if (!(( i <= 11 ) || ( i >= 46 ))) {

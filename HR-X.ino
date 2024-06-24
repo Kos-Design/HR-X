@@ -71,17 +71,18 @@ char arranged_buttons[6][6] = {
   {26,27,28,29,30,31,},
   {17,18,19,20,21,22}
 };
-int pot_assignements[49] = {10};
+const unsigned short all_buttonns = 49;
+int pot_assignements[all_buttonns] = {10};
 int muxed_pots[15]={10,12,11,16,15,14,19,18,17,13,24,22,23,21,20};
-int potsboards[] = {2,1,9,5,4,3,8,7,6,14,13,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,12,10};
-//int muxed_pots[15]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14};
+int potsboards[all_buttonns] = {2,1,9,5,4,3,8,7,6,14,13,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,0,12,10};
+byte muxed_channels[15]={1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 bool recorderstop;
 bool recorderrecord;
 bool recorderplay;
 
 bool patternOn ;
 
-
+byte but_channel[all_buttonns] = {11,1,1,11,1,1,1,1,1,1,1,1,1,11,1,1,11,1,1,1,1,1,1,1,1,11,1,1,1,1,1,11,1,1,1,1,1,1,1,11,1,1,1,1,11,1,1,1,1};
 
 const int mainmenufxlistsize = 10;
 char consolemsg[10][32] ;

@@ -86,21 +86,34 @@ int paddered = arranged_buttons[pad_result.pad_result[0]][pad_result.pad_result[
       //Serial.print(c_change);
 //36 is the cancel button, should not trigger another note or control.
 if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
-   if (cc_note_num <= 0 ){
-      MaControlChange(16, (byte)pot_assignements[11+paddered], 64) ;
- } else {
-  Serial.println(" ");
-      Serial.print("paddered ");
-      Serial.print(paddered);
-        Serial.println(" ");
-      Serial.print("pot_assignements ([11+paddered])=");
-      Serial.print(cc_note_num);
-   
-  MaNoteOn(16,cc_note_num,64);
-  } 
+    if ((sublevels[0] == 5 ) && (sublevels[1] == 11 )) {
+        if ((paddered == 17) && (but_channel[sublevels[2]] < 15 )){
+           but_channel[sublevels[2]] += 1 ;
+        }
+        if ((paddered == 26) && (but_channel[sublevels[2]] > 0 )) {
+           but_channel[sublevels[2]] -= 1 ;
+        }
+        if (potsboards[sublevels[2]]>=0) {
+          muxed_channels[potsboards[sublevels[2]]] = but_channel[sublevels[2]] ;
+        }
+          OnBoardVpanel();
+    } else {
+     if (cc_note_num <= 0 ){
+        MaControlChange(but_channel[11+paddered], (byte)pot_assignements[11+paddered], 64) ;
+   } else {
+    Serial.println(" ");
+        Serial.print("paddered ");
+        Serial.print(paddered);
+          Serial.println(" ");
+        Serial.print("pot_assignements ([11+paddered])=");
+        Serial.print(cc_note_num);
+     
+    MaNoteOn(but_channel[11+paddered],cc_note_num,64);
+    } 
+  }
 }
-else if ((pad_result.pad_result[2] == 0 ) && (paddered != 36) && (cc_note_num > 0)) {
-  MaNoteOff(16,cc_note_num,0);
+  else if ((pad_result.pad_result[2] == 0 ) && (paddered != 36) && (cc_note_num > 0)) {
+    MaNoteOff(but_channel[11+paddered],cc_note_num,0);
 }
  
  if (initdone) {
@@ -136,7 +149,7 @@ else if ((pad_result.pad_result[2] == 0 ) && (paddered != 36) && (cc_note_num > 
      if (c_change > 0 )  {
       if (itr < 15 ) {
    
-      MaControlChange(16, (byte)muxed_pots[itr], (byte)((c_change/1024.0)*128)) ;
+      MaControlChange(muxed_channels[itr], (byte)muxed_pots[itr], (byte)((c_change/1024.0)*128)) ;
      /*
      //10 & 12 = joystick
      //11,13,14 = equalizer faders
