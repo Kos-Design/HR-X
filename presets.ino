@@ -291,6 +291,8 @@ void writesynthpreset() {
     }
     for (int i = 0 ; i<15 ; i++ ) {
   INTinsertmytxtfile( muxed_pots[i],"muxed_pots");
+  INTinsertmytxtfile( muxed_channels[i],"muxed_channels");
+  
     }
    for (int i = 0 ; i<128 ; i++ ) {
   INTinsertmytxtfile(midiknobassigned[i],"Midiknobassigned");
@@ -605,6 +607,9 @@ for (int i = 0 ; i<all_buttonns ; i++ ) {
   parser.Read_String('#'); 
   parser.Skip(1); 
   muxed_pots[i] = parser.Read_Int16();
+  parser.Read_String('#'); 
+  parser.Skip(1); 
+  muxed_channels[i] = parser.Read_Int16();
  }
  
 for (int i = 0 ; i<128; i++ ) {

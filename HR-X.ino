@@ -82,7 +82,7 @@ bool recorderplay;
 
 bool patternOn ;
 
-byte but_channel[all_buttonns] = {11,1,1,11,1,1,1,1,1,1,1,1,1,11,1,1,11,1,1,1,1,1,1,1,1,11,1,1,1,1,1,11,1,1,1,1,1,1,1,11,1,1,1,1,11,1,1,1,1};
+byte but_channel[all_buttonns] = {1,1,1,1,1,1,1,1,1,1,1,1,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,1,1,1};
 
 const int mainmenufxlistsize = 10;
 char consolemsg[10][32] ;

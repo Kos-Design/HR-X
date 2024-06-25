@@ -254,6 +254,34 @@ midiknobassigned[104] = 37;
 //play
 midiknobassigned[105] = 36;
 
+//Volume
+midiknobassigned[11] = 2;
+midiknobassigned[12] = 1;
+midiknobassigned[13] = 3;
+
+//audio In
+midiknobassigned[14] = 97;
+midiknobassigned[15] = 1;
+midiknobassigned[16] = 3;
+
+//303 filter
+midiknobassigned[17] = 20;
+midiknobassigned[18] = 21;
+midiknobassigned[19] = 22;
+
+//FX Wet
+midiknobassigned[20] = 6;
+midiknobassigned[21] = 7;
+midiknobassigned[22] = 8;
+
+//pan on crossfader
+midiknobassigned[10] = 48;
+
+//LFO freq & level
+midiknobassigned[23] = 55;
+midiknobassigned[24] = 53;
+
+
 
 //USB Line in
 InMixL.gain(0,1);
