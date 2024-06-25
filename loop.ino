@@ -86,7 +86,10 @@ int paddered = arranged_buttons[pad_result.pad_result[0]][pad_result.pad_result[
       //Serial.print(c_change);
 //36 is the cancel button, should not trigger another note or control.
 if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
-    if ((sublevels[0] == 5 ) && (sublevels[1] == 11 )) {
+    if ((sublevels[0] == 5 ) && (sublevels[1] == 11 ) && (navlevel == 2)) {
+
+            
+      
         if ((paddered == 17) && (but_channel[sublevels[2]] < 15 )){
            but_channel[sublevels[2]] += 1 ;
         }
@@ -95,6 +98,12 @@ if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
         }
         if (potsboards[sublevels[2]]>=0) {
           muxed_channels[potsboards[sublevels[2]]] = but_channel[sublevels[2]] ;
+        } 
+        if ((paddered != 26) && (paddered != 17)) {
+          //set selection to last pad pushed
+        sublevels[2] = paddered+11;
+        vraipos = sublevels[2];
+        myEnc.write(4*sublevels[2]);
         }
           OnBoardVpanel();
     } else {
@@ -108,7 +117,7 @@ if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
         Serial.print("pot_assignements ([11+paddered])=");
         Serial.print(cc_note_num);
      
-    MaNoteOn(but_channel[11+paddered],cc_note_num,64);
+    MaNoteOn(but_channel[11+paddered],cc_note_num,but_velocity[11+paddered]);
     } 
   }
 }
@@ -147,9 +156,14 @@ if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
       
      c_change = Muxer.read_val(itr);
      if (c_change > 0 )  {
+      
       if (itr < 15 ) {
-   
+      if ((sublevels[0] == 5 ) && (sublevels[1] == 11 ) && (itr == 6)) {
+        but_velocity[sublevels[2]]=(byte)((c_change/1024.0)*128);
+        OnBoardVpanel() ;
+      } else {
       MaControlChange(muxed_channels[itr], (byte)muxed_pots[itr], (byte)((c_change/1024.0)*128)) ;
+      }
      /*
      //10 & 12 = joystick
      //11,13,14 = equalizer faders

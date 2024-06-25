@@ -506,9 +506,14 @@ void OnBoardVpanelSelector() {
     if (pot_assignements[sublevels[2]] <= 128 ) {
       canvastitle.print("CC ");
     canvastitle.print(pot_assignements[sublevels[2]]);
-    } else { canvastitle.print("Note ");
+    } else { 
+      canvastitle.print("Note ");
       canvastitle.print(pot_assignements[sublevels[2]]-128);
+      canvastitle.setCursor(90,0);
+      canvastitle.print("V ");
+      canvastitle.print(but_velocity[sublevels[2]]);
     }
+    
 }
 
 void OnBoardVpanel() {
@@ -520,9 +525,8 @@ void OnBoardVpanel() {
 
     //channel label
     canvasBIG.setCursor(8,14);
-    //canvasBIG.setTextSize(1);
     canvasBIG.print("Ch");
-
+    
     //frame
     canvasBIG.drawRoundRect(2,9,124,55,2, SSD1306_WHITE ) ;
 
@@ -549,7 +553,8 @@ void OnBoardVpanel() {
 
     //crossfader
     canvasBIG.drawRoundRect(18, 53 , 30 , 4, 2, SSD1306_WHITE ) ;
-    
+
+   
     OnBoardVpanelSelector();
     dodisplay();
 }

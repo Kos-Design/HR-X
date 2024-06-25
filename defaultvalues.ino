@@ -261,8 +261,10 @@ midiknobassigned[13] = 3;
 
 //audio In
 midiknobassigned[14] = 97;
+/*
 midiknobassigned[15] = 1;
 midiknobassigned[16] = 3;
+*/
 
 //303 filter
 midiknobassigned[17] = 20;
