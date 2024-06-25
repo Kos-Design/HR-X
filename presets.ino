@@ -288,6 +288,8 @@ void writesynthpreset() {
    for (int i = 0 ; i < all_buttonns ; i++ ) {
     INTinsertmytxtfile(pot_assignements[i],"pot_assigned");
     INTinsertmytxtfile(but_channel[i],"but_channel");
+    INTinsertmytxtfile(but_velocity[i],"but_velocity");
+    
     }
     for (int i = 0 ; i<15 ; i++ ) {
   INTinsertmytxtfile( muxed_pots[i],"muxed_pots");
@@ -601,7 +603,9 @@ for (int i = 0 ; i<all_buttonns ; i++ ) {
   parser.Read_String('#'); 
   parser.Skip(1); 
   but_channel[i] = parser.Read_Int16();
-  
+  parser.Read_String('#'); 
+  parser.Skip(1); 
+  but_velocity[i] = parser.Read_Int16();
  }
  for (int i = 0 ; i<15 ; i++ ) {
   parser.Read_String('#'); 

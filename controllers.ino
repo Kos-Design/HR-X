@@ -6,7 +6,8 @@ int fakeselector(float smallv , int maxrange) {
 
 void controlswitcher(int caser, int valu) {
 
- smallfloat = valu/1023.0;
+// all pots seems to be wired backwards, inverting result
+ smallfloat = 1.0 - valu/1023.0;
 
          switch (caser) {
 
