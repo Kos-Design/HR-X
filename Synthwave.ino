@@ -607,14 +607,21 @@ void actionwet2mixer(int linstru) {
 }
 
 void wetmixmastercontrols() {
-   
-    WetMixMasters[0] = 1.0-(WetMixMasters[3]+WetMixMasters[2]+WetMixMasters[1]);
+  
+float sum = WetMixMasters[3]+WetMixMasters[2]+WetMixMasters[1];
+  
+    // Adjust the values proportionally if the sum is not equal to 1
+    if ((sum != 0) && (sum > 1)) {
+    WetMixMasters[1] /= sum;
+    WetMixMasters[2] /= sum;
+    WetMixMasters[3] /= sum;
+  }
+   WetMixMasters[0] = 1.0-(WetMixMasters[3]+WetMixMasters[2]+WetMixMasters[1]);
     
-    for (byte i = 0 ; i < 4 ; i++ ) {
+  for (byte i = 0 ; i < 4 ; i++ ) {
      WetMixMasterL.gain(i,WetMixMasters[i]);
      WetMixMasterR.gain(i,WetMixMasters[i]);
     }
-     
 }
 
 void setwet2smixlevel(int lebus) {
