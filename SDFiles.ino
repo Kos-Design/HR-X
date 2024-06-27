@@ -364,6 +364,9 @@ pseudoconsole((char*)"Scanning Presets");
 dopresetlist();
 pseudoconsole((char*)"Scanning Patterns");
 dopatternfileslist() ;
+pseudoconsole((char*)"Scanning Waveforms");
+dowaveformslist();
+pseudoconsole((char*)"Scanning Songs");
 doSonglist();
 //getavailablespace();
 }

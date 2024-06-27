@@ -952,7 +952,7 @@ AudioAmplifier *Wavespreamp303[8] = {&wavePAmp0, &wavePAmp1, &wavePAmp2, &wavePA
 
 AudioSynthWaveform *LFOwaveforms1[4]  = { &LFOrm1 , &LFOrm2, &LFOrm3, &LFOrm4 }  ;   
 
-int16_t waveformed[256] = {
+int16_t waveformed_sine[256] = {
    0,   201,   402,   603,   804,  1005,  1206,  1406,  1607,  1808,  2008,  2209,  2409,  2609,  2809,  3009, 
 3209,  3409,  3608,  3808,  4007,  4206,  4405,  4603,  4802,  5000,  5199,  5397,  5594,  5792,  5989,  6186, 
 6383,  6580,  6776,  6972,  7168,  7363,  7559,  7753,  7948,  8142,  8336,  8529,  8722,  8915,  9107,  9299, 

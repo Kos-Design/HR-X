@@ -221,29 +221,25 @@ void findnextavailablewformname() {
 
 void writewaveform() {
   
-if (sublevels[2] == numberofWaveforms) {
-  makenewwformfilename();
- // Serial.print("newnamed ");
- // Serial.println((char*)newWaveformspath);
-  
-  
-  mytxtFile = SD.open((char*)newWaveformspath, FILE_WRITE);
-} else {
-if (SD.exists((char*)Waveformsfullpath[sublevels[2]])) {
-  SD.remove((char*)Waveformsfullpath[sublevels[2]]);
-  }
-
-  mytxtFile = SD.open((char*)Waveformsfullpath[sublevels[2]], FILE_WRITE);
-} 
-  // if the file opened okay, write to it:
-  if (mytxtFile) {
-    Serial.print("Writing to ");
-    Serial.println(mytxtFile.name());
-    writewaveforms();
-    mytxtFile.close();
-    //Serial.println("done.");
-  } 
-
+    if (sublevels[2] == numberofWaveforms) {
+      makenewwformfilename(); 
+      mytxtFile = SD.open((char*)newWaveformspath, FILE_WRITE);
+    } else {
+    if (SD.exists((char*)Waveformsfullpath[sublevels[2]])) {
+      SD.remove((char*)Waveformsfullpath[sublevels[2]]);
+      }
+    
+      mytxtFile = SD.open((char*)Waveformsfullpath[sublevels[2]], FILE_WRITE);
+    } 
+      // if the file opened okay, write to it:
+      if (mytxtFile) {
+        Serial.print("Writing to ");
+        Serial.println(mytxtFile.name());
+        writewaveforms();
+        mytxtFile.close();
+        //Serial.println("done.");
+      } 
+    
    mytxtFile.close();
    dowaveformslist();
 }  
@@ -298,17 +294,41 @@ void setwaveformsnavrange() {
   
 }
 
-void writewaveforms() {
-  
-  mytxtFile.print("<WAVEFORM><WFORM>\n");
+int16_t myCustomWaveform[256] = { 
+  // Example waveform data
+  0,  201,  402,  603,  804,  1005,  1206,  1406,  1607,  1808,  2008,  2209,  2409,  2609,  2809,  3009, 
+  3209,  3409,  3608,  3808,  4007,  4206,  4405,  4603,  4802,  5000,  5199,  5397,  5594,  5792,  5989,  6186, 
+  6383,  6580,  6776,  6972,  7168,  7363,  7559,  7753,  7948,  8142,  8336,  8529,  8722,  8915,  9107,  9299, 
+  9490,  9681,  9871,  10061,  10251,  10440,  10628,  10817,  11004,  11191,  11378,  11564,  11750,  11935,  12119,  12303, 
+  12487,  12670,  12852,  13034,  13215,  13396,  13576,  13755,  13934,  14112,  14290,  14467,  14643,  14819,  14994,  15168, 
+  15342,  15515,  15687,  15859,  16030,  16200,  16370,  16539,  16707,  16875,  17042,  17208,  17374,  17539,  17703,  17867, 
+  18029,  18191,  18353,  18513,  18673,  18832,  18990,  19148,  19304,  19460,  19615,  19770,  19923,  20076,  20228,  20380, 
+  20530,  20680,  20829,  20977,  21124,  21270,  21416,  21560,  21704,  21847,  21989,  22131,  22271,  22411,  22549,  22687, 
+  22824,  22960,  23095,  23229,  23362,  23494,  23626,  23756,  23886,  24014,  24142,  24268,  24394,  24518,  24642,  24765, 
+  24887,  25007,  25127,  25245,  25363,  25479,  25595,  25709,  25823,  25935,  26047,  26157,  26266,  26375,  26482,  26589, 
+  26694,  26798,  26901,  27004,  27105,  27205,  27304,  27402,  27499,  27595,  27689,  27783,  27876,  27967,  28058,  28147, 
+  28236,  28323,  28409,  28494,  28578,  28660,  28742,  28823,  28902,  28980,  29057,  29133,  29208,  29281,  29354,  29425, 
+  29495,  29564,  29632,  29699,  29764,  29828,  29891,  29953,  30014,  30074,  30132,  30189,  30245,  30299,  30353,  30405, 
+  30456,  30506,  30554,  30601,  30647,  30691,  30735,  30777,  30818,  30857,  30896,  30933,  30968,  31003,  31036,  31068, 
+  31098,  31127,  31155,  31182,  31207,  31231,  31253,  31275,  31294,  31313,  31330,  31346,  31361,  31374,  31386,  31397, 
+  31406,  31414,  31420,  31426,  31430,  31433,  31434,  31435,  31434,  31432,  31428,  31423,  31417,  31409,  31400,  31389
+};
 
-  INTinsertwform(slope1,"slope1");
-  
+int16_t myNEWCustomWaveform[256] ;
+
+void writewaveforms() {
+  //mytxtFile.print("<WAVEFORM><WFORM>\n");
+  size_t writtenBytes = mytxtFile.write((byte*)myCustomWaveform, sizeof(myCustomWaveform));
+  //mytxtFile.write((byte*)waveformed_sine, sizeof(waveformed_sine));
+  if (writtenBytes != sizeof(myCustomWaveform)) {
+    Serial.println("Failed to write all waveform data to file");
+  } else {
+    Serial.println("Waveform data written to file.");
+  }
 }
 
 void readwaveform () {
-
-  parsefile(sublevels[2]);
+  parsewaveformfile(sublevels[2]);
 
 }
 
@@ -337,61 +357,20 @@ void deletewaveform() {
   dowaveformslist();
 }
 
-
-//CHANGE
-void INTinsertwform(int leint, char* leparam ) {
-  mytxtFile.print((char*)leparam);
-  mytxtFile.print(" ");
-    mytxtFile.print("#");
-  mytxtFile.print(int(leint));
-  mytxtFile.print("\n");
-}
-/*
-
-//CHANGE
-void FLOATinsertmytxtfile(float leint, char* leparam ) {
-  mytxtFile.print((char*)leparam);
-  mytxtFile.print(" ");
-    mytxtFile.print("#");
-  mytxtFile.print(float(leint));
-  mytxtFile.print("\n");
-}
-
-
-//CHANGE
-void parsefile(int presetn) {
-    byte tmp_mixlevelsM[4];
-    float tmp_mixlevelsL[4];
-    float tmp_WetMixMasters[4];
-    mytxtFile = SD.open((char*)Waveformsfullpath[presetn]);
-    if (mytxtFile) {
-    //already full, increse parsingbuffersize if more settings are added
-    for (int i=0 ; i < parsingbuffersize ; i++ ) {
-      receivedbitinchar[i] = mytxtFile.read() ;
-      }
-    }
-
-  Parser parser((byte*)receivedbitinchar, parsinglength);
- 
-  parser.Read_String('#'); 
-  parser.Skip(1); 
-  slope1 = parser.Read_Int16();
-
-   parser.Reset();
-   mytxtFile.close();
-   //Serial.println("parsing done");
-  setbpms();
-  setlepulse1();
-   setlepulse2();
-   ApplyADSR();
-  // Serial.println("adsr done");
-  le303filterzWet();
-  Wavespreamp303controls();
+//TODO: change filename selector -> only works with newfilename, get waveformfullpath working in write and read
+void parsewaveformfile(int presetn) {
+  //File file = SD.open(filename, FILE_READ);
+  mytxtFile = SD.open((char*)newWaveformspath, FILE_READ);
+  size_t readBytes = mytxtFile.read((byte*)myNEWCustomWaveform, sizeof(myNEWCustomWaveform));
   
-    le303filtercontrols();
-  setwet2smixlevel(0);
-  setwet2smixlevel(1);
+  if (readBytes != sizeof(myCustomWaveform)) {
+    Serial.println("Failed to read complete waveform data");
+  } else {
+    Serial.println("Waveform data read from file:");
+    for (int i = 0; i < 256; i++) {
+      Serial.println(myNEWCustomWaveform[i]);
+    }
+  }
     
+    mytxtFile.close();
 }
-*/
-          
