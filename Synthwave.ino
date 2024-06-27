@@ -5,6 +5,7 @@ void setlepulse1() {
     le303pulsewidth = 50 ;
   }
 }
+
 void setlepulse2() {
   le303pulsewidth2 = (le303pulsewidthmultiplier2/32.0)*2 * millitickinterval + 50 ;
    if (le303pulsewidth2 < 50 ) {
@@ -110,12 +111,12 @@ void le303filterVpanelAction() {
   }
 }
 
-
 void Wavespreamp303controls() {
   for (int i = 0 ; i < 8 ; i++) {
     Wavespreamp303[i]->gain(preampleswaves/128.0);
   }
 }
+
 void le303filterzWet() {
    for (int i = 0 ; i < 8 ; i++) {
     les303wet[i]->gain(0, le303filterzwet/100.0);
@@ -133,6 +134,7 @@ void le303filtercontrols() {
      les303filterz[i]->octaveControl(le303filterzoctv);
   }
 }
+
 void le303filterVpanel() {
   
   le303filterVpanelAction();
@@ -392,12 +394,12 @@ void initialize303group() {
 //(1+((128-preampleswaves)/128.0))
  
 }
+
 void setle303filterpass (int linei, float ladiff1 ) {
     les303passes[linei]->gain(0,(le303filterzgainz[0]*((0.01+((128.0-preampleswaves)/128.0))*1+((128.0-preampleswaves)/128.0)) * ladiff1));
     les303passes[linei]->gain(1,(le303filterzgainz[1]*((0.01+((128.0-preampleswaves)/128.0))*1+((128.0-preampleswaves)/128.0)) * ladiff1));
     les303passes[linei]->gain(2,(le303filterzgainz[2]*((0.01+((128.0-preampleswaves)/128.0))*1+((128.0-preampleswaves)/128.0)) * ladiff1));
 }
-
 
 void showmixerwaves() {
   char masterfulllabels[12][12] = {"Master", "Synth", "Sampler","FX1","FX2","FX3","Wet Synth","Wet Sampler","Waveline 1","Waveline 2","Waveline 3","Waveline 4",};
@@ -574,6 +576,7 @@ void setwavemixlevel(int lesynth) {
   }
   AudioInterrupts();
 }
+
 void actionwet1mixer(int linstru) {
 
   if (navlevel == 2 ) {
@@ -590,6 +593,7 @@ void actionwet1mixer(int linstru) {
   }
 //
 }
+
 void actionwet2mixer(int linstru) {
 
   if (navlevel == 2 ) {
@@ -608,7 +612,7 @@ void actionwet2mixer(int linstru) {
 
 void wetmixmastercontrols() {
   
-float sum = WetMixMasters[3]+WetMixMasters[2]+WetMixMasters[1];
+  float sum = WetMixMasters[3]+WetMixMasters[2]+WetMixMasters[1];
   
     // Adjust the values proportionally if the sum is not equal to 1
     if ((sum != 0) && (sum > 1)) {
@@ -625,7 +629,7 @@ float sum = WetMixMasters[3]+WetMixMasters[2]+WetMixMasters[1];
 }
 
 void setwet2smixlevel(int lebus) {
-AudioNoInterrupts();
+  AudioNoInterrupts();
      switch ( lebus ) {
        case 0 :
        //set synth on fx main bus
@@ -648,6 +652,7 @@ AudioNoInterrupts();
      } 
   AudioInterrupts();
 }
+
 void actionwmixer(int lesynth) {
 
   if (navlevel == 2 ) {
@@ -681,6 +686,7 @@ void actionwmixerM(int lebus) {
   }
 //
 }
+
 void setmastersmixlevel(int lebus) {
 AudioNoInterrupts();
      switch ( lebus ) {
@@ -703,6 +709,7 @@ AudioNoInterrupts();
      } 
   AudioInterrupts();
 }
+
 void setwavetypefromlist(int lesinthy, int letype) {
  //  Serial.print("Setting wave ");
         //  Serial.print(lesinthy);
@@ -836,7 +843,6 @@ if (letype == 10) {
  // printmixlevelsandtype();
 }
 
-
 void setpanlevel(int lesynth, int laval) {
       
       panLs[lesynth] = map( laval/10.0 ,0,2,0,1);
@@ -857,6 +863,7 @@ void setphaselevel(int lesynth) {
   
   AudioInterrupts();
 }
+
 void setphaser(int lesynth,float laphaze) {
   AudioNoInterrupts();
     phaselevelsL[lesynth]=round(laphaze*360.0);
@@ -900,7 +907,8 @@ void SetADSR() {
          adsrlevels[2] =   MadsrHold ;
         
   }
- void ApplyADSR() {
+
+void ApplyADSR() {
              
               for ( int i = 0 ; i < 8 ; i++ ) {
               enveloppesL[i]->delay(adsrlevels[0]);
@@ -921,10 +929,8 @@ void SetADSR() {
          MadsrHold = adsrlevels[2] ;   
  }
  
-
- 
 int getwavetyped(int lawavetype) {
-switch(lawavetype ) {
+  switch(lawavetype ) {
     case 0 :
     return WAVEFORM_SINE;
     break;

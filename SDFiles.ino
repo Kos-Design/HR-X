@@ -44,7 +44,8 @@ void initializePatternfilefullpath() {
      }  
   }
 }
- void setlePatternname(int lefile, char* lefname) {
+
+void setlePatternname(int lefile, char* lefname) {
  
   int fnamesize = strlen((char*)lefname) ;
   int stringsize = 9 + fnamesize ;
@@ -83,12 +84,14 @@ void listPatternfiles() {
      }
   }
 }
+
 void dopatternfileslist() {
    initializePatternfilefullpath();
    initializePatternfilesselected();
    listPatternfiles() ;
 
 }
+
 void initializeSynthPresetsselected(){
   numberofSynthPresetsselected = 0 ;
   for (int i = 0 ; i < 999 ; i++ ) {
@@ -121,7 +124,8 @@ void dopresetlist() {
    listSynthPresetfiles() ;
 
 }
- void setleSynthPresetname(int lefile, char* lefname) {
+
+void setleSynthPresetname(int lefile, char* lefname) {
  
   int fnamesize = strlen((char*)lefname) ;
   int stringsize = 14 + fnamesize ;
@@ -141,7 +145,6 @@ void dopresetlist() {
   SynthPresetbase[lefile][fnamesize-4] = (char)'\0' ;
     
   }
-
 
 void listSynthPresetfiles() {
    if (SD.exists((char*)SynthPresetdir)) {
@@ -187,11 +190,13 @@ void dosoundlist() {
     }
     //printthem();
 }
+
 void clearsizeofsamplefolder() {
   for ( int i = 0 ; i < 99 ; i++ ) {
   sizeofsamplefolder[i]=0;
   }
 }
+
 void voidsampledirpath() {
   for (int i = 0 ; i < 99 ; i++ ) {
     sampledirpath[i] = (char)'\0';
@@ -200,6 +205,7 @@ void voidsampledirpath() {
     sampledirpath[i] = (char*)"SOUNDSET/"[i]; 
    }
 }
+
 void makesoundsetfullpathfromchars(int eldir) {
    for (int i = 9 ; i < ( strlen( (char*)samplefoldersregistered[eldir] ) + 9 ) ; i++ ) {
     sampledirpath[i] = samplefoldersregistered[eldir][i-9] ;
@@ -269,6 +275,7 @@ void dosamplerfullpath(int lefolder, int lefile, char* lefilename) {
   //samplefullpath[lefolder][i][(strlen((char*)lepath)+9)]=(char*)"/"[0];
   //} 
 }
+
 void addtofullsamplerfolderpath(int lefolder, char* lepath) {
   for (int i = 0 ; i< 999 ; i++ ) {
     for (int j = 9 ; j< strlen((char*)lepath)+9 ; j++ ) {
@@ -278,11 +285,13 @@ void addtofullsamplerfolderpath(int lefolder, char* lepath) {
   samplefullpath[lefolder][i][(strlen((char*)lepath)+9)]=(char*)"/"[0];
   } 
 }
+
 void initializesamplefullpath() {
    for (int i = 0 ; i < 99 ; i++ ) {
     batchclearsamplefullpath(i);
   }
 }
+
 void batchclearsamplefullpath(int lefolder){
   for (int i = 0 ; i < 999 ; i++ ) {
     clearsamplefullpath(lefolder,i);
@@ -298,12 +307,12 @@ void clearsamplefullpath(int lefolder, int lefile){
    }
 }
 
-
 void initializesamplebase() {
    for (int i = 0 ; i < 99 ; i++ ) {
     batchclearsamplefullpath(i);
   }
 }
+
 void batchclearsamplebase(int lefolder){
   for (int i = 0 ; i < 999 ; i++ ) {
     clearsamplebase(lefolder,i);
@@ -316,7 +325,6 @@ void clearsamplebase(int lefolder, int lefile){
   }
 }
 
-
 void addtofolderix(char* lepathtoadd, int ix) {
 
   for (int i = 0 ; i< strlen((char*)lepathtoadd) ; i++ ) {
@@ -324,6 +332,7 @@ void addtofolderix(char* lepathtoadd, int ix) {
    }
 
 }
+
 void setupsamplefoldersregistered() {
   //i = 99 , j = 39
   for (int i = 0 ; i < szsset ; i++ ) {

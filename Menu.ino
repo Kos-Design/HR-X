@@ -1,5 +1,4 @@
 
-
 void displayadsrbars(int score) {
   if (navlevel == 3) {
   int sizeadsr = map(score,0,20,0,35);
@@ -26,6 +25,7 @@ void displayadsrbars(int score) {
 
   }
 }
+
 void displaypanbars(int score) {
    if (navlevel >= 4 ) {
      if (navlevel == 4 ) {
@@ -58,6 +58,7 @@ void displaypanbars(int score) {
   display.println(panLs[sublevels[2]]);
   display.display();
 }
+
 void displayoffsetwav(int synthi) {
   byte sizefreq ;
       
@@ -193,16 +194,19 @@ wavelinemenuBG(lesynthb);
   display.display();
   
 }
+
 void setfmtophase(byte lesynth){
   for (byte i = 0 ; i < nombreofliners ; i++ ) {
       FMwaveforms1[i+(lesynth*8)]->phaseModulation(180);
   }
 }
+
 void setfmtofreq(byte lesynth){
   for (byte i = 0 ; i < nombreofliners ; i++ ) {
       FMwaveforms1[i+(lesynth*8)]->frequencyModulation(10);
   }
 }
+
 void wavelineModulatedbool(int lesynthi) {
 if (navlevel == 4 ) {
     navrange = 2 ;
@@ -222,17 +226,21 @@ if (navlevel == 4 ) {
   displayModulatedbool(lesynthi);
 
 }
+
 void wavelinePhase(int lesynthi) {
   displayphasebars(phaselevelsL[lesynthi]);
 }
+
 void wavelineADSR(int lesynthi) {
   displayadsrbars(adsrlevels[0]);
 
 }
+
 void wavelineFreq(int lesynthi) {
   displayfreqbars(wavesfreqs[lesynthi]);
 
 }
+
 void wavelinePan(int lesynthi ) {
   displaypanbars(panLs[lesynthi]);
 
@@ -243,6 +251,7 @@ void wavelineoffset(int lesynthi) {
 displayoffsetwav(lesynthi);
 
 }
+
 void displaywaveformicon(int letype, char* lelabelw, const unsigned char img[], int lesinthy, typeof(WAVEFORM_SINE) wavetype )  {
 
  wavelinemenuBG(sublevels[2]);
@@ -334,7 +343,7 @@ void wavelineType(int lesynthi) {
 
 void wavelinepanel(int synthi) {
 
-switch(sublevels[3]) {
+  switch(sublevels[3]) {
 
       case 0:
 
@@ -390,6 +399,7 @@ switch(sublevels[3]) {
 }
 
 }
+
 void wavelinemenuBG(int synthi) {
   display.clearDisplay();
  // display.drawBitmap(35, 64-48+20, wavex, 104, 48, SSD1306_WHITE);
@@ -400,6 +410,7 @@ void wavelinemenuBG(int synthi) {
 
 
 }
+
 void wavelinesBG() {
   display.clearDisplay();
   display.drawBitmap(0, 64-47, wavesbg2, 128, 47, SSD1306_WHITE);
@@ -470,39 +481,38 @@ void wavelining(int startx, int starty, char* leprintlabel, int synthi ) {
     }
   }
 }
+
 void reinitsublevels(byte fromlei) {
   for (byte i = fromlei ; i < 7 ; i++ ) {
      sublevels[i] = 0 ;
   }
 }
+
 void synthmenu() {
   if (navlevel == 1) {
     display.clearDisplay();
     reinitsublevels(2);
-    
-   // displayleBGimg(wavesbg);
-//  selectbox(500,170, wavesbg , (char*)"\0" );
-  dolistsyntmenu();
-  dodisplay();
-  }
-  if (sublevels[1] == 3 && navlevel > 1){
-    navrange=3;
-    showsynthparamspanel();
-  }
-    if (sublevels[1] == 2) {
-      if (navlevel >= 2) {
-        if (navlevel == 2) {
-          navrange = 5;
-            }
-            navleveloverwrite = 2 ;
-            displayadsrgraph();
-        }
-    
+    dolistsyntmenu();
+    dodisplay();
     }
-//waves menu
-  if (sublevels[1] == 0) {
-  if (navlevel >= 2) {
-    if (navlevel == 2) {
+    
+    if (sublevels[1] == 3 && navlevel > 1){
+      navrange=3;
+      showsynthparamspanel();
+    }
+      if (sublevels[1] == 2) {
+        if (navlevel >= 2) {
+          if (navlevel == 2) {
+            navrange = 5;
+              }
+              navleveloverwrite = 2 ;
+              displayadsrgraph();
+          }
+      }
+      //waves menu
+    if (sublevels[1] == 0) {
+    if (navlevel >= 2) {
+      if (navlevel == 2) {
 
      navrange = 3;
     wavelinesBG();
@@ -553,7 +563,8 @@ float fxslopedown2(byte curve, float laxval) {
   
   return pow(laxval,(double)(curve/128.0));
 }
- float fxslopedown(byte slope, float laxval) {
+ 
+float fxslopedown(byte slope, float laxval) {
   float leresult = 0 ;
   switch(slope) {
     case 0: 
@@ -578,6 +589,7 @@ float fxslopedown2(byte curve, float laxval) {
  // letbfreq = (le303filterzrange+100-(le303filterzrange*ladiff1));
 //   letbfreq = le303filterzrange+100-(le303filterzrange*( sqrt( abs(sin(( (ladiff1))*3.14159 + 1.57))) ));
  }
+
 void actionsynthparamspanel() {
   
 if (navlevel == 3) {
@@ -596,6 +608,7 @@ if (navlevel == 3) {
  returntonav(2);
  }
 }
+
 void selectsynthparamspanel() {
   if (navlevel == 2) {
     navrange = 1 ;
@@ -611,50 +624,48 @@ void selectsynthparamspanel() {
   }
  }
 }
+
 void showsynthparamspanel() {
   actionsynthparamspanel();
   display.clearDisplay();
   canvasBIG.fillScreen(SSD1306_BLACK);
   canvastitle.fillScreen(SSD1306_BLACK);
-selectsynthparamspanel();
-  canvasBIG.setCursor(0,16);
-canvasBIG.setTextSize(1);
-canvasBIG.print("Sl1: ");
-canvasBIG.print(slope1);
-  canvasBIG.setCursor(64,16);
-canvasBIG.print("Sl2: ");
-canvasBIG.print(slope2);
-  canvasBIG.setCursor(0,16+10);
-canvasBIG.print("C.mode:");
-canvasBIG.print(cutoffmode);
-  canvasBIG.setCursor(64,16+10);
-canvasBIG.print("R.mode:");
-canvasBIG.print(resonancemode);
-  canvasBIG.setCursor(0,16+20);
-canvasBIG.print("param5:");
-canvasBIG.print(paramse1);
-  canvasBIG.setCursor(64,16+20);
-canvasBIG.print("param6:");
-canvasBIG.print(paramse2);
-dodisplay();
+  selectsynthparamspanel();
+    canvasBIG.setCursor(0,16);
+  canvasBIG.setTextSize(1);
+  canvasBIG.print("Sl1: ");
+  canvasBIG.print(slope1);
+    canvasBIG.setCursor(64,16);
+  canvasBIG.print("Sl2: ");
+  canvasBIG.print(slope2);
+    canvasBIG.setCursor(0,16+10);
+  canvasBIG.print("C.mode:");
+  canvasBIG.print(cutoffmode);
+    canvasBIG.setCursor(64,16+10);
+  canvasBIG.print("R.mode:");
+  canvasBIG.print(resonancemode);
+    canvasBIG.setCursor(0,16+20);
+  canvasBIG.print("param5:");
+  canvasBIG.print(paramse1);
+    canvasBIG.setCursor(64,16+20);
+  canvasBIG.print("param6:");
+  canvasBIG.print(paramse2);
+  dodisplay();
 }
+
 void lemenuroot() {
   if (navlevel == 0) {
     displaymenu();
   }
   if (navlevel > 0) {
-  switch(sublevels[0]) {
-
+   switch(sublevels[0]) {
       case 0 :
-
       if (navlevel >= 1) {
         if (navlevel == 1) {
-        navrange = 4;
-        }
-        
+          navrange = 4;
+          }
           synthmenu();
-      }
-
+        }
       break;
       case 1 :
   
@@ -712,7 +723,8 @@ void lemenuroot() {
         case 8 :
        
        if (navlevel >= 1) {
-             Vbuttonspanel();
+            // Vbuttonspanel() -> move to settings.
+             displaywaveformsmenu();
          }
        break;
         case 9 :
@@ -775,7 +787,7 @@ void displaymenu() {
        selectbox(53,41);     
        break;
         case 8 :
-       toprint = (char*)"V buttons";
+       toprint = (char*)"Waveformer";
        selectbox(77,41);    
        break;
         case 9 :

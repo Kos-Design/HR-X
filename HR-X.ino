@@ -128,12 +128,25 @@ EXTMEM char SynthPresetname[999][13];
 EXTMEM char SynthPresetfullpath[999][28];
 EXTMEM char SynthPresetbase[999][9];
 EXTMEM bool SynthPresetsselected[999];
-
 int numberofSynthPresetsselected = 0 ;
 int numberofSynthPresets = 0 ;
 int synsetdizaines = 0 ;
 int synsetunites = 0 ;
 char newpresetpath[28] = {"PRESETS/SYNTH/SYNSET01.TXT"};
+
+
+const byte truesizeofwaveformsmenulabels = 5;
+EXTMEM char Waveformsname[999][13];
+EXTMEM char Waveformsfullpath[999][22];
+EXTMEM char Waveformsbase[999][9];
+EXTMEM bool Waveformsselected[999];
+int numberofWaveformsselected = 0 ;
+int numberofWaveforms = 0 ;
+int Waveformsdizaines = 0 ;
+int Waveformsunites = 0 ;
+char newWaveformspath[22] = {"WAVEFORM/WFORM-01.TXT"};
+char Waveformsdir[10] = {"WAVEFORM/"};
+
 char newRecpathL[28] = {"SOUNDSET/REC/RECZ00#L.RAW"};
 char newRecpathR[28] = {"SOUNDSET/REC/RECZ00#R.RAW"};
 int navlevelvbuttons = 1 ;
@@ -939,7 +952,7 @@ AudioAmplifier *Wavespreamp303[8] = {&wavePAmp0, &wavePAmp1, &wavePAmp2, &wavePA
 
 AudioSynthWaveform *LFOwaveforms1[4]  = { &LFOrm1 , &LFOrm2, &LFOrm3, &LFOrm4 }  ;   
 
-const int16_t waveformed[256] = {
+int16_t waveformed[256] = {
    0,   201,   402,   603,   804,  1005,  1206,  1406,  1607,  1808,  2008,  2209,  2409,  2609,  2809,  3009, 
 3209,  3409,  3608,  3808,  4007,  4206,  4405,  4603,  4802,  5000,  5199,  5397,  5594,  5792,  5989,  6186, 
 6383,  6580,  6776,  6972,  7168,  7363,  7559,  7753,  7948,  8142,  8336,  8529,  8722,  8915,  9107,  9299, 

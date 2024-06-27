@@ -1,32 +1,15 @@
 
-
 void setupscreen() {
   
-//Wire.begin(A4, A5);
-  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-   // Serial.println(F("SSD1306 allocation failed"));
+    Serial.println(F("Screen SSD1306 allocation failed"));
     for(;;); // Don't proceed, loop forever
   }
-
   display.display();
-  
-   display.setCursor(0,0);
- display.setTextSize(1.5);                
-display.setTextColor(SSD1306_WHITE);
-  // Clear the buffer
+  display.setCursor(0,0);
+  display.setTextSize(1.5);                
+  display.setTextColor(SSD1306_WHITE);
   display.clearDisplay();
-//display.drawPixel(10, 10, SSD1306_WHITE);
-// Invert and restore display, pausing in-between
-//  display.invertDisplay(true);
-//  
-//  display.invertDisplay(false);
-// 
-//    display.invertDisplay(true);
-//  
-//
-//display.cp437(true);  full font 256 chars
-//testanimate(logo_bmp, LOGO_WIDTH, LOGO_HEIGHT); // Animate bitmaps
   }
  
 void debugmidi(char* typemsg = (char*)"midi ", byte channel = 0, byte mnote = 0 , byte mvelocity = 0) {
@@ -46,6 +29,7 @@ void debugmidi(char* typemsg = (char*)"midi ", byte channel = 0, byte mnote = 0 
 
    dodisplay();
 }
+
 void displayadsrgraph() {
   if (sublevels[2] == 2 ) {
      navleveloverwrite = 2 ;
@@ -95,12 +79,6 @@ void displayadsrgraph() {
     
       canvasBIG.fillScreen(SSD1306_BLACK);
     
-// Serial.println(totalliner);
-//  Serial.println(suY);
-// 
-
- 
-  
  switch(sublevels[navleveloverwrite]) {
   case 0 :  
   display.fillRect(startx, starty, round(MadsrAttackDelay*10*linerratio)+1, 45, SSD1306_INVERSE);
@@ -151,6 +129,7 @@ void displayadsrgraph() {
     
       canvasBIG.fillScreen(SSD1306_BLACK);
 }
+
 void GlobalADSR(){
   
  SetADSR();
@@ -158,6 +137,7 @@ void GlobalADSR(){
  
   
 }
+
 void sliceA() {
   if (navlevel == navleveloverwrite+1) {
    
@@ -181,15 +161,6 @@ void sliceA() {
      // Serial.println("setting global");
     GlobalADSR();
     }
-     
-//    navlevel = navleveloverwrite ;
-//    navrange = 5 ;
-//    
-//    sublevels[navleveloverwrite]= 1 ;
-//    vraipos = 1;
-//    myEnc.write(4);
-
-  
     returntonav(navleveloverwrite,5);
    Serial.println("returned twice");
    
@@ -205,6 +176,7 @@ void sliceA() {
     canvastitle.println(mappedattack);
   //Serial.print("displayd SliceA");
 }
+
 void sliceDa() {
    if (navlevel == navleveloverwrite+1) {
    
@@ -237,7 +209,6 @@ void sliceDa() {
 
 }
  
- 
 void sliceH() {
    if (navlevel == navleveloverwrite+1) {
     sublevels[navlevel+1]= MadsrHold ;
@@ -267,7 +238,6 @@ void sliceH() {
     canvastitle.println(MadsrHold);
 
 }
-
 
 void sliceD() {
    
@@ -363,12 +333,10 @@ void sliceR() {
 
 }
 
-
-
 void dolistwavelineparams() {
-  char wavelineslabels[truesizeofwavelineslabels][12] = {"Type", "Modulated", "LFO", "Freq", "Offset", "Phase", "<-  ","  ->"};
-    int startx = 5;
-  int starty = 16;
+   char wavelineslabels[truesizeofwavelineslabels][12] = {"Type", "Modulated", "LFO", "Freq", "Offset", "Phase", "<-  ","  ->"};
+   int startx = 5;
+   int starty = 16;
    char* textin = (char*)wavelineslabels[sublevels[3]] ;
 
     canvastitle.fillScreen(SSD1306_BLACK);
@@ -384,14 +352,14 @@ void dolistwavelineparams() {
   
     for (int filer = 0 ; filer < truesizeofwavelineslabels-1 -(sublevels[3]) ; filer++) {
 
-canvasBIG.setCursor(startx,starty+((filer)*10));
-canvasBIG.println(wavelineslabels[sublevels[3]+1+filer]);
-  }
-    for (int filer = 0 ; filer < sublevels[3]  ; filer++) {
-
-canvasBIG.setCursor(startx,(10*(truesizeofwavelineslabels-sublevels[3])+6+((filer)*10)));
-canvasBIG.println(wavelineslabels[filer]);
-  }
+    canvasBIG.setCursor(startx,starty+((filer)*10));
+    canvasBIG.println(wavelineslabels[sublevels[3]+1+filer]);
+    }
+      for (int filer = 0 ; filer < sublevels[3]  ; filer++) {
+  
+    canvasBIG.setCursor(startx,(10*(truesizeofwavelineslabels-sublevels[3])+6+((filer)*10)));
+    canvasBIG.println(wavelineslabels[filer]);
+    }
 
 }
 
@@ -401,18 +369,13 @@ void dolistsyntmenu() {
   //removeExt(textin);
   byte startx = 5;
   byte starty = 16;
-   char* textin = (char*)synthmenulabels[sublevels[1]] ;
-
+    char* textin = (char*)synthmenulabels[sublevels[1]] ;
     canvastitle.fillScreen(SSD1306_BLACK);
     canvastitle.setCursor(0,0);
-    
     canvastitle.setTextSize(2);
-
     canvastitle.println(textin);
-
-     canvasBIG.setTextSize(1);
-
-  canvasBIG.fillScreen(SSD1306_BLACK);
+    canvasBIG.setTextSize(1);
+    canvasBIG.fillScreen(SSD1306_BLACK);
     for (int filer = 0 ; filer < 4 -(sublevels[1]) ; filer++) {
     canvasBIG.setCursor(startx,starty+((filer)*10));
     canvasBIG.println(synthmenulabels[sublevels[1]+1+filer]);
@@ -422,6 +385,7 @@ void dolistsyntmenu() {
       canvasBIG.println(synthmenulabels[filer]);
   }
 }
+
 void dodisplay() {
       display.drawBitmap(0, 0, canvasBIG.getBuffer(), 128, 64, SSD1306_WHITE);
       display.drawBitmap(0, 0, canvastitle.getBuffer(), 128, 16, SSD1306_WHITE);
@@ -450,29 +414,12 @@ void selectbox(int posX, int posY){
 
 }
 
-//void voidleselecteddir() {
-//  Serial.print("voiding selecteddir ");
-//  for (int i = 0 ;  i < 99 ; i++ ) {
-//    leselecteddir[i] = (char)'\0';
-//  }
-//}
-//void setleselecteddir(char* ledir) {
-//  voidleselecteddir();
-//  for (int i = 0 ;  i < strlen((char*)ledir) ; i++ ) {
-//  leselecteddir[i] = ledir[i];
-//  }
-//  Serial.print("selected dir set via setleselecteddir : ");
-//  Serial.println((char*)leselecteddir);
-//}
 void dodisplayplayhead() {
-  //getledisplaybuffer();
- // getledisplaybuffer();
    display.clearDisplay();
-   //getledisplaybuffer
+
       display.drawBitmap(0, 0, canvasBIG2.getBuffer(), 128, 64, SSD1306_WHITE);
       display.drawLine(tickposition*4,0,tickposition*4,64,SSD1306_WHITE);
       display.display();
-  
 }
 
 void dodisplay2() {
