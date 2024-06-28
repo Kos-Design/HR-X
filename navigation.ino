@@ -59,16 +59,8 @@ void evalrota() {
     if ( vraipos != oldvraipos ) {
       oldvraipos = vraipos ;
       sublevels[navlevel] = vraipos;
-//    if ((sublevels[0]==6 )&& (navlevel > 0)){
-//      MainFxPanel();
-//     } else  {
-//      //if ((sublevels[0]==8 )&& (navlevel > 1)){
-//       // pacificexplorer();
-//     // } 
-//     // else {
-        lemenuroot();
-//      //}
-//     }
+      lemenuroot();
+
       printit();
   
   }
@@ -76,31 +68,13 @@ void evalrota() {
 }
 
 void evalinputs() {
-//  if ( Menub.fallingEdge() ) {
-//    Serial.println("Menu");
-//     rotamode = 1 ;
-//     plusminusmode = 0 ;
-//      navlevel = 0 ;
-//      sublevels[navlevel] = 0 ;
-//      navin = 1 ;
-//     
-//      lemenuroot();
-//      
-//  }
+
 bool backed = false;
 backed = Pads.get_back() ;
   if (backed ) {
-    //Backb.fallingEdge()
-   // Serial.println("Back");
-    
+  
       sublevels[navlevel] = 0 ;
-//      if ( playRawL.isPlaying() ) {
-//        playRawL.stop();
-//      }
-//       if ( playSdWav1.isPlaying() ) {
-//        playSdWav1.stop();
-//      }
-     
+
      if ( navlevel > 0 ) { 
       navlevel--; 
       }
@@ -110,16 +84,14 @@ backed = Pads.get_back() ;
      }
 
         lemenuroot();
-
+          printit();
   }
   if ( clicked.fallingEdge() ) {
-    //Serial.println("up");
-    
-     navlevel++;
+    navlevel++;
     vraipos = sublevels[navlevel];
     myEnc.write(sublevels[navlevel]*4);
-
-        lemenuroot();   
+    lemenuroot();
+    printit();   
   }
 
  

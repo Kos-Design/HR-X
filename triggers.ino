@@ -56,26 +56,16 @@ void setfreqWavelines(float tune, int liner, byte velocityz) {
     waveforms1[liner+(i*8)]->frequency(tune*wavesfreqs[i]);
     waveforms1[liner+(i*8)]->offset((float)(((64.0-wave1offset[i])/64.0)));
     waveforms1[liner+(i*8)]->phase(phaselevelsL[i]);
-//    if (FMmodulated[i] == 2 ) {
-//    FMwaveforms1[liner+(i*8)]->phaseModulation(180);
-//    }
-//   if (FMmodulated[i] == 1 ) {
-//    FMwaveforms1[liner+(i*8)]->frequencyModulation(10);
-//   }
     FMwaveforms1[liner+(i*8)]->frequency(tune*wavesfreqs[i]);
     FMwaveforms1[liner+(i*8)]->amplitude(velocityz/128.0); 
     FMwaveforms1[liner+(i*8)]->offset((float)(((64.0-wave1offset[i])/64.0)));
-    
     drums1[liner+(i*8)]->length(adsrlevels[1]+adsrlevels[2]+adsrlevels[3]);
     drums1[liner+(i*8)]->frequency(tune*wavesfreqs[i]);
     drums1[liner+(i*8)]->noteOn();
     strings1[liner+(i*8)]->noteOn(tune*wavesfreqs[i],(velocityz/128.0));
-    
- 
   }
 
 }
-
 
 void setchordnotes(byte absolutenote, byte lachord) {
 
@@ -1090,23 +1080,14 @@ void sanitizeoffline(int linei){
 int getnextposofevent1Off(int linei , byte lanote, int fromi){
  
         for (int i = fromi+1; i < pbars ; i++ ) {
-          
-            if (event1notesOff[linei][i][1] == lanote ){
-             
-              return i;
-                 }
-                 if (event1notes1[linei][i][1] == lanote ){
-                  // event1notesOff[linei][i][0] = event1notes1[linei][i][0] ;
-                  // event1notesOff[linei][i][1] = lanote ;
-                //  set a noteoffevent
-                 }
-            // event1notesOff[linei][fromi+1][0] = event1notes1[linei][fromi][0] ;
-            // event1notesOff[linei][fromi+1][1] = lanote ;
+          if (event1notesOff[linei][i][1] == lanote ){
+            return i;
            }
-     
- return (fromi+1);
+             //if (event1notes1[linei][i][1] == lanote ){ 
+             //} 
+        }
+    return (fromi+1);
 }
-
 
 void tweakfreqlive(int liner, float tune) {
   AudioNoInterrupts();
@@ -1117,6 +1098,7 @@ void tweakfreqlive(int liner, float tune) {
          }
          AudioInterrupts();
 }
+
 void stopglidenote(byte liner) {
    // during loop shift freq & restart freqs interpolating from last note during glide duration hold+atck?
    dogliding[liner] = 0 ;

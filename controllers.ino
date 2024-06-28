@@ -288,17 +288,17 @@ void controlswitcher(int caser, int valu) {
       }  
     }
         if (demimalmode) {
-           wavesfreqs[ccsynthselector] =  (smallfloat*10.0)/10.0 ;
+           wavesfreqs[ccsynthselector] = (smallfloat*10.0)/10.0 ;
           }
      
        if (!demimalmode) {
-             wavesfreqs[ccsynthselector] =  round(smallfloat*10.0) ;
+             wavesfreqs[ccsynthselector] = round(smallfloat*10.0) ;
           }
           break;
 
           case 47 :
            Serial.println("got to 47");
-          mixlevelsL[ccsynthselector]= smallfloat ;
+          mixlevelsL[ccsynthselector] = smallfloat ;
           break;
            case 48:
               //panLs[i-1]
@@ -306,8 +306,8 @@ void controlswitcher(int caser, int valu) {
             setwavemixlevel(ccsynthselector);
                break;
                 case 49:
-            FMmodulated[ccsynthselector] =  round(smallfloat*2.0);
-           setwavetypefromlist(ccsynthselector, Waveformstyped[ccsynthselector]);
+            FMmodulated[ccsynthselector] = round(smallfloat*2.0);
+            setwavetypefromlist(ccsynthselector, Waveformstyped[ccsynthselector]);
                break;
 
                case 50:
@@ -316,7 +316,7 @@ void controlswitcher(int caser, int valu) {
                setwavetypefromlist(ccsynthselector, Waveformstyped[ccsynthselector]);
                break;
                case 51:
-                wave1offset[ccsynthselector]= round(smallfloat*128.0) ;
+                wave1offset[ccsynthselector] = round(smallfloat*128.0) ;
                 for (int i=0 ; i < nombreofliners ; i++ ) {
                       waveforms1[i+(ccsynthselector*8)]->offset((float)(((64.0-wave1offset[ccsynthselector])/64.0)));
                       FMwaveforms1[i+(ccsynthselector*8)]->offset((float)(((64.0-wave1offset[ccsynthselector])/64.0)));

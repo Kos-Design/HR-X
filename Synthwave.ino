@@ -369,30 +369,15 @@ void le303filterVpanelSelector() {
 }
 
 void initialize303group() {
-  
-//  FMlfoL1.begin(1,1,WAVEFORM_SINE);
- // lfo303L1.begin(1,55,WAVEFORM_SINE);
 
- // filter303L1.frequency(220);
- // filter303L1.resonance(5);
- // filter303L1.octaveControl(7);
- 
   for ( int i = 0 ; i < 8 ; i++) {
     setle303filterpass(i,1.0);
-   // les303passes[i]->gain(0, 1);
-   // les303passes[i]->gain(1, 1);
-   // les303passes[i]->gain(2, 0);
-    
     les303wet[i]->gain(1, 1);
     les303wet[i]->gain(0, 0);
-
     les303filterz[i]->frequency(220);
     les303filterz[i]->resonance(5);
     les303filterz[i]->octaveControl(7);
   }
-
-//(1+((128-preampleswaves)/128.0))
- 
 }
 
 void setle303filterpass (int linei, float ladiff1 ) {
@@ -426,16 +411,16 @@ void showmixerwaves() {
     canvasBIG.setTextSize(1);
    canvasBIG.setCursor(0,0);
       canvasBIG.print((char*)masterfulllabels[sublevels[2]]);
-
-byte centercirclex ;
-byte centercircley ;
-byte xcentershifter ;
-byte knobradius = 7 ;
-byte trianglepointx;
-byte trianglepointy ; 
-byte yshifter = 46 ;
- float coeffangle  ;
-xcentershifter = (knobradius * 2 ) + 6 ;
+    
+    byte centercirclex ;
+    byte centercircley ;
+    byte xcentershifter ;
+    byte knobradius = 7 ;
+    byte trianglepointx;
+    byte trianglepointy ; 
+    byte yshifter = 46 ;
+     float coeffangle  ;
+    xcentershifter = (knobradius * 2 ) + 6 ;
 
 
     for (int i = 0 ; i < 3 ; i++ ) {
@@ -443,8 +428,8 @@ xcentershifter = (knobradius * 2 ) + 6 ;
     coeffangle = (6.2831-(mixlevelsM[i]/128.0)*6.2831)+3.1416 ;
     centercirclex = knobradius+(xcentershifter*i);
     centercircley = 16+knobradius ;
- canvastitle.setCursor(centercirclex-5,8);
- canvastitle.setTextSize(1);
+    canvastitle.setCursor(centercirclex-5,8);
+    canvastitle.setTextSize(1);
  
     canvastitle.print((char)masterfulllabels[i][0]);
     canvastitle.print((char)masterfulllabels[i][2]);
@@ -460,51 +445,32 @@ xcentershifter = (knobradius * 2 ) + 6 ;
     }
     
     if (slct<3) {
-       centercirclex = knobradius+(xcentershifter*slct);
-      canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
+    centercirclex = knobradius+(xcentershifter*slct);
+    canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
     canvastitle.setCursor(95,0);
-   canvastitle.print((mixlevelsM[slct]/128.0)*100.0,1);
+    canvastitle.print((mixlevelsM[slct]/128.0)*100.0,1);
     }
-    
-    //centercirclex =  knobradius+(xcentershifter*3); 
-   
-    for (int i = 0 ; i < 3 ; i++ ) {
- 
-    coeffangle = (6.2831-(WetMixMasters[i+1])*6.2831)+3.1416 ;
-
-      // Serial.print(i); 
-      // Serial.print(" "); 
-      // Serial.print(vPots[16-i]/128.0); 
-      //   Serial.print(" angle "); 
-      // Serial.println(angleofknob); 
-   // barsize = round(mixlevelsL[i] * (totbartall-4));
-   //   barsize = round(mixlevelsM[i] * (totbartall-4));
-     
-    centercirclex = knobradius+(xcentershifter*i)+5+(xcentershifter*3);
-        centercircley = 16+knobradius ;
-    canvastitle.setCursor(centercirclex-8,8);
-     canvastitle.setTextSize(1);
- 
-    canvastitle.print((char*)masterfulllabels[i+3]);
   
-    canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
-   
-   
-    trianglepointx = round(centercirclex + (knobradius*( cos(coeffangle) )));
-    trianglepointy = round(centercircley - (knobradius*( sin(coeffangle) )));
+    for (int i = 0 ; i < 3 ; i++ ) {
+        coeffangle = (6.2831-(WetMixMasters[i+1])*6.2831)+3.1416 ;
+        centercirclex = knobradius+(xcentershifter*i)+5+(xcentershifter*3);
+        centercircley = 16+knobradius ;
+        canvastitle.setCursor(centercirclex-8,8);
+        canvastitle.setTextSize(1);
+        canvastitle.print((char*)masterfulllabels[i+3]);
+        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        trianglepointx = round(centercirclex + (knobradius*( cos(coeffangle) )));
+        trianglepointy = round(centercircley - (knobradius*( sin(coeffangle) )));
 
     display.drawLine(centercirclex,centercircley,trianglepointx,trianglepointy,SSD1306_WHITE);
 
     }
      
    if (slct>2 && slct<6 ) {
-     centercirclex = knobradius+(xcentershifter*(slct-3))+5+(xcentershifter*3);
-       // centercircley = 16+knobradius ;
-      //centercirclex = knobradius+(xcentershifter*slct)+5+(xcentershifter*3);
-      
+      centercirclex = knobradius+(xcentershifter*(slct-3))+5+(xcentershifter*3);
       canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2, SSD1306_WHITE);
-       canvastitle.setCursor(95,0);
-   canvastitle.print(WetMixMasters[slct-3+1]*100.0,1) ;
+      canvastitle.setCursor(95,0);
+      canvastitle.print(WetMixMasters[slct-3+1]*100.0,1) ;
     }
    
    for (int i = 0 ; i < 2 ; i++ ) {
@@ -512,15 +478,10 @@ xcentershifter = (knobradius * 2 ) + 6 ;
     coeffangle = (6.2831-(wetins[i]/128.0)*6.2831)+3.1416 ;   
     centercirclex = knobradius+(xcentershifter*i);
     centercircley =yshifter+knobradius ;
-   canvasBIG.setCursor(centercirclex-7,centercircley-(2+knobradius*2));
- 
- 
+    canvasBIG.setCursor(centercirclex-7,centercircley-(2+knobradius*2));
     canvasBIG.print("Ws");
-     canvasBIG.print(i);
-    //canvastitle.print((char)masterfulllabels[i][2]);
+    canvasBIG.print(i);
     canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
-   
-   
     trianglepointx = round(centercirclex + (knobradius*( cos(coeffangle) )));
     trianglepointy = round(centercircley - (knobradius*( sin(coeffangle) )));
 
@@ -535,8 +496,6 @@ xcentershifter = (knobradius * 2 ) + 6 ;
        canvastitle.setCursor(95,0);
       canvastitle.print((wetins[slct-6]/128.0)*100.0,1);
     }
-    //centercirclex =  knobradius+(xcentershifter*3); 
-   
     for (int i = 0 ; i < 4 ; i++ ) {
  
     coeffangle = (6.2831-(mixlevelsL[i])*6.2831)+3.1416 ;
@@ -544,8 +503,6 @@ xcentershifter = (knobradius * 2 ) + 6 ;
     centercirclex = knobradius+(xcentershifter*i)+5+(xcentershifter*2);
     centercircley = yshifter+knobradius ;
     canvasBIG.setCursor(centercirclex-5,centercircley-(2+knobradius*2));
- 
- 
     canvasBIG.print("W");
      canvasBIG.print(i);
     canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
@@ -711,6 +668,7 @@ AudioNoInterrupts();
 }
 
 void setwavetypefromlist(int lesinthy, int letype) {
+  Serial.println("setting wave type");
   AudioNoInterrupts();
     Waveformstyped[lesinthy] = letype;
    
@@ -761,6 +719,7 @@ void setwavetypefromlist(int lesinthy, int letype) {
   }  
   
   else {
+    
     //modulated
     if (FMmodulated[lesinthy] == 1 ) {
       setfmtofreq(lesinthy);
@@ -813,7 +772,9 @@ void setwavetypefromlist(int lesinthy, int letype) {
          
           }
    }
-  }        
+  }
+          
+  // synth line off
   if (letype == 11) {
     mixlevelsL[lesinthy] = 0;
      for (int i = 0 ; i< nombreofliners ; i++ ) {
@@ -829,19 +790,15 @@ void setwavetypefromlist(int lesinthy, int letype) {
     }
   AudioInterrupts();  
   setwavemixlevel(lesinthy);
-     //  Serial.print(" end of setwavetypefromlist: ");
  // printmixlevelsandtype();
 }
 
 void setpanlevel(int lesynth, int laval) {
-      
       panLs[lesynth] = map( laval/10.0 ,0,2,0,1);
       // panLs[lesynth] = map( 2-laval/10.0 ,0,2,0,1);
        setwavemixlevel(lesynth);
-
-//waves : MasterL (1) & R + FXBusL & R (2)
-
-      
+      //waves : MasterL (1) & R + FXBusL & R (2)
+  
 }
 
 void setphaselevel(int lesynth) {
@@ -871,18 +828,18 @@ void setleLFOfrequency(float tune, int lelfor) {
    
 void setsynthfrequencyi(float tune, int voice, byte velocityz) {
      //AudioNoInterrupts();
-
-for (int i=0 ; i < 4; i++ ) {
- 
-  waveforms1[voice+(i*8)]->frequency(tune*wavesfreqs[i-1]);
-  waveforms1[voice+(i*8)]->amplitude(velocityz/128.0);
-    FMwaveforms1[i+voice*4]->frequency(tune*wavesfreqs[i-1]);
-    FMwaveforms1[i+voice*4]->amplitude(velocityz/128.0);
-  
-   
-  drums1[i+voice*8]->length(velocityz*5);
-  drums1[i+4+voice*8]->length(velocityz*5);
-}
+    
+    for (int i=0 ; i < 4; i++ ) {
+     
+      waveforms1[voice+(i*8)]->frequency(tune*wavesfreqs[i-1]);
+      waveforms1[voice+(i*8)]->amplitude(velocityz/128.0);
+        FMwaveforms1[i+voice*4]->frequency(tune*wavesfreqs[i-1]);
+        FMwaveforms1[i+voice*4]->amplitude(velocityz/128.0);
+      
+       
+      drums1[i+voice*8]->length(velocityz*5);
+      drums1[i+4+voice*8]->length(velocityz*5);
+    }
 
    //AudioInterrupts();
 }

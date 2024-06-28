@@ -269,27 +269,16 @@ display.setTextSize(1); // Draw 1X-scale text
     navrange = 11;
        // Serial.println("Setting TYPE");
        Waveformstyped[lesinthy] = sublevels[4] ;
-  
-         // sublevels[4] = Waveformstyped[lesinthy] ;
-       
-        //sublevels[3] = 0;
-      
-        setwavetypefromlist(lesinthy, Waveformstyped[lesinthy]);
-        if ( Waveformstyped[lesinthy] == 11) {
-    
-          mixlevelsL[lesinthy] = 0.0 ;
-         
-           setwavemixlevel(lesinthy);
-        }
-  }
- if (navlevel > 4 ) {
-          returntonav(3,7);
-      
-
        }
-     
-
-  
+       
+      if (navlevel > 4 ) {
+        setwavetypefromlist(lesinthy, Waveformstyped[lesinthy]);
+       if ( Waveformstyped[lesinthy] == 11) {
+          mixlevelsL[lesinthy] = 0.0 ;
+          setwavemixlevel(lesinthy);
+          }
+       returntonav(3,7);    
+       }    
 }
 
 void wavelineType(int lesynthi) {
