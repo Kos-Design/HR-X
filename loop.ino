@@ -106,7 +106,12 @@ if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
         myEnc.write(4*sublevels[2]);
         }
           OnBoardVpanel();
-    } else {
+    } else if ((sublevels[0] == 8 ) && (sublevels[1] == 4 ) && (navlevel == 2)) {
+      if (paddered == 17) {
+        trace_waveform = !trace_waveform ;
+      }
+    }
+    else {
      if (cc_note_num <= 0 ){
         MaControlChange(but_channel[11+paddered], (byte)pot_assignements[11+paddered], 64) ;
    } else {
@@ -158,10 +163,13 @@ if ((pad_result.pad_result[2] == 1 ) && (paddered != 36)) {
      if (c_change > 0 )  {
       
       if (itr < 15 ) {
+        
       if ((sublevels[0] == 5 ) && (sublevels[1] == 11 ) && (itr == 6)) {
         but_velocity[sublevels[2]]=(byte)((c_change/1024.0)*128);
         OnBoardVpanel() ;
-      } else {
+      } 
+     
+      else {
       MaControlChange(muxed_channels[itr], (byte)muxed_pots[itr], (byte)((c_change/1024.0)*128)) ;
       }
      /*

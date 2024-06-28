@@ -711,122 +711,111 @@ AudioNoInterrupts();
 }
 
 void setwavetypefromlist(int lesinthy, int letype) {
- //  Serial.print("Setting wave ");
-        //  Serial.print(lesinthy);
-         // Serial.print(" to type");
-         // Serial.println(letype);
+  AudioNoInterrupts();
     Waveformstyped[lesinthy] = letype;
-    //if (letype != 11) {
-   // mixlevelsL[lesinthy] = 0.3;
-   // }
-   //  Serial.print(" begining of setwavetypefromlist: ");
-  //printmixlevelsandtype();
+   
   if (FMmodulated[lesinthy] == 0 ) {
   
-      if (letype < 9) {
+   if (letype < 9) {
      for (int i = 0 ; i< nombreofliners ; i++ ) {
-   wavelinescords[i+(8*lesinthy)]->connect();
-       waveforms1[i+(8*lesinthy)]->begin(lesformes[letype]);
+   
         FMwavecords1[i+(8*lesinthy)]->disconnect();
         stringcords1[i+(8*lesinthy)]->disconnect();
-      modulatecords1[i+(8*lesinthy)]->disconnect();
+        modulatecords1[i+(8*lesinthy)]->disconnect();
         MDdrumcords1[i+(8*lesinthy)]->disconnect();
-      MDstringcords1[i+(8*lesinthy)]->disconnect();
-          drumcords1[i+(8*lesinthy)]->disconnect();
-        
-      
-    }
-  } else {
-
-if (letype == 9) {
-   for (int i = 0 ; i< nombreofliners ; i++ ) {
-      wavelinescords[i+(lesinthy*8)]->disconnect();
-       stringcords1[i+(lesinthy*8)]->disconnect();
-        FMwavecords1[i+(lesinthy*8)]->disconnect();
-         modulatecords1[i+(8*lesinthy)]->disconnect();
-      MDdrumcords1[i+(8*lesinthy)]->disconnect();
-      MDstringcords1[i+(8*lesinthy)]->disconnect();
-        drumcords1[i+(lesinthy*8)]->connect();
-        }
-}
-  
-if (letype == 10) {
-
-   for (int i = 0 ; i< nombreofliners ; i++ ) {
-      wavelinescords[i+(lesinthy*8)]->disconnect();
-          drumcords1[i+(lesinthy*8)]->disconnect();
-        FMwavecords1[i+(lesinthy*8)]->disconnect();
-      modulatecords1[i+(8*lesinthy)]->disconnect();
-        MDdrumcords1[i+(8*lesinthy)]->disconnect();
-      MDstringcords1[i+(8*lesinthy)]->disconnect();
-        stringcords1[i+(lesinthy*8)]->connect();
-        
-        }
-}
-  
-
-  }
-  } else {
-    if (FMmodulated[lesinthy] == 1 ) {
-          setfmtofreq(lesinthy);
-          }
-          if (FMmodulated[lesinthy] == 2 ) {
-            setfmtophase(lesinthy);
-          }
-     
-  //modulated
-if (letype < 9) {
-        
-      for (int i = 0 ; i< nombreofliners ; i++ ) {
-      wavelinescords[i+(8*lesinthy)]->disconnect();
-      modulatecords1[i+(8*lesinthy)]->disconnect();
-      MDdrumcords1[i+(8*lesinthy)]->disconnect();
-      MDstringcords1[i+(8*lesinthy)]->disconnect();
-      stringcords1[i+(8*lesinthy)]->disconnect();
-      drumcords1[i+(8*lesinthy)]->disconnect();
-      
-      FMwavecords1[i+(8*lesinthy)]->connect();
-      FMwaveforms1[i+(8*lesinthy)]->begin(lesformes[letype]); 
-      //LFO begin
-      
-    }
-  } else {
-
-if (letype == 9) {
-  //modulated drum
-   for (int i = 0 ; i< nombreofliners ; i++ ) {
-      wavelinescords[i+(lesinthy*8)]->disconnect();
-       stringcords1[i+(lesinthy*8)]->disconnect();
-        FMwavecords1[i+(lesinthy*8)]->disconnect();
-        drumcords1[i+(lesinthy*8)]->disconnect();
         MDstringcords1[i+(8*lesinthy)]->disconnect();
+        drumcords1[i+(8*lesinthy)]->disconnect();
+        wavelinescords[i+(8*lesinthy)]->connect();
+        waveforms1[i+(8*lesinthy)]->begin(lesformes[letype]);
         
-        modulatecords1[i+(8*lesinthy)]->connect();
-        MDdrumcords1[i+(8*lesinthy)]->connect();
-      
+      if (letype == 7) {
+        waveforms1[i+(8*lesinthy)]->arbitraryWaveform(myCustomWaveform, 1.0);
         }
-}
+    }
+    
+  } 
+    else if (letype == 9) {
+     for (int i = 0 ; i< nombreofliners ; i++ ) {
+        wavelinescords[i+(lesinthy*8)]->disconnect();
+         stringcords1[i+(lesinthy*8)]->disconnect();
+          FMwavecords1[i+(lesinthy*8)]->disconnect();
+           modulatecords1[i+(8*lesinthy)]->disconnect();
+        MDdrumcords1[i+(8*lesinthy)]->disconnect();
+        MDstringcords1[i+(8*lesinthy)]->disconnect();
+          drumcords1[i+(lesinthy*8)]->connect();
+          }
+  }
+    else if (letype == 10) {
   
-if (letype == 10) {
-  //modulated string
-   for (int i = 0 ; i< nombreofliners ; i++ ) {
-         wavelinescords[i+(lesinthy*8)]->disconnect();
-             drumcords1[i+(lesinthy*8)]->disconnect();
-           FMwavecords1[i+(lesinthy*8)]->disconnect();
-           stringcords1[i+(lesinthy*8)]->disconnect();
-           MDdrumcords1[i+(8*lesinthy)]->disconnect();
-         MDstringcords1[i+(8*lesinthy)]->connect();
-         modulatecords1[i+(8*lesinthy)]->connect();
-       
-        }
-      }       
-  }
+     for (int i = 0 ; i< nombreofliners ; i++ ) {
+        wavelinescords[i+(lesinthy*8)]->disconnect();
+            drumcords1[i+(lesinthy*8)]->disconnect();
+          FMwavecords1[i+(lesinthy*8)]->disconnect();
+        modulatecords1[i+(8*lesinthy)]->disconnect();
+          MDdrumcords1[i+(8*lesinthy)]->disconnect();
+        MDstringcords1[i+(8*lesinthy)]->disconnect();
+          stringcords1[i+(lesinthy*8)]->connect();
+          
+         }
+    }
+  }  
+  
+  else {
+    //modulated
+    if (FMmodulated[lesinthy] == 1 ) {
+      setfmtofreq(lesinthy);
+      }
+    if (FMmodulated[lesinthy] == 2 ) {
+      setfmtophase(lesinthy);
+    }
+     
+  
+    if (letype < 9) {
+          
+        for (int i = 0 ; i< nombreofliners ; i++ ) {
+        wavelinescords[i+(8*lesinthy)]->disconnect();
+        modulatecords1[i+(8*lesinthy)]->disconnect();
+        MDdrumcords1[i+(8*lesinthy)]->disconnect();
+        MDstringcords1[i+(8*lesinthy)]->disconnect();
+        stringcords1[i+(8*lesinthy)]->disconnect();
+        drumcords1[i+(8*lesinthy)]->disconnect();
         
-  }
+        FMwavecords1[i+(8*lesinthy)]->connect();
+        FMwaveforms1[i+(8*lesinthy)]->begin(lesformes[letype]); 
+        //LFO begin
+        
+      }
+    } 
+    else if (letype == 9) {
+    //modulated drum
+     for (int i = 0 ; i< nombreofliners ; i++ ) {
+        wavelinescords[i+(lesinthy*8)]->disconnect();
+         stringcords1[i+(lesinthy*8)]->disconnect();
+          FMwavecords1[i+(lesinthy*8)]->disconnect();
+          drumcords1[i+(lesinthy*8)]->disconnect();
+          MDstringcords1[i+(8*lesinthy)]->disconnect();
+          
+          modulatecords1[i+(8*lesinthy)]->connect();
+          MDdrumcords1[i+(8*lesinthy)]->connect();
+        
+          }
+  } 
+    else if (letype == 10) {
+    //modulated string
+     for (int i = 0 ; i< nombreofliners ; i++ ) {
+           wavelinescords[i+(lesinthy*8)]->disconnect();
+               drumcords1[i+(lesinthy*8)]->disconnect();
+             FMwavecords1[i+(lesinthy*8)]->disconnect();
+             stringcords1[i+(lesinthy*8)]->disconnect();
+             MDdrumcords1[i+(8*lesinthy)]->disconnect();
+           MDstringcords1[i+(8*lesinthy)]->connect();
+           modulatecords1[i+(8*lesinthy)]->connect();
+         
+          }
+   }
+  }        
   if (letype == 11) {
     mixlevelsL[lesinthy] = 0;
- 
-  
      for (int i = 0 ; i< nombreofliners ; i++ ) {
        wavelinescords[i+(8*lesinthy)]->disconnect();
          stringcords1[i+(8*lesinthy)]->disconnect();
@@ -838,6 +827,7 @@ if (letype == 10) {
 
         }
     }
+  AudioInterrupts();  
   setwavemixlevel(lesinthy);
      //  Serial.print(" end of setwavetypefromlist: ");
  // printmixlevelsandtype();
