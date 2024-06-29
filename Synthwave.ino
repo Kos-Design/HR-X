@@ -720,8 +720,7 @@ void setwavetypefromlist(int lesinthy, int letype) {
         waveforms1[i + (8 * lesinthy)]->begin(lesformes[letype]);
 
         if (letype == 7) {
-          waveforms1[i + (8 * lesinthy)]->arbitraryWaveform(myCustomWaveform,
-                                                            1.0);
+          waveforms1[i + (8 * lesinthy)]->arbitraryWaveform(arbitrary_waveforms[lesinthy],1.0);
         }
       }
 

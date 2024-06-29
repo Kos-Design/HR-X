@@ -242,9 +242,9 @@ void setupdefaultvalues() {
   midiknobassigned[12] = 1;
   midiknobassigned[13] = 3;
 
+  /*
   // audio In
   midiknobassigned[14] = 97;
-  /*
   midiknobassigned[15] = 1;
   midiknobassigned[16] = 3;
   */
@@ -267,11 +267,13 @@ void setupdefaultvalues() {
   midiknobassigned[24] = 53;
 
   // USB Line in
-  InMixL.gain(0, 1);
-  InMixR.gain(0, 1);
-  InMixL.gain(1, .7);
-  InMixR.gain(1, .7);
+  InMixL.gain(0, 0);
+  InMixR.gain(0, 0);
+  
   // LineIn
+  InMixL.gain(1, 0);
+  InMixR.gain(1, 0);
+
   LineInPreAmpL.gain(1);
   LineInPreAmpR.gain(1);
 

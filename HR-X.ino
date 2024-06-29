@@ -185,7 +185,7 @@ int synsetdizaines = 0;
 int synsetunites = 0;
 char newpresetpath[28] = {"PRESETS/SYNTH/SYNSET01.TXT"};
 
-const byte truesizeofwaveformsmenulabels = 5;
+const byte truesizeofwaveformsmenulabels = 7;
 EXTMEM char Waveformsname[999][13];
 EXTMEM char Waveformsfullpath[999][22];
 EXTMEM char Waveformsbase[999][9];
@@ -485,8 +485,13 @@ const int lesformes[9] PROGMEM = {
 
 const byte truesizeofpresetmenulabels = 5;
 
-byte activewave = 0;
+
+byte waveformIndex = 0 ;
+
+int16_t arbitrary_waveforms[4][256] ; 
+
 byte lavalue;
+
 
 const byte leschords[6][12][3] PROGMEM = {{{0, 4, 7},
                                            {1, 5, 8},

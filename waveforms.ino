@@ -86,12 +86,13 @@ void listWaveformsfiles() {
 }
 // 1
 void displaywaveformsmenu() {
-  navrange = 4;
+  
   canvasBIG.fillScreen(SSD1306_BLACK);
   canvastitle.fillScreen(SSD1306_BLACK);
 
   WaveformsmenuBG();
   if (navlevel <= 1) {
+    navrange = 6;
     dolistwaveformsmenu();
   } else if (navlevel > 1 && sublevels[1] != 4) {
     dolistwaveformsmenu();
@@ -103,7 +104,7 @@ void WaveformsmenuBG() {
   display.clearDisplay();
   if (navlevel == 1 && sublevels[1] != 4) {
     reinitsublevels(2);
-    navrange = 4;
+    navrange = 6;
 
     dolistofwaveforms();
   }
@@ -112,7 +113,7 @@ void WaveformsmenuBG() {
     WaveformEditer();
   }
 
-  if (navlevel > 1 && sublevels[1] != 4) {
+  if (navlevel > 1 && sublevels[1] < 4)  {
     if (sublevels[1] == 0) {
       navrange = numberofWaveforms;
     } else {
@@ -122,15 +123,32 @@ void WaveformsmenuBG() {
     dolistofwaveforms();
   }
   dodisplay();
+  
+  if (navlevel >= 2 && sublevels[1] > 4) {
+    switch (sublevels[1]) {
+    
+    case 5:
+      waveformIndex ++;
+      if ( waveformIndex > 3 ) {
+        waveformIndex = 0 ;
+      }
+      break;
 
+    case 6:
+      waveformIndex --;
+      if ( waveformIndex < 0 || waveformIndex > 3 ) {
+        waveformIndex = 3 ;
+      }
+      break;
+
+      default:
+      break;
+    }
+    returntonav(1,6);
+    displaywaveformsmenu();
+  }
   if (navlevel >= 3) {
-    // Serial.println("preset action selected");
-
-    navlevel = 1;
-    vraipos = sublevels[1];
-    myEnc.write(4 * vraipos);
-    navrange = 4;
-
+   
     switch (sublevels[1]) {
 
     case 0:
@@ -154,10 +172,18 @@ void WaveformsmenuBG() {
       WaveformEditer();
       break;
 
+    case 5:
+      break;
+
+    case 6:
+      break;
+
     default:
       break;
     }
+    returntonav(1,6);
     displaywaveformsmenu();
+    
   }
 }
 
@@ -182,23 +208,23 @@ void WaveformEditer() {
     w_cursor_y = map(cw_change, 0, 1024, 64, 0);
   }
   if (trace_waveform && navlevel >= 2) {
-    myCustomWaveform[sublevels[2]] = map(cw_change, 0, 1024, -32768, 32767);
+    arbitrary_waveforms[waveformIndex][sublevels[2]] = map(cw_change, 0, 1024, -32768, 32767);
   }
   canvasBIG.drawCircle(w_cursor_x, w_cursor_y, 2, SSD1306_WHITE);
 
   for (int i = 0; i < 128; i++) {
     if ((i * 2) + 2 < 256) {
-      y1 = map(myCustomWaveform[i * 2], -32768, 32767, 63, 0);
-      y2 = map(myCustomWaveform[(i * 2) + 2], -32768, 32767, 63, 0);
+      y1 = map(arbitrary_waveforms[waveformIndex][i * 2], -32768, 32767, 63, 0);
+      y2 = map(arbitrary_waveforms[waveformIndex][(i * 2) + 2], -32768, 32767, 63, 0);
       canvasBIG.drawLine(i, y1, i + 1, y2, SSD1306_WHITE);
     }
   }
-  canvastitle.print(myCustomWaveform[sublevels[2]]);
+  canvastitle.print(arbitrary_waveforms[waveformIndex][sublevels[2]]);
 }
 
 void dolistwaveformsmenu() {
   char waveformsmenulabels[truesizeofwaveformsmenulabels][12] = {
-      "Save", "Load", "Copy", "Delete", "Edit"};
+      "Save", "Load", "Copy", "Delete", "Edit", "-->", "<--"};
   byte startx = 5;
   byte starty = 16;
   char *textin = (char *)waveformsmenulabels[sublevels[1]];
@@ -208,9 +234,13 @@ void dolistwaveformsmenu() {
   canvastitle.setTextSize(2);
   canvastitle.println(textin);
 
-  canvasBIG.setTextSize(1);
+  canvasBIG.setTextSize(2);
   canvasBIG.fillScreen(SSD1306_BLACK);
-
+  canvasBIG.drawRoundRect(50,25,22,22,3,SSD1306_WHITE);
+  canvasBIG.setCursor(56,29);
+  canvasBIG.print(waveformIndex+1);
+  canvasBIG.setTextSize(1);
+  
   for (int filer = 0;
        filer < truesizeofwaveformsmenulabels - 1 - (sublevels[1]); filer++) {
 
@@ -331,8 +361,8 @@ void setwaveformsnavrange() {
 
 void writewaveforms() {
   size_t writtenBytes =
-      mytxtFile.write((byte *)myCustomWaveform, sizeof(myCustomWaveform));
-  if (writtenBytes != sizeof(myCustomWaveform)) {
+      mytxtFile.write((byte *)arbitrary_waveforms[waveformIndex], sizeof(arbitrary_waveforms[waveformIndex]));
+  if (writtenBytes != sizeof(arbitrary_waveforms[waveformIndex])) {
     Serial.println("Failed to write all waveform data to file");
   } else {
     Serial.println("Waveform data written to file.");
@@ -366,20 +396,18 @@ void deletewaveform() {
   dowaveformslist();
 }
 
-// TODO: change filename selector -> get waveformfullpath working in write and
-// read IN PROGRESS
 void parsewaveformfile(int presetn) {
-  // File file = SD.open(filename, FILE_READ);
+
   mytxtFile = SD.open((char *)Waveformsfullpath[sublevels[2]], FILE_READ);
   size_t readBytes =
-      mytxtFile.read((byte *)myCustomWaveform, sizeof(myCustomWaveform));
+      mytxtFile.read((byte *)arbitrary_waveforms[waveformIndex], sizeof(arbitrary_waveforms[waveformIndex]));
 
-  if (readBytes != sizeof(myCustomWaveform)) {
+  if (readBytes != sizeof(arbitrary_waveforms[waveformIndex])) {
     Serial.println("Failed to read complete waveform data");
   } else {
     Serial.println("Waveform data read from file:");
     for (int i = 0; i < 256; i++) {
-      Serial.println(myCustomWaveform[i]);
+      Serial.println(arbitrary_waveforms[waveformIndex][i]);
     }
   }
 

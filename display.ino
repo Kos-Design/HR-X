@@ -365,7 +365,7 @@ void dolistwavelineparams() {
 }
 
 void dolistsyntmenu() {
-  char synthmenulabels[5][12] = {"Waves", "Mixer", "ADSR", "FX", "Filter"};
+  char synthmenulabels[5][12] = {"Synths", "Mixer", "ADSR", "FX", "Filter"};
 
   // removeExt(textin);
   byte startx = 5;

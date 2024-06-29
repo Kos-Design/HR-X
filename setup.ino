@@ -109,16 +109,7 @@ void setup() {
   // const int myInput = AUDIO_INPUT_LINEIN;
   // const int myInput = AUDIO_INPUT_MIC;
   audioShield.inputSelect(AUDIO_INPUT_LINEIN);
-
-  // parsefile(3);
-  // Volume
-
-  /*
-
-  */
-
   Doautoassign();
-
   // printclock();
   pseudoconsole((char *)"All Done !");
 
@@ -143,6 +134,8 @@ void setup() {
   // switchfxes(1, 4) ;
   // switchfxes(2, 5) ;
   pseudoconsole((char *)"Enjoy !");
+  Serial.print("Device is plugged via usb: ");
+  Serial.println(usb_configuration);
   // pseudoconsole((char*)"done !");
   // delay(100);
 }
