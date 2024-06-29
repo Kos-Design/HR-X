@@ -1,372 +1,362 @@
 
- 
-//childoffoldernum[sampledirsregistered][0] = 0;
 
-//activedir n*  // lactivefolder
-//current subs levels in dir n*
-//total folders listed so far == folderregistered
+// childoffoldernum[sampledirsregistered][0] = 0;
+
+// activedir n*  // lactivefolder
+// current subs levels in dir n*
+// total folders listed so far == folderregistered
 // absolute dir recursion n* == numTab
 
-
-//nosubs
-//max files = 999
-
+// nosubs
+// max files = 999
 
 // list all dirs in /soundest
-// for each dir list all dirs 
+// for each dir list all dirs
 
 //
 
 // PRESETS/SYNTH/SYNSET01.TXT PRESETS/KNOBS/POTSET01.TXT
 
-void initializePatternfilesselected(){
-  numberofPatternfilesselected = 0 ;
-  for (int i = 0 ; i < 999 ; i++ ) {
-  Patternfilesselected[i] = 0 ;
+void initializePatternfilesselected() {
+  numberofPatternfilesselected = 0;
+  for (int i = 0; i < 999; i++) {
+    Patternfilesselected[i] = 0;
   }
 }
 
 void initializePatternfilefullpath() {
-    numberofPatternfiles = 0 ;
-    
-   for (int i = 0 ; i < 999 ; i++ ) {
-      for (int j = 0 ; j < 22 ; j++ ) {
-        Patternfilefullpath[i][j] = (char)'\0';
-       if (j < 10 ) {
-       Patternfilefullpath[i][j] = (char*)"PATTERNS/"[j];
-        }
-       if (j < 13 ) { 
-        Patternfilename[i][j]= (char)'\0'; 
-       }
-       if (j < 9 ) { 
-       Patternfilebase[i][j]=  (char)'\0'; 
-       }
-     }  
+  numberofPatternfiles = 0;
+
+  for (int i = 0; i < 999; i++) {
+    for (int j = 0; j < 22; j++) {
+      Patternfilefullpath[i][j] = (char)'\0';
+      if (j < 10) {
+        Patternfilefullpath[i][j] = (char *)"PATTERNS/"[j];
+      }
+      if (j < 13) {
+        Patternfilename[i][j] = (char)'\0';
+      }
+      if (j < 9) {
+        Patternfilebase[i][j] = (char)'\0';
+      }
+    }
   }
 }
 
-void setlePatternname(int lefile, char* lefname) {
- 
-  int fnamesize = strlen((char*)lefname) ;
-  int stringsize = 9 + fnamesize ;
-  for (int i = 0 ; i < fnamesize ; i++ ) {
-   
+void setlePatternname(int lefile, char *lefname) {
+
+  int fnamesize = strlen((char *)lefname);
+  int stringsize = 9 + fnamesize;
+  for (int i = 0; i < fnamesize; i++) {
+
     Patternfilename[lefile][i] = lefname[i];
-       
-    Patternfilefullpath[lefile][9+i] = Patternfilename[lefile][i] ;
-     if (i < fnamesize - 4) {
-       Patternfilebase[lefile][i] = Patternfilename[lefile][i] ;
+
+    Patternfilefullpath[lefile][9 + i] = Patternfilename[lefile][i];
+    if (i < fnamesize - 4) {
+      Patternfilebase[lefile][i] = Patternfilename[lefile][i];
     }
-   
   }
-  Patternfilename[lefile][fnamesize]= (char)'\0' ;
-  Patternfilefullpath[lefile][9+fnamesize]= (char)'\0' ;
-  Patternfilebase[lefile][fnamesize-4] = (char)'\0' ;
-    
-  }
+  Patternfilename[lefile][fnamesize] = (char)'\0';
+  Patternfilefullpath[lefile][9 + fnamesize] = (char)'\0';
+  Patternfilebase[lefile][fnamesize - 4] = (char)'\0';
+}
 
 void listPatternfiles() {
-   if (SD.exists((char*)Patternfiledir)) {
-  File susudir = SD.open((char*)Patternfiledir);
- 
-     while(true) {
-       File subentry =  susudir.openNextFile();
-        if (! subentry) {
-           break;
-       }
-      
-        if ( !subentry.isDirectory() ) {
-         setlePatternname(numberofPatternfiles, subentry.name()) ;
-         numberofPatternfiles++;
-             
-       }      
-       subentry.close();
-     }
+  if (SD.exists((char *)Patternfiledir)) {
+    File susudir = SD.open((char *)Patternfiledir);
+
+    while (true) {
+      File subentry = susudir.openNextFile();
+      if (!subentry) {
+        break;
+      }
+
+      if (!subentry.isDirectory()) {
+        setlePatternname(numberofPatternfiles, subentry.name());
+        numberofPatternfiles++;
+      }
+      subentry.close();
+    }
   }
 }
 
 void dopatternfileslist() {
-   initializePatternfilefullpath();
-   initializePatternfilesselected();
-   listPatternfiles() ;
-
+  initializePatternfilefullpath();
+  initializePatternfilesselected();
+  listPatternfiles();
 }
 
-void initializeSynthPresetsselected(){
-  numberofSynthPresetsselected = 0 ;
-  for (int i = 0 ; i < 999 ; i++ ) {
-  SynthPresetsselected[i] = 0 ;
+void initializeSynthPresetsselected() {
+  numberofSynthPresetsselected = 0;
+  for (int i = 0; i < 999; i++) {
+    SynthPresetsselected[i] = 0;
   }
 }
 
 void initializeSynthPresetfullpath() {
-    numberofSynthPresets = 0 ;
-    
-   for (int i = 0 ; i < 999 ; i++ ) {
-      for (int j = 0 ; j < 28 ; j++ ) {
-        SynthPresetfullpath[i][j] = (char)'\0';
-       if (j < 14 ) {
-       SynthPresetfullpath[i][j] = (char*)"PRESETS/SYNTH/"[j];
-        }
-       if (j < 13 ) { 
-        SynthPresetname[i][j]= (char)'\0'; 
-       }
-       if (j < 9 ) { 
-       SynthPresetbase[i][j]=  (char)'\0'; 
-       }
-     }  
+  numberofSynthPresets = 0;
+
+  for (int i = 0; i < 999; i++) {
+    for (int j = 0; j < 28; j++) {
+      SynthPresetfullpath[i][j] = (char)'\0';
+      if (j < 14) {
+        SynthPresetfullpath[i][j] = (char *)"PRESETS/SYNTH/"[j];
+      }
+      if (j < 13) {
+        SynthPresetname[i][j] = (char)'\0';
+      }
+      if (j < 9) {
+        SynthPresetbase[i][j] = (char)'\0';
+      }
+    }
   }
 }
 
 void dopresetlist() {
-   initializeSynthPresetsselected();
-   initializeSynthPresetfullpath();
-   listSynthPresetfiles() ;
-
+  initializeSynthPresetsselected();
+  initializeSynthPresetfullpath();
+  listSynthPresetfiles();
 }
 
-void setleSynthPresetname(int lefile, char* lefname) {
- 
-  int fnamesize = strlen((char*)lefname) ;
-  int stringsize = 14 + fnamesize ;
-  
-  for (int i = 0 ; i < fnamesize ; i++ ) {
-   
+void setleSynthPresetname(int lefile, char *lefname) {
+
+  int fnamesize = strlen((char *)lefname);
+  int stringsize = 14 + fnamesize;
+
+  for (int i = 0; i < fnamesize; i++) {
+
     SynthPresetname[lefile][i] = lefname[i];
-       
-    SynthPresetfullpath[lefile][14+i] = SynthPresetname[lefile][i] ;
-     if (i < fnamesize - 4) {
-       SynthPresetbase[lefile][i] = SynthPresetname[lefile][i] ;
+
+    SynthPresetfullpath[lefile][14 + i] = SynthPresetname[lefile][i];
+    if (i < fnamesize - 4) {
+      SynthPresetbase[lefile][i] = SynthPresetname[lefile][i];
     }
-   
   }
-  SynthPresetname[lefile][fnamesize]= (char)'\0' ;
-  SynthPresetfullpath[lefile][14+fnamesize]= (char)'\0' ;
-  SynthPresetbase[lefile][fnamesize-4] = (char)'\0' ;
-    
-  }
+  SynthPresetname[lefile][fnamesize] = (char)'\0';
+  SynthPresetfullpath[lefile][14 + fnamesize] = (char)'\0';
+  SynthPresetbase[lefile][fnamesize - 4] = (char)'\0';
+}
 
 void listSynthPresetfiles() {
-   if (SD.exists((char*)SynthPresetdir)) {
-  File susudir = SD.open((char*)SynthPresetdir);
- 
-     while(true) {
-       File subentry =  susudir.openNextFile();
-        if (! subentry) {
-           break;
-       }
-      
-        if ( !subentry.isDirectory() ) {
-         setleSynthPresetname(numberofSynthPresets, subentry.name()) ;
-         numberofSynthPresets++;
-             
-       }      
-       subentry.close();
-     }
+  if (SD.exists((char *)SynthPresetdir)) {
+    File susudir = SD.open((char *)SynthPresetdir);
+
+    while (true) {
+      File subentry = susudir.openNextFile();
+      if (!subentry) {
+        break;
+      }
+
+      if (!subentry.isDirectory()) {
+        setleSynthPresetname(numberofSynthPresets, subentry.name());
+        numberofSynthPresets++;
+      }
+      subentry.close();
+    }
   }
 }
 
 void dosoundlist() {
   if (!initdone) {
-  pseudoconsole((char*)"Files on Flash");
+    pseudoconsole((char *)"Files on Flash");
   }
-   initializeFlashsamplesselected();
- initializesamplesfoldersselectedlist();
- rebuildflashsamplesnames();
+  initializeFlashsamplesselected();
+  initializesamplesfoldersselectedlist();
+  rebuildflashsamplesnames();
   clearsizeofsamplefolder();
-  sampledirsregistered = 0 ;
-   if (!initdone) {
-  pseudoconsole((char*)"Files on SD");
-   }
+  sampledirsregistered = 0;
+  if (!initdone) {
+    pseudoconsole((char *)"Files on SD");
+  }
   setupsamplefoldersregistered();
   initializesamplefullpath();
   initializesamplebase();
-  listSoundset() ;
-  for (int i = 1 ; i < sampledirsregistered ; i++ ) {
-    pleasewait(i,sampledirsregistered);
+  listSoundset();
+  for (int i = 1; i < sampledirsregistered; i++) {
+    pleasewait(i, sampledirsregistered);
     voidsampledirpath();
     makesoundsetfullpathfromchars(i);
-   listSoundsetsubdir(i);
-    }
-    //printthem();
+    listSoundsetsubdir(i);
+  }
+  // printthem();
 }
 
 void clearsizeofsamplefolder() {
-  for ( int i = 0 ; i < 99 ; i++ ) {
-  sizeofsamplefolder[i]=0;
+  for (int i = 0; i < 99; i++) {
+    sizeofsamplefolder[i] = 0;
   }
 }
 
 void voidsampledirpath() {
-  for (int i = 0 ; i < 99 ; i++ ) {
+  for (int i = 0; i < 99; i++) {
     sampledirpath[i] = (char)'\0';
-   }
-   for (int i = 0 ; i < 9 ; i++ ) {
-    sampledirpath[i] = (char*)"SOUNDSET/"[i]; 
-   }
+  }
+  for (int i = 0; i < 9; i++) {
+    sampledirpath[i] = (char *)"SOUNDSET/"[i];
+  }
 }
 
 void makesoundsetfullpathfromchars(int eldir) {
-   for (int i = 9 ; i < ( strlen( (char*)samplefoldersregistered[eldir] ) + 9 ) ; i++ ) {
-    sampledirpath[i] = samplefoldersregistered[eldir][i-9] ;
-   }
-   int lelast = strlen((char*)sampledirpath) ;
-   sampledirpath[lelast] = (char)'/';
-   sampledirpath[lelast+1] = (char)'\0';
-   //Serial.println((char*)sampledirpath);
+  for (int i = 9; i < (strlen((char *)samplefoldersregistered[eldir]) + 9);
+       i++) {
+    sampledirpath[i] = samplefoldersregistered[eldir][i - 9];
+  }
+  int lelast = strlen((char *)sampledirpath);
+  sampledirpath[lelast] = (char)'/';
+  sampledirpath[lelast + 1] = (char)'\0';
+  // Serial.println((char*)sampledirpath);
 }
 
 void listSoundset() {
-  
-  File sounddir = SD.open("SOUNDSET/");
-  
-   while(true) {
-    File soundentry = sounddir.openNextFile();
-     
-      if (! soundentry) {
 
-       break;
-     }
-    
-      if (soundentry.isDirectory()) {
-       addtofolderix((char*)soundentry.name(),sampledirsregistered);
-       addtofullsamplerfolderpath(sampledirsregistered,(char*)soundentry.name());
+  File sounddir = SD.open("SOUNDSET/");
+
+  while (true) {
+    File soundentry = sounddir.openNextFile();
+
+    if (!soundentry) {
+
+      break;
+    }
+
+    if (soundentry.isDirectory()) {
+      addtofolderix((char *)soundentry.name(), sampledirsregistered);
+      addtofullsamplerfolderpath(sampledirsregistered,
+                                 (char *)soundentry.name());
       sampledirsregistered++;
-             
-     }      
-     soundentry.close();
-   }
+    }
+    soundentry.close();
+  }
 }
 
 void listSoundsetsubdir(int ledir) {
-   if (SD.exists((char*)sampledirpath)) {
-    
-   //Serial.println(" dir = ");
-  //Serial.println((char*)sampledirpath);
-  
-  File susudir = SD.open((char*)sampledirpath);
- 
-     while(true) {
-       File subentry =  susudir.openNextFile();
-        if (! subentry) {
-           break;
-       }
-      
-        if ( !subentry.isDirectory() ) {
-          //Serial.println(" 1 = 1 ");
-         setlefilenamed(ledir, sizeofsamplefolder[ledir], subentry.name()) ;
-         
-         (sizeofsamplefolder[ledir])++;
-         //subentry.close();
-             
-       }      
-       subentry.close();
-     }
+  if (SD.exists((char *)sampledirpath)) {
+
+    // Serial.println(" dir = ");
+    // Serial.println((char*)sampledirpath);
+
+    File susudir = SD.open((char *)sampledirpath);
+
+    while (true) {
+      File subentry = susudir.openNextFile();
+      if (!subentry) {
+        break;
+      }
+
+      if (!subentry.isDirectory()) {
+        // Serial.println(" 1 = 1 ");
+        setlefilenamed(ledir, sizeofsamplefolder[ledir], subentry.name());
+
+        (sizeofsamplefolder[ledir])++;
+        // subentry.close();
+      }
+      subentry.close();
+    }
   }
 }
 
-void dosamplerfullpath(int lefolder, int lefile, char* lefilename) {
-  //for (int i = 0 ; i< 999 ; i++ ) {
-  int stringsize = (strlen((char*)samplefullpath[lefolder][lefile]))+(strlen((char*)lefilename));
-    for (int j = 0 ; j< stringsize ; j++ ) {
-    samplefullpath[lefolder][lefile][j+stringsize] = (char)(lefilename[j]);
-    //Serial.println((char)(lepathtoadd[i]));
+void dosamplerfullpath(int lefolder, int lefile, char *lefilename) {
+  // for (int i = 0 ; i< 999 ; i++ ) {
+  int stringsize = (strlen((char *)samplefullpath[lefolder][lefile])) +
+                   (strlen((char *)lefilename));
+  for (int j = 0; j < stringsize; j++) {
+    samplefullpath[lefolder][lefile][j + stringsize] = (char)(lefilename[j]);
+    // Serial.println((char)(lepathtoadd[i]));
   }
-  //samplefullpath[lefolder][i][(strlen((char*)lepath)+9)]=(char*)"/"[0];
-  //} 
+  // samplefullpath[lefolder][i][(strlen((char*)lepath)+9)]=(char*)"/"[0];
+  //}
 }
 
-void addtofullsamplerfolderpath(int lefolder, char* lepath) {
-  for (int i = 0 ; i< 999 ; i++ ) {
-    for (int j = 9 ; j< strlen((char*)lepath)+9 ; j++ ) {
-    samplefullpath[lefolder][i][j] = (char)(lepath[j-9]);
-    //Serial.println((char)(lepathtoadd[i]));
+void addtofullsamplerfolderpath(int lefolder, char *lepath) {
+  for (int i = 0; i < 999; i++) {
+    for (int j = 9; j < strlen((char *)lepath) + 9; j++) {
+      samplefullpath[lefolder][i][j] = (char)(lepath[j - 9]);
+      // Serial.println((char)(lepathtoadd[i]));
+    }
+    samplefullpath[lefolder][i][(strlen((char *)lepath) + 9)] = (char *)"/"[0];
   }
-  samplefullpath[lefolder][i][(strlen((char*)lepath)+9)]=(char*)"/"[0];
-  } 
 }
 
 void initializesamplefullpath() {
-   for (int i = 0 ; i < 99 ; i++ ) {
+  for (int i = 0; i < 99; i++) {
     batchclearsamplefullpath(i);
   }
 }
 
-void batchclearsamplefullpath(int lefolder){
-  for (int i = 0 ; i < 999 ; i++ ) {
-    clearsamplefullpath(lefolder,i);
+void batchclearsamplefullpath(int lefolder) {
+  for (int i = 0; i < 999; i++) {
+    clearsamplefullpath(lefolder, i);
   }
 }
 
-void clearsamplefullpath(int lefolder, int lefile){
-  for (int i = 0 ; i < 38 ; i++ ) {
-   samplefullpath[lefolder][lefile][i] = (char)'\0';
+void clearsamplefullpath(int lefolder, int lefile) {
+  for (int i = 0; i < 38; i++) {
+    samplefullpath[lefolder][lefile][i] = (char)'\0';
   }
-   for (int j = 0 ; j < 9 ; j++ ) {
-    samplefullpath[lefolder][lefile][j] = (char*)"SOUNDSET/"[j];
-   }
+  for (int j = 0; j < 9; j++) {
+    samplefullpath[lefolder][lefile][j] = (char *)"SOUNDSET/"[j];
+  }
 }
 
 void initializesamplebase() {
-   for (int i = 0 ; i < 99 ; i++ ) {
+  for (int i = 0; i < 99; i++) {
     batchclearsamplefullpath(i);
   }
 }
 
-void batchclearsamplebase(int lefolder){
-  for (int i = 0 ; i < 999 ; i++ ) {
-    clearsamplebase(lefolder,i);
+void batchclearsamplebase(int lefolder) {
+  for (int i = 0; i < 999; i++) {
+    clearsamplebase(lefolder, i);
   }
 }
 
-void clearsamplebase(int lefolder, int lefile){
-  for (int i = 0 ; i < 9 ; i++ ) {
-   samplebase[lefolder][lefile][i] = (char)'\0';
+void clearsamplebase(int lefolder, int lefile) {
+  for (int i = 0; i < 9; i++) {
+    samplebase[lefolder][lefile][i] = (char)'\0';
   }
 }
 
-void addtofolderix(char* lepathtoadd, int ix) {
+void addtofolderix(char *lepathtoadd, int ix) {
 
-  for (int i = 0 ; i< strlen((char*)lepathtoadd) ; i++ ) {
+  for (int i = 0; i < strlen((char *)lepathtoadd); i++) {
     samplefoldersregistered[ix][i] = (char)(lepathtoadd[i]);
-   }
-
+  }
 }
 
 void setupsamplefoldersregistered() {
-  //i = 99 , j = 39
-  for (int i = 0 ; i < szsset ; i++ ) {
-    for (int j = 0 ; j < ssnamsize ; j++ ) {
-    samplefoldersregistered[i][j] = (char)'\0' ;
-    //delay(1);
+  // i = 99 , j = 39
+  for (int i = 0; i < szsset; i++) {
+    for (int j = 0; j < ssnamsize; j++) {
+      samplefoldersregistered[i][j] = (char)'\0';
+      // delay(1);
+    }
   }
-  }
-  samplefoldersregistered[0][0] = (char*)"/"[0];
- //delay(1);
- sampledirsregistered++;
-//Serial.println((char*)(samplefoldersregistered[0]));
+  samplefoldersregistered[0][0] = (char *)"/"[0];
+  // delay(1);
+  sampledirsregistered++;
+  // Serial.println((char*)(samplefoldersregistered[0]));
 }
 
 void setupSD() {
-  
+
   if (!(SD.begin(chipSelect))) {
     Serial.println("initialization SD failed!");
     return;
   }
-  //Serial.println("initialization 0 done.");
+  // Serial.println("initialization 0 done.");
 
- //scans Soundset samples folders
- 
-initializesamplesselectedlist();
-pseudoconsole((char*)"Scanning Samples");
-dosoundlist();
-pseudoconsole((char*)"Scanning Presets");
-dopresetlist();
-pseudoconsole((char*)"Scanning Patterns");
-dopatternfileslist() ;
-pseudoconsole((char*)"Scanning Waveforms");
-dowaveformslist();
-pseudoconsole((char*)"Scanning Songs");
-doSonglist();
-//getavailablespace();
+  // scans Soundset samples folders
+
+  initializesamplesselectedlist();
+  pseudoconsole((char *)"Scanning Samples");
+  dosoundlist();
+  pseudoconsole((char *)"Scanning Presets");
+  dopresetlist();
+  pseudoconsole((char *)"Scanning Patterns");
+  dopatternfileslist();
+  pseudoconsole((char *)"Scanning Waveforms");
+  dowaveformslist();
+  pseudoconsole((char *)"Scanning Songs");
+  doSonglist();
+  // getavailablespace();
 }

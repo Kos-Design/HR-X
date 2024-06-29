@@ -32,147 +32,146 @@ void processMIDI(void) {
   cable = usbMIDI.getCable();     // which virtual cable with MIDIx8, 0-7
 
   // uncomment if using multiple virtual cables
-  //Serial.print("cable ");
-  //Serial.print(cable, DEC);
-  //Serial.print(": ");
+  // Serial.print("cable ");
+  // Serial.print(cable, DEC);
+  // Serial.print(": ");
 
   // print info about the message
   //
   switch (type) {
-    case usbMIDI.NoteOff: // 0x80
-     
-     MaNoteOff(channel,data1,data2);
-      break;
+  case usbMIDI.NoteOff: // 0x80
 
-    case usbMIDI.NoteOn: // 0x90
-     
-     
-      MaNoteOn(channel,data1,data2);
-      break;
+    MaNoteOff(channel, data1, data2);
+    break;
 
-    case usbMIDI.AfterTouchPoly: // 0xA0
-    //  Serial.print("AfterTouch Change, ch=");
-    //  Serial.print(channel, DEC);
-    //  Serial.print(", note=");
-     // Serial.print(data1, DEC);
-    //  Serial.print(", velocity=");
-    //  Serial.println(data2, DEC);
-      break;
+  case usbMIDI.NoteOn: // 0x90
 
-    case usbMIDI.ControlChange: // 0xB0
-     MaControlChange(channel,data1,data2);
-      break;
+    MaNoteOn(channel, data1, data2);
+    break;
 
-    case usbMIDI.ProgramChange: // 0xC0
-    MaProgramchange(channel,data1);
+  case usbMIDI.AfterTouchPoly: // 0xA0
+                               //  Serial.print("AfterTouch Change, ch=");
+                               //  Serial.print(channel, DEC);
+                               //  Serial.print(", note=");
+                               // Serial.print(data1, DEC);
+                               //  Serial.print(", velocity=");
+                               //  Serial.println(data2, DEC);
+    break;
+
+  case usbMIDI.ControlChange: // 0xB0
+    MaControlChange(channel, data1, data2);
+    break;
+
+  case usbMIDI.ProgramChange: // 0xC0
+    MaProgramchange(channel, data1);
     //  Serial.print("Program Change, ch=");
     //  Serial.print(channel, DEC);
     //  Serial.print(", program=");
-     // Serial.println(data1, DEC);
-      break;
+    // Serial.println(data1, DEC);
+    break;
 
-    case usbMIDI.AfterTouchChannel: // 0xD0
-//      Serial.print("After Touch, ch=");
-//      Serial.print(channel, DEC);
-//      Serial.print(", pressure=");
-//      Serial.println(data1, DEC);
-      break;
+  case usbMIDI.AfterTouchChannel: // 0xD0
+                                  //      Serial.print("After Touch, ch=");
+                                  //      Serial.print(channel, DEC);
+                                  //      Serial.print(", pressure=");
+                                  //      Serial.println(data1, DEC);
+    break;
 
-    case usbMIDI.PitchBend: // 0xE0
-    //  Serial.print("Pitch Change, ch=");
-     // Serial.print(channel, DEC);
-     // Serial.print(", pitch=");
-     // Serial.println(data1 + data2 * 128, DEC);
-      break;
+  case usbMIDI.PitchBend: // 0xE0
+                          //  Serial.print("Pitch Change, ch=");
+                          // Serial.print(channel, DEC);
+                          // Serial.print(", pitch=");
+                          // Serial.println(data1 + data2 * 128, DEC);
+    break;
 
-    case usbMIDI.SystemExclusive: // 0xF0
-      // Messages larger than usbMIDI's internal buffer are truncated.
-      // To receive large messages, you *must* use the 3-input function
-      // handler.  See InputFunctionsComplete for details.
-      Serial.print("SysEx Message: ");
-      printBytes(usbMIDI.getSysExArray(), data1 + data2 * 256);
-      Serial.println();
-      break;
+  case usbMIDI.SystemExclusive: // 0xF0
+    // Messages larger than usbMIDI's internal buffer are truncated.
+    // To receive large messages, you *must* use the 3-input function
+    // handler.  See InputFunctionsComplete for details.
+    Serial.print("SysEx Message: ");
+    printBytes(usbMIDI.getSysExArray(), data1 + data2 * 256);
+    Serial.println();
+    break;
 
-    case usbMIDI.TimeCodeQuarterFrame: // 0xF1
-     // Serial.print("TimeCode, index=");
-    //  Serial.print(data1 >> 4, DEC);
-    //  Serial.print(", digit=");
-    //  Serial.println(data1 & 15, DEC);
-      break;
+  case usbMIDI.TimeCodeQuarterFrame: // 0xF1
+                                     // Serial.print("TimeCode, index=");
+                                     //  Serial.print(data1 >> 4, DEC);
+                                     //  Serial.print(", digit=");
+                                     //  Serial.println(data1 & 15, DEC);
+    break;
 
-    case usbMIDI.SongPosition: // 0xF2
-    //  Serial.print("Song Position, beat=");
-    //  Serial.println(data1 + data2 * 128);
-      break;
+  case usbMIDI.SongPosition: // 0xF2
+                             //  Serial.print("Song Position, beat=");
+                             //  Serial.println(data1 + data2 * 128);
+    break;
 
-    case usbMIDI.SongSelect: // 0xF3
-    //  Serial.print("Sond Select, song=");
-    //  Serial.println(data1, DEC);
-      break;
+  case usbMIDI.SongSelect: // 0xF3
+                           //  Serial.print("Sond Select, song=");
+                           //  Serial.println(data1, DEC);
+    break;
 
-    case usbMIDI.TuneRequest: // 0xF6
-    //  Serial.println("Tune Request");
-      break;
+  case usbMIDI.TuneRequest: // 0xF6
+                            //  Serial.println("Tune Request");
+    break;
 
-    case usbMIDI.Clock: // 0xF8
-     // Serial.println("Clock");
-       if (externalticker) {
-     
-      Mytickmidi(channel,data1,data2);
-       }
-      break;
+  case usbMIDI.Clock: // 0xF8
+                      // Serial.println("Clock");
+    if (externalticker) {
 
-    case usbMIDI.Start: // 0xFA
+      Mytickmidi(channel, data1, data2);
+    }
+    break;
+
+  case usbMIDI.Start: // 0xFA
     //  Serial.println("Start");
     if (externalticker) {
-       tickposition = 0 ;
+      tickposition = 0;
       stoptick = 0;
     }
-      break;
+    break;
 
-    case usbMIDI.Continue: // 0xFB
-     // Serial.println("Continue");
-       if (externalticker) {
-       
+  case usbMIDI.Continue: // 0xFB
+                         // Serial.println("Continue");
+    if (externalticker) {
+
       stoptick = 0;
     }
-      break;
+    break;
 
-    case usbMIDI.Stop: // 0xFC
-     // Serial.println("Stop");
-     if (externalticker) {
+  case usbMIDI.Stop: // 0xFC
+    // Serial.println("Stop");
+    if (externalticker) {
       stopallnotes();
-          stopticker();
-              if (recorderrecord) {
-                 recorderrecord = 0 ;
-                 stopRecordingL();
-               
-                 }
+      stopticker();
+      if (recorderrecord) {
+        recorderrecord = 0;
+        stopRecordingL();
+      }
     }
-      break;
+    break;
 
-    case usbMIDI.ActiveSensing: // 0xFE
-    //  Serial.println("Actvice Sensing");
-      break;
+  case usbMIDI.ActiveSensing: // 0xFE
+                              //  Serial.println("Actvice Sensing");
+    break;
 
-    case usbMIDI.SystemReset: // 0xFF
-    //  Serial.println("System Reset");
-      break;
+  case usbMIDI.SystemReset: // 0xFF
+                            //  Serial.println("System Reset");
+    break;
 
-    default:
+  default:
     break;
     //  Serial.println("Opps, an unknown MIDI message type!");
   }
 }
 
-
 void printBytes(const byte *data, unsigned int size) {
   while (size > 0) {
     byte b = *data++;
-    if (b < 16) Serial.print('0');
+    if (b < 16)
+      Serial.print('0');
     Serial.print(b, HEX);
-    if (size > 1) Serial.print(' ');
+    if (size > 1)
+      Serial.print(' ');
     size = size - 1;
   }
 }

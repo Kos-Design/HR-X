@@ -2,552 +2,527 @@
 File frec;
 File frec2;
 int modeL = 0;
-int modeR = 0; 
+int modeR = 0;
 // 0=stopped, 1=recording,
-bool modestereo = 0 ;
-
+bool modestereo = 0;
 
 byte getrecdir() {
-   
-  for (byte i = 0 ; i < sampledirsregistered ; i++ ) {
-    if ( (samplefoldersregistered[i][0]=='R' ) && (samplefoldersregistered[i][1]=='E' ) && (samplefoldersregistered[i][2]=='C' )) {
-   
+
+  for (byte i = 0; i < sampledirsregistered; i++) {
+    if ((samplefoldersregistered[i][0] == 'R') &&
+        (samplefoldersregistered[i][1] == 'E') &&
+        (samplefoldersregistered[i][2] == 'C')) {
+
       return i;
     }
-    
-//Serial.print("folder = ");
-      //Serial.println((char*)samplefoldersregistered[i]);
+
+    // Serial.print("folder = ");
+    // Serial.println((char*)samplefoldersregistered[i]);
   }
-  return sampledirsregistered ;
+  return sampledirsregistered;
 }
 
 void displayRecmenu() {
   Serial.println("displayRecmenu");
-  navrange = 4 ;
+  navrange = 4;
   canvasBIG.fillScreen(SSD1306_BLACK);
-   canvastitle.fillScreen(SSD1306_BLACK);
-    display.clearDisplay();
-   
-   RecmenuAction();
-  
-   dodisplay();
-      //getrecdir()   ;   
+  canvastitle.fillScreen(SSD1306_BLACK);
+  display.clearDisplay();
+
+  RecmenuAction();
+
+  dodisplay();
+  // getrecdir()   ;
 }
 void dolistofRecs() {
-   int startx = 80;
+  int startx = 80;
   int starty = 16;
   // char* textinz = (char*)lesfiles[sublevels[3]].name() ;
 
-    canvastitle.setCursor(startx,0);
-    canvastitle.setTextSize(1);
+  canvastitle.setCursor(startx, 0);
+  canvastitle.setTextSize(1);
 
-   byte lerecdiri = getrecdir() ;
-   if (lerecdiri < sampledirsregistered) {
-  
-     canvastitle.print((char*)samplebase[lerecdiri][sublevels[navrecmenu+1]]);
-    
+  byte lerecdiri = getrecdir();
+  if (lerecdiri < sampledirsregistered) {
+
+    canvastitle.print((char *)samplebase[lerecdiri][sublevels[navrecmenu + 1]]);
+
     canvastitle.setTextSize(1);
     canvasBIG.setTextSize(1);
-   
-   
-        for (int filer = 0 ; filer < sizeofsamplefolder[lerecdiri]-1-(sublevels[navrecmenu+1]) ; filer ++) {
-      canvasBIG.setCursor(startx,starty+((filer)*10));
-      canvasBIG.println((char*)samplebase[lerecdiri][sublevels[navrecmenu+1]+1+filer]);
-        }
-  
-    for (int filer = 0 ; filer < sublevels[navrecmenu+1]  ; filer ++) {
 
-        canvasBIG.setCursor(startx,(10*(sizeofsamplefolder[lerecdiri]-sublevels[navrecmenu+1]))+6+((filer)*10));
-        canvasBIG.println((char*)samplebase[lerecdiri][filer]);
-       }
-     } 
+    for (int filer = 0; filer < sizeofsamplefolder[lerecdiri] - 1 -
+                                    (sublevels[navrecmenu + 1]);
+         filer++) {
+      canvasBIG.setCursor(startx, starty + ((filer)*10));
+      canvasBIG.println(
+          (char *)samplebase[lerecdiri][sublevels[navrecmenu + 1] + 1 + filer]);
     }
 
+    for (int filer = 0; filer < sublevels[navrecmenu + 1]; filer++) {
+
+      canvasBIG.setCursor(startx, (10 * (sizeofsamplefolder[lerecdiri] -
+                                         sublevels[navrecmenu + 1])) +
+                                      6 + ((filer)*10));
+      canvasBIG.println((char *)samplebase[lerecdiri][filer]);
+    }
+  }
+}
+
 void deleteRec() {
-  
-   byte lerecdiri = getrecdir() ;
-  if (SD.exists((char*)samplefullpath[lerecdiri][sublevels[navrecmenu+1]])) {
-    SD.remove((char*)samplefullpath[lerecdiri][sublevels[navrecmenu+1]]);
+
+  byte lerecdiri = getrecdir();
+  if (SD.exists((char *)samplefullpath[lerecdiri][sublevels[navrecmenu + 1]])) {
+    SD.remove((char *)samplefullpath[lerecdiri][sublevels[navrecmenu + 1]]);
   }
-   dosoundlist();
+  dosoundlist();
 }
-void copyRec() {
-  Serial.println("why copy?");
-}
-void getthisRecname(){
-  
-   byte lerecdiri = getrecdir() ;
-  for (int i = 0 ; i < strlen((char*)samplefullpath[lerecdiri][sublevels[navrecmenu+1]] ) ; i++ ) {
-    newRecpathL[i] = samplefullpath[lerecdiri][sublevels[navrecmenu+1]][i] ;
+void copyRec() { Serial.println("why copy?"); }
+void getthisRecname() {
+
+  byte lerecdiri = getrecdir();
+  for (int i = 0;
+       i < strlen((char *)samplefullpath[lerecdiri][sublevels[navrecmenu + 1]]);
+       i++) {
+    newRecpathL[i] = samplefullpath[lerecdiri][sublevels[navrecmenu + 1]][i];
   }
-   //Serial.println((char*)newRecpathL);
-  
+  // Serial.println((char*)newRecpathL);
 }
 void RecmenuAction() {
-  byte lerecddir ;
-      if (navlevel == navrecmenu) {
-        navrange = 4 ;
-        
+  byte lerecddir;
+  if (navlevel == navrecmenu) {
+    navrange = 4;
+
     dolistRecdisplay();
-    
-      }
-      
-  if ((sublevels[navrecmenu] == 0) && (navlevel > navrecmenu )) {
-   recordVpanel();
   }
-  
-   if (sublevels[navrecmenu] != 0) {
- 
-      if (navlevel > navrecmenu+1 ) {
-          
-        navlevel = navrecmenu;
-       
-        vraipos = sublevels[navrecmenu];
-        myEnc.write(4*vraipos);
-        navrange = 4;
-       
-        switch (sublevels[navrecmenu]) {
-                
-          case 1:
-          
-          getthisRecname();
-          break;
-          
-          case 2:
-          copyRec();
-          break;
-          
-          case 3:
-          deleteRec();
-          break;
-          
-          case 4:
-          break;
 
-          default:
-          break;
-        }
-         displayRecmenu();
-        
-         
-       }
-   
-       if (navlevel > navrecmenu ) {
-        lerecddir = getrecdir();
-        if (lerecddir < sampledirsregistered) {
-        navrange = sizeofsamplefolder[lerecddir] - 1; 
-      } else { Serial.println("bug1"); }
-         dolistRecdisplay();
-       }
+  if ((sublevels[navrecmenu] == 0) && (navlevel > navrecmenu)) {
+    recordVpanel();
+  }
 
-       
-       if (navlevel >= navrecmenu ) {
-   // dolistRecdisplay();
-     dolistofRecs();
-     
-       }
-       
-   }
+  if (sublevels[navrecmenu] != 0) {
 
+    if (navlevel > navrecmenu + 1) {
 
+      navlevel = navrecmenu;
+
+      vraipos = sublevels[navrecmenu];
+      myEnc.write(4 * vraipos);
+      navrange = 4;
+
+      switch (sublevels[navrecmenu]) {
+
+      case 1:
+
+        getthisRecname();
+        break;
+
+      case 2:
+        copyRec();
+        break;
+
+      case 3:
+        deleteRec();
+        break;
+
+      case 4:
+        break;
+
+      default:
+        break;
+      }
+      displayRecmenu();
+    }
+
+    if (navlevel > navrecmenu) {
+      lerecddir = getrecdir();
+      if (lerecddir < sampledirsregistered) {
+        navrange = sizeofsamplefolder[lerecddir] - 1;
+      } else {
+        Serial.println("bug1");
+      }
+      dolistRecdisplay();
+    }
+
+    if (navlevel >= navrecmenu) {
+      // dolistRecdisplay();
+      dolistofRecs();
+    }
+  }
 }
 
 void dolistRecdisplay() {
-  
-const byte truesizeofRecmenulabels = 5;
-  char Recmenulabels[truesizeofRecmenulabels][12] = {"Record", "Load", "Copy", "Delete", "Params"};
-    byte startx = 5;
+
+  const byte truesizeofRecmenulabels = 5;
+  char Recmenulabels[truesizeofRecmenulabels][12] = {"Record", "Load", "Copy",
+                                                     "Delete", "Params"};
+  byte startx = 5;
   byte starty = 16;
-   char* textin = (char*)Recmenulabels[sublevels[navrecmenu]] ;
- //Serial.println(textin);
-    //canvastitle.fillScreen(SSD1306_BLACK);
-    canvastitle.setCursor(0,0);
-    canvastitle.setTextSize(2);
-    canvastitle.println(textin);
-    
-    canvasBIG.setTextSize(1);
-    //canvasBIG.fillScreen(SSD1306_BLACK);
-  
-    for (int filer = 0 ; filer < truesizeofRecmenulabels-1 -(sublevels[navrecmenu]) ; filer ++) {
+  char *textin = (char *)Recmenulabels[sublevels[navrecmenu]];
+  // Serial.println(textin);
+  // canvastitle.fillScreen(SSD1306_BLACK);
+  canvastitle.setCursor(0, 0);
+  canvastitle.setTextSize(2);
+  canvastitle.println(textin);
 
-      canvasBIG.setCursor(startx,starty+((filer)*10));
-      canvasBIG.println(Recmenulabels[sublevels[navrecmenu]+1+filer]);
-    }
-    for (int filer = 0 ; filer < sublevels[navrecmenu]  ; filer ++) {
+  canvasBIG.setTextSize(1);
+  // canvasBIG.fillScreen(SSD1306_BLACK);
 
-      canvasBIG.setCursor(startx,(10*(truesizeofRecmenulabels-sublevels[navrecmenu])+6+((filer)*10)));
-      canvasBIG.println(Recmenulabels[filer]);
-    }
+  for (int filer = 0;
+       filer < truesizeofRecmenulabels - 1 - (sublevels[navrecmenu]); filer++) {
 
+    canvasBIG.setCursor(startx, starty + ((filer)*10));
+    canvasBIG.println(Recmenulabels[sublevels[navrecmenu] + 1 + filer]);
+  }
+  for (int filer = 0; filer < sublevels[navrecmenu]; filer++) {
+
+    canvasBIG.setCursor(
+        startx, (10 * (truesizeofRecmenulabels - sublevels[navrecmenu]) + 6 +
+                 ((filer)*10)));
+    canvasBIG.println(Recmenulabels[filer]);
+  }
 }
 
 void makenewRecename() {
-  //newpresetpath
- // Serial.println((char*)newRecpathL);
-  synsetunites = 0 ;
-  synsetdizaines = 0 ;
-    while (SD.exists((char*)newRecpathL)) {
-     // Serial.println("current exists");
-  
-      findnextRecname();
-     // Serial.println((char*)newRecpathL);
-    }
+  // newpresetpath
+  // Serial.println((char*)newRecpathL);
+  synsetunites = 0;
+  synsetdizaines = 0;
+  while (SD.exists((char *)newRecpathL)) {
+    // Serial.println("current exists");
+
+    findnextRecname();
+    // Serial.println((char*)newRecpathL);
+  }
 }
 
 void findnextRecname() {
-   
-  if ( synsetunites < 9 ) {
+
+  if (synsetunites < 9) {
     synsetunites++;
   } else {
-    synsetunites = 0 ;
-     if ( synsetdizaines < 9 ) {
-    synsetdizaines++;
-  } else {
-    synsetdizaines = 0;
+    synsetunites = 0;
+    if (synsetdizaines < 9) {
+      synsetdizaines++;
+    } else {
+      synsetdizaines = 0;
+    }
   }
-    
-  }   
   // tot-9  tot-10
-  newRecpathL[18]=synsetunites + '0' ;
-  newRecpathL[17]=synsetdizaines + '0' ;
-  newRecpathR[18]=synsetunites + '0' ;
-  newRecpathR[17]=synsetdizaines + '0' ;
-  
-  //newRecpath[27] = {"/SOUNDSET/REC/REC-00.L.RAW"};
+  newRecpathL[18] = synsetunites + '0';
+  newRecpathL[17] = synsetdizaines + '0';
+  newRecpathR[18] = synsetunites + '0';
+  newRecpathR[17] = synsetdizaines + '0';
+
+  // newRecpath[27] = {"/SOUNDSET/REC/REC-00.L.RAW"};
 }
 
-void recordcontrols() {
-  Serial.print("rec controled");
-}
+void recordcontrols() { Serial.print("rec controled"); }
 
-void recordVpanelAction(){
+void recordVpanelAction() {
 
-  if (navlevel == navrec+1 ) {
+  if (navlevel == navrec + 1) {
     byte slct = sublevels[navrec];
-  
-         if (slct == 0) {
-              recorderrecord = !recorderrecord ;
-              if ( recorderrecord ) {
-               
-                 if (recorderstop) {
-                  recorderstop = 0 ;
-                }
-                if (recorderplay) {
-                  recorderplay = 0 ;
-                   stopplayrecordsd();
-                }
-               startRecording();
-               //makenewRecename();
-              }
-             }
 
-        if (slct == 1) {
-          recorderplay = !recorderplay ;
-          if ( recorderplay) {
-               
-                if (recorderstop) {
-                  recorderstop = 0 ;
-                }
-                 if (recorderrecord) {
-                 recorderrecord = 0 ;
-                 stopRecordingL();
-                stopRecordingR();
-                 }
-                 playrecordsd();
-            }
+    if (slct == 0) {
+      recorderrecord = !recorderrecord;
+      if (recorderrecord) {
+
+        if (recorderstop) {
+          recorderstop = 0;
         }
-      if (slct == 2) {
-          recorderstop = !recorderstop ;
-            if ( recorderstop) {
-              
-                if (recorderplay) {
-                  recorderplay = 0 ;
-                   stopplayrecordsd();
-                }
-                 if (recorderrecord) {
-                 recorderrecord = 0 ;
-                 stopRecordingL();
-              
-                 }
-            }
+        if (recorderplay) {
+          recorderplay = 0;
+          stopplayrecordsd();
         }
- 
-  recordcontrols();
-   returntonav(navrec);
+        startRecording();
+        // makenewRecename();
+      }
+    }
+
+    if (slct == 1) {
+      recorderplay = !recorderplay;
+      if (recorderplay) {
+
+        if (recorderstop) {
+          recorderstop = 0;
+        }
+        if (recorderrecord) {
+          recorderrecord = 0;
+          stopRecordingL();
+          stopRecordingR();
+        }
+        playrecordsd();
+      }
+    }
+    if (slct == 2) {
+      recorderstop = !recorderstop;
+      if (recorderstop) {
+
+        if (recorderplay) {
+          recorderplay = 0;
+          stopplayrecordsd();
+        }
+        if (recorderrecord) {
+          recorderrecord = 0;
+          stopRecordingL();
+        }
+      }
+    }
+
+    recordcontrols();
+    returntonav(navrec);
   }
 
-    
- 
- 
   if (navlevel > navrec) {
-     
-     returntonav(navrec);
+
+    returntonav(navrec);
   }
 }
 
 void recordVpanelSelector() {
-  
-      if (navlevel == navrec) {
-     navrange = 2 ;
-    }
-    byte slct = sublevels[navrec];
 
+  if (navlevel == navrec) {
+    navrange = 2;
+  }
+  byte slct = sublevels[navrec];
 
-    if (slct == 0) {
-       if (!recorderrecord ) {
-     canvasBIG.drawRoundRect(82,18, 128-80-4, 20-4,2, SSD1306_WHITE ) ;
+  if (slct == 0) {
+    if (!recorderrecord) {
+      canvasBIG.drawRoundRect(82, 18, 128 - 80 - 4, 20 - 4, 2, SSD1306_WHITE);
     } else {
-     canvasBIG.drawRoundRect(82,18, 128-80-4, 20-4,2, SSD1306_BLACK ) ; 
+      canvasBIG.drawRoundRect(82, 18, 128 - 80 - 4, 20 - 4, 2, SSD1306_BLACK);
     }
- 
   }
 
-   if (slct == 1) {
-       if (!playRawL.isPlaying() ) {
-     canvasBIG.drawRoundRect(2,18, 128-90-4, 20-4,2, SSD1306_WHITE ) ;
+  if (slct == 1) {
+    if (!playRawL.isPlaying()) {
+      canvasBIG.drawRoundRect(2, 18, 128 - 90 - 4, 20 - 4, 2, SSD1306_WHITE);
     } else {
-     canvasBIG.drawRoundRect(2,18, 128-90-4, 20-4,2, SSD1306_BLACK ) ; 
+      canvasBIG.drawRoundRect(2, 18, 128 - 90 - 4, 20 - 4, 2, SSD1306_BLACK);
     }
- 
   }
-      if (slct == 2) {
+  if (slct == 2) {
     if (!recorderstop) {
-     canvasBIG.drawRoundRect(2,18+20+4, 128-90-4, 20-4,2, SSD1306_WHITE ) ;
+      canvasBIG.drawRoundRect(2, 18 + 20 + 4, 128 - 90 - 4, 20 - 4, 2,
+                              SSD1306_WHITE);
     } else {
-     canvasBIG.drawRoundRect(2,18+20+4, 128-90-4, 20-4,2, SSD1306_BLACK ) ; 
+      canvasBIG.drawRoundRect(2, 18 + 20 + 4, 128 - 90 - 4, 20 - 4, 2,
+                              SSD1306_BLACK);
     }
   }
-  
-  
-  
-   
 }
 
 void recordVpanel() {
-  
-    recordVpanelAction();
- 
-    
-    display.clearDisplay();
-    canvasBIG.fillScreen(SSD1306_BLACK ) ;
-    canvastitle.fillScreen(SSD1306_BLACK ) ;
 
-  if (!recorderrecord ) {
-   canvasBIG.drawRoundRect(80,16, 128-80, 20,2, SSD1306_WHITE ) ;
-     canvasBIG.setTextColor(SSD1306_WHITE);
-   canvasBIG.setCursor(87,16+6 );
-   canvasBIG.print("Rec.");
+  recordVpanelAction();
+
+  display.clearDisplay();
+  canvasBIG.fillScreen(SSD1306_BLACK);
+  canvastitle.fillScreen(SSD1306_BLACK);
+
+  if (!recorderrecord) {
+    canvasBIG.drawRoundRect(80, 16, 128 - 80, 20, 2, SSD1306_WHITE);
+    canvasBIG.setTextColor(SSD1306_WHITE);
+    canvasBIG.setCursor(87, 16 + 6);
+    canvasBIG.print("Rec.");
   } else {
-      canvasBIG.fillRoundRect(80,16, 128-80, 20,2, SSD1306_WHITE ) ;
-   canvasBIG.setCursor(87,16+6 );
-   canvasBIG.setTextColor(SSD1306_BLACK);
-   canvasBIG.print("Rec.");
-   canvasBIG.setTextColor(SSD1306_WHITE);
+    canvasBIG.fillRoundRect(80, 16, 128 - 80, 20, 2, SSD1306_WHITE);
+    canvasBIG.setCursor(87, 16 + 6);
+    canvasBIG.setTextColor(SSD1306_BLACK);
+    canvasBIG.print("Rec.");
+    canvasBIG.setTextColor(SSD1306_WHITE);
   }
-  if (!playRawL.isPlaying() ) {
-   canvasBIG.drawRoundRect(0,16, 128-90, 20,2, SSD1306_WHITE ) ;
-     canvasBIG.setTextColor(SSD1306_WHITE);
-   canvasBIG.setCursor(7,16+6 );
-   canvasBIG.print("Play");
+  if (!playRawL.isPlaying()) {
+    canvasBIG.drawRoundRect(0, 16, 128 - 90, 20, 2, SSD1306_WHITE);
+    canvasBIG.setTextColor(SSD1306_WHITE);
+    canvasBIG.setCursor(7, 16 + 6);
+    canvasBIG.print("Play");
   } else {
-      canvasBIG.fillRoundRect(0,16, 128-90, 20,2, SSD1306_WHITE ) ;
-   canvasBIG.setCursor(7,16+6 );
-   canvasBIG.setTextColor(SSD1306_BLACK);
-   canvasBIG.print("Play");
-   canvasBIG.setTextColor(SSD1306_WHITE);
+    canvasBIG.fillRoundRect(0, 16, 128 - 90, 20, 2, SSD1306_WHITE);
+    canvasBIG.setCursor(7, 16 + 6);
+    canvasBIG.setTextColor(SSD1306_BLACK);
+    canvasBIG.print("Play");
+    canvasBIG.setTextColor(SSD1306_WHITE);
   }
-   if (!recorderstop ) {
-   canvasBIG.drawRoundRect(0,16+20+4, 128-90, 20,2, SSD1306_WHITE ) ;
-   canvasBIG.setCursor(7,6+16+20+4 );
-   canvasBIG.setTextColor(SSD1306_WHITE);
-   canvasBIG.print("Stop");
-   } else {
-   canvasBIG.fillRoundRect(0,16+20+4, 128-90, 20,2, SSD1306_WHITE ) ;
-   canvasBIG.setCursor(7,6+16+20+4 );
-   canvasBIG.setTextColor(SSD1306_BLACK);
-   canvasBIG.print("Stop");
-   canvasBIG.setTextColor(SSD1306_WHITE);
+  if (!recorderstop) {
+    canvasBIG.drawRoundRect(0, 16 + 20 + 4, 128 - 90, 20, 2, SSD1306_WHITE);
+    canvasBIG.setCursor(7, 6 + 16 + 20 + 4);
+    canvasBIG.setTextColor(SSD1306_WHITE);
+    canvasBIG.print("Stop");
+  } else {
+    canvasBIG.fillRoundRect(0, 16 + 20 + 4, 128 - 90, 20, 2, SSD1306_WHITE);
+    canvasBIG.setCursor(7, 6 + 16 + 20 + 4);
+    canvasBIG.setTextColor(SSD1306_BLACK);
+    canvasBIG.print("Stop");
+    canvasBIG.setTextColor(SSD1306_WHITE);
   }
-    
-    recordVpanelSelector();
-    
-    dodisplay();
+
+  recordVpanelSelector();
+
+  dodisplay();
 }
 
 void loopRecorder() {
   // First, read the buttons
- // buttonRecord.update();
- // buttonStop.update();
-
+  // buttonRecord.update();
+  // buttonStop.update();
 
   // Respond to button presses
- // if (buttonRecord.fallingEdge()) {
-     // If we're playing or recording, carry on...
+  // if (buttonRecord.fallingEdge()) {
+  // If we're playing or recording, carry on...
   if (modeL == 1) {
     continueRecording();
-    //continueRecordingR();
+    // continueRecordingR();
   }
 
-
   // when using a microphone, continuously adjust gain
-  //if (myInput == AUDIO_INPUT_MIC) adjustMicLevel();
+  // if (myInput == AUDIO_INPUT_MIC) adjustMicLevel();
 }
 
 void playrecordsd() {
-    //Serial.println((char*)newRecpathL);
- if (SD.exists((char*)newRecpathL)) {
-  AudioNoInterrupts();
- 
-    playRawL.play((char*)newRecpathL);
+  // Serial.println((char*)newRecpathL);
+  if (SD.exists((char *)newRecpathL)) {
+    AudioNoInterrupts();
+
+    playRawL.play((char *)newRecpathL);
     if (modestereo) {
-    playRawR.play((char*)newRecpathR);
+      playRawR.play((char *)newRecpathR);
     } else {
-       playRawR.play((char*)newRecpathL);
+      playRawR.play((char *)newRecpathL);
     }
     AudioInterrupts();
- }
+  }
 }
 
 void stopplayrecordsd() {
- 
-  AudioNoInterrupts();
-    playRawL.stop();
-    playRawR.stop();
-    AudioInterrupts();
 
+  AudioNoInterrupts();
+  playRawL.stop();
+  playRawR.stop();
+  AudioInterrupts();
 }
 
 void startRecording() {
   makenewRecename();
   Serial.println("startRecording");
-   //AudioNoInterrupts();
-  if (SD.exists( (char*)newRecpathL ) ){
+  // AudioNoInterrupts();
+  if (SD.exists((char *)newRecpathL)) {
     // The SD library writes new data to the end of the
     // file, so to start a new recording, the old file
     // must be deleted before new data is written.
-    SD.remove((char*)newRecpathL);
+    SD.remove((char *)newRecpathL);
   }
 
-    if ((SD.exists((char*)newRecpathR) )&& (modestereo) ) {
+  if ((SD.exists((char *)newRecpathR)) && (modestereo)) {
     // The SD library writes new data to the end of the
     // file, so to start a new recording, the old file
     // must be deleted before new data is written.
     // Serial.print((char*)newRecpathR);
     // Serial.println(" removed");
-    SD.remove((char*)newRecpathR);
+    SD.remove((char *)newRecpathR);
   }
-  
- // mytxtFile = SD.open((char*)newpresetpath, FILE_WRITE);
-  frec = SD.open((char*)newRecpathL, FILE_WRITE);
-  //delay(15);
+
+  // mytxtFile = SD.open((char*)newpresetpath, FILE_WRITE);
+  frec = SD.open((char *)newRecpathL, FILE_WRITE);
+  // delay(15);
   if (frec) {
-  modeL = 1;  
-  queue1.begin();
+    modeL = 1;
+    queue1.begin();
     Serial.println("Freq opened");
     if (modestereo) {
-      frec2 = SD.open((char*)newRecpathR, FILE_WRITE);
-        if (frec2) {  
+      frec2 = SD.open((char *)newRecpathR, FILE_WRITE);
+      if (frec2) {
         Serial.println("Frec2 opened");
-        modeR = 1 ;
+        modeR = 1;
         queue2.begin();
-        }
-
+      }
     }
-    
   }
   // AudioInterrupts();
 }
 
 void continueRecording() {
 
-   
-    if (queue1.available() >= 2) {
+  if (queue1.available() >= 2) {
 
     if (frec) {
 
+      // Fetch 2 blocks from the audio library and copy
+      // into a 512 byte buffer.  The Arduino SD library
+      // is most efficient when full 512 byte sector size
+      // writes are used.
+      memcpy(bufferL, queue1.readBuffer(), 256);
+      queue1.freeBuffer();
+      memcpy(bufferL + 256, queue1.readBuffer(), 256);
+      queue1.freeBuffer();
+      // write all 512 bytes to the SD card
+      // elapsedMicros usec = 0;
+      frec.write(bufferL, 512);
+      //  Serial.println("DumpedL");
+      //  delay(round((knobs[3]*10)));
+      // Uncomment these lines to see how long SD writes
+      // are taking.  A pair of audio blocks arrives every
+      // 5802 microseconds, so hopefully most of the writes
+      // take well under 5802 us.  Some will take more, as
+      // the SD library also must write to the FAT tables
+      // and the SD card controller manages media erase and
+      // wear leveling.  The queue1 object can buffer
+      // approximately 301700 us of audio, to allow time
+      // for occasional high SD card latency, as long as
+      // the average write time is under 5802 us.
+      // Serial.print("SD write, us=");
+      // Serial.println(usec);
 
-
-    // Fetch 2 blocks from the audio library and copy
-    // into a 512 byte buffer.  The Arduino SD library
-    // is most efficient when full 512 byte sector size
-    // writes are used.
-    memcpy(bufferL, queue1.readBuffer(), 256);
-    queue1.freeBuffer();
-    memcpy(bufferL+256, queue1.readBuffer(), 256);
-    queue1.freeBuffer();
-    // write all 512 bytes to the SD card
-    //elapsedMicros usec = 0;
-    frec.write(bufferL, 512);
-  //  Serial.println("DumpedL");
-    //  delay(round((knobs[3]*10)));
-    // Uncomment these lines to see how long SD writes
-    // are taking.  A pair of audio blocks arrives every
-    // 5802 microseconds, so hopefully most of the writes
-    // take well under 5802 us.  Some will take more, as
-    // the SD library also must write to the FAT tables
-    // and the SD card controller manages media erase and
-    // wear leveling.  The queue1 object can buffer
-    // approximately 301700 us of audio, to allow time
-    // for occasional high SD card latency, as long as
-    // the average write time is under 5802 us.
-   // Serial.print("SD write, us=");
-   // Serial.println(usec);
-
-
-  //if ( modestereo) {
-    //frec.close();
-    //}
-    //Serial.println("Buffer_L Dumped");
-     }
-   }
-    if (modestereo) {
-     if (queue2.available() >= 2 ) {
-      //frec2 = SD.open("RECORDR.RAW", FILE_WRITE);
-     if (frec2) {
-
-
-     memcpy(bufferR, queue2.readBuffer(), 256);
-    queue2.freeBuffer();
-    memcpy(bufferR+256, queue2.readBuffer(), 256);
-    queue2.freeBuffer();
-    // write all 512 bytes to the SD card
-    //elapsedMicros usec = 0;
-    frec2.write(bufferR, 512);
-  //  Serial.println("DumpedR");
-    //delay(round((knobs[3]*10)));
-    //frec2.close();
-    //Serial.println("Buffer_R Dumped");
-     }
-     }
-
+      // if ( modestereo) {
+      // frec.close();
+      //}
+      // Serial.println("Buffer_L Dumped");
+    }
   }
-  //if (frec2) {  Serial.println("Frec2 still opened");}
-  //if (frec) {Serial.println("Frec1 still opened");}
-  //delay(3000);
+  if (modestereo) {
+    if (queue2.available() >= 2) {
+      // frec2 = SD.open("RECORDR.RAW", FILE_WRITE);
+      if (frec2) {
 
-
+        memcpy(bufferR, queue2.readBuffer(), 256);
+        queue2.freeBuffer();
+        memcpy(bufferR + 256, queue2.readBuffer(), 256);
+        queue2.freeBuffer();
+        // write all 512 bytes to the SD card
+        // elapsedMicros usec = 0;
+        frec2.write(bufferR, 512);
+        //  Serial.println("DumpedR");
+        // delay(round((knobs[3]*10)));
+        // frec2.close();
+        // Serial.println("Buffer_R Dumped");
+      }
+    }
+  }
+  // if (frec2) {  Serial.println("Frec2 still opened");}
+  // if (frec) {Serial.println("Frec1 still opened");}
+  // delay(3000);
 }
 
 void stopRecordingL() {
-  //if ( !frec ) {
+  // if ( !frec ) {
   //  frec = SD.open("RECORDL.RAW", FILE_WRITE);
   //}
 
   queue1.end();
-  //synchro !
+  // synchro !
 
   if (modeL == 1) {
     while (queue1.available() > 0) {
-      frec.write((byte*)queue1.readBuffer(), 256);
+      frec.write((byte *)queue1.readBuffer(), 256);
       queue1.freeBuffer();
-      //Serial.println("Freeing L Buffer");
+      // Serial.println("Freeing L Buffer");
     }
     frec.close();
     modeL = 0;
     queue1.clear();
-    //Serial.println("stopRecordingL");
+    // Serial.println("stopRecordingL");
   }
-  if ( modestereo) {
+  if (modestereo) {
     stopRecordingR();
   }
   dosoundlist();
@@ -555,22 +530,21 @@ void stopRecordingL() {
 
 void stopRecordingR() {
 
-  //frec2 = SD.open("RECORDR.RAW", FILE_WRITE);
- 
-    queue2.end();
-  
-     //queue2.end();
+  // frec2 = SD.open("RECORDR.RAW", FILE_WRITE);
+
+  queue2.end();
+
+  // queue2.end();
   if (modeR == 1) {
     while (queue2.available() > 0) {
-      frec2.write((byte*)queue2.readBuffer(), 256);
+      frec2.write((byte *)queue2.readBuffer(), 256);
       queue2.freeBuffer();
 
-      //Serial.println("Freeing R Buffer");
+      // Serial.println("Freeing R Buffer");
     }
     frec2.close();
     modeR = 0;
     queue2.clear();
     Serial.println("stopRecordingR");
   }
-
 }
