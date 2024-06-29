@@ -81,13 +81,10 @@ void LFOmenuBG(int leLFO) {
 void applyLFOrmicon(int lesinthy) {
   // displaywaveformicon(sublevels[4],(char*)"SineWave",sinewave, lesynthi,
   // WAVEFORM_SINE);
-  if (navlevel >= 3) {
+  if (navlevel > 3) {
     // Serial.println("Setting TYPE");
     LFOformstype[lesinthy] = sublevels[3];
 
-    if (navlevel == 3) {
-      // navrange = 11;
-    }
     if (navlevel >= 4) {
       returntonav(2, 9);
     }
@@ -96,19 +93,17 @@ void applyLFOrmicon(int lesinthy) {
 
 //check lfotype validation, should not change during selection phase
 void LFOrmType(int leLFO) {
+  if (navlevel == 2){
+    sublevels[3] = LFOformstype[leLFO];
+  }
   if (navlevel == 3) {
     // Serial.println("Setting LFO type");
     navrange = 8;
-    LFOformstype[leLFO] = sublevels[3];
-    restartLFO(leLFO);
+    
 
-  } else {
-    sublevels[3] = LFOformstype[leLFO];
-  }
-  if (navlevel >= 4) {
-    gobacktolfoparams();
-  }
-  switch (LFOformstype[leLFO]) {
+  } 
+ 
+  switch (sublevels[3]) {
   case 0:
     displayLFOrmimg(sublevels[3], (char *)"SineWave", sinewave, leLFO,
                     WAVEFORM_SINE);
@@ -148,6 +143,11 @@ void LFOrmType(int leLFO) {
 
   default:
     break;
+  }
+   if (navlevel >= 4) {
+    LFOformstype[leLFO] = sublevels[3];
+    restartLFO(leLFO);
+    gobacktolfoparams();
   }
 }
 
@@ -220,6 +220,7 @@ void doLFObool(int leLFO) {
   display.display();
 }
 void gobacktolfoparams() { returntonav(2); }
+
 void doLFOparamdisplayval(int laval) {
   canvastitle.setCursor(80, 0);
   canvastitle.setTextSize(2);
@@ -345,6 +346,7 @@ void LFOlining(int leLFO) {
     navrange = sizeofLFOlabels - 1;
 
     if (sublevels[2] == 0) {
+      
       LFOrmType(leLFO);
     }
 
