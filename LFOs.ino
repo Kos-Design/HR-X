@@ -70,8 +70,6 @@ void LFOlineBG() {
 }
 
 void LFOmenuBG(int leLFO) {
-
-  // canvasBIG.drawBitmap(35, 64-48+20, wavex, 104, 48, SSD1306_WHITE);
   canvasBIG.setTextSize(1); // Draw 2X-scale text
   canvasBIG.setCursor(122, 58);
   canvasBIG.print(leLFO + 1);
@@ -91,16 +89,12 @@ void applyLFOrmicon(int lesinthy) {
   }
 }
 
-//check lfotype validation, should not change during selection phase
 void LFOrmType(int leLFO) {
   if (navlevel == 2){
     sublevels[3] = LFOformstype[leLFO];
   }
   if (navlevel == 3) {
-    // Serial.println("Setting LFO type");
-    navrange = 8;
-    
-
+    navrange = 8; 
   } 
  
   switch (sublevels[3]) {
@@ -152,8 +146,8 @@ void LFOrmType(int leLFO) {
 }
 
 void restartLFO(int leLFO) {
-  // AudioNoInterrupts() ;
-
+  
+  AudioNoInterrupts() ;
   if (LFOsync[leLFO]) {
     // lfosinez[leLFO]->frequency(((LFOfreqs[leLFO]/100.0)*(1000/millitickinterval)));
     LFOwaveforms1[leLFO]->begin(
@@ -166,15 +160,19 @@ void restartLFO(int leLFO) {
                                 lesformes[LFOformstype[leLFO]]);
     // lfosinez[leLFO]->frequency((LFOfreqs[leLFO]/100.0)*0.5);
   }
+  //WHY
   if (leLFO == 3) {
     LFOrm303.begin((float)(LFOlevel[leLFO] / 512.00),
                    ((LFOfreqs[leLFO] / 100.0) * (1000 / millitickinterval)),
                    lesformes[LFOformstype[leLFO]]);
   }
-
+  
+  if (LFOformstype[leLFO] == 7 ) {
+    LFOwaveforms1[leLFO]->arbitraryWaveform(arbitrary_waveforms[leLFO],1.0);
+  }
   // lfosinez[leLFO]->amplitude((LFOlevel[leLFO]/128.0)*0.5);
 
-  // AudioInterrupts() ;
+  AudioInterrupts() ;
 }
 void displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int leLFO, typeof(WAVEFORM_SINE) wavetype) {
 
@@ -400,23 +398,10 @@ void LFOlining(int leLFO) {
         }
 
         navlevel--;
-        // Serial.println("back to menu");
         lemenuroot();
-
-        // Serial.print("Next");
       }
     }
-    // Serial.println("updating display");
     LFOmenuBG(leLFO);
-    // display.display();
-
-    // doLFOparamsvalueprint();
     dodisplay();
   }
-  // if (navlevel >= LFOmenuroot+1) {
-
-  // ? LFOrmType(leLFO) ;
-  //}
-
-  //}
 }

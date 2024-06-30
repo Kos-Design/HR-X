@@ -866,32 +866,45 @@ void setsynthfrequencyi(float tune, int voice, byte velocityz) {
 }
 
 void SetADSR() {
-
-  adsrlevels[0] = MadsrAttackDelay;
-  adsrlevels[4] = mappedsustain;
-  adsrlevels[5] = mappedrelease;
-  adsrlevels[3] = mappeddecay;
-  adsrlevels[1] = mappedattack;
-  adsrlevels[2] = MadsrHold;
+  if ( adsrmode == 0 ) {
+    for (int i = 0; i < 4; i++) {
+      adsrlevels[i][0] = MadsrAttackDelay;
+      adsrlevels[i][4] = mappedsustain;
+      adsrlevels[i][5] = mappedrelease;
+      adsrlevels[i][3] = mappeddecay;
+      adsrlevels[i][1] = mappedattack;
+      adsrlevels[i][2] = MadsrHold;
+      }
+  } 
+  else {
+    adsrlevels[adsrmode-1][0] = MadsrAttackDelay;
+    adsrlevels[adsrmode-1][4] = mappedsustain;
+    adsrlevels[adsrmode-1][5] = mappedrelease;
+    adsrlevels[adsrmode-1][3] = mappeddecay;
+    adsrlevels[adsrmode-1][1] = mappedattack;
+    adsrlevels[adsrmode-1][2] = MadsrHold;
+  }
 }
 
 void ApplyADSR() {
 
   for (int i = 0; i < 8; i++) {
-    enveloppesL[i]->delay(adsrlevels[0]);
-    enveloppesL[i]->attack(adsrlevels[1]);
-    enveloppesL[i]->hold(adsrlevels[2]);
-    enveloppesL[i]->decay(adsrlevels[3]);
-    enveloppesL[i]->sustain(adsrlevels[4] / 100.0);
-    enveloppesL[i]->release(adsrlevels[5]);
+    enveloppesL[i]->delay(adsrlevels[i%4][0]);
+    enveloppesL[i]->attack(adsrlevels[i%4][1]);
+    enveloppesL[i]->hold(adsrlevels[i%4][2]);
+    enveloppesL[i]->decay(adsrlevels[i%4][3]);
+    enveloppesL[i]->sustain(adsrlevels[i%4][4] / 100.0);
+    enveloppesL[i]->release(adsrlevels[i%4][5]);
   }
-
+/*
+ //
   mappedattack = adsrlevels[1];
   mappeddecay = adsrlevels[3];
   mappedrelease = adsrlevels[5];
   mappedsustain = adsrlevels[4];
   MadsrAttackDelay = adsrlevels[0];
   MadsrHold = adsrlevels[2];
+  */
 }
 
 int getwavetyped(int lawavetype) {

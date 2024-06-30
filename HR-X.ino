@@ -66,47 +66,12 @@ unsigned long latimeline;
 bool SendMidiOut;
 // unsigned long tickerf = millis();  ;
 #include <MIDIUSB.h>
-char arranged_buttons[6][6] = {{
-                                   1,
-                                   5,
-                                   9,
-                                   13,
-                                   32,
-                                   23,
-                               },
-                               {
-                                   2,
-                                   6,
-                                   10,
-                                   14,
-                                   33,
-                                   24,
-                               },
-                               {
-                                   3,
-                                   7,
-                                   11,
-                                   15,
-                                   34,
-                                   25,
-                               },
-                               {
-                                   4,
-                                   8,
-                                   12,
-                                   16,
-                                   35,
-                                   36,
-                               },
-                               {
-                                   26,
-                                   27,
-                                   28,
-                                   29,
-                                   30,
-                                   31,
-                               },
-                               {17, 18, 19, 20, 21, 22}};
+char arranged_buttons[6][6] = {{1,  5,  9,  13, 32,  23,},
+                               {2,  6,  10, 14, 33,  24,},
+                               {3,  7,  11, 15, 34,  25,},
+                               {4,  8,  12, 16, 35,  36,},
+                               {26, 27, 28, 29, 30,  31,},
+                               {17, 18, 19, 20, 21,  22}};
 const unsigned short all_buttonns = 49;
 int pot_assignements[all_buttonns] = {10};
 int muxed_pots[15] = {10, 12, 11, 16, 15, 14, 19, 18,
@@ -134,7 +99,8 @@ byte but_velocity[all_buttonns] = {
 
 const int mainmenufxlistsize = 10;
 char consolemsg[10][32];
-
+//add to preset
+byte adsrmode = 0;
 int waits = 0;
 char pleasewaitarray[10][32];
 const int fxiterations = 3;
@@ -644,7 +610,7 @@ bool LFOsync[numberofsynthsw];
 byte wave1offset[numberofsynthsw] = {64};
 File mytxtFile;
 // File originefile ;
-int adsrlevels[6] = {0, 5, 0, 50, 100, 60};
+int adsrlevels[4][6] = {{0, 5, 0, 50, 100, 60},{0, 5, 0, 50, 100, 60},{0, 5, 0, 50, 100, 60},{0, 5, 0, 50, 100, 60}};
 int mappedattack = 5;
 int mappeddecay = 50;
 int mappedrelease = 60;

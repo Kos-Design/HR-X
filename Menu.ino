@@ -1,30 +1,4 @@
 
-void displayadsrbars(int score) {
-  if (navlevel == 3) {
-    int sizeadsr = map(score, 0, 20, 0, 35);
-    wavelinemenuBG(sublevels[2]);
-    dolistwavelineparams();
-    dodisplay();
-    display.drawRect(45, 16, 7, 35, SSD1306_WHITE);
-    display.drawRect(57, 16, 7, 35, SSD1306_WHITE);
-    display.fillRect(45, 64 - sizeadsr - 13, 7, sizeadsr, SSD1306_WHITE);
-    display.fillRect(57, 64 - sizeadsr - 13, 7, sizeadsr, SSD1306_WHITE);
-    display.setTextSize(1);
-    display.setCursor(80, 0);
-    display.print(adsrlevels[0]);
-    display.print(" ");
-    display.print(adsrlevels[1]);
-    display.print(" ");
-    display.print(adsrlevels[2]);
-    display.display();
-  }
-  if (navlevel >= 4) {
-    // Serial.println("displaying adsr");
-    displayadsrgraph();
-    // Serial.println("nav = 4 adsr");
-  }
-}
-
 void displaypanbars(int score) {
   if (navlevel >= 4) {
     if (navlevel == 4) {
@@ -220,8 +194,6 @@ void wavelineModulatedbool(int lesynthi) {
 }
 
 void wavelinePhase(int lesynthi) { displayphasebars(phaselevelsL[lesynthi]); }
-
-void wavelineADSR(int lesynthi) { displayadsrbars(adsrlevels[0]); }
 
 void wavelineFreq(int lesynthi) { displayfreqbars(wavesfreqs[lesynthi]); }
 
@@ -419,11 +391,7 @@ void wavelining(int startx, int starty, char *leprintlabel, int synthi) {
           // sublevels[4] = int(mixlevelsL[synthi]*100) ;
           wavelinepanel(synthi);
         }
-        if (sublevels[3] == 2) {
-          // LFO1
-          // sublevels[4] = int(adsrlevels[synthi][0]) ;
-          // wavelinepanel(sublevels[2]);
-        }
+        
         if (sublevels[3] == 3) {
           sublevels[4] = round(wavesfreqs[synthi]);
           wavelinepanel(synthi);
@@ -438,10 +406,6 @@ void wavelining(int startx, int starty, char *leprintlabel, int synthi) {
           sublevels[4] = wave1offset[synthi];
           wavelinepanel(synthi);
 
-          // Offset
-          //  Serial.println("Offset");
-          // sublevels[4] = int(panLs[synthi]) ;
-          // wavelinepanel(sublevels[2]);
         }
       }
       if (navlevel >= 4) {
@@ -470,10 +434,19 @@ void synthmenu() {
     navrange = 3;
     showsynthparamspanel();
   }
+  //adsr section
   if (sublevels[1] == 2) {
     if (navlevel >= 2) {
       if (navlevel == 2) {
-        navrange = 5;
+        navrange = 6;
+      }
+      if (navlevel == 3 && sublevels[2] == 6) {
+        navrange = 4;
+      }
+      //maybe apply adsr
+      if (navlevel > 3 && sublevels[2] == 6) {
+        adsrmode = sublevels[3] ;
+        returntonav(2,6);
       }
       navleveloverwrite = 2;
       displayadsrgraph();

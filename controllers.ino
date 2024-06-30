@@ -342,6 +342,7 @@ void controlswitcher(int caser, int valu) {
   case 58:
     LFOsync[ccsynthselector] = !LFOsync[ccsynthselector];
     break;
+    /*
   case 59:
     // delayAtck
     adsrlevels[0] = round(smallfloat * 32.0);
@@ -365,7 +366,7 @@ void controlswitcher(int caser, int valu) {
     // sustain
     adsrlevels[4] = round(smallfloat * 100.0);
     break;
-
+    
   case 64:
     // free
 
@@ -374,6 +375,7 @@ void controlswitcher(int caser, int valu) {
     // release
     adsrlevels[5] = round(smallfloat * 512.0);
     break;
+    */
   case 66:
 
     mixle303ffilterzVknobs[0] = round(smallfloat * 128.0);

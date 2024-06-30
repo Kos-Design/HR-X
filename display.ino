@@ -70,6 +70,7 @@ void displayadsrgraph() {
   int r1 = r0 + mappedrelease * linerratio;
   int startx = 3;
   int starty = 16;
+  char adsrmodelabels[5][7]  = {"Global","Synth1","Synth2","Synth3","Synth4"};
   canvasBIG.drawLine(a0, 61, a1, 24, SSD1306_WHITE);
   canvasBIG.drawLine(h0, 24, h1, 24, SSD1306_WHITE);
   canvasBIG.drawLine(d0, 24, d1, suY, SSD1306_WHITE);
@@ -78,6 +79,7 @@ void displayadsrgraph() {
   display.clearDisplay();
   dodisplay();
 
+  // preparing for next display loop
   canvastitle.fillScreen(SSD1306_BLACK);
 
   canvasBIG.fillScreen(SSD1306_BLACK);
@@ -128,11 +130,20 @@ void displayadsrgraph() {
 
     sliceR();
     break;
+  
+  case 6:
+    canvastitle.drawRoundRect(77,-2,40,12,2,SSD1306_WHITE);
+  
+    break;
+   
+  
   default:
     break;
   }
-  // display.display();
-
+  
+  canvastitle.setCursor(80, 0);
+  canvastitle.setTextSize(1);
+  canvastitle.print(adsrmodelabels[sublevels[3]]);
   dodisplay();
 
   canvastitle.fillScreen(SSD1306_BLACK);
@@ -141,14 +152,15 @@ void displayadsrgraph() {
 }
 
 void GlobalADSR() {
-
+  
   SetADSR();
   ApplyADSR();
+    
 }
 
 void sliceA() {
   if (navlevel == navleveloverwrite + 1) {
-
+    //stuck here until validation of cursor, try using returnto nav
     sublevels[navlevel + 1] = mappedattack;
     vraipos = sublevels[navlevel + 1];
     myEnc.write(4 * sublevels[navlevel + 1]);
@@ -158,7 +170,6 @@ void sliceA() {
   if (navlevel == navleveloverwrite + 2) {
     navrange = 256;
 
-    // Serial.println("ModMode");
 
     mappedattack = sublevels[navleveloverwrite + 2];
   }
@@ -172,15 +183,13 @@ void sliceA() {
     returntonav(navleveloverwrite, 5);
     Serial.println("returned twice");
 
-    // ApplyADSR
-    // void SetADSR(int synth
   }
   canvastitle.setTextSize(1);
   canvastitle.setCursor(0, 0);
   canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.println((char *)"Attack = ");
-  canvastitle.setCursor(90, 0);
-  canvastitle.setTextSize(2);
+  canvastitle.println((char *)"Attack ");
+  canvastitle.setCursor(55, 0);
+  canvastitle.setTextSize(1);
   canvastitle.println(mappedattack);
   // Serial.print("displayd SliceA");
 }
@@ -209,10 +218,10 @@ void sliceDa() {
   canvastitle.setTextSize(1);
   canvastitle.setCursor(0, 0);
   canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.println((char *)"Attack Delay = ");
-  canvastitle.setCursor(90, 0);
-  canvastitle.setTextSize(2);
+  canvastitle.println((char *)"Atk Dlay ");
+  canvastitle.setCursor(55, 0);
   canvastitle.println(MadsrAttackDelay);
+  
 }
 
 void sliceH() {
@@ -237,9 +246,9 @@ void sliceH() {
   canvastitle.setTextSize(1);
   canvastitle.setCursor(0, 0);
   canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.println((char *)"Hold = ");
-  canvastitle.setCursor(90, 0);
-  canvastitle.setTextSize(2);
+  canvastitle.println((char *)"Hold ");
+  canvastitle.setCursor(55, 0);
+
   canvastitle.println(MadsrHold);
 }
 
@@ -267,9 +276,9 @@ void sliceD() {
   canvastitle.setTextSize(1);
   canvastitle.setCursor(0, 0);
   canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.println((char *)"Decay = ");
-  canvastitle.setCursor(90, 0);
-  canvastitle.setTextSize(2);
+  canvastitle.println((char *)"Decay ");
+  canvastitle.setCursor(55, 0);
+
   canvastitle.println(mappeddecay);
 }
 
@@ -296,9 +305,8 @@ void sliceS() {
   canvastitle.setTextSize(1);
   canvastitle.setCursor(0, 0);
   canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.println((char *)"Sustain = ");
-  canvastitle.setCursor(90, 0);
-  canvastitle.setTextSize(2);
+  canvastitle.println((char *)"Sustain ");
+  canvastitle.setCursor(55, 0);
   canvastitle.println(mappedsustain);
 }
 
@@ -325,9 +333,8 @@ void sliceR() {
   canvastitle.setTextSize(1);
   canvastitle.setCursor(0, 0);
   canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.println((char *)"Release = ");
-  canvastitle.setCursor(90, 0);
-  canvastitle.setTextSize(2);
+  canvastitle.println((char *)"Release ");
+  canvastitle.setCursor(55, 0);
   canvastitle.println(mappedrelease);
 }
 
@@ -365,7 +372,7 @@ void dolistwavelineparams() {
 }
 
 void dolistsyntmenu() {
-  char synthmenulabels[5][12] = {"Synths", "Mixer", "ADSR", "FX", "Filter"};
+  char synthmenulabels[5][12] = {"Synths", "Mixer", "ADSR", "  ", "Filter"};
 
   // removeExt(textin);
   byte startx = 5;
