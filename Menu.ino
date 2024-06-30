@@ -438,16 +438,9 @@ void synthmenu() {
   if (sublevels[1] == 2) {
     if (navlevel >= 2) {
       if (navlevel == 2) {
-        navrange = 6;
+        navrange = 5;
       }
-      if (navlevel == 3 && sublevels[2] == 6) {
-        navrange = 4;
-      }
-      //maybe apply adsr
-      if (navlevel > 3 && sublevels[2] == 6) {
-        adsrmode = sublevels[3] ;
-        returntonav(2,6);
-      }
+      
       navleveloverwrite = 2;
       displayadsrgraph();
     }

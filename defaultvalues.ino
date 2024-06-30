@@ -40,21 +40,20 @@ void initextmems() {
 void loadsynthdefaults() {
 
   AudioNoInterrupts();
-  /*
+  
   adsrlevels[0] = MadsrAttackDelay;
   adsrlevels[1] = mappedattack;
-
   adsrlevels[3] = mappeddecay;
   adsrlevels[4] = float(mappedsustain / 100);
   adsrlevels[5] = mappedrelease;
-  */
+  
   for (int i = 0; i < 8; i++) {
-    enveloppesL[i]->delay(adsrlevels[i%4][0]);
-    enveloppesL[i]->attack(adsrlevels[i%4][1]);
+    enveloppesL[i]->delay(adsrlevels[0]);
+    enveloppesL[i]->attack(adsrlevels[1]);
     // enveloppesL[i]->hold(adsrlevels[2]);
-    enveloppesL[i]->decay(adsrlevels[i%4][3]);
-    enveloppesL[i]->sustain(adsrlevels[i%4][4]);
-    enveloppesL[i]->release(adsrlevels[i%4][5]);
+    enveloppesL[i]->decay(adsrlevels[3]);
+    enveloppesL[i]->sustain(adsrlevels[4]);
+    enveloppesL[i]->release(adsrlevels[5]);
     enveloppesL[i]->releaseNoteOn(20);
     // for ( int j = 0 ; j < 4 ; j++ ) {
     // Wavesmix[i]->gain(j,1);

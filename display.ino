@@ -70,7 +70,7 @@ void displayadsrgraph() {
   int r1 = r0 + mappedrelease * linerratio;
   int startx = 3;
   int starty = 16;
-  char adsrmodelabels[5][7]  = {"Global","Synth1","Synth2","Synth3","Synth4"};
+
   canvasBIG.drawLine(a0, 61, a1, 24, SSD1306_WHITE);
   canvasBIG.drawLine(h0, 24, h1, 24, SSD1306_WHITE);
   canvasBIG.drawLine(d0, 24, d1, suY, SSD1306_WHITE);
@@ -130,20 +130,12 @@ void displayadsrgraph() {
 
     sliceR();
     break;
-  
-  case 6:
-    canvastitle.drawRoundRect(77,-2,40,12,2,SSD1306_WHITE);
-  
-    break;
-   
-  
+    
   default:
     break;
   }
   
-  canvastitle.setCursor(80, 0);
-  canvastitle.setTextSize(1);
-  canvastitle.print(adsrmodelabels[sublevels[3]]);
+ 
   dodisplay();
 
   canvastitle.fillScreen(SSD1306_BLACK);
@@ -168,7 +160,7 @@ void sliceA() {
   }
 
   if (navlevel == navleveloverwrite + 2) {
-    navrange = 256;
+    navrange = 1024;
 
 
     mappedattack = sublevels[navleveloverwrite + 2];
@@ -218,7 +210,7 @@ void sliceDa() {
   canvastitle.setTextSize(1);
   canvastitle.setCursor(0, 0);
   canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.println((char *)"Atk Dlay ");
+  canvastitle.println((char *)"Attack Delay ");
   canvastitle.setCursor(55, 0);
   canvastitle.println(MadsrAttackDelay);
   
@@ -318,7 +310,7 @@ void sliceR() {
     navlevel = navlevel + 1;
   }
   if (navlevel == navleveloverwrite + 2) {
-    navrange = 512;
+    navrange = 1024;
     mappedrelease = sublevels[navleveloverwrite + 2];
   }
   if (navlevel == navleveloverwrite + 3) {

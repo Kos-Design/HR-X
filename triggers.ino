@@ -58,8 +58,8 @@ void setfreqWavelines(float tune, int liner, byte velocityz) {
     FMwaveforms1[liner + (i * 8)]->amplitude(velocityz / 128.0);
     FMwaveforms1[liner + (i * 8)]->offset(
         (float)(((64.0 - wave1offset[i]) / 64.0)));
-    drums1[liner + (i * 8)]->length(adsrlevels[i][1] + adsrlevels[i][2] +
-                                    adsrlevels[i][3]);
+    drums1[liner + (i * 8)]->length(adsrlevels[1] + adsrlevels[2] +
+                                    adsrlevels[3]);
     drums1[liner + (i * 8)]->frequency(tune * wavesfreqs[i]);
     drums1[liner + (i * 8)]->noteOn();
     strings1[liner + (i * 8)]->noteOn(tune * wavesfreqs[i],
@@ -1167,7 +1167,7 @@ void lineron(int liner, byte channel, byte data1, byte data2) {
     // Serial.print("tb303 set on ");
     // Serial.println(liner);
 
-    enveloppesL[liner]->hold(millitickinterval - adsrlevels[0][3]);
+    enveloppesL[liner]->hold(millitickinterval - adsrlevels[3]);
 
     //      enveloppesR[liner]->hold(500);
     if (glidemode > 0) {

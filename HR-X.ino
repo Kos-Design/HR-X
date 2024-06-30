@@ -100,7 +100,7 @@ byte but_velocity[all_buttonns] = {
 const int mainmenufxlistsize = 10;
 char consolemsg[10][32];
 //add to preset
-byte adsrmode = 0;
+
 int waits = 0;
 char pleasewaitarray[10][32];
 const int fxiterations = 3;
@@ -610,7 +610,7 @@ bool LFOsync[numberofsynthsw];
 byte wave1offset[numberofsynthsw] = {64};
 File mytxtFile;
 // File originefile ;
-int adsrlevels[4][6] = {{0, 5, 0, 50, 100, 60},{0, 5, 0, 50, 100, 60},{0, 5, 0, 50, 100, 60},{0, 5, 0, 50, 100, 60}};
+int adsrlevels[6] = {0, 5, 0, 50, 100, 60};
 int mappedattack = 5;
 int mappeddecay = 50;
 int mappedrelease = 60;
