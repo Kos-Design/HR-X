@@ -52,7 +52,7 @@ void evalrota() {
     sublevels[navlevel] = vraipos;
     lemenuroot();
 
-    printit();
+    //printit();
   }
 }
 
@@ -73,13 +73,13 @@ void evalinputs() {
     }
 
     lemenuroot();
-    printit();
+    //printit();
   }
   if (clicked.fallingEdge()) {
     navlevel++;
     vraipos = sublevels[navlevel];
     myEnc.write(sublevels[navlevel] * 4);
     lemenuroot();
-    printit();
+    //printit();
   }
 }

@@ -42,10 +42,8 @@ void tick() {
   if (patternOn == 1) {
 
     if (!stoptick) {
-      doesccgonnachangeinpatfromnow();
-      // if (  howmanyactiveccnow>0 ) {
+      doesccgonnachangeinpatfromnow(); 
     }
-    // }
 
     for (int i = 0; i < nombreofliners; i++) {
       if ((event1notesOff[i][tickposition][1] != 0 &&
@@ -56,26 +54,12 @@ void tick() {
       if (event1notes1[i][tickposition][1] != 0) {
         event1(i);
       }
-      //     if  ( (millis() - millisSincenLinerOn[i] >= currentnotelength[i] ||
-      //     (millis()-millisSincenLinerOn[i] >= millitickinterval*4  )) &&
-      //     (!patrecord || overdubmidi)) {
-      //      Serial.println("panic noteoff");
-      //           MaNoteOff((byte)synthmidichannel,
-      //           event1lineplayingfrom[i][0], 0);
-      //
-      //        }
-      // }
+      
       if (event2notes1[i][tickposition][1] != 0) {
         event2(i);
       }
     }
-    // if ( navlevel >= navlevelpatedit && sublevels[0] == 4  ) {
-    // drawsequencer();
-    //}
-    //  }
-    //
-    //
-    //}
+    
   }
   if (tickposition == pbars - 1) {
     if (songplaying) {
@@ -86,9 +70,6 @@ void tick() {
       }
 
       loadsongpattern();
-      // if ( navlevel > 0 && sublevels[0] == 3 ) {
-      // Songmodepanel();
-      //}
     }
   }
 }
@@ -1397,37 +1378,7 @@ void drawpatterngrid(int nombrelines, int collumns, int startx, int starty) {
                        SSD1306_WHITE);
   }
 }
-// void notesshow(int liner) {
-//    canvasBIG.fillScreen(SSD1306_BLACK);
-//  short linersizehold ;
-//  int octavestart = 60 ;
-//  int yoffsetter ;
-//  byte note0 ;
-//  int velocitall ;
-//  int listoffsetter ;
-//  //Why ???
-// int filer = 2 ;
-//      pianobar();
-//    for (int i = 0; i < pbars; i++ ) {
-//      note0 = event1notes1[liner][i][1] ;
-//      yoffsetter = ((int)note0) - octavestart;
-//
-//      listoffsetter = starty+(yoffsetter*celltall);
-//         if (note0) {
-//           //Serial.println(yoffsetter);
-//               linersizehold = length0pbars[liner][i]*cellsizer ;
-//              //(((60.0/BPMs)*1000)*pbars))*128) ;
-//                 velocitall = (int)event1notes1[liner][i][2] ;
-//               // Serial.println(velocitall);
-//                canvasBIG.fillRect(startx+cellsizer*i,
-//                starty+celltall*yoffsetter+(celltall -
-//                round((celltall-1)*(velocitall/127.0))), linersizehold,
-//                round((celltall-1)*(velocitall/127.0)), SSD1306_WHITE);
-//
-//             }
-//           }
-//
-//}
+
 void pianobar() {
   startx = 0;
   starty = 16;
@@ -1654,13 +1605,7 @@ void drawEventRow() {
 void drawsamplerEventRow() {
   // Serial.println("drawing EventRow");
   // row of events (liners) on audio source (patternrow)
-  canvasBIG.drawLine(
-      0,
-      starty + (sublevels[navlevelpatedit + 1] - samplelinerspage) * celltall +
-          3,
-      128,
-      starty + (sublevels[navlevelpatedit + 1] - samplelinerspage) * celltall +
-          3,
+  canvasBIG.drawLine(0,starty + (sublevels[navlevelpatedit + 1] - samplelinerspage) * celltall + 3, 128, starty + (sublevels[navlevelpatedit + 1] - samplelinerspage) * celltall + 3,
       SSD1306_INVERSE);
 }
 // check  starty+celltall*sublevels[navlevelpatedit+1], was =
@@ -1800,13 +1745,8 @@ int getstartingnoteline2() {
 
 void drawsequencer() {
 
-  if (patternOn) {
-    //    display.clearDisplay();
-    dodisplayplayhead();
-    //    canvasBIG.drawBitmap(0, 0, canvasBIG2.getBuffer(), 128, 64,
-    //    SSD1306_WHITE); display.display();
-    // dodisplayplathead();
-  } else {
+
+    
     cellsizer = 8 * (16 / pbars);
     celltall = 8;
     startx = 0;
@@ -1844,11 +1784,12 @@ void drawsequencer() {
     if (sublevels[navlevelpatedit] == 1) {
       event2cells();
     }
+    dodisplayplayhead();
     // showplayheadpattern() ;
     dodisplay2();
     // setlebuffer();
     // getledisplaybuffer();
-  }
+  
 }
 
 void event2cells() {

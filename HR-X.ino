@@ -1,4 +1,4 @@
-
+int display_lag = 30 ;
 #include "muxer.h"
 Muxer Muxer;
 // adcHighPassFilterDisable();

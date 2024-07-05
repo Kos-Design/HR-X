@@ -387,9 +387,11 @@ void dolistsyntmenu() {
 }
 
 void dodisplay() {
+  
   display.drawBitmap(0, 0, canvasBIG.getBuffer(), 128, 64, SSD1306_WHITE);
   display.drawBitmap(0, 0, canvastitle.getBuffer(), 128, 16, SSD1306_WHITE);
   display.display();
+  
 }
 
 void printlabel(char *toprint) {
@@ -410,11 +412,11 @@ void selectbox(int posX, int posY) {
 }
 
 void dodisplayplayhead() {
-  display.clearDisplay();
+  //display.clearDisplay();
 
-  display.drawBitmap(0, 0, canvasBIG2.getBuffer(), 128, 64, SSD1306_WHITE);
-  display.drawLine(tickposition * 4, 0, tickposition * 4, 64, SSD1306_WHITE);
-  display.display();
+  //display.drawBitmap(0, 0, canvasBIG2.getBuffer(), 128, 64, SSD1306_WHITE);
+  canvasBIG.drawLine(tickposition * 4, 0, tickposition * 4, 64, SSD1306_INVERSE);
+  //display.display();
 }
 
 void dodisplay2() {

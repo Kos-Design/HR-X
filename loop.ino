@@ -70,6 +70,7 @@ void pseudo303() {
 byte itr = 0;
 int c_change;
 int cc_note_num;
+
 void loop() {
   PadResult pad_result = Pads.padloop();
   int paddered =
@@ -138,10 +139,11 @@ void loop() {
 
       pseudo303();
     }
-
+  if (millis() % display_lag == 0) {
     updatebuttons();
     evalinputs();
     evalrota();
+  }
   }
 
   // usbhost queries
