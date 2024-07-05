@@ -5,9 +5,9 @@ Muxer Muxer;
 #include <Metro.h>
 // int startccrecordpos;
 // int stopccrecordpos;
-const byte sizeofnoCCrecord = 4;
+const byte sizeofnoCCrecord = 11;
 // functions that have system or various controls that are ignored for some ops
-byte noCCrecord[sizeofnoCCrecord] = {37, 39, 44, 1};
+byte noCCrecord[sizeofnoCCrecord] = {3,35,36,37, 38,39,40,41,42,44, 1};
 byte slope1 = 10;
 byte slope2 = 10;
 byte cutoffmode;

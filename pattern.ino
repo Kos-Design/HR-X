@@ -1425,11 +1425,6 @@ void doshownotelineB() {
       decnote = (int)note0;
 
       if (decnote == notelines && note0 != 0) {
-        // linersizehold =
-        // ((length1notes1[linern][i]/(((60.0/BPMs)*1000)*pbars))*128) ;
-
-        // lenghtofthenote = length2pbars[linern][i];
-
         if (lenghtofthenote < 4) {
           lenghtofthenote = 4;
         }
@@ -1442,6 +1437,7 @@ void doshownotelineB() {
       }
     }
   }
+  
 }
 void doshownoteline() {
   // Serial.print("shownoteline");
@@ -1758,13 +1754,7 @@ void drawsequencer() {
     display.clearDisplay();
 
     if (navlevel == navlevelpatedit) {
-      // pattern lines : Synth, Sampler, Audio in ?
-
-      // canvasBIG.fillScreen(SSD1306_BLACK);
-      // fill rect line
-      // display.clearDisplay();
       drawPatternRow();
-      // display.display();
       dolistpatternlineblocks();
       display.setCursor(0, 0);
       if (sublevels[navlevelpatedit] == 0) {
@@ -1773,26 +1763,21 @@ void drawsequencer() {
       if (sublevels[navlevelpatedit] == 1) {
         display.print("Sampler");
       }
-
-      // setlebuffer();
-      // display.display();
-      // do display twice to allow invert color
     }
     if (sublevels[navlevelpatedit] == 0) {
-      event1cells();
+      //synth pattern
+      synth_event_cells();
     }
     if (sublevels[navlevelpatedit] == 1) {
-      event2cells();
+      //sampler pattern
+      sampler_event_cells();
     }
     dodisplayplayhead();
-    // showplayheadpattern() ;
     dodisplay2();
-    // setlebuffer();
-    // getledisplaybuffer();
   
 }
 
-void event2cells() {
+void sampler_event_cells() {
   if (navlevel == navlevelpatedit + 1) {
     patedit1B();
   }
@@ -1822,8 +1807,9 @@ void event2cells() {
   }
 }
 
-void event1cells() {
+void synth_event_cells() {
   if (navlevel == navlevelpatedit + 1) {
+    
     patedit1();
   }
 
@@ -1917,6 +1903,8 @@ void patedit2B() {
   sublevels[navlevelpatedit + 3] = tickposition;
 }
 void patedit3() {
+  int velobar ;
+  //last level showing the noteline and its velocity
   // Serial.println("navlevelpatedit+3");
   display.clearDisplay();
   navrange = 31;
@@ -1924,6 +1912,12 @@ void patedit3() {
   doshownoteline();
   drawnoteRow();
   drawCursorCol();
+  canvasBIG.fillRect(0, 32,127,64-32, SSD1306_BLACK);
+   for (int i = 0; i < 32; i++) {
+    velobar = map(event1notes1[sublevels[2]][i][2],0,127,0,32);
+    canvasBIG.fillRect((i*(128/32)), 64-velobar,4 ,velobar, SSD1306_WHITE);
+    
+   }
   display.display();
   sublevels[navlevelpatedit + 4] = sublevels[navlevelpatedit + 3];
   duplicatelenghofnotestarray();
@@ -2055,20 +2049,8 @@ void patedit4B() {
                         (byte)sublevels[navlevelpatedit + 2];
     tempevent2notes1[sublevels[navlevelpatedit + 1]]
                     [sublevels[navlevelpatedit + 3]][2] = (byte)64;
-    //  Serial.print("noteset = ");
-    // Serial.println(sublevels[navlevelpatedit+2]);
-
     navrange = 31;
-    // Serial.println("addanoteonliner");
-    // templength2pbars[sublevels[navlevelpatedit+1]][sublevels[navlevelpatedit+3]]
-    // = (sublevels[navlevelpatedit+4] - sublevels[navlevelpatedit+3])*4;
-
-    //    if (
-    //    templength2pbars[sublevels[navlevelpatedit+1]][sublevels[navlevelpatedit+3]]
-    //    < 0 ) {
-    //      templength2pbars[sublevels[navlevelpatedit+1]][sublevels[navlevelpatedit+3]]
-    //      = 4 ;
-    //      }
+   
     refreshevented2();
 
     // use an alternate temporary length0pbars if adding lenght is cancelled to
@@ -2144,14 +2126,6 @@ void patedit5B() {
   event2notes1[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
               [2] = (byte)64;
 
-  // length2pbars[sublevels[navlevelpatedit+1]][sublevels[navlevelpatedit+3]] =
-  // (sublevels[navlevelpatedit+4] - sublevels[navlevelpatedit+3])*4;
-  //    if (
-  //    length2pbars[sublevels[navlevelpatedit+1]][sublevels[navlevelpatedit+3]]
-  //    < 0 ) {
-  //      length2pbars[sublevels[navlevelpatedit+1]][sublevels[navlevelpatedit+3]]
-  //      = 4 ;
-  //      }
   event2notesOff[sublevels[navlevelpatedit + 4]][0] = (byte)samplermidichannel;
   event2notesOff[sublevels[navlevelpatedit + 4]][1] =
       (byte)sublevels[navlevelpatedit + 2];

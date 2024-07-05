@@ -656,15 +656,21 @@ bool isalreadysamenoteinpat(byte lenote) {
   }
   return 0;
 }
+int tick_for_that(int tick){
+  tick -= 1 ; 
+  if (tick < 0 ){
+    tick = 31 ;
+  }
+  return tick ;
+}
 void recordmidinotes(int liner, byte channel, byte lenote, byte velocity) {
-  // Serial.print("recordmidinotes Ons ");
-  // if (!isalreadysamenoteinpat(lenote)){
-  event1startpos[liner] = tickposition;
+  int pos = tick_for_that(tickposition);
+  event1startpos[liner] = pos;
   evented1[0][tickposition] = 1;
-  event1notes1[liner][tickposition][1] = lenote;
-  event1notes1[liner][tickposition][2] = velocity;
-  event1notes1[liner][tickposition][0] = channel;
-  //}
+  event1notes1[liner][pos][1] = lenote;
+  event1notes1[liner][pos][2] = velocity;
+  event1notes1[liner][pos][0] = channel;
+  
 }
 bool isalreadysameoffinpat(byte lanotee, byte modeselect) {
   if (modeselect == 0) {
@@ -691,61 +697,30 @@ bool isalreadysameoffinpat(byte lanotee, byte modeselect) {
   return 0;
 }
 void recordmidinotesOff(int liner, byte channel, byte lenote, byte velocity) {
-
-  //  if ( lenote == event1notes1[liner][tickposition][1] ) {
-  //    if (tickposition < pbars-1) {
-  //      if(!isalreadysameoffinpat(lenote,0)){
-  // // Serial.print("recordmidinotesOffs ");
-  //              event1notesOff[liner][tickposition+1][1] = lenote ;
-  //              event1notesOff[liner][tickposition+1][2] = velocity ;
-  //              event1notesOff[liner][tickposition+1][0] = channel ;
-  //      }
-  ////if overlapping with non
-  ////if no on before
-  //    }
-  //    if (tickposition == pbars-1) {
-  // // Serial.print("recordmidinotesOffs ");
-  //      if(!isalreadysameoffinpat(lenote,1)){
-  //              event1notesOff[liner][0][1] = lenote ;
-  //              event1notesOff[liner][0][2] = velocity ;
-  //              event1notesOff[liner][0][0] = channel ;
-  //      }
-  ////if overlapping with non
-  ////if no on before
-  //    }
-  //}
-  //      if(!isalreadysameoffinpat(lenote,2)){
-  if (event1startpos[liner] != tickposition) {
-    event1notesOff[liner][tickposition][1] = lenote;
-    event1notesOff[liner][tickposition][2] = 0;
-    event1notesOff[liner][tickposition][0] = channel;
+int pos = tick_for_that(tickposition);
+  if (event1startpos[liner] != pos) {
+    event1notesOff[liner][pos][1] = lenote;
+    event1notesOff[liner][pos][2] = 0;
+    event1notesOff[liner][pos][0] = channel;
 
   } else {
-    if (tickposition == pbars - 1) {
+    if (pos == pbars - 1) {
       event1notesOff[liner][0][1] = lenote;
       event1notesOff[liner][0][2] = 0;
       event1notesOff[liner][0][0] = channel;
     } else {
-      event1notesOff[liner][tickposition + 1][1] = lenote;
-      event1notesOff[liner][tickposition + 1][2] = 0;
-      event1notesOff[liner][tickposition + 1][0] = channel;
+      event1notesOff[liner][pos + 1][1] = lenote;
+      event1notesOff[liner][pos + 1][2] = 0;
+      event1notesOff[liner][pos + 1][0] = channel;
     }
   }
 
-  // void recordsynthduration( int liner ,byte channel , byte lenote, byte
-  // velocity){
-  // notesOn[liner]=lenote;
-
-  // millisSincenLinerOn[liner] = millis();
-  // startingPosofNoteonliner[liner]= tickposition ;
-  //  startlengthmesure(liner);
-  // currentnotelength[liner] = length1notes1[liner][tickposition];
-  //}
 }
-bool isalreadysameSamplerinpat(byte lenote) {
+
+bool isalreadysameSamplerinpat(byte lenote,int tick) {
 
   for (int i = 0; i < nombreofSamplerliners; i++) {
-    if (lenote == event2notes1[i][tickposition][1]) {
+    if (lenote == event2notes1[i][tick][1]) {
       return 1;
     }
   }
@@ -753,13 +728,12 @@ bool isalreadysameSamplerinpat(byte lenote) {
   return 0;
 }
 void recordmidinotes2(int liner, byte channel, byte lenote, byte velocity) {
-  // Serial.print("recordmidinotes ");
-  // startingPosofNoteonliner[liner]= tickposition ;nombreofSamplerliners
-  if (!isalreadysameSamplerinpat(lenote)) {
-    evented1[1][tickposition] = 1;
-    event2notes1[liner][tickposition][1] = lenote;
-    event2notes1[liner][tickposition][2] = velocity;
-    event2notes1[liner][tickposition][0] = channel;
+int pos = tick_for_that(tickposition);
+  if (!isalreadysameSamplerinpat(lenote,pos)) {
+    evented1[1][pos] = 1;
+    event2notes1[liner][pos][1] = lenote;
+    event2notes1[liner][pos][2] = velocity;
+    event2notes1[liner][pos][0] = channel;
   }
   // startlengthmesure(liner);
 }
@@ -769,14 +743,9 @@ void deactivatelesccsfrompos(int lapos, byte lanote) {
   }
 }
 void recordCCmidinotes(byte channel, byte lanote, byte leccval) {
-  // Serial.print("record a CC ");
+  int pos = tick_for_that(tickposition);
+  event1controllers[lanote][pos] = leccval;
 
-  // Serial.println(laccval);
-  event1controllers[lanote][tickposition] = leccval;
-  // deactivatelesccsfrompos(tickposition,lanote);
-  // if ( !ccoverdub ) {
-  // propagatecc(int(lanote));
-  //}
 }
 
 bool terminateorphanseventsOff(int linei, byte lanotef) {
@@ -945,72 +914,31 @@ void countnofandnons(int linei) {
     }
 
     if (lesnoffs < lesnons) {
-      // Serial.print("not enough notes Off on ");
-      // Serial.println(linei);
-      // Serial.print(", adding ");
-
-      // add one after the last Non
-      // lenon is then at least 1
-      // position of the last On event on the line
       latargetpos = (lesposes[0][lesnons - 1]);
       if (latargetpos < pbars - 1) {
         clearsaniloop = 0;
-        //  Serial.print(" at ");
-        //  Serial.print(latargetpos);
-        //  Serial.print(", line ");
-        //  Serial.print(linei);
-        //  Serial.print(", noteoff for ");
-        //  Serial.println((int)event1notes1[linei][latargetpos][1]);
         event1notesOff[linei][latargetpos + 1][0] =
             event1notes1[linei][latargetpos][0];
         event1notesOff[linei][latargetpos + 1][1] =
             event1notes1[linei][latargetpos][1];
         event1notesOff[linei][0][0] = (byte)0;
         event1notesOff[linei][0][1] = (byte)0;
-        // addone then at +1
       }
       if (latargetpos == pbars - 1) {
         clearsaniloop = 0;
-        //   Serial.print(" at ");
-        // Serial.print(pbars-1);
-        // Serial.print(", line ");
-        // Serial.print(linei);
-        // Serial.print(", noteoff for ");
-        //  Serial.println((int)event1notes1[linei][latargetpos][1]);
         event1notesOff[linei][0][0] = event1notes1[linei][pbars - 1][0];
         event1notesOff[linei][0][1] = event1notes1[linei][pbars - 1][1];
-        // add one at 0
       }
 
-      //      for (int i = 0; i < lesnons ; i++ ) {
-      //
-      //         leresulte = anoteOffisnext(linei,
-      //         event1notes1[linei][lesposes[0][i]][1], lesposes[0][i]) ;
-      //           if ( leresulte < pbars-1 ) {
-      //
-      //          }
-      //
-      //          if ( leresulte == pbars - 1 ) {
-      //            //last reached add one to 0 anyway
-      //
-      //          }
-      //
-      //        }
-      // add nofs
     }
     if (lesnoffs > lesnons) {
-      //  Serial.print("too many notes Off for liner ");
       clearsaniloop = 0;
-      // Serial.println(linei);
       sanitizeoffline(linei);
       // remove nofs
     }
     if (lesnoffs == lesnons) {
-      //  Serial.print("Same Nof as Nons, ");
-      // Serial.println("checking some stuff to be sure");
       terminateOffz(linei);
       clearlesnofbounces(linei, 0);
-      // clearlesnofbounces(linei);
     }
   }
 }
@@ -1098,9 +1026,7 @@ void startglidenote(byte liner, byte data1) {
   Serial.println(leglidenoteshift);
   leglidershift = notestofreq[data1][1] - notestofreq[lapreviousnotew][1];
   leglideposition[liner] = 0;
-  //    if ( data1 != lapreviousnotew[liner]){
-  //              lapreviousnotew[liner] = data1 ;
-  //            }
+ 
 }
 void startglidenoteChords(byte liner, byte data1) {
   // during loop shift freq & restart freqs interpolating from last note during
@@ -1111,9 +1037,7 @@ void startglidenoteChords(byte liner, byte data1) {
   leglidershiftCmode[liner] =
       notestofreq[data1][1] - notestofreq[lapreviousnotewCmode[liner]][1];
   leglideposition[liner] = 0;
-  //    if ( data1 != lapreviousnotew[liner]){
-  //              lapreviousnotew[liner] = data1 ;
-  //            }
+
 }
 
 void computelenghtmesureoffline() {
@@ -1262,7 +1186,7 @@ void MaControlChange(byte channel, byte control, byte value) {
     // Serial.println(int(recordCC));
     recordCCmidinotes(channel, control, value);
   }
-  if (!songplaying && !isignored && stoptick && !debugmidion) {
+  if (!songplaying && !isignored && !debugmidion) {
     lemenuroot();
   }
 }
