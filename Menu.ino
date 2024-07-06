@@ -744,7 +744,7 @@ void listknobassigner() {
   canvastitle.println(sublevels[1]);
 
   canvasBIG.fillScreen(SSD1306_BLACK);
-  if (sublevels[1] < 128) {
+ 
     // Serial.println(sublevels[1]);
     if (midiknobassigned[sublevels[1]] != 0) {
 
@@ -754,22 +754,10 @@ void listknobassigner() {
       canvasBIG.setCursor(0, 40);
       canvasBIG.println(ControlList[midiknobassigned[sublevels[1]]]);
     }
-  } else {
-
-    if (knobassigned[sublevels[1] - 128] != 0) {
-      // Serial.print("sublevels[1]-128 = ");
-      // Serial.println(sublevels[1]-128);
-      canvasBIG.setTextSize(2);
-      canvasBIG.setCursor(85, 16);
-      canvasBIG.println(knobassigned[sublevels[1] - 128]);
-      canvasBIG.setCursor(0, 40);
-
-      canvasBIG.println(ControlList[knobassigned[sublevels[1] - 128]]);
-    }
-  }
+  
 }
 void knobsettermidi() { midiknobassigned[sublevels[1]] = sublevels[2]; }
-void knobsetterinternal() { knobassigned[sublevels[1] - 128] = sublevels[2]; }
+
 void listknobassigner2() {
 
   display.clearDisplay();
@@ -793,21 +781,20 @@ void listknobassigner2() {
 }
 void knobassigner() {
   if (navlevel == 1) {
+    navrange = 128-1;
     reinitsublevels(2);
     listknobassigner();
     dodisplay();
   }
   if (navlevel == 2) {
-    navrange = allfxes;
+    navrange = allfxes-1;
     listknobassigner2();
     dodisplay();
   }
   if (navlevel == 3) {
-    if (sublevels[1] < 128) {
+    
       knobsettermidi();
-    } else {
-      knobsetterinternal();
-    }
+    
     returntonav(1);
   }
 }

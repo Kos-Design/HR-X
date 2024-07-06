@@ -234,9 +234,9 @@ void setupdefaultvalues() {
   midiknobassigned[20]= 15;
   */
   // stop
-  midiknobassigned[104] = 37;
+  midiknobassigned[109] = 37;
   // play
-  midiknobassigned[105] = 36;
+  midiknobassigned[108] = 36;
 
   // Volume
   midiknobassigned[11] = 2;

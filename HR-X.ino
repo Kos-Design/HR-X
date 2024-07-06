@@ -1,4 +1,5 @@
-int display_lag = 30 ;
+const int display_lag = 30 ;
+const int control_lag = 10 ;
 #include "muxer.h"
 Muxer Muxer;
 // adcHighPassFilterDisable();
@@ -298,7 +299,7 @@ byte ccfxlineselector;
 // from leinterpolstart to [1] interpole target position
 byte Ccinterpolengh[128][3];
 
-const int parsingbuffersize = 8192;
+const int parsingbuffersize = 16000;
 int parsinglength = parsingbuffersize;
 EXTMEM char receivedbitinchar[parsingbuffersize];
 
@@ -626,8 +627,8 @@ const int allfxes = 146;
 Pads Pads;
 
 // TODO
-
-const char ControlList[allfxes][23] PROGMEM = {
+//const char ControlList[allfxes][23] PROGMEM = {
+const char ControlList[allfxes][21] = {
     // 0
     "None", "SynthLevel", "Volume", "SDPlayer", "wetsynth", "wetsampler",
     "WetMixM1", "WetMixM2", "WetMixM3", "Sampler level",
@@ -656,9 +657,9 @@ const char ControlList[allfxes][23] PROGMEM = {
     "bqVpot[i][j][1]", "bqVpot[i][j][2]", "granularVknobs[i][0]",
     "granularVknobs[i][1]", "granularVknobs[i][2]", "granularVknobs[i][3]",
     // 80
-    "reverbVknobs[i][0]", "reverbVknobs[i][1]", "bitcrusherVknobs[i][0]",
-    "bitcrusherVknobs[i][1]", "mixfilterVknobs[i][0]", "mixfilterVknob[i][2]",
-    "mixfilterVknob[i][2]", "filterVknob[i][0]", "filterVknobs[i][1]",
+    "reverbVknobs[i][0]", "reverbVknobs[i][1]", "bitcrushVknobs[i][0]",
+    "bitcrushVknobs[i][1]", "mixVknobs[i][0]", "mixVknob[i][2]",
+    "mixVknob[i][2]", "filterVknob[i][0]", "filterVknobs[i][1]",
     "filterVknobs[i][2]",
     // 90
     "flangerVknob[i][0]", "flangerVknob[i][1]", "flangerVknob[i][2]",
@@ -738,7 +739,7 @@ byte wetins[2];
 
 char lastpathlisted[50];
 // char menuitem ;
-int knobassigned[4] = {0, 0, 0, 0};
+
 int midiknobs[128];
 // int midiknobiprev[128] ;
 int midiknobassigned[128];

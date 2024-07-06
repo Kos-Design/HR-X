@@ -287,6 +287,9 @@ void writesynthpreset() {
     INTinsertmytxtfile(muxed_channels[i], "muxed_channels");
   }
   for (int i = 0; i < 128; i++) {
+
+    Serial.print(", ");
+    Serial.println(midiknobassigned[i]);
     INTinsertmytxtfile(midiknobassigned[i], "Midiknobassigned");
     INTinsertmytxtfile(Sampleassigned[i], "Sampleassigned");
   }
@@ -321,7 +324,9 @@ void writesynthpreset() {
 }
 
 void INTinsertmytxtfile(int leint, char *leparam) {
-  mytxtFile.print((char *)leparam);
+  char truncated[6];  
+  strncpy(truncated, leparam, 5);
+  mytxtFile.print((char *)truncated);
   mytxtFile.print(" ");
   mytxtFile.print("#");
   mytxtFile.print(int(leint));
@@ -329,46 +334,42 @@ void INTinsertmytxtfile(int leint, char *leparam) {
 }
 
 void FLOATinsertmytxtfile(float leint, char *leparam) {
-  mytxtFile.print((char *)leparam);
+  char truncated[6];  
+  strncpy(truncated, leparam, 5);
+  mytxtFile.print((char *)truncated);
   mytxtFile.print(" ");
   mytxtFile.print("#");
   mytxtFile.print(float(leint));
   mytxtFile.print("\n");
 }
-
 void parsefile(int presetn) {
   byte tmp_mixlevelsM[4];
   float tmp_mixlevelsL[4];
   float tmp_WetMixMasters[4];
   mytxtFile = SD.open((char *)SynthPresetfullpath[presetn]);
   if (mytxtFile) {
-    // already full, increse parsingbuffersize if more settings are added
+    // if already full, increse parsingbuffersize when much more settings are added
     for (int i = 0; i < parsingbuffersize; i++) {
       receivedbitinchar[i] = mytxtFile.read();
     }
+  } else {
+    Serial.print("Error with preset file");
+    return ;
   }
   Parser parser((byte *)receivedbitinchar, parsinglength);
-  // parser.Read_String('#');
-  // Read string until '-' (AA)
-  // parser.Skip(1); //Ignore '-'
 
-  // Serial.println(parser.Read_Int16()); // Read INT16 (123)
-  // parser.Skip(6);
-  // float volmaster = parser.Read_Float();
-  // parser.Read_String('th>'); // <Syn ...th>
-  // parser.Skip(1);
   parser.Read_String('#');
   parser.Skip(1);
   slope1 = parser.Read_Int16();
-
+  
   parser.Read_String('#');
   parser.Skip(1);
   slope2 = parser.Read_Int16();
-
+  
   parser.Read_String('#');
   parser.Skip(1);
   millitickinterval = parser.Read_Int16();
-
+ 
   parser.Read_String('#');
   parser.Skip(1);
   le303pulsewidthmultiplier = parser.Read_Int16();
@@ -490,7 +491,9 @@ void parsefile(int presetn) {
   parser.Read_String('#');
   parser.Skip(1);
   tapnote = parser.Read_Int16();
-
+  Serial.print("tapnote = ");
+  Serial.println(tapnote);
+  
   for (int i = 0; i < 16; i++) {
     parser.Read_String('#');
     parser.Skip(1);
@@ -592,9 +595,11 @@ void parsefile(int presetn) {
   }
 
   for (int i = 0; i < 128; i++) {
+
     parser.Read_String('#');
     parser.Skip(1);
     midiknobassigned[i] = parser.Read_Int16();
+    
     parser.Read_String('#');
     parser.Skip(1);
     Sampleassigned[i] = parser.Read_Int16();

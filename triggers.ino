@@ -1157,6 +1157,7 @@ void moncontrollercc(byte channel, byte control, byte value) {
         MidiUSB.flush();
       }
       midiknobs[control] = value;
+      //why do we convert 0 to 1024 to 1024 ?
       midiknobs[control] = round((midiknobs[control] / 127.0) * 1024.0);
       controlswitcher(midiknobassigned[control], midiknobs[control]);
       // AudioInterrupts();

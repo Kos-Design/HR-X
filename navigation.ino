@@ -79,7 +79,8 @@ void evalinputs() {
     navlevel++;
     vraipos = sublevels[navlevel];
     myEnc.write(sublevels[navlevel] * 4);
+    printit();
     lemenuroot();
-    //printit();
+    printit();
   }
 }

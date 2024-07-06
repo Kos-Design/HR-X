@@ -72,6 +72,7 @@ int c_change;
 int cc_note_num;
 
 void loop() {
+  if (millis() % (control_lag + 1) == 0) {
   PadResult pad_result = Pads.padloop();
   int paddered =
       arranged_buttons[pad_result.pad_result[0]][pad_result.pad_result[1]];
@@ -81,6 +82,15 @@ void loop() {
   // Serial.print(c_change);
   // 36 is the cancel button, should not trigger another note or control.
   if ((pad_result.pad_result[2] == 1) && (paddered != 36)) {
+    //inside pattern mode
+    if (sublevels[0] == 4 && navlevel >=5 && sublevels[1] == 0) {
+      if (paddered == 17) {
+        Serial.println(Muxer.get_raw(6));
+        event1notes1[sublevels[2]][sublevels[5]][2] = (int)((Muxer.get_raw(6)/1024.0)*128);
+        lemenuroot();
+      }
+    }
+    //inside Onboards Panel
     if ((sublevels[0] == 5) && (sublevels[1] == 11) && (navlevel == 2)) {
 
       if ((paddered == 17) && (but_channel[sublevels[2]] < 15)) {
@@ -99,7 +109,9 @@ void loop() {
         myEnc.write(4 * sublevels[2]);
       }
       OnBoardVpanel();
-    } else if ((sublevels[0] == 8) && (sublevels[1] == 4) && (navlevel == 2)) {
+    } 
+    //inside waveform tracer
+    else if ((sublevels[0] == 8) && (sublevels[1] == 4) && (navlevel == 2)) {
       if (paddered == 17) {
         trace_waveform = !trace_waveform;
       }
@@ -107,14 +119,16 @@ void loop() {
       if (cc_note_num <= 0) {
         MaControlChange(but_channel[11 + paddered],
                         (byte)pot_assignements[11 + paddered], 64);
-      } else {
-        Serial.println(" ");
+      } 
+      //normal note pad
+      else {
+        /*Serial.println(" ");
         Serial.print("paddered ");
         Serial.print(paddered);
         Serial.println(" ");
         Serial.print("pot_assignements ([11+paddered])=");
         Serial.print(cc_note_num);
-
+        */
         MaNoteOn(but_channel[11 + paddered], cc_note_num,
                  but_velocity[11 + paddered]);
       }
@@ -123,23 +137,26 @@ void loop() {
              (cc_note_num > 0)) {
     MaNoteOff(but_channel[11 + paddered], cc_note_num, 0);
   }
-
+  }
   if (initdone) {
+    
+    loopRecorder();
+    if (millis() % 2 == 0) {
+      if (!stoptick) {
+        if (!externalticker && metro0.check() == 1) {
+          // Serial.println("from loop tick");
+          tick();
+        }
+      }
+      if (metro303.check() == 1) {
+  
+        pseudo303();
+      }
+    }
+  if (millis() % display_lag == 0) {
     if (noteprint) {
       printlanote();
     }
-    loopRecorder();
-    if (!stoptick) {
-      if (!externalticker && metro0.check() == 1) {
-        // Serial.println("from loop tick");
-        tick();
-      }
-    }
-    if (metro303.check() == 1) {
-
-      pseudo303();
-    }
-  if (millis() % display_lag == 0) {
     updatebuttons();
     evalinputs();
     evalrota();
@@ -150,7 +167,7 @@ void loop() {
   loopmidihost();
   loopusbHub();
 
-  if ((millis() % 10) == 0) {
+  if ((millis() % control_lag) == 0) {
 
     c_change = Muxer.read_val(itr);
     if (c_change > 0) {
@@ -161,8 +178,7 @@ void loop() {
           but_velocity[sublevels[2]] = (byte)((c_change / 1024.0) * 128);
           OnBoardVpanel();
         }
-
-        else {
+         else {
           MaControlChange(muxed_channels[itr], (byte)muxed_pots[itr],
                           (byte)((c_change / 1024.0) * 128));
         }
