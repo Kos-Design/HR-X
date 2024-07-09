@@ -1,6 +1,8 @@
-
+                   
 File frec;
 File frec2;
+File looper;
+
 int modeL = 0;
 int modeR = 0;
 // 0=stopped, 1=recording,
@@ -183,40 +185,55 @@ void dolistRecdisplay() {
 }
 
 void makenewRecename() {
-  // newpresetpath
-  // Serial.println((char*)newRecpathL);
-  synsetunites = 0;
-  synsetdizaines = 0;
+  recunites = 0;
+  recdizaines = 0;
   while (SD.exists((char *)newRecpathL)) {
-    // Serial.println("current exists");
-
     findnextRecname();
-    // Serial.println((char*)newRecpathL);
+  }
+}
+
+void makenewloopname() {
+  recunites = 0;
+  recdizaines = 0;
+  while (SD.exists((char *)newloopedpath)) {
+    findnextloopname();
   }
 }
 
 void findnextRecname() {
 
-  if (synsetunites < 9) {
-    synsetunites++;
+  rec_incrementer();
+  // tot-9  tot-10
+  newRecpathL[18] = recunites + '0';
+  newRecpathL[17] = recdizaines + '0';
+  newRecpathR[18] = recunites + '0';
+  newRecpathR[17] = recdizaines + '0';
+
+}
+void rec_incrementer(){
+  if (recunites < 9) {
+    recunites++;
   } else {
-    synsetunites = 0;
-    if (synsetdizaines < 9) {
-      synsetdizaines++;
+    recunites = 0;
+    if (recdizaines < 9) {
+      recdizaines++;
     } else {
-      synsetdizaines = 0;
+      recdizaines = 0;
     }
   }
-  // tot-9  tot-10
-  newRecpathL[18] = synsetunites + '0';
-  newRecpathL[17] = synsetdizaines + '0';
-  newRecpathR[18] = synsetunites + '0';
-  newRecpathR[17] = synsetdizaines + '0';
+}
+void findnextloopname() {
 
-  // newRecpath[27] = {"/SOUNDSET/REC/REC-00.L.RAW"};
+  rec_incrementer();
+  // tot-9  tot-10
+  newloopedpath[18] = recunites + '0';
+  newloopedpath[17] = recdizaines + '0';
+  newloopedpath[18] = recunites + '0';
+  newloopedpath[17] = recdizaines + '0';
+
 }
 
-void recordcontrols() { Serial.print("rec controled"); }
+void recordcontrols() { Serial.print("rec controlled"); }
 
 void recordVpanelAction() {
 
@@ -548,3 +565,65 @@ void stopRecordingR() {
     Serial.println("stopRecordingR");
   }
 }
+
+void continue_looper(){
+  
+  if (queue1.available() >= 2 && looper ) {
+        //for (int i = 0; i < 2; i++) {
+      //      looper.write((byte*)queue1.readBuffer(), 256);
+       //     queue1.freeBuffer();
+      //  }
+      memcpy(bufferL, queue1.readBuffer(), 256);
+      queue1.freeBuffer();
+      memcpy(bufferL + 256, queue1.readBuffer(), 256);
+      queue1.freeBuffer();
+      looper.write(bufferL, 512);
+  }
+}
+
+void start_sample_in_place() {
+   Serial.println("looping");
+  tocker = millis();
+  makenewloopname();
+  if (SD.exists((char *)newloopedpath)) {
+      SD.remove((char *)newloopedpath);
+    }
+    looper = SD.open((char *)newloopedpath, FILE_WRITE);
+  if (looper) {
+    AudioNoInterrupts();
+    queue1.begin();
+    AudioInterrupts();
+    rec_looping = true ;
+  } else {
+      String formattedString = "error opening " + String((char *)newloopedpath);
+      Serial.println(formattedString);
+    }
+    
+//start at pat pos
+//rec mono
+// ends in 32 ticks
+//save sample
+// assign saved to note 50
+// set pattern empty and place note 50 on 0
+//clear locks
+  
+}
+
+void end_sample_in_place() {
+  
+    AudioNoInterrupts();
+    queue1.end();
+    AudioInterrupts();
+    
+    while (queue1.available() > 0) {
+      looper.write((byte *)queue1.readBuffer(), 256);
+      queue1.freeBuffer();
+      
+    }
+    looper.close();
+    queue1.clear();
+
+    dosoundlist();
+    }
+
+  

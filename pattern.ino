@@ -1,3 +1,17 @@
+
+void intervaltick() {
+  //Serial.println(".");
+  if (!stoptick){
+    
+    tick();
+  }
+    
+}
+
+void metro30(){
+  pseudo303();
+ }
+ 
 void tick() {
 
   tickerlasttick = millis();
@@ -1093,7 +1107,7 @@ void stopticker() {
 }
 void startticker() {
   if (!externalticker) {
-    metro0.reset();
+   // metro0.reset();
   }
   stoptick = 0;
   patternOn = 1;
@@ -1103,12 +1117,24 @@ void setbpms() {
 
   //  BPMs = (60000.0/millitickinterval)/4.0 ;
   BPMs = 15000.0 / millitickinterval;
-
+/*
   metro0.interval(millitickinterval);
-
+  metro0.reset();
+  
   metro303.interval(millitickinterval / 5);
   metro303.reset();
-  metro0.reset();
+  
+  metro1.end();
+  metro3.end();
+  metro1.begin(intervaltick, millitickinterval * 1000);
+  metro3.begin(metro30, (millitickinterval / 5) * 1000);
+  */
+  /*
+   ITimer0.stopTimer();
+   ITimer1.stopTimer();
+  ITimer0.restartTimer();
+  ITimer1.restartTimer();
+  */
   // refresh display
   // lemenuroot();
 }

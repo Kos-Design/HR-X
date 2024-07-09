@@ -24,7 +24,7 @@ void unplugfx() {
     fxcording[i]->disconnect();
   }
 }
-
+#define TIMER0_INTERVAL_MS        50L
 void setup() {
 
   // pseudoconsole((char*)"initializing...");
@@ -120,6 +120,12 @@ void setup() {
   delay(50);
   pseudoconsole((char *)"starting muxer");
   Muxer.start();
+  
+  metro1.begin(intervaltick, interval_ms * 1000);
+  metro1.priority(250);
+  //metro3.begin(metro30, ( interval_ms /5 ) * 1000);
+  //metro3.priority(138);
+  //metro3.begin(metro30, 25 * 1000);
   // addtocharix((char*)"SOUNDSET/PACK2/BASST-02.RAW");
   // printthem();
 

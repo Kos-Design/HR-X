@@ -120,7 +120,7 @@ void controlswitcher(int caser, int valu) {
     Serial.println(15);
     // bpms
     millitickinterval = map(smallfloat, 0, 1, 250, 63);
-    metro0.interval(millitickinterval);
+    //metro0.interval(millitickinterval);
 
     setbpms();
     break;
@@ -595,6 +595,7 @@ void controlswitcher(int caser, int valu) {
 
     break;
   case 109:
+  start_sample_in_place();
 
     break;
   case 110:

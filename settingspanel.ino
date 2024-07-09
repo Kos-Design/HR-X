@@ -262,7 +262,7 @@ void arpegiatorVpanelAction() {
       // arpegiatortype = sublevels[2];
       if (arpegiatortype < 8) {
         arpegiatorOn = 1;
-        metro0.reset();
+        //metro0.reset();
       } else {
         arpegiatorOn = 0;
         for (int i = 0; i < nombreofliners; i++) {

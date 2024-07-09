@@ -139,21 +139,33 @@ void loop() {
   }
   }
   if (initdone) {
-    
-    loopRecorder();
-    if (millis() % 2 == 0) {
-      if (!stoptick) {
+     /*
+     if (!stoptick) {
+      
         if (!externalticker && metro0.check() == 1) {
           // Serial.println("from loop tick");
           tick();
         }
       }
-      if (metro303.check() == 1) {
+      */
+    loopRecorder();
+    if (millis() % 2 == 0) {
+      
+     
+      /*if (metro303.check() == 1) {
   
-        pseudo303();
+        
+      }*/
+       if ( rec_looping ) {
+      continue_looper();
+      if (millis() - tocker > 10000) {
+        rec_looping = false ;
+        end_sample_in_place();
       }
     }
+    }
   if (millis() % display_lag == 0) {
+   
     if (noteprint) {
       printlanote();
     }
@@ -161,6 +173,7 @@ void loop() {
     evalinputs();
     evalrota();
   }
+    
   }
 
   // usbhost queries

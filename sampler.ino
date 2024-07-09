@@ -993,13 +993,16 @@ void RemoveAllfromFlash() {
         // }
       }
     }
-    if (dotcount > 0)
+    
+    if (dotcount > 0) {
       Serial.println();
     Serial.println("Erase completed");
     unsigned long elapsed = millis() - startMillis;
     Serial.print("  actual wait: ");
     Serial.print(elapsed / 1000ul);
     Serial.println(" seconds.");
+    lemenuroot();
+    }
   }
 }
 

@@ -1,9 +1,11 @@
-const int display_lag = 30 ;
+const int display_lag = 10 ;
 const int control_lag = 10 ;
 #include "muxer.h"
 Muxer Muxer;
 // adcHighPassFilterDisable();
-#include <Metro.h>
+bool le_303_On ;
+
+//#include <Metro.h>
 // int startccrecordpos;
 // int stopccrecordpos;
 const byte sizeofnoCCrecord = 11;
@@ -20,15 +22,23 @@ int starttaptime;
 int numberoftaps;
 int tapstime[5] = {0};
 float tapaverage;
-int millitickinterval = 125;
-Metro metro0 = Metro(millitickinterval);
-Metro metro303 = Metro(25);
+int millitickinterval = 115;
+//Metro metro0 = Metro(millitickinterval);
+//Metro metro303 = Metro(25);
+#include <IntervalTimer.h>
+
+
+IntervalTimer metro1;
+//IntervalTimer metro3;
+//float interval_ms = (60000.0 /4.0) / 130.0;  // Calculate the interval in milliseconds
+float interval_ms = millitickinterval ;
 // IntervalTimer playNoteTimer;
 // Metro metrobuttons = Metro(20);
 long le303start[8];
 byte smixervknobs[16] = {128, 128, 128, 128, 128, 128, 128, 128,
                          128, 128, 128, 128, 128, 128, 128, 128};
 int lehalfbeat;
+
 int le303pulsewidthmultiplier = 8;
 int le303pulsewidthmultiplier2 = 8;
 int le303pulsewidth =
@@ -37,6 +47,9 @@ int le303pulsewidth2 =
     (int)((le303pulsewidthmultiplier2 / 32.0) * 2 * millitickinterval + 50);
 byte offsetliner;
 bool tb303[8];
+bool rec_looping;
+int tocker ;
+
 int le303ffilterzVknobs[3];
 const byte numberofsynthsw = 4;
 byte songpage = 0;
@@ -150,6 +163,7 @@ int numberofSynthPresetsselected = 0;
 int numberofSynthPresets = 0;
 int synsetdizaines = 0;
 int synsetunites = 0;
+
 char newpresetpath[28] = {"PRESETS/SYNTH/SYNSET01.TXT"};
 
 const byte truesizeofwaveformsmenulabels = 7;
@@ -163,7 +177,9 @@ int Waveformsdizaines = 0;
 int Waveformsunites = 0;
 char newWaveformspath[22] = {"WAVEFORM/WFORM-01.TXT"};
 char Waveformsdir[10] = {"WAVEFORM/"};
-
+int recdizaines = 0;
+int recunites = 0;
+char newloopedpath[28] = {"SOUNDSET/REC/LOOP00#L.RAW"};
 char newRecpathL[28] = {"SOUNDSET/REC/RECZ00#L.RAW"};
 char newRecpathR[28] = {"SOUNDSET/REC/RECZ00#R.RAW"};
 int navlevelvbuttons = 1;
@@ -229,6 +245,7 @@ const int nombreofliners = 8;
 const int nombreofSamplerliners = 16;
 const int patternlines = 4;
 
+//EXTMEM byte bufferLoop[512];
 EXTMEM byte bufferL[512];
 EXTMEM byte bufferR[512];
 
@@ -650,15 +667,15 @@ const char ControlList[allfxes][21] = {
     "LFOfreqs", "LFOphase", "LFOoffset", "LFOsync", "Attack Delay",
     /// 60
     "Attack", "Hold", "Decay", "Sustain", "Free", "Release",
-    "le303ffilterzVknobs[0]", "le303filterzgainz[1]", "le303filterzgainz[2]",
+    "303ffilterz[0]", "303fgainz[1]", "303fgainz[2]",
     "FXChannelselector",
     // 70
     "chorusVknobs[i]", "bqstage[i]", "LFOonfilterz[i]", "bqVpot[i][j][0]",
     "bqVpot[i][j][1]", "bqVpot[i][j][2]", "granularVknobs[i][0]",
-    "granularVknobs[i][1]", "granularVknobs[i][2]", "granularVknobs[i][3]",
+    "granular[i][1]", "granular[i][2]", "granular[i][3]",
     // 80
     "reverbVknobs[i][0]", "reverbVknobs[i][1]", "bitcrushVknobs[i][0]",
-    "bitcrushVknobs[i][1]", "mixVknobs[i][0]", "mixVknob[i][2]",
+    "bitcrushVknobs[i][1]", "mixVknobs[i][0]", "mixVknob[i][1]",
     "mixVknob[i][2]", "filterVknob[i][0]", "filterVknobs[i][1]",
     "filterVknobs[i][2]",
     // 90
@@ -667,7 +684,7 @@ const char ControlList[allfxes][21] = {
     "bqtype[i][bqstage]", "Audio In level", "Free", "Free",
     // 100
     "Pat. Save", "Pat. Load", "Free", "Free", "Free", "Phase1", "Wtype2",
-    "Wmix2", "Free", "Free", "Free",
+    "Wmix2", "Free", "Free", "Looper",
     // 110
     "Sp.Track 1", "Sp.Track 2", "Sp.Track 3", "Sp.Track 4", "Sp.Track 5",
     "Sp.Track 6", "Sp.Track 7", "Sp.Track 8", "Sp.Track 9", "Sp.Track 10",
