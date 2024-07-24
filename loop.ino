@@ -41,7 +41,8 @@ void pseudo303() {
       if (letimerz303 > le303pulsewidth) {
 
         tb303[i] = 0;
-        le303start[0];
+        // TODO: Check why should we ?
+       // le303start[0] = 0;
         letimerz303 = le303pulsewidth;
       }
 

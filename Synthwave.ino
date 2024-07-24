@@ -135,9 +135,7 @@ void le303filterVpanel() {
   int centercircley = 35 + knobradius;
   int ftVcursorpointx;
   int ftVcursorpointy;
-
   float coeffangle;
-  int startley;
   int totbartall = 37;
   int topwbarstart = 16;
   int wbarwidth = 9;
@@ -291,9 +289,6 @@ void le303filterVpanelSelector() {
   int centercirclex = 5 + knobradius;
   int centercircley = 35 + knobradius;
   int startlex2 = 67;
-
-  float coeffangle;
-  int startley;
   int totbartall = 37;
   int topwbarstart = 16;
   int wbarwidth = 9;

@@ -161,7 +161,7 @@ void printnoteon(byte channel, byte data1, byte data2) {
 void MaNoteOn(byte channel, byte data1, byte data2) {
   byte larpegeline;
   int lachordon;
-
+  uint8_t statusByte = static_cast<uint8_t>(0x90 | channel);
   if (data1 == tapnote) {
     taptap();
     return;
@@ -212,7 +212,7 @@ void MaNoteOn(byte channel, byte data1, byte data2) {
     // TODO: send midi during sound trigger to use arpegiators (+ note offs if
     // arpegiator doesn't already send Off notes ?)
     Serial.println("sending Note On");
-    MidiUSB.sendMIDI({0x09, 0x90 | channel, data1, data2});
+    MidiUSB.sendMIDI({0x09, statusByte, data1, data2});
     MidiUSB.flush();
   }
 }
@@ -565,7 +565,6 @@ void playarpegenote(byte larpegeline) {
     return;
   }
   incrementcs(larpegeline);
-  byte octave = (int)(arpegiatingNote[larpegeline] / 12);
   byte relativenote;
   byte realnotetoplay;
 
@@ -591,7 +590,7 @@ void playarpegenote(byte larpegeline) {
 }
 
 void MaNoteOff(byte channel, byte data1, byte data2) {
-
+  uint8_t statusByte = static_cast<uint8_t>(0x80 | channel);
   int lachordnote;
   // if (debugmidion) {debugmidi("NoteOff",(int)( channel),(int)( data1),(int)(
   // data2));}
@@ -602,7 +601,7 @@ void MaNoteOff(byte channel, byte data1, byte data2) {
 
   if (SendMidiOut) {
     Serial.println("sending Note Off");
-    MidiUSB.sendMIDI({0x08, 0x80 | channel, data1, data2});
+    MidiUSB.sendMIDI({0x08, statusByte, data1, data2});
     MidiUSB.flush();
   }
   if (!arpegiatorOn) {
@@ -1143,7 +1142,7 @@ void lineroff(int liner, byte data1) {
     notesOn[liner] = 0;
   }
 }
-void Mytickmidi(byte channel, byte control, byte value) {
+void Mytickmidi() {
   // Serial.println("mclock");
   tick();
 }
@@ -1152,7 +1151,8 @@ void moncontrollercc(byte channel, byte control, byte value) {
     if (midiknobassigned[control] != 0 && !freezemidicc) {
       if (SendMidiOut) {
         Serial.println("sending CC");
-        MidiUSB.sendMIDI({0x0B, 0xB0 | channel, control, value});
+        uint8_t statusByte = static_cast<uint8_t>(0xB0 | channel);
+        MidiUSB.sendMIDI({0x0B, statusByte, control, value});
 
         MidiUSB.flush();
       }

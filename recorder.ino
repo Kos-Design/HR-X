@@ -83,7 +83,7 @@ void getthisRecname() {
 
   byte lerecdiri = getrecdir();
   for (int i = 0;
-       i < strlen((char *)samplefullpath[lerecdiri][sublevels[navrecmenu + 1]]);
+       i < (int)strlen((char *)samplefullpath[lerecdiri][sublevels[navrecmenu + 1]]);
        i++) {
     newRecpathL[i] = samplefullpath[lerecdiri][sublevels[navrecmenu + 1]][i];
   }

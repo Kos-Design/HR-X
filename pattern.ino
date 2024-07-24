@@ -203,17 +203,16 @@ void PatternmenuBG() {
   }
 }
 void showleditcc() {
-  int lavaluecc;
+  int lavaluecc = 0;
   int lacellwidth = 128 / pbars;
   int lestartyc = 16;
   float lacellratio = (62 - lestartyc) / 127.0;
-  int lacellx;
-  int lacelly;
-  int lalinex1;
-  int lalinex2;
-  int laliney1;
-  int laliney2;
-  int ffg;
+  int lacellx = 0;
+  int lacelly = 0;
+  int lalinex1 = 0;
+  int lalinex2 = 0;
+  int laliney1 = 0;
+  int laliney2 = 0;
   display.clearDisplay();
   canvasBIG.fillScreen(SSD1306_BLACK);
 
@@ -1434,7 +1433,6 @@ void doshownotelineB() {
   int lenghtofthenote = 4;
   int decnote;
   int listoffsetter;
-  int linersizehold;
   int linern = sublevels[navlevelpatedit + 1];
   startingnoteline = sublevels[navlevelpatedit + 2];
   byte note0;
@@ -1711,7 +1709,6 @@ void dolistpatternlineblocks() {
   starty = 16;
 
   for (int lapatline = 0; lapatline < patternlines; lapatline++) {
-    int listoffsetter = starty + ((lapatline)*celltall);
     for (int i = 0; i < pbars; i++) {
       if (lapatline == 0) {
         // Serial.println(evented1[lapatline][i]);
@@ -2287,8 +2284,6 @@ void startparsinginfos() { patterninparse = 1; }
 
 void parsepattern(int lapatterne) {
   byte laccnote;
-  int intjustparsed;
-  char charjustparsed[2];
   byte parsedchannel;
   // Serial.println("Loading attempt");
   int letimescaler = 3125;

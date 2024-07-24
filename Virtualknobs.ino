@@ -7,11 +7,9 @@ void doposkselector() {
       "CuePlay",    "Backward -1", "Stop",   "Play",
       "Forward +1", "Record",      "Thingy", "Exit"};
   byte startyp = 8;
-  byte starx = 1;
   byte ecart = 14;
   byte knobradius = 7;
   int xcentershifter;
-  int leknobi;
   // navrange = numberofvbuttonslabels-1 +17+14 ;
 
   // transportpanel

@@ -9,8 +9,7 @@ int recupsublevel;
 void setlefilenamed(int lefolder, int lefile, char *lefname) {
 
   int fnamesize = strlen((char *)lefname);
-  int stringsize =
-      (strlen((char *)samplefullpath[lefolder][lefile])) + fnamesize;
+  
   int foldersize = strlen((char *)samplefoldersregistered[lefolder]);
 
   for (int i = 0; i < fnamesize; i++) {
@@ -32,7 +31,7 @@ void voidlastpathlisted() {
 }
 void setlastpathlisted(char *lepath) {
   voidlastpathlisted();
-  for (int i = 0; i < strlen((char *)lepath); i++) {
+  for (int i = 0; i < (int)strlen((char *)lepath); i++) {
     lastpathlisted[i] = lepath[i];
   }
 }
@@ -92,11 +91,11 @@ void initializenewmksamplefullpath() {
   }
 }
 void makenewdumpedfilename(int leflashfile) {
-  for (int i = 0; i < strlen((char *)newmkdirpath); i++) {
+  for (int i = 0; i < (int)strlen((char *)newmkdirpath); i++) {
     newmksamplefullpath[i] = newmkdirpath[i];
   }
   newmksamplefullpath[strlen((char *)newmkdirpath)] = (char)'/';
-  for (int i = 0; i < strlen((char *)Flashsamplename[i]); i++) {
+  for (int i = 0; i < (int)strlen((char *)Flashsamplename[i]); i++) {
     newmksamplefullpath[i + strlen((char *)newmkdirpath) + 1] =
         Flashsamplename[leflashfile][i];
   }
@@ -443,7 +442,7 @@ void addtoFlashsamplelist(char *lesample) {
   for (int i = 0; i < 13; i++) {
     Flashsamplename[numberofFlashfiles][i] =
         toupper((unsigned char)(lesample[i]));
-    if (i < (strlen((char *)lesample) - 4)) {
+    if (i < (int)(strlen((char *)lesample) - 4)) {
       Flashsamplebase[numberofFlashfiles][i] =
           toupper((unsigned char)(lesample[i]));
     }
@@ -1045,6 +1044,25 @@ void addfolderstoselectionset() {
     }
   }
 }
+
+bool comparer(typeof(dummyier_file) file_1, typeof(dummy_flash_file) file_2) {
+    const size_t buffer_Size = 128; // Define buffer size
+    byte buffer_1[buffer_Size];
+    byte buffer_2[buffer_Size];
+
+    while (file_1.available() && file_2.available()) {
+        size_t size_1 = file_1.read(buffer_1, buffer_Size);
+        size_t size_2 = file_2.read(buffer_2, buffer_Size);
+
+        if (size_1 != size_2 || memcmp(buffer_1, buffer_2, size_1) != 0) {
+            return false; // Files are not identical
+        }
+    }
+
+    // Check if both files ended at the same time
+    return !file_1.available() && !file_2.available();
+}
+
 void loadSelectedSamples() {
   unsigned long lengthz;
   File currentsample;
@@ -1071,7 +1089,7 @@ void loadSelectedSamples() {
           if (currentFlashfile &&
               currentFlashfile.size() == currentsample.size()) {
             // Serial.println("  size is the same, comparing data...");
-            if ((currentsample, currentFlashfile) == true) {
+            if (comparer(currentsample, currentFlashfile)) {
               // Serial.println("  files are identical :)");
               currentsample.close();
               currentFlashfile.close();
@@ -1181,7 +1199,7 @@ void listFlashfiles() {
 }
 
 void getavailablespace() {
-  long laspace;
+  long laspace = 0;
   SerialFlashFile lefile;
   for (int i = 0; i < numberofFlashfiles; i++) {
     lefile = SerialFlash.open((char *)Flashsamplename[i]);

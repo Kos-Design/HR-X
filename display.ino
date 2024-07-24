@@ -491,7 +491,7 @@ void pleasewait(float lewait, float letotwait) {
   // popukate 6 chars arrays and display/copy them to scroll
 }
 
-void pseudoconsole(char *lemsg) {
+void pseudoconsole(const char *lemsg) {
   shiftconsolemsgarray();
   setleconsolemsg(0, (char *)lemsg);
 

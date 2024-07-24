@@ -45,7 +45,7 @@ void initializePatternfilefullpath() {
 
 void setlePatternname(int lefile, char *lefname) {
 
-  int fnamesize = strlen((char *)lefname);
+  int fnamesize = (int)(strlen((char *)lefname));
   int stringsize = 9 + fnamesize;
   for (int i = 0; i < fnamesize; i++) {
 
@@ -192,16 +192,16 @@ void voidsampledirpath() {
     sampledirpath[i] = (char)'\0';
   }
   for (int i = 0; i < 9; i++) {
-    sampledirpath[i] = (char *)"SOUNDSET/"[i];
+    sampledirpath[i] = (char)("SOUNDSET/"[i]);
   }
 }
 
 void makesoundsetfullpathfromchars(int eldir) {
-  for (int i = 9; i < (strlen((char *)samplefoldersregistered[eldir]) + 9);
+  for (int i = 9; i < (int)(strlen((char *)samplefoldersregistered[eldir]) + 9);
        i++) {
     sampledirpath[i] = samplefoldersregistered[eldir][i - 9];
   }
-  int lelast = strlen((char *)sampledirpath);
+  int lelast = (int)strlen((char *)sampledirpath);
   sampledirpath[lelast] = (char)'/';
   sampledirpath[lelast + 1] = (char)'\0';
   // Serial.println((char*)sampledirpath);
@@ -245,7 +245,7 @@ void listSoundsetsubdir(int ledir) {
 
       if (!subentry.isDirectory()) {
         // Serial.println(" 1 = 1 ");
-        setlefilenamed(ledir, sizeofsamplefolder[ledir], subentry.name());
+        setlefilenamed(ledir, sizeofsamplefolder[ledir], (char*)subentry.name());
 
         (sizeofsamplefolder[ledir])++;
         // subentry.close();
@@ -269,11 +269,11 @@ void dosamplerfullpath(int lefolder, int lefile, char *lefilename) {
 
 void addtofullsamplerfolderpath(int lefolder, char *lepath) {
   for (int i = 0; i < 999; i++) {
-    for (int j = 9; j < strlen((char *)lepath) + 9; j++) {
+    for (int j = 9; j < (int)strlen((char *)lepath) + 9; j++) {
       samplefullpath[lefolder][i][j] = (char)(lepath[j - 9]);
       // Serial.println((char)(lepathtoadd[i]));
     }
-    samplefullpath[lefolder][i][(strlen((char *)lepath) + 9)] = (char *)"/"[0];
+    samplefullpath[lefolder][i][(strlen((char *)lepath) + 9)] = (char)("/"[0]);
   }
 }
 
@@ -294,7 +294,7 @@ void clearsamplefullpath(int lefolder, int lefile) {
     samplefullpath[lefolder][lefile][i] = (char)'\0';
   }
   for (int j = 0; j < 9; j++) {
-    samplefullpath[lefolder][lefile][j] = (char *)"SOUNDSET/"[j];
+    samplefullpath[lefolder][lefile][j] = (char)("SOUNDSET/"[j]);
   }
 }
 
@@ -318,7 +318,7 @@ void clearsamplebase(int lefolder, int lefile) {
 
 void addtofolderix(char *lepathtoadd, int ix) {
 
-  for (int i = 0; i < strlen((char *)lepathtoadd); i++) {
+  for (int i = 0; i < (int)strlen((char *)lepathtoadd); i++) {
     samplefoldersregistered[ix][i] = (char)(lepathtoadd[i]);
   }
 }
@@ -331,7 +331,7 @@ void setupsamplefoldersregistered() {
       // delay(1);
     }
   }
-  samplefoldersregistered[0][0] = (char *)"/"[0];
+  samplefoldersregistered[0][0] = (char)("/"[0]);
   // delay(1);
   sampledirsregistered++;
   // Serial.println((char*)(samplefoldersregistered[0]));

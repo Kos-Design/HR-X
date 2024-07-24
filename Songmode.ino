@@ -63,9 +63,9 @@ void writeSong() {
   mytxtFile.print("<Song>\n");
   // patternonsong[sublevels[songedit]][sublevels[songedit+1]]
 
-  INTinsertmytxtfile(numberofpatonsong, "nums");
+  INTinsertmytxtfile(numberofpatonsong, (char*)"nums");
   for (byte i = 0; i < 99; i++) {
-    INTinsertmytxtfile(patternonsong[i], "songpat");
+    INTinsertmytxtfile(patternonsong[i], (char*)"songpat");
   }
   Serial.println("wrote");
 }
@@ -195,7 +195,7 @@ void initializeSongfullpath() {
     for (int j = 0; j < 22; j++) {
       Songfullpath[i][j] = (char)'\0';
       if (j < 6) {
-        Songfullpath[i][j] = (char *)"SONGS/"[j];
+        Songfullpath[i][j] = (char)("SONGS/"[j]);
       }
       if (j < 13) {
         Songname[i][j] = (char)'\0';
@@ -210,7 +210,6 @@ void initializeSongfullpath() {
 void setleSongname(int lefile, char *lefname) {
 
   int fnamesize = strlen((char *)lefname);
-  int stringsize = 6 + fnamesize;
   for (int i = 0; i < fnamesize; i++) {
 
     Songname[lefile][i] = lefname[i];
@@ -236,7 +235,7 @@ void listSongs() {
       }
 
       if (!subentry.isDirectory()) {
-        setleSongname(numberofSongs, subentry.name());
+        setleSongname(numberofSongs, (char*)subentry.name());
         numberofSongs++;
         // Serial.print("adding song");
         // Serial.println(subentry.name());
@@ -619,7 +618,6 @@ void selectormoveX() {
 
 void songTransportSelector() {
   int startyp = 8;
-  int starx = 1;
   int ecart = 14;
 
   display.drawPixel(ecart * (sublevels[songedit]) + 6, startyp + 7,

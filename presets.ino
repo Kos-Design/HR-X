@@ -209,115 +209,115 @@ void writesynthpreset() {
 
   mytxtFile.print("<Presets><Synth>\n");
 
-  INTinsertmytxtfile(slope1, "slope1");
-  INTinsertmytxtfile(slope2, "slope2");
-  INTinsertmytxtfile(millitickinterval, "milli");
-  INTinsertmytxtfile(le303pulsewidthmultiplier, "pulse1");
-  INTinsertmytxtfile(le303pulsewidthmultiplier2, "pulse2");
+  INTinsertmytxtfile(slope1, (char*)"slope1");
+  INTinsertmytxtfile(slope2, (char*)"slope2");
+  INTinsertmytxtfile(millitickinterval, (char*)"milli");
+  INTinsertmytxtfile(le303pulsewidthmultiplier, (char*)"pulse1");
+  INTinsertmytxtfile(le303pulsewidthmultiplier2, (char*)"pulse2");
   for (int i = 0; i < 3; i++) {
-    INTinsertmytxtfile(le303ffilterzVknobs[i], "f303vknobs");
-    INTinsertmytxtfile(mixle303ffilterzVknobs[i], "mixfilters303");
-    FLOATinsertmytxtfile(le303filterzgainz[i], "filtergainz303");
+    INTinsertmytxtfile(le303ffilterzVknobs[i], (char*)"f303vknobs");
+    INTinsertmytxtfile(mixle303ffilterzVknobs[i], (char*)"mixfilters303");
+    FLOATinsertmytxtfile(le303filterzgainz[i], (char*)"filtergainz303");
   }
 
-  INTinsertmytxtfile(le303filterzwet, "le303filterzwet");
-  INTinsertmytxtfile(le303filterzrange, "le303range");
-  FLOATinsertmytxtfile(le303filterzfreq, "le303freq");
-  FLOATinsertmytxtfile(le303filterzreso, "le303reso");
-  FLOATinsertmytxtfile(le303filterzoctv, "le303octv");
-  INTinsertmytxtfile(int(glidemode), "glidemode");
-  INTinsertmytxtfile(preampleswaves, "preampleswaves");
-  INTinsertmytxtfile(le303envlfofadintime, "le303envlfofadintime");
-  INTinsertmytxtfile(le303envlfofadouttime, "le303envlfofadintime");
-  INTinsertmytxtfile(int(arpegiatorOn) + 1, "arpegiatorOn");
-  INTinsertmytxtfile(arpegiatortype, "arpegiatortype");
-  INTinsertmytxtfile(arpeglengh, "arpeglengh");
-  INTinsertmytxtfile(arpegmode, "arpegmode");
-  INTinsertmytxtfile(arpegnumofnotes, "arpegnumofnotes");
-  INTinsertmytxtfile(arpegstartoffset, "arpegstartoffset");
-  INTinsertmytxtfile(arpeggridC, "arpeggridC");
-  INTinsertmytxtfile(arpeggridS, "arpeggridS");
-  INTinsertmytxtfile(int(digitalplay) + 1, "digitalplay");
-  INTinsertmytxtfile(int(chordson) + 1, "chordsOn");
-  INTinsertmytxtfile(lasetchord, "lasetchord");
-  INTinsertmytxtfile(wetins[0], "wetsynth");
-  INTinsertmytxtfile(wetins[1], "wetsampler");
-  INTinsertmytxtfile(synthmidichannel, "synthmidichannel");
-  INTinsertmytxtfile(samplermidichannel, "samplermidichannel");
-  INTinsertmytxtfile(tapnote, "tapnote");
+  INTinsertmytxtfile(le303filterzwet, (char*)"le303filterzwet");
+  INTinsertmytxtfile(le303filterzrange, (char*)"le303range");
+  FLOATinsertmytxtfile(le303filterzfreq, (char*)"le303freq");
+  FLOATinsertmytxtfile(le303filterzreso, (char*)"le303reso");
+  FLOATinsertmytxtfile(le303filterzoctv, (char*)"le303octv");
+  INTinsertmytxtfile(int(glidemode), (char*)"glidemode");
+  INTinsertmytxtfile(preampleswaves, (char*)"preampleswaves");
+  INTinsertmytxtfile(le303envlfofadintime, (char*)"le303envlfofadintime");
+  INTinsertmytxtfile(le303envlfofadouttime, (char*)"le303envlfofadintime");
+  INTinsertmytxtfile(int(arpegiatorOn) + 1, (char*)"arpegiatorOn");
+  INTinsertmytxtfile(arpegiatortype, (char*)"arpegiatortype");
+  INTinsertmytxtfile(arpeglengh, (char*)"arpeglengh");
+  INTinsertmytxtfile(arpegmode, (char*)"arpegmode");
+  INTinsertmytxtfile(arpegnumofnotes, (char*)"arpegnumofnotes");
+  INTinsertmytxtfile(arpegstartoffset, (char*)"arpegstartoffset");
+  INTinsertmytxtfile(arpeggridC, (char*)"arpeggridC");
+  INTinsertmytxtfile(arpeggridS, (char*)"arpeggridS");
+  INTinsertmytxtfile(int(digitalplay) + 1, (char*)"digitalplay");
+  INTinsertmytxtfile(int(chordson) + 1, (char*)"chordsOn");
+  INTinsertmytxtfile(lasetchord, (char*)"lasetchord");
+  INTinsertmytxtfile(wetins[0], (char*)"wetsynth");
+  INTinsertmytxtfile(wetins[1], (char*)"wetsampler");
+  INTinsertmytxtfile(synthmidichannel, (char*)"synthmidichannel");
+  INTinsertmytxtfile(samplermidichannel, (char*)"samplermidichannel");
+  INTinsertmytxtfile(tapnote, (char*)"tapnote");
 
   for (int i = 0; i < 16; i++) {
-    INTinsertmytxtfile(smixervknobs[i], "smixer");
+    INTinsertmytxtfile(smixervknobs[i], (char*)"smixer");
   }
 
   for (int i = 0; i < 3; i++) {
-    INTinsertmytxtfile(moduleonfxline[i][0], "effect");
+    INTinsertmytxtfile(moduleonfxline[i][0], (char*)"effect");
   }
 
   for (int i = 0; i < 4; i++) {
-    FLOATinsertmytxtfile(WetMixMasters[i], "wetmixes");
-    FLOATinsertmytxtfile(mixlevelsL[i], "mixlevelsL");
-    INTinsertmytxtfile(mixlevelsM[i], "mixlevelsM");
-    FLOATinsertmytxtfile(wavesfreqs[i], "wavefreq");
-    FLOATinsertmytxtfile(panLs[i], "panL");
-    INTinsertmytxtfile(FMmodulated[i], "modu");
-    INTinsertmytxtfile(Waveformstyped[i], "Waveform");
-    INTinsertmytxtfile(wave1offset[i], "offset");
-    FLOATinsertmytxtfile(phaselevelsL[i], "phaselL");
-    INTinsertmytxtfile(LFOlevel[i], "lfolevel");
-    INTinsertmytxtfile(LFOformstype[i], "lfoType");
-    FLOATinsertmytxtfile(LFOfreqs[i], "lfofreqs");
-    INTinsertmytxtfile(LFOphase[i], "lfoPhase");
-    INTinsertmytxtfile(LFOoffset[i], "lfoOffset");
-    INTinsertmytxtfile(LFOsync[i] + 1, "lfosync");
+    FLOATinsertmytxtfile(WetMixMasters[i], (char*)"wetmixes");
+    FLOATinsertmytxtfile(mixlevelsL[i], (char*)"mixlevelsL");
+    INTinsertmytxtfile(mixlevelsM[i], (char*)"mixlevelsM");
+    FLOATinsertmytxtfile(wavesfreqs[i], (char*)"wavefreq");
+    FLOATinsertmytxtfile(panLs[i], (char*)"panL");
+    INTinsertmytxtfile(FMmodulated[i], (char*)"modu");
+    INTinsertmytxtfile(Waveformstyped[i], (char*)"Waveform");
+    INTinsertmytxtfile(wave1offset[i], (char*)"offset");
+    FLOATinsertmytxtfile(phaselevelsL[i], (char*)"phaselL");
+    INTinsertmytxtfile(LFOlevel[i], (char*)"lfolevel");
+    INTinsertmytxtfile(LFOformstype[i], (char*)"lfoType");
+    FLOATinsertmytxtfile(LFOfreqs[i], (char*)"lfofreqs");
+    INTinsertmytxtfile(LFOphase[i], (char*)"lfoPhase");
+    INTinsertmytxtfile(LFOoffset[i], (char*)"lfoOffset");
+    INTinsertmytxtfile(LFOsync[i] + 1, (char*)"lfosync");
   }
   
     for (int j = 0; j < 6; j++) {
-      INTinsertmytxtfile(adsrlevels[j], "adsr");
+      INTinsertmytxtfile(adsrlevels[j], (char*)"adsr");
     }
   
 
   for (int i = 0; i < all_buttonns; i++) {
-    INTinsertmytxtfile(pot_assignements[i], "pot_assigned");
-    INTinsertmytxtfile(but_channel[i], "but_channel");
-    INTinsertmytxtfile(but_velocity[i], "but_velocity");
+    INTinsertmytxtfile(pot_assignements[i], (char*)"pot_assigned");
+    INTinsertmytxtfile(but_channel[i], (char*)"but_channel");
+    INTinsertmytxtfile(but_velocity[i], (char*)"but_velocity");
   }
   for (int i = 0; i < 15; i++) {
-    INTinsertmytxtfile(muxed_pots[i], "muxed_pots");
-    INTinsertmytxtfile(muxed_channels[i], "muxed_channels");
+    INTinsertmytxtfile(muxed_pots[i], (char*)"muxed_pots");
+    INTinsertmytxtfile(muxed_channels[i], (char*)"muxed_channels");
   }
   for (int i = 0; i < 128; i++) {
 
     Serial.print(", ");
     Serial.println(midiknobassigned[i]);
-    INTinsertmytxtfile(midiknobassigned[i], "Midiknobassigned");
-    INTinsertmytxtfile(Sampleassigned[i], "Sampleassigned");
+    INTinsertmytxtfile(midiknobassigned[i], (char*)"Midiknobassigned");
+    INTinsertmytxtfile(Sampleassigned[i], (char*)"Sampleassigned");
   }
   for (int i = 0; i < 17; i++) {
-    INTinsertmytxtfile(vPots[i], "vPots");
+    INTinsertmytxtfile(vPots[i], (char*)"vPots");
   }
 
   for (int i = 0; i < 3; i++) {
-    INTinsertmytxtfile(chorusVknobs[i], "chorusV");
-    INTinsertmytxtfile(bqstage[i], "bqstage");
-    INTinsertmytxtfile(LFOonfilterz[i], "LFOonfilterz");
+    INTinsertmytxtfile(chorusVknobs[i], (char*)"chorusV");
+    INTinsertmytxtfile(bqstage[i], (char*)"bqstage");
+    INTinsertmytxtfile(LFOonfilterz[i], (char*)"LFOonfilterz");
 
     for (int j = 0; j < 2; j++) {
-      INTinsertmytxtfile(reverbVknobs[i][j], "reverbV");
-      INTinsertmytxtfile(bitcrusherVknobs[i][j], "bitcrusherV");
+      INTinsertmytxtfile(reverbVknobs[i][j], (char*)"reverbV");
+      INTinsertmytxtfile(bitcrusherVknobs[i][j], (char*)"bitcrusherV");
     }
 
     for (int j = 0; j < 3; j++) {
-      INTinsertmytxtfile(mixffilterzVknobs[i][j], "mixffilterzV");
-      INTinsertmytxtfile(ffilterzVknobs[i][j], "ffilterzV");
-      INTinsertmytxtfile(flangerVknobs[i][j], "flangerV");
-      INTinsertmytxtfile(delayVknobs[i][j], "delayV");
+      INTinsertmytxtfile(mixffilterzVknobs[i][j], (char*)"mixffilterzV");
+      INTinsertmytxtfile(ffilterzVknobs[i][j], (char*)"ffilterzV");
+      INTinsertmytxtfile(flangerVknobs[i][j], (char*)"flangerV");
+      INTinsertmytxtfile(delayVknobs[i][j], (char*)"delayV");
     }
     for (int j = 0; j < 4; j++) {
-      INTinsertmytxtfile(granularVknobs[i][j], "granularV");
-      INTinsertmytxtfile(bqtype[i][j], "bqtypeV");
+      INTinsertmytxtfile(granularVknobs[i][j], (char*)"granularV");
+      INTinsertmytxtfile(bqtype[i][j], (char*)"bqtypeV");
       for (int k = 0; k < 3; k++) {
-        INTinsertmytxtfile(bqVpot[i][j][k], "bqVpot");
+        INTinsertmytxtfile(bqVpot[i][j][k], (char*)"bqVpot");
       }
     }
   }

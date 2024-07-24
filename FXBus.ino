@@ -156,7 +156,7 @@ void dolistmainfxlines() {
 }
 
 void MainFxPanel() {
-  byte leselector = (byte)sublevels[2];
+ 
   if (navlevel == 1) {
     reinitsublevels(2);
     navrange = 2;
@@ -172,13 +172,7 @@ void MainFxPanel() {
     dodisplay();
   }
   if (navlevel > 2) {
-
-    // if ( leselector != (int)leeffectID[sublevels[1]] ) {
-    // Serial.print("goingto switchfx") ;
     switchfxes(sublevels[1], sublevels[2]);
-    //  leeffectID[sublevels[1]] = (byte)sublevels[2] ;
-    // }
-
     displayfxVcontrols(fxmoduleiteration - 1);
   }
 }
@@ -435,12 +429,8 @@ void flangerVpanelSelector(byte lefilter) {
   byte centercirclex = 15 + knobradius;
   byte centercircley = 16 + knobradius;
   byte startlex2 = 67;
-
-  float coeffangle;
-  byte startley;
   byte totbartall = 37;
   byte topwbarstart = 16;
-  byte wbarwidth = 9;
   byte wbarwidth2 = 8;
   if (navlevel == 3) {
     navrange = 3;
@@ -486,10 +476,8 @@ void flangerVpanel(byte lefilter) {
   byte ftVcursorpointy;
 
   float coeffangle;
-  byte startley;
   byte totbartall = 37;
   byte topwbarstart = 16;
-  byte wbarwidth = 9;
   byte wbarwidth2 = 8;
   byte barsize;
   byte startlex2 = 67;
@@ -622,12 +610,8 @@ void chorusVpanelSelector(byte lefilter) {
   byte centercirclex = 48 + knobradius;
   byte centercircley = 16 + knobradius;
   byte startlex2 = 67;
-
-  float coeffangle;
-  byte startley;
   byte totbartall = 37;
   byte topwbarstart = 16;
-  byte wbarwidth = 9;
   byte wbarwidth2 = 8;
   if (navlevel == 3) {
     navrange = 1;
@@ -661,10 +645,8 @@ void chorusVpanel(byte lefilter) {
   byte ftVcursorpointy;
 
   float coeffangle;
-  byte startley;
   byte totbartall = 37;
   byte topwbarstart = 16;
-  byte wbarwidth = 9;
   byte wbarwidth2 = 8;
   byte barsize;
   byte startlex2 = 67;
@@ -791,12 +773,8 @@ void granularVpanelSelector(byte lefilter) {
   byte centercirclex = 10 + knobradius;
   byte centercircley = 16 + knobradius;
   const byte startlex2 = 67;
-
-  float coeffangle;
-  byte startley;
   const byte totbartall = 37;
   const byte topwbarstart = 16;
-  const byte wbarwidth = 9;
   const byte wbarwidth2 = 8;
   if (navlevel == 3) {
     navrange = 4;
@@ -850,12 +828,9 @@ void granularVpanel(byte lefilter) {
   byte centercircley = 16 + knobradius;
   byte ftVcursorpointx;
   byte ftVcursorpointy;
-
   float coeffangle;
-  byte startley;
   const byte totbartall = 37;
   const byte topwbarstart = 16;
-  const byte wbarwidth = 9;
   const byte wbarwidth2 = 8;
   byte barsize;
   const byte startlex2 = 67;
@@ -998,12 +973,8 @@ void bitcrusherVpanelSelector(byte lefilter) {
   byte centercirclex = 25 + knobradius;
   byte centercircley = 16 + knobradius;
   byte startlex2 = 67;
-
-  float coeffangle;
-  byte startley;
   byte totbartall = 37;
   byte topwbarstart = 16;
-  byte wbarwidth = 9;
   byte wbarwidth2 = 8;
   if (navlevel == 3) {
     navrange = 2;
@@ -1043,10 +1014,8 @@ void bitcrusherVpanel(byte lefilter) {
   byte ftVcursorpointy;
 
   float coeffangle;
-  byte startley;
   byte totbartall = 37;
   byte topwbarstart = 16;
-  byte wbarwidth = 9;
   byte wbarwidth2 = 8;
   byte barsize;
   byte startlex2 = 67;
@@ -1159,12 +1128,8 @@ void reverbVpanelSelector(byte lefilter) {
   byte centercirclex = 25 + knobradius;
   byte centercircley = 16 + knobradius;
   byte startlex2 = 67;
-
-  float coeffangle;
-  byte startley;
   byte totbartall = 37;
   byte topwbarstart = 16;
-  byte wbarwidth = 9;
   byte wbarwidth2 = 8;
   if (navlevel == 3) {
     navrange = 2;
@@ -1204,10 +1169,8 @@ void reverbVpanel(byte lefilter) {
   byte ftVcursorpointy;
 
   float coeffangle;
-  byte startley;
   byte totbartall = 37;
   byte topwbarstart = 16;
-  byte wbarwidth = 9;
   byte wbarwidth2 = 8;
   byte barsize;
   byte startlex2 = 67;
@@ -1326,12 +1289,8 @@ void delayVpanelSelector(byte lefilter) {
   byte centercirclex = 15 + knobradius;
   byte centercircley = 16 + knobradius;
   byte startlex2 = 67;
-
-  float coeffangle;
-  byte startley;
   byte totbartall = 37;
   byte topwbarstart = 16;
-  byte wbarwidth = 9;
   byte wbarwidth2 = 8;
   if (navlevel == 3) {
     navrange = 3;
@@ -1377,10 +1336,8 @@ void delayVpanel(byte lefilter) {
   byte ftVcursorpointy;
 
   float coeffangle;
-  byte startley;
   byte totbartall = 37;
   byte topwbarstart = 16;
-  byte wbarwidth = 9;
   byte wbarwidth2 = 8;
   byte barsize;
   byte startlex2 = 67;
@@ -1578,7 +1535,6 @@ void filterVpanel(byte lefilter) {
   byte ftVcursorpointy;
 
   float coeffangle;
-  byte startley;
   byte totbartall = 37;
   byte topwbarstart = 16;
   byte wbarwidth = 9;
@@ -1710,14 +1666,10 @@ void filterVpanelSelector(byte lefilter) {
   byte knobradius = 9;
   byte centercirclex = 5 + knobradius;
   byte centercircley = 35 + knobradius;
-
-  float coeffangle;
-  byte startley;
   byte totbartall = 37;
   byte topwbarstart = 16;
   byte wbarwidth = 9;
   int wbarwidth2 = 8;
-  byte barsize;
   byte startlex2 = 67;
   if (navlevel == 3) {
     navrange = 8;
@@ -1843,7 +1795,6 @@ void biquadVpanel(byte lebiquad) {
   byte bqVcursorpointy;
   byte startlex2 = 67;
   float coeffangle;
-  byte startley;
   byte totbartall = 24;
   byte topwbarstart = 16 + 12;
   byte wbarwidth = 9;
@@ -1932,17 +1883,9 @@ void biquadVpanel(byte lebiquad) {
 }
 
 void biquadVpanelSelector(byte lebiquad) {
-
-  byte knobradius = 14;
-  byte centercirclex = 25 + knobradius;
-  byte centercircley = 16 + knobradius;
   byte startlex2 = 67;
-
-  float coeffangle;
-  byte startley;
   byte totbartall = 37;
   byte topwbarstart = 16;
-  byte wbarwidth = 9;
   byte wbarwidth2 = 7;
   if (navlevel == 3) {
     navrange = 4;

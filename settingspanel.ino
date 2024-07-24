@@ -1,7 +1,7 @@
-char usnotes[12][4] = {"C",  "C#", "D",  "Eb", "E",  "F",
+char usnotes[12][5] = {"C",  "C#", "D",  "Eb", "E",  "F",
                        "F#", "G",  "G#", "A",  "Bb", "B"};
 
-char eunotes[12][4] = {"Do",  "Do#", "Re",   "Mib", "Mi",  "Fa",
+char eunotes[12][5] = {"Do",  "Do#", "Re",   "Mib", "Mi",  "Fa",
                        "Fa#", "Sol", "Sol#", "La",  "Sib", "Si"};
 bool AudioInSource;
 float freqtonotes[9 * 12] = {
@@ -17,9 +17,6 @@ float freqtonotes[9 * 12] = {
     4978,  5274,  5588,  5920,  6272,  6645,  7040,  7459,  7902};
 
 void smixerVpanelAction() {
-
-  byte slct = sublevels[3];
-
   if (navlevel == 3) {
     navrange = 128;
     smixervknobs[sublevels[2]] = sublevels[3];
@@ -195,6 +192,7 @@ byte getnotefromfreq(float lafreq) {
       return getclosestnote(i, lafreq);
     }
   }
+  return 0 ;
 }
 
 byte getclosestnote(byte lei, float lafreq) {
@@ -250,8 +248,7 @@ void notefreqloop() {
 }
 
 void arpegiatorVpanelAction() {
-  byte lefilter;
-  if (navlevel == 3) {
+   if (navlevel == 3) {
     // AudioNoInterrupts();
     byte slct = (byte)sublevels[2];
     // fq
@@ -450,7 +447,7 @@ char onboards[all_buttonns][8] = {
     "But 08", "But 09", "But 10", "But 11", "But 12", "But 13", "But 14",
     "But 15", "But 16", "But 17", "But 18", "Cfd",    "Jk X",   "Jk Y"};
 
-char ch_lbl_buffer[3]; // Buffer to hold formatted number
+char ch_lbl_buffer[4]; // Buffer to hold formatted number
 
 void OnBoardVpanelAction() {
   if (navlevel > 3) {

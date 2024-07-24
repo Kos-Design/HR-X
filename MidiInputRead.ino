@@ -118,7 +118,7 @@ void processMIDI(void) {
                       // Serial.println("Clock");
     if (externalticker) {
 
-      Mytickmidi(channel, data1, data2);
+      Mytickmidi();
     }
     break;
 

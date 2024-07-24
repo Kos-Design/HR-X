@@ -709,7 +709,7 @@ const char optionspatternlabels[sizeofoptionspattern][12] PROGMEM = {
 const byte sizeofpatternlistlabels = 8;
 byte le303envlfofadintime = 32;
 byte le303envlfofadouttime = 32;
-char *monthName[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+const char *monthName[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
 byte bitcrusherVknobs[fxiterations][2];
@@ -718,7 +718,8 @@ byte flangerVknobs[fxiterations][3];
 byte delayVknobs[fxiterations][3];
 byte chorusVknobs[fxiterations];
 byte reverbVknobs[fxiterations][2];
-
+SerialFlashFile dummy_flash_file ;
+File dummyier_file ;
 // char* filespath[] = {(char*)"/",};
 const int sizeofsoundlines = 4;
 char soundlines[sizeofsoundlines][12] = {"Synth", "Sampler", "AudioIn",

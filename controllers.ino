@@ -396,8 +396,8 @@ void controlswitcher(int caser, int valu) {
     break;
   case 69:
     // gets the fx connected on 1, 2, or 3rd position on the fx lines
-    ccfxlineselector = moduleonfxline[round(smallfloat * 2.0)][1];
-    Serial.println(ccfxlineselector);
+    //ccfxlineselector = moduleonfxline[round(smallfloat * 2.0)][1];
+   // Serial.println(ccfxlineselector);
     break;
   case 70:
     Serial.println("70");

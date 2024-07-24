@@ -26,7 +26,7 @@ void initializeWaveformsfullpath() {
     for (int j = 0; j < 22; j++) {
       Waveformsfullpath[i][j] = (char)'\0';
       if (j < 9) {
-        Waveformsfullpath[i][j] = (char *)"WAVEFORM/"[j];
+        Waveformsfullpath[i][j] = (char)("WAVEFORM/"[j]);
       }
       if (j < 13) {
         Waveformsname[i][j] = (char)'\0';
@@ -44,16 +44,11 @@ void dowaveformslist() {
   listWaveformsfiles();
 }
 
-void setleWaveformsname(int lefile, char *lefname) {
+void setleWaveformsname(int lefile, const char *lefname) {
 
   int fnamesize = strlen((char *)lefname);
-  // length of Waveformsdir -1
-  int stringsize = 9 + fnamesize;
-
   for (int i = 0; i < fnamesize; i++) {
-
     Waveformsname[lefile][i] = lefname[i];
-
     Waveformsfullpath[lefile][9 + i] = Waveformsname[lefile][i];
     if (i < fnamesize - 4) {
       Waveformsbase[lefile][i] = Waveformsname[lefile][i];

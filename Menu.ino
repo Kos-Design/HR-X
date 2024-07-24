@@ -32,8 +32,6 @@ void displaypanbars(int score) {
 }
 
 void displayoffsetwav(int synthi) {
-  byte sizefreq;
-
   if (navlevel == 4) {
     navrange = 128;
     wave1offset[synthi] = sublevels[4];
@@ -105,7 +103,7 @@ void displayfreqbars(int score) {
       returntonav(3, 9);
     }
   }
-  int sizefreq = map(score, 0, 20, 0, 35);
+  
   wavelinemenuBG(sublevels[2]);
   dolistwavelineparams();
   dodisplay();
