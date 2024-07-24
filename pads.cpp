@@ -72,7 +72,7 @@ int Pads::check_cancel_pad(char bitter, bool state) {
 PadResult Pads::padloop() {
   // put your main code here, to run repeatedly:
   customKeypad.tick();
-  bool state;
+  bool state = 0;
   while (customKeypad.available()) {
     keypadEvent e = customKeypad.read();
     // Serial.print((char)e.bit.KEY);

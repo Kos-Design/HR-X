@@ -13,24 +13,7 @@ void setupscreen() {
   display.clearDisplay();
 }
 
-void debugmidi(char *typemsg = (char *)"midi ", byte channel = 0,
-               byte mnote = 0, byte mvelocity = 0) {
 
-  display.clearDisplay();
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
-  canvastitle.print(typemsg);
-  canvastitle.print(", c:");
-  canvastitle.print(channel);
-  canvastitle.print(", n:");
-  canvastitle.print(mnote);
-  canvastitle.print(", v:");
-  canvastitle.print(mvelocity);
-
-  dodisplay();
-}
 
 void displayadsrgraph() {
   if (sublevels[2] == 2) {

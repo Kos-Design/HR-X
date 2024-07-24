@@ -31,7 +31,7 @@ void initializePatternfilefullpath() {
     for (int j = 0; j < 22; j++) {
       Patternfilefullpath[i][j] = (char)'\0';
       if (j < 10) {
-        Patternfilefullpath[i][j] = (char *)"PATTERNS/"[j];
+        Patternfilefullpath[i][j] = (char)("PATTERNS/"[j]);
       }
       if (j < 13) {
         Patternfilename[i][j] = (char)'\0';
@@ -46,7 +46,6 @@ void initializePatternfilefullpath() {
 void setlePatternname(int lefile, char *lefname) {
 
   int fnamesize = (int)(strlen((char *)lefname));
-  int stringsize = 9 + fnamesize;
   for (int i = 0; i < fnamesize; i++) {
 
     Patternfilename[lefile][i] = lefname[i];
@@ -72,7 +71,7 @@ void listPatternfiles() {
       }
 
       if (!subentry.isDirectory()) {
-        setlePatternname(numberofPatternfiles, subentry.name());
+        setlePatternname(numberofPatternfiles, (char *)subentry.name());
         numberofPatternfiles++;
       }
       subentry.close();
@@ -100,7 +99,7 @@ void initializeSynthPresetfullpath() {
     for (int j = 0; j < 28; j++) {
       SynthPresetfullpath[i][j] = (char)'\0';
       if (j < 14) {
-        SynthPresetfullpath[i][j] = (char *)"PRESETS/SYNTH/"[j];
+        SynthPresetfullpath[i][j] = (char)("PRESETS/SYNTH/"[j]);
       }
       if (j < 13) {
         SynthPresetname[i][j] = (char)'\0';
@@ -121,8 +120,6 @@ void dopresetlist() {
 void setleSynthPresetname(int lefile, char *lefname) {
 
   int fnamesize = strlen((char *)lefname);
-  int stringsize = 14 + fnamesize;
-
   for (int i = 0; i < fnamesize; i++) {
 
     SynthPresetname[lefile][i] = lefname[i];
@@ -148,7 +145,7 @@ void listSynthPresetfiles() {
       }
 
       if (!subentry.isDirectory()) {
-        setleSynthPresetname(numberofSynthPresets, subentry.name());
+        setleSynthPresetname(numberofSynthPresets, (char *)subentry.name());
         numberofSynthPresets++;
       }
       subentry.close();

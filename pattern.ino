@@ -527,7 +527,7 @@ void shiftnotesCCright(int leshifter) {
           event1controllers[i][j] = event1controllers[i][j - 1];
         }
         if ((j > 0) && (j < pbars - 1)) {
-          event1controllers[i][j] = event1notesOff[i][j - 1];
+          event1controllers[i][j] = event1controllers[i][j - 1];
         }
 
         if (j == 0) {

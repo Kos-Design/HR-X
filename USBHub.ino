@@ -2,7 +2,7 @@
 
 USBHost myusb;
 USBHub hub1(myusb);
-USBHub hub2(myusb);
+//USBHub hub2(myusb);
 MIDIDevice midi1(myusb);
 
 void loopusbHub() {
@@ -38,4 +38,24 @@ void setuphubusb() {
   // This generic System Real Time handler is only used if the
   // more specific ones are not set.
   //  midi1.setHandleRealTimeSystem(myRealTimeSystem);
+}
+
+
+void debugmidi(char *typemsg = (char *)"midi ", byte channel = 0,
+               byte mnote = 0, byte mvelocity = 0) {
+
+  display.clearDisplay();
+  canvastitle.fillScreen(SSD1306_BLACK);
+  canvasBIG.fillScreen(SSD1306_BLACK);
+  canvastitle.setCursor(0, 0);
+  canvastitle.setTextSize(1);
+  canvastitle.print(typemsg);
+  canvastitle.print(", c:");
+  canvastitle.print(channel);
+  canvastitle.print(", n:");
+  canvastitle.print(mnote);
+  canvastitle.print(", v:");
+  canvastitle.print(mvelocity);
+
+  dodisplay();
 }
