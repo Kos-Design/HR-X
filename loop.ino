@@ -178,7 +178,6 @@ void loop() {
   }
 
   // usbhost queries
-  //loopmidihost();
   loopusbHub();
 
   if ((millis() % control_lag) == 0) {

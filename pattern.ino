@@ -2305,7 +2305,8 @@ void parsepattern(int lapatterne) {
     leparsed[2] = (char)'\0';
     leparsed[1] = (char)'1';
     leparsed[0] = (char)'1';
-    if (parserp.Search('Off')) {
+    //TODO dumb way to trigger, looking for f to find 'Off' string...
+    if (parserp.Search('f')) {
       Serial.println(" Off parsing start");
       parserp.Reset();
       lenint = 0;
@@ -2399,8 +2400,8 @@ void parsepattern(int lapatterne) {
     previousTp = 5;
     leparsed[1] = (char)'z';
     leparsed[0] = (char)'z';
-
-    if (parserp.Search('On')) {
+    //TODO dumb way to trigger, looking for n to find 'On' string...
+    if (parserp.Search('n')) {
       Serial.println(" On parsing start");
       parserp.Reset();
       lenint = 0;
@@ -2499,8 +2500,8 @@ void parsepattern(int lapatterne) {
     previousTp = 5;
     leparsed[1] = (char)'z';
     leparsed[0] = (char)'z';
-
-    if (parserp.Search('Pa')) {
+    //TODO dumb way to trigger, looking for a to find 'Pa' string...
+    if (parserp.Search('a')) {
       Serial.println("CC parsing start");
       parserp.Reset();
       lenint = 0;
