@@ -233,8 +233,8 @@ void controlswitcher(int caser, int valu) {
 
     break;
   case 39:
+    getlinerwithoutevents();
     patrecord = 1;
-    // record
     startticker();
 
     break;
@@ -540,8 +540,15 @@ void controlswitcher(int caser, int valu) {
 
   case 97:
     // Audio In level
+
+    AudioNoInterrupts();
     InMixL.gain(1, smallfloat);
     InMixR.gain(1, smallfloat);
+
+    MasterL.gain(2, smallfloat);
+    MasterR.gain(2, smallfloat);
+
+    AudioInterrupts();
     break;
 
   case 98:
@@ -587,16 +594,20 @@ void controlswitcher(int caser, int valu) {
     break;
   case 107:
     // type2
+      clearlapattern();
 
+      parsepattern(0);
     //.gain(2,smallfloat);
     break;
 
   case 108:
+  parsefile(0);
 
     break;
   case 109:
-  start_sample_in_place();
-
+  
+      start_sample_in_place();
+  
     break;
   case 110:
     smixervknobs[0] = byte(smallfloat * 128.0);

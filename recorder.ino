@@ -565,6 +565,12 @@ void stopRecordingR() {
     Serial.println("stopRecordingR");
   }
 }
+void auto_stop_rec(){
+  if (millis() - tocker > 10000) {
+        rec_looping = false ;
+        end_sample_in_place();
+      }
+}
 
 void continue_looper(){
   
@@ -573,30 +579,39 @@ void continue_looper(){
       //      looper.write((byte*)queue1.readBuffer(), 256);
        //     queue1.freeBuffer();
       //  }
-      memcpy(bufferL, queue1.readBuffer(), 256);
+      memcpy(bufferLoop, queue1.readBuffer(), 256);
       queue1.freeBuffer();
-      memcpy(bufferL + 256, queue1.readBuffer(), 256);
+      memcpy(bufferLoop + 256, queue1.readBuffer(), 256);
       queue1.freeBuffer();
-      looper.write(bufferL, 512);
+      looper.write(bufferLoop, 512);
   }
+  auto_stop_rec();
 }
 
 void start_sample_in_place() {
+  if (!just_pressed_rec){
+
+      just_pressed_rec = true ;
+    tocker = millis();
    Serial.println("looping");
-  tocker = millis();
+  
   makenewloopname();
-  if (SD.exists((char *)newloopedpath)) {
-      SD.remove((char *)newloopedpath);
+  if (SD.exists((const char *)newloopedpath)) {
+      SD.remove((const char *)newloopedpath);
     }
-    looper = SD.open((char *)newloopedpath, FILE_WRITE);
+    looper = SD.open((const char *)newloopedpath, FILE_WRITE);
   if (looper) {
+    Serial.println("start rec looper ");
+    Serial.print(looper.name());
+    Serial.println("");
     AudioNoInterrupts();
     queue1.begin();
     AudioInterrupts();
     rec_looping = true ;
   } else {
-      String formattedString = "error opening " + String((char *)newloopedpath);
+      String formattedString = "error opening " + String((const char *)newloopedpath);
       Serial.println(formattedString);
+      rec_looping = false ;
     }
     
 //start at pat pos
@@ -608,9 +623,13 @@ void start_sample_in_place() {
 //clear locks
   
 }
+}
 
 void end_sample_in_place() {
-  
+    if (looper) {
+      Serial.println("stop rec looper ");
+    Serial.print(looper.name());
+    Serial.println("");
     AudioNoInterrupts();
     queue1.end();
     AudioInterrupts();
@@ -625,5 +644,28 @@ void end_sample_in_place() {
 
     dosoundlist();
     }
+    just_pressed_rec = false ;
+}
 
+  //rien  SOUNDSET/REC/WAV_01.WAV
+  // in setup : 
+  // recorder.begin("SOUNDSET/REC/WAV_01.WAV");
   
+void wav_record_loop() {
+  // Check if the recorder is active and has new data
+  if (true) {
+ 
+}
+  //}
+}
+
+void startVHSRecording() {
+  //recorder.start();
+}
+
+void stopVHSRecording() {
+ // recorder.stop();
+  Serial.println("Recording stopped");
+}
+
+ 

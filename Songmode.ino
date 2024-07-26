@@ -457,7 +457,7 @@ void findnextSongname() {
 
 void playdasong() {
   if (!externalticker) {
-    //metro0.reset();
+    metro0.reset();
   }
   songplaying = 1;
   loadsongpattern();

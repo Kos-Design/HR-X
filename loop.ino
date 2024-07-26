@@ -72,9 +72,8 @@ byte itr = 0;
 int c_change;
 int cc_note_num;
 
-void loop() {
-  if (millis() % (control_lag + 1) == 0) {
-  PadResult pad_result = Pads.padloop();
+void check_pads() {
+    PadResult pad_result = Pads.padloop();
   int paddered =
       arranged_buttons[pad_result.pad_result[0]][pad_result.pad_result[1]];
   cc_note_num = pot_assignements[11 + paddered] - 128;
@@ -138,51 +137,10 @@ void loop() {
              (cc_note_num > 0)) {
     MaNoteOff(but_channel[11 + paddered], cc_note_num, 0);
   }
-  }
-  if (initdone) {
-     /*
-     if (!stoptick) {
-      
-        if (!externalticker && metro0.check() == 1) {
-          // Serial.println("from loop tick");
-          tick();
-        }
-      }
-      */
-    loopRecorder();
-    if (millis() % 2 == 0) {
-      
-     
-      /*if (metro303.check() == 1) {
-  
-        
-      }*/
-       if ( rec_looping ) {
-      continue_looper();
-      if (millis() - tocker > 10000) {
-        rec_looping = false ;
-        end_sample_in_place();
-      }
-    }
-    }
-  if (millis() % display_lag == 0) {
-   
-    if (noteprint) {
-      printlanote();
-    }
-    updatebuttons();
-    evalinputs();
-    evalrota();
-  }
-    
-  }
-
-  // usbhost queries
-  loopusbHub();
-
-  if ((millis() % control_lag) == 0) {
-
-    c_change = Muxer.read_val(itr);
+}
+void check_pots() {
+  //checking one pot per loop as it is fast
+     c_change = Muxer.read_val(itr);
     if (c_change > 0) {
 
       if (itr < 15) {
@@ -218,6 +176,58 @@ void loop() {
     if (itr >= 16) {
       itr = 0;
     }
+}
+void loop() {
+  //wav_record_loop();
+  if (!stoptick) {
+  if ( bool(metro0.check())){
+    advance_tick();
+  }
+  }
+  if (millis() % (control_lag + 1) == 0) {
+    check_pads();
+  }
+ 
+     /*
+     if (!stoptick) {
+      
+        if (!externalticker && metro0.check() == 1) {
+          // Serial.println("from loop tick");
+          tick();
+        }
+      }
+      */
+
+    //loopRecorder();
+    //if (millis() % 2 == 0) {
+      
+     
+      /*if (metro303.check() == 1) {
+  
+        
+      }*/
+       if ( rec_looping ) {
+      continue_looper();
+      
+    }
+   // }
+  if (millis() % display_lag == 0) {
+   
+    if (noteprint) {
+      printlanote();
+    }
+    updatebuttons();
+    evalinputs();
+    evalrota();
+  }
+    
+  
+
+  // usbhost queries
+  loopusbHub();
+
+  if ((millis() % control_lag) == 0) {
+      check_pots() ;
   }
   // hdd_check();
 }

@@ -5,7 +5,7 @@ Muxer Muxer;
 // adcHighPassFilterDisable();
 bool le_303_On ;
 
-//#include <Metro.h>
+#include <Metro.h>
 // int startccrecordpos;
 // int stopccrecordpos;
 const byte sizeofnoCCrecord = 11;
@@ -23,12 +23,12 @@ int numberoftaps;
 int tapstime[5] = {0};
 float tapaverage;
 int millitickinterval = 115;
-//Metro metro0 = Metro(millitickinterval);
+Metro metro0 = Metro(millitickinterval);
 //Metro metro303 = Metro(25);
-#include <IntervalTimer.h>
+//#include <IntervalTimer.h>
 
 
-IntervalTimer metro1;
+//IntervalTimer metro1;
 //IntervalTimer metro3;
 //float interval_ms = (60000.0 /4.0) / 130.0;  // Calculate the interval in milliseconds
 float interval_ms = millitickinterval ;
@@ -74,6 +74,12 @@ int le303filterzrange = 10000;
 // float targetBPM = 120.0 ;
 float BPMs = (60000.0 / millitickinterval) / 4.0;
 const int pbars = 32;
+
+float BPM = 130.0;
+unsigned long MICROSECONDS_PER_MINUTE = 60000000;
+unsigned long MICROSECONDS_PER_BEAT = MICROSECONDS_PER_MINUTE / BPM;
+unsigned long MICROSECONDS_PER_MIDI_CLOCK = MICROSECONDS_PER_BEAT / 4; // MIDI clock ticks 24 times per beat
+
 // not sure if used
 unsigned long latimeline;
 // unsigned long latimelineshifter = ((60000/19200)*pbars) ;
@@ -98,7 +104,7 @@ byte muxed_channels[15] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 bool recorderstop;
 bool recorderrecord;
 bool recorderplay;
-
+bool started_patrecord ;
 bool patternOn;
 bool trace_waveform = false;
 byte but_channel[all_buttonns] = {
@@ -245,7 +251,8 @@ const int nombreofliners = 8;
 const int nombreofSamplerliners = 16;
 const int patternlines = 4;
 
-//EXTMEM byte bufferLoop[512];
+byte bufferLoop[512];
+//not used
 EXTMEM byte bufferL[512];
 EXTMEM byte bufferR[512];
 
@@ -261,7 +268,7 @@ int availablliner;
 // unsigned long capturedlenghtnote[nombreofliners][2];
 // int startingPosofNoteonliner[nombreofliners];
 int tickposition;
-bool stoptick;
+bool stoptick = true;
 
 bool arpegiatorOn = 0;
 // 8 is off
@@ -344,7 +351,7 @@ EXTMEM byte tempevent2notes1[nombreofSamplerliners][pbars][3];
 // EXTMEM unsigned int length2pbars[nombreofSamplerliners][pbars];
 // EXTMEM unsigned int templength2pbars[nombreofSamplerliners][pbars];
 EXTMEM byte event2notesOff[pbars][3];
-
+bool just_pressed_rec = false ;
 int howmanyactiveccnow;
 int tickerlasttick;
 // EXTMEM short activeevent1controllers[128][pbars];
@@ -684,7 +691,7 @@ const char ControlList[allfxes][21] = {
     "bqtype[i][bqstage]", "Audio In level", "Free", "Free",
     // 100
     "Pat. Save", "Pat. Load", "Free", "Free", "Free", "Phase1", "Wtype2",
-    "Wmix2", "Free", "Free", "Looper",
+    "free","Load Pat0", "preset 0", "Loop recorder", 
     // 110
     "Sp.Track 1", "Sp.Track 2", "Sp.Track 3", "Sp.Track 4", "Sp.Track 5",
     "Sp.Track 6", "Sp.Track 7", "Sp.Track 8", "Sp.Track 9", "Sp.Track 10",
@@ -697,6 +704,7 @@ const char ControlList[allfxes][21] = {
 float WetMixMasters[4] = {1.0, 0.0, 0.0, 0.0};
 
 bool patterninparse;
+
 
 char leparsed[3];
 short lecaractere;

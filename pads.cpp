@@ -86,7 +86,7 @@ PadResult Pads::padloop() {
     PadResult result = {e.bit.ROW, e.bit.COL, byte(state)};
 
     return result;
-    delay(1);
+    //delay(1);
   }
   return (PadResult){(byte)99, (byte)99, (byte)99};
 }

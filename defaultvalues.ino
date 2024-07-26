@@ -259,7 +259,7 @@ void setupdefaultvalues() {
   // FX Wet
   midiknobassigned[20] = 6;
   midiknobassigned[21] = 7;
-  midiknobassigned[22] = 8;
+  midiknobassigned[22] = 97;
 
   // pan on crossfader
   midiknobassigned[10] = 48;
@@ -267,20 +267,27 @@ void setupdefaultvalues() {
   // LFO freq & level
   midiknobassigned[23] = 55;
   midiknobassigned[24] = 53;
+  pot_assignements[all_buttonns-4] = 100 ;
+  pot_assignements[all_buttonns-13] = 101 ;
+  pot_assignements[all_buttonns-18] = 111 ;
+  midiknobassigned[100] = 107;
+  midiknobassigned[101] = 108;
+  midiknobassigned[111] = 109;
+  
 
   // USB Line in
   InMixL.gain(0, 0);
   InMixR.gain(0, 0);
   
   // LineIn
-  InMixL.gain(1, 0);
-  InMixR.gain(1, 0);
+  InMixL.gain(1,1.0);
+  InMixR.gain(1, 1.0);
 
-  LineInPreAmpL.gain(1);
-  LineInPreAmpR.gain(1);
+  LineInPreAmpL.gain(1.0);
+  LineInPreAmpR.gain(1.0);
 
-  MasterL.gain(2, 1);
-  MasterR.gain(2, 1);
+  MasterL.gain(2, 1.0);
+  MasterR.gain(2, 1.0);
   // superseeded by wetness mix
   //  MasterL.gain(2, 1);
   //  MasterR.gain(2, 1);

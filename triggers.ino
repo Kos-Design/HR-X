@@ -191,7 +191,7 @@ void MaNoteOn(byte channel, byte data1, byte data2) {
         stoptick = 0;
         // arpegiatethis();
         // initialize arpeg
-        // metro0.reset();
+         metro0.reset();
         arpegiatethis(data1, data2, larpegeline);
       }
     }
@@ -1144,7 +1144,7 @@ void lineroff(int liner, byte data1) {
 }
 void Mytickmidi() {
   // Serial.println("mclock");
-  tick();
+  advance_tick();
 }
 void moncontrollercc(byte channel, byte control, byte value) {
   if (value < 128) {

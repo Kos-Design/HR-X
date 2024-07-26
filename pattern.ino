@@ -1,9 +1,50 @@
+unsigned long lastMicros = micros();
+
+void elapse_one_tick(){
+     
+      while (!bpm_looper()){
+        ;;
+    }
+    
+}
+
+int clean_cursor(int pos){
+        
+      if (pos >= pbars ) {
+        pos = 0 ;
+        return pos;
+      } else if (pos < 0 ) {
+        pos = pbars - 1 ;
+        return pos;
+      }
+      return pos;
+}
+
+void advance_tick(){
+    tickposition = clean_cursor(tickposition+1);
+    //TODO : remove tickerlasttick logic
+    tickerlasttick = millis();
+    tick();
+}
+
+bool bpm_looper() {
+   unsigned long currentMicros = micros();
+  unsigned long elapsedMicros = currentMicros - lastMicros;
+
+  // Generate MIDI Clock pulse - should be 1/24th of a beat but we do 4
+  if (elapsedMicros >= MICROSECONDS_PER_MIDI_CLOCK) {
+    lastMicros = currentMicros; // Reset the timer
+    
+    return true;
+  }
+   return false; 
+}
 
 void intervaltick() {
   //Serial.println(".");
   if (!stoptick){
     
-    tick();
+    advance_tick();
   }
     
 }
@@ -11,22 +52,8 @@ void intervaltick() {
 void metro30(){
   pseudo303();
  }
- 
-void tick() {
 
-  tickerlasttick = millis();
-  // metronomer();
-
-  tickposition++;
-
-  if (tickposition > pbars - 1) {
-    tickposition = 0;
-  }
-  if (patrecord && tickposition == 0) {
-    getlinerwithoutevents();
-    Serial.println(offsetliner);
-  }
-  if (arpegiatorOn) {
+void arpegiate() {
     for (int i = 0; i < nombreofarpeglines; i++) {
       calledarpegenote[i][0] = 0;
       for (int j = 0; j < nombreofliners; j++) {
@@ -52,10 +79,10 @@ void tick() {
 
       // allarpegeoffs();
     }
-  }
-  if (patternOn == 1) {
+}
 
-    if (!stoptick) {
+void use_pattern(){
+      if (!stoptick) {
       doesccgonnachangeinpatfromnow(); 
     }
 
@@ -74,9 +101,11 @@ void tick() {
       }
     }
     
-  }
+}
+
+void update_song_player() {
   if (tickposition == pbars - 1) {
-    if (songplaying) {
+    
       if (songplayhead < numberofpatonsong - 1) {
         songplayhead++;
       } else {
@@ -85,7 +114,22 @@ void tick() {
 
       loadsongpattern();
     }
+  
+}
+
+void tick() {
+
+  if (arpegiatorOn) {
+      arpegiate();
   }
+  if (patternOn) {
+    use_pattern();
+  }
+  
+  if (songplaying) {
+    update_song_player();
+  }
+  
 }
 
 void displayPatternmenu() {
@@ -1106,7 +1150,7 @@ void stopticker() {
 }
 void startticker() {
   if (!externalticker) {
-   // metro0.reset();
+    metro0.reset();
   }
   stoptick = 0;
   patternOn = 1;
@@ -1849,7 +1893,7 @@ void synth_event_cells() {
       Serial.println("preview!");
       initiateasynthliner(sublevels[navlevelpatedit + 2],
                           byte(mixlevelsM[1] * 127));
-      delay(300);
+      //delay(300);
       shutlineroff(sublevels[navlevelpatedit + 2]);
       previousnavlevel = navlevel;
     }

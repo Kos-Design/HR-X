@@ -16,12 +16,12 @@ void Muxer::start() {
 }
 int Muxer::get_raw(int iterer) {
   my_mux.channel(iterer);
-  delay(1);
+  //delay(1);
   return analogRead(g_common_pin);
 }
 int Muxer::read_val(int iterer) {
   my_mux.channel(iterer);
-  delay(1);
+  //delay(1);
   val = analogRead(g_common_pin);
   // return val ;
   if ((val > pots_previous[iterer] + 6) || (val < pots_previous[iterer] - 6)) {
