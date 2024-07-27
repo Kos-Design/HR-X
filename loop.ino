@@ -31,9 +31,9 @@ void pseudo303() {
       // }
     }
 
-    if (!stoptick) {
-      checkall128cc();
-    }
+   // if (!stoptick) {
+   //   checkall128cc();
+   // }
 
     if (tb303[i] == 1) {
 
@@ -68,10 +68,6 @@ void pseudo303() {
   }
 }
 
-byte itr = 0;
-int c_change;
-int cc_note_num;
-
 void check_pads() {
     PadResult pad_result = Pads.padloop();
   int paddered =
@@ -86,7 +82,7 @@ void check_pads() {
     if (sublevels[0] == 4 && navlevel >=5 && sublevels[1] == 0) {
       if (paddered == 17) {
         Serial.println(Muxer.get_raw(6));
-        event1notes1[sublevels[2]][sublevels[5]][2] = (int)((Muxer.get_raw(6)/1024.0)*128);
+        synth_partition[sublevels[2]][sublevels[5]][2] = (int)((Muxer.get_raw(6)/1024.0)*128);
         lemenuroot();
       }
     }
@@ -179,11 +175,13 @@ void check_pots() {
 }
 void loop() {
   //wav_record_loop();
-  if (!stoptick) {
-  if ( bool(metro0.check())){
+ // if (!stoptick) {
+  if ( !stoptick ) {
+  if (blinkTimer.TRIGGERED) {
     advance_tick();
+ }
   }
-  }
+ // }
   if (millis() % (control_lag + 1) == 0) {
     check_pads();
   }
@@ -216,7 +214,7 @@ void loop() {
     if (noteprint) {
       printlanote();
     }
-    updatebuttons();
+    
     evalinputs();
     evalrota();
   }

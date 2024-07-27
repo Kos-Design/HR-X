@@ -22,7 +22,7 @@ short getNewavailableliner() {
 }
 bool linerhasevents(byte liner) {
   for (int i = 0; i < pbars; i++) {
-    if (event1notes1[liner][i][1] != 0) {
+    if (synth_partition[liner][i][1] != 0) {
       // Serial.println(offsetliner);
       return 1;
     }
@@ -191,7 +191,7 @@ void MaNoteOn(byte channel, byte data1, byte data2) {
         stoptick = 0;
         // arpegiatethis();
         // initialize arpeg
-         metro0.reset();
+         //metro0.reset();
         arpegiatethis(data1, data2, larpegeline);
       }
     }
@@ -649,7 +649,7 @@ bool retestarpege() {
 
 bool isalreadysamenoteinpat(byte lenote) {
   for (int i = 0; i < nombreofliners; i++) {
-    if (lenote == event1notes1[i][tickposition][1]) {
+    if (lenote == synth_partition[i][tickposition][1]) {
       return 1;
     }
   }
@@ -664,31 +664,31 @@ int tick_for_that(int tick){
 }
 void recordmidinotes(int liner, byte channel, byte lenote, byte velocity) {
   int pos = tick_for_that(tickposition);
-  event1startpos[liner] = pos;
-  evented1[0][tickposition] = 1;
-  event1notes1[liner][pos][1] = lenote;
-  event1notes1[liner][pos][2] = velocity;
-  event1notes1[liner][pos][0] = channel;
+  synth_start_tpos[liner] = pos;
+  track_cells[0][tickposition] = 1;
+  synth_partition[liner][pos][1] = lenote;
+  synth_partition[liner][pos][2] = velocity;
+  synth_partition[liner][pos][0] = channel;
   
 }
 bool isalreadysameoffinpat(byte lanotee, byte modeselect) {
   if (modeselect == 0) {
     for (int i = 0; i < nombreofliners; i++) {
-      if (lanotee == event1notesOff[i][tickposition + 1][1]) {
+      if (lanotee == synth_off_pat[i][tickposition + 1][1]) {
         return 1;
       }
     }
   }
   if (modeselect == 1) {
     for (int i = 0; i < nombreofliners; i++) {
-      if (lanotee == event1notesOff[i][0][1]) {
+      if (lanotee == synth_off_pat[i][0][1]) {
         return 1;
       }
     }
   }
   if (modeselect == 2) {
     for (int i = 0; i < nombreofliners; i++) {
-      if (lanotee == event1notesOff[i][tickposition][1]) {
+      if (lanotee == synth_off_pat[i][tickposition][1]) {
         return 1;
       }
     }
@@ -697,20 +697,20 @@ bool isalreadysameoffinpat(byte lanotee, byte modeselect) {
 }
 void recordmidinotesOff(int liner, byte channel, byte lenote, byte velocity) {
 int pos = tick_for_that(tickposition);
-  if (event1startpos[liner] != pos) {
-    event1notesOff[liner][pos][1] = lenote;
-    event1notesOff[liner][pos][2] = 0;
-    event1notesOff[liner][pos][0] = channel;
+  if (synth_start_tpos[liner] != pos) {
+    synth_off_pat[liner][pos][1] = lenote;
+    synth_off_pat[liner][pos][2] = 0;
+    synth_off_pat[liner][pos][0] = channel;
 
   } else {
     if (pos == pbars - 1) {
-      event1notesOff[liner][0][1] = lenote;
-      event1notesOff[liner][0][2] = 0;
-      event1notesOff[liner][0][0] = channel;
+      synth_off_pat[liner][0][1] = lenote;
+      synth_off_pat[liner][0][2] = 0;
+      synth_off_pat[liner][0][0] = channel;
     } else {
-      event1notesOff[liner][pos + 1][1] = lenote;
-      event1notesOff[liner][pos + 1][2] = 0;
-      event1notesOff[liner][pos + 1][0] = channel;
+      synth_off_pat[liner][pos + 1][1] = lenote;
+      synth_off_pat[liner][pos + 1][2] = 0;
+      synth_off_pat[liner][pos + 1][0] = channel;
     }
   }
 
@@ -719,7 +719,7 @@ int pos = tick_for_that(tickposition);
 bool isalreadysameSamplerinpat(byte lenote,int tick) {
 
   for (int i = 0; i < nombreofSamplerliners; i++) {
-    if (lenote == event2notes1[i][tick][1]) {
+    if (lenote == sampler_partition[i][tick][1]) {
       return 1;
     }
   }
@@ -729,21 +729,31 @@ bool isalreadysameSamplerinpat(byte lenote,int tick) {
 void recordmidinotes2(int liner, byte channel, byte lenote, byte velocity) {
 int pos = tick_for_that(tickposition);
   if (!isalreadysameSamplerinpat(lenote,pos)) {
-    evented1[1][pos] = 1;
-    event2notes1[liner][pos][1] = lenote;
-    event2notes1[liner][pos][2] = velocity;
-    event2notes1[liner][pos][0] = channel;
+    track_cells[1][pos] = 1;
+    sampler_partition[liner][pos][1] = lenote;
+    sampler_partition[liner][pos][2] = velocity;
+    sampler_partition[liner][pos][0] = channel;
   }
   // startlengthmesure(liner);
 }
 void deactivatelesccsfrompos(int lapos, byte lanote) {
   for (int i = lapos + 1; i < pbars; i++) {
-    event1controllers[int(lanote)][i] = 128;
+    cc_partition[int(lanote)][i] = 128;
   }
 }
 void recordCCmidinotes(byte channel, byte lanote, byte leccval) {
   int pos = tick_for_that(tickposition);
-  event1controllers[lanote][pos] = leccval;
+  for (int i = 0 ; i < 32 ; i++){
+    if (recorded_ccs[i] == 0 || recorded_ccs[i] == lanote ) {
+        recorded_ccs[i] = lanote ;
+        pots_controllers[i][pos][0] = lanote;
+        pots_controllers[i][pos][0] = leccval;
+        break;
+    }
+  }
+  
+  cc_partition[lanote][pos] = leccval;
+
 
 }
 
@@ -751,8 +761,8 @@ bool terminateorphanseventsOff(int linei, byte lanotef) {
   //---------------if no notes on are even matching remove event off
 
   for (int i = 0; i < pbars; i++) {
-    if (event1notes1[linei][i][1] == lanotef) {
-      Serial.print(event1notes1[linei][i][1]);
+    if (synth_partition[linei][i][1] == lanotef) {
+      Serial.print(synth_partition[linei][i][1]);
       Serial.print("=");
       Serial.print(lanotef);
 
@@ -767,7 +777,7 @@ bool terminateorphanseventsOff(int linei, byte lanotef) {
 bool testforaNoteOninbetween(int linei, int lapos0, int lapos2, byte lanotef) {
 
   for (int i = lapos0; i < lapos2; i++) {
-    if (event1notes1[linei][i][1] == lanotef) {
+    if (synth_partition[linei][i][1] == lanotef) {
       return 1;
     }
   }
@@ -778,7 +788,7 @@ int anothernOffisonafter(int linei, byte lanotee, int lapos) {
   // aoffresultarray[1] = 32 ;
 
   for (int i = lapos; i < pbars - 1; i++) {
-    if (event1notesOff[linei][i + 1][1] == lanotee) {
+    if (synth_off_pat[linei][i + 1][1] == lanotee) {
       // 0 is liner
       // aoffresultarray[0] = linei ;
       // aoffresultarray[1] = i+1 ;
@@ -811,11 +821,11 @@ void clearbouncedoffsafters(int linei, byte lanotef, int lapos) {
         // Serial.println(lapos);
         // Serial.println((int)resultNoteOninbetween);
         // cleardoublon
-        event1notesOff[linei][lapos][0] = (byte)0;
-        event1notesOff[linei][lapos][1] = (byte)0;
+        synth_off_pat[linei][lapos][0] = (byte)0;
+        synth_off_pat[linei][lapos][1] = (byte)0;
       }
-      if ((lapos == 0) && ((event1notesOff[linei][pbars - 1][1] == lanotef) &&
-                           event1notes1[linei][pbars - 1][1] != lanotef)) {
+      if ((lapos == 0) && ((synth_off_pat[linei][pbars - 1][1] == lanotef) &&
+                           synth_partition[linei][pbars - 1][1] != lanotef)) {
         // check before if no other On note if none found terminate that off
         //  Serial.print(" clearing the first off");
         clearsaniloop = 0;
@@ -824,14 +834,14 @@ void clearbouncedoffsafters(int linei, byte lanotef, int lapos) {
         //   Serial.print(linei);
         //    Serial.print(" position ");
         //   Serial.println(lapos);
-        event1notesOff[linei][0][0] = (byte)0;
-        event1notesOff[linei][0][1] = (byte)0;
+        synth_off_pat[linei][0][0] = (byte)0;
+        synth_off_pat[linei][0][1] = (byte)0;
       }
     }
     if (!resultNoteOninbetween) {
 
       //  Serial.print("clear dupli note off ");
-      //  Serial.println((int)event1notesOff[linei][laposoftheNofafter][1]);
+      //  Serial.println((int)synth_off_pat[linei][laposoftheNofafter][1]);
       clearsaniloop = 0;
       //    Serial.print(" liner,pos = ");
       //  Serial.print(linei);
@@ -840,8 +850,8 @@ void clearbouncedoffsafters(int linei, byte lanotef, int lapos) {
       //   Serial.print(" note On in between = ");
       //  Serial.println((int)resultNoteOninbetween);
       // cleardoublon
-      event1notesOff[linei][laposoftheNofafter][0] = (byte)0;
-      event1notesOff[linei][laposoftheNofafter][1] = (byte)0;
+      synth_off_pat[linei][laposoftheNofafter][0] = (byte)0;
+      synth_off_pat[linei][laposoftheNofafter][1] = (byte)0;
     }
   }
   // if no Nof are next check is done
@@ -853,112 +863,31 @@ void clearbouncedoffsafters(int linei, byte lanotef, int lapos) {
 }
 bool checkifnonbefore(int linei, byte lanotee, int lapos) {
   for (int i = lapos - 1; i >= 0; i--) {
-    if (event1notes1[linei][i][1] == lanotee) {
+    if (synth_partition[linei][i][1] == lanotee) {
       return 1;
     }
   }
   return 0;
 }
-void countAllnonnofs() {
 
-  for (int linei = 0; linei < nombreofliners; linei++) {
-    countnofandnons(linei);
-  }
-}
-
-int anoteOffisnext(int linei, byte lanotee, int lapos) {
-
-  int tempresult = (int)pbars;
-
-  for (int i = lapos; i < pbars - 1; i++) {
-    if (event1notesOff[linei][i + 1][1] == lanotee) {
-      // 0 is liner
-      ;
-
-      return i + 1;
-    }
-  }
-
-  return tempresult;
-}
-
-void countnofandnons(int linei) {
-  clearsaniloop = 0;
-
-  int lesnoffs = 0;
-  int lesnons = 0;
-  int lesposes[2][pbars];
-  int latargetpos = pbars;
-  int lewhilecountmax = 0;
-  while (!clearsaniloop && lewhilecountmax < 42) {
-    // Serial.println(lewhilecountmax);
-    lewhilecountmax++;
-    clearsaniloop = 1;
-    lesnoffs = 0;
-    lesnons = 0;
-
-    latargetpos = pbars;
-
-    for (int i = 0; i < pbars; i++) {
-      lesposes[0][i] = pbars;
-      lesposes[1][i] = pbars;
-      if (event1notesOff[linei][i][1] != 0) {
-        lesposes[1][lesnoffs] = i;
-        lesnoffs++;
-      }
-      if (event1notes1[linei][i][1] != 0) {
-        lesposes[0][lesnons] = i;
-        lesnons++;
-      }
-    }
-
-    if (lesnoffs < lesnons) {
-      latargetpos = (lesposes[0][lesnons - 1]);
-      if (latargetpos < pbars - 1) {
-        clearsaniloop = 0;
-        event1notesOff[linei][latargetpos + 1][0] =
-            event1notes1[linei][latargetpos][0];
-        event1notesOff[linei][latargetpos + 1][1] =
-            event1notes1[linei][latargetpos][1];
-        event1notesOff[linei][0][0] = (byte)0;
-        event1notesOff[linei][0][1] = (byte)0;
-      }
-      if (latargetpos == pbars - 1) {
-        clearsaniloop = 0;
-        event1notesOff[linei][0][0] = event1notes1[linei][pbars - 1][0];
-        event1notesOff[linei][0][1] = event1notes1[linei][pbars - 1][1];
-      }
-
-    }
-    if (lesnoffs > lesnons) {
-      clearsaniloop = 0;
-      sanitizeoffline(linei);
-      // remove nofs
-    }
-    if (lesnoffs == lesnons) {
-      terminateOffz(linei);
-      clearlesnofbounces(linei, 0);
-    }
-  }
-}
 void terminateOffz(int linei) {
   for (int i = 0; i < pbars; i++) {
-    if (event1notesOff[linei][i][1] != 0) {
-      if (terminateorphanseventsOff(linei, event1notesOff[linei][i][1])) {
+    if (synth_off_pat[linei][i][1] != 0) {
+      if (terminateorphanseventsOff(linei, synth_off_pat[linei][i][1])) {
         Serial.print("terminated orphan note ");
-        Serial.print(event1notesOff[linei][i][1]);
+        Serial.print(synth_off_pat[linei][i][1]);
         clearsaniloop = 0;
-        //  Serial.println((int)event1notesOff[linei][i][1]);
-        event1notesOff[linei][i][0] = 0;
-        event1notesOff[linei][i][1] = 0;
+        //  Serial.println((int)synth_off_pat[linei][i][1]);
+        synth_off_pat[linei][i][0] = 0;
+        synth_off_pat[linei][i][1] = 0;
       }
     }
   }
 }
 void clearlesnofbounces(int linei, int fromi) {
   for (int i = fromi; i < pbars; i++) {
-    if (event1notesOff[linei][i][1] != 0) {
-      clearbouncedoffsafters(linei, event1notesOff[linei][i][1], i);
+    if (synth_off_pat[linei][i][1] != 0) {
+      clearbouncedoffsafters(linei, synth_off_pat[linei][i][1], i);
       // not checking before as we are doing it from 0
     }
   }
@@ -978,10 +907,10 @@ void sanitizeoffline(int linei) {
 int getnextposofevent1Off(int linei, byte lanote, int fromi) {
 
   for (int i = fromi + 1; i < pbars; i++) {
-    if (event1notesOff[linei][i][1] == lanote) {
+    if (synth_off_pat[linei][i][1] == lanote) {
       return i;
     }
-    // if (event1notes1[linei][i][1] == lanote ){
+    // if (synth_partition[linei][i][1] == lanote ){
     //}
   }
   return (fromi + 1);
@@ -1042,18 +971,18 @@ void startglidenoteChords(byte liner, byte data1) {
 void computelenghtmesureoffline() {
   for (int linei = 0; linei < nombreofliners; linei++) {
     for (int i = 0; i < pbars; i++) {
-      if (event1notes1[linei][i][1] != 0) {
+      if (synth_partition[linei][i][1] != 0) {
 
         int laposof =
-            getnextposofevent1Off(linei, event1notes1[linei][i][1], i);
+            getnextposofevent1Off(linei, synth_partition[linei][i][1], i);
 
         if (laposof < pbars - 1) {
           length0pbars[linei][i] = (laposof - i) * 4;
           templength0pbars[linei][i] = (laposof - i) * 4;
 
         } else {
-          // event1notesOff[linei][0][0] = event1notes1[linei][i][0] ;
-          // event1notesOff[linei][0][1] = event1notes1[linei][i][1] ;
+          // synth_off_pat[linei][0][0] = synth_partition[linei][i][0] ;
+          // synth_off_pat[linei][0][1] = synth_partition[linei][i][1] ;
           length0pbars[linei][i] = (pbars - i) * 4;
           templength0pbars[linei][i] = (pbars - i) * 4;
         }
@@ -1203,7 +1132,7 @@ bool noCCrecordlist(byte lanotee) {
 
 void scanfornextcc(byte lecc) {
   for (int i = tickposition + 1; i < pbars; i++) {
-    if (event1controllers[lecc][i] != 128) {
+    if (cc_partition[lecc][i] != 128) {
 
       Ccinterpolengh[lecc][0] = tickposition;
       Ccinterpolengh[lecc][1] = i;
@@ -1214,7 +1143,7 @@ void scanfornextcc(byte lecc) {
   }
 
   for (int i = 0; i < tickposition; i++) {
-    if (event1controllers[lecc][i] != 128) {
+    if (cc_partition[lecc][i] != 128) {
 
       Ccinterpolengh[lecc][0] = tickposition;
       Ccinterpolengh[lecc][1] = i;
@@ -1239,9 +1168,9 @@ void continueCCinterpol(byte lecc) {
           (millis() - tickerlasttick) + millitickinterval) /
          (laCCduration * 1.0));
     letempipolate =
-        event1controllers[lecc][Ccinterpolengh[lecc][0]] +
-        (interpolcoeff * (event1controllers[lecc][Ccinterpolengh[lecc][1]] -
-                          event1controllers[lecc][Ccinterpolengh[lecc][0]]));
+        cc_partition[lecc][Ccinterpolengh[lecc][0]] +
+        (interpolcoeff * (cc_partition[lecc][Ccinterpolengh[lecc][1]] -
+                          cc_partition[lecc][Ccinterpolengh[lecc][0]]));
   }
   // if next cc is after pat revolution
   else {
@@ -1253,33 +1182,33 @@ void continueCCinterpol(byte lecc) {
             (millis() - tickerlasttick)) /
            (laCCduration * 1.0));
 
-      letempipolate = event1controllers[lecc][Ccinterpolengh[lecc][0]] +
+      letempipolate = cc_partition[lecc][Ccinterpolengh[lecc][0]] +
                       (1.0 * interpolcoeff *
-                       (event1controllers[lecc][Ccinterpolengh[lecc][1]] -
-                        event1controllers[lecc][Ccinterpolengh[lecc][0]]));
+                       (cc_partition[lecc][Ccinterpolengh[lecc][1]] -
+                        cc_partition[lecc][Ccinterpolengh[lecc][0]]));
 
-      // leccinterpolated[i] = round(event1controllers[lecc][tickposition] +
+      // leccinterpolated[i] = round(cc_partition[lecc][tickposition] +
       // (((millis() - tickerlasttick)/(laCCduration*1.0))*
-      // (event1controllers[lecc][tickposition+1] -
-      // event1controllers[lecc][tickposition] ))) ;
+      // (cc_partition[lecc][tickposition+1] -
+      // cc_partition[lecc][tickposition] ))) ;
     } else {
       interpolcoeff = (((tickposition + pbars - Ccinterpolengh[lecc][0]) *
                         millitickinterval) +
                        (millis() - tickerlasttick)) /
                       (laCCduration * 1.0);
 
-      letempipolate = event1controllers[lecc][Ccinterpolengh[lecc][0]] +
+      letempipolate = cc_partition[lecc][Ccinterpolengh[lecc][0]] +
                       (1.0 * interpolcoeff *
-                       (event1controllers[lecc][Ccinterpolengh[lecc][1]] -
-                        event1controllers[lecc][Ccinterpolengh[lecc][0]]));
+                       (cc_partition[lecc][Ccinterpolengh[lecc][1]] -
+                        cc_partition[lecc][Ccinterpolengh[lecc][0]]));
     }
   }
   if (tickposition == Ccinterpolengh[lecc][0]) {
     interpolcoeff = ((millis() - tickerlasttick) / (laCCduration * 1.0));
-    letempipolate = event1controllers[lecc][tickposition] +
+    letempipolate = cc_partition[lecc][tickposition] +
                     (1.0 * interpolcoeff *
-                     (event1controllers[lecc][Ccinterpolengh[lecc][1]] -
-                      event1controllers[lecc][tickposition]));
+                     (cc_partition[lecc][Ccinterpolengh[lecc][1]] -
+                      cc_partition[lecc][tickposition]));
   }
 
   if (leccinterpolated[lecc] != letempipolate) {
@@ -1292,7 +1221,7 @@ void continueCCinterpol(byte lecc) {
     //      Serial.print(" at pos ");
     //     Serial.println(tickposition);
     if (leccinterpolated[lecc] ==
-        event1controllers[lecc][Ccinterpolengh[lecc][1]]) {
+        cc_partition[lecc][Ccinterpolengh[lecc][1]]) {
       activateinterpolatecc[lecc] = 0;
       Ccinterpolengh[lecc][0] = pbars;
       Ccinterpolengh[lecc][1] = pbars;
@@ -1300,9 +1229,7 @@ void continueCCinterpol(byte lecc) {
     }
   }
 }
-void justdoaCChange(byte lecc) {
-  moncontrollercc(1, lecc, event1controllers[lecc][tickposition]);
-}
+
 
 void checkall128cc() {
 

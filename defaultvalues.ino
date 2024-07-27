@@ -6,9 +6,9 @@ void initextmems() {
       // templength2pbars[i][j] = 0 ;
 
       for (int k = 0; k < 3; k++) {
-        event2notesOff[j][k] = 0;
-        event2notes1[i][j][k] = 0;
-        tempevent2notes1[i][j][k] = 0;
+        sampler_off_pat[j][k] = 0;
+        sampler_partition[i][j][k] = 0;
+        temp_sampler_partition[i][j][k] = 0;
       }
     }
   }
@@ -18,22 +18,26 @@ void initextmems() {
       templength0pbars[i][j] = 0;
       length1notes1[i][j] = 0;
       for (int k = 0; k < 3; k++) {
-        event1notesOff[i][j][k] = 0;
-        event1notes1[i][j][k] = 0;
-        tempevent1notes1[i][j][k] = 0;
-        parsedevent1notesOff[i][j][k] = 0;
+        synth_off_pat[i][j][k] = 0;
+        synth_partition[i][j][k] = 0;
+        temp_synth_partition[i][j][k] = 0;
       }
     }
   }
   for (int i = 0; i < 128; i++) {
     leccinterpolated[i] = 0;
     for (int j = 0; j < pbars; j++) {
-      event1controllers[i][j] = 128;
-      // activeevent1controllers[i][j] = 0 ;
-      // nextevent1controllers[i][j] = 0 ;
+      cc_partition[i][j] = 128;
+      
     }
   }
-
+  for (int i = 0; i < 32; i++) {
+    for (int j = 0; j < 32; j++) {
+      pots_controllers[i][j][0] = 0;
+      pots_controllers[i][j][1] = 0;
+    }
+    recorded_ccs[i] = 0 ;
+  }
   // ignorethatcc[88] = true;
 }
 

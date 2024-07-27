@@ -82,22 +82,22 @@ void arpegiate() {
 }
 
 void use_pattern(){
-      if (!stoptick) {
-      doesccgonnachangeinpatfromnow(); 
-    }
-
+      //if (!stoptick) {
+      //doesccgonnachangeinpatfromnow(); 
+    //}
+    light_cc_change();
     for (int i = 0; i < nombreofliners; i++) {
-      if ((event1notesOff[i][tickposition][1] != 0 &&
-           event1notesOff[i][tickposition][0] == synthmidichannel)) {
+      if ((synth_off_pat[i][tickposition][1] != 0 &&
+           synth_off_pat[i][tickposition][0] == synthmidichannel)) {
         event1offs(i);
       }
       // if ( i < nombreofliners ) {
-      if (event1notes1[i][tickposition][1] != 0) {
-        event1(i);
+      if (synth_partition[i][tickposition][1] != 0) {
+        play_synth_line(i);
       }
       
-      if (event2notes1[i][tickposition][1] != 0) {
-        event2(i);
+      if (sampler_partition[i][tickposition][1] != 0) {
+        play_sampler_line(i);
       }
     }
     
@@ -285,7 +285,7 @@ void showleditcc() {
 
   for (int j = 0; j < pbars; j++) {
 
-    lavaluecc = (int)event1controllers[sublevels[2]][j];
+    lavaluecc = (int)cc_partition[sublevels[2]][j];
     lacellx = 1 + j * lacellwidth;
     lacelly = 63 - lacellratio * lavaluecc;
     lalinex1 = lacellx;
@@ -293,7 +293,7 @@ void showleditcc() {
     if (lavaluecc < 128) {
       canvasBIG.fillRect(lacellx, lacelly, 3, 3, SSD1306_WHITE);
       if (j > 0) {
-        if ((int)event1controllers[sublevels[2]][j - 1] < 128) {
+        if ((int)cc_partition[sublevels[2]][j - 1] < 128) {
           canvasBIG.drawLine(lalinex2, laliney2, lalinex1, laliney1,
                              SSD1306_WHITE);
         }
@@ -326,10 +326,10 @@ void headerccedit() {
   canvastitle.print(sublevels[3]);
   canvastitle.setCursor(90, 0);
   canvastitle.setTextSize(2);
-  if (event1controllers[sublevels[2]][sublevels[3]] < 128) {
-    canvastitle.print(event1controllers[sublevels[2]][sublevels[3]]);
+  if (cc_partition[sublevels[2]][sublevels[3]] < 128) {
+    canvastitle.print(cc_partition[sublevels[2]][sublevels[3]]);
   }
-  if (event1controllers[sublevels[2]][sublevels[3]] >= 128) {
+  if (cc_partition[sublevels[2]][sublevels[3]] >= 128) {
     canvastitle.print("Off");
   }
 }
@@ -338,14 +338,14 @@ void editlaccactionpath() {
 
     navrange = pbars - 1;
 
-    sublevels[4] = (int)event1controllers[sublevels[2]][sublevels[3]];
+    sublevels[4] = (int)cc_partition[sublevels[2]][sublevels[3]];
     headerccedit();
     showvertlinecursor(sublevels[3]);
   }
   if (navlevel == 4) {
 
     navrange = 128;
-    event1controllers[sublevels[2]][sublevels[3]] = (byte)sublevels[4];
+    cc_partition[sublevels[2]][sublevels[3]] = (byte)sublevels[4];
     headerccedit();
   }
   if (navlevel > 4) {
@@ -376,7 +376,7 @@ void clearCCline() {
   for (int j = 0; j < pbars; j++) {
     for (int i = 0; i < 128; i++) {
 
-      event1controllers[i][j] = 128;
+      cc_partition[i][j] = 128;
     }
   }
 }
@@ -385,16 +385,14 @@ void clearsynthpatternline() {
   for (int j = 0; j < pbars; j++) {
     for (int i = 0; i < nombreofliners; i++) {
 
-      event1notes1[i][j][1] = 0;
-      event1notes1[i][j][2] = 0;
-      event1notes1[i][j][0] = 0;
+      synth_partition[i][j][1] = 0;
+      synth_partition[i][j][2] = 0;
+      synth_partition[i][j][0] = 0;
       length1notes1[i][j] = 0;
-      event1notesOff[i][j][0] = 0;
-      event1notesOff[i][j][1] = 0;
-      parsedevent1notesOff[i][j][1] = 0;
-      parsedevent1notesOff[i][j][0] = 0;
+      synth_off_pat[i][j][0] = 0;
+      synth_off_pat[i][j][1] = 0;
     }
-    evented1[0][j] = 0;
+    track_cells[0][j] = 0;
   }
 }
 void clearsamplerpatternline() {
@@ -402,14 +400,14 @@ void clearsamplerpatternline() {
   for (int j = 0; j < pbars; j++) {
     for (int i = 0; i < nombreofSamplerliners; i++) {
 
-      event2notes1[i][j][1] = 0;
-      event2notes1[i][j][2] = 0;
-      event2notes1[i][j][0] = 0;
+      sampler_partition[i][j][1] = 0;
+      sampler_partition[i][j][2] = 0;
+      sampler_partition[i][j][0] = 0;
       //      length2notes1[i][j]= 0;
     }
-    evented1[1][j] = 0;
-    event2notesOff[j][0] = 0;
-    event2notesOff[j][1] = 0;
+    track_cells[1][j] = 0;
+    sampler_off_pat[j][0] = 0;
+    sampler_off_pat[j][1] = 0;
   }
 }
 
@@ -507,7 +505,7 @@ void dotransposesynth() {
 
     shiftnotes1up(abs(sublevels[3] - 7));
   }
-  refreshevented1();
+  refresh_track();
 }
 void dotransposeCC() {
   // Serial.println("synth transposed");
@@ -536,10 +534,10 @@ void shiftnotesCCup(int leshifter) {
     for (int i = 0; i < 128; i++) {
       for (int j = 0; j < pbars; j++) {
 
-        if (((int)event1controllers[i][j] < 127) &&
-            ((int)event1controllers[i][j] > 0)) {
+        if (((int)cc_partition[i][j] < 127) &&
+            ((int)cc_partition[i][j] > 0)) {
 
-          event1controllers[i][j]++;
+          cc_partition[i][j]++;
         }
       }
     }
@@ -551,9 +549,9 @@ void shiftnotesCCdown(int leshifter) {
     for (int i = 0; i < 128; i++) {
       for (int j = 0; j < pbars; j++) {
 
-        if ((int)event1controllers[i][j] > 0) {
+        if ((int)cc_partition[i][j] > 0) {
 
-          event1controllers[i][j]--;
+          cc_partition[i][j]--;
         }
       }
     }
@@ -567,15 +565,15 @@ void shiftnotesCCright(int leshifter) {
       for (int j = pbars - 1; j >= 0; j--) {
 
         if (j == pbars - 1) {
-          letempevent1 = event1controllers[i][pbars - 1];
-          event1controllers[i][j] = event1controllers[i][j - 1];
+          letempevent1 = cc_partition[i][pbars - 1];
+          cc_partition[i][j] = cc_partition[i][j - 1];
         }
         if ((j > 0) && (j < pbars - 1)) {
-          event1controllers[i][j] = event1controllers[i][j - 1];
+          cc_partition[i][j] = cc_partition[i][j - 1];
         }
 
         if (j == 0) {
-          event1controllers[i][j] = letempevent1;
+          cc_partition[i][j] = letempevent1;
         }
       }
     }
@@ -591,14 +589,14 @@ void shiftnotesCCleft(int leshifter) {
       for (int j = 0; j < pbars; j++) {
 
         if (j == 0) {
-          letempevent1 = event1controllers[i][0];
-          event1controllers[i][j] = event1controllers[i][j + 1];
+          letempevent1 = cc_partition[i][0];
+          cc_partition[i][j] = cc_partition[i][j + 1];
         }
         if ((j > 0) && (j < pbars - 1)) {
-          event1controllers[i][j] = event1controllers[i][j + 1];
+          cc_partition[i][j] = cc_partition[i][j + 1];
         }
         if (j == pbars - 1) {
-          event1controllers[i][j] = letempevent1;
+          cc_partition[i][j] = letempevent1;
         }
       }
     }
@@ -609,15 +607,15 @@ void shiftnotes1up(int leshifter) {
   for (int shifts = 0; shifts < leshifter; shifts++) {
     for (int i = 0; i < nombreofliners; i++) {
       for (int j = 0; j < pbars; j++) {
-        if (((int)event1notes1[i][j][1] < 127) &&
-            ((int)event1notes1[i][j][1] > 2)) {
+        if (((int)synth_partition[i][j][1] < 127) &&
+            ((int)synth_partition[i][j][1] > 2)) {
 
-          event1notes1[i][j][1]++;
+          synth_partition[i][j][1]++;
         }
-        if (((int)event1notesOff[i][j][1] < 127) &&
-            ((int)event1notesOff[i][j][1] > 2)) {
+        if (((int)synth_off_pat[i][j][1] < 127) &&
+            ((int)synth_off_pat[i][j][1] > 2)) {
 
-          event1notesOff[i][j][1]++;
+          synth_off_pat[i][j][1]++;
         }
       }
     }
@@ -629,13 +627,13 @@ void shiftnotes1down(int leshifter) {
     for (int i = 0; i < nombreofliners; i++) {
       for (int j = 0; j < pbars; j++) {
 
-        if ((int)event1notes1[i][j][1] > 1) {
+        if ((int)synth_partition[i][j][1] > 1) {
 
-          event1notes1[i][j][1]--;
+          synth_partition[i][j][1]--;
         }
-        if ((int)event1notesOff[i][j][1] > 1) {
+        if ((int)synth_off_pat[i][j][1] > 1) {
 
-          event1notesOff[i][j][1]--;
+          synth_off_pat[i][j][1]--;
         }
       }
     }
@@ -651,16 +649,16 @@ void shiftnotes1right(int leshifter) {
         if (j == pbars - 1) {
 
           for (int k = 0; k < 3; k++) {
-            letempevent1[0][k] = event1notes1[i][pbars - 1][k];
-            letempevent1[1][k] = event1notesOff[i][pbars - 1][k];
-            event1notes1[i][j][k] = event1notes1[i][j - 1][k];
-            event1notesOff[i][j][k] = event1notesOff[i][j - 1][k];
+            letempevent1[0][k] = synth_partition[i][pbars - 1][k];
+            letempevent1[1][k] = synth_off_pat[i][pbars - 1][k];
+            synth_partition[i][j][k] = synth_partition[i][j - 1][k];
+            synth_off_pat[i][j][k] = synth_off_pat[i][j - 1][k];
           }
         }
         if ((j > 0) && (j < pbars - 1)) {
           for (int k = 0; k < 3; k++) {
-            event1notes1[i][j][k] = event1notes1[i][j - 1][k];
-            event1notesOff[i][j][k] = event1notesOff[i][j - 1][k];
+            synth_partition[i][j][k] = synth_partition[i][j - 1][k];
+            synth_off_pat[i][j][k] = synth_off_pat[i][j - 1][k];
           }
         }
 
@@ -668,8 +666,8 @@ void shiftnotes1right(int leshifter) {
 
           for (int k = 0; k < 3; k++) {
 
-            event1notesOff[i][j][k] = letempevent1[1][k];
-            event1notes1[i][j][k] = letempevent1[0][k];
+            synth_off_pat[i][j][k] = letempevent1[1][k];
+            synth_partition[i][j][k] = letempevent1[0][k];
           }
         }
       }
@@ -688,25 +686,25 @@ void shiftnotes1left(int leshifter) {
         if (j == 0) {
 
           for (int k = 0; k < 3; k++) {
-            letempevent1[0][k] = event1notes1[i][0][k];
-            letempevent1[1][k] = event1notesOff[i][0][k];
+            letempevent1[0][k] = synth_partition[i][0][k];
+            letempevent1[1][k] = synth_off_pat[i][0][k];
 
-            event1notes1[i][j][k] = event1notes1[i][j + 1][k];
-            event1notesOff[i][j][k] = event1notesOff[i][j + 1][k];
+            synth_partition[i][j][k] = synth_partition[i][j + 1][k];
+            synth_off_pat[i][j][k] = synth_off_pat[i][j + 1][k];
           }
         }
         if ((j > 0) && (j < pbars - 1)) {
           for (int k = 0; k < 3; k++) {
-            event1notes1[i][j][k] = event1notes1[i][j + 1][k];
-            event1notesOff[i][j][k] = event1notesOff[i][j + 1][k];
+            synth_partition[i][j][k] = synth_partition[i][j + 1][k];
+            synth_off_pat[i][j][k] = synth_off_pat[i][j + 1][k];
           }
         }
 
         if (j == pbars - 1) {
           for (int k = 0; k < 3; k++) {
 
-            event1notesOff[i][j][k] = letempevent1[1][k];
-            event1notes1[i][j][k] = letempevent1[0][k];
+            synth_off_pat[i][j][k] = letempevent1[1][k];
+            synth_partition[i][j][k] = letempevent1[0][k];
           }
         }
       }
@@ -742,15 +740,15 @@ void shiftnotes2up(int leshifter) {
   for (int shifts = 0; shifts < leshifter; shifts++) {
 
     for (int j = 0; j < pbars; j++) {
-      if (((int)event2notesOff[j][1] < 127) &&
-          ((int)event2notesOff[j][1] > 2)) {
-        event2notesOff[j][1]++;
+      if (((int)sampler_off_pat[j][1] < 127) &&
+          ((int)sampler_off_pat[j][1] > 2)) {
+        sampler_off_pat[j][1]++;
       }
       for (int i = 0; i < nombreofSamplerliners; i++) {
-        if (((int)event2notes1[i][j][1] < 127) &&
-            ((int)event2notes1[i][j][1] > 2)) {
+        if (((int)sampler_partition[i][j][1] < 127) &&
+            ((int)sampler_partition[i][j][1] > 2)) {
 
-          event2notes1[i][j][1]++;
+          sampler_partition[i][j][1]++;
         }
       }
     }
@@ -759,13 +757,13 @@ void shiftnotes2up(int leshifter) {
 void shiftnotes2down(int leshifter) {
   for (int shifts = 0; shifts < leshifter; shifts++) {
     for (int j = 0; j < pbars; j++) {
-      if ((int)event2notesOff[j][1] > 1) {
-        event2notesOff[j][1]--;
+      if ((int)sampler_off_pat[j][1] > 1) {
+        sampler_off_pat[j][1]--;
       }
       for (int i = 0; i < nombreofSamplerliners; i++) {
-        if ((int)event2notes1[i][j][1] > 1) {
+        if ((int)sampler_partition[i][j][1] > 1) {
 
-          event2notes1[i][j][1]--;
+          sampler_partition[i][j][1]--;
         }
       }
     }
@@ -781,35 +779,35 @@ void shiftnotes2right(int leshifter) {
 
         for (int k = 0; k < 3; k++) {
 
-          letempevent2[1][k] = event2notesOff[pbars - 1][k];
+          letempevent2[1][k] = sampler_off_pat[pbars - 1][k];
 
-          event2notesOff[j][k] = event2notesOff[j - 1][k];
+          sampler_off_pat[j][k] = sampler_off_pat[j - 1][k];
         }
       }
       if ((j > 0) && (j < pbars - 1)) {
         for (int k = 0; k < 3; k++) {
 
-          event2notesOff[j][k] = event2notesOff[j - 1][k];
+          sampler_off_pat[j][k] = sampler_off_pat[j - 1][k];
         }
       }
 
       if (j == 0) {
 
         for (int k = 0; k < 3; k++) {
-          event2notesOff[j][k] = letempevent2[1][k];
+          sampler_off_pat[j][k] = letempevent2[1][k];
         }
       }
       for (int i = 0; i < nombreofSamplerliners; i++) {
         if (j == pbars - 1) {
 
           for (int k = 0; k < 3; k++) {
-            letempevent2[0][k] = event2notes1[i][pbars - 1][k];
-            event2notes1[i][j][k] = event2notes1[i][j - 1][k];
+            letempevent2[0][k] = sampler_partition[i][pbars - 1][k];
+            sampler_partition[i][j][k] = sampler_partition[i][j - 1][k];
           }
         }
         if ((j > 0) && (j < pbars - 1)) {
           for (int k = 0; k < 3; k++) {
-            event2notes1[i][j][k] = event2notes1[i][j - 1][k];
+            sampler_partition[i][j][k] = sampler_partition[i][j - 1][k];
           }
         }
 
@@ -817,7 +815,7 @@ void shiftnotes2right(int leshifter) {
 
           for (int k = 0; k < 3; k++) {
 
-            event2notes1[i][j][k] = letempevent2[0][k];
+            sampler_partition[i][j][k] = letempevent2[0][k];
           }
         }
       }
@@ -833,39 +831,39 @@ void shiftnotes2left(int leshifter) {
     for (int j = 0; j < pbars; j++) {
       if (j == 0) {
         for (int k = 0; k < 3; k++) {
-          letempevent2[1][k] = event2notesOff[0][k];
-          event2notesOff[j][k] = event2notesOff[j + 1][k];
+          letempevent2[1][k] = sampler_off_pat[0][k];
+          sampler_off_pat[j][k] = sampler_off_pat[j + 1][k];
         }
       }
       if ((j > 0) && (j < pbars - 1)) {
         for (int k = 0; k < 3; k++) {
 
-          event2notesOff[j][k] = event2notesOff[j + 1][k];
+          sampler_off_pat[j][k] = sampler_off_pat[j + 1][k];
         }
       }
 
       if (j == pbars - 1) {
         for (int k = 0; k < 3; k++) {
-          event2notesOff[j][k] = letempevent2[1][k];
+          sampler_off_pat[j][k] = letempevent2[1][k];
         }
       }
       for (int i = 0; i < nombreofSamplerliners; i++) {
         if (j == 0) {
 
           for (int k = 0; k < 3; k++) {
-            letempevent2[0][k] = event2notes1[i][0][k];
-            event2notes1[i][j][k] = event2notes1[i][j + 1][k];
+            letempevent2[0][k] = sampler_partition[i][0][k];
+            sampler_partition[i][j][k] = sampler_partition[i][j + 1][k];
           }
         }
         if ((j > 0) && (j < pbars - 1)) {
           for (int k = 0; k < 3; k++) {
-            event2notes1[i][j][k] = event2notes1[i][j + 1][k];
+            sampler_partition[i][j][k] = sampler_partition[i][j + 1][k];
           }
         }
 
         if (j == pbars - 1) {
           for (int k = 0; k < 3; k++) {
-            event2notes1[i][j][k] = letempevent2[0][k];
+            sampler_partition[i][j][k] = letempevent2[0][k];
           }
         }
       }
@@ -905,7 +903,7 @@ void doShiftersynth() {
 
     shiftnotes1right(abs(sublevels[3] - 16));
   }
-  refreshevented1();
+  refresh_track();
 }
 
 void showShifterdisplays() {
@@ -1150,7 +1148,10 @@ void stopticker() {
 }
 void startticker() {
   if (!externalticker) {
-    metro0.reset();
+   // metro0.reset();
+   //MsTimer2::set(millitickinterval, advance_tick); 
+  //MsTimer2::start();
+  
   }
   stoptick = 0;
   patternOn = 1;
@@ -1161,8 +1162,8 @@ void setbpms() {
   //  BPMs = (60000.0/millitickinterval)/4.0 ;
   BPMs = 15000.0 / millitickinterval;
 /*
-  metro0.interval(millitickinterval);
-  metro0.reset();
+  //metro0.interval(millitickinterval);
+  //metro0.reset();
   
   metro303.interval(millitickinterval / 5);
   metro303.reset();
@@ -1231,9 +1232,19 @@ void showplayheadpattern() {
 
 void event1offs(int linei) {
   // Serial.println("event1 noteoff");
-  lineroff(nombreofliners - 1 - linei, event1notesOff[linei][tickposition][1]);
+  lineroff(nombreofliners - 1 - linei, synth_off_pat[linei][tickposition][1]);
+}
+//changing_ccs[32][32][2] cc,val
+void light_cc_change() {
+  //pots_controllers[31];
+  for (int i = 0; i < 128; i++) {
+    if (cc_partition[i][tickposition] != 128) {
+      moncontrollercc(1, i, cc_partition[i][tickposition]);
+    }
+  }
 }
 void doesccgonnachangeinpatfromnow() {
+  //should be done only during record or manually
   // guess future lerping duration -> scan all pbars as well
   // howmanyactiveccnow = 0 ;
   // int templeng ;
@@ -1242,62 +1253,66 @@ void doesccgonnachangeinpatfromnow() {
   for (int i = 0; i < 128; i++) {
     // activateinterpolatecc[i] = 0;
 
-    if (event1controllers[i][tickposition] != 128) {
+    if (cc_partition[i][tickposition] != 128) {
       if (!noCCrecordlist(i)) {
         if (!(interpolOn && !patrecord)) {
-          activateinterpolatecc[i] = 0;
-          justdoaCChange(i);
+          //TODO: bad logic incomplete
+          if (interpolated_ctrls < 8 ) {
+          activateinterpolatecc[interpolated_ctrls] = i;
+          interpolated_ctrls++;
+          }
+          //justdoaCChange(i);
 
         } else {
 
           scanfornextcc(i);
           if (Ccinterpolengh[i][1] == pbars) {
-            activateinterpolatecc[i] = 0;
-            justdoaCChange(i);
+            //activateinterpolatecc[i] = 0;
+           // justdoaCChange(i);
           }
         }
       }
     }
   }
 }
-void event1(int linei) {
+void play_synth_line(int linei) {
   // Serial.println("event1 ");
 
-  if (event1notes1[linei][tickposition][1] != 0) {
+  if (synth_partition[linei][tickposition][1] != 0) {
     if (notesOn[linei] == 0) {
       // lineron(nombreofliners-1-linei, synthmidichannel,
-      // event1notes1[linei][tickposition][1],
-      // event1notes1[linei][tickposition][2]) ;
+      // synth_partition[linei][tickposition][1],
+      // synth_partition[linei][tickposition][2]) ;
       lineron(nombreofliners - 1 - linei, synthmidichannel,
-              event1notes1[linei][tickposition][1],
-              event1notes1[linei][tickposition][2]);
+              synth_partition[linei][tickposition][1],
+              synth_partition[linei][tickposition][2]);
     }
     // else {
-    // MaNoteOn((byte)synthmidichannel, event1notes1[linei][tickposition][1],
-    // event1notes1[linei][tickposition][2]) ;
+    // MaNoteOn((byte)synthmidichannel, synth_partition[linei][tickposition][1],
+    // synth_partition[linei][tickposition][2]) ;
     // }
   }
 }
 
-void event2(int linei) {
+void play_sampler_line(int linei) {
   // Serial.println("event2 ");
   // note
 
-  if (event2notes1[linei][tickposition][1] != 0) {
+  if (sampler_partition[linei][tickposition][1] != 0) {
     //        event2lineplayingfrom[linei][0]=
-    //        event2notes1[linei][tickposition][1];
+    //        sampler_partition[linei][tickposition][1];
     // channel
-    // event2lineplayingfrom[linei][1]= event2notes1[linei][tickposition][0];
-    if (Sampleassigned[event2notes1[linei][tickposition][1]] != 0 &&
+    // event2lineplayingfrom[linei][1]= sampler_partition[linei][tickposition][0];
+    if (Sampleassigned[sampler_partition[linei][tickposition][1]] != 0 &&
         ((samplermidichannel == 0) ||
-         ((byte)samplermidichannel == event2notes1[linei][tickposition][0]))) {
+         ((byte)samplermidichannel == sampler_partition[linei][tickposition][0]))) {
       initiatesamplerline(nombreofSamplerliners - 1 - linei,
                           (byte)samplermidichannel,
-                          event2notes1[linei][tickposition][1],
-                          event2notes1[linei][tickposition][2]);
+                          sampler_partition[linei][tickposition][1],
+                          sampler_partition[linei][tickposition][2]);
       // MaNoteOn( (byte)samplermidichannel,
-      // event2notes1[linei][tickposition][1],
-      // event2notes1[linei][tickposition][2]) ;
+      // sampler_partition[linei][tickposition][1],
+      // sampler_partition[linei][tickposition][2]) ;
     }
   }
 }
@@ -1305,13 +1320,13 @@ void midifileliner(int liner, int ticker) {
 
   myMidiFile.print(latimeline);
   myMidiFile.print(" On ch=");
-  int leintc = (int)event1notes1[liner][ticker][0];
+  int leintc = (int)synth_partition[liner][ticker][0];
   myMidiFile.print(leintc);
   myMidiFile.print(" n=");
-  int leintn = (int)event1notes1[liner][ticker][1];
+  int leintn = (int)synth_partition[liner][ticker][1];
   myMidiFile.print(leintn);
   myMidiFile.print(" v=");
-  int leintv = (int)event1notes1[liner][ticker][2];
+  int leintv = (int)synth_partition[liner][ticker][2];
   myMidiFile.print(leintv);
   myMidiFile.print("\n");
 }
@@ -1319,13 +1334,13 @@ void midifilelinerSampler(int liner, int ticker) {
 
   myMidiFile.print(latimeline);
   myMidiFile.print(" On ch=");
-  int leintc = (int)event2notes1[liner][ticker][0];
+  int leintc = (int)sampler_partition[liner][ticker][0];
   myMidiFile.print(leintc);
   myMidiFile.print(" n=");
-  int leintn = (int)event2notes1[liner][ticker][1];
+  int leintn = (int)sampler_partition[liner][ticker][1];
   myMidiFile.print(leintn);
   myMidiFile.print(" v=");
-  int leintv = (int)event2notes1[liner][ticker][2];
+  int leintv = (int)sampler_partition[liner][ticker][2];
   myMidiFile.print(leintv);
   myMidiFile.print("\n");
 }
@@ -1333,13 +1348,13 @@ void midifilelinerSampler(int liner, int ticker) {
 void midifilelinerOff(int liner, int ticker) {
   myMidiFile.print(latimeline);
   myMidiFile.print(" Off ch=");
-  int leintc = (int)event1notesOff[liner][ticker][0];
+  int leintc = (int)synth_off_pat[liner][ticker][0];
   myMidiFile.print(leintc);
   myMidiFile.print(" n=");
-  int leintn = (int)event1notesOff[liner][ticker][1];
+  int leintn = (int)synth_off_pat[liner][ticker][1];
   myMidiFile.print(leintn);
   myMidiFile.print(" v=");
-  int leintv = (int)event1notesOff[liner][ticker][2];
+  int leintv = (int)synth_off_pat[liner][ticker][2];
   myMidiFile.print(leintv);
   myMidiFile.print("\n");
 }
@@ -1352,7 +1367,7 @@ void midifileCC(int lecc, int ticker) {
   int leintn = lecc;
   myMidiFile.print(leintn);
   myMidiFile.print(" v=");
-  int leintv = (int)event1controllers[lecc][ticker];
+  int leintv = (int)cc_partition[lecc][ticker];
   myMidiFile.print(leintv);
   myMidiFile.print("\n");
 }
@@ -1368,23 +1383,23 @@ void writemidiinfo() {
 
     latimeline = (3125 * t);
     for (int j = 0; j < nombreofliners; j++) {
-      if (event1notesOff[j][t][1] != 0) {
+      if (synth_off_pat[j][t][1] != 0) {
         midifilelinerOff(j, t);
       }
     }
     for (int j = 0; j < nombreofliners; j++) {
-      if (event1notes1[j][t][1] != 0) {
+      if (synth_partition[j][t][1] != 0) {
         midifileliner(j, t);
       }
     }
     for (int j = 0; j < nombreofSamplerliners; j++) {
-      if (event2notes1[j][t][1] != 0) {
+      if (sampler_partition[j][t][1] != 0) {
         midifilelinerSampler(j, t);
       }
     }
 
     for (int j = 0; j < 128; j++) {
-      if (event1controllers[j][t] != 128) {
+      if (cc_partition[j][t] != 128) {
         midifileCC(j, t);
       }
     }
@@ -1489,7 +1504,7 @@ void doshownotelineB() {
        notelines--) {
     for (int i = 0; i < pbars; i++) {
 
-      note0 = event2notes1[linern][i][1];
+      note0 = sampler_partition[linern][i][1];
       decnote = (int)note0;
 
       if (decnote == notelines && note0 != 0) {
@@ -1538,7 +1553,7 @@ void doshownoteline() {
        notelines--) {
     for (int i = 0; i < pbars; i++) {
 
-      note0 = event1notes1[linern][i][1];
+      note0 = synth_partition[linern][i][1];
       decnote = (int)note0;
 
       if (decnote == notelines && note0 != 0) {
@@ -1581,7 +1596,7 @@ void doshownoteline2() {
        notelines--) {
     for (int i = 0; i < pbars; i++) {
 
-      note0 = tempevent1notes1[linern][i][1];
+      note0 = temp_synth_partition[linern][i][1];
 
       decnote = (int)note0;
       if (decnote == notelines && note0 != 0) {
@@ -1623,7 +1638,7 @@ void doshownoteline2B() {
        notelines--) {
     for (int i = 0; i < pbars; i++) {
 
-      note0 = tempevent2notes1[linern][i][1];
+      note0 = temp_sampler_partition[linern][i][1];
 
       decnote = (int)note0;
       if (decnote == notelines && note0 != 0) {
@@ -1690,7 +1705,7 @@ void showblocksofevent() {
   starty = 0;
   for (int liner = 0; liner < nombreofliners; liner++) {
     for (int i = 0; i < pbars; i++) {
-      if (event1notes1[liner][i][1] != 0) {
+      if (synth_partition[liner][i][1] != 0) {
         canvasBIG.fillRect(startx + cellsizer * i + 1,
                            starty + (celltall * liner) + 1, cellsizer - 2,
                            celltall - 2, SSD1306_INVERSE);
@@ -1706,7 +1721,7 @@ void showblocksofevent2() {
   for (int liner = 0 + samplelinerspage; liner < 6 + samplelinerspage;
        liner++) {
     for (int i = 0; i < pbars; i++) {
-      if (event2notes1[liner][i][1] != 0) {
+      if (sampler_partition[liner][i][1] != 0) {
         canvasBIG.fillRect(startx + cellsizer * i + 1,
                            starty + (celltall * (liner - samplelinerspage)) + 1,
                            cellsizer - 2, celltall - 2, SSD1306_INVERSE);
@@ -1718,18 +1733,18 @@ void showblocksofevent2() {
 void clearevented0(int lapatline) {
 
   for (int j = 0; j < pbars; j++) {
-    evented1[lapatline][j] = false;
+    track_cells[lapatline][j] = false;
   }
 }
 
-void refreshevented1() {
+void refresh_track() {
   clearevented0(0);
   for (int linerrd = 0; linerrd < nombreofliners; linerrd++) {
 
     for (int i = 0; i < pbars; i++) {
 
-      if (event1notes1[linerrd][i][1] != 0) {
-        evented1[0][i] = true;
+      if (synth_partition[linerrd][i][1] != 0) {
+        track_cells[0][i] = true;
       }
     }
   }
@@ -1740,8 +1755,8 @@ void refreshevented2() {
 
     for (int i = 0; i < pbars; i++) {
 
-      if (event2notes1[linerrd][i][1] != 0) {
-        evented1[1][i] = true;
+      if (sampler_partition[linerrd][i][1] != 0) {
+        track_cells[1][i] = true;
       }
     }
   }
@@ -1755,9 +1770,9 @@ void dolistpatternlineblocks() {
   for (int lapatline = 0; lapatline < patternlines; lapatline++) {
     for (int i = 0; i < pbars; i++) {
       if (lapatline == 0) {
-        // Serial.println(evented1[lapatline][i]);
+        // Serial.println(track_cells[lapatline][i]);
       }
-      if (evented1[lapatline][i]) {
+      if (track_cells[lapatline][i]) {
         canvasBIG.fillRect(startx + cellsizer * i + 1,
                            starty + (8 * lapatline) + 1, cellsizer - 2,
                            celltall - 2, SSD1306_INVERSE);
@@ -1770,7 +1785,7 @@ int getstartingnoteline() {
   int nombrofnoteonliner = 0;
   // sublevels[navlevelpatedit+2] = 60 ;
   for (int ni = 0; ni < nombreofliners; ni++) {
-    int decednote = event1notes1[sublevels[navlevelpatedit + 1]][ni][1];
+    int decednote = synth_partition[sublevels[navlevelpatedit + 1]][ni][1];
     if (decednote != 0) {
       averagenoteevent = averagenoteevent + decednote;
       nombrofnoteonliner++;
@@ -1790,7 +1805,7 @@ int getstartingnoteline2() {
   int nombrofnoteonliner = 0;
   // sublevels[navlevelpatedit+2] = 60 ;
   for (int ni = 0; ni < nombreofSamplerliners; ni++) {
-    int decednote = event2notes1[sublevels[navlevelpatedit + 1]][ni][1];
+    int decednote = sampler_partition[sublevels[navlevelpatedit + 1]][ni][1];
     if (decednote != 0) {
       averagenoteevent = averagenoteevent + decednote;
       nombrofnoteonliner++;
@@ -1839,8 +1854,8 @@ void drawsequencer() {
       //sampler pattern
       sampler_event_cells();
     }
-    dodisplayplayhead();
-    dodisplay2();
+    //dodisplayplayhead();
+    dodisplay();
   
 }
 
@@ -1981,7 +1996,7 @@ void patedit3() {
   drawCursorCol();
   canvasBIG.fillRect(0, 32,127,64-32, SSD1306_BLACK);
    for (int i = 0; i < 32; i++) {
-    velobar = map(event1notes1[sublevels[2]][i][2],0,127,0,32);
+    velobar = map(synth_partition[sublevels[2]][i][2],0,127,0,32);
     canvasBIG.fillRect((i*(128/32)), 64-velobar,4 ,velobar, SSD1306_WHITE);
     
    }
@@ -2005,14 +2020,14 @@ void patedit3B() {
 }
 void killnextnoteoff(byte liner, byte notee, byte fromi) {
   for (int i = fromi + 1; i < pbars; i++) {
-    if (event1notesOff[liner][i][1] == notee) {
-      event1notesOff[liner][i][1] = 0;
+    if (synth_off_pat[liner][i][1] == notee) {
+      synth_off_pat[liner][i][1] = 0;
       return;
     }
   }
   for (int i = 0; i < fromi; i++) {
-    if (event1notesOff[liner][i][1] == notee) {
-      event1notesOff[liner][i][1] = 0;
+    if (synth_off_pat[liner][i][1] == notee) {
+      synth_off_pat[liner][i][1] = 0;
       return;
     }
   }
@@ -2021,37 +2036,37 @@ void patedit4() {
 
   // clickon liner /note / at tickpos
 
-  byte decednote2 = event1notes1[sublevels[navlevelpatedit + 1]]
+  byte decednote2 = synth_partition[sublevels[navlevelpatedit + 1]]
                                 [sublevels[navlevelpatedit + 3]][1];
   if (decednote2 == sublevels[navlevelpatedit + 2] && decednote2 != 0 &&
       !addinglenght) {
     // Serial.println("navlevelpatedit+4 deleting note");
     killnextnoteoff(sublevels[navlevelpatedit + 1],
-                    event1notes1[sublevels[navlevelpatedit + 1]]
+                    synth_partition[sublevels[navlevelpatedit + 1]]
                                 [sublevels[navlevelpatedit + 3]][1],
                     sublevels[navlevelpatedit + 3]);
-    event1notes1[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
+    synth_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
                 [0] = 0;
-    event1notes1[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
+    synth_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
                 [1] = 0;
-    event1notes1[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
+    synth_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
                 [2] = 0;
 
     returntonav(navlevelpatedit + 3);
 
-    refreshevented1();
+    refresh_track();
 
     // computelenghtmesureoffline();
 
   } else {
     // Serial.println("navlevelpatedit+4 adding lenght");
     addinglenght = 1;
-    tempevent1notes1[sublevels[navlevelpatedit + 1]]
+    temp_synth_partition[sublevels[navlevelpatedit + 1]]
                     [sublevels[navlevelpatedit + 3]][0] = synthmidichannel;
-    tempevent1notes1[sublevels[navlevelpatedit + 1]]
+    temp_synth_partition[sublevels[navlevelpatedit + 1]]
                     [sublevels[navlevelpatedit + 3]][1] =
                         (byte)sublevels[navlevelpatedit + 2];
-    tempevent1notes1[sublevels[navlevelpatedit + 1]]
+    temp_synth_partition[sublevels[navlevelpatedit + 1]]
                     [sublevels[navlevelpatedit + 3]][2] = (byte)64;
     //  Serial.print("noteset = ");
     //  Serial.println(sublevels[navlevelpatedit+2]);
@@ -2069,7 +2084,7 @@ void patedit4() {
       templength0pbars[sublevels[navlevelpatedit + 1]]
                       [sublevels[navlevelpatedit + 3]] = 4;
     }
-    refreshevented1();
+    refresh_track();
 
     // initiatesamplerline(15 ,samplermidichannel, sublevels[navlevelpatedit+2],
     // byte(mixlevelsM[0]*127)) ;
@@ -2088,16 +2103,16 @@ void patedit4B() {
 
   // clickon liner /note / at tickpos
 
-  int decednote2 = event2notes1[sublevels[navlevelpatedit + 1]]
+  int decednote2 = sampler_partition[sublevels[navlevelpatedit + 1]]
                                [sublevels[navlevelpatedit + 3]][1];
   if (decednote2 == sublevels[navlevelpatedit + 2] && decednote2 != 0 &&
       !addinglenght) {
     // Serial.println("navlevelpatedit+4 deleting note");
-    event2notes1[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
+    sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
                 [0] = (byte)samplermidichannel;
-    event2notes1[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
+    sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
                 [1] = 0;
-    event2notes1[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
+    sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
                 [2] = 0;
     vraipos = sublevels[navlevelpatedit + 3];
     myEnc.write(vraipos * 4);
@@ -2108,13 +2123,13 @@ void patedit4B() {
   } else {
     // Serial.println("navlevelpatedit+4 adding lenght");
     addinglenght = 1;
-    tempevent2notes1[sublevels[navlevelpatedit + 1]]
+    temp_sampler_partition[sublevels[navlevelpatedit + 1]]
                     [sublevels[navlevelpatedit + 3]][0] =
                         (byte)samplermidichannel;
-    tempevent2notes1[sublevels[navlevelpatedit + 1]]
+    temp_sampler_partition[sublevels[navlevelpatedit + 1]]
                     [sublevels[navlevelpatedit + 3]][1] =
                         (byte)sublevels[navlevelpatedit + 2];
-    tempevent2notes1[sublevels[navlevelpatedit + 1]]
+    temp_sampler_partition[sublevels[navlevelpatedit + 1]]
                     [sublevels[navlevelpatedit + 3]][2] = (byte)64;
     navrange = 31;
    
@@ -2133,11 +2148,11 @@ void patedit4B() {
 void terminatenotesinbetween() {
   for (int i = sublevels[navlevelpatedit + 3] + 1;
        i < sublevels[navlevelpatedit + 4]; i++) {
-    if (event1notes1[sublevels[navlevelpatedit + 1]][i][1] != 0) {
-      event1notes1[sublevels[navlevelpatedit + 1]][i][1] = 0;
+    if (synth_partition[sublevels[navlevelpatedit + 1]][i][1] != 0) {
+      synth_partition[sublevels[navlevelpatedit + 1]][i][1] = 0;
     }
-    if (event1notesOff[sublevels[navlevelpatedit + 1]][i][1] != 0) {
-      event1notesOff[sublevels[navlevelpatedit + 1]][i][1] = 0;
+    if (synth_off_pat[sublevels[navlevelpatedit + 1]][i][1] != 0) {
+      synth_off_pat[sublevels[navlevelpatedit + 1]][i][1] = 0;
     }
   }
 }
@@ -2145,7 +2160,7 @@ void terminatenextnoteoff(byte liner, byte lanoteoff, byte fromi) {
 
   for (int i = 0; i < pbars; i++) {
     if (!offhasOnbutnototheroff(liner, lanoteoff, fromi)) {
-      event1notesOff[liner][fromi][1] = 0;
+      synth_off_pat[liner][fromi][1] = 0;
     }
   }
 }
@@ -2155,9 +2170,9 @@ void patedit5() {
   byte sub3 = sublevels[navlevelpatedit + 3];
   byte sub4 = sublevels[navlevelpatedit + 4];
   byte laOffpos;
-  event1notes1[sub1][sub3][0] = synthmidichannel;
-  event1notes1[sub1][sub3][1] = sub2;
-  event1notes1[sub1][sub3][2] = (byte)64;
+  synth_partition[sub1][sub3][0] = synthmidichannel;
+  synth_partition[sub1][sub3][1] = sub2;
+  synth_partition[sub1][sub3][2] = (byte)64;
 
   length0pbars[sub1][sub3] = (sub4 - sub3) * 4;
   if (length0pbars[sub1][sub3] < 0) {
@@ -2170,8 +2185,8 @@ void patedit5() {
   if (laOffpos > pbars) {
     laOffpos = laOffpos - pbars;
   }
-  event1notesOff[sub1][laOffpos][0] = synthmidichannel;
-  event1notesOff[sub1][laOffpos][1] = sub2;
+  synth_off_pat[sub1][laOffpos][0] = synthmidichannel;
+  synth_off_pat[sub1][laOffpos][1] = sub2;
   terminatenotesinbetween();
   // not sure (for orphans but why would there be any?)
   terminateOffz(sub1);
@@ -2181,20 +2196,20 @@ void patedit5() {
   // Serial.println("navlevelpatedit+5");
   addinglenght = 0;
   returntonav(5);
-  refreshevented1();
+  refresh_track();
   // computelenghtmesureoffline();
   displayPatternmenu();
 }
 void patedit5B() {
-  event2notes1[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
+  sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
               [0] = (byte)samplermidichannel;
-  event2notes1[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
+  sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
               [1] = (byte)sublevels[navlevelpatedit + 2];
-  event2notes1[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
+  sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
               [2] = (byte)64;
 
-  event2notesOff[sublevels[navlevelpatedit + 4]][0] = (byte)samplermidichannel;
-  event2notesOff[sublevels[navlevelpatedit + 4]][1] =
+  sampler_off_pat[sublevels[navlevelpatedit + 4]][0] = (byte)samplermidichannel;
+  sampler_off_pat[sublevels[navlevelpatedit + 4]][1] =
       (byte)sublevels[navlevelpatedit + 2];
   //  Serial.println("navlevelpatedit+5");
   addinglenght = 0;
@@ -2206,18 +2221,18 @@ void patedit5B() {
 bool offhasOnbutnototheroff(byte liner, byte lanoteoff, byte fromi) {
   // for (int j = 0 ; j < nombreofliners ; j++ ) {
   for (int i = fromi - 1; i >= 0; i--) {
-    if (event1notesOff[liner][i][1] == lanoteoff) {
+    if (synth_off_pat[liner][i][1] == lanoteoff) {
       terminatenextnoteoff(liner, lanoteoff, i);
     }
-    if (event1notes1[liner][i][1] == lanoteoff) {
+    if (synth_partition[liner][i][1] == lanoteoff) {
       return 1;
     }
   }
   for (int i = pbars - 1; i >= fromi; i--) {
-    if (event1notesOff[liner][i][1] == lanoteoff && i > fromi) {
+    if (synth_off_pat[liner][i][1] == lanoteoff && i > fromi) {
       return 0;
     }
-    if (event1notes1[liner][i][1] == lanoteoff) {
+    if (synth_partition[liner][i][1] == lanoteoff) {
       return 1;
     }
   }
@@ -2234,18 +2249,18 @@ void duplicatelenghofnotestarray() {
 void duplicateevent1() {
   for (int j = 0; j < nombreofliners; j++) {
     for (int i = 0; i < pbars; i++) {
-      tempevent1notes1[j][i][0] = event1notes1[j][i][0];
-      tempevent1notes1[j][i][2] = event1notes1[j][i][2];
-      tempevent1notes1[j][i][1] = event1notes1[j][i][1];
+      temp_synth_partition[j][i][0] = synth_partition[j][i][0];
+      temp_synth_partition[j][i][2] = synth_partition[j][i][2];
+      temp_synth_partition[j][i][1] = synth_partition[j][i][1];
     }
   }
 }
 void duplicateevent2() {
   for (int j = 0; j < nombreofSamplerliners; j++) {
     for (int i = 0; i < pbars; i++) {
-      tempevent2notes1[j][i][0] = event2notes1[j][i][0];
-      tempevent2notes1[j][i][2] = event2notes1[j][i][2];
-      tempevent2notes1[j][i][1] = event2notes1[j][i][1];
+      temp_sampler_partition[j][i][0] = sampler_partition[j][i][0];
+      temp_sampler_partition[j][i][2] = sampler_partition[j][i][2];
+      temp_sampler_partition[j][i][1] = sampler_partition[j][i][1];
     }
   }
 }
@@ -2420,17 +2435,17 @@ void parsepattern(int lapatterne) {
           break;
         }
 
-        event1notesOff[lenint][letempspattern][0] = parsedchannel;
-        // Serial.println(event1notes1[lenint][letempspattern][0]);
+        synth_off_pat[lenint][letempspattern][0] = parsedchannel;
+        // Serial.println(synth_partition[lenint][letempspattern][0]);
         parserp.JumpTo(Parser::IsDigit);
-        event1notesOff[lenint][letempspattern][1] = parserp.Read_Int32();
-        // Serial.println(event1notes1[lenint][letempspattern][1]);
+        synth_off_pat[lenint][letempspattern][1] = parserp.Read_Int32();
+        // Serial.println(synth_partition[lenint][letempspattern][1]);
         parserp.JumpTo(Parser::IsDigit);
-        event1notesOff[lenint][letempspattern][2] = parserp.Read_Int32();
-        event1notesOff[lenint][letempspattern][2] = 0;
-        // Serial.println(event1notes1[lenint][letempspattern][2]);
+        synth_off_pat[lenint][letempspattern][2] = parserp.Read_Int32();
+        synth_off_pat[lenint][letempspattern][2] = 0;
+        // Serial.println(synth_partition[lenint][letempspattern][2]);
 
-        evented1[0][letempspattern] = 1;
+        track_cells[0][letempspattern] = 1;
         leparsed[1] = (char)'z';
         leparsed[0] = (char)'z';
         parserp.SkipUntil(parserp.IsNewLine);
@@ -2506,31 +2521,31 @@ void parsepattern(int lapatterne) {
         }
         if (parsedchannel == synthmidichannel) {
 
-          event1notes1[lenint][letempspattern][0] = parsedchannel;
-          // Serial.println(event1notes1[lenint][letempspattern][0]);
+          synth_partition[lenint][letempspattern][0] = parsedchannel;
+          // Serial.println(synth_partition[lenint][letempspattern][0]);
           parserp.JumpTo(Parser::IsDigit);
-          event1notes1[lenint][letempspattern][1] = parserp.Read_Int32();
-          // Serial.println(event1notes1[lenint][letempspattern][1]);
+          synth_partition[lenint][letempspattern][1] = parserp.Read_Int32();
+          // Serial.println(synth_partition[lenint][letempspattern][1]);
           parserp.JumpTo(Parser::IsDigit);
-          event1notes1[lenint][letempspattern][2] = parserp.Read_Int32();
-          // Serial.println(event1notes1[lenint][letempspattern][2]);
+          synth_partition[lenint][letempspattern][2] = parserp.Read_Int32();
+          // Serial.println(synth_partition[lenint][letempspattern][2]);
         }
         if (parsedchannel == samplermidichannel) {
 
-          event2notes1[lenint][letempspattern][0] = parsedchannel;
-          Serial.println(event2notes1[lenint][letempspattern][0]);
+          sampler_partition[lenint][letempspattern][0] = parsedchannel;
+          Serial.println(sampler_partition[lenint][letempspattern][0]);
           parserp.JumpTo(Parser::IsDigit);
-          event2notes1[lenint][letempspattern][1] = parserp.Read_Int32();
-          Serial.println(event2notes1[lenint][letempspattern][1]);
+          sampler_partition[lenint][letempspattern][1] = parserp.Read_Int32();
+          Serial.println(sampler_partition[lenint][letempspattern][1]);
           parserp.JumpTo(Parser::IsDigit);
-          event2notes1[lenint][letempspattern][2] = parserp.Read_Int32();
-          Serial.println(event2notes1[lenint][letempspattern][2]);
-          addnoteoff2next(event2notes1[lenint][letempspattern][1],
+          sampler_partition[lenint][letempspattern][2] = parserp.Read_Int32();
+          Serial.println(sampler_partition[lenint][letempspattern][2]);
+          addnoteoff2next(sampler_partition[lenint][letempspattern][1],
                           letempspattern);
-          evented1[1][letempspattern] = 1;
+          track_cells[1][letempspattern] = 1;
         }
 
-        evented1[0][letempspattern] = 1;
+        track_cells[0][letempspattern] = 1;
         leparsed[1] = (char)'z';
         leparsed[0] = (char)'z';
         parserp.SkipUntil(parserp.IsNewLine);
@@ -2605,7 +2620,7 @@ void parsepattern(int lapatterne) {
         parserp.JumpTo(Parser::IsDigit);
         laccnote = parserp.Read_Int32();
         parserp.JumpTo(Parser::IsDigit);
-        event1controllers[laccnote][letempspattern] = parserp.Read_Int32();
+        cc_partition[laccnote][letempspattern] = parserp.Read_Int32();
         leparsed[1] = (char)'z';
         leparsed[0] = (char)'z';
         parserp.SkipUntil(parserp.IsNewLine);
@@ -2619,10 +2634,8 @@ void parsepattern(int lapatterne) {
     lenint = 0;
 
     lepatternfile.close();
-    refreshevented1();
-    // Serial.println("recomputing offs");
-    // recomputeparsedeventOffs2();
-    // Serial.println(" lenghts ");
+    refresh_track();
+    
     computelenghtmesureoffline();
 
   } else {
@@ -2633,55 +2646,14 @@ void parsepattern(int lapatterne) {
 
 void addnoteoff2next(byte lanotee, byte lapos) {
   if (lapos < pbars - 1) {
-    event2notesOff[lapos + 1][0] = samplermidichannel;
-    event2notesOff[lapos + 1][1] = lanotee;
-    event2notesOff[lapos + 1][2] = 0;
+    sampler_off_pat[lapos + 1][0] = samplermidichannel;
+    sampler_off_pat[lapos + 1][1] = lanotee;
+    sampler_off_pat[lapos + 1][2] = 0;
   }
   if (lapos == pbars - 1) {
-    event2notesOff[0][0] = samplermidichannel;
-    event2notesOff[0][1] = lanotee;
-    event2notesOff[0][2] = 0;
-  }
-}
-int nextposoffthatnoteoff(byte lanote, int fromi) {
-
-  for (int linei = 0; linei < nombreofliners; linei++) {
-    for (int i = fromi + 1; i < pbars; i++) {
-
-      if (lanote == parsedevent1notesOff[linei][i][1]) {
-
-        return i;
-      }
-    }
-    for (int i = 0; i < fromi; i++) {
-
-      if (lanote == parsedevent1notesOff[linei][i][1]) {
-        return i;
-      }
-    }
-  }
-  return 0;
-}
-void recomputeparsedeventOffs2() {
-  for (int linei = 0; linei < nombreofliners; linei++) {
-    for (int i = 0; i < pbars; i++) {
-      if (event1notes1[linei][i][1] != 0) {
-
-        int laposofnextOff =
-            nextposoffthatnoteoff(event1notes1[linei][i][1], i);
-        event1notesOff[linei][laposofnextOff][0] = event1notes1[linei][i][0];
-        event1notesOff[linei][laposofnextOff][1] = event1notes1[linei][i][1];
-        parsedevent1notesOff[linei][laposofnextOff][1] = 0;
-      }
-    }
-  }
-}
-void recomputeparsedeventOffs() {
-  for (int linei = 0; linei < nombreofliners; linei++) {
-    for (int i = 0; i < pbars; i++) {
-
-      event1notesOff[linei][i][1] = parsedevent1notesOff[linei][i][1];
-    }
+    sampler_off_pat[0][0] = samplermidichannel;
+    sampler_off_pat[0][1] = lanotee;
+    sampler_off_pat[0][2] = 0;
   }
 }
 
@@ -2692,20 +2664,15 @@ void showallnotes() {
     Serial.print(linei);
     Serial.print("Ons:");
     for (int i = 0; i < pbars; i++) {
-      Serial.print(event1notes1[linei][i][1]);
+      Serial.print(synth_partition[linei][i][1]);
       Serial.print("  ");
     }
     Serial.println("  ");
     Serial.print("Offs: ");
     for (int i = 0; i < pbars; i++) {
-      Serial.print(event1notesOff[linei][i][1]);
+      Serial.print(synth_off_pat[linei][i][1]);
       Serial.print("  ");
     }
-    Serial.println("  ");
-    Serial.print("prs:  ");
-    for (int i = 0; i < pbars; i++) {
-      Serial.print(parsedevent1notesOff[linei][i][1]);
-      Serial.print("  ");
-    }
+
   }
 }

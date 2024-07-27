@@ -1,11 +1,4 @@
 
-
-void updatebuttons() {
-  clicked.update();
-  //  Menub.update();
-  // Backb.update();
-}
-
 // because the rotaencoder library increments 4 steps for 1 and keeps absolute
 // count
 void evalrota() {
@@ -57,7 +50,8 @@ void evalrota() {
 }
 
 void evalinputs() {
-
+  
+  clicked.update();
   bool backed = false;
   backed = Pads.get_back();
   if (backed) {

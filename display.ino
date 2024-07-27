@@ -402,28 +402,6 @@ void dodisplayplayhead() {
   //display.display();
 }
 
-void dodisplay2() {
-  // display.clearDisplay();
-  display.drawBitmap(0, 0, canvasBIG.getBuffer(), 128, 64, SSD1306_WHITE);
-  display.drawBitmap(0, 0, canvastitle.getBuffer(), 128, 16, SSD1306_WHITE);
-  // canvasBIG.fillScreen(SSD1306_BLACK);
-  canvasBIG2.fillScreen(SSD1306_BLACK);
-  setlebuffer();
-  display.display();
-}
-void getledisplaybuffer() {
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvasBIG.setCursor(0, 0);
-  canvasBIG.drawBitmap(0, 0, canvasBIG2.getBuffer(), 128, 64, SSD1306_WHITE);
-}
-void setlebuffer() {
-  // display.clearDisplay();
-
-  canvasBIG2.setCursor(0, 0);
-  canvasBIG2.drawBitmap(0, 0, canvasBIG.getBuffer(), 128, 64, SSD1306_WHITE);
-
-  // display.display();
-}
 void initializelapleasewaitarray() {
 
   for (int i = 0; i < 10; i++) {

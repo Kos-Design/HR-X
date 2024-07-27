@@ -2,10 +2,13 @@ const int display_lag = 10 ;
 const int control_lag = 10 ;
 #include "muxer.h"
 Muxer Muxer;
+byte itr = 0;
+int c_change;
+int cc_note_num;
 // adcHighPassFilterDisable();
 bool le_303_On ;
 
-#include <Metro.h>
+//#include <Metro.h>
 // int startccrecordpos;
 // int stopccrecordpos;
 const byte sizeofnoCCrecord = 11;
@@ -23,11 +26,21 @@ int numberoftaps;
 int tapstime[5] = {0};
 float tapaverage;
 int millitickinterval = 115;
-Metro metro0 = Metro(millitickinterval);
+//freeze, can't record wav
+//#include <MsTimer2.h>
+
+//not precise
+//Metro metro0 = Metro(millitickinterval);
 //Metro metro303 = Metro(25);
 //#include <IntervalTimer.h>
 
+#include <BlockNot.h>
 
+BlockNot blinkTimer(millitickinterval);
+
+
+
+//freezes can't record
 //IntervalTimer metro1;
 //IntervalTimer metro3;
 //float interval_ms = (60000.0 /4.0) / 130.0;  // Calculate the interval in milliseconds
@@ -334,36 +347,37 @@ bool debugmidion = 0;
 bool freezemidicc = 0;
 int navlevelpatedit = 2;
 
-bool evented1[patternlines][pbars] = {0};
+bool track_cells[patternlines][pbars] = {0};
 
-EXTMEM byte event1notes1[nombreofliners][pbars][3];
-EXTMEM byte tempevent1notes1[nombreofliners][pbars][3];
-EXTMEM byte event1notesOff[nombreofliners][pbars][3];
-EXTMEM byte parsedevent1notesOff[nombreofliners][pbars][3];
+EXTMEM byte synth_partition[nombreofliners][pbars][3];
+EXTMEM byte temp_synth_partition[nombreofliners][pbars][3];
+EXTMEM byte synth_off_pat[nombreofliners][pbars][3];
+
 EXTMEM int length0pbars[nombreofliners][pbars];
 EXTMEM int templength0pbars[nombreofliners][pbars];
 EXTMEM int length1notes1[nombreofliners][pbars];
-byte event1startpos[nombreofliners];
+byte synth_start_tpos[nombreofliners];
 
-EXTMEM byte event2notes1[nombreofSamplerliners][pbars][3];
-EXTMEM byte tempevent2notes1[nombreofSamplerliners][pbars][3];
+EXTMEM byte sampler_partition[nombreofSamplerliners][pbars][3];
+EXTMEM byte temp_sampler_partition[nombreofSamplerliners][pbars][3];
 // EXTMEM unsigned long length2notes1[nombreofSamplerliners][pbars];
 // EXTMEM unsigned int length2pbars[nombreofSamplerliners][pbars];
 // EXTMEM unsigned int templength2pbars[nombreofSamplerliners][pbars];
-EXTMEM byte event2notesOff[pbars][3];
+EXTMEM byte sampler_off_pat[pbars][3];
 bool just_pressed_rec = false ;
 int howmanyactiveccnow;
 int tickerlasttick;
-// EXTMEM short activeevent1controllers[128][pbars];
-EXTMEM byte event1controllers[128][pbars];
-// EXTMEM short nextevent1controllers[128][pbars];
-bool activateinterpolatecc[128];
+byte recorded_ccs[32] ;
+byte pots_controllers[32][32][2];
+EXTMEM byte cc_partition[128][pbars];
+byte activateinterpolatecc[8];
 bool recordCC;
+//TODO reduce size
 bool ignorethatcc[128];
 bool ccoverdub;
 bool recpaterninit;
 int lavelocity;
-
+int interpolated_ctrls = 0;
 int availableliner;
 int olderliner;
 
@@ -374,11 +388,12 @@ byte startx = 8;
 byte starty = 18;
 
 GFXcanvas1 canvasBIG(128, 64);
-GFXcanvas1 canvasBIG2(128, 64);
+//GFXcanvas1 canvasBIG2(128, 64);
 // SD on audio board
 #define SDCARD_CS_PIN 10
 #define SDCARD_MOSI_PIN 7
 #define SDCARD_SCK_PIN 14
+// idx tick cc,val
 
 short lefakeselector;
 // File rootsd;

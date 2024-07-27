@@ -372,15 +372,15 @@ void Flashsamplerexplorer() {
 
 void showsamplerfolderList() {
   drawSamplerFoldersList();
-  dodisplay2();
+  dodisplay();
 }
 void showsamplerfilesList() {
   drawsamplerfilesList();
-  dodisplay2();
+  dodisplay();
 }
 void showFlashSamplesList() {
   drawFlashSamplesList();
-  dodisplay2();
+  dodisplay();
 }
 
 void drawtickboxflashBIG(int lestartx, int lestarty, int lasizex, int lasizey,
