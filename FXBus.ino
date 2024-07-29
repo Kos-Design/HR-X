@@ -16,14 +16,22 @@ byte getavailablefx(byte leeffect) {
   return 0;
 }
 
-void switchfxes(byte lafxline, byte leeffect) {
+  //for (int i = 0; i < sizeopremixtoM; i++) {
+    //premixesMto[i]->disconnect();
+  //}
+  //for (int i = 0; i < sizeofxcords; i++) {
+    //fxcording[i]->disconnect();
+  //}
 
+void switchfxes(byte lafxline, byte leeffect) {
+    if (!done_once){
+      done_once = true ;
   // Serial.println("Before: ");
   // listfxmoduleconnectionstate(leeffect);
-  AudioNoInterrupts();
+ 
 
   if (moduleonfxline[lafxline][0] != (mainmenufxlistsize - 1)) {
-    // Serial.print("Disconnecting existing ");
+     Serial.print("Disconnecting existing ");
     disconnectfxline(lafxline);
   }
   // if effect on liner is different or same, is a slot of the 3 modules of the
@@ -33,36 +41,75 @@ void switchfxes(byte lafxline, byte leeffect) {
   if (leeffect != (mainmenufxlistsize - 1)) {
 
     fxmoduleiteration = getavailablefx(leeffect);
+    Serial.println(" availablefx(leeffect)= ");
+    Serial.print(fxmoduleiteration);
     // 0 is off so -1
 
     if (fxmoduleiteration > 0) {
-      fxslotMaster[lafxline][1] = (leeffect * (fxiterations * 2 * 3)) +
-                                  (lafxline * (fxiterations * 2)) +
-                                  (2 * (fxmoduleiteration - 1));
-      fxslotMaster[lafxline][0] =
-          (leeffect * fxiterations) + (fxmoduleiteration - 1);
+       AudioNoInterrupts();
+       //delay
+       if (leeffect == 8) {
+        Serial.println("replugging delay line");
+        replug_delays_from_feedback(lafxline);
+       }
+      fxslotMaster[lafxline][1] = (leeffect * (fxiterations * 2 * 3)) + (lafxline * (fxiterations * 2)) + (2 * (fxmoduleiteration - 1));
+      fxslotMaster[lafxline][0] = (leeffect * fxiterations) + (fxmoduleiteration - 1);
       premixesMto[fxslotMaster[lafxline][0]]->connect();
       fxcording[fxslotMaster[lafxline][1]]->connect();
       fxcording[fxslotMaster[lafxline][1] + 1]->connect();
       fxmoduleisconnected[leeffect][fxmoduleiteration - 1] = lafxline;
       moduleonfxline[lafxline][0] = leeffect;
       moduleonfxline[lafxline][1] = fxmoduleiteration - 1;
+      AudioInterrupts();
+
+      Serial.print(" premixesMto ");
+      Serial.print(fxslotMaster[lafxline][0]);
+      Serial.print(" connected , ");
+      Serial.print(" fxcording ");
+      Serial.print(fxslotMaster[lafxline][1]);
+      Serial.print(" & ");
+      Serial.print(fxslotMaster[lafxline][1] + 1);
+      Serial.print(" connected");
+      Serial.println(" ");
+      Serial.print(" fxmoduleisconnected[");
+      Serial.print(leeffect);
+      Serial.print("][");
+      Serial.print(fxmoduleiteration - 1);
+      Serial.print("] = ");
+      Serial.print(lafxline);
+      Serial.println(" ");
+      Serial.print(" moduleonfxline[");
+      Serial.print(lafxline);
+      Serial.print("][0] = ");
+      Serial.print(leeffect);
+      Serial.print(" ");
+      Serial.print(" moduleonfxline[");
+      Serial.print(lafxline);
+      Serial.print("][1] = ");
+      Serial.print(fxmoduleiteration - 1);
+      Serial.println(" ");
+
     }
   } else {
+      Serial.println(" Selected effect is None ");
     if (lafxline < fxiterations - 1) {
-
       WetMixMasters[lafxline + 1] = 0;
-
       wetmixmastercontrols();
-    }
-    if (moduleonfxline[lafxline][0] != (mainmenufxlistsize - 1)) {
-      disconnectfxline(lafxline);
+      Serial.print(" lafxline < fxiterations - 1, so WetMixMasters[");
+      Serial.print(lafxline + 1);
+      Serial.print("] set to 0 ");
+      //already disconnected, could crash if reattempting while not connected!!!
+      // NO disconnectfxline(lafxline);
+      Serial.println(" ");
+      Serial.print(" disconnected");
+      Serial.print(lafxline);
+      
     }
   }
 
-  AudioInterrupts();
   // Serial.println("After: ");
   // listfxmoduleconnectionstate(leeffect);
+    }
 }
 
 void initializefxmoduleisconnected() {
@@ -74,16 +121,20 @@ void initializefxmoduleisconnected() {
   }
 }
 void disconnectfxline(byte lafxline) {
-
+  AudioNoInterrupts();
+  Serial.println("disconnecting Fxes");
   premixesMto[fxslotMaster[lafxline][0]]->disconnect();
   fxcording[fxslotMaster[lafxline][1]]->disconnect();
   fxcording[fxslotMaster[lafxline][1] + 1]->disconnect();
-  fxmoduleisconnected[moduleonfxline[lafxline][0]]
-                     [moduleonfxline[lafxline][1]] = fxiterations + 1;
+  fxmoduleisconnected[moduleonfxline[lafxline][0]][moduleonfxline[lafxline][1]] = fxiterations + 1;
   moduleonfxline[lafxline][0] = mainmenufxlistsize - 1;
   moduleonfxline[lafxline][1] = 0;
   fxslotMaster[lafxline][0] = 1000;
   fxslotMaster[lafxline][1] = 1000;
+  stopdelayline((int)lafxline);
+  unplug_delays_from_feedback((int)lafxline);
+  AudioInterrupts();
+  
 }
 void dolistMainFxPanel() {
   char mainmenufxlist[mainmenufxlistsize][12] = {
@@ -166,12 +217,14 @@ void MainFxPanel() {
     sublevels[2] = moduleonfxline[sublevels[1]][0];
   }
   if (navlevel == 2) {
+    done_once = false ;
     display.clearDisplay();
     navrange = 9;
     dolistMainFxPanel();
     dodisplay();
   }
   if (navlevel > 2) {
+    //do once
     switchfxes(sublevels[1], sublevels[2]);
     displayfxVcontrols(fxmoduleiteration - 1);
   }
@@ -303,6 +356,7 @@ void delaytimingselect(int lefilter, int leselecta) {
 }
 
 void restartdelayline(int lefilter) {
+  
   delaymultiplier[lefilter] = delayVknobs[lefilter][1] + 1;
   delaytimingselect(lefilter, delayVknobs[lefilter][0]);
 

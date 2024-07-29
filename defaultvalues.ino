@@ -41,6 +41,25 @@ void initextmems() {
   // ignorethatcc[88] = true;
 }
 
+void unplug_delays_from_feedback(int delay_line){
+
+    delayCords[delay_line]->disconnect();
+    
+}
+void replug_delays_from_feedback(int delay_line){
+    
+    delayCords[delay_line]->connect();
+
+  
+}
+void unplug_notefreq_from_ampL(){
+  Notespy_cable.disconnect();
+}
+void replug_notefreq_from_ampL(){
+  Notespy_cable.connect();
+}
+
+
 void loadsynthdefaults() {
 
   AudioNoInterrupts();
@@ -64,10 +83,10 @@ void loadsynthdefaults() {
     //}
   }
 
-  for (int i = 0; i < 32; i++) {
-    waveforms1[i]->begin(0.5, notefrequency, getwavetyped(Waveformstyped[0]));
-    FMwaveforms1[i]->begin(1, 440, WAVEFORM_SINE);
-  }
+  //for (int i = 0; i < 32; i++) {
+  //  waveforms1[i]->begin(0.5, notefrequency, getwavetyped(Waveformstyped[0]));
+  //  FMwaveforms1[i]->begin(1, 440, WAVEFORM_SINE);
+  //}
 
   MasterL.gain(1, .7);
   MasterR.gain(1, .7);
@@ -89,9 +108,6 @@ void loadsynthdefaults() {
 void setupdefaultvalues() {
   initializefxmoduleisconnected();
 
-  audioShield.enable();
-
-  audioShield.volume(1);
   // audioShield.inputSelect(AUDIO_INPUT_LINEIN);
 
   // testdelme
@@ -126,7 +142,13 @@ void setupdefaultvalues() {
       Wavesmix[i]->gain(j, mixlevelsL[j]);
     }
   }
-
+  unplug_notefreq_from_ampL();
+  for (int i = 0; i < 3; i++) {
+    stopdelayline(i);
+    unplug_delays_from_feedback(i);
+  }
+  //we begin these on fx asignement only
+  /*
   chorus1.begin(chorusdelayline, CHORUS_DELAY_LENGTH, chorusvoices);
   chorus2.begin(chorusdelayline2, CHORUS_DELAY_LENGTH, chorusvoices);
   chorus3.begin(chorusdelayline3, CHORUS_DELAY_LENGTH, chorusvoices);
@@ -142,10 +164,12 @@ void setupdefaultvalues() {
   granular1.begin(granularMemory, GRANULAR_MEMORY_SIZE);
   granular2.begin(granularMemory2, GRANULAR_MEMORY_SIZE);
   granular3.begin(granularMemory3, GRANULAR_MEMORY_SIZE);
+*/
 
   for (int i = 0; i < 4; i++) {
     setwavetypefromlist(i, Waveformstyped[i]);
   }
+  AudioNoInterrupts();
   for (int i = 0; i < fxiterations; i++) {
     // lfo sines used by FXes, only amplitude freq & phase
     lfosinez[i]->amplitude(0.1);
@@ -162,9 +186,12 @@ void setupdefaultvalues() {
       delaypremix[i * 2]->gain(j, 0);
       delaypremix[i * 2 + 1]->gain(j, 0);
     }
+    AudioInterrupts();
+    /*
     flange[i]->voices(flangeoffset, flangedepth, flangefreq);
     chorus[i]->voices(chorusvoices);
     granular[i]->setSpeed(1.0);
+    */
   }
 
   ////
@@ -186,7 +213,7 @@ void setupdefaultvalues() {
   MasterL.gain(0, 1);
   MasterR.gain(0, 1);
 
-  AudioNoInterrupts();
+ 
   for (int i = 0; i < all_buttonns; i++) {
 
     if (!((i <= 11) || (i >= 46))) {
@@ -237,16 +264,11 @@ void setupdefaultvalues() {
   //BPM
   midiknobassigned[20]= 15;
   */
-  // stop
-  midiknobassigned[110] = 37;
-  // play
-  midiknobassigned[108] = 36;
-  // looper
-  midiknobassigned[109] = 109;
+
   // Volume
   midiknobassigned[11] = 2;
   midiknobassigned[12] = 1;
-  midiknobassigned[13] = 3;
+  //midiknobassigned[13] = 3;
 
   /*
   // audio In
@@ -274,10 +296,35 @@ void setupdefaultvalues() {
   pot_assignements[all_buttonns-4] = 100 ;
   pot_assignements[all_buttonns-13] = 101 ;
   pot_assignements[all_buttonns-18] = 111 ;
+  pot_assignements[all_buttonns-5] = 106 ;
+  midiknobassigned[106] = 106;
   midiknobassigned[100] = 107;
   midiknobassigned[101] = 108;
   midiknobassigned[111] = 109;
+  // stop
+  midiknobassigned[110] = 37;
+  // play
+  midiknobassigned[108] = 36;
+  // looper
+  midiknobassigned[109] = 109;
+  //note: WetMixMasterLs[0] is the dry channel
+
+/*
   
+ MasterLs: 0.97 , 0.52 , 0.31 , 0.00 ,  
+ MasterL1s: 1.00 , 1.00 , 0.00 , 0.00 ,  
+ WetMixMasterLs: 0.97 , 0.01 , 0.01 , 0.01 ,  
+ 
+
+
+ VS Before :
+  
+ MasterLs: 0.97 , 0.59 , 1.00 , 0.00 ,  
+ MasterL1s: 1.00 , 1.00 , 0.00 , 1.00 ,  
+ WetMixMasterLs: 0.08 , 0.42 , 0.50 , 0.00 ,  
+ 
+
+ */
 
   // USB Line in
   InMixL.gain(0, 0);
@@ -303,5 +350,5 @@ void setupdefaultvalues() {
 
   // delay
 
-  AudioInterrupts();
+  
 }

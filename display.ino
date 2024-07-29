@@ -485,3 +485,41 @@ void setleconsolemsg(int consoleline, char *lemsg) {
     consolemsg[consoleline][i] = lemsg[i];
   }
 }
+void print_gains(){
+  Serial.println(" ");
+  Serial.print(" InMixL: ");
+  for (int i = 0; i < 4; i++) {
+    Serial.print(InMixL.getGain(i));
+    Serial.print(" , ");
+  } 
+   Serial.println(" ");
+  Serial.print(" MasterLs: ");
+  for (int i = 0; i < 4; i++) {
+    Serial.print(MasterL.getGain(i));
+    Serial.print(" , ");
+  } 
+  Serial.println(" ");
+  Serial.print(" MasterL1s: ");
+  for (int i = 0; i < 4; i++) {
+    Serial.print(MasterL1.getGain(i));
+    Serial.print(" , ");
+  } 
+  Serial.println(" ");
+  Serial.print(" WetMixMasterLs: ");
+  for (int i = 0; i < 4; i++) {
+    Serial.print(WetMixMasterL.getGain(i));
+    Serial.print(" , ");
+  } 
+  Serial.println(" ");
+  Serial.print(" FXBusLs: ");
+  for (int i = 0; i < 4; i++) {
+    Serial.print(FXBusL.getGain(i));
+    Serial.print(" , ");
+  } 
+  Serial.println(" ");
+  Serial.print(" premixMaster: ");
+  for (int i = 0; i < 4; i++) {
+    Serial.print(premixMaster.getGain(i));
+    Serial.print(" , ");
+  } 
+ }

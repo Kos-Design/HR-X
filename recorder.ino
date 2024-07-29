@@ -579,10 +579,14 @@ void continue_looper(){
       //      looper.write((byte*)queue1.readBuffer(), 256);
        //     queue1.freeBuffer();
       //  }
-      memcpy(bufferLoop, queue1.readBuffer(), 256);
+
+     
+      audio_block_t *block1 = (audio_block_t *)queue1.readBuffer();
       queue1.freeBuffer();
-      memcpy(bufferLoop + 256, queue1.readBuffer(), 256);
+      audio_block_t *block2 = (audio_block_t *)queue1.readBuffer();
       queue1.freeBuffer();
+      memcpy(bufferLoop, block1, 256);
+      memcpy(bufferLoop + 256, block2, 256);
       looper.write(bufferLoop, 512);
   }
   auto_stop_rec();
@@ -604,9 +608,9 @@ void start_sample_in_place() {
     Serial.println("start rec looper ");
     Serial.print(looper.name());
     Serial.println("");
-    AudioNoInterrupts();
+    //AudioNoInterrupts();
     queue1.begin();
-    AudioInterrupts();
+    //AudioInterrupts();
     rec_looping = true ;
   } else {
       String formattedString = "error opening " + String((const char *)newloopedpath);
@@ -630,9 +634,11 @@ void end_sample_in_place() {
       Serial.println("stop rec looper ");
     Serial.print(looper.name());
     Serial.println("");
-    AudioNoInterrupts();
+    //AudioNoInterrupts();
+    
     queue1.end();
-    AudioInterrupts();
+    
+    //AudioInterrupts();
     
     while (queue1.available() > 0) {
       looper.write((byte *)queue1.readBuffer(), 256);
@@ -645,6 +651,7 @@ void end_sample_in_place() {
     dosoundlist();
     }
     just_pressed_rec = false ;
+    
 }
 
   //rien  SOUNDSET/REC/WAV_01.WAV

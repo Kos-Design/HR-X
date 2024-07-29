@@ -24,7 +24,7 @@ void unplugfx() {
     fxcording[i]->disconnect();
   }
 }
-#define TIMER0_INTERVAL_MS        50L
+
 void setup() {
 
   // pseudoconsole((char*)"initializing...");
@@ -44,7 +44,7 @@ void setup() {
   initextmems();
   // setupmemtest();
   Serial.begin(9600);
-  AudioMemory(1000);
+  
   initializeconsolemsg();
   setupscreen();
   pseudoconsole((char *)"initializing...");
@@ -67,7 +67,7 @@ void setup() {
   delay(100);
   setupSD();
   pseudoconsole((char *)"SD Card OK !");
-  notefreq1.begin(.15);
+  //notefreq1.begin(.15);
   // because I set bool isConnected as public instead of protected in
   // AudioStream.h
   // if (fxcording[1]->isConnected) {
@@ -77,7 +77,7 @@ void setup() {
   // if (patchCord98.isConnected) {
   //  Serial.print("connected");
   // }
-  delay(10);
+  //delay(10);
   Pads.begin();
   pseudoconsole((char *)"Setting up I/O");
   for (unsigned int i = 0; i < manyinputpins; i++) {
@@ -97,8 +97,9 @@ void setup() {
 
   pseudoconsole((char *)"I/O Set !");
   pseudoconsole((char *)"Loading Defaults");
-  setupdefaultvalues();
   stopticker();
+  setupdefaultvalues();
+  
   Serial.println("done3");
   // bitcrusher[0]->bits(4); //set the crusher to defaults. This will
   // passthrough clean at 16,44100 bitcrusher[0]->sampleRate(44100/4);
@@ -108,7 +109,7 @@ void setup() {
 
   // const int myInput = AUDIO_INPUT_LINEIN;
   // const int myInput = AUDIO_INPUT_MIC;
-  audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+
   Doautoassign();
   // printclock();
   pseudoconsole((char *)"All Done !");
@@ -117,9 +118,15 @@ void setup() {
   //   lesSelectedsamplescharix[0] = (char*)"SOUNDSET/PACK2/BASST-01.RAW";
   //    delay(500);
   // Serial.println((char*)(lesSelectedsamplescharix[0]));
-  delay(50);
+  //delay(50);
   pseudoconsole((char *)"starting muxer");
   Muxer.start();
+  //queue1.begin();
+  AudioMemory(1500);
+  audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+  audioShield.enable();
+
+  audioShield.volume(1.0);
   /*
   
   metro1.begin(intervaltick, interval_ms * 1000);

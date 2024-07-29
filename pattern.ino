@@ -1236,12 +1236,19 @@ void event1offs(int linei) {
 }
 //changing_ccs[32][32][2] cc,val
 void light_cc_change() {
-  //pots_controllers[31];
+  for (int i = 0; i < 32; i++) {
+    if (recorded_ccs[i] != 0 && pots_controllers[i][tickposition][1] != 128){
+      moncontrollercc(1, pots_controllers[i][tickposition][0], pots_controllers[i][tickposition][1]);
+    }
+    
+  }
+ /*
   for (int i = 0; i < 128; i++) {
     if (cc_partition[i][tickposition] != 128) {
       moncontrollercc(1, i, cc_partition[i][tickposition]);
     }
   }
+  */
 }
 void doesccgonnachangeinpatfromnow() {
   //should be done only during record or manually
@@ -2341,6 +2348,12 @@ void startparsinginfos() { patterninparse = 1; }
 //    latimelineshifter = ((60000/19200)*pbars) ;
 // (60.0/BPMs)*1000)*pbars) = 1 bar millis
 
+void print_last_received() {
+     Serial.println(" first received: ");
+      Serial.print((char *)receivedbitinchar);
+      
+}
+
 void parsepattern(int lapatterne) {
   byte laccnote;
   byte parsedchannel;
@@ -2354,7 +2367,7 @@ void parsepattern(int lapatterne) {
     for (int i = 0; i < parsinglength; i++) {
       receivedbitinchar[i] = lepatternfile.read();
     }
-
+    print_last_received();
     Parser parserp((byte *)receivedbitinchar, parsinglength);
     parserp.Reset();
     letempspattern = 0;
@@ -2564,15 +2577,16 @@ void parsepattern(int lapatterne) {
       Serial.println("CC parsing start");
       parserp.Reset();
       lenint = 0;
-
-      for (int filer = 0; filer < 128; filer++) {
-
-        while (!(leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
+      bool keep_looping ;
+      for (int ittr = 0 ; ittr < 128 ; ittr++ ) {
+        keep_looping = true ;
+        while (keep_looping && !(leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
           parserp.JumpTo(Parser::IsDigit);
           letempspattern = round((parserp.Read_Int32() / letimescaler));
-
+          Serial.print(" ,letempspattern= ");
+          Serial.print(letempspattern);
           if (letempspattern > 31) {
-            break;
+            keep_looping = false ;
           }
 
           parserp.JumpTo(Parser::IsLetter);
@@ -2621,6 +2635,14 @@ void parsepattern(int lapatterne) {
         laccnote = parserp.Read_Int32();
         parserp.JumpTo(Parser::IsDigit);
         cc_partition[laccnote][letempspattern] = parserp.Read_Int32();
+        Serial.println(" ");
+        Serial.print(" cc ");
+        Serial.print(laccnote);
+        Serial.print(" set to ");
+        Serial.print(cc_partition[laccnote][letempspattern]);
+        Serial.print(" at pos ");
+        Serial.print(letempspattern);
+
         leparsed[1] = (char)'z';
         leparsed[0] = (char)'z';
         parserp.SkipUntil(parserp.IsNewLine);
@@ -2637,10 +2659,35 @@ void parsepattern(int lapatterne) {
     refresh_track();
     
     computelenghtmesureoffline();
-
+    set_ccs();
   } else {
     Serial.println("File not found : ");
     // Serial.print((char*)Patternfilefullpath[lapatterne]);
+  }
+  Serial.println("Parsing ended");
+}
+
+void set_ccs() {
+  // has to be reinitialized first
+  for (int i = 0; i < 32; i++) {
+     recorded_ccs[i] = 0 ;
+  }
+  for (int i = 0; i < pbars; i++) {
+    for (int j = 0; j < 128; j++) {
+      if (cc_partition[j][i] != 128){
+         for (int k = 0; k < 32; k++) {
+            if (recorded_ccs[k] == 0 || recorded_ccs[k] == j){
+              recorded_ccs[k] = j ;
+              Serial.println(" ");
+              Serial.print(" animating cc ");
+              Serial.print(recorded_ccs[k]);
+              pots_controllers[k][i][0] = j;
+              pots_controllers[k][i][1] = cc_partition[j][i];
+            }
+         }
+      }
+      
+    }
   }
 }
 

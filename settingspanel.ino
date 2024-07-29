@@ -675,7 +675,14 @@ void displaysettingspanel() {
       break;
     case 10:
       // navrange = 8 ;
-      noteprint = 1;
+      
+      noteprint = !noteprint;
+      if (noteprint) {
+        replug_notefreq_from_ampL();
+        notefreq1.begin(.15);
+      } else {
+        unplug_notefreq_from_ampL();
+      }
       // returntonav(1);
       // navlevel--;
       break;
@@ -715,6 +722,7 @@ void displaysettingspanel() {
     dodisplay();
   }
 }
+
 
 void makesettingslist() {
   char chordslabels[7][12] = {"Major", "Minor", "Diminished", "Augmented",

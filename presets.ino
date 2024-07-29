@@ -697,10 +697,7 @@ void parsefile(int presetn) {
   setwet2smixlevel(0);
   setwet2smixlevel(1);
 
-  for (int i = 0; i < 3; i++) {
-    switchfxes(i, moduleonfxline[i][0]);
-    setmastersmixlevel(i);
-  }
+  
   // Serial.println("switchfxes done");
   for (int i = 0; i < 4; i++) {
     setwavemixlevel(i);
@@ -710,10 +707,14 @@ void parsefile(int presetn) {
     WetMixMasters[i] = tmp_WetMixMasters[i];
     setwavemixlevel(i);
   }
-
+  for (int i = 0; i < 3; i++) {
+  //  switchfxes(i, moduleonfxline[i][0]);
+    setmastersmixlevel(i);
+  }
   wetmixmastercontrols();
-  Serial.println("going to apply fx");
-  allfxcontrolled();
+  //Serial.println("going to apply fx");
+  //allfxcontrolled();
+  print_gains();
 }
 
 void readpreset() { parsefile(sublevels[2]); }

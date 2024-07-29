@@ -1,3 +1,8 @@
+
+// custom Audio Mixer with gains storage for easy debugging
+
+
+
 const int display_lag = 10 ;
 const int control_lag = 10 ;
 #include "muxer.h"
@@ -28,7 +33,7 @@ float tapaverage;
 int millitickinterval = 115;
 //freeze, can't record wav
 //#include <MsTimer2.h>
-
+bool done_once ;
 //not precise
 //Metro metro0 = Metro(millitickinterval);
 //Metro metro303 = Metro(25);
@@ -37,8 +42,6 @@ int millitickinterval = 115;
 #include <BlockNot.h>
 
 BlockNot blinkTimer(millitickinterval);
-
-
 
 //freezes can't record
 //IntervalTimer metro1;
@@ -839,6 +842,12 @@ EXTMEM int16_t granularMemory2[GRANULAR_MEMORY_SIZE];
 EXTMEM int16_t granularMemory3[GRANULAR_MEMORY_SIZE];
 // int16_t granularMemory4[GRANULAR_MEMORY_SIZE];
 
+EXTMEM AudioConnection delayCord1(feedbackdelay1, delay1);
+EXTMEM AudioConnection delayCord2(feedbackdelay2, delay2);
+EXTMEM AudioConnection delayCord3(feedbackdelay3, delay3);
+
+EXTMEM AudioConnection Notespy_cable(ampL, notefreq1);
+
 AudioConnection FMWaveCord01(FMWaveform1L1, 0, WavesL1, 0);
 AudioConnection FMWaveCord02(FMWaveform1L2, 0, WavesL2, 0);
 AudioConnection FMWaveCord03(FMWaveform1L3, 0, WavesL3, 0);
@@ -1069,6 +1078,8 @@ AudioConnection MDstringCord29(string4L5, 0, modulate4L5, 0);
 AudioConnection MDstringCord30(string4L6, 0, modulate4L6, 0);
 AudioConnection MDstringCord31(string4L7, 0, modulate4L7, 0);
 AudioConnection MDstringCord32(string4L8, 0, modulate4L8, 0);
+
+AudioConnection *delayCords[3] = {&delayCord1, &delayCord2, &delayCord3};
 
 AudioConnection *stringcords1[32] = {
     &stringCord01, &stringCord02, &stringCord03, &stringCord04, &stringCord05,

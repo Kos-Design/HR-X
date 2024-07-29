@@ -176,39 +176,12 @@ void check_pots() {
 void loop() {
   //wav_record_loop();
  // if (!stoptick) {
-  if ( !stoptick ) {
-  if (blinkTimer.TRIGGERED) {
-    advance_tick();
- }
+ // if (millis() % 2 == 0) {
+    if ( rec_looping ) {
+    continue_looper();
   }
- // }
-  if (millis() % (control_lag + 1) == 0) {
-    check_pads();
-  }
- 
-     /*
-     if (!stoptick) {
-      
-        if (!externalticker && metro0.check() == 1) {
-          // Serial.println("from loop tick");
-          tick();
-        }
-      }
-      */
-
-    //loopRecorder();
-    //if (millis() % 2 == 0) {
-      
-     
-      /*if (metro303.check() == 1) {
+  //}
   
-        
-      }*/
-       if ( rec_looping ) {
-      continue_looper();
-      
-    }
-   // }
   if (millis() % display_lag == 0) {
    
     if (noteprint) {
@@ -218,16 +191,22 @@ void loop() {
     evalinputs();
     evalrota();
   }
-    
-  
 
-  // usbhost queries
-  loopusbHub();
-
-  if ((millis() % control_lag) == 0) {
-      check_pots() ;
+  if (millis() % (control_lag + 1) == 0) {
+    check_pads();
   }
-  // hdd_check();
+
+  if ( !stoptick ) {
+    if (blinkTimer.TRIGGERED) {
+      advance_tick();
+      }
+  } else {
+    loopusbHub();
+    if ((millis() % control_lag) == 0) {
+      check_pots() ;
+     }
+  }
+  
 }
 
 void printit() {

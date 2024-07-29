@@ -541,14 +541,15 @@ void controlswitcher(int caser, int valu) {
   case 97:
     // Audio In level
 
-    AudioNoInterrupts();
-    InMixL.gain(1, smallfloat);
-    InMixR.gain(1, smallfloat);
-
+    //AudioNoInterrupts();
+    //InMixL.gain(1, smallfloat);
+    //InMixR.gain(1, smallfloat);
+    Serial.println(" MasterL.gain(2) set to ");
+    Serial.print(smallfloat);
     MasterL.gain(2, smallfloat);
     MasterR.gain(2, smallfloat);
 
-    AudioInterrupts();
+    //AudioInterrupts();
     break;
 
   case 98:
@@ -590,7 +591,7 @@ void controlswitcher(int caser, int valu) {
 
   case 106:
     //  phase1
-
+  print_gains();
     break;
   case 107:
     // type2

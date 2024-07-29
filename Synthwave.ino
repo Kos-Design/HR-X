@@ -555,11 +555,11 @@ void showmixerwaves() {
 }
 
 void setwavemixlevel(int lesynth) {
-  AudioNoInterrupts();
+ // AudioNoInterrupts();
   for (int j = 0; j < 8; j++) {
     Wavesmix[j]->gain(lesynth, mixlevelsL[lesynth]);
   }
-  AudioInterrupts();
+ // AudioInterrupts();
 }
 
 void actionwet1mixer(int linstru) {
@@ -615,13 +615,13 @@ void wetmixmastercontrols() {
 }
 
 void setwet2smixlevel(int lebus) {
-  AudioNoInterrupts();
+  //AudioNoInterrupts();
   switch (lebus) {
   case 0:
     // set synth on fx main bus
 
-    MasterL1.gain(0, wetins[0] / 128.0);
-    MasterR1.gain(0, wetins[0] / 128.0);
+    MasterL.gain(1, wetins[0] / 128.0);
+    MasterR.gain(1, wetins[0] / 128.0);
     FXBusL.gain(2, 1 - (wetins[0] / 128.0));
     FXBusR.gain(2, 1 - (wetins[0] / 128.0));
     break;
@@ -636,7 +636,7 @@ void setwet2smixlevel(int lebus) {
   default:
     break;
   }
-  AudioInterrupts();
+  //AudioInterrupts();
 }
 
 void actionwmixer(int lesynth) {
@@ -673,11 +673,13 @@ void actionwmixerM(int lebus) {
 }
 
 void setmastersmixlevel(int lebus) {
-  AudioNoInterrupts();
+  //AudioNoInterrupts();
   switch (lebus) {
   case 0:
     // set mastermixlevel
-    audioShield.volume(mixlevelsM[0] / 128.0);
+    //audioShield.volume(mixlevelsM[0] / 128.0);
+    ampL.gain(mixlevelsM[0] / 128.0);
+    ampR.gain(mixlevelsM[0] / 128.0);
     break;
   case 1:
     // set synth Main
@@ -692,7 +694,7 @@ void setmastersmixlevel(int lebus) {
   default:
     break;
   }
-  AudioInterrupts();
+  //AudioInterrupts();
 }
 
 void setwavetypefromlist(int lesinthy, int letype) {
@@ -764,7 +766,8 @@ void setwavetypefromlist(int lesinthy, int letype) {
         drumcords1[i + (8 * lesinthy)]->disconnect();
 
         FMwavecords1[i + (8 * lesinthy)]->connect();
-        FMwaveforms1[i + (8 * lesinthy)]->begin(lesformes[letype]);
+        FMwaveforms1[i + (8 * lesinthy)]->begin(lesformes[letype]);     
+        
         // LFO begin
       }
     } else if (letype == 9) {
