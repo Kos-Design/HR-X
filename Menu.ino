@@ -37,9 +37,9 @@ void displayoffsetwav(int synthi) {
     wave1offset[synthi] = sublevels[4];
 
     for (int i = 0; i < nombreofliners; i++) {
-      waveforms1[i + (synthi * 8)]->offset(
+      waveforms1[i + (synthi * nombreofliners)]->offset(
           (float)(((64.0 - wave1offset[synthi]) / 64.0)));
-      FMwaveforms1[i + (synthi * 8)]->offset(
+      FMwaveforms1[i + (synthi * nombreofliners)]->offset(
           (float)(((64.0 - wave1offset[synthi]) / 64.0)));
     }
   }
@@ -162,13 +162,13 @@ void displayModulatedbool(int lesynthb) {
 
 void setfmtophase(byte lesynth) {
   for (byte i = 0; i < nombreofliners; i++) {
-    FMwaveforms1[i + (lesynth * 8)]->phaseModulation(180);
+    FMwaveforms1[i + (lesynth * nombreofliners)]->phaseModulation(180);
   }
 }
 
 void setfmtofreq(byte lesynth) {
   for (byte i = 0; i < nombreofliners; i++) {
-    FMwaveforms1[i + (lesynth * 8)]->frequencyModulation(10);
+    FMwaveforms1[i + (lesynth * nombreofliners)]->frequencyModulation(10);
   }
 }
 

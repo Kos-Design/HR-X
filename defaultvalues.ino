@@ -70,7 +70,7 @@ void loadsynthdefaults() {
   adsrlevels[4] = float(mappedsustain / 100);
   adsrlevels[5] = mappedrelease;
   
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < nombreofliners; i++) {
     enveloppesL[i]->delay(adsrlevels[0]);
     enveloppesL[i]->attack(adsrlevels[1]);
     // enveloppesL[i]->hold(adsrlevels[2]);
@@ -137,7 +137,7 @@ void setupdefaultvalues() {
   premixMaster.gain(0, 0.5);
   premixMaster.gain(1, 0.5);
 
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < nombreofliners; i++) {
     for (int j = 0; j < 4; j++) {
       Wavesmix[i]->gain(j, mixlevelsL[j]);
     }
@@ -308,24 +308,7 @@ void setupdefaultvalues() {
   // looper
   midiknobassigned[109] = 109;
   //note: WetMixMasterLs[0] is the dry channel
-
-/*
-  
- MasterLs: 0.97 , 0.52 , 0.31 , 0.00 ,  
- MasterL1s: 1.00 , 1.00 , 0.00 , 0.00 ,  
- WetMixMasterLs: 0.97 , 0.01 , 0.01 , 0.01 ,  
- 
-
-
- VS Before :
-  
- MasterLs: 0.97 , 0.59 , 1.00 , 0.00 ,  
- MasterL1s: 1.00 , 1.00 , 0.00 , 1.00 ,  
- WetMixMasterLs: 0.08 , 0.42 , 0.50 , 0.00 ,  
- 
-
- */
-
+  // TODO : remove myaudiomixer4 class override
   // USB Line in
   InMixL.gain(0, 0);
   InMixR.gain(0, 0);

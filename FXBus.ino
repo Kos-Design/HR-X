@@ -361,6 +361,7 @@ void restartdelayline(int lefilter) {
   delaytimingselect(lefilter, delayVknobs[lefilter][0]);
 
   delayfeedback(lefilter, (delayVknobs[lefilter][2] / 128.0) * 0.45);
+  //8 is delay obj tap channels
   for (int j = 0; j < 8; j++) {
 
     lesdelays[lefilter]->delay(j, delaymultiplier[lefilter] * (j + 2));

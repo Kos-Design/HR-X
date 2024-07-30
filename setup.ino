@@ -2,7 +2,7 @@
 void unplugsynth() {
 
   // unplugfx();
-  for (int i = 0; i < 32; i++) {
+  for (int i = 0; i < nombreofliners*numberofsynthsw; i++) {
 
     FMwavecords1[i]->disconnect();
     modulatecords1[i]->disconnect();
@@ -70,6 +70,7 @@ void setup() {
   //notefreq1.begin(.15);
   // because I set bool isConnected as public instead of protected in
   // AudioStream.h
+  // TODO : BAD , better extend class but not really needed
   // if (fxcording[1]->isConnected) {
   //  Serial.print("connected 420");
   // }

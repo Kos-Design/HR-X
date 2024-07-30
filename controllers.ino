@@ -311,9 +311,9 @@ void controlswitcher(int caser, int valu) {
   case 51:
     wave1offset[ccsynthselector] = round(smallfloat * 128.0);
     for (int i = 0; i < nombreofliners; i++) {
-      waveforms1[i + (ccsynthselector * 8)]->offset(
+      waveforms1[i + (ccsynthselector * nombreofliners)]->offset(
           (float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
-      FMwaveforms1[i + (ccsynthselector * 8)]->offset(
+      FMwaveforms1[i + (ccsynthselector * nombreofliners)]->offset(
           (float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
     }
 

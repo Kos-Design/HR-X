@@ -2002,7 +2002,7 @@ void patedit3() {
   drawnoteRow();
   drawCursorCol();
   canvasBIG.fillRect(0, 32,127,64-32, SSD1306_BLACK);
-   for (int i = 0; i < 32; i++) {
+   for (int i = 0; i < pbars; i++) {
     velobar = map(synth_partition[sublevels[2]][i][2],0,127,0,32);
     canvasBIG.fillRect((i*(128/32)), 64-velobar,4 ,velobar, SSD1306_WHITE);
     

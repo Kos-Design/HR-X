@@ -254,10 +254,10 @@ void arpegiatorVpanelAction() {
     // fq
 
     if (slct == 0) {
-      navrange = 8;
+      navrange = arpeges_types;
       arpegiatortype = sublevels[3];
       // arpegiatortype = sublevels[2];
-      if (arpegiatortype < 8) {
+      if (arpegiatortype < arpeges_types) {
         arpegiatorOn = 1;
         //metro0.reset();
       } else {
@@ -373,7 +373,7 @@ void arpegiatorVpanel() {
   byte topwbarstart = 16;
   byte slct = sublevels[2];
   byte wbarwidth2 = 7;
-  char lesarpegestype[8][12] = {"Ionian",     "Dorian",  "Phrygian", "Lydian",
+  char lesarpegestype[arpeges_types][12] = {"Ionian",     "Dorian",  "Phrygian", "Lydian",
                                 "Mixolydian", "Aeolian", "Harmonic", "Locrian"};
   display.clearDisplay();
   canvasBIG.fillScreen(SSD1306_BLACK);
@@ -381,7 +381,7 @@ void arpegiatorVpanel() {
   canvastitle.setCursor(0, 0);
   canvastitle.setTextSize(1);
   canvastitle.print("Arpegiator ");
-  if (arpegiatortype < 8) {
+  if (arpegiatortype < arpeges_types) {
     canvastitle.print((char *)lesarpegestype[arpegiatortype]);
   } else {
     canvastitle.print("disabled");

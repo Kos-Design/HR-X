@@ -105,20 +105,20 @@ void le303filterVpanelAction() {
 }
 
 void Wavespreamp303controls() {
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < nombreofliners; i++) {
     Wavespreamp303[i]->gain(preampleswaves / 128.0);
   }
 }
 
 void le303filterzWet() {
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < nombreofliners; i++) {
     les303wet[i]->gain(0, le303filterzwet / 100.0);
     les303wet[i]->gain(1, (1 - (le303filterzwet / 100.0)));
   }
 }
 
 void le303filtercontrols() {
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < nombreofliners; i++) {
     setle303filterpass(i, 1);
 
     // les303filterz[i]->frequency(le303filterzfreq);
@@ -373,7 +373,7 @@ void le303filterVpanelSelector() {
 
 void initialize303group() {
 
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < nombreofliners; i++) {
     setle303filterpass(i, 1.0);
     les303wet[i]->gain(1, 1);
     les303wet[i]->gain(0, 0);
@@ -556,7 +556,7 @@ void showmixerwaves() {
 
 void setwavemixlevel(int lesynth) {
  // AudioNoInterrupts();
-  for (int j = 0; j < 8; j++) {
+  for (int j = 0; j < nombreofliners; j++) {
     Wavesmix[j]->gain(lesynth, mixlevelsL[lesynth]);
   }
  // AudioInterrupts();
@@ -605,8 +605,7 @@ void wetmixmastercontrols() {
     WetMixMasters[2] /= sum;
     WetMixMasters[3] /= sum;
   }
-  WetMixMasters[0] =
-      1.0 - (WetMixMasters[3] + WetMixMasters[2] + WetMixMasters[1]);
+  WetMixMasters[0] = 1.0 - (WetMixMasters[3] + WetMixMasters[2] + WetMixMasters[1]);
 
   for (byte i = 0; i < 4; i++) {
     WetMixMasterL.gain(i, WetMixMasters[i]);
@@ -707,40 +706,40 @@ void setwavetypefromlist(int lesinthy, int letype) {
     if (letype < 9) {
       for (int i = 0; i < nombreofliners; i++) {
 
-        FMwavecords1[i + (8 * lesinthy)]->disconnect();
-        stringcords1[i + (8 * lesinthy)]->disconnect();
-        modulatecords1[i + (8 * lesinthy)]->disconnect();
-        MDdrumcords1[i + (8 * lesinthy)]->disconnect();
-        MDstringcords1[i + (8 * lesinthy)]->disconnect();
-        drumcords1[i + (8 * lesinthy)]->disconnect();
-        wavelinescords[i + (8 * lesinthy)]->connect();
-        waveforms1[i + (8 * lesinthy)]->begin(lesformes[letype]);
+        FMwavecords1[i + (nombreofliners * lesinthy)]->disconnect();
+        stringcords1[i + (nombreofliners * lesinthy)]->disconnect();
+        modulatecords1[i + (nombreofliners * lesinthy)]->disconnect();
+        MDdrumcords1[i + (nombreofliners * lesinthy)]->disconnect();
+        MDstringcords1[i + (nombreofliners * lesinthy)]->disconnect();
+        drumcords1[i + (nombreofliners * lesinthy)]->disconnect();
+        wavelinescords[i + (nombreofliners * lesinthy)]->connect();
+        waveforms1[i + (nombreofliners * lesinthy)]->begin(lesformes[letype]);
 
         if (letype == 7) {
-          waveforms1[i + (8 * lesinthy)]->arbitraryWaveform(arbitrary_waveforms[lesinthy],1.0);
+          waveforms1[i + (nombreofliners * lesinthy)]->arbitraryWaveform(arbitrary_waveforms[lesinthy],1.0);
         }
       }
 
     } else if (letype == 9) {
       for (int i = 0; i < nombreofliners; i++) {
-        wavelinescords[i + (lesinthy * 8)]->disconnect();
-        stringcords1[i + (lesinthy * 8)]->disconnect();
-        FMwavecords1[i + (lesinthy * 8)]->disconnect();
-        modulatecords1[i + (8 * lesinthy)]->disconnect();
-        MDdrumcords1[i + (8 * lesinthy)]->disconnect();
-        MDstringcords1[i + (8 * lesinthy)]->disconnect();
-        drumcords1[i + (lesinthy * 8)]->connect();
+        wavelinescords[i + (lesinthy * nombreofliners)]->disconnect();
+        stringcords1[i + (lesinthy * nombreofliners)]->disconnect();
+        FMwavecords1[i + (lesinthy * nombreofliners)]->disconnect();
+        modulatecords1[i + (nombreofliners * lesinthy)]->disconnect();
+        MDdrumcords1[i + (nombreofliners * lesinthy)]->disconnect();
+        MDstringcords1[i + (nombreofliners * lesinthy)]->disconnect();
+        drumcords1[i + (lesinthy * nombreofliners)]->connect();
       }
     } else if (letype == 10) {
 
       for (int i = 0; i < nombreofliners; i++) {
-        wavelinescords[i + (lesinthy * 8)]->disconnect();
-        drumcords1[i + (lesinthy * 8)]->disconnect();
-        FMwavecords1[i + (lesinthy * 8)]->disconnect();
-        modulatecords1[i + (8 * lesinthy)]->disconnect();
-        MDdrumcords1[i + (8 * lesinthy)]->disconnect();
-        MDstringcords1[i + (8 * lesinthy)]->disconnect();
-        stringcords1[i + (lesinthy * 8)]->connect();
+        wavelinescords[i + (lesinthy * nombreofliners)]->disconnect();
+        drumcords1[i + (lesinthy * nombreofliners)]->disconnect();
+        FMwavecords1[i + (lesinthy * nombreofliners)]->disconnect();
+        modulatecords1[i + (nombreofliners * lesinthy)]->disconnect();
+        MDdrumcords1[i + (nombreofliners * lesinthy)]->disconnect();
+        MDstringcords1[i + (nombreofliners * lesinthy)]->disconnect();
+        stringcords1[i + (lesinthy * nombreofliners)]->connect();
       }
     }
   }
@@ -758,40 +757,40 @@ void setwavetypefromlist(int lesinthy, int letype) {
     if (letype < 9) {
 
       for (int i = 0; i < nombreofliners; i++) {
-        wavelinescords[i + (8 * lesinthy)]->disconnect();
-        modulatecords1[i + (8 * lesinthy)]->disconnect();
-        MDdrumcords1[i + (8 * lesinthy)]->disconnect();
-        MDstringcords1[i + (8 * lesinthy)]->disconnect();
-        stringcords1[i + (8 * lesinthy)]->disconnect();
-        drumcords1[i + (8 * lesinthy)]->disconnect();
+        wavelinescords[i + (nombreofliners * lesinthy)]->disconnect();
+        modulatecords1[i + (nombreofliners * lesinthy)]->disconnect();
+        MDdrumcords1[i + (nombreofliners * lesinthy)]->disconnect();
+        MDstringcords1[i + (nombreofliners * lesinthy)]->disconnect();
+        stringcords1[i + (nombreofliners * lesinthy)]->disconnect();
+        drumcords1[i + (nombreofliners * lesinthy)]->disconnect();
 
-        FMwavecords1[i + (8 * lesinthy)]->connect();
-        FMwaveforms1[i + (8 * lesinthy)]->begin(lesformes[letype]);     
+        FMwavecords1[i + (nombreofliners * lesinthy)]->connect();
+        FMwaveforms1[i + (nombreofliners * lesinthy)]->begin(lesformes[letype]);     
         
         // LFO begin
       }
     } else if (letype == 9) {
       // modulated drum
       for (int i = 0; i < nombreofliners; i++) {
-        wavelinescords[i + (lesinthy * 8)]->disconnect();
-        stringcords1[i + (lesinthy * 8)]->disconnect();
-        FMwavecords1[i + (lesinthy * 8)]->disconnect();
-        drumcords1[i + (lesinthy * 8)]->disconnect();
-        MDstringcords1[i + (8 * lesinthy)]->disconnect();
+        wavelinescords[i + (lesinthy * nombreofliners)]->disconnect();
+        stringcords1[i + (lesinthy * nombreofliners)]->disconnect();
+        FMwavecords1[i + (lesinthy * nombreofliners)]->disconnect();
+        drumcords1[i + (lesinthy * nombreofliners)]->disconnect();
+        MDstringcords1[i + (nombreofliners * lesinthy)]->disconnect();
 
-        modulatecords1[i + (8 * lesinthy)]->connect();
-        MDdrumcords1[i + (8 * lesinthy)]->connect();
+        modulatecords1[i + (nombreofliners * lesinthy)]->connect();
+        MDdrumcords1[i + (nombreofliners * lesinthy)]->connect();
       }
     } else if (letype == 10) {
       // modulated string
       for (int i = 0; i < nombreofliners; i++) {
-        wavelinescords[i + (lesinthy * 8)]->disconnect();
-        drumcords1[i + (lesinthy * 8)]->disconnect();
-        FMwavecords1[i + (lesinthy * 8)]->disconnect();
-        stringcords1[i + (lesinthy * 8)]->disconnect();
-        MDdrumcords1[i + (8 * lesinthy)]->disconnect();
-        MDstringcords1[i + (8 * lesinthy)]->connect();
-        modulatecords1[i + (8 * lesinthy)]->connect();
+        wavelinescords[i + (lesinthy * nombreofliners)]->disconnect();
+        drumcords1[i + (lesinthy * nombreofliners)]->disconnect();
+        FMwavecords1[i + (lesinthy * nombreofliners)]->disconnect();
+        stringcords1[i + (lesinthy * nombreofliners)]->disconnect();
+        MDdrumcords1[i + (nombreofliners * lesinthy)]->disconnect();
+        MDstringcords1[i + (nombreofliners * lesinthy)]->connect();
+        modulatecords1[i + (nombreofliners * lesinthy)]->connect();
       }
     }
   }
@@ -800,13 +799,13 @@ void setwavetypefromlist(int lesinthy, int letype) {
   if (letype == 11) {
     mixlevelsL[lesinthy] = 0;
     for (int i = 0; i < nombreofliners; i++) {
-      wavelinescords[i + (8 * lesinthy)]->disconnect();
-      stringcords1[i + (8 * lesinthy)]->disconnect();
-      drumcords1[i + (8 * lesinthy)]->disconnect();
-      FMwavecords1[i + (8 * lesinthy)]->disconnect();
-      MDdrumcords1[i + (8 * lesinthy)]->disconnect();
-      MDstringcords1[i + (8 * lesinthy)]->disconnect();
-      modulatecords1[i + (8 * lesinthy)]->disconnect();
+      wavelinescords[i + (nombreofliners * lesinthy)]->disconnect();
+      stringcords1[i + (nombreofliners * lesinthy)]->disconnect();
+      drumcords1[i + (nombreofliners * lesinthy)]->disconnect();
+      FMwavecords1[i + (nombreofliners * lesinthy)]->disconnect();
+      MDdrumcords1[i + (nombreofliners * lesinthy)]->disconnect();
+      MDstringcords1[i + (nombreofliners * lesinthy)]->disconnect();
+      modulatecords1[i + (nombreofliners * lesinthy)]->disconnect();
     }
   }
   AudioInterrupts();
@@ -825,7 +824,7 @@ void setphaselevel(int lesynth) {
   AudioNoInterrupts();
 
   for (int i = 0; i < nombreofliners; i++) {
-    waveforms1[i + (8 * lesynth)]->phase(phaselevelsL[lesynth]);
+    waveforms1[i + (nombreofliners * lesynth)]->phase(phaselevelsL[lesynth]);
   }
 
   AudioInterrupts();
@@ -836,7 +835,7 @@ void setphaser(int lesynth, float laphaze) {
   phaselevelsL[lesynth] = round(laphaze * 360.0);
 
   for (int i = 0; i < nombreofliners; i++) {
-    waveforms1[i + (8 * lesynth)]->phase(phaselevelsL[lesynth]);
+    waveforms1[i + (nombreofliners * lesynth)]->phase(phaselevelsL[lesynth]);
   }
 
   AudioInterrupts();
@@ -851,13 +850,17 @@ void setsynthfrequencyi(float tune, int voice, byte velocityz) {
 
   for (int i = 0; i < 4; i++) {
 
-    waveforms1[voice + (i * 8)]->frequency(tune * wavesfreqs[i - 1]);
-    waveforms1[voice + (i * 8)]->amplitude(velocityz / 128.0);
-    FMwaveforms1[i + voice * 4]->frequency(tune * wavesfreqs[i - 1]);
-    FMwaveforms1[i + voice * 4]->amplitude(velocityz / 128.0);
+    waveforms1[voice + (i * nombreofliners)]->frequency(tune * wavesfreqs[i - 1]);
+    waveforms1[voice + (i * nombreofliners)]->amplitude(velocityz / 128.0);
+    //FMwaveforms1[i + voice * 4]->frequency(tune * wavesfreqs[i - 1]);
+    //FMwaveforms1[i + voice * 4]->amplitude(velocityz / 128.0);
+    FMwaveforms1[voice + (i * nombreofliners)]->frequency(tune * wavesfreqs[i - 1]);
+    FMwaveforms1[voice + (i * nombreofliners)]->amplitude(velocityz / 128.0);
 
-    drums1[i + voice * 8]->length(velocityz * 5);
-    drums1[i + 4 + voice * 8]->length(velocityz * 5);
+    //drums1[i + voice * nombreofliners]->length(velocityz * 5);
+    //drums1[i + 4 + voice * nombreofliners]->length(velocityz * 5);
+    drums1[voice + (i * nombreofliners)]->length(velocityz * 5);
+    //drums1[voice + (i * nombreofliners)]->length(velocityz * 5);
   }
 
   // AudioInterrupts();
@@ -876,7 +879,7 @@ void SetADSR() {
 
 void ApplyADSR() {
 
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < nombreofliners; i++) {
     enveloppesL[i]->delay(adsrlevels[0]);
     enveloppesL[i]->attack(adsrlevels[1]);
     enveloppesL[i]->hold(adsrlevels[2]);

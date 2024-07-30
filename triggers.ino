@@ -49,20 +49,20 @@ void setfreqWavelines(float tune, int liner, byte velocityz) {
 //TODO adsrlevels correspondance
   for (int i = 0; i < 4; i++) {
 
-    waveforms1[liner + (i * 8)]->amplitude(velocityz / 128.0);
-    waveforms1[liner + (i * 8)]->frequency(tune * wavesfreqs[i]);
-    waveforms1[liner + (i * 8)]->offset(
+    waveforms1[liner + (i * nombreofliners)]->amplitude(velocityz / 128.0);
+    waveforms1[liner + (i * nombreofliners)]->frequency(tune * wavesfreqs[i]);
+    waveforms1[liner + (i * nombreofliners)]->offset(
         (float)(((64.0 - wave1offset[i]) / 64.0)));
-    waveforms1[liner + (i * 8)]->phase(phaselevelsL[i]);
-    FMwaveforms1[liner + (i * 8)]->frequency(tune * wavesfreqs[i]);
-    FMwaveforms1[liner + (i * 8)]->amplitude(velocityz / 128.0);
-    FMwaveforms1[liner + (i * 8)]->offset(
+    waveforms1[liner + (i * nombreofliners)]->phase(phaselevelsL[i]);
+    FMwaveforms1[liner + (i * nombreofliners)]->frequency(tune * wavesfreqs[i]);
+    FMwaveforms1[liner + (i * nombreofliners)]->amplitude(velocityz / 128.0);
+    FMwaveforms1[liner + (i * nombreofliners)]->offset(
         (float)(((64.0 - wave1offset[i]) / 64.0)));
-    drums1[liner + (i * 8)]->length(adsrlevels[1] + adsrlevels[2] +
+    drums1[liner + (i * nombreofliners)]->length(adsrlevels[1] + adsrlevels[2] +
                                     adsrlevels[3]);
-    drums1[liner + (i * 8)]->frequency(tune * wavesfreqs[i]);
-    drums1[liner + (i * 8)]->noteOn();
-    strings1[liner + (i * 8)]->noteOn(tune * wavesfreqs[i],
+    drums1[liner + (i * nombreofliners)]->frequency(tune * wavesfreqs[i]);
+    drums1[liner + (i * nombreofliners)]->noteOn();
+    strings1[liner + (i * nombreofliners)]->noteOn(tune * wavesfreqs[i],
                                       (velocityz / 128.0));
   }
 }
@@ -919,9 +919,9 @@ int getnextposofevent1Off(int linei, byte lanote, int fromi) {
 void tweakfreqlive(int liner, float tune) {
   AudioNoInterrupts();
   for (int j = 0; j < 4; j++) {
-    waveforms1[liner + (j * 8)]->frequency(tune * wavesfreqs[j]);
-    FMwaveforms1[liner + (j * 8)]->frequency(tune * wavesfreqs[j]);
-    drums1[liner + (j * 8)]->frequency(tune * wavesfreqs[j]);
+    waveforms1[liner + (j * nombreofliners)]->frequency(tune * wavesfreqs[j]);
+    FMwaveforms1[liner + (j * nombreofliners)]->frequency(tune * wavesfreqs[j]);
+    drums1[liner + (j * nombreofliners)]->frequency(tune * wavesfreqs[j]);
   }
   AudioInterrupts();
 }
