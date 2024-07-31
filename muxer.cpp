@@ -1,10 +1,7 @@
 #include <CD74HC4067.h>
 int val;
-CD74HC4067
-    my_mux(3, 4, 5,
-           9); // create a new CD74HC4067 object with its four control pins
-const int g_common_pin =
-    41; // select a pin to share with the 16 channels of the CD74HC4067
+CD74HC4067  my_mux(3, 4, 5, 9); // create a new CD74HC4067 object with its four control pins
+const int g_common_pin = 41; // select a pin to share with the 16 channels of the CD74HC4067
 #include "muxer.h"
 
 int pots_previous[16];

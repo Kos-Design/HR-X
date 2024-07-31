@@ -36,45 +36,33 @@ EXTMEM AudioEffectMultiply multiply3;             // xy=84.88333129882812,1127
 EXTMEM AudioEffectMultiply multiply2;             // xy=86.88333129882812,1085
 EXTMEM AudioEffectMultiply multiply1;             // xy=88.88333129882812,1042
 EXTMEM AudioSynthWaveform LFOrm3;                 // xy=242.88333129882812,1063
-EXTMEM AudioSynthWaveform LFOrm4;                 // xy=245.88333129882812,1285
+
 EXTMEM AudioSynthWaveform LFOrm1;                 // xy=250.88333129882812,752
 EXTMEM AudioSynthWaveform LFOrm2;                 // xy=250.88333129882812,869
 EXTMEM AudioSynthWaveformModulated FMWaveform1L3; // xy=507.8833312988281,914
-EXTMEM AudioSynthWaveformModulated FMWaveform4L2; // xy=508.8833312988281,882
 EXTMEM AudioSynthWaveformModulated FMWaveform2L3; // xy=508.8833312988281,948
 EXTMEM AudioSynthWaveformModulated FMWaveform1L2; // xy=509.8833312988281,776
 EXTMEM AudioSynthWaveformModulated FMWaveform2L2; // xy=510.8833312988281,810
 EXTMEM AudioSynthWaveformModulated FMWaveform3L3; // xy=510.8833312988281,980
 EXTMEM AudioSynthWaveformModulated FMWaveform1L4; // xy=510.8833312988281,1051
 EXTMEM AudioSynthWaveformModulated FMWaveform1L1; // xy=512.8833312988281,637
-EXTMEM AudioSynthWaveformModulated FMWaveform4L3; // xy=512.8833312988281,1015
 EXTMEM AudioSynthWaveformModulated FMWaveform2L4; // xy=512.8833312988281,1085
 EXTMEM AudioSynthWaveformModulated FMWaveform2L1; // xy=514.8833312988281,671
 EXTMEM AudioSynthWaveformModulated FMWaveform3L2; // xy=514.8833312988281,847
 EXTMEM AudioSynthWaveformModulated FMWaveform3L4; // xy=514.8833312988281,1118
 EXTMEM AudioSynthWaveformModulated FMWaveform1L5; // xy=514.8833312988281,1201
 EXTMEM AudioSynthWaveformModulated FMWaveform3L1; // xy=516.8833312988281,703
-EXTMEM AudioSynthWaveformModulated FMWaveform4L4; // xy=515.8833312988281,1153
-EXTMEM AudioSynthWaveformModulated FMWaveform4L1; // xy=517.8833312988281,738
 EXTMEM AudioSynthWaveformModulated FMWaveform2L5; // xy=516.8833312988281,1235
 EXTMEM AudioSynthWaveformModulated FMWaveform3L5; // xy=518.8833312988281,1268
-EXTMEM AudioSynthWaveformModulated FMWaveform4L5; // xy=519.8833312988281,1303
+
 EXTMEM AudioSynthWaveformModulated FMWaveform1L6; // xy=528.8833312988281,1350
 EXTMEM AudioSynthWaveformModulated FMWaveform2L6; // xy=530.8833312988281,1384
 EXTMEM AudioSynthWaveformModulated FMWaveform3L6; // xy=532.8833312988281,1417
-EXTMEM AudioSynthWaveformModulated FMWaveform4L6; // xy=533.8833312988281,1452
-EXTMEM AudioSynthWaveformModulated FMWaveform1L7; // xy=534.8833312988281,1490
-EXTMEM AudioSynthWaveformModulated FMWaveform1L8; // xy=535.8833312988281,1633
-EXTMEM AudioSynthWaveformModulated FMWaveform2L7; // xy=536.8833312988281,1524
-EXTMEM AudioSynthWaveformModulated FMWaveform3L7; // xy=538.8833312988281,1557
-EXTMEM AudioSynthWaveformModulated FMWaveform4L7; // xy=539.8833312988281,1592
-EXTMEM AudioSynthWaveformModulated FMWaveform3L8; // xy=539.8833312988281,1700
-EXTMEM AudioSynthWaveformModulated FMWaveform2L8; // xy=540.8833312988281,1667
-EXTMEM AudioSynthWaveformModulated FMWaveform4L8; // xy=540.8833312988281,1735
+
 EXTMEM AudioEffectMultiply modulate1L6;           // xy=704.8833312988281,1339
 EXTMEM AudioEffectMultiply modulate2L6;           // xy=704.8833312988281,1371
 EXTMEM AudioEffectMultiply modulate3L6;           // xy=706.8833312988281,1402
-EXTMEM AudioEffectMultiply modulate4L6;           // xy=710.8833312988281,1432
+
 EXTMEM AudioEffectMultiply modulate1L2;           // xy=718.8833312988281,799
 EXTMEM AudioEffectMultiply modulate2L2;           // xy=718.8833312988281,831
 EXTMEM AudioEffectMultiply modulate1L3;           // xy=718.8833312988281,933
@@ -86,99 +74,60 @@ EXTMEM AudioEffectMultiply modulate3L3;           // xy=720.8833312988281,996
 EXTMEM AudioEffectMultiply modulate3L5;           // xy=720.8833312988281,1263
 EXTMEM AudioEffectMultiply modulate1L4;           // xy=722.8833312988281,1067
 EXTMEM AudioEffectMultiply modulate2L4;           // xy=722.8833312988281,1099
-EXTMEM AudioEffectMultiply modulate4L2;           // xy=724.8833312988281,892
-EXTMEM AudioEffectMultiply modulate4L3;           // xy=724.8833312988281,1026
+
 EXTMEM AudioEffectMultiply modulate3L4;           // xy=724.8833312988281,1130
-EXTMEM AudioEffectMultiply modulate4L5;           // xy=724.8833312988281,1293
 EXTMEM AudioEffectMultiply modulate1L1;           // xy=728.8833312988281,670
 EXTMEM AudioEffectMultiply modulate2L1;           // xy=728.8833312988281,702
-EXTMEM AudioEffectMultiply modulate4L4;           // xy=728.8833312988281,1160
-EXTMEM AudioEffectMultiply modulate1L7;           // xy=727.8833312988281,1474
 EXTMEM AudioEffectMultiply modulate3L1;           // xy=730.8833312988281,733
-EXTMEM AudioEffectMultiply modulate2L7;           // xy=727.8833312988281,1506
-EXTMEM AudioEffectMultiply modulate3L7;           // xy=729.8833312988281,1537
-EXTMEM AudioEffectMultiply modulate4L1;           // xy=733.8833312988281,764
-EXTMEM AudioEffectMultiply modulate1L8;           // xy=730.8833312988281,1608
-EXTMEM AudioEffectMultiply modulate2L8;           // xy=730.8833312988281,1640
-EXTMEM AudioEffectMultiply modulate4L7;           // xy=731.8833312988281,1568
-EXTMEM AudioEffectMultiply modulate3L8;           // xy=732.8833312988281,1671
-EXTMEM AudioEffectMultiply modulate4L8;           // xy=736.8833312988281,1701
 EXTMEM AudioSynthSimpleDrum drum2L1;              // xy=930.8833312988281,684
 EXTMEM AudioSynthSimpleDrum drum2L6;              // xy=928.8833312988281,1354
 EXTMEM AudioSynthSimpleDrum drum2L5;              // xy=929.8833312988281,1224
-EXTMEM AudioSynthSimpleDrum drum4L1;              // xy=931.8833312988281,747
 EXTMEM AudioSynthSimpleDrum drum3L1;              // xy=932.8833312988281,717
-EXTMEM AudioSynthSimpleDrum drum4L5;              // xy=930.8833312988281,1287
 EXTMEM AudioSynthSimpleDrum drum1L1;              // xy=933.8833312988281,654
 EXTMEM AudioSynthSimpleDrum drum3L5;              // xy=931.8833312988281,1257
 EXTMEM AudioSynthSimpleDrum drum1L6;              // xy=931.8833312988281,1324
 EXTMEM AudioSynthSimpleDrum drum1L5;              // xy=932.8833312988281,1194
 EXTMEM AudioSynthSimpleDrum drum2L3;              // xy=934.8833312988281,954
-EXTMEM AudioSynthSimpleDrum drum4L3;              // xy=935.8833312988281,1017
 EXTMEM AudioSynthSimpleDrum drum2L4;              // xy=935.8833312988281,1094
 EXTMEM AudioSynthSimpleDrum drum3L3;              // xy=936.8833312988281,987
-EXTMEM AudioSynthSimpleDrum drum4L4;              // xy=936.8833312988281,1157
+
 EXTMEM AudioSynthSimpleDrum drum1L3;              // xy=937.8833312988281,924
 EXTMEM AudioSynthSimpleDrum drum3L4;              // xy=937.8833312988281,1127
 EXTMEM AudioSynthSimpleDrum drum1L4;              // xy=938.8833312988281,1064
 EXTMEM AudioSynthSimpleDrum drum2L2;              // xy=939.8833312988281,827
-EXTMEM AudioSynthSimpleDrum drum4L2;              // xy=940.8833312988281,890
-EXTMEM AudioSynthSimpleDrum drum2L7;              // xy=938.8833312988281,1500
+
 EXTMEM AudioSynthSimpleDrum drum3L2;              // xy=941.8833312988281,860
-EXTMEM AudioSynthSimpleDrum drum2L8;              // xy=938.8833312988281,1630
-EXTMEM AudioSynthSimpleDrum drum4L6;              // xy=939.8833312988281,1430
 EXTMEM AudioSynthSimpleDrum drum1L2;              // xy=942.8833312988281,797
-EXTMEM AudioSynthSimpleDrum drum4L7;              // xy=939.8833312988281,1563
 EXTMEM AudioSynthSimpleDrum drum3L6;              // xy=940.8833312988281,1400
-EXTMEM AudioSynthSimpleDrum drum4L8;              // xy=939.8833312988281,1693
-EXTMEM AudioSynthSimpleDrum drum3L7;              // xy=940.8833312988281,1533
-EXTMEM AudioSynthSimpleDrum drum3L8;              // xy=940.8833312988281,1663
-EXTMEM AudioSynthSimpleDrum drum1L7;              // xy=941.8833312988281,1470
-EXTMEM AudioSynthSimpleDrum drum1L8;              // xy=941.8833312988281,1600
-EXTMEM AudioSynthKarplusStrong string3L8;         // xy=1054.8833312988281,1665
-EXTMEM AudioSynthKarplusStrong string2L8;         // xy=1055.8833312988281,1632
-EXTMEM AudioSynthKarplusStrong string4L8;         // xy=1055.8833312988281,1697
 EXTMEM AudioSynthKarplusStrong string2L6;         // xy=1059.8833312988281,1346
-EXTMEM AudioSynthKarplusStrong string3L7;         // xy=1060.8833312988281,1528
-EXTMEM AudioSynthKarplusStrong string2L7;         // xy=1061.8833312988281,1495
-EXTMEM AudioSynthKarplusStrong string4L7;         // xy=1061.8833312988281,1560
-EXTMEM AudioSynthKarplusStrong string1L8;         // xy=1061.8833312988281,1600
 EXTMEM AudioSynthKarplusStrong string3L4;         // xy=1064.8833312988281,1109
 EXTMEM AudioSynthKarplusStrong string2L4;         // xy=1065.8833312988281,1076
-EXTMEM AudioSynthKarplusStrong string4L4;         // xy=1065.8833312988281,1141
+
 EXTMEM AudioSynthKarplusStrong string1L6;         // xy=1065.8833312988281,1314
-EXTMEM AudioSynthKarplusStrong string1L7;         // xy=1067.8833312988281,1463
+
 EXTMEM AudioSynthKarplusStrong string3L3;         // xy=1069.8833312988281,976
 EXTMEM AudioSynthKarplusStrong string3L6;         // xy=1068.8833312988281,1392
 EXTMEM AudioSynthKarplusStrong string3L1;         // xy=1071.8833312988281,691
 EXTMEM AudioSynthKarplusStrong string2L3;         // xy=1070.8833312988281,943
-EXTMEM AudioSynthKarplusStrong string4L3;         // xy=1070.8833312988281,1008
+
 EXTMEM AudioSynthKarplusStrong string2L1;         // xy=1072.8833312988281,658
-EXTMEM AudioSynthKarplusStrong string4L6;         // xy=1069.8833312988281,1424
-EXTMEM AudioSynthKarplusStrong string4L1;         // xy=1072.8833312988281,723
+
+
 EXTMEM AudioSynthKarplusStrong string1L2;         // xy=1072.8833312988281,764
 EXTMEM AudioSynthKarplusStrong string1L4;         // xy=1071.8833312988281,1044
 EXTMEM AudioSynthKarplusStrong string3L2;         // xy=1072.8833312988281,843
 EXTMEM AudioSynthKarplusStrong string2L2;         // xy=1073.8833312988281,810
-EXTMEM AudioSynthKarplusStrong string4L2;         // xy=1073.8833312988281,875
+
 EXTMEM AudioSynthKarplusStrong string3L5;         // xy=1075.8833312988281,1245
 EXTMEM AudioSynthKarplusStrong string1L3;         // xy=1077.8833312988281,911
 EXTMEM AudioSynthKarplusStrong string2L5;         // xy=1076.8833312988281,1212
-EXTMEM AudioSynthKarplusStrong string4L5;         // xy=1076.8833312988281,1277
+//TODO: check cablages lfo
 EXTMEM AudioSynthKarplusStrong string1L1;         // xy=1079.8833312988281,626
 EXTMEM AudioSynthKarplusStrong string1L5;         // xy=1082.8833312988281,1180
-EXTMEM AudioSynthWaveform waveform1L7;            // xy=1256.8833312988281,1455
-EXTMEM AudioSynthWaveform waveform1L8;            // xy=1256.8833312988281,1591
-EXTMEM AudioSynthWaveform waveform4L7;            // xy=1258.8833312988281,1543
-EXTMEM AudioSynthWaveform waveform4L8;            // xy=1258.8833312988281,1679
+
 EXTMEM AudioSynthWaveform waveform1L5;            // xy=1260.8833312988281,1194
-EXTMEM AudioSynthWaveform waveform2L7;            // xy=1259.8833312988281,1488
-EXTMEM AudioSynthWaveform waveform3L7;            // xy=1259.8833312988281,1517
 EXTMEM AudioSynthWaveform waveform1L6;            // xy=1260.8833312988281,1325
-EXTMEM AudioSynthWaveform waveform2L8;            // xy=1259.8833312988281,1624
-EXTMEM AudioSynthWaveform waveform3L8;            // xy=1259.8833312988281,1653
-EXTMEM AudioSynthWaveform waveform4L5;            // xy=1262.8833312988281,1281
-EXTMEM AudioSynthWaveform waveform4L6;            // xy=1262.8833312988281,1413
+
 EXTMEM AudioSynthWaveform waveform2L5;            // xy=1263.8833312988281,1226
 EXTMEM AudioSynthWaveform waveform3L5;            // xy=1263.8833312988281,1255
 EXTMEM AudioSynthWaveform waveform2L6;            // xy=1263.8833312988281,1358
@@ -186,21 +135,18 @@ EXTMEM AudioSynthWaveform waveform3L6;            // xy=1263.8833312988281,1387
 EXTMEM AudioSynthWaveform waveform1L4;            // xy=1268.8833312988281,1041
 EXTMEM AudioSynthWaveform waveform3L3;            // xy=1271.8833312988281,969
 EXTMEM AudioSynthWaveform waveform1L2;            // xy=1272.8833312988281,775
-EXTMEM AudioSynthWaveform waveform4L4;            // xy=1271.8833312988281,1129
+
 EXTMEM AudioSynthWaveform waveform2L3;            // xy=1272.8833312988281,939
-EXTMEM AudioSynthWaveform waveform4L3;            // xy=1272.8833312988281,996
 EXTMEM AudioSynthWaveform waveform2L4;            // xy=1272.8833312988281,1074
 EXTMEM AudioSynthWaveform waveform3L4;            // xy=1272.8833312988281,1103
 EXTMEM AudioSynthWaveform waveform1L3;            // xy=1273.8833312988281,905
 EXTMEM AudioSynthWaveform waveform3L2;            // xy=1276.8833312988281,835
 EXTMEM AudioSynthWaveform waveform3L1;            // xy=1277.8833312988281,707
 EXTMEM AudioSynthWaveform waveform2L2;            // xy=1277.8833312988281,805
-EXTMEM AudioSynthWaveform waveform4L2;            // xy=1277.8833312988281,862
+
 EXTMEM AudioSynthWaveform waveform2L1;            // xy=1278.8833312988281,677
-EXTMEM AudioSynthWaveform waveform4L1;            // xy=1278.8833312988281,734
 EXTMEM AudioSynthWaveform waveform1L1;            // xy=1279.8833312988281,645
-EXTMEM MyAudioMixer4 WavesL7;                       // xy=1405.8833312988281,1501
-EXTMEM MyAudioMixer4 WavesL8;                       // xy=1405.8833312988281,1637
+
 EXTMEM MyAudioMixer4 WavesL5;                       // xy=1409.8833312988281,1239
 EXTMEM MyAudioMixer4 WavesL6;                       // xy=1409.8833312988281,1371
 EXTMEM MyAudioMixer4 WavesL3;                       // xy=1418.8833312988281,952
@@ -210,8 +156,6 @@ EXTMEM MyAudioMixer4 WavesL1;                       // xy=1447.8833312988281,695
 EXTMEM AudioSynthWaveform LFOrm303;               // xy=1523.8833312988281,1012
 EXTMEM AudioEffectEnvelope envelopeL5;            // xy=1537.8833312988281,1389
 EXTMEM AudioEffectEnvelope envelopeL2;            // xy=1568.8833312988281,951
-EXTMEM AudioEffectEnvelope envelopeL7;            // xy=1569.8833312988281,1631
-EXTMEM AudioEffectEnvelope envelopeL6;            // xy=1570.8833312988281,1493
 EXTMEM AudioEffectEnvelope envelopeL3;            // xy=1576.8833312988281,1086
 EXTMEM AudioEffectEnvelope envelopeL4;            // xy=1581.8833312988281,1233
 EXTMEM AudioEffectEnvelope envelopeL0;            // xy=1592.8833312988281,663
@@ -248,10 +192,10 @@ EXTMEM AudioAmplifier wavePAmp2;                  // xy=1746.8833312988281,964
 EXTMEM AudioAmplifier wavePAmp3;                  // xy=1751.8833312988281,1079
 EXTMEM AudioAmplifier fade4;                      // xy=1770.8833312988281,1288
 EXTMEM AudioAmplifier wavePAmp4;                  // xy=1783.8833312988281,1250
-EXTMEM AudioFilterStateVariable filter303L7;      // xy=1870.8833312988281,1527
+
 EXTMEM AudioFilterStateVariable filter303L6;      // xy=1874.8833312988281,1420
 EXTMEM AudioFilterStateVariable filter303L1;      // xy=1880.8833312988281,716
-EXTMEM AudioFilterStateVariable filter303L8;      // xy=1880.8833312988281,1648
+
 EXTMEM AudioFilterStateVariable filter303L2;      // xy=1889.8833312988281,845
 EXTMEM AudioFilterStateVariable filter303L3;      // xy=1894.8833312988281,969
 EXTMEM AudioFilterStateVariable filter303L4;      // xy=1905.8833312988281,1093
@@ -262,20 +206,18 @@ EXTMEM MyAudioMixer4 flashmix3;                     // xy=1947.8833312988281,396
 EXTMEM MyAudioMixer4 flashmix4;                     // xy=2009.8833312988281,549
 EXTMEM MyAudioMixer4 mix303L6;                      // xy=2008.8833312988281,1390
 EXTMEM AudioInputUSB usb1;                        // xy=2012.13330078125,620
-EXTMEM MyAudioMixer4 mix303L7;                      // xy=2031.8833312988281,1532
+
 EXTMEM MyAudioMixer4 mix303L1;                      // xy=2036.8833312988281,733
 EXTMEM MyAudioMixer4 mix303L2;                      // xy=2036.8833312988281,852
-EXTMEM MyAudioMixer4 mix303L8;                      // xy=2043.8833312988281,1651
+
 EXTMEM MyAudioMixer4 mix303L3;                      // xy=2053.883331298828,953
 EXTMEM MyAudioMixer4 mix303L4;                      // xy=2061.883331298828,1074
 EXTMEM MyAudioMixer4 mix303L5;                      // xy=2130.883331298828,1261
 EXTMEM MyAudioMixer4 flashmixMain;                  // xy=2146.883331298828,301
 EXTMEM MyAudioMixer4 mixerWet303L6;                 // xy=2164.883331298828,1382
 EXTMEM MyAudioMixer4 mixerWet303L2;                 // xy=2201.883331298828,837
-EXTMEM MyAudioMixer4 mixerWet303L7;                 // xy=2208.883331298828,1510
 EXTMEM MyAudioMixer4 mixerWet303L1;                 // xy=2214.883331298828,697
 EXTMEM MyAudioMixer4 mixerWet303L3;                 // xy=2224.883331298828,931
-EXTMEM MyAudioMixer4 mixerWet303L8;                 // xy=2223.883331298828,1620
 EXTMEM MyAudioMixer4 mixerWet303L4;                 // xy=2235.883331298828,1057
 EXTMEM MyAudioMixer4 InMixL;                        // xy=2278.883331298828,461
 EXTMEM MyAudioMixer4 InMixR;                        // xy=2278.883331298828,588
@@ -358,49 +300,28 @@ EXTMEM AudioConnection patchCord3(LFOrm3, 0, FMWaveform3L2, 0);
 EXTMEM AudioConnection patchCord4(LFOrm3, 0, FMWaveform3L4, 0);
 EXTMEM AudioConnection patchCord5(LFOrm3, 0, FMWaveform3L5, 0);
 EXTMEM AudioConnection patchCord6(LFOrm3, 0, FMWaveform3L6, 0);
-EXTMEM AudioConnection patchCord7(LFOrm3, 0, FMWaveform3L7, 0);
-EXTMEM AudioConnection patchCord8(LFOrm3, 0, FMWaveform3L8, 0);
 EXTMEM AudioConnection patchCord9(LFOrm3, 0, modulate3L1, 1);
 EXTMEM AudioConnection patchCord10(LFOrm3, 0, modulate3L2, 1);
 EXTMEM AudioConnection patchCord11(LFOrm3, 0, modulate3L3, 1);
 EXTMEM AudioConnection patchCord12(LFOrm3, 0, modulate3L5, 1);
 EXTMEM AudioConnection patchCord13(LFOrm3, 0, modulate3L4, 1);
 EXTMEM AudioConnection patchCord14(LFOrm3, 0, modulate3L6, 1);
-EXTMEM AudioConnection patchCord15(LFOrm3, 0, modulate3L8, 1);
-EXTMEM AudioConnection patchCord16(LFOrm3, 0, modulate3L7, 1);
 EXTMEM AudioConnection patchCord17(LFOrm3, 0, multiply3, 1);
-EXTMEM AudioConnection patchCord18(LFOrm4, 0, FMWaveform4L4, 0);
-EXTMEM AudioConnection patchCord19(LFOrm4, 0, FMWaveform4L3, 0);
-EXTMEM AudioConnection patchCord20(LFOrm4, 0, FMWaveform4L2, 0);
-EXTMEM AudioConnection patchCord21(LFOrm4, 0, FMWaveform4L1, 0);
-EXTMEM AudioConnection patchCord22(LFOrm4, 0, FMWaveform4L5, 0);
-EXTMEM AudioConnection patchCord23(LFOrm4, 0, FMWaveform4L6, 0);
-EXTMEM AudioConnection patchCord24(LFOrm4, 0, FMWaveform4L7, 0);
-EXTMEM AudioConnection patchCord25(LFOrm4, 0, FMWaveform4L8, 0);
-EXTMEM AudioConnection patchCord26(LFOrm4, 0, modulate4L8, 1);
-EXTMEM AudioConnection patchCord27(LFOrm4, 0, modulate4L7, 1);
-EXTMEM AudioConnection patchCord28(LFOrm4, 0, modulate4L6, 1);
-EXTMEM AudioConnection patchCord29(LFOrm4, 0, modulate4L5, 1);
-EXTMEM AudioConnection patchCord30(LFOrm4, 0, modulate4L4, 1);
-EXTMEM AudioConnection patchCord31(LFOrm4, 0, modulate4L3, 1);
-EXTMEM AudioConnection patchCord32(LFOrm4, 0, modulate4L2, 1);
-EXTMEM AudioConnection patchCord33(LFOrm4, 0, modulate4L1, 1);
+
 EXTMEM AudioConnection patchCord34(LFOrm1, 0, FMWaveform1L1, 0);
 EXTMEM AudioConnection patchCord35(LFOrm1, 0, FMWaveform1L2, 0);
 EXTMEM AudioConnection patchCord36(LFOrm1, 0, FMWaveform1L3, 0);
 EXTMEM AudioConnection patchCord37(LFOrm1, 0, FMWaveform1L4, 0);
 EXTMEM AudioConnection patchCord38(LFOrm1, 0, FMWaveform1L5, 0);
 EXTMEM AudioConnection patchCord39(LFOrm1, 0, FMWaveform1L6, 0);
-EXTMEM AudioConnection patchCord40(LFOrm1, 0, FMWaveform1L7, 0);
-EXTMEM AudioConnection patchCord41(LFOrm1, 0, FMWaveform1L8, 0);
+
 EXTMEM AudioConnection patchCord42(LFOrm1, 0, modulate1L1, 1);
 EXTMEM AudioConnection patchCord43(LFOrm1, 0, modulate1L2, 1);
 EXTMEM AudioConnection patchCord44(LFOrm1, 0, modulate1L3, 1);
 EXTMEM AudioConnection patchCord45(LFOrm1, 0, modulate1L4, 1);
 EXTMEM AudioConnection patchCord46(LFOrm1, 0, modulate1L5, 1);
 EXTMEM AudioConnection patchCord47(LFOrm1, 0, modulate1L6, 1);
-EXTMEM AudioConnection patchCord48(LFOrm1, 0, modulate1L7, 1);
-EXTMEM AudioConnection patchCord49(LFOrm1, 0, modulate1L8, 1);
+
 EXTMEM AudioConnection patchCord50(LFOrm1, 0, multiply1, 1);
 EXTMEM AudioConnection patchCord51(LFOrm2, 0, FMWaveform2L2, 0);
 EXTMEM AudioConnection patchCord52(LFOrm2, 0, FMWaveform2L1, 0);
@@ -408,19 +329,15 @@ EXTMEM AudioConnection patchCord53(LFOrm2, 0, FMWaveform2L3, 0);
 EXTMEM AudioConnection patchCord54(LFOrm2, 0, FMWaveform2L4, 0);
 EXTMEM AudioConnection patchCord55(LFOrm2, 0, FMWaveform2L5, 0);
 EXTMEM AudioConnection patchCord56(LFOrm2, 0, FMWaveform2L6, 0);
-EXTMEM AudioConnection patchCord57(LFOrm2, 0, FMWaveform2L7, 0);
-EXTMEM AudioConnection patchCord58(LFOrm2, 0, FMWaveform2L8, 0);
-EXTMEM AudioConnection patchCord59(LFOrm2, 0, modulate2L8, 1);
+
 EXTMEM AudioConnection patchCord60(LFOrm2, 0, modulate2L5, 1);
 EXTMEM AudioConnection patchCord61(LFOrm2, 0, modulate2L3, 1);
 EXTMEM AudioConnection patchCord62(LFOrm2, 0, modulate2L6, 1);
 EXTMEM AudioConnection patchCord63(LFOrm2, 0, modulate2L1, 1);
 EXTMEM AudioConnection patchCord64(LFOrm2, 0, modulate2L2, 1);
 EXTMEM AudioConnection patchCord65(LFOrm2, 0, modulate2L4, 1);
-EXTMEM AudioConnection patchCord66(LFOrm2, 0, modulate2L7, 1);
 EXTMEM AudioConnection patchCord67(LFOrm2, 0, multiply2, 1);
-EXTMEM AudioConnection patchCord68(WavesL7, envelopeL6);
-EXTMEM AudioConnection patchCord69(WavesL8, envelopeL7);
+
 EXTMEM AudioConnection patchCord70(WavesL5, envelopeL4);
 EXTMEM AudioConnection patchCord71(WavesL6, envelopeL5);
 EXTMEM AudioConnection patchCord72(WavesL3, envelopeL2);
@@ -433,16 +350,12 @@ EXTMEM AudioConnection patchCord78(LFOrm303, fade2);
 EXTMEM AudioConnection patchCord79(LFOrm303, fade3);
 EXTMEM AudioConnection patchCord80(LFOrm303, fade4);
 EXTMEM AudioConnection patchCord81(LFOrm303, fade5);
-EXTMEM AudioConnection patchCord82(LFOrm303, fade6);
-EXTMEM AudioConnection patchCord83(LFOrm303, fade7);
+
 EXTMEM AudioConnection patchCord84(envelopeL5, 0, mixerWet303L6, 0);
 EXTMEM AudioConnection patchCord85(envelopeL5, wavePAmp5);
 EXTMEM AudioConnection patchCord86(envelopeL2, 0, mixerWet303L3, 0);
 EXTMEM AudioConnection patchCord87(envelopeL2, wavePAmp2);
-EXTMEM AudioConnection patchCord88(envelopeL7, 0, mixerWet303L8, 0);
-EXTMEM AudioConnection patchCord89(envelopeL7, wavePAmp7);
-EXTMEM AudioConnection patchCord90(envelopeL6, 0, mixerWet303L7, 0);
-EXTMEM AudioConnection patchCord91(envelopeL6, wavePAmp6);
+
 EXTMEM AudioConnection patchCord92(envelopeL3, 0, mixerWet303L4, 0);
 EXTMEM AudioConnection patchCord93(envelopeL3, wavePAmp3);
 EXTMEM AudioConnection patchCord94(envelopeL4, 0, mixerWet303L5, 0);
@@ -452,10 +365,10 @@ EXTMEM AudioConnection patchCord97(envelopeL0, 0, mixerWet303L1, 0);
 EXTMEM AudioConnection patchCord98(envelopeL1, 0, mixerWet303L2, 0);
 EXTMEM AudioConnection patchCord99(envelopeL1, wavePAmp1);
 EXTMEM AudioConnection patchCord100(fade5, 0, filter303L6, 1);
-EXTMEM AudioConnection patchCord101(fade6, 0, filter303L7, 1);
+
 EXTMEM AudioConnection patchCord102(fade0, 0, filter303L1, 1);
 EXTMEM AudioConnection patchCord103(wavePAmp5, 0, filter303L6, 0);
-EXTMEM AudioConnection patchCord104(wavePAmp6, 0, filter303L7, 0);
+
 EXTMEM AudioConnection patchCord105(FlashSampler1, 0, flashmix1, 0);
 EXTMEM AudioConnection patchCord106(FlashSampler2, 0, flashmix1, 1);
 EXTMEM AudioConnection patchCord107(FlashSampler5, 0, flashmix2, 0);
@@ -465,7 +378,7 @@ EXTMEM AudioConnection patchCord110(FlashSampler9, 0, flashmix3, 0);
 EXTMEM AudioConnection patchCord111(FlashSampler3, 0, flashmix1, 2);
 EXTMEM AudioConnection patchCord112(FlashSampler10, 0, flashmix3, 1);
 EXTMEM AudioConnection patchCord113(FlashSampler8, 0, flashmix2, 3);
-EXTMEM AudioConnection patchCord114(wavePAmp7, 0, filter303L8, 0);
+
 EXTMEM AudioConnection patchCord115(FlashSampler7, 0, flashmix2, 2);
 EXTMEM AudioConnection patchCord116(FlashSampler12, 0, flashmix3, 3);
 EXTMEM AudioConnection patchCord117(wavePAmp0, 0, filter303L1, 0);
@@ -474,7 +387,7 @@ EXTMEM AudioConnection patchCord119(FlashSampler14, 0, flashmix4, 1);
 EXTMEM AudioConnection patchCord120(FlashSampler11, 0, flashmix3, 2);
 EXTMEM AudioConnection patchCord121(FlashSampler16, 0, flashmix4, 3);
 EXTMEM AudioConnection patchCord122(FlashSampler15, 0, flashmix4, 2);
-EXTMEM AudioConnection patchCord123(fade7, 0, filter303L8, 1);
+
 EXTMEM AudioConnection patchCord124(fade2, 0, filter303L3, 1);
 EXTMEM AudioConnection patchCord125(fade1, 0, filter303L2, 1);
 EXTMEM AudioConnection patchCord126(wavePAmp1, 0, filter303L2, 0);
@@ -483,18 +396,14 @@ EXTMEM AudioConnection patchCord128(wavePAmp2, 0, filter303L3, 0);
 EXTMEM AudioConnection patchCord129(wavePAmp3, 0, filter303L4, 0);
 EXTMEM AudioConnection patchCord130(fade4, 0, filter303L5, 1);
 EXTMEM AudioConnection patchCord131(wavePAmp4, 0, filter303L5, 0);
-EXTMEM AudioConnection patchCord132(filter303L7, 0, mix303L7, 0);
-EXTMEM AudioConnection patchCord133(filter303L7, 1, mix303L7, 1);
-EXTMEM AudioConnection patchCord134(filter303L7, 2, mix303L7, 2);
+
 EXTMEM AudioConnection patchCord135(filter303L6, 0, mix303L6, 0);
 EXTMEM AudioConnection patchCord136(filter303L6, 1, mix303L6, 1);
 EXTMEM AudioConnection patchCord137(filter303L6, 2, mix303L6, 2);
 EXTMEM AudioConnection patchCord138(filter303L1, 0, mix303L1, 0);
 EXTMEM AudioConnection patchCord139(filter303L1, 1, mix303L1, 1);
 EXTMEM AudioConnection patchCord140(filter303L1, 2, mix303L1, 2);
-EXTMEM AudioConnection patchCord141(filter303L8, 0, mix303L8, 0);
-EXTMEM AudioConnection patchCord142(filter303L8, 1, mix303L8, 1);
-EXTMEM AudioConnection patchCord143(filter303L8, 2, mix303L8, 2);
+
 EXTMEM AudioConnection patchCord144(filter303L2, 0, mix303L2, 0);
 EXTMEM AudioConnection patchCord145(filter303L2, 1, mix303L2, 1);
 EXTMEM AudioConnection patchCord146(filter303L2, 2, mix303L2, 2);
@@ -514,20 +423,20 @@ EXTMEM AudioConnection patchCord159(flashmix4, 0, flashmixMain, 3);
 EXTMEM AudioConnection patchCord160(mix303L6, 0, mixerWet303L6, 1);
 EXTMEM AudioConnection patchCord161(usb1, 0, InMixL, 0);
 EXTMEM AudioConnection patchCord162(usb1, 1, InMixR, 0);
-EXTMEM AudioConnection patchCord163(mix303L7, 0, mixerWet303L7, 1);
+
 EXTMEM AudioConnection patchCord164(mix303L1, 0, mixerWet303L1, 1);
 EXTMEM AudioConnection patchCord165(mix303L2, 0, mixerWet303L2, 1);
-EXTMEM AudioConnection patchCord166(mix303L8, 0, mixerWet303L8, 1);
+
 EXTMEM AudioConnection patchCord167(mix303L3, 0, mixerWet303L3, 1);
 EXTMEM AudioConnection patchCord168(mix303L4, 0, mixerWet303L4, 1);
 EXTMEM AudioConnection patchCord169(mix303L5, 0, mixerWet303L5, 1);
 EXTMEM AudioConnection patchCord170(flashmixMain, 0, flashMastermix, 0);
 EXTMEM AudioConnection patchCord171(mixerWet303L6, 0, mixerWL5to8, 1);
 EXTMEM AudioConnection patchCord172(mixerWet303L2, 0, mixerWL1to4, 1);
-EXTMEM AudioConnection patchCord173(mixerWet303L7, 0, mixerWL5to8, 2);
+
 EXTMEM AudioConnection patchCord174(mixerWet303L1, 0, mixerWL1to4, 0);
 EXTMEM AudioConnection patchCord175(mixerWet303L3, 0, mixerWL1to4, 2);
-EXTMEM AudioConnection patchCord176(mixerWet303L8, 0, mixerWL5to8, 3);
+
 EXTMEM AudioConnection patchCord177(mixerWet303L4, 0, mixerWL1to4, 3);
 EXTMEM AudioConnection patchCord178(InMixL, LineInPreAmpL);
 EXTMEM AudioConnection patchCord179(InMixR, LineInPreAmpR);

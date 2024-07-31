@@ -250,11 +250,12 @@ void writesynthpreset() {
     INTinsertmytxtfile(smixervknobs[i], (char*)"smixer");
   }
 
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < fxiterations; i++) {
     INTinsertmytxtfile(moduleonfxline[i][0], (char*)"effect");
   }
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < numberofsynthsw; i++) {
+    //TODO:wetmix & mixers out of numberofsynthsw loop ,still iter to 4
     FLOATinsertmytxtfile(WetMixMasters[i], (char*)"wetmixes");
     FLOATinsertmytxtfile(mixlevelsL[i], (char*)"mixlevelsL");
     INTinsertmytxtfile(mixlevelsM[i], (char*)"mixlevelsM");
@@ -344,11 +345,11 @@ void FLOATinsertmytxtfile(float leint, char *leparam) {
 }
 void parsefile(int presetn) {
   byte tmp_mixlevelsM[4];
-  float tmp_mixlevelsL[4];
+  float tmp_mixlevelsL[numberofsynthsw];
   float tmp_WetMixMasters[4];
   mytxtFile = SD.open((char *)SynthPresetfullpath[presetn]);
   if (mytxtFile) {
-    // if already full, increse parsingbuffersize when much more settings are added
+    // if already full, increse parsingbuffersize when much more settings are added + reduce total char usage
     for (int i = 0; i < parsingbuffersize; i++) {
       receivedbitinchar[i] = mytxtFile.read();
     }
@@ -505,8 +506,8 @@ void parsefile(int presetn) {
     parser.Skip(1);
     moduleonfxline[i][0] = parser.Read_Int16();
   }
-
-  for (int i = 0; i < 4; i++) {
+  //TODO separate loop for mixM & wetsynth
+  for (int i = 0; i < numberofsynthsw; i++) {
     parser.Read_String('#');
     parser.Skip(1);
     WetMixMasters[i] = parser.Read_Float();
@@ -699,9 +700,10 @@ void parsefile(int presetn) {
 
   
   // Serial.println("switchfxes done");
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < numberofsynthsw; i++) {
     setwavemixlevel(i);
     setwavetypefromlist(i, Waveformstyped[i]);
+    //should not be in there but mixlevelsM only uses 3 channels , TODO: separate loop for wetmixmaster
     mixlevelsM[i] = tmp_mixlevelsM[i];
     mixlevelsL[i] = tmp_mixlevelsL[i];
     WetMixMasters[i] = tmp_WetMixMasters[i];

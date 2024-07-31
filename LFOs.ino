@@ -21,7 +21,7 @@ void LFOmenu() {
 
   if (navlevel == 1) {
     reinitsublevels(2);
-    navrange = 3;
+    navrange = numberofsynthsw - 1;
     LFOlineBG();
 
     switch (sublevels[1]) {
@@ -161,11 +161,7 @@ void restartLFO(int leLFO) {
     // lfosinez[leLFO]->frequency((LFOfreqs[leLFO]/100.0)*0.5);
   }
   //WHY
-  if (leLFO == 3) {
-    LFOrm303.begin((float)(LFOlevel[leLFO] / 512.00),
-                   ((LFOfreqs[leLFO] / 100.0) * (1000 / millitickinterval)),
-                   lesformes[LFOformstype[leLFO]]);
-  }
+  if (leLFO == 2) {LFOrm303.begin((float)(LFOlevel[leLFO] / 512.00), ((LFOfreqs[leLFO] / 100.0) * (1000 / millitickinterval)), lesformes[LFOformstype[leLFO]]); }
   
   if (LFOformstype[leLFO] == 7 ) {
     LFOwaveforms1[leLFO]->arbitraryWaveform(arbitrary_waveforms[leLFO],1.0);
@@ -330,7 +326,7 @@ void doLFOallcontrols(byte leLFO) {
   restartLFO(leLFO);
   LFOwaveforms1[leLFO]->phase(0.36 * LFOphase[leLFO]);
   LFOwaveforms1[leLFO]->offset((float)(((50.0 - LFOoffset[leLFO]) / 50.0)));
-  if (leLFO == 3) {
+  if (leLFO == 2) {
     LFOrm303.phase(0.36 * LFOphase[leLFO]);
     LFOrm303.offset((float)(((50.0 - LFOoffset[leLFO]) / 50.0)));
   }

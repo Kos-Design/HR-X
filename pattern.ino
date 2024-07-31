@@ -2080,17 +2080,11 @@ void patedit4() {
 
     navrange = 31;
     // Serial.println("addanoteonliner");
-    templength0pbars[sublevels[navlevelpatedit + 1]]
-                    [sublevels[navlevelpatedit + 3]] =
-                        (sublevels[navlevelpatedit + 4] -
-                         sublevels[navlevelpatedit + 3]) *
-                        4;
+    templength0pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]] =
+                        (sublevels[navlevelpatedit + 4] - sublevels[navlevelpatedit + 3]) * 4;
 
-    if (templength0pbars[sublevels[navlevelpatedit + 1]]
-                        [sublevels[navlevelpatedit + 3]] < 0) {
-      templength0pbars[sublevels[navlevelpatedit + 1]]
-                      [sublevels[navlevelpatedit + 3]] = 4;
-    }
+    if (templength0pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]] < 0) {
+      templength0pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]] = 4;}
     refresh_track();
 
     // initiatesamplerline(15 ,samplermidichannel, sublevels[navlevelpatedit+2],

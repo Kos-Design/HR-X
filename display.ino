@@ -523,3 +523,29 @@ void print_gains(){
     Serial.print(" , ");
   } 
  }
+
+ void print_memory_usage(){
+  if (Serial.available()) {
+    char c = Serial.read();
+    if ((c == 'r' || c == 'R')) {
+      AudioProcessorUsageMaxReset();
+      AudioMemoryUsageMaxReset();
+      Serial.println("Reset all max numbers");
+      }
+      
+    }
+    
+  // print a summary of the current & maximum usage
+  Serial.print("CPU: ");
+  Serial.print("all=");
+  Serial.print(AudioProcessorUsage());
+  Serial.print(",");
+  Serial.print(AudioProcessorUsageMax());
+  Serial.print("    ");
+  Serial.print("Memory: ");
+  Serial.print(AudioMemoryUsage());
+  Serial.print(",");
+  Serial.print(AudioMemoryUsageMax());
+  Serial.println("    ");
+
+ }

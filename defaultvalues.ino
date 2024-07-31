@@ -78,15 +78,7 @@ void loadsynthdefaults() {
     enveloppesL[i]->sustain(adsrlevels[4]);
     enveloppesL[i]->release(adsrlevels[5]);
     enveloppesL[i]->releaseNoteOn(20);
-    // for ( int j = 0 ; j < 4 ; j++ ) {
-    // Wavesmix[i]->gain(j,1);
-    //}
   }
-
-  //for (int i = 0; i < 32; i++) {
-  //  waveforms1[i]->begin(0.5, notefrequency, getwavetyped(Waveformstyped[0]));
-  //  FMwaveforms1[i]->begin(1, 440, WAVEFORM_SINE);
-  //}
 
   MasterL.gain(1, .7);
   MasterR.gain(1, .7);
@@ -97,26 +89,16 @@ void loadsynthdefaults() {
   mixerWL1to4.gain(3, .25);
   mixerWL5to8.gain(0, .25);
   mixerWL5to8.gain(1, .25);
-  mixerWL5to8.gain(2, .25);
-  mixerWL5to8.gain(3, .25);
+  mixerWL5to8.gain(2, 0.0);
+  mixerWL5to8.gain(3, 0.0);
 
   le303filtercontrols();
-  //  sine1LFO.begin(1,44,WAVEFORM_SINE);
   AudioInterrupts();
 }
 
 void setupdefaultvalues() {
   initializefxmoduleisconnected();
-
-  // audioShield.inputSelect(AUDIO_INPUT_LINEIN);
-
-  // testdelme
-
-  //    sineVLFO.amplitude(1);
-  // sineVLFO.frequency(2);
-  // test
   initialize303group();
-  // yep
 
   // metronome
   MasterL1.gain(2, 0);
@@ -138,12 +120,12 @@ void setupdefaultvalues() {
   premixMaster.gain(1, 0.5);
 
   for (int i = 0; i < nombreofliners; i++) {
-    for (int j = 0; j < 4; j++) {
+    for (int j = 0; j < numberofsynthsw; j++) {
       Wavesmix[i]->gain(j, mixlevelsL[j]);
     }
   }
   unplug_notefreq_from_ampL();
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < fxiterations; i++) {
     stopdelayline(i);
     unplug_delays_from_feedback(i);
   }
@@ -166,7 +148,7 @@ void setupdefaultvalues() {
   granular3.begin(granularMemory3, GRANULAR_MEMORY_SIZE);
 */
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < numberofsynthsw; i++) {
     setwavetypefromlist(i, Waveformstyped[i]);
   }
   AudioNoInterrupts();
@@ -180,6 +162,7 @@ void setupdefaultvalues() {
     delayfeedbackmix[i]->gain(1, 0);
     delayprefeed[i]->gain(0, 1);
     delayprefeed[i]->gain(1, 1);
+    //for loop of 4 for convenience, not related to numberofsynthsw
     for (int j = 0; j < 4; j++) {
       lesdelays[i]->disable(2 * j);
       lesdelays[i]->disable(2 * j + 1);
@@ -294,13 +277,17 @@ void setupdefaultvalues() {
   midiknobassigned[23] = 55;
   midiknobassigned[24] = 53;
   pot_assignements[all_buttonns-4] = 100 ;
+
+  //101 is parsepreset(0)
   pot_assignements[all_buttonns-13] = 101 ;
   pot_assignements[all_buttonns-18] = 111 ;
+  //98 debugcpu
   pot_assignements[all_buttonns-5] = 106 ;
-  midiknobassigned[106] = 106;
+  midiknobassigned[106] = 98;
   midiknobassigned[100] = 107;
   midiknobassigned[101] = 108;
   midiknobassigned[111] = 109;
+  
   // stop
   midiknobassigned[110] = 37;
   // play

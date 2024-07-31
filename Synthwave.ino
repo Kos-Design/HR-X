@@ -402,12 +402,11 @@ void setle303filterpass(int linei, float ladiff1) {
 }
 
 void showmixerwaves() {
-  char masterfulllabels[12][12] = {
+  char masterfulllabels[11][12] = {
       "Master",     "Synth",      "Sampler",    "FX1",
       "FX2",        "FX3",        "Wet Synth",  "Wet Sampler",
-      "Waveline 1", "Waveline 2", "Waveline 3", "Waveline 4",
-  };
-  navrange = 11;
+      "Waveline 1", "Waveline 2", "Waveline 3" };
+  navrange = 10;
   byte slct = sublevels[2];
   if (slct < 3) {
     actionwmixerM(sublevels[2]);
@@ -418,7 +417,7 @@ void showmixerwaves() {
   if (slct > 5 && slct < 8) {
     actionwet2mixer(sublevels[2] - 6);
   }
-  if (slct > 7 && slct < 12) {
+  if (slct > 7 && slct < 11) {
     actionwmixer(sublevels[2] - 8);
   }
 
@@ -521,7 +520,7 @@ void showmixerwaves() {
     canvastitle.setCursor(95, 0);
     canvastitle.print((wetins[slct - 6] / 128.0) * 100.0, 1);
   }
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < numberofsynthsw; i++) {
 
     coeffangle = (6.2831 - (mixlevelsL[i]) * 6.2831) + 3.1416;
 
@@ -848,7 +847,7 @@ void setleLFOfrequency(float tune, int lelfor) {
 void setsynthfrequencyi(float tune, int voice, byte velocityz) {
   // AudioNoInterrupts();
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < numberofsynthsw; i++) {
 
     waveforms1[voice + (i * nombreofliners)]->frequency(tune * wavesfreqs[i - 1]);
     waveforms1[voice + (i * nombreofliners)]->amplitude(velocityz / 128.0);

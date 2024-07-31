@@ -457,8 +457,7 @@ void flangerVpanelAction(byte lefilter) {
     if (slct == 3) {
       navrange = 100;
 
-      WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] =
-          sublevels[4] / 100.0;
+      WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] = sublevels[4] / 100.0;
       wetmixmastercontrols();
       // le303filterzwet = (mixle303ffilterzVknobs[2])/128.0 ;
       // applygain
@@ -1508,7 +1507,7 @@ void filterVpanelAction(byte lefilter) {
       mixffilterzVknobs[lefilter][2] = sublevels[4];
     }
     if (slct == 6) {
-      navrange = 3;
+      navrange = numberofsynthsw-1;
       LFOonfilterz[lefilter] = sublevels[4];
       // unpluglfoonfilterz();
       // lfoonfilterreplug(lefilter);

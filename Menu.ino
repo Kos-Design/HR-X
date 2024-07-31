@@ -429,7 +429,7 @@ void synthmenu() {
   }
 
   if (sublevels[1] == 3 && navlevel > 1) {
-    navrange = 3;
+    navrange = numberofsynthsw-1;
     showsynthparamspanel();
   }
   //adsr section
@@ -448,7 +448,7 @@ void synthmenu() {
     if (navlevel >= 2) {
       if (navlevel == 2) {
 
-        navrange = 3;
+        navrange = numberofsynthsw-1;
         wavelinesBG();
         sublevels[3] = 0;
       }
@@ -468,11 +468,7 @@ void synthmenu() {
         toprint = (char *)"Waveline 3";
         wavelining(0, 40, toprint, sublevels[2]);
         break;
-      case 3:
-        toprint = (char *)"Waveline 4";
-        wavelining(64, 40, toprint, sublevels[2]);
-        break;
-
+      
       default:
         break;
       }
@@ -599,7 +595,7 @@ void lemenuroot() {
 
       if (navlevel >= 1) {
         if (navlevel == 1) {
-          navrange = 4;
+          navrange = numberofsynthsw-1;
         }
         LFOmenu();
       }

@@ -49,13 +49,13 @@ void setup() {
   setupscreen();
   pseudoconsole((char *)"initializing...");
   initializesomevars();
-  // delay(100);
-  // Initialise the AutoVolumeLeveller
-  // audioShield.autoVolumeControl(1, 1, 0, -6, 40, 20); // **BUG** with a max
-  // gain of 0, turning the AVC off leaves a hung AVC problem where the attack
-  // seems to hang in a loop. with it set 1 or 2, this does not occur.
-  // audioShield.autoVolumeDisable();
-  // audioShield.audioPostProcessorEnable();
+  //delay(100);
+  //Initialise the AutoVolumeLeveller
+  //audioShield.autoVolumeControl(1, 1, 0, -6, 40, 20); // **BUG** with a max
+  //gain of 0, turning the AVC off leaves a hung AVC problem where the attack
+  //seems to hang in a loop. with it set 1 or 2, this does not occur.
+  //audioShield.autoVolumeDisable();
+  //audioShield.audioPostProcessorEnable();
   pseudoconsole((char *)"Setting USB Host...");
   delay(100);
 

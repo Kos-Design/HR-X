@@ -47,7 +47,7 @@ void setfreqWavelines(float tune, int liner, byte velocityz) {
   // AudioNoInterrupts();
 
 //TODO adsrlevels correspondance
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < numberofsynthsw; i++) {
 
     waveforms1[liner + (i * nombreofliners)]->amplitude(velocityz / 128.0);
     waveforms1[liner + (i * nombreofliners)]->frequency(tune * wavesfreqs[i]);
@@ -918,7 +918,7 @@ int getnextposofevent1Off(int linei, byte lanote, int fromi) {
 
 void tweakfreqlive(int liner, float tune) {
   AudioNoInterrupts();
-  for (int j = 0; j < 4; j++) {
+  for (int j = 0; j < numberofsynthsw; j++) {
     waveforms1[liner + (j * nombreofliners)]->frequency(tune * wavesfreqs[j]);
     FMwaveforms1[liner + (j * nombreofliners)]->frequency(tune * wavesfreqs[j]);
     drums1[liner + (j * nombreofliners)]->frequency(tune * wavesfreqs[j]);
@@ -1047,7 +1047,7 @@ void lineron(int liner, byte channel, byte data1, byte data2) {
     // faders[liner]->fadeIn(adsrlevels[1]);
     // enveloppesR[liner]->noteOn();
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < numberofsynthsw; i++) {
       doLFOallcontrols(i);
     }
 

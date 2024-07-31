@@ -60,7 +60,7 @@ void pseudo303() {
                                               (fxslopedown2(slope2, ladiff2)));
       }
       lfo303levshiter = fxslopedown2(slope2, ladiff2);
-      LFOrm303.amplitude((float)(LFOlevel[3] / 512.00) * (1 - lfo303levshiter));
+      LFOrm303.amplitude((float)(LFOlevel[2] / 512.00) * (1 - lfo303levshiter));
       // les303passes[i]->gain(2,sin(((le303filterzgainz[2]*
       // (letimerz303*1.0/le303pulsewidth2)))*3.14159));
       // Serial.println("fading out");
@@ -177,6 +177,9 @@ void loop() {
   //wav_record_loop();
  // if (!stoptick) {
  // if (millis() % 2 == 0) {
+    if (debug_cpu){
+      print_memory_usage();
+    }
     if ( rec_looping ) {
     continue_looper();
   }

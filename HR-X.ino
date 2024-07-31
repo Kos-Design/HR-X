@@ -260,14 +260,14 @@ char newmksamplefullpath[32] = {"SOUNDSET/MABANK00/SAMPLE00.RAW"};
 #include <Bounce.h>
 #include <Encoder.h>
 #include <string.h>
-const int nombreofliners = 8;
+const int nombreofliners = 6;
 const int nombreofSamplerliners = 16;
-const byte numberofsynthsw = 4;
+const byte numberofsynthsw = 3;
 const int patternlines = 4;
 bool tb303[nombreofliners];
 long le303start[nombreofliners];
 byte bufferLoop[512];
-//not used
+// used in recording
 EXTMEM byte bufferL[512];
 EXTMEM byte bufferR[512];
 
@@ -451,8 +451,6 @@ int filelenght;
 bool selectedFileorDir;
 
 // char leselecteddir[99] = {"/"};
-
-int knobs[4] = {0, 0, 0, 0};
 float smallfloat;
 // short knobcontrolled[4] = {0,1,0,0} ;
 
@@ -497,7 +495,7 @@ const byte truesizeofpresetmenulabels = 5;
 
 byte waveformIndex = 0 ;
 
-int16_t arbitrary_waveforms[4][256] ; 
+int16_t arbitrary_waveforms[numberofsynthsw][256] ; 
 
 byte lavalue;
 
@@ -638,19 +636,20 @@ byte lasetchord = 6;
 
 const byte truesizeofwavelineslabels = 8;
 
-int phaselevelsL[numberofsynthsw] = {0, 0, 0, 0};
+int phaselevelsL[numberofsynthsw] = {0, 0, 0};
 
-int LFOphase[numberofsynthsw] = {0};
+int LFOphase[numberofsynthsw] = {0,0,0};
 const byte sizeofLFOlabels = 9;
 
 byte LFOmenuroot = 2;
-int LFOoffset[numberofsynthsw] = {50};
-byte LFOformstype[numberofsynthsw] = {0, 0, 0, 0};
-float LFOfreqs[numberofsynthsw] = {0.5, 1.0, 2.0, 0.5};
-int LFOlevel[numberofsynthsw] = {100};
+// TODO check offset of 50 ?
+int LFOoffset[numberofsynthsw] = {50,50,50};
+byte LFOformstype[numberofsynthsw] = {0, 0, 0};
+float LFOfreqs[numberofsynthsw] = {0.5, 1.0, 2.0};
+int LFOlevel[numberofsynthsw] = {100,100,100};
 bool LFOsync[numberofsynthsw];
 
-byte wave1offset[numberofsynthsw] = {64};
+byte wave1offset[numberofsynthsw] = {64,64,64};
 File mytxtFile;
 // File originefile ;
 int adsrlevels[6] = {0, 5, 0, 50, 100, 60};
@@ -661,7 +660,7 @@ int mappedsustain = 100; // divide by 100 to float
 int MadsrAttackDelay = 0;
 int MadsrHold = 0;
 int navleveloverwrite = 2;
-int knobiprev[numberofsynthsw] = {0, 0, 0, 0};
+int knobiprev[numberofsynthsw] = {0, 0, 0};
 
 const int allfxes = 146;
 
@@ -737,7 +736,7 @@ byte le303envlfofadintime = 32;
 byte le303envlfofadouttime = 32;
 const char *monthName[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-
+bool debug_cpu = false;
 byte bitcrusherVknobs[fxiterations][2];
 byte granularVknobs[fxiterations][4];
 byte flangerVknobs[fxiterations][3];
@@ -747,6 +746,7 @@ byte reverbVknobs[fxiterations][2];
 SerialFlashFile dummy_flash_file ;
 File dummyier_file ;
 // char* filespath[] = {(char*)"/",};
+//tracks of the sequencer
 const int sizeofsoundlines = 4;
 char soundlines[sizeofsoundlines][12] = {"Synth", "Sampler", "AudioIn",
                                          "SDcard"};
@@ -791,20 +791,19 @@ int midiknobassigned[128];
 int sublevels[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 // make it float
 
-float wavesfreqs[numberofsynthsw] = {1.0, 1.0, 2.0, 0.5};
-float panLs[numberofsynthsw] = {1, 1, 1, 1};
+float wavesfreqs[numberofsynthsw] = {1.0, 1.0, 2.0};
+float panLs[numberofsynthsw] = {1, 1, 1};
 
-float mixlevelsL[numberofsynthsw] = {0.1, 0.0, 0.0, 0.0};
+float mixlevelsL[numberofsynthsw] = {0.1, 0.0, 0.0};
 // 0 master , 1synth, 2 sampler, 3 unused
 byte mixlevelsM[4] = {128, 128, 38, 128};
 
-unsigned int Waveformstyped[numberofsynthsw] = {1, 11, 11, 11};
+unsigned int Waveformstyped[numberofsynthsw] = {1, 11, 11};
 byte notesOn[nombreofliners] = {0};
 byte samplesnotesOn[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 AudioEffectEnvelope *enveloppesL[nombreofliners] = {&envelopeL0, &envelopeL1, &envelopeL2,
-                                       &envelopeL3, &envelopeL4, &envelopeL5,
-                                       &envelopeL6, &envelopeL7};
+                                                     &envelopeL3, &envelopeL4, &envelopeL5};
 
 // modulator for 303 mode
 float ladiff1;
@@ -815,7 +814,7 @@ Adafruit_SSD1306 display(128, 64, &Wire2, -1);
 char *toprint = (char *)"Cosmix";
 
 bool initdone;
-byte FMmodulated[numberofsynthsw] = {0};
+byte FMmodulated[numberofsynthsw] = {0,0,0};
 #include "/home/kosmin/HR-X/includes/cablages.ino"
 
 #define FLANGE_DELAY_LENGTH (4 * AUDIO_BLOCK_SAMPLES)
@@ -854,32 +853,20 @@ AudioConnection FMWaveCord03(FMWaveform1L3, 0, WavesL3, 0);
 AudioConnection FMWaveCord04(FMWaveform1L4, 0, WavesL4, 0);
 AudioConnection FMWaveCord05(FMWaveform1L5, 0, WavesL5, 0);
 AudioConnection FMWaveCord06(FMWaveform1L6, 0, WavesL6, 0);
-AudioConnection FMWaveCord07(FMWaveform1L7, 0, WavesL7, 0);
-AudioConnection FMWaveCord08(FMWaveform1L8, 0, WavesL8, 0);
+
 AudioConnection FMWaveCord09(FMWaveform2L1, 0, WavesL1, 1);
 AudioConnection FMWaveCord10(FMWaveform2L2, 0, WavesL2, 1);
 AudioConnection FMWaveCord11(FMWaveform2L3, 0, WavesL3, 1);
 AudioConnection FMWaveCord12(FMWaveform2L4, 0, WavesL4, 1);
 AudioConnection FMWaveCord13(FMWaveform2L5, 0, WavesL5, 1);
 AudioConnection FMWaveCord14(FMWaveform2L6, 0, WavesL6, 1);
-AudioConnection FMWaveCord15(FMWaveform2L7, 0, WavesL7, 1);
-AudioConnection FMWaveCord16(FMWaveform2L8, 0, WavesL8, 1);
+
 AudioConnection FMWaveCord17(FMWaveform3L1, 0, WavesL1, 2);
 AudioConnection FMWaveCord18(FMWaveform3L2, 0, WavesL2, 2);
 AudioConnection FMWaveCord19(FMWaveform3L3, 0, WavesL3, 2);
 AudioConnection FMWaveCord20(FMWaveform3L4, 0, WavesL4, 2);
 AudioConnection FMWaveCord21(FMWaveform3L5, 0, WavesL5, 2);
 AudioConnection FMWaveCord22(FMWaveform3L6, 0, WavesL6, 2);
-AudioConnection FMWaveCord23(FMWaveform3L7, 0, WavesL7, 2);
-AudioConnection FMWaveCord24(FMWaveform3L8, 0, WavesL8, 2);
-AudioConnection FMWaveCord25(FMWaveform4L1, 0, WavesL1, 3);
-AudioConnection FMWaveCord26(FMWaveform4L2, 0, WavesL2, 3);
-AudioConnection FMWaveCord27(FMWaveform4L3, 0, WavesL3, 3);
-AudioConnection FMWaveCord28(FMWaveform4L4, 0, WavesL4, 3);
-AudioConnection FMWaveCord29(FMWaveform4L5, 0, WavesL5, 3);
-AudioConnection FMWaveCord30(FMWaveform4L6, 0, WavesL6, 3);
-AudioConnection FMWaveCord31(FMWaveform4L7, 0, WavesL7, 3);
-AudioConnection FMWaveCord32(FMWaveform4L8, 0, WavesL8, 3);
 
 AudioConnection stringCord01(string1L1, 0, WavesL1, 0);
 AudioConnection stringCord02(string1L2, 0, WavesL2, 0);
@@ -887,32 +874,20 @@ AudioConnection stringCord03(string1L3, 0, WavesL3, 0);
 AudioConnection stringCord04(string1L4, 0, WavesL4, 0);
 AudioConnection stringCord05(string1L5, 0, WavesL5, 0);
 AudioConnection stringCord06(string1L6, 0, WavesL6, 0);
-AudioConnection stringCord07(string1L7, 0, WavesL7, 0);
-AudioConnection stringCord08(string1L8, 0, WavesL8, 0);
+
 AudioConnection stringCord09(string2L1, 0, WavesL1, 1);
 AudioConnection stringCord10(string2L2, 0, WavesL2, 1);
 AudioConnection stringCord11(string2L3, 0, WavesL3, 1);
 AudioConnection stringCord12(string2L4, 0, WavesL4, 1);
 AudioConnection stringCord13(string2L5, 0, WavesL5, 1);
 AudioConnection stringCord14(string2L6, 0, WavesL6, 1);
-AudioConnection stringCord15(string2L7, 0, WavesL7, 1);
-AudioConnection stringCord16(string2L8, 0, WavesL8, 1);
+
 AudioConnection stringCord17(string3L1, 0, WavesL1, 2);
 AudioConnection stringCord18(string3L2, 0, WavesL2, 2);
 AudioConnection stringCord19(string3L3, 0, WavesL3, 2);
 AudioConnection stringCord20(string3L4, 0, WavesL4, 2);
 AudioConnection stringCord21(string3L5, 0, WavesL5, 2);
 AudioConnection stringCord22(string3L6, 0, WavesL6, 2);
-AudioConnection stringCord23(string3L7, 0, WavesL7, 2);
-AudioConnection stringCord24(string3L8, 0, WavesL8, 2);
-AudioConnection stringCord25(string4L1, 0, WavesL1, 3);
-AudioConnection stringCord26(string4L2, 0, WavesL2, 3);
-AudioConnection stringCord27(string4L3, 0, WavesL3, 3);
-AudioConnection stringCord28(string4L4, 0, WavesL4, 3);
-AudioConnection stringCord29(string4L5, 0, WavesL5, 3);
-AudioConnection stringCord30(string4L6, 0, WavesL6, 3);
-AudioConnection stringCord31(string4L7, 0, WavesL7, 3);
-AudioConnection stringCord32(string4L8, 0, WavesL8, 3);
 
 AudioConnection drumCord01(drum1L1, 0, WavesL1, 0);
 AudioConnection drumCord02(drum1L2, 0, WavesL2, 0);
@@ -920,65 +895,40 @@ AudioConnection drumCord03(drum1L3, 0, WavesL3, 0);
 AudioConnection drumCord04(drum1L4, 0, WavesL4, 0);
 AudioConnection drumCord05(drum1L5, 0, WavesL5, 0);
 AudioConnection drumCord06(drum1L6, 0, WavesL6, 0);
-AudioConnection drumCord07(drum1L7, 0, WavesL7, 0);
-AudioConnection drumCord08(drum1L8, 0, WavesL8, 0);
+
 AudioConnection drumCord09(drum2L1, 0, WavesL1, 1);
 AudioConnection drumCord10(drum2L2, 0, WavesL2, 1);
 AudioConnection drumCord11(drum2L3, 0, WavesL3, 1);
 AudioConnection drumCord12(drum2L4, 0, WavesL4, 1);
 AudioConnection drumCord13(drum2L5, 0, WavesL5, 1);
 AudioConnection drumCord14(drum2L6, 0, WavesL6, 1);
-AudioConnection drumCord15(drum2L7, 0, WavesL7, 1);
-AudioConnection drumCord16(drum2L8, 0, WavesL8, 1);
+
 AudioConnection drumCord17(drum3L1, 0, WavesL1, 2);
 AudioConnection drumCord18(drum3L2, 0, WavesL2, 2);
 AudioConnection drumCord19(drum3L3, 0, WavesL3, 2);
 AudioConnection drumCord20(drum3L4, 0, WavesL4, 2);
 AudioConnection drumCord21(drum3L5, 0, WavesL5, 2);
 AudioConnection drumCord22(drum3L6, 0, WavesL6, 2);
-AudioConnection drumCord23(drum3L7, 0, WavesL7, 2);
-AudioConnection drumCord24(drum3L8, 0, WavesL8, 2);
-AudioConnection drumCord25(drum4L1, 0, WavesL1, 3);
-AudioConnection drumCord26(drum4L2, 0, WavesL2, 3);
-AudioConnection drumCord27(drum4L3, 0, WavesL3, 3);
-AudioConnection drumCord28(drum4L4, 0, WavesL4, 3);
-AudioConnection drumCord29(drum4L5, 0, WavesL5, 3);
-AudioConnection drumCord30(drum4L6, 0, WavesL6, 3);
-AudioConnection drumCord31(drum4L7, 0, WavesL7, 3);
-AudioConnection drumCord32(drum4L8, 0, WavesL8, 3);
 
-AudioConnection wavelinecord17(waveform1L7, 0, WavesL7, 0);
-AudioConnection wavelinecord18(waveform1L8, 0, WavesL8, 0);
 AudioConnection wavelinecord19(waveform1L5, 0, WavesL5, 0);
 AudioConnection wavelinecord20(waveform1L6, 0, WavesL6, 0);
 AudioConnection wavelinecord21(waveform1L4, 0, WavesL4, 0);
 AudioConnection wavelinecord22(waveform1L2, 0, WavesL2, 0);
 AudioConnection wavelinecord23(waveform1L3, 0, WavesL3, 0);
 AudioConnection wavelinecord24(waveform1L1, 0, WavesL1, 0);
-AudioConnection wavelinecord25(waveform4L7, 0, WavesL7, 3);
-AudioConnection wavelinecord26(waveform4L8, 0, WavesL8, 3);
-AudioConnection wavelinecord27(waveform2L7, 0, WavesL7, 1);
-AudioConnection wavelinecord28(waveform3L7, 0, WavesL7, 2);
-AudioConnection wavelinecord29(waveform2L8, 0, WavesL8, 1);
-AudioConnection wavelinecord30(waveform3L8, 0, WavesL8, 2);
-AudioConnection wavelinecord31(waveform4L5, 0, WavesL5, 3);
-AudioConnection wavelinecord32(waveform4L6, 0, WavesL6, 3);
+
 AudioConnection wavelinecord33(waveform2L5, 0, WavesL5, 1);
 AudioConnection wavelinecord34(waveform3L5, 0, WavesL5, 2);
 AudioConnection wavelinecord35(waveform2L6, 0, WavesL6, 1);
 AudioConnection wavelinecord36(waveform3L6, 0, WavesL6, 2);
 AudioConnection wavelinecord37(waveform3L3, 0, WavesL3, 2);
-AudioConnection wavelinecord38(waveform4L4, 0, WavesL4, 3);
 AudioConnection wavelinecord39(waveform2L3, 0, WavesL3, 1);
-AudioConnection wavelinecord40(waveform4L3, 0, WavesL3, 3);
 AudioConnection wavelinecord41(waveform2L4, 0, WavesL4, 1);
 AudioConnection wavelinecord42(waveform3L4, 0, WavesL4, 2);
 AudioConnection wavelinecord43(waveform3L2, 0, WavesL2, 2);
 AudioConnection wavelinecord44(waveform3L1, 0, WavesL1, 2);
 AudioConnection wavelinecord45(waveform2L2, 0, WavesL2, 1);
-AudioConnection wavelinecord46(waveform4L2, 0, WavesL2, 3);
 AudioConnection wavelinecord47(waveform2L1, 0, WavesL1, 1);
-AudioConnection wavelinecord48(waveform4L1, 0, WavesL1, 3);
 
 AudioConnection modulateCord01(modulate1L1, 0, WavesL1, 0);
 AudioConnection modulateCord02(modulate1L2, 0, WavesL2, 0);
@@ -986,32 +936,18 @@ AudioConnection modulateCord03(modulate1L3, 0, WavesL3, 0);
 AudioConnection modulateCord04(modulate1L4, 0, WavesL4, 0);
 AudioConnection modulateCord05(modulate1L5, 0, WavesL5, 0);
 AudioConnection modulateCord06(modulate1L6, 0, WavesL6, 0);
-AudioConnection modulateCord07(modulate1L7, 0, WavesL7, 0);
-AudioConnection modulateCord08(modulate1L8, 0, WavesL8, 0);
 AudioConnection modulateCord09(modulate2L1, 0, WavesL1, 1);
 AudioConnection modulateCord10(modulate2L2, 0, WavesL2, 1);
 AudioConnection modulateCord11(modulate2L3, 0, WavesL3, 1);
 AudioConnection modulateCord12(modulate2L4, 0, WavesL4, 1);
 AudioConnection modulateCord13(modulate2L5, 0, WavesL5, 1);
 AudioConnection modulateCord14(modulate2L6, 0, WavesL6, 1);
-AudioConnection modulateCord15(modulate2L7, 0, WavesL7, 1);
-AudioConnection modulateCord16(modulate2L8, 0, WavesL8, 1);
 AudioConnection modulateCord17(modulate3L1, 0, WavesL1, 2);
 AudioConnection modulateCord18(modulate3L2, 0, WavesL2, 2);
 AudioConnection modulateCord19(modulate3L3, 0, WavesL3, 2);
 AudioConnection modulateCord20(modulate3L4, 0, WavesL4, 2);
 AudioConnection modulateCord21(modulate3L5, 0, WavesL5, 2);
 AudioConnection modulateCord22(modulate3L6, 0, WavesL6, 2);
-AudioConnection modulateCord23(modulate3L7, 0, WavesL7, 2);
-AudioConnection modulateCord24(modulate3L8, 0, WavesL8, 2);
-AudioConnection modulateCord25(modulate4L1, 0, WavesL1, 3);
-AudioConnection modulateCord26(modulate4L2, 0, WavesL2, 3);
-AudioConnection modulateCord27(modulate4L3, 0, WavesL3, 3);
-AudioConnection modulateCord28(modulate4L4, 0, WavesL4, 3);
-AudioConnection modulateCord29(modulate4L5, 0, WavesL5, 3);
-AudioConnection modulateCord30(modulate4L6, 0, WavesL6, 3);
-AudioConnection modulateCord31(modulate4L7, 0, WavesL7, 3);
-AudioConnection modulateCord32(modulate4L8, 0, WavesL8, 3);
 
 AudioConnection MDdrumCord01(drum1L1, 0, modulate1L1, 0);
 AudioConnection MDdrumCord02(drum1L2, 0, modulate1L2, 0);
@@ -1019,32 +955,20 @@ AudioConnection MDdrumCord03(drum1L3, 0, modulate1L3, 0);
 AudioConnection MDdrumCord04(drum1L4, 0, modulate1L4, 0);
 AudioConnection MDdrumCord05(drum1L5, 0, modulate1L5, 0);
 AudioConnection MDdrumCord06(drum1L6, 0, modulate1L6, 0);
-AudioConnection MDdrumCord07(drum1L7, 0, modulate1L7, 0);
-AudioConnection MDdrumCord08(drum1L8, 0, modulate1L8, 0);
+
 AudioConnection MDdrumCord09(drum2L1, 0, modulate2L1, 0);
 AudioConnection MDdrumCord10(drum2L2, 0, modulate2L2, 0);
 AudioConnection MDdrumCord11(drum2L3, 0, modulate2L3, 0);
 AudioConnection MDdrumCord12(drum2L4, 0, modulate2L4, 0);
 AudioConnection MDdrumCord13(drum2L5, 0, modulate2L5, 0);
 AudioConnection MDdrumCord14(drum2L6, 0, modulate2L6, 0);
-AudioConnection MDdrumCord15(drum2L7, 0, modulate2L7, 0);
-AudioConnection MDdrumCord16(drum2L8, 0, modulate2L8, 0);
+
 AudioConnection MDdrumCord17(drum3L1, 0, modulate3L1, 0);
 AudioConnection MDdrumCord18(drum3L2, 0, modulate3L2, 0);
 AudioConnection MDdrumCord19(drum3L3, 0, modulate3L3, 0);
 AudioConnection MDdrumCord20(drum3L4, 0, modulate3L4, 0);
 AudioConnection MDdrumCord21(drum3L5, 0, modulate3L5, 0);
 AudioConnection MDdrumCord22(drum3L6, 0, modulate3L6, 0);
-AudioConnection MDdrumCord23(drum3L7, 0, modulate3L7, 0);
-AudioConnection MDdrumCord24(drum3L8, 0, modulate3L8, 0);
-AudioConnection MDdrumCord25(drum4L1, 0, modulate4L1, 0);
-AudioConnection MDdrumCord26(drum4L2, 0, modulate4L2, 0);
-AudioConnection MDdrumCord27(drum4L3, 0, modulate4L3, 0);
-AudioConnection MDdrumCord28(drum4L4, 0, modulate4L4, 0);
-AudioConnection MDdrumCord29(drum4L5, 0, modulate4L5, 0);
-AudioConnection MDdrumCord30(drum4L6, 0, modulate4L6, 0);
-AudioConnection MDdrumCord31(drum4L7, 0, modulate4L7, 0);
-AudioConnection MDdrumCord32(drum4L8, 0, modulate4L8, 0);
 
 AudioConnection MDstringCord01(string1L1, 0, modulate1L1, 0);
 AudioConnection MDstringCord02(string1L2, 0, modulate1L2, 0);
@@ -1052,133 +976,79 @@ AudioConnection MDstringCord03(string1L3, 0, modulate1L3, 0);
 AudioConnection MDstringCord04(string1L4, 0, modulate1L4, 0);
 AudioConnection MDstringCord05(string1L5, 0, modulate1L5, 0);
 AudioConnection MDstringCord06(string1L6, 0, modulate1L6, 0);
-AudioConnection MDstringCord07(string1L7, 0, modulate1L7, 0);
-AudioConnection MDstringCord08(string1L8, 0, modulate1L8, 0);
+
 AudioConnection MDstringCord09(string2L1, 0, modulate2L1, 0);
 AudioConnection MDstringCord10(string2L2, 0, modulate2L2, 0);
 AudioConnection MDstringCord11(string2L3, 0, modulate2L3, 0);
 AudioConnection MDstringCord12(string2L4, 0, modulate2L4, 0);
 AudioConnection MDstringCord13(string2L5, 0, modulate2L5, 0);
 AudioConnection MDstringCord14(string2L6, 0, modulate2L6, 0);
-AudioConnection MDstringCord15(string2L7, 0, modulate2L7, 0);
-AudioConnection MDstringCord16(string2L8, 0, modulate2L8, 0);
+
 AudioConnection MDstringCord17(string3L1, 0, modulate3L1, 0);
 AudioConnection MDstringCord18(string3L2, 0, modulate3L2, 0);
 AudioConnection MDstringCord19(string3L3, 0, modulate3L3, 0);
 AudioConnection MDstringCord20(string3L4, 0, modulate3L4, 0);
 AudioConnection MDstringCord21(string3L5, 0, modulate3L5, 0);
 AudioConnection MDstringCord22(string3L6, 0, modulate3L6, 0);
-AudioConnection MDstringCord23(string3L7, 0, modulate3L7, 0);
-AudioConnection MDstringCord24(string3L8, 0, modulate3L8, 0);
-AudioConnection MDstringCord25(string4L1, 0, modulate4L1, 0);
-AudioConnection MDstringCord26(string4L2, 0, modulate4L2, 0);
-AudioConnection MDstringCord27(string4L3, 0, modulate4L3, 0);
-AudioConnection MDstringCord28(string4L4, 0, modulate4L4, 0);
-AudioConnection MDstringCord29(string4L5, 0, modulate4L5, 0);
-AudioConnection MDstringCord30(string4L6, 0, modulate4L6, 0);
-AudioConnection MDstringCord31(string4L7, 0, modulate4L7, 0);
-AudioConnection MDstringCord32(string4L8, 0, modulate4L8, 0);
 
 AudioConnection *delayCords[3] = {&delayCord1, &delayCord2, &delayCord3};
 
 AudioConnection *stringcords1[nombreofliners*numberofsynthsw] = {
-    &stringCord01, &stringCord02, &stringCord03, &stringCord04, &stringCord05,
-    &stringCord06, &stringCord07, &stringCord08, &stringCord09, &stringCord10,
-    &stringCord11, &stringCord12, &stringCord13, &stringCord14, &stringCord15,
-    &stringCord16, &stringCord17, &stringCord18, &stringCord19, &stringCord20,
-    &stringCord21, &stringCord22, &stringCord23, &stringCord24, &stringCord25,
-    &stringCord26, &stringCord27, &stringCord28, &stringCord29, &stringCord30,
-    &stringCord31, &stringCord32};
+    &stringCord01, &stringCord02, &stringCord03, &stringCord04, &stringCord05, &stringCord06,
+    &stringCord09, &stringCord10, &stringCord11, &stringCord12, &stringCord13, &stringCord14, 
+    &stringCord17, &stringCord18, &stringCord19, &stringCord20, &stringCord21, &stringCord22};
 
 AudioConnection *drumcords1[nombreofliners*numberofsynthsw] = {
-    &drumCord01, &drumCord02, &drumCord03, &drumCord04, &drumCord05,
-    &drumCord06, &drumCord07, &drumCord08, &drumCord09, &drumCord10,
-    &drumCord11, &drumCord12, &drumCord13, &drumCord14, &drumCord15,
-    &drumCord16, &drumCord17, &drumCord18, &drumCord19, &drumCord20,
-    &drumCord21, &drumCord22, &drumCord23, &drumCord24, &drumCord25,
-    &drumCord26, &drumCord27, &drumCord28, &drumCord29, &drumCord30,
-    &drumCord31, &drumCord32};
+    &drumCord01, &drumCord02, &drumCord03, &drumCord04, &drumCord05, &drumCord06, 
+    &drumCord09, &drumCord10, &drumCord11, &drumCord12, &drumCord13, &drumCord14, 
+    &drumCord17, &drumCord18, &drumCord19, &drumCord20, &drumCord21, &drumCord22};
 
 AudioConnection *modulatecords1[nombreofliners*numberofsynthsw] = {
-    &modulateCord01, &modulateCord02, &modulateCord03, &modulateCord04,
-    &modulateCord05, &modulateCord06, &modulateCord07, &modulateCord08,
-    &modulateCord09, &modulateCord10, &modulateCord11, &modulateCord12,
-    &modulateCord13, &modulateCord14, &modulateCord15, &modulateCord16,
-    &modulateCord17, &modulateCord18, &modulateCord19, &modulateCord20,
-    &modulateCord21, &modulateCord22, &modulateCord23, &modulateCord24,
-    &modulateCord25, &modulateCord26, &modulateCord27, &modulateCord28,
-    &modulateCord29, &modulateCord30, &modulateCord31, &modulateCord32};
+    &modulateCord01, &modulateCord02, &modulateCord03, &modulateCord04, &modulateCord05, &modulateCord06, 
+    &modulateCord09, &modulateCord10, &modulateCord11, &modulateCord12, &modulateCord13, &modulateCord14, 
+    &modulateCord17, &modulateCord18, &modulateCord19, &modulateCord20, &modulateCord21, &modulateCord22};
 
 AudioConnection *MDdrumcords1[nombreofliners*numberofsynthsw] = {
-    &MDdrumCord01, &MDdrumCord02, &MDdrumCord03, &MDdrumCord04, &MDdrumCord05,
-    &MDdrumCord06, &MDdrumCord07, &MDdrumCord08, &MDdrumCord09, &MDdrumCord10,
-    &MDdrumCord11, &MDdrumCord12, &MDdrumCord13, &MDdrumCord14, &MDdrumCord15,
-    &MDdrumCord16, &MDdrumCord17, &MDdrumCord18, &MDdrumCord19, &MDdrumCord20,
-    &MDdrumCord21, &MDdrumCord22, &MDdrumCord23, &MDdrumCord24, &MDdrumCord25,
-    &MDdrumCord26, &MDdrumCord27, &MDdrumCord28, &MDdrumCord29, &MDdrumCord30,
-    &MDdrumCord31, &MDdrumCord32};
+    &MDdrumCord01, &MDdrumCord02, &MDdrumCord03, &MDdrumCord04, &MDdrumCord05, &MDdrumCord06, 
+    &MDdrumCord09, &MDdrumCord10, &MDdrumCord11, &MDdrumCord12, &MDdrumCord13, &MDdrumCord14, 
+    &MDdrumCord17, &MDdrumCord18, &MDdrumCord19, &MDdrumCord20, &MDdrumCord21, &MDdrumCord22};
 
 AudioConnection *MDstringcords1[nombreofliners*numberofsynthsw] = {
-    &MDstringCord01, &MDstringCord02, &MDstringCord03, &MDstringCord04,
-    &MDstringCord05, &MDstringCord06, &MDstringCord07, &MDstringCord08,
-    &MDstringCord09, &MDstringCord10, &MDstringCord11, &MDstringCord12,
-    &MDstringCord13, &MDstringCord14, &MDstringCord15, &MDstringCord16,
-    &MDstringCord17, &MDstringCord18, &MDstringCord19, &MDstringCord20,
-    &MDstringCord21, &MDstringCord22, &MDstringCord23, &MDstringCord24,
-    &MDstringCord25, &MDstringCord26, &MDstringCord27, &MDstringCord28,
-    &MDstringCord29, &MDstringCord30, &MDstringCord31, &MDstringCord32};
+    &MDstringCord01, &MDstringCord02, &MDstringCord03, &MDstringCord04, &MDstringCord05, &MDstringCord06, 
+    &MDstringCord09, &MDstringCord10, &MDstringCord11, &MDstringCord12, &MDstringCord13, &MDstringCord14,
+    &MDstringCord17, &MDstringCord18, &MDstringCord19, &MDstringCord20, &MDstringCord21, &MDstringCord22};
 
 AudioConnection *FMwavecords1[nombreofliners*numberofsynthsw] = {
-    &FMWaveCord01, &FMWaveCord02, &FMWaveCord03, &FMWaveCord04, &FMWaveCord05,
-    &FMWaveCord06, &FMWaveCord07, &FMWaveCord08, &FMWaveCord09, &FMWaveCord10,
-    &FMWaveCord11, &FMWaveCord12, &FMWaveCord13, &FMWaveCord14, &FMWaveCord15,
-    &FMWaveCord16, &FMWaveCord17, &FMWaveCord18, &FMWaveCord19, &FMWaveCord20,
-    &FMWaveCord21, &FMWaveCord22, &FMWaveCord23, &FMWaveCord24, &FMWaveCord25,
-    &FMWaveCord26, &FMWaveCord27, &FMWaveCord28, &FMWaveCord29, &FMWaveCord30,
-    &FMWaveCord31, &FMWaveCord32};
+    &FMWaveCord01, &FMWaveCord02, &FMWaveCord03, &FMWaveCord04, &FMWaveCord05, &FMWaveCord06,
+    &FMWaveCord09, &FMWaveCord10, &FMWaveCord11, &FMWaveCord12, &FMWaveCord13, &FMWaveCord14, 
+    &FMWaveCord17, &FMWaveCord18, &FMWaveCord19, &FMWaveCord20, &FMWaveCord21, &FMWaveCord22};
 
 AudioConnection *wavelinescords[nombreofliners*numberofsynthsw] = {
-    &wavelinecord24, &wavelinecord22, &wavelinecord23, &wavelinecord21,
-    &wavelinecord19, &wavelinecord20, &wavelinecord17, &wavelinecord18,
-    &wavelinecord47, &wavelinecord45, &wavelinecord39, &wavelinecord41,
-    &wavelinecord33, &wavelinecord35, &wavelinecord27, &wavelinecord29,
-    &wavelinecord44, &wavelinecord43, &wavelinecord37, &wavelinecord42,
-    &wavelinecord34, &wavelinecord36, &wavelinecord28, &wavelinecord30,
-    &wavelinecord48, &wavelinecord46, &wavelinecord40, &wavelinecord38,
-    &wavelinecord31, &wavelinecord32, &wavelinecord25, &wavelinecord26};
+    &wavelinecord24, &wavelinecord22, &wavelinecord23, &wavelinecord21, &wavelinecord19, &wavelinecord20, 
+    &wavelinecord47, &wavelinecord45, &wavelinecord39, &wavelinecord41, &wavelinecord33, &wavelinecord35, 
+    &wavelinecord44, &wavelinecord43, &wavelinecord37, &wavelinecord42, &wavelinecord34, &wavelinecord36};
 
 AudioSynthWaveform *waveforms1[nombreofliners*numberofsynthsw] = {
-    &waveform1L1, &waveform1L2, &waveform1L3, &waveform1L4, &waveform1L5,
-    &waveform1L6, &waveform1L7, &waveform1L8, &waveform2L1, &waveform2L2,
-    &waveform2L3, &waveform2L4, &waveform2L5, &waveform2L6, &waveform2L7,
-    &waveform2L8, &waveform3L1, &waveform3L2, &waveform3L3, &waveform3L4,
-    &waveform3L5, &waveform3L6, &waveform3L7, &waveform3L8, &waveform4L1,
-    &waveform4L2, &waveform4L3, &waveform4L4, &waveform4L5, &waveform4L6,
-    &waveform4L7, &waveform4L8};
+    &waveform1L1, &waveform1L2, &waveform1L3, &waveform1L4, &waveform1L5, &waveform1L6, 
+    &waveform2L1, &waveform2L2, &waveform2L3, &waveform2L4, &waveform2L5, &waveform2L6, 
+    &waveform3L1, &waveform3L2, &waveform3L3, &waveform3L4, &waveform3L5, &waveform3L6};
+    
 AudioSynthWaveformModulated *FMwaveforms1[nombreofliners*numberofsynthsw] = {
-    &FMWaveform1L1, &FMWaveform1L2, &FMWaveform1L3, &FMWaveform1L4,
-    &FMWaveform1L5, &FMWaveform1L6, &FMWaveform1L7, &FMWaveform1L8,
-    &FMWaveform2L1, &FMWaveform2L2, &FMWaveform2L3, &FMWaveform2L4,
-    &FMWaveform2L5, &FMWaveform2L6, &FMWaveform2L7, &FMWaveform2L8,
-    &FMWaveform3L1, &FMWaveform3L2, &FMWaveform3L3, &FMWaveform3L4,
-    &FMWaveform3L5, &FMWaveform3L6, &FMWaveform3L7, &FMWaveform3L8,
-    &FMWaveform4L1, &FMWaveform4L2, &FMWaveform4L3, &FMWaveform4L4,
-    &FMWaveform4L5, &FMWaveform4L6, &FMWaveform4L7, &FMWaveform4L8};
+    &FMWaveform1L1, &FMWaveform1L2, &FMWaveform1L3, &FMWaveform1L4, &FMWaveform1L5, &FMWaveform1L6, 
+    &FMWaveform2L1, &FMWaveform2L2, &FMWaveform2L3, &FMWaveform2L4, &FMWaveform2L5, &FMWaveform2L6, 
+    &FMWaveform3L1, &FMWaveform3L2, &FMWaveform3L3, &FMWaveform3L4, &FMWaveform3L5, &FMWaveform3L6};
+
 AudioSynthSimpleDrum *drums1[nombreofliners*numberofsynthsw] = {
-    &drum1L1, &drum1L2, &drum1L3, &drum1L4, &drum1L5, &drum1L6, &drum1L7,
-    &drum1L8, &drum2L1, &drum2L2, &drum2L3, &drum2L4, &drum2L5, &drum2L6,
-    &drum2L7, &drum2L8, &drum3L1, &drum3L2, &drum3L3, &drum3L4, &drum3L5,
-    &drum3L6, &drum3L7, &drum3L8, &drum4L1, &drum4L2, &drum4L3, &drum4L4,
-    &drum4L5, &drum4L6, &drum4L7, &drum4L8};
+    &drum1L1, &drum1L2, &drum1L3, &drum1L4, &drum1L5, &drum1L6, 
+    &drum2L1, &drum2L2, &drum2L3, &drum2L4, &drum2L5, &drum2L6,
+    &drum3L1, &drum3L2, &drum3L3, &drum3L4, &drum3L5, &drum3L6};
+
 AudioSynthKarplusStrong *strings1[nombreofliners*numberofsynthsw] = {
     &string1L1, &string1L2, &string1L3, &string1L4, &string1L5, &string1L6,
-    &string1L7, &string1L8, &string2L1, &string2L2, &string2L3, &string2L4,
-    &string2L5, &string2L6, &string2L7, &string2L8, &string3L1, &string3L2,
-    &string3L3, &string3L4, &string3L5, &string3L6, &string3L7, &string3L8,
-    &string4L1, &string4L2, &string4L3, &string4L4, &string4L5, &string4L6,
-    &string4L7, &string4L8};
-AudioMixer4 *Wavesmix[nombreofliners] = {&WavesL1, &WavesL2, &WavesL3, &WavesL4,
-                            &WavesL5, &WavesL6, &WavesL7, &WavesL8};
+    &string2L1, &string2L2, &string2L3, &string2L4,&string2L5, &string2L6, 
+    &string3L1, &string3L2, &string3L3, &string3L4, &string3L5, &string3L6};
+
+AudioMixer4 *Wavesmix[nombreofliners] = {&WavesL1, &WavesL2, &WavesL3, &WavesL4, &WavesL5, &WavesL6};
 
 AudioPlaySerialflashRaw *FlashSampler[16] = {
     &FlashSampler1,  &FlashSampler2,  &FlashSampler3,  &FlashSampler4,
@@ -1189,10 +1059,9 @@ AudioPlaySerialflashRaw *FlashSampler[16] = {
 AudioMixer4 *Flashmixer[4] = {&flashmix1, &flashmix2, &flashmix3, &flashmix4};
 
 AudioAmplifier *Wavespreamp303[nombreofliners] = {&wavePAmp0, &wavePAmp1, &wavePAmp2,
-                                     &wavePAmp3, &wavePAmp4, &wavePAmp5,
-                                     &wavePAmp6, &wavePAmp7};
+                                     &wavePAmp3, &wavePAmp4, &wavePAmp5};
 
-AudioSynthWaveform *LFOwaveforms1[numberofsynthsw] = {&LFOrm1, &LFOrm2, &LFOrm3, &LFOrm4};
+AudioSynthWaveform *LFOwaveforms1[numberofsynthsw] = {&LFOrm1, &LFOrm2, &LFOrm3};
 
 int16_t waveformed_sine[256] = {
     0,     201,   402,   603,   804,   1005,  1206,  1406,  1607,  1808,  2008,

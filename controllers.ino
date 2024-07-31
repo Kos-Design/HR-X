@@ -553,7 +553,7 @@ void controlswitcher(int caser, int valu) {
     break;
 
   case 98:
-
+    debug_cpu = !debug_cpu;
     break;
 
   case 99:
