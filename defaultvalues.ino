@@ -80,8 +80,18 @@ void loadsynthdefaults() {
     enveloppesL[i]->releaseNoteOn(20);
   }
 
-  MasterL.gain(1, .7);
-  MasterR.gain(1, .7);
+  //ch 0 is the sum of signals sent to fx should stay at 1
+  FXBusL.gain(0,1.0);
+  FXBusR.gain(0,1.0);
+  //1 = dry flash
+  FXBusL.gain(1,1.0);
+  FXBusR.gain(1,1.0);
+  //2 = dry synth
+  FXBusL.gain(2,1.0);
+  FXBusR.gain(2,1.0);
+  //3 = dry others ( IN, metro, SDWav)
+  FXBusL.gain(3,1.0);
+  FXBusR.gain(3,1.0);
 
   mixerWL1to4.gain(0, .25);
   mixerWL1to4.gain(1, .25);
@@ -100,21 +110,12 @@ void setupdefaultvalues() {
   initializefxmoduleisconnected();
   initialize303group();
 
-  // metronome
-  MasterL1.gain(2, 0);
-  MasterR1.gain(2, 0);
-
   ampL.gain(1);
   ampR.gain(1);
 
-  MasterL1.gain(0, 1);
-  MasterR1.gain(0, 1);
+
   // ADSR & synths
   loadsynthdefaults();
-
-  // FXTEST
-  FXBusL.gain(0, 1);
-  FXBusR.gain(0, 1);
 
   premixMaster.gain(0, 0.5);
   premixMaster.gain(1, 0.5);
@@ -179,22 +180,36 @@ void setupdefaultvalues() {
 
   ////
   // PlayFlash
-  MasterL1.gain(3, 1);
-  MasterR1.gain(3, 1);
 
-  // PlayRaw
-  MasterL1.gain(1, 1);
-  MasterR1.gain(1, 1);
+  //mixed others wet
+  MasterL1.gain(0, 0);
+  MasterR1.gain(0, 0);
+  //nothing
+  MasterL1.gain(1, 0);
+  MasterR1.gain(1, 0);
+  //synth wet
+  MasterL1.gain(2, 0);
+  MasterR1.gain(2, 0);
+  //flash wet
+  MasterL1.gain(3, 0);
+  MasterR1.gain(3, 0);
 
-  // Wetness/Dryness Mix
-  MasterL.gain(3, 0);
-  MasterR.gain(3, 0);
+  // Wavplayer
+  MasterL.gain(0, 1.0);
+  MasterR.gain(0, 1.0);
+  //metrodrum
+  MasterL.gain(1, 0);
+  MasterR.gain(1, 0);
+  //Input
+  MasterL.gain(2, 0);
+  MasterR.gain(2, 0);
+  //PlayRaw
+  MasterL.gain(3, 1.0);
+  MasterR.gain(3, 1.0);
 
   WetMixMasterL.gain(0, 1);
   WetMixMasterR.gain(0, 1);
-  // Wavplayer
-  MasterL.gain(0, 1);
-  MasterR.gain(0, 1);
+
 
  
   for (int i = 0; i < all_buttonns; i++) {
@@ -204,11 +219,11 @@ void setupdefaultvalues() {
       // pot_assignements[i] = i ;
       // midiknobassigned[pot_assignements[i]] = pot_assignements[i];
     } else {
-      pot_assignements[i] = muxed_pots[potsboards[i]];
+      pot_assignements[i] = ordered_pots[potsboards[i]];
     }
   }
   /*for (int i = 0; i < 15 ; i++) {
-    muxed_pots[i] = i ;
+    ordered_pots[i] = i ;
   }*/
   // pot_assignements[35] = 64 ;
 
@@ -253,12 +268,11 @@ void setupdefaultvalues() {
   midiknobassigned[12] = 1;
   //midiknobassigned[13] = 3;
 
-  /*
-  // audio In
-  midiknobassigned[14] = 97;
-  midiknobassigned[15] = 1;
-  midiknobassigned[16] = 3;
-  */
+  
+  midiknobassigned[14] = 93;
+  midiknobassigned[15] = 94;
+  midiknobassigned[16] = 95;
+  
 
   // 303 filter
   midiknobassigned[17] = 20;
@@ -270,8 +284,8 @@ void setupdefaultvalues() {
   midiknobassigned[21] = 7;
   midiknobassigned[22] = 97;
 
-  // pan on crossfader
-  midiknobassigned[10] = 48;
+  // ccfxlineselector crossfader
+  midiknobassigned[10] = 69;
 
   // LFO freq & level
   midiknobassigned[23] = 55;
@@ -283,17 +297,17 @@ void setupdefaultvalues() {
   pot_assignements[all_buttonns-18] = 111 ;
   //98 debugcpu
   pot_assignements[all_buttonns-5] = 106 ;
-  midiknobassigned[106] = 98;
+  //midiknobassigned[106] = 98;
   midiknobassigned[100] = 107;
-  midiknobassigned[101] = 108;
-  midiknobassigned[111] = 109;
+  //midiknobassigned[101] = 108;
+  //midiknobassigned[111] = 109;
   
   // stop
   midiknobassigned[110] = 37;
   // play
   midiknobassigned[108] = 36;
   // looper
-  midiknobassigned[109] = 109;
+  //midiknobassigned[109] = 109;
   //note: WetMixMasterLs[0] is the dry channel
   // TODO : remove myaudiomixer4 class override
   // USB Line in
@@ -307,11 +321,6 @@ void setupdefaultvalues() {
   LineInPreAmpL.gain(1.0);
   LineInPreAmpR.gain(1.0);
 
-  MasterL.gain(2, 1.0);
-  MasterR.gain(2, 1.0);
-  // superseeded by wetness mix
-  //  MasterL.gain(2, 1);
-  //  MasterR.gain(2, 1);
   //  DelayBusL.gain(1, 0.5);
   // DelayBusR.gain(1, 0.5);
   // //DelayBusL

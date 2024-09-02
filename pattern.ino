@@ -1,3 +1,4 @@
+
 unsigned long lastMicros = micros();
 
 void elapse_one_tick(){
@@ -1061,7 +1062,7 @@ void findnextPatternname() {
     patternunites++;
   } else {
     patternunites = 0;
-    if (synsetdizaines < 9) {
+    if (patterndizaines < 9) {
       patterndizaines++;
     } else {
       patterndizaines = 0;

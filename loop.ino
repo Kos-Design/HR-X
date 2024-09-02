@@ -70,8 +70,7 @@ void pseudo303() {
 
 void check_pads() {
     PadResult pad_result = Pads.padloop();
-  int paddered =
-      arranged_buttons[pad_result.pad_result[0]][pad_result.pad_result[1]];
+  int paddered = arranged_buttons[pad_result.pad_result[0]][pad_result.pad_result[1]];
   cc_note_num = pot_assignements[11 + paddered] - 128;
 
   // Serial.print(" received ");
@@ -138,15 +137,15 @@ void check_pots() {
   //checking one pot per loop as it is fast
      c_change = Muxer.read_val(itr);
     if (c_change > 0) {
-
-      if (itr < 15) {
+        //ordered_pots[9] broken, ignoring
+      if (itr < 15 && itr !=9) {
 
         if ((sublevels[0] == 5) && (sublevels[1] == 11) && (itr == 6)) {
           but_velocity[sublevels[2]] = (byte)((c_change / 1024.0) * 128);
           OnBoardVpanel();
         }
          else {
-          MaControlChange(muxed_channels[itr], (byte)muxed_pots[itr],
+          MaControlChange(muxed_channels[itr], (byte)ordered_pots[itr],
                           (byte)((c_change / 1024.0) * 128));
         }
         /*
@@ -177,6 +176,9 @@ void loop() {
   //wav_record_loop();
  // if (!stoptick) {
  // if (millis() % 2 == 0) {
+  if (millis() % 2 == 0) {
+    pseudo303();
+  }
     if (debug_cpu){
       print_memory_usage();
     }
@@ -203,11 +205,12 @@ void loop() {
     if (blinkTimer.TRIGGERED) {
       advance_tick();
       }
-  } else {
+  } 
+  //else {
     loopusbHub();
     if ((millis() % control_lag) == 0) {
       check_pots() ;
-     }
+     //}
   }
   
 }

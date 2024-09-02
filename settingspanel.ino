@@ -421,7 +421,6 @@ void arpegiatorVpanel() {
   // Ng grid  consecutive on
   // Ns grid spaces
   for (int i = 0; i < 7; i++) {
-    // barsize = round(((WetMixMasters[lefilter])*(totbartall-4))) ;
     canvasBIG.drawRoundRect(startlex + i * ecartl, topwbarstart, wbarwidth2,
                             totbartall, 2, SSD1306_WHITE);
     canvasBIG.fillRect(
@@ -454,9 +453,9 @@ void OnBoardVpanelAction() {
     if (((sublevels[2] <= 11) || (sublevels[2] > 45)) && (navlevel == 4)) {
       Serial.print("index=");
       Serial.println(potsboards[sublevels[2]]);
-      muxed_pots[potsboards[sublevels[2]]] = pot_assignements[sublevels[2]];
+      ordered_pots[potsboards[sublevels[2]]] = pot_assignements[sublevels[2]];
       Serial.print("muxed_pots ");
-      Serial.println(muxed_pots[potsboards[sublevels[2]]]);
+      Serial.println(ordered_pots[potsboards[sublevels[2]]]);
     }
     returntonav(2);
   }

@@ -167,11 +167,11 @@ void dolistmainfxlines() {
   char mainfxlineslist[mainfxlines][12] = {"FX Line1", "FX Line2", "FX Line3"};
   byte startx = 5;
   byte starty = 16;
-  char *textin;
+  String textin;
   if (moduleonfxline[sublevels[1]][0] != (mainmenufxlistsize - 1)) {
-    textin = (char *)mainmenufxlist[moduleonfxline[sublevels[1]][0]];
+    textin = (String)mainmenufxlist[moduleonfxline[sublevels[1]][0]];
   } else {
-    textin = (char *)mainfxlineslist[sublevels[1]];
+    textin = (String)mainfxlineslist[sublevels[1]];
   }
   canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setCursor(0, 0);
@@ -187,7 +187,7 @@ void dolistmainfxlines() {
     if (moduleonfxline[sublevels[1] + 1 + filer][0] !=
         (mainmenufxlistsize - 1)) {
       canvasBIG.println(
-          (char *)mainmenufxlist[moduleonfxline[sublevels[1] + 1 + filer][0]]);
+          (String)mainmenufxlist[moduleonfxline[sublevels[1] + 1 + filer][0]]);
       // textin = (char*)mainmenufxlist[moduleonfxline[sublevels[1]][0]];
     } else {
       canvasBIG.println(mainfxlineslist[sublevels[1] + 1 + filer]);
@@ -198,7 +198,7 @@ void dolistmainfxlines() {
     canvasBIG.setCursor(startx,
                         (10 * (mainfxlines - sublevels[1]) + 6 + ((filer)*10)));
     if (moduleonfxline[filer][0] != (mainmenufxlistsize - 1)) {
-      canvasBIG.println((char *)mainmenufxlist[moduleonfxline[filer][0]]);
+      canvasBIG.println((String)mainmenufxlist[moduleonfxline[filer][0]]);
       // textin = (char*)mainmenufxlist[moduleonfxline[sublevels[1]][0]];
     } else {
       canvasBIG.println(mainfxlineslist[filer]);

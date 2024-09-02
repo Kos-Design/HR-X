@@ -114,18 +114,6 @@ void initiatesamplerline(byte lesampleliner, byte channel, byte data1,
     Flashmixer[int(lesampleliner / 4)]->gain(
         lesampleliner - 4 * int(lesampleliner / 4),
         (smixervknobs[lesampleliner] / 128.0) * (data2 / 128.0));
-
-    //        Flashmixer[0]->gain(lesampleliner, data2/128.0);
-    //      }
-    //      if ( (lesampleliner > 3) && (i < 8)) {
-    //        Flashmixer[1]->gain(lesampleliner-4, data2/128.0);
-    //      }
-    //       if ( (lesampleliner > 7) && (i < 12)) {
-    //        Flashmixer[2]->gain(lesampleliner-8, data2/128.0);
-    //      }
-    //       if ( (lesampleliner > 11) && (i < 16)) {
-    //        Flashmixer[3]->gain(lesampleliner-12, data2/128.0);
-    //      }
   } else {
     Flashmixer[int(lesampleliner / 4)]->gain(
         lesampleliner - 4 * int(lesampleliner / 4),
@@ -205,13 +193,11 @@ void MaNoteOn(byte channel, byte data1, byte data2) {
 
   if (Sampleassigned[(int)(data1)] != 0 &&
       ((channel == (byte)samplermidichannel) or (samplermidichannel == -1))) {
-    // Serial.println("Sampler On ");
     playFlashsample((byte)samplermidichannel, data1, data2);
   }
   if (SendMidiOut) {
     // TODO: send midi during sound trigger to use arpegiators (+ note offs if
     // arpegiator doesn't already send Off notes ?)
-    Serial.println("sending Note On");
     MidiUSB.sendMIDI({0x09, statusByte, data1, data2});
     MidiUSB.flush();
   }
@@ -249,9 +235,6 @@ bool decrementarpegiatingNote() {
 }
 
 void initiatearpegesynthliner(byte larpegeline, byte data1, byte data2) {
-  Serial.print("arpegeline : ");
-  Serial.println(larpegeline);
-
   availablliner = getNewavailableliner();
 
   if (availablliner < nombreofliners) {
@@ -262,13 +245,8 @@ void initiatearpegesynthliner(byte larpegeline, byte data1, byte data2) {
         playingarpegiator[i][availablliner] = data1;
       }
     }
-
-    // for (int i = 0 ; i < nombreofliners ; i++) {
-    // if (data1 == calledarpegenote[i][0] ) {
     arpegnoteoffin[larpegeline][availablliner] = arpeglengh + 1;
     playingarpegiator[larpegeline][availablliner] = data1;
-    // }
-    // }
 
     // TODO check above for note leakage from other arpegio lines
 
@@ -277,13 +255,9 @@ void initiatearpegesynthliner(byte larpegeline, byte data1, byte data2) {
     if (patrecord) {
       recordmidinotes(availablliner, synthmidichannel, data1, data2);
     }
-    // Serial.print("LinerOn ");
-    // Serial.println(availablliner);
-
     lineron(availablliner, synthmidichannel, data1, data2);
     // AudioInterrupts();
   } else {
-    // Serial.print("No Liner not on ");
   }
 }
 
@@ -300,12 +274,9 @@ void initiateasynthliner(byte data1, byte data2) {
 
       recordmidinotes(availablliner, synthmidichannel, data1, data2);
     }
-    // Serial.print("LinerOn ");
-    // Serial.println(availablliner);
     lineron(availablliner, synthmidichannel, data1, data2);
     // AudioInterrupts();
   } else {
-    // Serial.print("No Liner not on ");
   }
 }
 
@@ -324,12 +295,9 @@ byte checkiflinerhasthatnoteOn(byte data1) {
   // int lenote = (int)( data1) ;
   for (int i = 0; i < nombreofliners; i++) {
     if (data1 == notesOn[i]) {
-      // Serial.print("found note active on liner: ");
-      // Serial.println(i);
       return (byte)i;
     }
   }
-  // Serial.println("no matching notes currently On");
   return nombreofliners;
 }
 void shutlineroff(byte data1) {
@@ -337,7 +305,6 @@ void shutlineroff(byte data1) {
   lalinetoOff = checkiflinerhasthatnoteOn(data1);
   if ((lalinetoOff < nombreofliners)) {
     if (patrecord) {
-      // Serial.println("liner off on patrecord ");
       recordmidinotesOff(lalinetoOff, synthmidichannel, data1, 0);
 
       // recompute lenghtof notes
@@ -357,7 +324,6 @@ void decrementgamme(byte larpegeline) {
 void randomdirtest(byte larpegeline) {
 
   byte lerandom = (byte)random(0, 101);
-  // Serial.println(lerandom);
   if (lerandom > 50) {
 
     tripletdirection[larpegeline] = !tripletdirection[larpegeline];
@@ -368,9 +334,7 @@ void randomdirtest(byte larpegeline) {
   }
 }
 void randomgammedirtest(byte larpegeline) {
-
   byte lerandom = (byte)random(0, 101);
-  // Serial.println(lerandom);
   if (lerandom > 50) {
 
     decrementgamme(larpegeline);
@@ -380,10 +344,6 @@ void randomgammedirtest(byte larpegeline) {
 }
 
 void tickarpegedown(byte larpegeline) {
-  // Serial.println(ticktriplet[larpegeline]);
-  // if (ticktriplet[larpegeline] == 2 && arpegmode == 2 || arpegmode == 3 ){
-  // randomdirtest(larpegeline);
-  //}
   if (ticktriplet[larpegeline] > 0) {
     ticktriplet[larpegeline]--;
   } else {
@@ -422,8 +382,6 @@ void tickarpegedown(byte larpegeline) {
 }
 
 void tickarpege(byte larpegeline) {
-  // Serial.println(ticktriplet[larpegeline]);
-
   ticktriplet[larpegeline]++;
 
   if (ticktriplet[larpegeline] > 2) {
@@ -512,13 +470,11 @@ void arpegioticker(byte larpegeline) {
     break;
 
   default:
-    // Serial.println("broke ticker");
     break;
   }
 }
 
 void ticklatriplet(byte larpegeline) {
-  // Serial.println(ticktriplet[larpegeline]);
   ticktriplet[larpegeline]++;
   if (ticktriplet[larpegeline] > 2) {
     ticktriplet[larpegeline] = 0;
@@ -527,8 +483,6 @@ void ticklatriplet(byte larpegeline) {
 }
 
 void ticklagamme(byte larpegeline) {
-
-  // Serial.println(ticktriplet[larpegeline]);
   if (arpegmode == 4) {
     randomdirtest(larpegeline);
   }
@@ -572,7 +526,6 @@ void playarpegenote(byte larpegeline) {
                              [ticktriplet[larpegeline]];
   // realnotetoplay = (byte)(octave*12 + relativenote) ;
   realnotetoplay = (byte)(arpegiatingNote[larpegeline] + relativenote);
-  // Serial.print(realnotetoplay);
   if (arpegmode == 4) {
     arpegioticker(larpegeline);
   }
@@ -591,16 +544,8 @@ void playarpegenote(byte larpegeline) {
 
 void MaNoteOff(byte channel, byte data1, byte data2) {
   uint8_t statusByte = static_cast<uint8_t>(0x80 | channel);
-  int lachordnote;
-  // if (debugmidion) {debugmidi("NoteOff",(int)( channel),(int)( data1),(int)(
-  // data2));}
-  Serial.print("Off, ch=");
-  Serial.print(channel, DEC);
-  Serial.print(", N=");
-  Serial.println(data1, DEC);
-
+  int lachordnote;  
   if (SendMidiOut) {
-    Serial.println("sending Note Off");
     MidiUSB.sendMIDI({0x08, statusByte, data1, data2});
     MidiUSB.flush();
   }
@@ -611,9 +556,6 @@ void MaNoteOff(byte channel, byte data1, byte data2) {
       setchordnotesOff(data1, lasetchord);
       for (int i = 0; i < 3; i++) {
         lachordnote = chordnotesoff[i] + ((int(data1 / 12)) * 12);
-        // Serial.print("chordnote=");
-        // Serial.println(lachordnote, DEC);
-        // working octave =
         shutlineroff(lachordnote);
       }
     }
@@ -762,10 +704,6 @@ bool terminateorphanseventsOff(int linei, byte lanotef) {
 
   for (int i = 0; i < pbars; i++) {
     if (synth_partition[linei][i][1] == lanotef) {
-      Serial.print(synth_partition[linei][i][1]);
-      Serial.print("=");
-      Serial.print(lanotef);
-
       // at least someone is using it somewhere
       return 0;
     }
@@ -790,12 +728,6 @@ int anothernOffisonafter(int linei, byte lanotee, int lapos) {
   for (int i = lapos; i < pbars - 1; i++) {
     if (synth_off_pat[linei][i + 1][1] == lanotee) {
       // 0 is liner
-      // aoffresultarray[0] = linei ;
-      // aoffresultarray[1] = i+1 ;
-      //              Serial.print("another note off comes after ");
-      //              Serial.println(lapos);
-      //              Serial.print(" at pos ");
-      //              Serial.print(i+1);
       return i + 1;
     }
   }
@@ -806,49 +738,25 @@ void clearbouncedoffsafters(int linei, byte lanotef, int lapos) {
   int laposoftheNofafter = anothernOffisonafter(linei, lanotef, lapos);
   // howmany nofs before a non
   if ((laposoftheNofafter < pbars) && (laposoftheNofafter != 0)) {
-    // Serial.println("check if a Non is next ");
     bool resultNoteOninbetween =
         testforaNoteOninbetween(linei, lapos, laposoftheNofafter, lanotef);
     if (resultNoteOninbetween) {
 
       if ((!checkifnonbefore(linei, lanotef, lapos)) && lapos != 0) {
-        //   Serial.print(" terminating dupli off note ");
         clearsaniloop = 0;
-        //   Serial.print((int)lanotef);
-        //   Serial.print(" on liner ");
-        //  Serial.print(linei);
-        //   Serial.print(" position ");
-        // Serial.println(lapos);
-        // Serial.println((int)resultNoteOninbetween);
         // cleardoublon
         synth_off_pat[linei][lapos][0] = (byte)0;
         synth_off_pat[linei][lapos][1] = (byte)0;
       }
-      if ((lapos == 0) && ((synth_off_pat[linei][pbars - 1][1] == lanotef) &&
-                           synth_partition[linei][pbars - 1][1] != lanotef)) {
+      if ((lapos == 0) && ((synth_off_pat[linei][pbars - 1][1] == lanotef) && synth_partition[linei][pbars - 1][1] != lanotef)) {
         // check before if no other On note if none found terminate that off
-        //  Serial.print(" clearing the first off");
         clearsaniloop = 0;
-        //  Serial.print((int)lanotef);
-        //   Serial.print(" on liner ");
-        //   Serial.print(linei);
-        //    Serial.print(" position ");
-        //   Serial.println(lapos);
         synth_off_pat[linei][0][0] = (byte)0;
         synth_off_pat[linei][0][1] = (byte)0;
       }
     }
     if (!resultNoteOninbetween) {
-
-      //  Serial.print("clear dupli note off ");
-      //  Serial.println((int)synth_off_pat[linei][laposoftheNofafter][1]);
       clearsaniloop = 0;
-      //    Serial.print(" liner,pos = ");
-      //  Serial.print(linei);
-      //  Serial.print(" , ");
-      //  Serial.print(laposoftheNofafter);
-      //   Serial.print(" note On in between = ");
-      //  Serial.println((int)resultNoteOninbetween);
       // cleardoublon
       synth_off_pat[linei][laposoftheNofafter][0] = (byte)0;
       synth_off_pat[linei][laposoftheNofafter][1] = (byte)0;
@@ -874,10 +782,10 @@ void terminateOffz(int linei) {
   for (int i = 0; i < pbars; i++) {
     if (synth_off_pat[linei][i][1] != 0) {
       if (terminateorphanseventsOff(linei, synth_off_pat[linei][i][1])) {
-        Serial.print("terminated orphan note ");
-        Serial.print(synth_off_pat[linei][i][1]);
+        //Serial.print("terminated orphan note ");
+        //Serial.print(synth_off_pat[linei][i][1]);
         clearsaniloop = 0;
-        //  Serial.println((int)synth_off_pat[linei][i][1]);
+        //Serial.println((int)synth_off_pat[linei][i][1]);
         synth_off_pat[linei][i][0] = 0;
         synth_off_pat[linei][i][1] = 0;
       }
@@ -931,13 +839,13 @@ void stopglidenote(byte liner) {
   // glide duration hold+atck?
   dogliding[liner] = 0;
 
-  Serial.println(" ");
-  Serial.print("note before ");
-  Serial.print(lapreviousnotew);
+  //Serial.println(" ");
+  //Serial.print("note before ");
+  //Serial.print(lapreviousnotew);
 
   lapreviousnotew += leglidenoteshift;
-  Serial.print("note now ");
-  Serial.println(lapreviousnotew);
+  //Serial.print("note now ");
+  //Serial.println(lapreviousnotew);
 }
 void stopglidenoteChords(byte liner) {
   // during loop shift freq & restart freqs interpolating from last note during
@@ -951,7 +859,7 @@ void startglidenote(byte liner, byte data1) {
   // glide duration hold+atck?
   dogliding[liner] = 1;
   leglidenoteshift = data1 - lapreviousnotew;
-  Serial.println(leglidenoteshift);
+  //Serial.println(leglidenoteshift);
   leglidershift = notestofreq[data1][1] - notestofreq[lapreviousnotew][1];
   leglideposition[liner] = 0;
  
@@ -1079,7 +987,7 @@ void moncontrollercc(byte channel, byte control, byte value) {
   if (value < 128) {
     if (midiknobassigned[control] != 0 && !freezemidicc) {
       if (SendMidiOut) {
-        Serial.println("sending CC");
+        //Serial.println("sending CC");
         uint8_t statusByte = static_cast<uint8_t>(0xB0 | channel);
         MidiUSB.sendMIDI({0x0B, statusByte, control, value});
 
@@ -1106,10 +1014,10 @@ void MaControlChange(byte channel, byte control, byte value) {
   // Serial.print(lechannel);
   if (stoptick) {
 
-    Serial.print("CC=");
-    Serial.print(control);
-    Serial.print(" V=");
-    Serial.println(value);
+    //Serial.print("CC=");
+    //Serial.print(control);
+    //Serial.print(" V=");
+    //Serial.println(value);
   }
 
   if ((patrecord || recordCC) && !stoptick && !isignored) {
@@ -1234,10 +1142,9 @@ void continueCCinterpol(byte lecc) {
 void checkall128cc() {
 
   for (int i = 0; i < 128; i++) {
-    if (activateinterpolatecc[i]) {
+    //if (activateinterpolatecc[i]) {
       continueCCinterpol(i);
-      // scanfornextcc(tickposition, i);
-      // startleCCinterpolation(i);
-    }
+
+    //}
   }
 }

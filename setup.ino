@@ -123,7 +123,7 @@ void setup() {
   pseudoconsole((char *)"starting muxer");
   Muxer.start();
   //queue1.begin();
-  AudioMemory(1500);
+  AudioMemory(1000);
   audioShield.inputSelect(AUDIO_INPUT_LINEIN);
   audioShield.enable();
 

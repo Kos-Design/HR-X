@@ -107,7 +107,7 @@ char arranged_buttons[6][6] = {{1,  5,  9,  13, 32,  23,},
                                {17, 18, 19, 20, 21,  22}};
 const unsigned short all_buttonns = 49;
 int pot_assignements[all_buttonns] = {10};
-int muxed_pots[15] = {10, 12, 11, 16, 15, 14, 19, 18,
+int ordered_pots[15] = {10, 12, 11, 16, 15, 14, 19, 18,
                       17, 13, 24, 22, 23, 21, 20};
 int potsboards[all_buttonns] = {
     2,  1,  9,  5,  4,  3,  8,  7,  6,  14, 13, 11, -1, -1, -1, -1, -1,
@@ -695,16 +695,16 @@ const char ControlList[allfxes][21] = {
     "FXChannelselector",
     // 70
     "chorusVknobs[i]", "bqstage[i]", "LFOonfilterz[i]", "bqVpot[i][j][0]",
-    "bqVpot[i][j][1]", "bqVpot[i][j][2]", "granularVknobs[i][0]",
+    "bqVpot[i][j][1]", "bqVpot[i][j][2]", "granular[i][0]",
     "granular[i][1]", "granular[i][2]", "granular[i][3]",
     // 80
-    "reverbVknobs[i][0]", "reverbVknobs[i][1]", "bitcrushVknobs[i][0]",
-    "bitcrushVknobs[i][1]", "mixVknobs[i][0]", "mixVknob[i][1]",
-    "mixVknob[i][2]", "filterVknob[i][0]", "filterVknobs[i][1]",
+    "reverbVknobs[i][0]", "reverbVknobs[i][1]", "bitcrush[i][0]",
+    "bitcrush[i][1]", "mixVknobs[i][0]", "mix[i][1]",
+    "mix[i][2]", "filter[i][0]", "filterVknobs[i][1]",
     "filterVknobs[i][2]",
     // 90
-    "flangerVknob[i][0]", "flangerVknob[i][1]", "flangerVknob[i][2]",
-    "delayVknobs[i][0]", "delayVknobs[i][1]", "delayVknobs[i][2]",
+    "flanger[i][0]", "flanger[i][1]", "flanger[i][2]",
+    "DelayFreq[i][0]", "DelayMult[i][1]", "DelayFeed[i][2]",
     "bqtype[i][bqstage]", "Audio In level", "Free", "Free",
     // 100
     "Pat. Save", "Pat. Load", "Free", "Free", "Free", "Phase1", "Wtype2",
@@ -718,7 +718,7 @@ const char ControlList[allfxes][21] = {
     // 130
     "Free", "Free", "Free", "Wfreq4", "Pan 4", "Phase4"};
 
-float WetMixMasters[4] = {1.0, 0.0, 0.0, 0.0};
+float WetMixMasters[4] = {0.0, 0.0, 0.0, 0.0};
 
 bool patterninparse;
 
@@ -779,7 +779,7 @@ bool rotamode = 1;
 
 int navrange = 2; // starts at 0
 
-byte wetins[2];
+byte wetins[3];
 
 char lastpathlisted[50];
 // char menuitem ;

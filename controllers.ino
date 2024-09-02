@@ -18,7 +18,6 @@ void controlswitcher(int caser, int valu) {
   case 1:
     // main synth level
     mixlevelsM[1] = smallfloat * 128;
-
     setmastersmixlevel(1);
     break;
   case 2:
@@ -138,13 +137,13 @@ void controlswitcher(int caser, int valu) {
     le303filterzWet();
     break;
   case 19:
-    Serial.println(19);
-
+    //wetness Audio In, metronome & sd player
+    wetins[2] = smallfloat * 128;
+    setwet2smixlevel(2);
     break;
   case 20:
     Serial.println(20);
     // le303filterzfreq and range
-
     le303ffilterzVknobs[0] = smallfloat * 128.0;
     le303filterzfreq = round((le303ffilterzVknobs[0] / 128.0) * 14000);
     le303filterzrange = le303filterzfreq;
@@ -226,9 +225,8 @@ void controlswitcher(int caser, int valu) {
     }
     break;
   case 38:
-    MasterL1.gain(2, smallfloat);
-
-    MasterR1.gain(2, smallfloat);
+    MasterL.gain(1, smallfloat);
+    MasterR.gain(1, smallfloat);
     // metronomemix
 
     break;
@@ -397,7 +395,9 @@ void controlswitcher(int caser, int valu) {
   case 69:
     // gets the fx connected on 1, 2, or 3rd position on the fx lines
     //ccfxlineselector = moduleonfxline[round(smallfloat * 2.0)][1];
-   // Serial.println(ccfxlineselector);
+
+      ccfxlineselector = map((int)(smallfloat*100.0),0,100,0,2);
+      Serial.println(ccfxlineselector);
     break;
   case 70:
     Serial.println("70");
@@ -516,7 +516,7 @@ void controlswitcher(int caser, int valu) {
   case 93:
     delayVknobs[ccfxlineselector][0] = round(smallfloat * 128.0);
     restartdelayline(ccfxlineselector);
-
+    Serial.println(delayVknobs[ccfxlineselector][0]);
     break;
 
   case 94:
@@ -527,6 +527,7 @@ void controlswitcher(int caser, int valu) {
   case 95:
     delayVknobs[ccfxlineselector][2] = round(smallfloat * 128.0);
     restartdelayline(ccfxlineselector);
+    Serial.println(delayVknobs[ccfxlineselector][2]);
     break;
 
   case 96:
@@ -540,16 +541,9 @@ void controlswitcher(int caser, int valu) {
 
   case 97:
     // Audio In level
-
-    //AudioNoInterrupts();
-    //InMixL.gain(1, smallfloat);
-    //InMixR.gain(1, smallfloat);
-    Serial.println(" MasterL.gain(2) set to ");
-    Serial.print(smallfloat);
     MasterL.gain(2, smallfloat);
     MasterR.gain(2, smallfloat);
 
-    //AudioInterrupts();
     break;
 
   case 98:
@@ -591,7 +585,7 @@ void controlswitcher(int caser, int valu) {
 
   case 106:
     //  phase1
-  print_gains();
+ 
     break;
   case 107:
     // type2

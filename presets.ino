@@ -242,6 +242,7 @@ void writesynthpreset() {
   INTinsertmytxtfile(lasetchord, (char*)"lasetchord");
   INTinsertmytxtfile(wetins[0], (char*)"wetsynth");
   INTinsertmytxtfile(wetins[1], (char*)"wetsampler");
+  INTinsertmytxtfile(wetins[2], (char*)"wetother");
   INTinsertmytxtfile(synthmidichannel, (char*)"synthmidichannel");
   INTinsertmytxtfile(samplermidichannel, (char*)"samplermidichannel");
   INTinsertmytxtfile(tapnote, (char*)"tapnote");
@@ -284,7 +285,7 @@ void writesynthpreset() {
     INTinsertmytxtfile(but_velocity[i], (char*)"but_velocity");
   }
   for (int i = 0; i < 15; i++) {
-    INTinsertmytxtfile(muxed_pots[i], (char*)"muxed_pots");
+    INTinsertmytxtfile(ordered_pots[i], (char*)"muxed_pots");
     INTinsertmytxtfile(muxed_channels[i], (char*)"muxed_channels");
   }
   for (int i = 0; i < 128; i++) {
@@ -483,6 +484,10 @@ void parsefile(int presetn) {
 
   parser.Read_String('#');
   parser.Skip(1);
+  wetins[2] = parser.Read_Int16();
+
+  parser.Read_String('#');
+  parser.Skip(1);
   synthmidichannel = parser.Read_Int16();
 
   parser.Read_String('#');
@@ -589,7 +594,7 @@ void parsefile(int presetn) {
   for (int i = 0; i < 15; i++) {
     parser.Read_String('#');
     parser.Skip(1);
-    muxed_pots[i] = parser.Read_Int16();
+    ordered_pots[i] = parser.Read_Int16();
     parser.Read_String('#');
     parser.Skip(1);
     muxed_channels[i] = parser.Read_Int16();
@@ -714,9 +719,6 @@ void parsefile(int presetn) {
     setmastersmixlevel(i);
   }
   wetmixmastercontrols();
-  //Serial.println("going to apply fx");
-  //allfxcontrolled();
-  print_gains();
 }
 
 void readpreset() { parsefile(sublevels[2]); }

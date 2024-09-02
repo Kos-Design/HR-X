@@ -1,4 +1,926 @@
 
+void displaypanbars(int score) {
+  if (navlevel >= 4) {
+    if (navlevel == 4) {
+      navrange = 20;
+      //        int lepan = round(map(sublevels[4],0,1,0,19));
+      // setpanlevel(0,lepan);
+      setpanlevel(sublevels[2], sublevels[4]);
+      // Serial.println(panLs[sublevels[2]]);
+      //   Serial.println(panLs[sublevels[2]]);
+    }
+    if (navlevel >= 5) {
+      // Serial.println("nav = 5 panned");
+      setpanlevel(sublevels[2], sublevels[4]);
+      returntonav(3, 9);
+
+      // lemenuroot();
+    }
+  }
+  int sizepan = map(score, 0, 2, 0, 35);
+  wavelinemenuBG(sublevels[2]);
+  dolistwavelineparams();
+  dodisplay();
+  display.drawRect(45, 16, 7, 35, SSD1306_WHITE);
+  display.drawRect(57, 16, 7, 35, SSD1306_WHITE);
+  display.fillRect(45, 64 - sizepan - 13, 7, sizepan, SSD1306_WHITE);
+  display.fillRect(57, 64 - sizepan - 13, 7, sizepan, SSD1306_WHITE);
+  display.setTextSize(2);
+  display.setCursor(80, 0);
+  display.println(panLs[sublevels[2]]);
+  display.display();
+}
+
+void displayoffsetwav(int synthi) {
+  if (navlevel == 4) {
+    navrange = 128;
+    wave1offset[synthi] = sublevels[4];
+
+    for (int i = 0; i < nombreofliners; i++) {
+      waveforms1[i + (synthi * nombreofliners)]->offset(
+          (float)(((64.0 - wave1offset[synthi]) / 64.0)));
+      FMwaveforms1[i + (synthi * nombreofliners)]->offset(
+          (float)(((64.0 - wave1offset[synthi]) / 64.0)));
+    }
+  }
+
+  if (navlevel >= 5) {
+    returntonav(3, 9);
+  }
+
+  //       sizefreq = map(score,0,128,0,35);
+  //         wavelinemenuBG(sublevels[2]);
+  //        dolistwavelineparams();
+  //          dodisplay();
+  //        display.drawRect(45, 16, 7, 35, SSD1306_WHITE);
+  //        display.drawRect(57, 16, 7, 35, SSD1306_WHITE);
+  //        display.fillRect(45, 64-sizefreq-13, 7, sizefreq, SSD1306_WHITE);
+  //        display.fillRect(57, 64-sizefreq-13, 7, sizefreq, SSD1306_WHITE);
+  //          display.setTextSize(2);
+  wavelinemenuBG(sublevels[2]);
+  dolistwavelineparams();
+  dodisplay();
+  canvastitle.fillScreen(SSD1306_BLACK);
+  canvastitle.setTextSize(2);
+  canvastitle.setCursor(75, 0);
+  canvastitle.print((float)(((64.0 - wave1offset[synthi]) / 64.0)));
+  dodisplay();
+}
+
+void displayfreqbars(int score) {
+  // weird but usefull behavior to switch encoder resolution between 0 and 1
+  if (navlevel >= 4) {
+
+    if (navlevel == 4) {
+      navrange = 10;
+      if (wavesfreqs[sublevels[2]] == 1) {
+        demimalmode = !demimalmode;
+      } else {
+        if (wavesfreqs[sublevels[2]] <= 1) {
+          demimalmode = 1;
+        }
+      }
+      if (!demimalmode) {
+        wavesfreqs[sublevels[2]] = sublevels[4];
+      }
+      if (demimalmode) {
+        wavesfreqs[sublevels[2]] = (sublevels[4]) / 10.0;
+      }
+
+      // Serial.println("nav = 4 freq");
+    }
+    if (navlevel >= 5) {
+      // Serial.println("nav = 5 freq");
+      // wavesfreqs[sublevels[2]] = sublevels[4] ;
+
+      if (demimalmode) {
+        wavesfreqs[sublevels[2]] = (sublevels[4]) / 10.0;
+      }
+
+      if (!demimalmode) {
+        wavesfreqs[sublevels[2]] = sublevels[4];
+      }
+      returntonav(3, 9);
+    }
+  }
+  
+  wavelinemenuBG(sublevels[2]);
+  dolistwavelineparams();
+  dodisplay();
+  //        display.drawRect(45, 16, 7, 35, SSD1306_WHITE);
+  //        display.drawRect(57, 16, 7, 35, SSD1306_WHITE);
+  //        display.fillRect(45, 64-sizefreq-13, 7, sizefreq, SSD1306_WHITE);
+  //        display.fillRect(57, 64-sizefreq-13, 7, sizefreq, SSD1306_WHITE);
+  display.setTextSize(2);
+  display.setCursor(65, 0);
+  display.println(wavesfreqs[sublevels[2]]);
+  display.display();
+}
+
+void displayphasebars(int score) {
+
+  if (navlevel >= 4) {
+    if (navlevel == 4) {
+
+      navrange = 360;
+      phaselevelsL[sublevels[2]] = int(sublevels[4]);
+
+      setphaselevel(sublevels[2]);
+      // Serial.println("nav = 4 phase");
+    }
+    if (navlevel >= 5) {
+      setphaselevel(sublevels[2]);
+
+      returntonav(3, 9);
+    }
+  }
+
+  // int sizephase = map(score,0,360,0,35);
+  wavelinemenuBG(sublevels[2]);
+  dolistwavelineparams();
+  dodisplay();
+  //    display.drawRect(45, 16, 7, 35, SSD1306_WHITE);
+  //    display.drawRect(57, 16, 7, 35, SSD1306_WHITE);
+  //    display.fillRect(45, 64-sizephase-13, 7, sizephase, SSD1306_WHITE);
+  //    display.fillRect(57, 64-sizephase-13, 7, sizephase, SSD1306_WHITE);
+  display.setCursor(80, 0);
+  display.setTextSize(2);
+  display.println(phaselevelsL[sublevels[2]]);
+  display.display();
+}
+
+void displayModulatedbool(int lesynthb) {
+  wavelinemenuBG(lesynthb);
+  dolistwavelineparams();
+  dodisplay();
+  display.setCursor(110, 0);
+  display.setTextSize(2);
+  display.println(FMmodulated[lesynthb]);
+
+  display.display();
+}
+
+void setfmtophase(byte lesynth) {
+  for (byte i = 0; i < nombreofliners; i++) {
+    FMwaveforms1[i + (lesynth * nombreofliners)]->phaseModulation(180);
+  }
+}
+
+void setfmtofreq(byte lesynth) {
+  for (byte i = 0; i < nombreofliners; i++) {
+    FMwaveforms1[i + (lesynth * nombreofliners)]->frequencyModulation(10);
+  }
+}
+
+void wavelineModulatedbool(int lesynthi) {
+  if (navlevel == 4) {
+    navrange = 2;
+    // Serial.println("Setting Mdulation switch");
+    FMmodulated[lesynthi] = sublevels[4];
+  }
+  if (navlevel > 4) {
+    if (FMmodulated[lesynthi] == 1) {
+      setfmtofreq(lesynthi);
+    }
+    if (FMmodulated[lesynthi] == 2) {
+      setfmtophase(lesynthi);
+    }
+    setwavetypefromlist(lesynthi, Waveformstyped[lesynthi]);
+    returntonav(3);
+  }
+  displayModulatedbool(lesynthi);
+}
+
+void wavelinePhase(int lesynthi) { displayphasebars(phaselevelsL[lesynthi]); }
+
+void wavelineFreq(int lesynthi) { displayfreqbars(wavesfreqs[lesynthi]); }
+
+void wavelinePan(int lesynthi) { displaypanbars(panLs[lesynthi]); }
+
+void wavelineoffset(int lesynthi) {
+  // displayoffsetwav(sublevels[4]);
+  displayoffsetwav(lesynthi);
+}
+
+void displaywaveformicon(int letype, char *lelabelw, const unsigned char img[],
+                         int lesinthy, typeof(WAVEFORM_SINE) wavetype) {
+
+  wavelinemenuBG(sublevels[2]);
+  dolistwavelineparams();
+  dodisplay();
+  display.drawBitmap(74, 20, img, 32, 32, SSD1306_WHITE);
+  display.setTextSize(1); // Draw 1X-scale text
+  display.setTextColor(SSD1306_WHITE);
+  display.setCursor(64, 0);
+  dolistwavelineparams();
+  dodisplay();
+  display.println(lelabelw);
+  display.display();
+  if (navlevel == 4) {
+    navrange = 11;
+    // Serial.println("Setting TYPE");
+    Waveformstyped[lesinthy] = sublevels[4];
+  }
+
+  if (navlevel > 4) {
+    setwavetypefromlist(lesinthy, Waveformstyped[lesinthy]);
+    if (Waveformstyped[lesinthy] == 11) {
+      mixlevelsL[lesinthy] = 0.0;
+      setwavemixlevel(lesinthy);
+    }
+    returntonav(3, 7);
+  }
+}
+
+void wavelineType(int lesynthi) {
+
+  switch (sublevels[4]) {
+  case 0:
+    displaywaveformicon(sublevels[4], (char *)"SineWave", sinewave, lesynthi,
+                        WAVEFORM_SINE);
+    break;
+  case 1:
+    displaywaveformicon(sublevels[4], (char *)"SawWave", sawtoothwave, lesynthi,
+                        WAVEFORM_SAWTOOTH);
+    break;
+  case 2:
+    displaywaveformicon(sublevels[4], (char *)"ReverseSaw", reversesawtoothwave,
+                        lesynthi, WAVEFORM_SAWTOOTH_REVERSE);
+    break;
+  case 3:
+    displaywaveformicon(sublevels[4], (char *)"Triangle", trianglewave,
+                        lesynthi, WAVEFORM_TRIANGLE);
+    break;
+  case 4:
+    displaywaveformicon(sublevels[4], (char *)"V-Triangle", variabletriangle,
+                        lesynthi, WAVEFORM_TRIANGLE_VARIABLE);
+    break;
+  case 5:
+    displaywaveformicon(sublevels[4], (char *)"SquareWave", squarewave,
+                        lesynthi, WAVEFORM_SQUARE);
+    break;
+  case 6:
+    displaywaveformicon(sublevels[4], (char *)"PulseWave", pulsewave, lesynthi,
+                        WAVEFORM_PULSE);
+    break;
+  case 7:
+    displaywaveformicon(sublevels[4], (char *)"Arbitrary", arbitrarywave,
+                        lesynthi, WAVEFORM_ARBITRARY);
+    break;
+  case 8:
+    displaywaveformicon(sublevels[4], (char *)"SampleHold", samplehold,
+                        lesynthi, WAVEFORM_SAMPLE_HOLD);
+    break;
+  case 9:
+    displaywaveformicon(sublevels[4], (char *)"Drum", arbitrarywave, lesynthi,
+                        WAVEFORM_ARBITRARY);
+    break;
+  case 10:
+    displaywaveformicon(sublevels[4], (char *)"String", samplehold, lesynthi,
+                        WAVEFORM_SAMPLE_HOLD);
+    break;
+  case 11:
+    displaywaveformicon(sublevels[4], (char *)"Wave OFF", moonwave, lesynthi,
+                        WAVEFORM_SINE);
+    break;
+
+  default:
+    break;
+  }
+}
+
+void wavelinepanel(int synthi) {
+
+  switch (sublevels[3]) {
+
+  case 0:
+
+    wavelineType(synthi);
+
+    break;
+  case 1:
+
+    wavelineModulatedbool(synthi);
+
+    break;
+  case 2:
+    displayLFOpanel(synthi);
+    break;
+  case 3:
+    wavelineFreq(synthi);
+    break;
+  case 4:
+    wavelineoffset(synthi);
+
+    break;
+  case 5:
+    wavelinePhase(synthi);
+
+    break;
+
+  case 7:
+    if (sublevels[2] < 3) {
+      sublevels[2]++;
+    } else {
+      sublevels[2] = 0;
+    }
+
+    navlevel--;
+    lemenuroot();
+
+    // Serial.print("Next");
+    break;
+
+  case 6:
+    // Serial.print("Previous");
+    if (sublevels[2] > 0) {
+      sublevels[2]--;
+    } else {
+      sublevels[2] = 3;
+    }
+    navlevel--;
+    lemenuroot();
+    break;
+
+  default:
+    break;
+  }
+}
+
+void wavelinemenuBG(int synthi) {
+  display.clearDisplay();
+  // display.drawBitmap(35, 64-48+20, wavex, 104, 48, SSD1306_WHITE);
+  display.setTextSize(1); // Draw 2X-scale text
+  display.setCursor(120, 57);
+  display.print(synthi + 1);
+  display.setTextSize(1);
+}
+
+void wavelinesBG() {
+  display.clearDisplay();
+  display.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
+
+  display.display();
+}
+
+void wavelining(int startx, int starty, char *leprintlabel, int synthi) {
+  if (navlevel >= 2) {
+    if (navlevel == 2) {
+
+      display.fillRect(startx, starty, 64, 24, SSD1306_INVERSE);
+      printlabel(leprintlabel);
+      display.display();
+    }
+    if (navlevel >= 3) {
+      if (navlevel == 3) {
+        navrange = truesizeofwavelineslabels - 1;
+
+        wavelinemenuBG(sublevels[2]);
+        display.display();
+        dolistwavelineparams();
+        dodisplay();
+
+        if (sublevels[3] == 0) {
+          sublevels[4] = Waveformstyped[synthi];
+          wavelinepanel(synthi);
+        }
+        if (sublevels[3] == 1) {
+          // Modulated bool switch
+          // sublevels[4] = int(mixlevelsL[synthi]*100) ;
+          wavelinepanel(synthi);
+        }
+        
+        if (sublevels[3] == 3) {
+          sublevels[4] = round(wavesfreqs[synthi]);
+          wavelinepanel(synthi);
+        }
+        if (sublevels[3] == 5) {
+
+          //  Serial.println("phasing");
+          sublevels[4] = int(phaselevelsL[synthi]);
+          wavelinepanel(synthi);
+        }
+        if (sublevels[3] == 4) {
+          sublevels[4] = wave1offset[synthi];
+          wavelinepanel(synthi);
+
+        }
+      }
+      if (navlevel >= 4) {
+
+        wavelinepanel(synthi);
+      }
+    }
+  }
+}
+
+
+void displayadsrgraph() {
+  if (sublevels[2] == 2) {
+    navleveloverwrite = 2;
+  }
+  if (sublevels[1] == 0) {
+    navleveloverwrite = 4;
+  }
+
+  canvastitle.fillScreen(SSD1306_BLACK);
+  canvastitle.setCursor(0, 0);
+  canvastitle.setTextSize(1);
+
+  canvasBIG.setTextSize(1);
+  canvasBIG.fillScreen(SSD1306_BLACK);
+  canvasBIG.drawLine(2, 61, 2, 18, SSD1306_WHITE);
+  canvasBIG.drawLine(2, 61, 125, 61, SSD1306_WHITE);
+  canvasBIG.drawLine(125, 59, 127, 61, SSD1306_WHITE);
+  canvasBIG.drawLine(125, 63, 127, 61, SSD1306_WHITE);
+  canvasBIG.drawLine(2, 16, 0, 18, SSD1306_WHITE);
+  canvasBIG.drawLine(2, 16, 4, 18, SSD1306_WHITE);
+
+  // mappedsustain
+  int totalliner = mappedattack * 10 + mappeddecay + 100 + mappedrelease +
+                   MadsrAttackDelay * 2 + MadsrHold + 5;
+  float linerratio = 124.0 / totalliner;
+  int a0 = round(MadsrAttackDelay * 10 * linerratio) + 5;
+  int a1 = round(mappedattack * 10 * linerratio) + a0;
+  int h0 = a1;
+  int h1 = a1 + round(MadsrHold * linerratio);
+  int d0 = h1;
+  int d1 = d0 + round(mappeddecay * linerratio);
+  int s0 = d1;
+  int s1 = s0 + 100 * linerratio;
+  int suY = map(mappedsustain, 0, 100, 37, 0) + 22;
+  int r0 = s1;
+  int r1 = r0 + mappedrelease * linerratio;
+  int startx = 3;
+  int starty = 16;
+
+  canvasBIG.drawLine(a0, 61, a1, 24, SSD1306_WHITE);
+  canvasBIG.drawLine(h0, 24, h1, 24, SSD1306_WHITE);
+  canvasBIG.drawLine(d0, 24, d1, suY, SSD1306_WHITE);
+  canvasBIG.drawLine(s0, suY, s1, suY, SSD1306_WHITE);
+  canvasBIG.drawLine(r0, suY, r1, 61, SSD1306_WHITE);
+  display.clearDisplay();
+  dodisplay();
+
+  // preparing for next display loop
+  canvastitle.fillScreen(SSD1306_BLACK);
+
+  canvasBIG.fillScreen(SSD1306_BLACK);
+
+  switch (sublevels[navleveloverwrite]) {
+  case 0:
+    display.fillRect(startx, starty,
+                     round(MadsrAttackDelay * 10 * linerratio) + 1, 45,
+                     SSD1306_INVERSE);
+    display.display();
+    sliceDa();
+    break;
+
+  case 1:
+    display.fillRect(a0, starty, round(mappedattack * 10 * linerratio) + 2, 45,
+                     SSD1306_INVERSE);
+    display.display();
+
+    sliceA();
+    break;
+
+  case 2:
+    display.fillRect(h0, starty, round(MadsrHold * linerratio) + 2, 45,
+                     SSD1306_INVERSE);
+    display.display();
+
+    sliceH();
+    break;
+  case 3:
+    display.fillRect(d0, starty, round(mappeddecay * linerratio) + 1, 45,
+                     SSD1306_INVERSE);
+    display.display();
+
+    sliceD();
+    break;
+  case 4:
+
+    display.fillRect(s0, starty, round(95 * linerratio) + 1, 45,
+                     SSD1306_INVERSE);
+    display.display();
+
+    sliceS();
+    break;
+  case 5:
+    display.fillRect(r0, starty, round(mappedrelease * linerratio) + 1, 45,
+                     SSD1306_INVERSE);
+    display.display();
+
+    sliceR();
+    break;
+    
+  default:
+    break;
+  }
+  
+ 
+  dodisplay();
+
+  canvastitle.fillScreen(SSD1306_BLACK);
+
+  canvasBIG.fillScreen(SSD1306_BLACK);
+}
+
+void GlobalADSR() {
+  
+  SetADSR();
+  ApplyADSR();
+    
+}
+
+void sliceA() {
+  if (navlevel == navleveloverwrite + 1) {
+    //stuck here until validation of cursor, try using returnto nav
+    sublevels[navlevel + 1] = mappedattack;
+    vraipos = sublevels[navlevel + 1];
+    myEnc.write(4 * sublevels[navlevel + 1]);
+    navlevel = navlevel + 1;
+  }
+
+  if (navlevel == navleveloverwrite + 2) {
+    navrange = 1024;
+
+
+    mappedattack = sublevels[navleveloverwrite + 2];
+  }
+  if (navlevel == navleveloverwrite + 3) {
+    // Serial.println("after2clicks");
+
+    if (sublevels[1] == 2) {
+      // Serial.println("setting global");
+      GlobalADSR();
+    }
+    returntonav(navleveloverwrite, 5);
+    Serial.println("returned twice");
+
+  }
+  canvastitle.setTextSize(1);
+  canvastitle.setCursor(0, 0);
+  canvastitle.fillScreen(SSD1306_BLACK);
+  canvastitle.println((char *)"Attack ");
+  canvastitle.setCursor(55, 0);
+  canvastitle.setTextSize(1);
+  canvastitle.println(mappedattack);
+  // Serial.print("displayd SliceA");
+}
+
+void sliceDa() {
+  if (navlevel == navleveloverwrite + 1) {
+
+    sublevels[navlevel + 1] = MadsrAttackDelay;
+    vraipos = sublevels[navlevel + 1];
+    myEnc.write(4 * sublevels[navlevel + 1]);
+    navlevel = navlevel + 1;
+  }
+  if (navlevel == navleveloverwrite + 2) {
+    navrange = 100;
+
+    MadsrAttackDelay = sublevels[navleveloverwrite + 2];
+  }
+  if (navlevel == navleveloverwrite + 3) {
+    if (sublevels[1] == 2) {
+      // Serial.println("setting global");
+      GlobalADSR();
+    }
+
+    returntonav(navleveloverwrite, 5);
+  }
+  canvastitle.setTextSize(1);
+  canvastitle.setCursor(0, 0);
+  canvastitle.fillScreen(SSD1306_BLACK);
+  canvastitle.println((char *)"Attack Delay ");
+  canvastitle.setCursor(55, 0);
+  canvastitle.println(MadsrAttackDelay);
+  
+}
+
+void sliceH() {
+  if (navlevel == navleveloverwrite + 1) {
+    sublevels[navlevel + 1] = MadsrHold;
+    vraipos = sublevels[navlevel + 1];
+    myEnc.write(4 * sublevels[navlevel + 1]);
+    navlevel = navlevel + 1;
+  }
+  if (navlevel == navleveloverwrite + 2) {
+    navrange = 100;
+    MadsrHold = sublevels[navleveloverwrite + 2];
+  }
+  if (navlevel == navleveloverwrite + 3) {
+    if (sublevels[1] == 2) {
+      // Serial.println("setting global");
+      GlobalADSR();
+    }
+
+    returntonav(navleveloverwrite, 5);
+  }
+  canvastitle.setTextSize(1);
+  canvastitle.setCursor(0, 0);
+  canvastitle.fillScreen(SSD1306_BLACK);
+  canvastitle.println((char *)"Hold ");
+  canvastitle.setCursor(55, 0);
+
+  canvastitle.println(MadsrHold);
+}
+
+void sliceD() {
+
+  if (navlevel == navleveloverwrite + 1) {
+    sublevels[navlevel + 1] = mappeddecay;
+    vraipos = sublevels[navlevel + 1];
+    myEnc.write(4 * sublevels[navlevel + 1]);
+    navlevel = navlevel + 1;
+  }
+  if (navlevel == navleveloverwrite + 2) {
+    navrange = 512;
+    mappeddecay = sublevels[navleveloverwrite + 2];
+  }
+  if (navlevel == navleveloverwrite + 3) {
+    if (sublevels[1] == 2) {
+      // Serial.println("setting global");
+      GlobalADSR();
+    }
+
+    returntonav(navleveloverwrite, 5);
+  }
+
+  canvastitle.setTextSize(1);
+  canvastitle.setCursor(0, 0);
+  canvastitle.fillScreen(SSD1306_BLACK);
+  canvastitle.println((char *)"Decay ");
+  canvastitle.setCursor(55, 0);
+
+  canvastitle.println(mappeddecay);
+}
+
+void sliceS() {
+  if (navlevel == navleveloverwrite + 1) {
+    sublevels[navlevel + 1] = mappedsustain;
+    vraipos = sublevels[navlevel + 1];
+    myEnc.write(4 * sublevels[navlevel + 1]);
+    navlevel = navlevel + 1;
+  }
+  if (navlevel == navleveloverwrite + 2) {
+    navrange = 100;
+    mappedsustain = sublevels[navleveloverwrite + 2];
+  }
+  if (navlevel == navleveloverwrite + 3) {
+    if (sublevels[1] == 2) {
+      // Serial.println("setting global");
+      GlobalADSR();
+    }
+
+    returntonav(navleveloverwrite, 5);
+  }
+
+  canvastitle.setTextSize(1);
+  canvastitle.setCursor(0, 0);
+  canvastitle.fillScreen(SSD1306_BLACK);
+  canvastitle.println((char *)"Sustain ");
+  canvastitle.setCursor(55, 0);
+  canvastitle.println(mappedsustain);
+}
+
+void sliceR() {
+  if (navlevel == navleveloverwrite + 1) {
+    sublevels[navlevel + 1] = mappedrelease;
+    vraipos = sublevels[navlevel + 1];
+    myEnc.write(4 * sublevels[navlevel + 1]);
+    navlevel = navlevel + 1;
+  }
+  if (navlevel == navleveloverwrite + 2) {
+    navrange = 1024;
+    mappedrelease = sublevels[navleveloverwrite + 2];
+  }
+  if (navlevel == navleveloverwrite + 3) {
+    if (sublevels[1] == 2) {
+      // Serial.println("setting global");
+      GlobalADSR();
+    }
+
+    returntonav(navleveloverwrite, 5);
+  }
+
+  canvastitle.setTextSize(1);
+  canvastitle.setCursor(0, 0);
+  canvastitle.fillScreen(SSD1306_BLACK);
+  canvastitle.println((char *)"Release ");
+  canvastitle.setCursor(55, 0);
+  canvastitle.println(mappedrelease);
+}
+
+void dolistwavelineparams() {
+  char wavelineslabels[truesizeofwavelineslabels][12] = {
+      "Type", "Modulated", "LFO", "Freq", "Offset", "Phase", "<-  ", "  ->"};
+  int startx = 5;
+  int starty = 16;
+  char *textin = (char *)wavelineslabels[sublevels[3]];
+
+  canvastitle.fillScreen(SSD1306_BLACK);
+  canvastitle.setCursor(0, 0);
+
+  canvastitle.setTextSize(2);
+
+  canvastitle.println(textin);
+
+  canvasBIG.setTextSize(1);
+
+  canvasBIG.fillScreen(SSD1306_BLACK);
+
+  for (int filer = 0; filer < truesizeofwavelineslabels - 1 - (sublevels[3]);
+       filer++) {
+
+    canvasBIG.setCursor(startx, starty + ((filer)*10));
+    canvasBIG.println(wavelineslabels[sublevels[3] + 1 + filer]);
+  }
+  for (int filer = 0; filer < sublevels[3]; filer++) {
+
+    canvasBIG.setCursor(
+        startx,
+        (10 * (truesizeofwavelineslabels - sublevels[3]) + 6 + ((filer)*10)));
+    canvasBIG.println(wavelineslabels[filer]);
+  }
+}
+
+void dolistsyntmenu() {
+  char synthmenulabels[5][12] = {"Synths", "Mixer", "ADSR", "  ", "Filter"};
+
+  // removeExt(textin);
+  byte startx = 5;
+  byte starty = 16;
+  char *textin = (char *)synthmenulabels[sublevels[1]];
+  canvastitle.fillScreen(SSD1306_BLACK);
+  canvastitle.setCursor(0, 0);
+  canvastitle.setTextSize(2);
+  canvastitle.println(textin);
+  canvasBIG.setTextSize(1);
+  canvasBIG.fillScreen(SSD1306_BLACK);
+  for (int filer = 0; filer < 4 - (sublevels[1]); filer++) {
+    canvasBIG.setCursor(startx, starty + ((filer)*10));
+    canvasBIG.println(synthmenulabels[sublevels[1] + 1 + filer]);
+  }
+  for (int filer = 0; filer < sublevels[1]; filer++) {
+    canvasBIG.setCursor(startx, (10 * (5 - sublevels[1])) + 6 + ((filer)*10));
+    canvasBIG.println(synthmenulabels[filer]);
+  }
+}
+
+void synthmenu() {
+  if (navlevel == 1) {
+    display.clearDisplay();
+    reinitsublevels(2);
+    dolistsyntmenu();
+    dodisplay();
+  }
+
+  if (sublevels[1] == 3 && navlevel > 1) {
+    navrange = numberofsynthsw-1;
+    showsynthparamspanel();
+  }
+  //adsr section
+  if (sublevels[1] == 2) {
+    if (navlevel >= 2) {
+      if (navlevel == 2) {
+        navrange = 5;
+      }
+      
+      navleveloverwrite = 2;
+      displayadsrgraph();
+    }
+  }
+  // waves menu
+  if (sublevels[1] == 0) {
+    if (navlevel >= 2) {
+      if (navlevel == 2) {
+
+        navrange = numberofsynthsw-1;
+        wavelinesBG();
+        sublevels[3] = 0;
+      }
+
+      switch (sublevels[2]) {
+
+      case 0:
+        toprint = (char *)"Waveline 1";
+        wavelining(0, 16, toprint, sublevels[2]);
+
+        break;
+      case 1:
+        toprint = (char *)"Waveline 2";
+        wavelining(64, 16, toprint, sublevels[2]);
+        break;
+      case 2:
+        toprint = (char *)"Waveline 3";
+        wavelining(0, 40, toprint, sublevels[2]);
+        break;
+      
+      default:
+        break;
+      }
+    }
+  }
+  // mixer
+  if (sublevels[1] == 1 && navlevel > 1) {
+    showmixerwaves();
+  }
+  if (sublevels[1] == 4 && navlevel > 1) {
+    le303filterVpanel();
+  }
+}
+
+float fxslopedown2(byte curve, float laxval) {
+  // 0 to 1 10 vals 1 to 2 10 2 to 3 10
+  // float leresult ;
+  return pow(laxval, (double)(curve / 128.0));
+}
+
+float fxslopedown(byte slope, float laxval) {
+  float leresult = 0;
+  switch (slope) {
+  case 0:
+    leresult = 1 - (((1 / (pow(10, (double)laxval))) * 5.55556) - 0.555556) / 5;
+    break;
+  case 1:
+    leresult = laxval;
+    break;
+  case 2:
+    leresult = sqrt(abs(sin(((laxval)) * 3.14159 + 1.57)));
+    break;
+  case 3:
+    leresult = 1.0 - ((sin(laxval * 3.14159 + 1.57)) * 0.5) + 0.5;
+    break;
+
+  default:
+    break;
+  }
+  return abs(leresult);
+}
+
+void actionsynthparamspanel() {
+
+  if (navlevel == 3) {
+    navrange = 128;
+    if (sublevels[2] == 0) {
+      slope1 = sublevels[3];
+    }
+    if (sublevels[2] == 1) {
+      navrange = 128;
+      slope2 = sublevels[3];
+    }
+  }
+  if (navlevel > 3) {
+    returntonav(2);
+  }
+}
+
+void selectsynthparamspanel() {
+  if (navlevel == 2) {
+    navrange = 1;
+    if (sublevels[2] == 0) {
+      sublevels[3] = slope1;
+      canvasBIG.setCursor(40, 16);
+      canvasBIG.print((char)9);
+    }
+    if (sublevels[2] == 1) {
+      sublevels[3] = slope2;
+      canvasBIG.setCursor(104, 16);
+      canvasBIG.print((char)9);
+    }
+  }
+}
+
+void showsynthparamspanel() {
+  actionsynthparamspanel();
+  display.clearDisplay();
+  canvasBIG.fillScreen(SSD1306_BLACK);
+  canvastitle.fillScreen(SSD1306_BLACK);
+  selectsynthparamspanel();
+  canvasBIG.setCursor(0, 16);
+  canvasBIG.setTextSize(1);
+  canvasBIG.print("Sl1: ");
+  canvasBIG.print(slope1);
+  canvasBIG.setCursor(64, 16);
+  canvasBIG.print("Sl2: ");
+  canvasBIG.print(slope2);
+  canvasBIG.setCursor(0, 16 + 10);
+  canvasBIG.print("C.mode:");
+  canvasBIG.print(cutoffmode);
+  canvasBIG.setCursor(64, 16 + 10);
+  canvasBIG.print("R.mode:");
+  canvasBIG.print(resonancemode);
+  canvasBIG.setCursor(0, 16 + 20);
+  canvasBIG.print("param5:");
+  canvasBIG.print(paramse1);
+  canvasBIG.setCursor(64, 16 + 20);
+  canvasBIG.print("param6:");
+  canvasBIG.print(paramse2);
+  dodisplay();
+}
+
 void setlepulse1() {
   le303pulsewidth = (le303pulsewidthmultiplier / 32.0) * 2 * millitickinterval;
   if (le303pulsewidth < 50) {
@@ -402,11 +1324,11 @@ void setle303filterpass(int linei, float ladiff1) {
 }
 
 void showmixerwaves() {
-  char masterfulllabels[11][12] = {
+  char masterfulllabels[12][12] = {
       "Master",     "Synth",      "Sampler",    "FX1",
-      "FX2",        "FX3",        "Wet Synth",  "Wet Sampler",
+      "FX2",        "FX3",        "Wet Synth",  "Wet Sampler", "Wet Other",
       "Waveline 1", "Waveline 2", "Waveline 3" };
-  navrange = 10;
+  navrange = 11;
   byte slct = sublevels[2];
   if (slct < 3) {
     actionwmixerM(sublevels[2]);
@@ -414,10 +1336,10 @@ void showmixerwaves() {
   if (slct > 2 && slct < 6) {
     actionwet1mixer(sublevels[2] - 3);
   }
-  if (slct > 5 && slct < 8) {
+  if (slct > 5 && slct < 9) {
     actionwet2mixer(sublevels[2] - 6);
   }
-  if (slct > 7 && slct < 11) {
+  if (slct > 8 && slct < 12) {
     actionwmixer(sublevels[2] - 8);
   }
 
@@ -446,109 +1368,79 @@ void showmixerwaves() {
     centercircley = 16 + knobradius;
     canvastitle.setCursor(centercirclex - 5, 8);
     canvastitle.setTextSize(1);
-
     canvastitle.print((char)masterfulllabels[i][0]);
     canvastitle.print((char)masterfulllabels[i][2]);
-
-    canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
-                         SSD1306_WHITE);
-
+    canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
     trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
     trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
-
-    display.drawLine(centercirclex, centercircley, trianglepointx,
-                     trianglepointy, SSD1306_WHITE);
+    display.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
   }
 
   if (slct < 3) {
     centercirclex = knobradius + (xcentershifter * slct);
-    canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
-                         SSD1306_WHITE);
+    canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
     canvastitle.setCursor(95, 0);
     canvastitle.print((mixlevelsM[slct] / 128.0) * 100.0, 1);
   }
 
   for (int i = 0; i < 3; i++) {
     coeffangle = (6.2831 - (WetMixMasters[i + 1]) * 6.2831) + 3.1416;
-    centercirclex =
-        knobradius + (xcentershifter * i) + 5 + (xcentershifter * 3);
+    centercirclex = knobradius + (xcentershifter * i) + 5 + (xcentershifter * 3);
     centercircley = 16 + knobradius;
     canvastitle.setCursor(centercirclex - 8, 8);
     canvastitle.setTextSize(1);
     canvastitle.print((char *)masterfulllabels[i + 3]);
-    canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
-                         SSD1306_WHITE);
+    canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
     trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
     trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
-
-    display.drawLine(centercirclex, centercircley, trianglepointx,
-                     trianglepointy, SSD1306_WHITE);
+    display.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
   }
 
   if (slct > 2 && slct < 6) {
-    centercirclex =
-        knobradius + (xcentershifter * (slct - 3)) + 5 + (xcentershifter * 3);
-    canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
-                         SSD1306_WHITE);
+    centercirclex = knobradius + (xcentershifter * (slct - 3)) + 5 + (xcentershifter * 3);
+    canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
     canvastitle.setCursor(95, 0);
     canvastitle.print(WetMixMasters[slct - 3 + 1] * 100.0, 1);
   }
 
-  for (int i = 0; i < 2; i++) {
-
+  for (int i = 0; i < 3; i++) {
     coeffangle = (6.2831 - (wetins[i] / 128.0) * 6.2831) + 3.1416;
     centercirclex = knobradius + (xcentershifter * i);
     centercircley = yshifter + knobradius;
-    canvasBIG.setCursor(centercirclex - 7,
-                        centercircley - (2 + knobradius * 2));
+    canvasBIG.setCursor(centercirclex - 7, centercircley - (2 + knobradius * 2));
     canvasBIG.print("Ws");
     canvasBIG.print(i);
-    canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
-                         SSD1306_WHITE);
+    canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
     trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
     trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
-
-    display.drawLine(centercirclex, centercircley, trianglepointx,
-                     trianglepointy, SSD1306_WHITE);
+    display.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
   }
 
-  if (slct > 5 && slct < 8) {
-
+  if (slct > 5 && slct < 9) {
     centercirclex = knobradius + (xcentershifter * (slct - 6));
-    canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
-                         SSD1306_WHITE);
+    canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
     canvastitle.setCursor(95, 0);
     canvastitle.print((wetins[slct - 6] / 128.0) * 100.0, 1);
   }
+  
   for (int i = 0; i < numberofsynthsw; i++) {
-
     coeffangle = (6.2831 - (mixlevelsL[i]) * 6.2831) + 3.1416;
-
-    centercirclex =
-        knobradius + (xcentershifter * i) + 5 + (xcentershifter * 2);
+    centercirclex = knobradius + (xcentershifter * i) + 25 + (xcentershifter * 2);
     centercircley = yshifter + knobradius;
-    canvasBIG.setCursor(centercirclex - 5,
-                        centercircley - (2 + knobradius * 2));
+    canvasBIG.setCursor(centercirclex - 5, centercircley - (2 + knobradius * 2));
     canvasBIG.print("W");
     canvasBIG.print(i);
-    canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
-                         SSD1306_WHITE);
-
+    canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
     trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
     trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
-
-    display.drawLine(centercirclex, centercircley, trianglepointx,
-                     trianglepointy, SSD1306_WHITE);
+    display.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
   }
 
-  if (slct > 7 && slct < 12) {
-
-    centercirclex =
-        knobradius + (xcentershifter * (slct - 8)) + 5 + (xcentershifter * 2);
-    canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
-                         SSD1306_WHITE);
+  if (slct > 8 && slct < 12) {
+    centercirclex = knobradius + (xcentershifter * (slct - 9)) + 25 + (xcentershifter * 2);
+    canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
     canvastitle.setCursor(95, 0);
-    canvastitle.print((mixlevelsL[slct - 8]) * 100.0, 1);
+    canvastitle.print((mixlevelsL[slct - 9]) * 100.0, 1);
   }
   dodisplay();
 }
@@ -595,17 +1487,6 @@ void actionwet2mixer(int linstru) {
 }
 
 void wetmixmastercontrols() {
-
-  float sum = WetMixMasters[3] + WetMixMasters[2] + WetMixMasters[1];
-
-  // Adjust the values proportionally if the sum is not equal to 1
-  if ((sum != 0) && (sum > 1)) {
-    WetMixMasters[1] /= sum;
-    WetMixMasters[2] /= sum;
-    WetMixMasters[3] /= sum;
-  }
-  WetMixMasters[0] = 1.0 - (WetMixMasters[3] + WetMixMasters[2] + WetMixMasters[1]);
-
   for (byte i = 0; i < 4; i++) {
     WetMixMasterL.gain(i, WetMixMasters[i]);
     WetMixMasterR.gain(i, WetMixMasters[i]);
@@ -614,21 +1495,31 @@ void wetmixmastercontrols() {
 
 void setwet2smixlevel(int lebus) {
   //AudioNoInterrupts();
+  //TODO add wetness mix for fxbusL(3 ) <- others dry/wet
   switch (lebus) {
   case 0:
-    // set synth on fx main bus
-
-    MasterL.gain(1, wetins[0] / 128.0);
-    MasterR.gain(1, wetins[0] / 128.0);
+    // set synth wetness on fx main bus
+    
+    MasterL1.gain(2, wetins[0] / 128.0);
+    MasterR1.gain(2, wetins[0] / 128.0);
     FXBusL.gain(2, 1 - (wetins[0] / 128.0));
     FXBusR.gain(2, 1 - (wetins[0] / 128.0));
+    
     break;
   case 1:
-    // set sampler on fx main bus
+    // set sampler wetness on fx main bus
     MasterL1.gain(3, wetins[1] / 128.0);
     MasterR1.gain(3, wetins[1] / 128.0);
-    FXBusL.gain(2, 1 - (wetins[1] / 128.0));
-    FXBusR.gain(2, 1 - (wetins[1] / 128.0));
+    FXBusL.gain(1, 1 - (wetins[1] / 128.0));
+    FXBusR.gain(1, 1 - (wetins[1] / 128.0));
+    break;
+
+  case 2:
+    // set wetness for "others" (audio in,SD,metronome) on fx main bus
+    MasterL1.gain(0 ,wetins[1] / 128.0);
+    MasterR1.gain(0, wetins[1] / 128.0);
+    FXBusL.gain(3, 1 - (wetins[1] / 128.0));
+    FXBusR.gain(3, 1 - (wetins[1] / 128.0));
     break;
 
   default:
@@ -681,13 +1572,13 @@ void setmastersmixlevel(int lebus) {
     break;
   case 1:
     // set synth Main
-    MasterL.gain(1, mixlevelsM[1] / 128.0);
-    MasterR.gain(1, mixlevelsM[1] / 128.0);
+    mixerWAll.gain(1, mixlevelsM[1] / 128.0);
+    mixerWAll.gain(0, mixlevelsM[1] / 128.0);
     break;
   case 2:
     // set sampler main
     flashMastermix.gain(0, mixlevelsM[2] / 128.0);
-    flashMastermix.gain(0, mixlevelsM[2] / 128.0);
+    flashMastermix.gain(1, mixlevelsM[2] / 128.0);
     break;
   default:
     break;
