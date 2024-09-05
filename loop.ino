@@ -56,14 +56,8 @@ void pseudo303() {
 
       if (ladiff2 <= 1) {
 
-        les303filterz[i]->resonance(0.1 + (le303filterzreso) *
-                                              (fxslopedown2(slope2, ladiff2)));
+        les303filterz[i]->resonance(0.1 + (le303filterzreso) * (fxslopedown2(slope2, ladiff2)));
       }
-      lfo303levshiter = fxslopedown2(slope2, ladiff2);
-      LFOrm303.amplitude((float)(LFOlevel[2] / 512.00) * (1 - lfo303levshiter));
-      // les303passes[i]->gain(2,sin(((le303filterzgainz[2]*
-      // (letimerz303*1.0/le303pulsewidth2)))*3.14159));
-      // Serial.println("fading out");
     }
   }
 }
@@ -179,40 +173,46 @@ void loop() {
   if (millis() % 2 == 0) {
     pseudo303();
   }
-    if (debug_cpu){
-      print_memory_usage();
+  if (debug_cpu){
+    print_memory_usage();
+  }
+  if (pre_record) {
+    if (millis() - tocker > 500) {
+      rec_looping = true ;
+      pre_record = false ;
     }
-    if ( rec_looping ) {
+  }
+  if ( rec_looping ) { 
     continue_looper();
-  }
-  //}
-  
-  if (millis() % display_lag == 0) {
-   
-    if (noteprint) {
-      printlanote();
-    }
-    
-    evalinputs();
-    evalrota();
-  }
-
-  if (millis() % (control_lag + 1) == 0) {
-    check_pads();
-  }
-
-  if ( !stoptick ) {
-    if (blinkTimer.TRIGGERED) {
-      advance_tick();
-      }
   } 
-  //else {
-    loopusbHub();
-    if ((millis() % control_lag) == 0) {
-      check_pots() ;
-     //}
+  if ( !rec_looping && !pre_record) {
+    if (millis() % display_lag == 0) {
+    
+      if (noteprint) {
+        printlanote();
+      }
+      
+      evalinputs();
+      evalrota();
+    }
+
+    if (millis() % (control_lag + 1) == 0) {
+      check_pads();
+    }
+
+    if ( !stoptick ) {
+      if (blinkTimer.TRIGGERED) {
+        advance_tick();
+        }
+    } 
+    //else {
+      
+      if ((millis() % control_lag) == 0) {
+        check_pots() ;
+      //}
+    }
   }
-  
+  loopusbHub();
 }
 
 void printit() {

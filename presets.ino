@@ -212,8 +212,8 @@ void writesynthpreset() {
   INTinsertmytxtfile(slope1, (char*)"slope1");
   INTinsertmytxtfile(slope2, (char*)"slope2");
   INTinsertmytxtfile(millitickinterval, (char*)"milli");
-  INTinsertmytxtfile(le303pulsewidthmultiplier, (char*)"pulse1");
-  INTinsertmytxtfile(le303pulsewidthmultiplier2, (char*)"pulse2");
+  INTinsertmytxtfile(cutoff_pulse, (char*)"pulse1");
+  INTinsertmytxtfile(reson_pulse, (char*)"pulse2");
   for (int i = 0; i < 3; i++) {
     INTinsertmytxtfile(le303ffilterzVknobs[i], (char*)"f303vknobs");
     INTinsertmytxtfile(mixle303ffilterzVknobs[i], (char*)"mixfilters303");
@@ -227,8 +227,6 @@ void writesynthpreset() {
   FLOATinsertmytxtfile(le303filterzoctv, (char*)"le303octv");
   INTinsertmytxtfile(int(glidemode), (char*)"glidemode");
   INTinsertmytxtfile(preampleswaves, (char*)"preampleswaves");
-  INTinsertmytxtfile(le303envlfofadintime, (char*)"le303envlfofadintime");
-  INTinsertmytxtfile(le303envlfofadouttime, (char*)"le303envlfofadintime");
   INTinsertmytxtfile(int(arpegiatorOn) + 1, (char*)"arpegiatorOn");
   INTinsertmytxtfile(arpegiatortype, (char*)"arpegiatortype");
   INTinsertmytxtfile(arpeglengh, (char*)"arpeglengh");
@@ -374,11 +372,11 @@ void parsefile(int presetn) {
  
   parser.Read_String('#');
   parser.Skip(1);
-  le303pulsewidthmultiplier = parser.Read_Int16();
+  cutoff_pulse = parser.Read_Int16();
 
   parser.Read_String('#');
   parser.Skip(1);
-  le303pulsewidthmultiplier2 = parser.Read_Int16();
+  reson_pulse = parser.Read_Int16();
 
   for (int i = 0; i < 3; i++) {
     parser.Read_String('#');
@@ -421,14 +419,6 @@ void parsefile(int presetn) {
   parser.Read_String('#');
   parser.Skip(1);
   preampleswaves = parser.Read_Int16();
-
-  parser.Read_String('#');
-  parser.Skip(1);
-  le303envlfofadintime = parser.Read_Int16();
-
-  parser.Read_String('#');
-  parser.Skip(1);
-  le303envlfofadouttime = parser.Read_Int16();
 
   parser.Read_String('#');
   parser.Skip(1);
@@ -700,8 +690,8 @@ void parsefile(int presetn) {
   Wavespreamp303controls();
 
   le303filtercontrols();
-  setwet2smixlevel(0);
-  setwet2smixlevel(1);
+  set_dry_mix(0);
+  set_dry_mix(1);
 
   
   // Serial.println("switchfxes done");

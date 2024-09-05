@@ -107,7 +107,7 @@ EXTMEM AudioMixer4              WavesL3;        //xy=1418.8833312988281,952
 EXTMEM AudioMixer4              WavesL4;        //xy=1418.8833312988281,1087
 EXTMEM AudioMixer4              WavesL2;        //xy=1423.8833312988281,818
 EXTMEM AudioMixer4              WavesL1;        //xy=1447.8833312988281,695
-EXTMEM AudioSynthWaveform       LFOrm303;       //xy=1523.8833312988281,1012
+//EXTMEM AudioSynthWaveform       LFOrm303;       //xy=1523.8833312988281,1012
 EXTMEM AudioEffectEnvelope      envelopeL5;     //xy=1537.8833312988281,1389
 EXTMEM AudioEffectEnvelope      envelopeL2;     //xy=1568.8833312988281,951
 EXTMEM AudioEffectEnvelope      envelopeL3;     //xy=1576.8833312988281,1086
@@ -142,12 +142,12 @@ EXTMEM AudioAmplifier           wavePAmp2;      //xy=1746.8833312988281,964
 EXTMEM AudioAmplifier           wavePAmp3;      //xy=1751.8833312988281,1079
 EXTMEM AudioAmplifier           fade4;          //xy=1770.8833312988281,1288
 EXTMEM AudioAmplifier           wavePAmp4;      //xy=1783.8833312988281,1250
-EXTMEM AudioFilterStateVariable filter303L6;    //xy=1851.5500106811523,1380.0001640319824
-EXTMEM AudioFilterStateVariable filter303L1;    //xy=1880.8833312988281,716
-EXTMEM AudioFilterStateVariable filter303L2;    //xy=1889.8833312988281,845
-EXTMEM AudioFilterStateVariable filter303L3;    //xy=1894.8833312988281,969
-EXTMEM AudioFilterStateVariable filter303L4;    //xy=1905.8833312988281,1093
-EXTMEM AudioFilterStateVariable filter303L5;    //xy=1935.8833312988281,1261
+AudioFilterStateVariable filter303L6;    //xy=1851.5500106811523,1380.0001640319824
+AudioFilterStateVariable filter303L1;    //xy=1880.8833312988281,716
+AudioFilterStateVariable filter303L2;    //xy=1889.8833312988281,845
+AudioFilterStateVariable filter303L3;    //xy=1894.8833312988281,969
+AudioFilterStateVariable filter303L4;    //xy=1905.8833312988281,1093
+AudioFilterStateVariable filter303L5;    //xy=1935.8833312988281,1261
 EXTMEM AudioMixer4              flashmix1;      //xy=1945.8833312988281,83
 EXTMEM AudioMixer4              flashmix2;      //xy=1946.8833312988281,239
 EXTMEM AudioMixer4              flashmix3;      //xy=1947.8833312988281,396
@@ -222,10 +222,10 @@ EXTMEM AudioMixer4              premixmixx1;    //xy=3628.883331298828,787
 EXTMEM AudioAmplifier           ampL;           //xy=3732.883331298828,506
 EXTMEM AudioAmplifier           ampR;           //xy=3732.883331298828,554
 EXTMEM AudioMixer4              feedbackdelay1; //xy=3844.883331298828,772
-EXTMEM AudioRecordQueue         queue2;         //xy=3878.883331298828,607
+AudioRecordQueue         queue2;         //xy=3878.883331298828,607
 EXTMEM AudioMixer4              feedbackdelay2; //xy=3884.883331298828,873
 EXTMEM AudioMixer4              feedbackdelay3; //xy=3888.883331298828,1026
-EXTMEM AudioRecordQueue         queue1;         //xy=3908.883331298828,416
+AudioRecordQueue         queue1;         //xy=3908.883331298828,416
 EXTMEM AudioOutputI2S           audioOutput;    //xy=3945.883331298828,529
 EXTMEM AudioEffectDelay         delay1;         //xy=4046.883331298828,728
 EXTMEM AudioEffectDelay         delay2;         //xy=4070.883331298828,877
@@ -285,12 +285,14 @@ EXTMEM AudioConnection          patchCord42(WavesL3, envelopeL2);
 EXTMEM AudioConnection          patchCord43(WavesL4, envelopeL3);
 EXTMEM AudioConnection          patchCord44(WavesL2, envelopeL1);
 EXTMEM AudioConnection          patchCord45(WavesL1, envelopeL0);
+/*
 EXTMEM AudioConnection          patchCord46(LFOrm303, fade1);
 EXTMEM AudioConnection          patchCord47(LFOrm303, fade0);
 EXTMEM AudioConnection          patchCord48(LFOrm303, fade2);
 EXTMEM AudioConnection          patchCord49(LFOrm303, fade3);
 EXTMEM AudioConnection          patchCord50(LFOrm303, fade4);
 EXTMEM AudioConnection          patchCord51(LFOrm303, fade5);
+*/
 EXTMEM AudioConnection          patchCord52(envelopeL5, 0, mixerWet303L6, 0);
 EXTMEM AudioConnection          patchCord53(envelopeL5, wavePAmp5);
 EXTMEM AudioConnection          patchCord54(envelopeL2, 0, mixerWet303L3, 0);
@@ -303,9 +305,10 @@ EXTMEM AudioConnection          patchCord60(envelopeL0, wavePAmp0);
 EXTMEM AudioConnection          patchCord61(envelopeL0, 0, mixerWet303L1, 0);
 EXTMEM AudioConnection          patchCord62(envelopeL1, 0, mixerWet303L2, 0);
 EXTMEM AudioConnection          patchCord63(envelopeL1, wavePAmp1);
-EXTMEM AudioConnection          patchCord64(fade5, 0, filter303L6, 1);
+//lfo303 should be removed
+//EXTMEM AudioConnection          patchCord64(fade5, 0, filter303L6, 1);
 EXTMEM AudioConnection          patchCord65(wavePAmp5, 0, filter303L6, 0);
-EXTMEM AudioConnection          patchCord66(fade0, 0, filter303L1, 1);
+//EXTMEM AudioConnection          patchCord66(fade0, 0, filter303L1, 1);
 EXTMEM AudioConnection          patchCord67(FlashSampler1, 0, flashmix1, 0);
 EXTMEM AudioConnection          patchCord68(FlashSampler2, 0, flashmix1, 1);
 EXTMEM AudioConnection          patchCord69(FlashSampler5, 0, flashmix2, 0);
@@ -323,13 +326,13 @@ EXTMEM AudioConnection          patchCord80(FlashSampler14, 0, flashmix4, 1);
 EXTMEM AudioConnection          patchCord81(FlashSampler11, 0, flashmix3, 2);
 EXTMEM AudioConnection          patchCord82(FlashSampler16, 0, flashmix4, 3);
 EXTMEM AudioConnection          patchCord83(FlashSampler15, 0, flashmix4, 2);
-EXTMEM AudioConnection          patchCord84(fade2, 0, filter303L3, 1);
-EXTMEM AudioConnection          patchCord85(fade1, 0, filter303L2, 1);
+//EXTMEM AudioConnection          patchCord84(fade2, 0, filter303L3, 1);
+//EXTMEM AudioConnection          patchCord85(fade1, 0, filter303L2, 1);
 EXTMEM AudioConnection          patchCord86(wavePAmp1, 0, filter303L2, 0);
-EXTMEM AudioConnection          patchCord87(fade3, 0, filter303L4, 1);
+//EXTMEM AudioConnection          patchCord87(fade3, 0, filter303L4, 1);
 EXTMEM AudioConnection          patchCord88(wavePAmp2, 0, filter303L3, 0);
 EXTMEM AudioConnection          patchCord89(wavePAmp3, 0, filter303L4, 0);
-EXTMEM AudioConnection          patchCord90(fade4, 0, filter303L5, 1);
+//EXTMEM AudioConnection          patchCord90(fade4, 0, filter303L5, 1);
 EXTMEM AudioConnection          patchCord91(wavePAmp4, 0, filter303L5, 0);
 EXTMEM AudioConnection          patchCord92(filter303L6, 0, mix303L6, 0);
 EXTMEM AudioConnection          patchCord93(filter303L6, 1, mix303L6, 1);

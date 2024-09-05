@@ -155,8 +155,8 @@ void setupdefaultvalues() {
   AudioNoInterrupts();
   for (int i = 0; i < fxiterations; i++) {
     // lfo sines used by FXes, only amplitude freq & phase
-    lfosinez[i]->amplitude(0.1);
-    lfosinez[i]->frequency(5);
+    //lfosinez[i]->amplitude(0.1);
+    //lfosinez[i]->frequency(5);
     delaypostmix[i]->gain(0, 1);
     delaypostmix[i]->gain(1, 1);
     delayfeedbackmix[i]->gain(0, 1);
@@ -210,8 +210,11 @@ void setupdefaultvalues() {
   WetMixMasterL.gain(0, 1);
   WetMixMasterR.gain(0, 1);
 
+  //needed to level fxBus & wetins
+  for (int i = 0; i < 3; i++) {
+    set_dry_mix(i);
+  } 
 
- 
   for (int i = 0; i < all_buttonns; i++) {
 
     if (!((i <= 11) || (i >= 46))) {
@@ -274,27 +277,31 @@ void setupdefaultvalues() {
   midiknobassigned[16] = 95;
   
 
-  // 303 filter
-  midiknobassigned[17] = 20;
-  midiknobassigned[18] = 21;
-  midiknobassigned[19] = 22;
+  // lfos
+  //phase
+  midiknobassigned[17] = 56;
+  midiknobassigned[18] = 53;
+  midiknobassigned[19] = 55;
+  
 
   // FX Wet
   midiknobassigned[20] = 6;
   midiknobassigned[21] = 7;
+  //audio In level
   midiknobassigned[22] = 97;
 
   // ccfxlineselector crossfader
   midiknobassigned[10] = 69;
 
   // LFO freq & level
-  midiknobassigned[23] = 55;
-  midiknobassigned[24] = 53;
+  midiknobassigned[23] = 20;
+  midiknobassigned[24] = 21;
   pot_assignements[all_buttonns-4] = 100 ;
 
   //101 is parsepreset(0)
   pot_assignements[all_buttonns-13] = 101 ;
   pot_assignements[all_buttonns-18] = 111 ;
+  midiknobassigned[111] = 109 ;
   //98 debugcpu
   pot_assignements[all_buttonns-5] = 106 ;
   //midiknobassigned[106] = 98;

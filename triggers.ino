@@ -947,8 +947,8 @@ void lineron(int liner, byte channel, byte data1, byte data2) {
       notefrequency = notestofreq[data1][1];
       setfreqWavelines(notefrequency, liner, data2);
     }
-
     enveloppesL[liner]->noteOn();
+
     // lefadout[liner] = 1 ;
     // faders[liner]->gain(1);
     // faders[liner]->fadeOut(int((millitickinterval*(le303envlfofadintime/128.0))));

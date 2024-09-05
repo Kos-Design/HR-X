@@ -224,17 +224,17 @@ AudioConnection de2towetR3(delaymix2, 0, WetMixMasterR, 3);
 AudioConnection de3towetL3(delaymix3, 0, WetMixMasterL, 3);
 AudioConnection de3towetR3(delaymix3, 0, WetMixMasterR, 3);
 
-AudioConnection LFO1toFilter1(lfosine1, 0, filter1, 1);
-AudioConnection LFO1toFilter2(lfosine1, 0, filter2, 1);
-AudioConnection LFO1toFilter3(lfosine1, 0, filter3, 1);
+AudioConnection LFO1toFilter1(LFOrm1, 0, filter1, 1);
+AudioConnection LFO1toFilter2(LFOrm1, 0, filter2, 1);
+AudioConnection LFO1toFilter3(LFOrm1, 0, filter3, 1);
 
-AudioConnection LFO2toFilter1(lfosine2, 0, filter1, 1);
-AudioConnection LFO2toFilter2(lfosine2, 0, filter2, 1);
-AudioConnection LFO2toFilter3(lfosine2, 0, filter3, 1);
+AudioConnection LFO2toFilter1(LFOrm2, 0, filter1, 1);
+AudioConnection LFO2toFilter2(LFOrm2, 0, filter2, 1);
+AudioConnection LFO2toFilter3(LFOrm2, 0, filter3, 1);
 
-AudioConnection LFO3toFilter1(lfosine3, 0, filter1, 1);
-AudioConnection LFO3toFilter2(lfosine3, 0, filter2, 1);
-AudioConnection LFO3toFilter3(lfosine3, 0, filter3, 1);
+AudioConnection LFO3toFilter1(LFOrm3, 0, filter1, 1);
+AudioConnection LFO3toFilter2(LFOrm3, 0, filter2, 1);
+AudioConnection LFO3toFilter3(LFOrm3, 0, filter3, 1);
 
 AudioConnection *premixesMto[sizeopremixtoM] = {
 
@@ -318,9 +318,9 @@ AudioMixer4 *delaypostmix[fxiterations] = {&delaymix1, &delaymix2, &delaymix3};
 
 AudioMixer4 *delayprefeed[fxiterations] = {&premixmixx1, &premixmixx2, &premixmixx3};
 
-AudioAmplifier *faders[nombreofliners] = {&fade0, &fade1, &fade2, &fade3, &fade4, &fade5};
+//AudioAmplifier *faders[nombreofliners] = {&fade0, &fade1, &fade2, &fade3, &fade4, &fade5};
 
-AudioSynthWaveformSine *lfosinez[fxiterations] = {&lfosine1, &lfosine2, &lfosine3};
+//AudioSynthWaveformSine *lfosinez[fxiterations] = {&lfosine1, &lfosine2, &lfosine3};
 
 AudioMixer4 *les303passes[nombreofliners] = {&mix303L1, &mix303L2, &mix303L3, &mix303L4, &mix303L5, &mix303L6};
 

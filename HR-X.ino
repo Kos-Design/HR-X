@@ -52,17 +52,15 @@ byte smixervknobs[16] = {128, 128, 128, 128, 128, 128, 128, 128,
                          128, 128, 128, 128, 128, 128, 128, 128};
 int lehalfbeat;
 
-int le303pulsewidthmultiplier = 8;
-int le303pulsewidthmultiplier2 = 8;
-int le303pulsewidth =
-    (int)((le303pulsewidthmultiplier / 32.0) * 2 * millitickinterval + 50);
-int le303pulsewidth2 =
-    (int)((le303pulsewidthmultiplier2 / 32.0) * 2 * millitickinterval + 50);
+int cutoff_pulse = 8;
+int reson_pulse = 8;
+int le303pulsewidth =(int)((cutoff_pulse / 32.0) * 2 * millitickinterval + 50);
+int le303pulsewidth2 =(int)((reson_pulse / 32.0) * 2 * millitickinterval + 50);
 byte offsetliner;
 
 bool rec_looping;
 int tocker ;
-
+byte filter_lfo_option = 3 ;
 int le303ffilterzVknobs[3];
 
 byte songpage = 0;
@@ -137,7 +135,7 @@ char consolemsg[10][32];
 int waits = 0;
 char pleasewaitarray[10][32];
 const int fxiterations = 3;
-
+bool pre_record = false ;
 int delaymultiplier[fxiterations] = {55};
 const int sizeopremixtoM = 9 * fxiterations;
 const int sizeopremixWtoM = 9 * fxiterations;
@@ -297,7 +295,7 @@ byte arpegmode = 4;
 byte arpegnumofnotes = 7;
 byte arpegstartoffset = 0;
 byte arpeggridC;
-int lfo303levshiter;
+
 byte arpeggridS;
 bool stoptickernextcycle;
 // unsigned long millisSincenLinerOn[nombreofliners];
@@ -645,7 +643,7 @@ byte LFOmenuroot = 2;
 // TODO check offset of 50 ?
 int LFOoffset[numberofsynthsw] = {50,50,50};
 byte LFOformstype[numberofsynthsw] = {0, 0, 0};
-float LFOfreqs[numberofsynthsw] = {0.5, 1.0, 2.0};
+float LFOfreqs[numberofsynthsw] = {2.17, 2.17, 2.17};
 int LFOlevel[numberofsynthsw] = {100,100,100};
 bool LFOsync[numberofsynthsw];
 
@@ -732,8 +730,7 @@ const byte sizeofoptionspattern = 5;
 const char optionspatternlabels[sizeofoptionspattern][12] PROGMEM = {
     "Transpose", "Shift", "Clear", "Target", "Smooth CC"};
 const byte sizeofpatternlistlabels = 8;
-byte le303envlfofadintime = 32;
-byte le303envlfofadouttime = 32;
+
 const char *monthName[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 bool debug_cpu = false;
@@ -779,7 +776,7 @@ bool rotamode = 1;
 
 int navrange = 2; // starts at 0
 
-byte wetins[3];
+byte wetins[3]={64,64,64};
 
 char lastpathlisted[50];
 // char menuitem ;

@@ -160,8 +160,7 @@ void restartLFO(int leLFO) {
                                 lesformes[LFOformstype[leLFO]]);
     // lfosinez[leLFO]->frequency((LFOfreqs[leLFO]/100.0)*0.5);
   }
-  //WHY
-  if (leLFO == 2) {LFOrm303.begin((float)(LFOlevel[leLFO] / 512.00), ((LFOfreqs[leLFO] / 100.0) * (1000 / millitickinterval)), lesformes[LFOformstype[leLFO]]); }
+ 
   
   if (LFOformstype[leLFO] == 7 ) {
     LFOwaveforms1[leLFO]->arbitraryWaveform(arbitrary_waveforms[leLFO],1.0);
@@ -281,7 +280,7 @@ void doLFOfreqd(int leLFO) {
     // Serial.println("Setting LFO freq");
     navrange = 100;
     LFOfreqs[leLFO] = sublevels[3];
-    // doLFOallcontrols(leLFO);
+     doLFOallcontrols(leLFO);
   } else {
     sublevels[3] = LFOfreqs[leLFO];
   }
@@ -326,10 +325,6 @@ void doLFOallcontrols(byte leLFO) {
   restartLFO(leLFO);
   LFOwaveforms1[leLFO]->phase(0.36 * LFOphase[leLFO]);
   LFOwaveforms1[leLFO]->offset((float)(((50.0 - LFOoffset[leLFO]) / 50.0)));
-  if (leLFO == 2) {
-    LFOrm303.phase(0.36 * LFOphase[leLFO]);
-    LFOrm303.offset((float)(((50.0 - LFOoffset[leLFO]) / 50.0)));
-  }
 }
 void LFOlining(int leLFO) {
   // LFOmenuroot is 2

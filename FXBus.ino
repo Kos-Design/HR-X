@@ -1507,19 +1507,17 @@ void filterVpanelAction(byte lefilter) {
       mixffilterzVknobs[lefilter][2] = sublevels[4];
     }
     if (slct == 6) {
-      navrange = numberofsynthsw-1;
-      LFOonfilterz[lefilter] = sublevels[4];
-      // unpluglfoonfilterz();
-      // lfoonfilterreplug(lefilter);
+      //navrange is 3 + 1 for none
+      navrange = numberofsynthsw;
+      filter_lfo_option = sublevels[4];
+      if (filter_lfo_option < numberofsynthsw) {
+        LFOonfilterz[lefilter] = filter_lfo_option;
+      }
     }
     if (slct == 7) {
       navrange = 100;
-      WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] =
-          sublevels[4] / 100.0;
+      WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] = sublevels[4] / 100.0;
       wetmixmastercontrols();
-      // le303filterzwet = (mixle303ffilterzVknobs[2])/128.0 ;
-      // applygain
-      // le303filterzWet();
     }
     // to avoid setting up a stage unconfigured while browsing
     // if (bqfreq[lefilter][bqstage[lefilter]] >= 303) {
@@ -1554,9 +1552,6 @@ void unpluglfoonfilterz() {
   // fxiterations*fxiterations = 9
   for (int i = 0; i < 9; i++) {
     LFOtoFilterz[i]->disconnect();
-    // Serial.println("disconnected");
-    // delay(10);
-    // Serial.println(LFOtoFilterz[i]->isConnected);
   }
 }
 
@@ -1571,7 +1566,9 @@ void filtercontrols(byte lefilter) {
   filterzgainz[lefilter][1] = (mixffilterzVknobs[lefilter][1]) / 128.0;
   filterzgainz[lefilter][2] = (mixffilterzVknobs[lefilter][2]) / 128.0;
   unpluglfoonfilterz();
-  lfoonfilterreplug(lefilter);
+  if (sublevels[4] < numberofsynthsw) {
+    lfoonfilterreplug(lefilter);
+  }
   for (int i = 0; i < 3; i++) {
     mixfilter[lefilter]->gain(i, filterzgainz[lefilter][i]);
   }
@@ -1606,7 +1603,7 @@ void filterVpanel(byte lefilter) {
   canvastitle.setCursor(0, 8);
   // reflect lebq
   canvastitle.print("Ctrl: ");
-  canvastitle.print((char *)LFOnamelist[LFOonfilterz[lefilter]]);
+  canvastitle.print((char *)LFOnamelist[filter_lfo_option]);
 
   //    canvastitle.setCursor(0,8);
   //    canvastitle.print("mode: ");
@@ -1767,17 +1764,13 @@ void filterVpanelSelector(byte lefilter) {
   }
   // Select LFO
   if (slct == 6) {
-    sublevels[4] = LFOonfilterz[lefilter];
+    sublevels[4] = filter_lfo_option;
     canvasBIG.setCursor(64, 8);
     canvasBIG.print((char)9);
   }
   if (slct == 7) {
-
-    sublevels[4] =
-        round(WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] *
-              100.0);
-    canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2,
-                       SSD1306_WHITE);
+    sublevels[4] = round(WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] * 100.0);
+    canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, SSD1306_WHITE);
     canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
   }
 }

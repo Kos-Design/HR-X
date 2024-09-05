@@ -569,26 +569,32 @@ void auto_stop_rec(){
   if (millis() - tocker > 10000) {
         rec_looping = false ;
         end_sample_in_place();
+         pre_record = false;
       }
+
 }
 
 void continue_looper(){
-  
-  if (queue1.available() >= 2 && looper ) {
-        //for (int i = 0; i < 2; i++) {
+  AudioNoInterrupts();
+  if (queue1.available() > 1 && looper ) {
+        for (int i = 0; i < 2; i++) {
       //      looper.write((byte*)queue1.readBuffer(), 256);
        //     queue1.freeBuffer();
       //  }
 
      
-      audio_block_t *block1 = (audio_block_t *)queue1.readBuffer();
+      //audio_block_t *block1 = (audio_block_t *)queue1.readBuffer();
+      
+      //audio_block_t *block2 = (audio_block_t *)queue1.readBuffer();
+      //queue1.freeBuffer();
+     //memcpy(bufferLoop, block1, 256);
+      //memcpy(bufferLoop + 256, block2, 256);
+      //looper.write(bufferLoop, 512);
+      looper.write((byte *)queue1.readBuffer(), 256);
       queue1.freeBuffer();
-      audio_block_t *block2 = (audio_block_t *)queue1.readBuffer();
-      queue1.freeBuffer();
-      memcpy(bufferLoop, block1, 256);
-      memcpy(bufferLoop + 256, block2, 256);
-      looper.write(bufferLoop, 512);
+        }
   }
+  AudioInterrupts();
   auto_stop_rec();
 }
 
@@ -605,13 +611,14 @@ void start_sample_in_place() {
     }
     looper = SD.open((const char *)newloopedpath, FILE_WRITE);
   if (looper) {
-    Serial.println("start rec looper ");
-    Serial.print(looper.name());
-    Serial.println("");
+    //Serial.println("start rec looper ");
+   //Serial.print(looper.name());
+    //Serial.println("");
     //AudioNoInterrupts();
     queue1.begin();
+    pre_record = true;
     //AudioInterrupts();
-    rec_looping = true ;
+    //rec_looping = true ;
   } else {
       String formattedString = "error opening " + String((const char *)newloopedpath);
       Serial.println(formattedString);
@@ -634,20 +641,15 @@ void end_sample_in_place() {
       Serial.println("stop rec looper ");
     Serial.print(looper.name());
     Serial.println("");
-    //AudioNoInterrupts();
-    
+    AudioNoInterrupts();
     queue1.end();
-    
-    //AudioInterrupts();
-    
     while (queue1.available() > 0) {
       looper.write((byte *)queue1.readBuffer(), 256);
       queue1.freeBuffer();
-      
     }
     looper.close();
     queue1.clear();
-
+    AudioInterrupts();
     dosoundlist();
     }
     just_pressed_rec = false ;

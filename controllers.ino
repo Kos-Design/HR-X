@@ -35,13 +35,13 @@ void controlswitcher(int caser, int valu) {
   case 4:
     // synth wetness
     wetins[0] = smallfloat * 128;
-    setwet2smixlevel(0);
+    set_dry_mix(0);
 
     break;
   case 5:
     // sampler wetness
     wetins[1] = smallfloat * 128;
-    setwet2smixlevel(1);
+    set_dry_mix(1);
     break;
   case 6:
     // WetMixMaster1
@@ -125,11 +125,11 @@ void controlswitcher(int caser, int valu) {
     break;
   case 16:
     Serial.println(16);
-    le303pulsewidthmultiplier = round(smallfloat * 32.0);
+    cutoff_pulse = round(smallfloat * 32.0);
     break;
   case 17:
     Serial.println(17);
-    le303pulsewidthmultiplier2 = round(smallfloat * 32.0);
+    reson_pulse = round(smallfloat * 32.0);
 
     break;
   case 18:
@@ -139,7 +139,7 @@ void controlswitcher(int caser, int valu) {
   case 19:
     //wetness Audio In, metronome & sd player
     wetins[2] = smallfloat * 128;
-    setwet2smixlevel(2);
+    set_dry_mix(2);
     break;
   case 20:
     Serial.println(20);
@@ -163,22 +163,15 @@ void controlswitcher(int caser, int valu) {
     glidemode = smallfloat * 128.0;
     break;
   case 24:
-    Serial.println(24);
     preampleswaves = smallfloat * 128.0;
     break;
   case 25:
-    Serial.println(25);
-    le303envlfofadintime = smallfloat * 128.0;
-
+    //free
     break;
   case 26:
-    Serial.println(26);
-    le303envlfofadouttime = smallfloat * 128.0;
+    //FREE
     break;
   case 27:
-    Serial.println(27);
-
-    // INTinsertmytxtfile(int(arpegiatorOn)+1,"arpegiatorOn");
     arpegiatortype = round(smallfloat * 8.0);
     if (arpegiatortype < 8) {
       arpegiatorOn = 1;
@@ -600,9 +593,8 @@ void controlswitcher(int caser, int valu) {
 
     break;
   case 109:
-  
-      start_sample_in_place();
-  
+    //auto record 10sec
+    start_sample_in_place();
     break;
   case 110:
     smixervknobs[0] = byte(smallfloat * 128.0);
