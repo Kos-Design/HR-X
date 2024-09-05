@@ -138,9 +138,9 @@ void check_pots() {
           but_velocity[sublevels[2]] = (byte)((c_change / 1024.0) * 128);
           OnBoardVpanel();
         }
+        
          else {
-          MaControlChange(muxed_channels[itr], (byte)ordered_pots[itr],
-                          (byte)((c_change / 1024.0) * 128));
+          MaControlChange(muxed_channels[itr], (byte)ordered_pots[itr], (byte)((c_change / 1024.0) * 128));
         }
         /*
         //10 & 12 = joystick

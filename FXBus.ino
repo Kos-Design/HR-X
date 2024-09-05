@@ -1129,10 +1129,10 @@ void bitcrusherVpanel(byte lefilter) {
 }
 
 void freeverbscontrl(byte lefilter) {
-  AudioNoInterrupts();
+  //AudioNoInterrupts();
   freeverbs[lefilter]->roomsize(reverbVknobs[lefilter][0] / 128.0);
   freeverbs[lefilter]->damping(reverbVknobs[lefilter][1] / 128.0);
-  AudioNoInterrupts();
+  //AudioInterrupts();
 }
 void reverbVpanelAction(byte lefilter) {
   if (navlevel == 4) {

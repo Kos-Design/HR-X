@@ -279,9 +279,9 @@ void setupdefaultvalues() {
 
   // lfos
   //phase
-  midiknobassigned[17] = 56;
+  midiknobassigned[17] = 80;
   midiknobassigned[18] = 53;
-  midiknobassigned[19] = 55;
+  midiknobassigned[19] = 81;
   
 
   // FX Wet

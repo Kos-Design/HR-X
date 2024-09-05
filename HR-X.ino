@@ -771,8 +771,6 @@ int navlevel = 0;
 int previousnavlevel = 0;
 
 int ypos;
-bool plusminusmode = 0;
-bool rotamode = 1;
 
 int navrange = 2; // starts at 0
 

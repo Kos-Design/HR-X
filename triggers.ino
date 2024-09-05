@@ -993,10 +993,8 @@ void moncontrollercc(byte channel, byte control, byte value) {
 
         MidiUSB.flush();
       }
-      midiknobs[control] = value;
-      //why do we convert 0 to 1024 to 1024 ?
-      midiknobs[control] = round((midiknobs[control] / 127.0) * 1024.0);
-      controlswitcher(midiknobassigned[control], midiknobs[control]);
+
+      controlswitcher(midiknobassigned[control], round((value / 127.0) * 1024.0));
       // AudioInterrupts();
     }
   }
@@ -1006,6 +1004,10 @@ void MaControlChange(byte channel, byte control, byte value) {
 
   if (debugmidion) {
     debugmidi((char *)("ControlChange"), channel, control, value);
+  }
+
+  if (sublevels[0] == 2 && navlevel == 2){
+    learn_midi(control);
   }
 
   moncontrollercc(channel, control, value);
