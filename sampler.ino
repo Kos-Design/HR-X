@@ -55,65 +55,22 @@ void playflashsamplepreviews4() {
 
   AudioInterrupts();
 }
-void makenewmkdirpath() {
-  // newSongpath
-  synsetunites = 0;
-  synsetdizaines = 0;
-  Serial.println((char *)newmkdirpath);
-  while (SD.exists((char *)newmkdirpath)) {
-    findnextmkdirpath();
-    Serial.println((char *)newmkdirpath);
-  }
-}
 
-void findnextmkdirpath() {
-
-  if (synsetunites < 9) {
-    synsetunites++;
-  } else {
-    synsetunites = 0;
-    if (synsetdizaines < 9) {
-      synsetdizaines++;
-    } else {
-      synsetdizaines = 0;
-    }
-  }
-  // tot-9  tot-10
-  newmkdirpath[15] = synsetdizaines + '0';
-  newmkdirpath[16] = synsetunites + '0';
-
-  // "SONGS/SONG#00.TXT"
-  // newSongpath[27] = {"/SOUNDSET/REC/REC-00.L.RAW"};
-}
 void initializenewmksamplefullpath() {
   for (int i = 0; i < 32; i++) {
     newmksamplefullpath[i] = (char)'\0';
   }
 }
-void makenewdumpedfilename(int leflashfile) {
-  for (int i = 0; i < (int)strlen((char *)newmkdirpath); i++) {
-    newmksamplefullpath[i] = newmkdirpath[i];
-  }
-  newmksamplefullpath[strlen((char *)newmkdirpath)] = (char)'/';
-  for (int i = 0; i < (int)strlen((char *)Flashsamplename[i]); i++) {
-    newmksamplefullpath[i + strlen((char *)newmkdirpath) + 1] =
-        Flashsamplename[leflashfile][i];
-  }
-  Serial.print((char *)newmksamplefullpath);
-}
+
 void copybacklaflashfile(int leflashfile) {
-  SerialFlashFile originflashfile =
-      SerialFlash.open((const char *)Flashsamplename[leflashfile]);
-  makenewdumpedfilename(leflashfile);
-
-  File mynewsample = SD.open((char *)newmksamplefullpath, FILE_WRITE);
-  size_t n;
+  SerialFlashFile originflashfile = SerialFlash.open((const char *)Flashsamplename[leflashfile]);
+  String new_name = newmkdirpath + "/" + (String)Flashsamplename[leflashfile];
+  File mynewsample = SD.open(new_name.c_str(), FILE_WRITE);
+  size_t n_size;
   uint8_t buf[64];
-  while ((n = originflashfile.read(buf, sizeof(buf))) > 0) {
-    mynewsample.write(buf, n);
+  while ((n_size = originflashfile.read(buf, sizeof(buf))) > 0) {
+    mynewsample.write(buf, n_size);
   }
-  // }
-
   originflashfile.close();
   mynewsample.close();
   dopatternfileslist();
@@ -126,12 +83,10 @@ void copyflashtoSD() {
   }
 }
 void domkdir() {
-  makenewmkdirpath();
-
-  if (!(SD.exists((const char *)newmkdirpath))) {
-    SD.mkdir((const char *)newmkdirpath);
+  newmkdirpath = get_new_dir_name("SOUNDSET/MABANK") ;
+  if (!(SD.exists(newmkdirpath.c_str()))) {
+    SD.mkdir(newmkdirpath.c_str());
   }
-
   copyflashtoSD();
   dosoundlist();
 }
@@ -154,6 +109,7 @@ void Assingexplorer() {
     }
 
     if (sublevels[2] == 3 && sublevels[3] == 1) {
+      //saves assigned flash samples to a new folder on SD
       domkdir();
       dosoundlist();
       returntonav(2);

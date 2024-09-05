@@ -78,17 +78,13 @@ void deleteRec() {
   }
   dosoundlist();
 }
-void copyRec() { Serial.println("why copy?"); }
-void getthisRecname() {
+void copyRec() { Serial.println("why copy since we don't overwrite?"); }
 
+void getthisRecname() {
   byte lerecdiri = getrecdir();
-  for (int i = 0;
-       i < (int)strlen((char *)samplefullpath[lerecdiri][sublevels[navrecmenu + 1]]);
-       i++) {
-    newRecpathL[i] = samplefullpath[lerecdiri][sublevels[navrecmenu + 1]][i];
-  }
-  // Serial.println((char*)newRecpathL);
+  newRecpathL = (String)samplefullpath[lerecdiri][sublevels[navrecmenu + 1]];
 }
+
 void RecmenuAction() {
   byte lerecddir;
   if (navlevel == navrecmenu) {
@@ -182,55 +178,6 @@ void dolistRecdisplay() {
                  ((filer)*10)));
     canvasBIG.println(Recmenulabels[filer]);
   }
-}
-
-void makenewRecename() {
-  recunites = 0;
-  recdizaines = 0;
-  while (SD.exists((char *)newRecpathL)) {
-    findnextRecname();
-  }
-}
-
-void makenewloopname() {
-  recunites = 0;
-  recdizaines = 0;
-  while (SD.exists((char *)newloopedpath)) {
-    findnextloopname();
-  }
-}
-
-void findnextRecname() {
-
-  rec_incrementer();
-  // tot-9  tot-10
-  newRecpathL[18] = recunites + '0';
-  newRecpathL[17] = recdizaines + '0';
-  newRecpathR[18] = recunites + '0';
-  newRecpathR[17] = recdizaines + '0';
-
-}
-void rec_incrementer(){
-  if (recunites < 9) {
-    recunites++;
-  } else {
-    recunites = 0;
-    if (recdizaines < 9) {
-      recdizaines++;
-    } else {
-      recdizaines = 0;
-    }
-  }
-}
-void findnextloopname() {
-
-  rec_incrementer();
-  // tot-9  tot-10
-  newloopedpath[18] = recunites + '0';
-  newloopedpath[17] = recdizaines + '0';
-  newloopedpath[18] = recunites + '0';
-  newloopedpath[17] = recdizaines + '0';
-
 }
 
 void recordcontrols() { Serial.print("rec controlled"); }
@@ -397,15 +344,14 @@ void loopRecorder() {
 }
 
 void playrecordsd() {
-  // Serial.println((char*)newRecpathL);
-  if (SD.exists((char *)newRecpathL)) {
+  if (SD.exists(newRecpathL.c_str())) {
     AudioNoInterrupts();
 
-    playRawL.play((char *)newRecpathL);
+    playRawL.play(newRecpathL.c_str());
     if (modestereo) {
-      playRawR.play((char *)newRecpathR);
+      playRawR.play(newRecpathR.c_str());
     } else {
-      playRawR.play((char *)newRecpathL);
+      playRawR.play(newRecpathL.c_str());
     }
     AudioInterrupts();
   }
@@ -420,34 +366,20 @@ void stopplayrecordsd() {
 }
 
 void startRecording() {
-  makenewRecename();
+
   Serial.println("startRecording");
-  // AudioNoInterrupts();
-  if (SD.exists((char *)newRecpathL)) {
-    // The SD library writes new data to the end of the
-    // file, so to start a new recording, the old file
-    // must be deleted before new data is written.
-    SD.remove((char *)newRecpathL);
-  }
-
-  if ((SD.exists((char *)newRecpathR)) && (modestereo)) {
-    // The SD library writes new data to the end of the
-    // file, so to start a new recording, the old file
-    // must be deleted before new data is written.
-    // Serial.print((char*)newRecpathR);
-    // Serial.println(" removed");
-    SD.remove((char *)newRecpathR);
-  }
-
-  // mytxtFile = SD.open((char*)newpresetpath, FILE_WRITE);
-  frec = SD.open((char *)newRecpathL, FILE_WRITE);
+ 
+  newRecpathL = get_new_rec_file_name("SOUNDSET/REC/RECZ") ;
+  frec = SD.open(newRecpathL.c_str(), FILE_WRITE);
   // delay(15);
   if (frec) {
     modeL = 1;
     queue1.begin();
     Serial.println("Freq opened");
     if (modestereo) {
-      frec2 = SD.open((char *)newRecpathR, FILE_WRITE);
+      //will get a different index than L file
+      newRecpathR = get_new_rec_file_name("SOUNDSET/REC/RECZ","#R.RAW") ;
+      frec2 = SD.open(newRecpathR.c_str(), FILE_WRITE);
       if (frec2) {
         Serial.println("Frec2 opened");
         modeR = 1;
@@ -605,11 +537,11 @@ void start_sample_in_place() {
     tocker = millis();
    Serial.println("looping");
   
-  makenewloopname();
-  if (SD.exists((const char *)newloopedpath)) {
-      SD.remove((const char *)newloopedpath);
+  newloopedpath = get_new_rec_file_name("SOUNDSET/REC/LOOP");
+  if (SD.exists(newloopedpath.c_str())) {
+      SD.remove(newloopedpath.c_str());
     }
-    looper = SD.open((const char *)newloopedpath, FILE_WRITE);
+    looper = SD.open(newloopedpath.c_str(), FILE_WRITE);
   if (looper) {
     //Serial.println("start rec looper ");
    //Serial.print(looper.name());
@@ -620,7 +552,7 @@ void start_sample_in_place() {
     //AudioInterrupts();
     //rec_looping = true ;
   } else {
-      String formattedString = "error opening " + String((const char *)newloopedpath);
+      String formattedString = "error opening " + newloopedpath;
       Serial.println(formattedString);
       rec_looping = false ;
     }

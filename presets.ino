@@ -96,47 +96,13 @@ void dolistpresetsmenu() {
   }
 }
 
-void makenewfilename() {
-  // newpresetpath
-  synsetunites = 0;
-  synsetdizaines = 0;
-  while (SD.exists((char *)newpresetpath)) {
-    // Serial.println("current exists");
-
-    findnextavailablename();
-  }
-}
-
-void findnextavailablename() {
-
-  if (synsetunites < 9) {
-    synsetunites++;
-  } else {
-    synsetunites = 0;
-    if (synsetdizaines < 9) {
-      synsetdizaines++;
-    } else {
-      synsetdizaines = 0;
-    }
-  }
-  newpresetpath[21] = synsetunites + '0';
-  newpresetpath[20] = synsetdizaines + '0';
-  // Serial.println((char*)newpresetpath);
-}
-
 void writepreset() {
-
   if (sublevels[2] == numberofSynthPresets) {
-    makenewfilename();
-    // Serial.print("newnamed ");
-    // Serial.println((char*)newpresetpath);
-
-    mytxtFile = SD.open((char *)newpresetpath, FILE_WRITE);
+    mytxtFile = SD.open(get_new_file_name("PRESETS/SYNTH/SYNSET").c_str(), FILE_WRITE);
   } else {
     if (SD.exists((char *)SynthPresetfullpath[sublevels[2]])) {
       SD.remove((char *)SynthPresetfullpath[sublevels[2]]);
     }
-
     mytxtFile = SD.open((char *)SynthPresetfullpath[sublevels[2]], FILE_WRITE);
   }
   // if the file opened okay, write to it:
@@ -715,9 +681,8 @@ void readpreset() { parsefile(sublevels[2]); }
 
 void copypreset() {
   File originefile;
-  findnextavailablename();
   if (SD.exists((char *)SynthPresetfullpath[sublevels[2]])) {
-    mytxtFile = SD.open((char *)newpresetpath, FILE_WRITE);
+    mytxtFile = SD.open(get_new_file_name("PRESETS/SYNTH/SYNSET").c_str(), FILE_WRITE);
     originefile = SD.open((char *)SynthPresetfullpath[sublevels[2]], FILE_READ);
     size_t n;
     uint8_t buf[64];

@@ -1,16 +1,4 @@
 
-/*
-EXTMEM char Waveformsname[999][13];
-EXTMEM char Waveformsfullpath[999][28];
-EXTMEM char Waveformsbase[999][9];
-EXTMEM bool Waveformsselected[999];
-int numberofWaveformsselected = 0 ;
-int numberofWaveforms = 0 ;
-int Waveformsdizaines = 0 ;
-int Waveformsunites = 0 ;
-char newWaveformspath[28] = {"PRESETS/SYNTH/SYNSET01.TXT"};
-char Waveformsdir[32] = {"PRESETS/SYNTH/"};
-*/
 
 void initializeWaveformsselected() {
   numberofWaveformsselected = 0;
@@ -251,40 +239,11 @@ void dolistwaveformsmenu() {
   }
 }
 
-void makenewwformfilename() {
-  // newWaveformspath
-  Waveformsunites = 0;
-  Waveformsdizaines = 0;
-  while (SD.exists((char *)newWaveformspath)) {
-    // Serial.println("current exists");
-
-    findnextavailablewformname();
-  }
-}
-
-void findnextavailablewformname() {
-
-  if (Waveformsunites < 9) {
-    Waveformsunites++;
-  } else {
-    Waveformsunites = 0;
-    if (Waveformsdizaines < 9) {
-      Waveformsdizaines++;
-    } else {
-      Waveformsdizaines = 0;
-    }
-  }
-
-  newWaveformspath[16] = Waveformsunites + '0';
-  newWaveformspath[15] = Waveformsdizaines + '0';
-  // Serial.println((char*)newWaveformspath);
-}
-
 void writewaveform() {
 
   if (sublevels[2] == numberofWaveforms) {
-    makenewwformfilename();
-    mytxtFile = SD.open((char *)newWaveformspath, FILE_WRITE);
+    
+    mytxtFile = SD.open(get_new_file_name("WAVEFORM/WFORM-").c_str(), FILE_WRITE);
   } else {
     if (SD.exists((char *)Waveformsfullpath[sublevels[2]])) {
       SD.remove((char *)Waveformsfullpath[sublevels[2]]);
@@ -368,14 +327,13 @@ void readwaveform() { parsewaveformfile(sublevels[2]); }
 
 void copywaveform() {
   File originefile;
-  findnextavailablewformname();
   if (SD.exists((char *)Waveformsfullpath[sublevels[2]])) {
-    mytxtFile = SD.open((char *)newWaveformspath, FILE_WRITE);
+    mytxtFile = SD.open(get_new_file_name("WAVEFORM/WFORM-").c_str(), FILE_WRITE);
     originefile = SD.open((char *)Waveformsfullpath[sublevels[2]], FILE_READ);
-    size_t n;
+    size_t n_size;
     uint8_t buf[64];
-    while ((n = originefile.read(buf, sizeof(buf))) > 0) {
-      mytxtFile.write(buf, n);
+    while ((n_size = originefile.read(buf, sizeof(buf))) > 0) {
+      mytxtFile.write(buf, n_size);
     }
   }
 

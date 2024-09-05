@@ -13,7 +13,7 @@ char Songname[99][13];
 char Songfullpath[99][22];
 char Songbase[99][9];
 bool Songsselected[99];
-char newSongpath[22] = {"SONGS/SONG#00.TXT"};
+
 const byte truesizeofSongmenulabels = 8;
 const byte navSongmenu = 1;
 
@@ -26,13 +26,7 @@ void doSonglist() {
 void writedasong() {
 
   if (sublevels[navSongmenu + 1] == numberofSongs) {
-    // if (1==1) {
-    makenewSongname();
-    // Serial.print("newnamed ");
-    Serial.print("trying to open ");
-    Serial.println((char *)newSongpath);
-
-    mytxtFile = SD.open((char *)newSongpath, FILE_WRITE);
+    mytxtFile = SD.open(get_new_file_name("SONGS/SONG#").c_str(), FILE_WRITE);
   } else {
     if (SD.exists((char *)Songfullpath[sublevels[navSongmenu + 1]])) {
       SD.remove((char *)Songfullpath[sublevels[navSongmenu + 1]]);
@@ -99,11 +93,9 @@ void readSong() { parseSong(sublevels[navSongmenu + 1]); }
 
 void copySong() {
   File originefile;
-  makenewSongname();
   if (SD.exists((char *)Songfullpath[sublevels[navSongmenu + 1]])) {
-    mytxtFile = SD.open((char *)newSongpath, FILE_WRITE);
-    originefile =
-        SD.open((char *)Songfullpath[sublevels[navSongmenu + 1]], FILE_READ);
+    mytxtFile = SD.open(get_new_file_name("SONGS/SONG#").c_str(), FILE_WRITE);
+    originefile = SD.open((char *)Songfullpath[sublevels[navSongmenu + 1]], FILE_READ);
     size_t n;
     uint8_t buf[64];
     while ((n = originefile.read(buf, sizeof(buf))) > 0) {
@@ -422,37 +414,6 @@ void dolistSongdisplay() {
                  ((filer)*10)));
     canvasBIG.println(Songmenulabels[filer]);
   }
-}
-
-void makenewSongname() {
-  // newSongpath
-  synsetunites = 0;
-  synsetdizaines = 0;
-  Serial.println((char *)newSongpath);
-  while (SD.exists((char *)newSongpath)) {
-    findnextSongname();
-    Serial.println((char *)newSongpath);
-  }
-}
-
-void findnextSongname() {
-
-  if (synsetunites < 9) {
-    synsetunites++;
-  } else {
-    synsetunites = 0;
-    if (synsetdizaines < 9) {
-      synsetdizaines++;
-    } else {
-      synsetdizaines = 0;
-    }
-  }
-  // tot-9  tot-10
-  newSongpath[12] = synsetunites + '0';
-  newSongpath[11] = synsetdizaines + '0';
-
-  // "SONGS/SONG#00.TXT"
-  // newSongpath[27] = {"/SOUNDSET/REC/REC-00.L.RAW"};
 }
 
 void playdasong() {

@@ -1056,38 +1056,9 @@ void displaythelistofpatterns() {
   }
 }
 
-void findnextPatternname() {
-
-  if (patternunites < 9) {
-    patternunites++;
-  } else {
-    patternunites = 0;
-    if (patterndizaines < 9) {
-      patterndizaines++;
-    } else {
-      patterndizaines = 0;
-    }
-  }
-  newpatternpath[16] = patternunites + '0';
-  newpatternpath[15] = patterndizaines + '0';
-  // Serial.println((char*)newpatternpath);
-}
-
-void makenewpatternfilename() {
-  // Serial.println((char*)newpatternpath);
-  while (SD.exists((char *)newpatternpath)) {
-    //  Serial.println((char*)newpatternpath);
-
-    findnextPatternname();
-  }
-}
-
 void writelemidi(byte lefilenu) {
-
   if (lefilenu == numberofPatternfiles) {
-    makenewpatternfilename();
-    // Serial.println("writing new.");
-    myMidiFile = SD.open((char *)newpatternpath, FILE_WRITE);
+    myMidiFile = SD.open(get_new_file_name("PATTERNS/PATERN").c_str(), FILE_WRITE);
   } else {
     // Serial.println("overwriting.");
     if (SD.exists((char *)Patternfilefullpath[lefilenu])) {
@@ -1095,7 +1066,6 @@ void writelemidi(byte lefilenu) {
       SD.remove((char *)Patternfilefullpath[lefilenu]);
       // Serial.println("removed.");
     }
-
     myMidiFile = SD.open((char *)Patternfilefullpath[lefilenu], FILE_WRITE);
   }
   // if the file opened okay, write to it:
@@ -1106,7 +1076,7 @@ void writelemidi(byte lefilenu) {
   } else {
     // if the file didn't open, print an error:
     Serial.println("error opening");
-    Serial.println((char *)newpatternpath);
+    Serial.println(myMidiFile.name());
   }
   myMidiFile.close();
   dopatternfileslist();
@@ -2317,24 +2287,16 @@ void deletepattern(int lapattern) {
 }
 
 void copypattern(int lapattern) {
-  // Serial.println("trying to copy");
-  File originpatternfile =
-      SD.open((const char *)Patternfilefullpath[lapattern]);
-  makenewpatternfilename();
-
-  File mypatterntxtFile = SD.open((char *)newpatternpath, FILE_WRITE);
+  File originpatternfile = SD.open((const char *)Patternfilefullpath[lapattern]);
+  File mypatterntxtFile = SD.open(get_new_file_name("PATTERNS/PATERN").c_str(), FILE_WRITE);
   size_t n;
   uint8_t buf[64];
   while ((n = originpatternfile.read(buf, sizeof(buf))) > 0) {
     mypatterntxtFile.write(buf, n);
   }
-  // }
-
   originpatternfile.close();
   mypatterntxtFile.close();
   dopatternfileslist();
-  // lepatternfile.close();
-  // lepatterndir.close();
 }
 
 void dosavepattern() { canvastitle.fillScreen(SSD1306_BLACK); }

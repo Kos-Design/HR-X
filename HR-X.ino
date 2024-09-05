@@ -163,9 +163,6 @@ EXTMEM bool Patternfilesselected[999];
 byte leeffectID[fxiterations];
 int numberofPatternfilesselected = 0;
 int numberofPatternfiles = 0;
-int patterndizaines = 0;
-int patternunites = 0;
-char newpatternpath[28] = {"PATTERNS/PATERN01.TXT"};
 bool demimalmode;
 bool addinglenght;
 EXTMEM char sampledirpath[99] = {"SOUNDSET/"};
@@ -178,11 +175,6 @@ EXTMEM char SynthPresetbase[999][9];
 EXTMEM bool SynthPresetsselected[999];
 int numberofSynthPresetsselected = 0;
 int numberofSynthPresets = 0;
-int synsetdizaines = 0;
-int synsetunites = 0;
-
-char newpresetpath[28] = {"PRESETS/SYNTH/SYNSET01.TXT"};
-
 const byte truesizeofwaveformsmenulabels = 7;
 EXTMEM char Waveformsname[999][13];
 EXTMEM char Waveformsfullpath[999][22];
@@ -190,15 +182,10 @@ EXTMEM char Waveformsbase[999][9];
 EXTMEM bool Waveformsselected[999];
 int numberofWaveformsselected = 0;
 int numberofWaveforms = 0;
-int Waveformsdizaines = 0;
-int Waveformsunites = 0;
-char newWaveformspath[22] = {"WAVEFORM/WFORM-01.TXT"};
 char Waveformsdir[10] = {"WAVEFORM/"};
-int recdizaines = 0;
-int recunites = 0;
-char newloopedpath[28] = {"SOUNDSET/REC/LOOP00#L.RAW"};
-char newRecpathL[28] = {"SOUNDSET/REC/RECZ00#L.RAW"};
-char newRecpathR[28] = {"SOUNDSET/REC/RECZ00#R.RAW"};
+String newloopedpath = "SOUNDSET/REC/LOOP00#L.RAW";
+String newRecpathL = "SOUNDSET/REC/RECZ00#L.RAW";
+String newRecpathR = "SOUNDSET/REC/RECZ00#R.RAW";
 int navlevelvbuttons = 1;
 const int numberofvbuttonslabels = 8;
 byte vbuttonsCC[numberofvbuttonslabels + 14 + 17];
@@ -247,8 +234,9 @@ int numberofFlashfiles = 0;
 // changed from int to byte seems fine
 
 int Sampleassigned[128];
-char newmkdirpath[18] = {"SOUNDSET/MABANK00"};
-char newmksamplefullpath[32] = {"SOUNDSET/MABANK00/SAMPLE00.RAW"};
+//char newmkdirpath[18] = {"SOUNDSET/MABANK00"};
+String newmkdirpath = "SOUNDSET/MABANK01" ;
+char newmksamplefullpath[32] = {"SOUNDSET/MABANK01/SAMPLE00.RAW"};
 
 #include "/home/kosmin/HR-X/includes/images.ino"
 #include "/home/kosmin/HR-X/includes/notestofrequency.ino"

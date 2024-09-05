@@ -17,6 +17,54 @@
 
 // PRESETS/SYNTH/SYNSET01.TXT PRESETS/KNOBS/POTSET01.TXT
 
+String make_full_rec_file_name(byte number,String base_path_dir,String suffix="#L.RAW") {
+  char formatted_number[4] ;
+  sprintf(formatted_number,"%02d",number);
+  return(String)(base_path_dir + (String)formatted_number + suffix);
+} 
+
+String get_new_rec_file_name(String base_path_dir,String suffix="#L.RAW") {
+  byte file_number = 0 ;
+  String new_path = base_path_dir + "01" + suffix;
+  while (SD.exists(new_path.c_str())) {
+    new_path = make_full_file_name(file_number,base_path_dir);
+    file_number++;
+  }
+  return new_path ;
+}
+
+String make_full_file_name(byte number,String base_path_dir) {
+  char formatted_number[4] ;
+  sprintf(formatted_number,"%02d",number);
+  return(String)(base_path_dir + (String)formatted_number + ".TXT");
+} 
+
+String get_new_file_name(String base_path_dir) {
+  byte file_number = 0 ;
+  String new_path = base_path_dir + "01" + ".TXT";
+  while (SD.exists(new_path.c_str())) {
+    new_path = make_full_file_name(file_number,base_path_dir);
+    file_number++;
+  }
+  return new_path ;
+}
+
+String make_full_dir_name(byte number,String base_path_dir) {
+  char formatted_number[4] ;
+  sprintf(formatted_number,"%02d",number);
+  return(String)(base_path_dir + (String)formatted_number);
+} 
+
+String get_new_dir_name(String base_path_dir) {
+  byte file_number = 0 ;
+  String new_path = base_path_dir + "01";
+  while (SD.exists(new_path.c_str())) {
+    new_path = make_full_dir_name(file_number,base_path_dir);
+    file_number++;
+  }
+  return new_path ;
+}
+
 void initializePatternfilesselected() {
   numberofPatternfilesselected = 0;
   for (int i = 0; i < 999; i++) {
