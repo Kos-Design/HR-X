@@ -173,13 +173,7 @@ void samplerexplorer() {
       navlevel = 2;
       // return ;
     }
-    //        if ( sublevels[2]== 1  && sublevels[3]== 1) {
-    //          Serial.println("Delete All confirmed");
-    //          RemoveAllfromFlash();
-    //          //clear selection
-    //          navlevel = 2;
-    //          return ;
-    //        }
+
     if (sublevels[2] != 0 && sublevels[2] != 1 && sublevels[3] == 0) {
       // Serial.println(" One of the 2 Cancelled");
       navlevel = 2;
@@ -936,6 +930,7 @@ void RemoveAllfromFlash() {
     SerialFlash.eraseAll();
     unsigned long dotMillis = millis();
     unsigned char dotcount = 0;
+    //takes several hours, use pseudo console
     while (SerialFlash.ready() == false) {
       if (millis() - dotMillis > 1000) {
         dotMillis = dotMillis + 1000;
@@ -1109,8 +1104,8 @@ bool comparemesFiles(typeof(myMidiFile) &file, SerialFlashFile &ffile) {
   while (count > 0) {
     char buf1[128], buf2[128];
     unsigned long n = count;
-    if (n > 128)
-      n = 128;
+    if (n > 127)
+      n = 127;
     file.read(buf1, n);
     ffile.read(buf2, n);
     if (memcmp(buf1, buf2, n) != 0)
@@ -1220,7 +1215,7 @@ void listsamplesassigner() {
   canvastitle.println(sublevels[3]);
 
   canvasBIG.fillScreen(SSD1306_BLACK);
-  // if (sublevels[3] < 128 ) {
+  // if (sublevels[3] < 127 ) {
   // Serial.println(sublevels[3]);
   if (Sampleassigned[sublevels[3]] != 0) {
 

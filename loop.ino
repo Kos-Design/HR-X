@@ -21,7 +21,7 @@ void pseudo303() {
       tweakfreqlive(i, notefrequency);
 
       if (leglideposition[i] <
-          (millitickinterval * 2.0 * (glidemode / 128.0) / 2.0)) {
+          (millitickinterval * 2.0 * (glidemode / 127.0) / 2.0)) {
         leglideposition[i]++;
         // Serial.print(leglideposition[i]);
       } else {
@@ -36,22 +36,21 @@ void pseudo303() {
    // }
 
     if (tb303[i] == 1) {
+     
+      //int letimerz303 = millis() - le303start[i];
+      //if (letimerz303 > le303pulsewidth) {
 
-      int letimerz303 = millis() - le303start[i];
-      if (letimerz303 > le303pulsewidth) {
+      //blink303[i]->
+      ladiff1 = (blink303[i]->getTimeSinceLastReset() * 1.0 / le303pulsewidth);
+      ladiff2 = (blink303[i]->getTimeSinceLastReset() * 1.0 / le303pulsewidth2);
 
-        tb303[i] = 0;
-        // TODO: Check why should we ?
-       // le303start[0] = 0;
-        letimerz303 = le303pulsewidth;
-      }
-
-      ladiff1 = (letimerz303 * 1.0 / le303pulsewidth);
-      ladiff2 = (letimerz303 * 1.0 / le303pulsewidth2);
-
-      letbfreq = le303filterzrange + 100 -
-                 (le303filterzrange * (fxslopedown2(slope1, ladiff1)));
+      letbfreq = le303filterzrange + 50 - (le303filterzrange * (fxslopedown2(slope1, ladiff1)));
       // AudioNoInterrupts();
+      if (blink303[i]->HAS_TRIGGERED){
+        tb303[i] = 0;
+        letbfreq = 50 ;
+        ladiff2 = 0 ;
+      }
       les303filterz[i]->frequency(letbfreq);
 
       if (ladiff2 <= 1) {
@@ -75,7 +74,7 @@ void check_pads() {
     if (sublevels[0] == 4 && navlevel >=5 && sublevels[1] == 0) {
       if (paddered == 17) {
         Serial.println(Muxer.get_raw(6));
-        synth_partition[sublevels[2]][sublevels[5]][2] = (int)((Muxer.get_raw(6)/1024.0)*128);
+        synth_partition[sublevels[2]][sublevels[5]][2] = (int)((Muxer.get_raw(6)/1024.0)*127);
         lemenuroot();
       }
     }
@@ -98,6 +97,10 @@ void check_pads() {
         myEnc.write(4 * sublevels[2]);
       }
       OnBoardVpanel();
+    }
+    //inside Set Knobs level 2: learn midi
+    else if (sublevels[0] == 2 && navlevel == 2 && cc_note_num <= 0){
+      learn_midi((byte)pot_assignements[11 + paddered]);
     } 
     //inside waveform tracer
     else if ((sublevels[0] == 8) && (sublevels[1] == 4) && (navlevel == 2)) {
@@ -135,30 +138,13 @@ void check_pots() {
       if (itr < 15 && itr !=9) {
 
         if ((sublevels[0] == 5) && (sublevels[1] == 11) && (itr == 6)) {
-          but_velocity[sublevels[2]] = (byte)((c_change / 1024.0) * 128);
+          but_velocity[sublevels[2]] = (byte)((c_change / 1024.0) * 127);
           OnBoardVpanel();
         }
         
          else {
-          MaControlChange(muxed_channels[itr], (byte)ordered_pots[itr], (byte)((c_change / 1024.0) * 128));
+          MaControlChange(muxed_channels[itr], (byte)ordered_pots[itr], (byte)((c_change / 1024.0) * 127));
         }
-        /*
-        //10 & 12 = joystick
-        //11,13,14 = equalizer faders
-        //15 = crossfader
-        // if ((itr !=11) && (itr !=13) && (itr !=14) && (itr !=15) ){
-         Serial.println(" ");
-         Serial.print("mux ");
-         Serial.print(itr);
-         Serial.print(" received ");
-         Serial.print(c_change);
-         Serial.print(" = ");
-         Serial.print((byte)((c_change/1024.0)*128));
-         Serial.print(" assigned to ");
-         Serial.print((byte)pot_assignements[itr]);
-         Serial.print(" = ");
-         Serial.print(ControlList[(byte)pot_assignements[itr]]);
-        */
       }
     }
     itr++;

@@ -507,7 +507,7 @@ void auto_stop_rec(){
 }
 
 void continue_looper(){
-  AudioNoInterrupts();
+  //AudioNoInterrupts();
   if (queue1.available() > 1 && looper ) {
         for (int i = 0; i < 2; i++) {
       //      looper.write((byte*)queue1.readBuffer(), 256);
@@ -526,7 +526,7 @@ void continue_looper(){
       queue1.freeBuffer();
         }
   }
-  AudioInterrupts();
+  //AudioInterrupts();
   auto_stop_rec();
 }
 
@@ -538,6 +538,7 @@ void start_sample_in_place() {
    Serial.println("looping");
   
   newloopedpath = get_new_rec_file_name("SOUNDSET/REC/LOOP");
+  Serial.println(newloopedpath);
   if (SD.exists(newloopedpath.c_str())) {
       SD.remove(newloopedpath.c_str());
     }

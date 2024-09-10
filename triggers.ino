@@ -49,13 +49,13 @@ void setfreqWavelines(float tune, int liner, byte velocityz) {
 //TODO adsrlevels correspondance
   for (int i = 0; i < numberofsynthsw; i++) {
 
-    waveforms1[liner + (i * nombreofliners)]->amplitude(velocityz / 128.0);
+    waveforms1[liner + (i * nombreofliners)]->amplitude(velocityz / 127.0);
     waveforms1[liner + (i * nombreofliners)]->frequency(tune * wavesfreqs[i]);
     waveforms1[liner + (i * nombreofliners)]->offset(
         (float)(((64.0 - wave1offset[i]) / 64.0)));
     waveforms1[liner + (i * nombreofliners)]->phase(phaselevelsL[i]);
     FMwaveforms1[liner + (i * nombreofliners)]->frequency(tune * wavesfreqs[i]);
-    FMwaveforms1[liner + (i * nombreofliners)]->amplitude(velocityz / 128.0);
+    FMwaveforms1[liner + (i * nombreofliners)]->amplitude(velocityz / 127.0);
     FMwaveforms1[liner + (i * nombreofliners)]->offset(
         (float)(((64.0 - wave1offset[i]) / 64.0)));
     drums1[liner + (i * nombreofliners)]->length(adsrlevels[1] + adsrlevels[2] +
@@ -63,7 +63,7 @@ void setfreqWavelines(float tune, int liner, byte velocityz) {
     drums1[liner + (i * nombreofliners)]->frequency(tune * wavesfreqs[i]);
     drums1[liner + (i * nombreofliners)]->noteOn();
     strings1[liner + (i * nombreofliners)]->noteOn(tune * wavesfreqs[i],
-                                      (velocityz / 128.0));
+                                      (velocityz / 127.0));
   }
 }
 
@@ -113,11 +113,11 @@ void initiatesamplerline(byte lesampleliner, byte channel, byte data1,
     // if ( lesampleliner < 4 ) {
     Flashmixer[int(lesampleliner / 4)]->gain(
         lesampleliner - 4 * int(lesampleliner / 4),
-        (smixervknobs[lesampleliner] / 128.0) * (data2 / 128.0));
+        (smixervknobs[lesampleliner] / 127.0) * (data2 / 127.0));
   } else {
     Flashmixer[int(lesampleliner / 4)]->gain(
         lesampleliner - 4 * int(lesampleliner / 4),
-        (smixervknobs[lesampleliner] / 128.0));
+        (smixervknobs[lesampleliner] / 127.0));
   }
 
   FlashSampler[lesampleliner]->play(tobeplayed);
@@ -680,7 +680,7 @@ int pos = tick_for_that(tickposition);
 }
 void deactivatelesccsfrompos(int lapos, byte lanote) {
   for (int i = lapos + 1; i < pbars; i++) {
-    cc_partition[int(lanote)][i] = 128;
+    cc_partition[int(lanote)][i] = 127;
   }
 }
 void recordCCmidinotes(byte channel, byte lanote, byte leccval) {
@@ -915,13 +915,15 @@ void lineron(int liner, byte channel, byte data1, byte data2) {
   if (notesOn[liner] == 0) {
 
     notesOn[liner] = data1;
-    AudioNoInterrupts();
+    //AudioNoInterrupts();
     // printlinearparams(availablliner);
 
     // lavelocity = (int)( velocity);
 
     if (!tb303[liner]) {
-      le303start[liner] = millis();
+      blink303[liner]->RESET; 
+      
+      //le303start[liner] = millis();
       tb303[liner] = 1;
     }
     // Serial.print("tb303 set on ");
@@ -951,15 +953,15 @@ void lineron(int liner, byte channel, byte data1, byte data2) {
 
     // lefadout[liner] = 1 ;
     // faders[liner]->gain(1);
-    // faders[liner]->fadeOut(int((millitickinterval*(le303envlfofadintime/128.0))));
+    // faders[liner]->fadeOut(int((millitickinterval*(le303envlfofadintime/127.0))));
     // faders[liner]->fadeIn(adsrlevels[1]);
     // enveloppesR[liner]->noteOn();
-
+  /*
     for (int i = 0; i < numberofsynthsw; i++) {
       doLFOallcontrols(i);
     }
-
-    AudioInterrupts();
+  */
+    //AudioInterrupts();
   }
 }
 
@@ -984,7 +986,7 @@ void Mytickmidi() {
   advance_tick();
 }
 void moncontrollercc(byte channel, byte control, byte value) {
-  if (value < 128) {
+  if (value < 127) {
     if (midiknobassigned[control] != 0 && !freezemidicc) {
       if (SendMidiOut) {
         //Serial.println("sending CC");
@@ -1042,7 +1044,7 @@ bool noCCrecordlist(byte lanotee) {
 
 void scanfornextcc(byte lecc) {
   for (int i = tickposition + 1; i < pbars; i++) {
-    if (cc_partition[lecc][i] != 128) {
+    if (cc_partition[lecc][i] != 127) {
 
       Ccinterpolengh[lecc][0] = tickposition;
       Ccinterpolengh[lecc][1] = i;
@@ -1053,7 +1055,7 @@ void scanfornextcc(byte lecc) {
   }
 
   for (int i = 0; i < tickposition; i++) {
-    if (cc_partition[lecc][i] != 128) {
+    if (cc_partition[lecc][i] != 127) {
 
       Ccinterpolengh[lecc][0] = tickposition;
       Ccinterpolengh[lecc][1] = i;

@@ -304,11 +304,11 @@ void displayonscreenbuttons() {
   }
   for (int i = 0; i < 6; i++) {
 
-    coeffangle = (6.2831 - ((float)vPots[16 - i] / 128.0) * 6.2831) + 3.1416;
+    coeffangle = (6.2831 - ((float)vPots[16 - i] / 127.0) * 6.2831) + 3.1416;
 
     // Serial.print(i);
     // Serial.print(" ");
-    // Serial.print(vPots[16-i]/128.0);
+    // Serial.print(vPots[16-i]/127.0);
     //   Serial.print(" angle ");
     // Serial.println(angleofknob);
 
@@ -328,9 +328,9 @@ void displayonscreenbuttons() {
   centercircley += 19 - (knobradius / 2);
   for (int i = 0; i < 5; i++) {
 
-    //  float coeffangle = ((float)vPots[6+i]/128.0)*0.05 ;
+    //  float coeffangle = ((float)vPots[6+i]/127.0)*0.05 ;
     // angleofknob = ((360.0 * coeffangle ) - 45.0 );
-    coeffangle = (6.2831 - ((float)vPots[6 + i] / 128.0) * 6.2831) + 3.1416;
+    coeffangle = (6.2831 - ((float)vPots[6 + i] / 127.0) * 6.2831) + 3.1416;
 
     xcentershifter = (knobradius * 2) + 4;
     centercirclex = knobradius + (xcentershifter * i);
@@ -349,8 +349,8 @@ void displayonscreenbuttons() {
     xcentershifter = (knobradius * 2) + 4;
     centercirclex = knobradius + (xcentershifter * i);
 
-    // float coeffangle = ((float)vPots[5-i]/128.0)*0.05 ;
-    coeffangle = (6.2831 - ((float)vPots[5 - i] / 128.0) * 6.2831) + 3.1416;
+    // float coeffangle = ((float)vPots[5-i]/127.0)*0.05 ;
+    coeffangle = (6.2831 - ((float)vPots[5 - i] / 127.0) * 6.2831) + 3.1416;
 
     trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
     trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));

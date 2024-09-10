@@ -27,7 +27,7 @@ void initextmems() {
   for (int i = 0; i < 128; i++) {
     leccinterpolated[i] = 0;
     for (int j = 0; j < pbars; j++) {
-      cc_partition[i][j] = 128;
+      cc_partition[i][j] = 127;
       
     }
   }
@@ -267,8 +267,8 @@ void setupdefaultvalues() {
   */
 
   // Volume
-  midiknobassigned[11] = 2;
-  midiknobassigned[12] = 1;
+  midiknobassigned[11] = 1;
+  midiknobassigned[12] = 2;
   //midiknobassigned[13] = 3;
 
   
@@ -279,40 +279,44 @@ void setupdefaultvalues() {
 
   // lfos
   //phase
-  midiknobassigned[17] = 80;
-  midiknobassigned[18] = 53;
+  midiknobassigned[17] = 76;
+  midiknobassigned[18] = 77;
   midiknobassigned[19] = 81;
   
 
   // FX Wet
-  midiknobassigned[20] = 6;
-  midiknobassigned[21] = 7;
+  midiknobassigned[20] = 5;
+  midiknobassigned[21] = 6;
   //audio In level
   midiknobassigned[22] = 97;
 
   // ccfxlineselector crossfader
   midiknobassigned[10] = 69;
 
-  // LFO freq & level
+  // 303 pulse
   midiknobassigned[23] = 20;
   midiknobassigned[24] = 21;
-  pot_assignements[all_buttonns-4] = 100 ;
 
-  //101 is parsepreset(0)
+  pot_assignements[all_buttonns-4] = 100 ;
   pot_assignements[all_buttonns-13] = 101 ;
   pot_assignements[all_buttonns-18] = 111 ;
+  pot_assignements[all_buttonns-19] = 110 ;
+  pot_assignements[all_buttonns-10] = 108 ;
+  pot_assignements[all_buttonns-9] = 107 ;
   midiknobassigned[111] = 109 ;
   //98 debugcpu
   pot_assignements[all_buttonns-5] = 106 ;
   //midiknobassigned[106] = 98;
-  midiknobassigned[100] = 107;
+  //granular fx toggle
+  midiknobassigned[100] = 78;
+  midiknobassigned[101] = 79;
   //midiknobassigned[101] = 108;
   //midiknobassigned[111] = 109;
   
   // stop
-  midiknobassigned[110] = 37;
+  //midiknobassigned[110] = 37;
   // play
-  midiknobassigned[108] = 36;
+  //midiknobassigned[108] = 36;
   // looper
   //midiknobassigned[109] = 109;
   //note: WetMixMasterLs[0] is the dry channel

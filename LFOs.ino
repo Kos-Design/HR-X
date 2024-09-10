@@ -165,7 +165,7 @@ void restartLFO(int leLFO) {
   if (LFOformstype[leLFO] == 7 ) {
     LFOwaveforms1[leLFO]->arbitraryWaveform(arbitrary_waveforms[leLFO],1.0);
   }
-  // lfosinez[leLFO]->amplitude((LFOlevel[leLFO]/128.0)*0.5);
+  // lfosinez[leLFO]->amplitude((LFOlevel[leLFO]/127.0)*0.5);
 
   AudioInterrupts() ;
 }

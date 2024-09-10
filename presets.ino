@@ -271,6 +271,7 @@ void writesynthpreset() {
     for (int j = 0; j < 2; j++) {
       INTinsertmytxtfile(reverbVknobs[i][j], (char*)"reverbV");
       INTinsertmytxtfile(bitcrusherVknobs[i][j], (char*)"bitcrusherV");
+      INTinsertmytxtfile(granularVknobs[i][j], (char*)"granularV");
     }
 
     for (int j = 0; j < 3; j++) {
@@ -280,7 +281,6 @@ void writesynthpreset() {
       INTinsertmytxtfile(delayVknobs[i][j], (char*)"delayV");
     }
     for (int j = 0; j < 4; j++) {
-      INTinsertmytxtfile(granularVknobs[i][j], (char*)"granularV");
       INTinsertmytxtfile(bqtype[i][j], (char*)"bqtypeV");
       for (int k = 0; k < 3; k++) {
         INTinsertmytxtfile(bqVpot[i][j][k], (char*)"bqVpot");
@@ -597,6 +597,10 @@ void parsefile(int presetn) {
       parser.Read_String('#');
       parser.Skip(1);
       bitcrusherVknobs[i][j] = parser.Read_Int16();
+
+      parser.Read_String('#');
+      parser.Skip(1);
+      granularVknobs[i][j] = parser.Read_Int16();
     }
 
     for (int j = 0; j < 3; j++) {
@@ -617,10 +621,7 @@ void parsefile(int presetn) {
       delayVknobs[i][j] = parser.Read_Int16();
     }
     for (int j = 0; j < 4; j++) {
-      parser.Read_String('#');
-      parser.Skip(1);
-      granularVknobs[i][j] = parser.Read_Int16();
-
+      
       parser.Read_String('#');
       parser.Skip(1);
       bqtype[i][j] = parser.Read_Int16();

@@ -345,7 +345,7 @@ void editlaccactionpath() {
   }
   if (navlevel == 4) {
 
-    navrange = 128;
+    navrange = 127;
     cc_partition[sublevels[2]][sublevels[3]] = (byte)sublevels[4];
     headerccedit();
   }
@@ -377,7 +377,7 @@ void clearCCline() {
   for (int j = 0; j < pbars; j++) {
     for (int i = 0; i < 128; i++) {
 
-      cc_partition[i][j] = 128;
+      cc_partition[i][j] = 127;
     }
   }
 }
@@ -1208,14 +1208,14 @@ void event1offs(int linei) {
 //changing_ccs[32][32][2] cc,val
 void light_cc_change() {
   for (int i = 0; i < 32; i++) {
-    if (recorded_ccs[i] != 0 && pots_controllers[i][tickposition][1] != 128){
+    if (recorded_ccs[i] != 0 && pots_controllers[i][tickposition][1] != 127){
       moncontrollercc(1, pots_controllers[i][tickposition][0], pots_controllers[i][tickposition][1]);
     }
     
   }
  /*
   for (int i = 0; i < 128; i++) {
-    if (cc_partition[i][tickposition] != 128) {
+    if (cc_partition[i][tickposition] != 127) {
       moncontrollercc(1, i, cc_partition[i][tickposition]);
     }
   }
@@ -1231,7 +1231,7 @@ void doesccgonnachangeinpatfromnow() {
   for (int i = 0; i < 128; i++) {
     // activateinterpolatecc[i] = 0;
 
-    if (cc_partition[i][tickposition] != 128) {
+    if (cc_partition[i][tickposition] != 127) {
       if (!noCCrecordlist(i)) {
         if (!(interpolOn && !patrecord)) {
           //TODO: bad logic incomplete
@@ -1377,7 +1377,7 @@ void writemidiinfo() {
     }
 
     for (int j = 0; j < 128; j++) {
-      if (cc_partition[j][t] != 128) {
+      if (cc_partition[j][t] != 127) {
         midifileCC(j, t);
       }
     }
@@ -2631,7 +2631,7 @@ void set_ccs() {
   }
   for (int i = 0; i < pbars; i++) {
     for (int j = 0; j < 128; j++) {
-      if (cc_partition[j][i] != 128){
+      if (cc_partition[j][i] != 127){
          for (int k = 0; k < 32; k++) {
             if (recorded_ccs[k] == 0 || recorded_ccs[k] == j){
               recorded_ccs[k] = j ;

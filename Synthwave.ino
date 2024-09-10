@@ -33,7 +33,7 @@ void displaypanbars(int score) {
 
 void displayoffsetwav(int synthi) {
   if (navlevel == 4) {
-    navrange = 128;
+    navrange = 127;
     wave1offset[synthi] = sublevels[4];
 
     for (int i = 0; i < nombreofliners; i++) {
@@ -48,7 +48,7 @@ void displayoffsetwav(int synthi) {
     returntonav(3, 9);
   }
 
-  //       sizefreq = map(score,0,128,0,35);
+  //       sizefreq = map(score,0,127,0,35);
   //         wavelinemenuBG(sublevels[2]);
   //        dolistwavelineparams();
   //          dodisplay();
@@ -835,7 +835,7 @@ void synthmenu() {
 float fxslopedown2(byte curve, float laxval) {
   // 0 to 1 10 vals 1 to 2 10 2 to 3 10
   // float leresult ;
-  return pow(laxval, (double)(curve / 128.0));
+  return pow(laxval, (double)(curve / 127.0));
 }
 
 float fxslopedown(byte slope, float laxval) {
@@ -863,12 +863,12 @@ float fxslopedown(byte slope, float laxval) {
 void actionsynthparamspanel() {
 
   if (navlevel == 3) {
-    navrange = 128;
+    navrange = 127;
     if (sublevels[2] == 0) {
       slope1 = sublevels[3];
     }
     if (sublevels[2] == 1) {
-      navrange = 128;
+      navrange = 127;
       slope2 = sublevels[3];
     }
   }
@@ -926,11 +926,13 @@ void setlepulse1() {
   if (le303pulsewidth < 50) {
     le303pulsewidth = 50;
   }
+  for (int i = 0; i < nombreofliners ; i++) {
+    blink303[i]->setDuration(le303pulsewidth); 
+  }
 }
 
 void setlepulse2() {
-  le303pulsewidth2 =
-      (reson_pulse / 32.0) * 2 * millitickinterval + 50;
+  le303pulsewidth2 = (reson_pulse / 32.0) * 2 * millitickinterval + 50;
   if (le303pulsewidth2 < 50) {
     le303pulsewidth2 = 50;
   }
@@ -942,16 +944,16 @@ void le303filterVpanelAction() {
     int slct = sublevels[2];
     // fq
     if (slct == 0) {
-      navrange = 128;
+      navrange = 127;
       le303ffilterzVknobs[0] = sublevels[3];
-      le303filterzfreq = round((le303ffilterzVknobs[0] / 128.0) * 10000);
+      le303filterzfreq = round((le303ffilterzVknobs[0] / 127.0) * 10000);
       le303filterzrange = le303filterzfreq;
     }
     // res
     if (slct == 1) {
-      navrange = 128;
+      navrange = 127;
       le303ffilterzVknobs[1] = sublevels[3];
-      le303filterzreso = ((le303ffilterzVknobs[1]) / 128.0) * 5;
+      le303filterzreso = ((le303ffilterzVknobs[1]) / 127.0) * 5;
       // if (le303filterzreso < 0.7) {
       //  le303filterzreso = 0.7;
       //  }
@@ -959,48 +961,48 @@ void le303filterVpanelAction() {
     
     // lowpass
     if (slct == 2) {
-      navrange = 128;
+      navrange = 127;
       mixle303ffilterzVknobs[0] = sublevels[3];
-      le303filterzgainz[0] = (mixle303ffilterzVknobs[0]) / 128.0;
+      le303filterzgainz[0] = (mixle303ffilterzVknobs[0]) / 127.0;
     }
     // bandpass
     if (slct == 3) {
-      navrange = 128;
+      navrange = 127;
       mixle303ffilterzVknobs[1] = sublevels[3];
-      le303filterzgainz[1] = (mixle303ffilterzVknobs[1]) / 128.0;
+      le303filterzgainz[1] = (mixle303ffilterzVknobs[1]) / 127.0;
     }
     // high pass
     if (slct == 4) {
-      navrange = 128;
+      navrange = 127;
       mixle303ffilterzVknobs[2] = sublevels[3];
-      le303filterzgainz[2] = (mixle303ffilterzVknobs[2]) / 128.0;
+      le303filterzgainz[2] = (mixle303ffilterzVknobs[2]) / 127.0;
     }
     if (slct == 5) {
       navrange = 100;
       le303filterzwet = sublevels[3];
-      // le303filterzwet = (mixle303ffilterzVknobs[2])/128.0 ;
+      // le303filterzwet = (mixle303ffilterzVknobs[2])/127.0 ;
       le303filterzWet();
     }
     if (slct == 6) {
       navrange = 32;
       cutoff_pulse = sublevels[3];
       setlepulse1();
-      // le303filterzwet = (mixle303ffilterzVknobs[2])/128.0 ;
+      // le303filterzwet = (mixle303ffilterzVknobs[2])/127.0 ;
     }
     if (slct == 7) {
       navrange = 32;
       reson_pulse = sublevels[3];
       setlepulse2();
-      // le303filterzwet = (mixle303ffilterzVknobs[2])/128.0 ;
+      // le303filterzwet = (mixle303ffilterzVknobs[2])/127.0 ;
     }
     if (slct == 8) {
-      navrange = 128;
+      navrange = 127;
       preampleswaves = sublevels[3];
       Wavespreamp303controls();
     }
 
     if (slct == 9) {
-      navrange = 128;
+      navrange = 127;
       glidemode = sublevels[3];
     }
     
@@ -1013,7 +1015,7 @@ void le303filterVpanelAction() {
 
 void Wavespreamp303controls() {
   for (int i = 0; i < nombreofliners; i++) {
-    Wavespreamp303[i]->gain(preampleswaves*2 / 128.0);
+    Wavespreamp303[i]->gain(preampleswaves*2 / 127.0);
   }
 }
 
@@ -1054,9 +1056,9 @@ void le303filterVpanel() {
   canvastitle.setCursor(22, 0);
 
   canvastitle.print("In:");
-  canvastitle.print((preampleswaves*2 / 128.0) * 100.0, 1);
+  canvastitle.print((preampleswaves*2 / 127.0) * 100.0, 1);
 
-  coeffangle = (6.2831 - (le303ffilterzVknobs[0] / 128.0) * 6.2831) + 3.1416;
+  coeffangle = (6.2831 - (le303ffilterzVknobs[0] / 127.0) * 6.2831) + 3.1416;
   canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
   ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
   ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
@@ -1082,7 +1084,7 @@ void le303filterVpanel() {
   }
 
   // resonnance
-  coeffangle = (6.2831 - (le303ffilterzVknobs[1] / 128.0) * 6.2831) + 3.1416;
+  coeffangle = (6.2831 - (le303ffilterzVknobs[1] / 127.0) * 6.2831) + 3.1416;
   centercirclex = knobradius + 30;
   canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
   ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
@@ -1098,7 +1100,7 @@ void le303filterVpanel() {
 
     /*
     // octave
-    coeffangle = (6.2831 - (le303ffilterzVknobs[2] / 128.0) * 6.2831) + 3.1416;
+    coeffangle = (6.2831 - (le303ffilterzVknobs[2] / 127.0) * 6.2831) + 3.1416;
     centercirclex = knobradius + 55;
     canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
     ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
@@ -1157,13 +1159,13 @@ void le303filterVpanel() {
   canvastitle.print("S:");
   if (glidemode > 0 && glidemode < 13) {
     canvastitle.print(".0");
-    canvastitle.print(100 * (glidemode / 128.0), 0);
+    canvastitle.print(100 * (glidemode / 127.0), 0);
   }
   if (glidemode > 12 && glidemode < 128) {
     canvastitle.print(".");
-    canvastitle.print(100 * (glidemode / 128.0), 0);
+    canvastitle.print(100 * (glidemode / 127.0), 0);
   }
-  if (glidemode == 128) {
+  if (glidemode == 127) {
     canvastitle.print("1.0");
   }
   if (glidemode == 0) {
@@ -1290,7 +1292,7 @@ void showmixerwaves() {
     action_dry_mix(sublevels[2] - 6);
   }
   if (slct > 8 && slct < 12) {
-    actionwmixer(sublevels[2] - 8);
+    actionwmixer(sublevels[2] - 9);
   }
 
   display.clearDisplay();
@@ -1313,7 +1315,7 @@ void showmixerwaves() {
 
   for (int i = 0; i < 3; i++) {
 
-    coeffangle = (6.2831 - (mixlevelsM[i] / 128.0) * 6.2831) + 3.1416;
+    coeffangle = (6.2831 - (mixlevelsM[i] / 127.0) * 6.2831) + 3.1416;
     centercirclex = knobradius + (xcentershifter * i);
     centercircley = 16 + knobradius;
     canvastitle.setCursor(centercirclex - 5, 8);
@@ -1330,7 +1332,7 @@ void showmixerwaves() {
     centercirclex = knobradius + (xcentershifter * slct);
     canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
     canvastitle.setCursor(95, 0);
-    canvastitle.print((mixlevelsM[slct] / 128.0) * 100.0, 1);
+    canvastitle.print((mixlevelsM[slct] / 127.0) * 100.0, 1);
   }
 
   for (int i = 0; i < 3; i++) {
@@ -1354,7 +1356,7 @@ void showmixerwaves() {
   }
 
   for (int i = 0; i < 3; i++) {
-    coeffangle = (6.2831 - (wetins[i] / 128.0) * 6.2831) + 3.1416;
+    coeffangle = (6.2831 - (wetins[i] / 127.0) * 6.2831) + 3.1416;
     centercirclex = knobradius + (xcentershifter * i);
     centercircley = yshifter + knobradius;
     canvasBIG.setCursor(centercirclex - 7, centercircley - (2 + knobradius * 2));
@@ -1370,7 +1372,7 @@ void showmixerwaves() {
     centercirclex = knobradius + (xcentershifter * (slct - 6));
     canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
     canvastitle.setCursor(95, 0);
-    canvastitle.print((wetins[slct - 6] / 128.0) * 100.0, 1);
+    canvastitle.print((wetins[slct - 6] / 127.0) * 100.0, 1);
   }
   
   for (int i = 0; i < numberofsynthsw; i++) {
@@ -1406,12 +1408,12 @@ void setwavemixlevel(int lesynth) {
 void actionwet1mixer(int linstru) {
 
   if (navlevel == 2) {
-    sublevels[3] = round(WetMixMasters[linstru + 1] * 128.0);
+    sublevels[3] = round(WetMixMasters[linstru + 1] * 127.0);
   }
   if (navlevel == 3) {
-    navrange = 128;
+    navrange = 127;
     // wetmain[lafxline] = sublevels[3];
-    WetMixMasters[linstru + 1] = sublevels[3] / 128.0;
+    WetMixMasters[linstru + 1] = sublevels[3] / 127.0;
     wetmixmastercontrols();
   }
   if (navlevel == 4) {
@@ -1426,7 +1428,7 @@ void action_dry_mix(int linstru) {
     sublevels[3] = wetins[linstru];
   }
   if (navlevel == 3) {
-    navrange = 128;
+    navrange = 127;
     wetins[linstru] = sublevels[3];
     set_dry_mix(linstru);
   }
@@ -1443,32 +1445,30 @@ void wetmixmastercontrols() {
 }
 
 void set_dry_mix(int lebus) {
-  //AudioNoInterrupts();
-  //TODO add wetness mix for fxbusL(3 ) <- others dry/wet
+
   switch (lebus) {
   case 0:
     // set synth wetness on fx main bus
-    
-    MasterL1.gain(2, wetins[0] / 128.0);
-    MasterR1.gain(2, wetins[0] / 128.0);
-    FXBusL.gain(2, 1 - (wetins[0] / 128.0));
-    FXBusR.gain(2, 1 - (wetins[0] / 128.0));
+    MasterL1.gain(2, wetins[0] / 127.0);
+    MasterR1.gain(2, wetins[0] / 127.0);
+    FXBusL.gain(2, 1 - (wetins[0] / 127.0));
+    FXBusR.gain(2, 1 - (wetins[0] / 127.0));
     
     break;
   case 1:
     // set sampler wetness on fx main bus
-    MasterL1.gain(3, wetins[1] / 128.0);
-    MasterR1.gain(3, wetins[1] / 128.0);
-    FXBusL.gain(1, 1 - (wetins[1] / 128.0));
-    FXBusR.gain(1, 1 - (wetins[1] / 128.0));
+    MasterL1.gain(3, wetins[1] / 127.0);
+    MasterR1.gain(3, wetins[1] / 127.0);
+    FXBusL.gain(1, 1 - (wetins[1] / 127.0));
+    FXBusR.gain(1, 1 - (wetins[1] / 127.0));
     break;
 
   case 2:
     // set wetness for "others" (audio in,SD,metronome) on fx main bus
-    MasterL1.gain(0 ,wetins[2] / 128.0);
-    MasterR1.gain(0, wetins[2] / 128.0);
-    FXBusL.gain(3, 1 - (wetins[2] / 128.0));
-    FXBusR.gain(3, 1 - (wetins[2] / 128.0));
+    MasterL1.gain(0 ,wetins[2] / 127.0);
+    MasterR1.gain(0, wetins[2] / 127.0);
+    FXBusL.gain(3, 1 - (wetins[2] / 127.0));
+    FXBusR.gain(3, 1 - (wetins[2] / 127.0));
     break;
 
   default:
@@ -1480,11 +1480,11 @@ void set_dry_mix(int lebus) {
 void actionwmixer(int lesynth) {
 
   if (navlevel == 2) {
-    sublevels[3] = round(mixlevelsL[lesynth] * 128.0);
+    sublevels[3] = round(mixlevelsL[lesynth] * 127.0);
   }
   if (navlevel == 3) {
-    navrange = 128;
-    mixlevelsL[lesynth] = sublevels[3] / 128.0;
+    navrange = 127;
+    mixlevelsL[lesynth] = sublevels[3] / 127.0;
     setwavemixlevel(lesynth);
   }
   if (navlevel == 4) {
@@ -1499,7 +1499,7 @@ void actionwmixerM(int lebus) {
     sublevels[3] = round(mixlevelsM[lebus]);
   }
   if (navlevel == 3) {
-    navrange = 128;
+    navrange = 127;
     mixlevelsM[lebus] = sublevels[3];
 
     setmastersmixlevel(lebus);
@@ -1515,19 +1515,19 @@ void setmastersmixlevel(int lebus) {
   switch (lebus) {
   case 0:
     // set mastermixlevel
-    //audioShield.volume(mixlevelsM[0] / 128.0);
-    ampL.gain(mixlevelsM[0] / 128.0);
-    ampR.gain(mixlevelsM[0] / 128.0);
+    //audioShield.volume(mixlevelsM[0] / 127.0);
+    ampL.gain(mixlevelsM[0] / 127.0);
+    ampR.gain(mixlevelsM[0] / 127.0);
     break;
   case 1:
     // set synth Main
-    mixerWAll.gain(1, mixlevelsM[1] / 128.0);
-    mixerWAll.gain(0, mixlevelsM[1] / 128.0);
+    mixerWAll.gain(1, mixlevelsM[1] / 127.0);
+    mixerWAll.gain(0, mixlevelsM[1] / 127.0);
     break;
   case 2:
     // set sampler main
-    flashMastermix.gain(0, mixlevelsM[2] / 128.0);
-    flashMastermix.gain(1, mixlevelsM[2] / 128.0);
+    flashMastermix.gain(0, mixlevelsM[2] / 127.0);
+    flashMastermix.gain(1, mixlevelsM[2] / 127.0);
     break;
   default:
     break;
@@ -1690,11 +1690,11 @@ void setsynthfrequencyi(float tune, int voice, byte velocityz) {
   for (int i = 0; i < numberofsynthsw; i++) {
 
     waveforms1[voice + (i * nombreofliners)]->frequency(tune * wavesfreqs[i - 1]);
-    waveforms1[voice + (i * nombreofliners)]->amplitude(velocityz / 128.0);
+    waveforms1[voice + (i * nombreofliners)]->amplitude(velocityz / 127.0);
     //FMwaveforms1[i + voice * 4]->frequency(tune * wavesfreqs[i - 1]);
-    //FMwaveforms1[i + voice * 4]->amplitude(velocityz / 128.0);
+    //FMwaveforms1[i + voice * 4]->amplitude(velocityz / 127.0);
     FMwaveforms1[voice + (i * nombreofliners)]->frequency(tune * wavesfreqs[i - 1]);
-    FMwaveforms1[voice + (i * nombreofliners)]->amplitude(velocityz / 128.0);
+    FMwaveforms1[voice + (i * nombreofliners)]->amplitude(velocityz / 127.0);
 
     //drums1[i + voice * nombreofliners]->length(velocityz * 5);
     //drums1[i + 4 + voice * nombreofliners]->length(velocityz * 5);

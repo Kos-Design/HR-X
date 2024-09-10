@@ -489,7 +489,7 @@ void Songmodepanel() {
     }
     if (sublevels[songedit] > 7) {
 
-      // navrange = 128/8 - 1;
+      // navrange = 127/8 - 1;
       selectormoveX();
     }
 

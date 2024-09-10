@@ -18,7 +18,7 @@ float freqtonotes[9 * 12] = {
 
 void smixerVpanelAction() {
   if (navlevel == 3) {
-    navrange = 128;
+    navrange = 127;
     smixervknobs[sublevels[2]] = sublevels[3];
   }
   if (navlevel == 2) {
@@ -120,7 +120,7 @@ void smixerVpanel() {
 
   for (int i = 0; i < 8; i++) {
 
-    coeffangle = (6.2831 - (smixervknobs[i] / 128.0) * 6.2831) + 3.1416;
+    coeffangle = (6.2831 - (smixervknobs[i] / 127.0) * 6.2831) + 3.1416;
     centercirclex = knobradius + (xcentershifter * i);
     centercircley = 16 + knobradius;
     canvastitle.setCursor(centercirclex - 5 + 3, 8);
@@ -144,12 +144,12 @@ void smixerVpanel() {
     canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
                          SSD1306_WHITE);
     canvastitle.setCursor(95, 0);
-    canvastitle.print((smixervknobs[slct] / 128.0) * 100.0, 1);
+    canvastitle.print((smixervknobs[slct] / 127.0) * 100.0, 1);
   }
   centercircley = yshifter + knobradius;
   for (int i = 0; i < 8; i++) {
 
-    coeffangle = (6.2831 - (smixervknobs[i + 8] / 128.0) * 6.2831) + 3.1416;
+    coeffangle = (6.2831 - (smixervknobs[i + 8] / 127.0) * 6.2831) + 3.1416;
     centercirclex = knobradius + (xcentershifter * i);
     canvasBIG.setCursor(centercirclex - 5,
                         centercircley - (2 + knobradius * 2) - 1);
@@ -175,7 +175,7 @@ void smixerVpanel() {
     canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
                          SSD1306_WHITE);
     canvastitle.setCursor(95, 0);
-    canvastitle.print((smixervknobs[slct] / 128.0) * 100.0, 1);
+    canvastitle.print((smixervknobs[slct] / 127.0) * 100.0, 1);
   }
 
   // smixerVpanelSelector();
@@ -514,14 +514,14 @@ void OnBoardVpanelSelector() {
     Serial.print(" to ");
     Serial.println(sublevels[3]);
     if (selecta <= 11) {
-      navrange = 128;
+      navrange = 127;
     }
 
     if ((selecta > 11) && (selecta <= 45)) {
       navrange = 128 + 127;
     }
     if (selecta > 45) {
-      navrange = 128;
+      navrange = 127;
     }
   }
 
@@ -640,7 +640,7 @@ void displaysettingspanel() {
       break;
 
     case 5:
-      navrange = 128;
+      navrange = 127;
       tapnote = byte(sublevels[2]);
       // navlevel--;
       break;

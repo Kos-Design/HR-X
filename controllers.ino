@@ -10,761 +10,761 @@ void controlswitcher(int caser, int valu) {
   smallfloat = 1.0 - valu / 1023.0;
 
   switch (caser) {
-
-  case 0:
+    case 0:
     // nothing = controller-free
-    break;
+      break;
+    case 1:
+      // audioShield.volume(smallfloat);
+      mixlevelsM[0] = smallfloat * 127;
+      setmastersmixlevel(0);
+      break;
+    case 2:
+      // main synth level
+      mixlevelsM[1] = smallfloat * 127;
+      setmastersmixlevel(1);
+      break;
+    case 3:
+      // SDSamplePlayer
+      MasterL.gain(0, smallfloat);
+      MasterR.gain(0, smallfloat);
+      break;
+    case 4:
+    //auxIn
+      mixlevelsM[2] = smallfloat * 127;
+      setmastersmixlevel(2);
+      break;
+    case 5:
+      // WetMixMaster1
+      WetMixMasters[1] = smallfloat;
+      wetmixmastercontrols();
+      break;
+    case 6:
+      // WetMixMaster2
+      WetMixMasters[2] = smallfloat;
+      wetmixmastercontrols();
+      break;
+    case 7:
+      // WetMixMaster3
+      WetMixMasters[3] = smallfloat;
+      wetmixmastercontrols();
+      break;
+    case 8:
+      // sampler wetness
+      wetins[1] = smallfloat * 127;
+      set_dry_mix(1);
+      break;
+    case 9:
+        // synth wetness
+      wetins[0] = smallfloat * 127;
+      set_dry_mix(0);
+      break;
+    case 10:
+      // 303
+      slope1 = smallfloat * 127;
+      break;
+    case 11:
+      Serial.println(11);
+      // 303
+      slope2 = smallfloat * 127;
+      break;
+    case 12:
+      //free
+      break;
+    case 13:
+      //FREE
+      break;
+    case 14:
+    
+      break;
+    case 15:
+      Serial.println(15);
+      // bpms
+      millitickinterval = map(smallfloat, 0, 1, 250, 63);
+      //metro0.interval(millitickinterval);
 
-  case 1:
-    // main synth level
-    mixlevelsM[1] = smallfloat * 128;
-    setmastersmixlevel(1);
-    break;
-  case 2:
-    // audioShield.volume(smallfloat);
-    mixlevelsM[0] = smallfloat * 128;
+      setbpms();
+      break;
+    case 16:
+      Serial.println(16);
+      cutoff_pulse = round(smallfloat * 32.0);
+      break;
+    case 17:
+      Serial.println(17);
+      reson_pulse = round(smallfloat * 32.0);
 
-    setmastersmixlevel(0);
-    break;
-  case 3:
-    // SDSamplePlayer
-    MasterL.gain(0, smallfloat);
-    MasterR.gain(0, smallfloat);
+      break;
+    case 18:
+      le303filterzwet = round(smallfloat * 100.0);
+      le303filterzWet();
+      break;
+    case 19:
+      //wetness Audio In, metronome & sd player
+      wetins[2] = smallfloat * 127;
+      set_dry_mix(2);
+      break;
+    case 20:
+      Serial.println(20);
+      // le303filterzfreq and range
+      le303ffilterzVknobs[0] = smallfloat * 127.0;
+      le303filterzfreq = round((le303ffilterzVknobs[0] / 127.0) * 14000);
+      le303filterzrange = le303filterzfreq;
+      cutoff_pulse = 16+smallfloat * 16.0;
+      setlepulse1();
+      break;
+    case 21:
+      // le303filterzreso
+      le303ffilterzVknobs[1] = smallfloat * 127.0;
+      le303filterzreso = ((le303ffilterzVknobs[1]) / 127.0) * 5;
+      break;
+    case 22:
+      // le303filterzoctv
+      le303ffilterzVknobs[2] = smallfloat * 127.0;
+      le303filterzoctv = ((le303ffilterzVknobs[2]) / 127.0) * 7;
 
-    break;
-  case 4:
-    // synth wetness
-    wetins[0] = smallfloat * 128;
-    set_dry_mix(0);
-
-    break;
-  case 5:
-    // sampler wetness
-    wetins[1] = smallfloat * 128;
-    set_dry_mix(1);
-    break;
-  case 6:
-    // WetMixMaster1
-    WetMixMasters[1] = smallfloat;
-    wetmixmastercontrols();
-    break;
-  case 7:
-    // WetMixMaster2
-    WetMixMasters[2] = smallfloat;
-    wetmixmastercontrols();
-    break;
-
-  case 8:
-    Serial.println(8);
-    // WetMixMaster3
-    WetMixMasters[3] = smallfloat;
-    wetmixmastercontrols();
-    break;
-
-  case 9:
-    Serial.println(9);
-    mixlevelsM[2] = smallfloat * 128;
-
-    setmastersmixlevel(2);
-
-    break;
-  case 10:
-    Serial.println(10);
-    // 303
-    slope1 = smallfloat * 128;
-    break;
-  case 11:
-    Serial.println(11);
-    // 303
-    slope2 = smallfloat * 128;
-    break;
-  case 12:
-    Serial.println(12);
-    // Recorder record
-    recorderrecord = 1;
-
-    if (recorderstop) {
-      recorderstop = 0;
-    }
-    if (recorderplay) {
-      recorderplay = 0;
-    }
-    startRecording();
-    break;
-  case 13:
-    Serial.println(13);
-    // play recorder
-    recorderplay = 1;
-    recorderstop = 0;
-    if (recorderrecord) {
-      recorderrecord = 0;
-      stopRecordingL();
-    }
-    playrecordsd();
-    break;
-  case 14:
-    Serial.println(14);
-    // stop recorder
-    recorderstop = 1;
-    if (recorderplay) {
-      recorderplay = 0;
-    }
-    if (recorderrecord) {
-      recorderrecord = 0;
-      stopRecordingL();
-      stopRecordingR();
-    }
-    break;
-  case 15:
-    Serial.println(15);
-    // bpms
-    millitickinterval = map(smallfloat, 0, 1, 250, 63);
-    //metro0.interval(millitickinterval);
-
-    setbpms();
-    break;
-  case 16:
-    Serial.println(16);
-    cutoff_pulse = round(smallfloat * 32.0);
-    break;
-  case 17:
-    Serial.println(17);
-    reson_pulse = round(smallfloat * 32.0);
-
-    break;
-  case 18:
-    le303filterzwet = round(smallfloat * 100.0);
-    le303filterzWet();
-    break;
-  case 19:
-    //wetness Audio In, metronome & sd player
-    wetins[2] = smallfloat * 128;
-    set_dry_mix(2);
-    break;
-  case 20:
-    Serial.println(20);
-    // le303filterzfreq and range
-    le303ffilterzVknobs[0] = smallfloat * 128.0;
-    le303filterzfreq = round((le303ffilterzVknobs[0] / 128.0) * 14000);
-    le303filterzrange = le303filterzfreq;
-    break;
-  case 21:
-    // le303filterzreso
-    le303ffilterzVknobs[1] = smallfloat * 128.0;
-    le303filterzreso = ((le303ffilterzVknobs[1]) / 128.0) * 5;
-    break;
-  case 22:
-    // le303filterzoctv
-    le303ffilterzVknobs[2] = smallfloat * 128.0;
-    le303filterzoctv = ((le303ffilterzVknobs[2]) / 128.0) * 7;
-
-    break;
-  case 23:
-    glidemode = smallfloat * 128.0;
-    break;
-  case 24:
-    preampleswaves = smallfloat * 128.0;
-    break;
-  case 25:
-    //free
-    break;
-  case 26:
-    //FREE
-    break;
-  case 27:
-    arpegiatortype = round(smallfloat * 8.0);
-    if (arpegiatortype < 8) {
-      arpegiatorOn = 1;
-    } else {
-      arpegiatorOn = 0;
-    }
-    break;
-  case 28:
-    arpegmode = round(smallfloat * 7.0);
-    break;
-  case 29:
-    arpegstartoffset = round(smallfloat * 18.0);
-    break;
-
-  case 30:
-    arpegnumofnotes = round(smallfloat * 6.0) + 1;
-    break;
-  case 31:
-    arpeggridC = round(smallfloat * 8.0);
-    break;
-  case 32:
-    arpeggridS = round(smallfloat * 8.0);
-    break;
-  case 33:
-    arpeglengh = round(smallfloat * 8.0);
-    break;
-  case 34:
-    digitalplay = !digitalplay;
-    break;
-  case 35:
-    // CuePlay
-    tickposition = 0;
-    startticker();
-    break;
-  case 36:
-    startticker();
-    break;
-  case 37:
-    stopallnotes();
-    stopticker();
-    if (recorderrecord) {
-      recorderrecord = 0;
-      stopRecordingL();
-    }
-    break;
-  case 38:
-    MasterL.gain(1, smallfloat);
-    MasterR.gain(1, smallfloat);
-    // metronomemix
-
-    break;
-  case 39:
-    getlinerwithoutevents();
-    patrecord = 1;
-    startticker();
-
-    break;
-  case 40:
-    pausedasong();
-    break;
-  case 41:
-    stopdasong();
-    break;
-  case 42:
-    playdasong();
-    break;
-
-  case 43:
-
-    lasetchord = round(smallfloat * 6.0);
-    if (lasetchord < 6) {
-      chordson = 1;
-    } else {
-      chordson = 0;
-    }
-    break;
-
-  case 44:
-    // Serial.println("got to 44");
-    // record just CCs
-    recordCC = 1;
-    startticker();
-    break;
-
-  case 45:
-
-    ccsynthselector = round(smallfloat * 3.0);
-    break;
-
-  case 46:
-    // freqs
-
-    if (wavesfreqs[ccsynthselector] == 1) {
-      demimalmode = !demimalmode;
-    } else {
-      if (wavesfreqs[ccsynthselector] <= 1) {
-        demimalmode = 1;
+      break;
+    case 23:
+      glidemode = smallfloat * 127.0;
+      break;
+    case 24:
+      preampleswaves = smallfloat * 127.0;
+      break;
+    case 25:
+      //free
+      break;
+    case 26:
+      //FREE
+      break;
+    case 27:
+      arpegiatortype = round(smallfloat * 8.0);
+      if (arpegiatortype < 8) {
+        arpegiatorOn = 1;
+      } else {
+        arpegiatorOn = 0;
       }
-    }
-    if (demimalmode) {
-      wavesfreqs[ccsynthselector] = (smallfloat * 10.0) / 10.0;
-    }
+      break;
+    case 28:
+      arpegmode = round(smallfloat * 7.0);
+      break;
+    case 29:
+      arpegstartoffset = round(smallfloat * 18.0);
+      break;
 
-    if (!demimalmode) {
-      wavesfreqs[ccsynthselector] = round(smallfloat * 10.0);
-    }
-    break;
+    case 30:
+      arpegnumofnotes = round(smallfloat * 6.0) + 1;
+      break;
+    case 31:
+      arpeggridC = round(smallfloat * 8.0);
+      break;
+    case 32:
+      arpeggridS = round(smallfloat * 8.0);
+      break;
+    case 33:
+      arpeglengh = round(smallfloat * 8.0);
+      break;
+    case 34:
+      digitalplay = !digitalplay;
+      break;
+    case 35:
+      // CuePlay
+      tickposition = 0;
+      startticker();
+      break;
+    case 36:
+      startticker();
+      break;
+    case 37:
+      stopallnotes();
+      stopticker();
+      if (recorderrecord) {
+        recorderrecord = 0;
+        stopRecordingL();
+      }
+      break;
+    case 38:
+      MasterL.gain(1, smallfloat);
+      MasterR.gain(1, smallfloat);
+      // metronomemix
 
-  case 47:
-    Serial.println("got to 47");
-    mixlevelsL[ccsynthselector] = smallfloat;
-    break;
-  case 48:
-    // panLs[i-1]
-    panLs[ccsynthselector] = map(smallfloat * 10.0, 0, 2, 0, 1);
-    setwavemixlevel(ccsynthselector);
-    break;
-  case 49:
-    FMmodulated[ccsynthselector] = round(smallfloat * 2.0);
-    setwavetypefromlist(ccsynthselector, Waveformstyped[ccsynthselector]);
-    break;
+      break;
+    case 39:
+      getlinerwithoutevents();
+      patrecord = 1;
+      startticker();
 
-  case 50:
-    // Serial.println("50");
-    Waveformstyped[ccsynthselector] = round(smallfloat * 11.0);
-    setwavetypefromlist(ccsynthselector, Waveformstyped[ccsynthselector]);
-    break;
-  case 51:
-    wave1offset[ccsynthselector] = round(smallfloat * 128.0);
-    for (int i = 0; i < nombreofliners; i++) {
-      waveforms1[i + (ccsynthselector * nombreofliners)]->offset(
-          (float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
-      FMwaveforms1[i + (ccsynthselector * nombreofliners)]->offset(
-          (float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
-    }
+      break;
+    case 40:
+      pausedasong();
+      break;
+    case 41:
+      stopdasong();
+      break;
+    case 42:
+      playdasong();
+      break;
 
-    break;
-  case 52:
-    phaselevelsL[ccsynthselector] = round(smallfloat * 360.0);
-    setphaselevel(ccsynthselector);
-    break;
-  case 53:
-    LFOlevel[ccsynthselector] = round(smallfloat * 512.0);
-    break;
-  case 54:
-    LFOformstype[ccsynthselector] = round(smallfloat * 8.0);
+    case 43:
 
-    break;
-  case 55:
-    LFOfreqs[ccsynthselector] = smallfloat * 100.0;
-    break;
-  case 56:
+      lasetchord = round(smallfloat * 6.0);
+      if (lasetchord < 6) {
+        chordson = 1;
+      } else {
+        chordson = 0;
+      }
+      break;
 
-    LFOphase[ccsynthselector] = round(smallfloat * 360.0);
-    break;
-  case 57:
-    LFOoffset[ccsynthselector] = round(smallfloat * 128.0);
-    break;
-  case 58:
-    LFOsync[ccsynthselector] = !LFOsync[ccsynthselector];
-    break;
-    
-  case 59:
-    // delayAtck
-    adsrlevels[0] = round(smallfloat * 32.0);
-    break;
-  case 60:
-    Serial.println("60");
-    // attack
-    adsrlevels[1] = round(smallfloat * 128.0);
-    break;
-  case 61:
-    // hold
-    adsrlevels[2] = round(smallfloat * 128.0);
-    break;
+    case 44:
+      // Serial.println("got to 44");
+      // record just CCs
+      recordCC = 1;
+      startticker();
+      break;
 
-  case 62:
-    // decay
-    adsrlevels[3] = round(smallfloat * 512.0);
-    break;
+    case 45:
 
-  case 63:
-    // sustain
-    adsrlevels[4] = round(smallfloat * 100.0);
-    break;
-    
-  case 64:
-    // free
+      ccsynthselector = round(smallfloat * 3.0);
+      break;
 
-    break;
-  case 65:
-    // release
-    adsrlevels[5] = round(smallfloat * 512.0);
-    break;
-    
-  case 66:
+    case 46:
+      // freqs
 
-    mixle303ffilterzVknobs[0] = round(smallfloat * 128.0);
-    le303filterzgainz[0] = smallfloat;
-    le303filtercontrols();
-    // le303filterzgainz[0]
-    //  mixle303ffilterzVknobs[0]
-    break;
-  case 67:
-    mixle303ffilterzVknobs[1] = round(smallfloat * 128.0);
-    le303filterzgainz[1] = smallfloat;
-    le303filtercontrols();
-    break;
-  case 68:
-    mixle303ffilterzVknobs[2] = round(smallfloat * 128.0);
-    le303filterzgainz[2] = smallfloat;
-    le303filtercontrols();
-    break;
-  case 69:
-    // gets the fx connected on 1, 2, or 3rd position on the fx lines
-    //ccfxlineselector = moduleonfxline[round(smallfloat * 2.0)][1];
+      if (wavesfreqs[ccsynthselector] == 1) {
+        demimalmode = !demimalmode;
+      } else {
+        if (wavesfreqs[ccsynthselector] <= 1) {
+          demimalmode = 1;
+        }
+      }
+      if (demimalmode) {
+        wavesfreqs[ccsynthselector] = (smallfloat * 10.0) / 10.0;
+      }
 
-      ccfxlineselector = map((int)(smallfloat*100.0),0,100,0,2);
-      Serial.println(ccfxlineselector);
-    break;
-  case 70:
-    Serial.println("70");
-    chorusVknobs[ccfxlineselector] = round(smallfloat * 128.0);
-    break;
-  case 71:
-    bqstage[ccfxlineselector] = round(smallfloat * 3.0);
-    break;
-  case 72:
+      if (!demimalmode) {
+        wavesfreqs[ccsynthselector] = round(smallfloat * 10.0);
+      }
+      break;
 
-    LFOonfilterz[ccfxlineselector] = round(smallfloat * 3.0);
-    filtercontrols(ccfxlineselector);
-    break;
-  case 73:
-    bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][0] =
-        round(smallfloat * 128.0);
-    bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] =
-        (smallfloat * bqrange) + 101;
-    if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
-      biquadcontrols(ccfxlineselector);
-    }
-    break;
-  case 74:
-    bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][1] =
-        round(smallfloat * 128.0);
-    bqslope[ccfxlineselector][bqstage[ccfxlineselector]] = smallfloat;
-    if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
-      biquadcontrols(ccfxlineselector);
-    }
-    break;
-  case 75:
+    case 47:
+      Serial.println("got to 47");
+      mixlevelsL[ccsynthselector] = smallfloat;
+      break;
+    case 48:
+      // panLs[i-1]
+      panLs[ccsynthselector] = map(smallfloat * 10.0, 0, 2, 0, 1);
+      setwavemixlevel(ccsynthselector);
+      break;
+    case 49:
+      FMmodulated[ccsynthselector] = round(smallfloat * 2.0);
+      setwavetypefromlist(ccsynthselector, Waveformstyped[ccsynthselector]);
+      break;
 
-    bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][2] =
-        round(smallfloat * 128.0);
-    bqgain[ccfxlineselector][bqstage[ccfxlineselector]] = smallfloat;
-    if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
-      biquadcontrols(ccfxlineselector);
-    }
-    break;
-  case 76:
-    granularVknobs[ccfxlineselector][0] = round(smallfloat * 128.0);
-    granularcontrols(ccfxlineselector);
-    break;
-  case 77:
-    granularVknobs[ccfxlineselector][1] = round(smallfloat * 128.0);
-    granularcontrols(ccfxlineselector);
-    break;
+    case 50:
+      // Serial.println("50");
+      Waveformstyped[ccsynthselector] = round(smallfloat * 11.0);
+      setwavetypefromlist(ccsynthselector, Waveformstyped[ccsynthselector]);
+      break;
+    case 51:
+      wave1offset[ccsynthselector] = round(smallfloat * 127.0);
+      for (int i = 0; i < nombreofliners; i++) {
+        waveforms1[i + (ccsynthselector * nombreofliners)]->offset(
+            (float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
+        FMwaveforms1[i + (ccsynthselector * nombreofliners)]->offset(
+            (float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
+      }
 
-  case 78:
-    granularVknobs[ccfxlineselector][2] = (round(smallfloat * 128.0)) * 128;
-    granularcontrols(ccfxlineselector);
-    break;
+      break;
+    case 52:
+      phaselevelsL[ccsynthselector] = round(smallfloat * 360.0);
+      setphaselevel(ccsynthselector);
+      break;
+    case 53:
+      LFOlevel[ccsynthselector] = round(smallfloat * 512.0);
+      break;
+    case 54:
+      LFOformstype[ccsynthselector] = round(smallfloat * 8.0);
 
-  case 79:
-    granularVknobs[ccfxlineselector][3] = (round(smallfloat)) * 128;
-    granularcontrols(ccfxlineselector);
-    break;
+      break;
+    case 55:
+      LFOfreqs[ccsynthselector] = smallfloat * 100.0;
+      break;
+    case 56:
 
-  case 80:
-    Serial.println("80");
-    reverbVknobs[ccfxlineselector][0] = round(smallfloat * 128.0);
-    freeverbscontrl(ccfxlineselector);
-    break;
-  case 81:
-    reverbVknobs[ccfxlineselector][1] = round(smallfloat * 128.0);
-    freeverbscontrl(ccfxlineselector);
-    break;
-  case 82:
-    bitcrusherVknobs[ccfxlineselector][0] = round(smallfloat * 16.0);
-    bitcrusherctrl(ccfxlineselector);
-    break;
-  case 83:
-    bitcrusherVknobs[ccfxlineselector][1] = round(smallfloat * 128.0);
-    bitcrusherctrl(ccfxlineselector);
-    break;
-  case 84:
-    mixffilterzVknobs[ccfxlineselector][0] = round(smallfloat * 128.0);
-    filtercontrols(ccfxlineselector);
-    break;
-  case 85:
-    mixffilterzVknobs[ccfxlineselector][1] = round(smallfloat * 128.0);
-    filtercontrols(ccfxlineselector);
-    break;
-  case 86:
-    mixffilterzVknobs[ccfxlineselector][2] = round(smallfloat * 128.0);
+      LFOphase[ccsynthselector] = round(smallfloat * 360.0);
+      break;
+    case 57:
+      LFOoffset[ccsynthselector] = round(smallfloat * 127.0);
+      break;
+    case 58:
+      LFOsync[ccsynthselector] = !LFOsync[ccsynthselector];
+      break;
+      
+    case 59:
+      // delayAtck
+      adsrlevels[0] = round(smallfloat * 32.0);
+      break;
+    case 60:
+      Serial.println("60");
+      // attack
+      adsrlevels[1] = round(smallfloat * 127.0);
+      break;
+    case 61:
+      // hold
+      adsrlevels[2] = round(smallfloat * 127.0);
+      break;
 
-    filtercontrols(ccfxlineselector);
-    break;
-  case 87:
-    ffilterzVknobs[ccfxlineselector][0] = round(smallfloat * 128.0);
-    filtercontrols(ccfxlineselector);
-    break;
-  case 88:
-    ffilterzVknobs[ccfxlineselector][1] = round(smallfloat * 128.0);
-    filtercontrols(ccfxlineselector);
-    break;
-  case 89:
-    ffilterzVknobs[ccfxlineselector][2] = round(smallfloat * 128.0);
-    filtercontrols(ccfxlineselector);
-    break;
+    case 62:
+      // decay
+      adsrlevels[3] = round(smallfloat * 512.0);
+      break;
 
-  case 90:
-    Serial.println("90");
+    case 63:
+      // sustain
+      adsrlevels[4] = round(smallfloat * 100.0);
+      break;
+      
+    case 64:
+      // granular toggle (inactive)
+      granular_toggled[ccfxlineselector] = !granular_toggled[ccfxlineselector];
+      toggle_granular(ccfxlineselector);
+      Serial.println("");
+      Serial.print("granular toggled = ");
+      Serial.print(granular_toggled[ccfxlineselector]);
+      break;
+    case 65:
+      // release
+      adsrlevels[5] = round(smallfloat * 512.0);
+      break;
+      
+    case 66:
 
-    flangerVknobs[ccfxlineselector][0] = round(smallfloat * 128.0);
-    flangercontrols(ccfxlineselector);
-    break;
-  case 91:
-    flangerVknobs[ccfxlineselector][1] = round(smallfloat * 128.0);
-    flangercontrols(ccfxlineselector);
-    break;
-  case 92:
-    flangerVknobs[ccfxlineselector][2] = round(smallfloat * 128.0);
-    flangercontrols(ccfxlineselector);
-    break;
-  case 93:
-    delayVknobs[ccfxlineselector][0] = round(smallfloat * 128.0);
-    restartdelayline(ccfxlineselector);
-    Serial.println(delayVknobs[ccfxlineselector][0]);
-    break;
+      mixle303ffilterzVknobs[0] = round(smallfloat * 127.0);
+      le303filterzgainz[0] = smallfloat;
+      le303filtercontrols();
+      // le303filterzgainz[0]
+      //  mixle303ffilterzVknobs[0]
+      break;
+    case 67:
+      mixle303ffilterzVknobs[1] = round(smallfloat * 127.0);
+      le303filterzgainz[1] = smallfloat;
+      le303filtercontrols();
+      break;
+    case 68:
+      mixle303ffilterzVknobs[2] = round(smallfloat * 127.0);
+      le303filterzgainz[2] = smallfloat;
+      le303filtercontrols();
+      break;
+    case 69:
+      // gets the fx connected on 1, 2, or 3rd position on the fx lines
+      //ccfxlineselector = moduleonfxline[round(smallfloat * 2.0)][1];
 
-  case 94:
-    delayVknobs[ccfxlineselector][1] = round(smallfloat * 128.0);
-    restartdelayline(ccfxlineselector);
-    break;
+        ccfxlineselector = map((int)(smallfloat*100.0),0,100,0,2);
+        Serial.println(ccfxlineselector);
+      break;
+    case 70:
+      Serial.println("70");
+      chorusVknobs[ccfxlineselector] = round(smallfloat * 127.0);
+      break;
+    case 71:
+      bqstage[ccfxlineselector] = round(smallfloat * 3.0);
+      break;
+    case 72:
 
-  case 95:
-    delayVknobs[ccfxlineselector][2] = round(smallfloat * 128.0);
-    restartdelayline(ccfxlineselector);
-    Serial.println(delayVknobs[ccfxlineselector][2]);
-    break;
+      LFOonfilterz[ccfxlineselector] = round(smallfloat * 3.0);
+      filtercontrols(ccfxlineselector);
+      break;
+    case 73:
+      bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][0] =
+          round(smallfloat * 127.0);
+      bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] =
+          (smallfloat * bqrange) + 101;
+      if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
+        biquadcontrols(ccfxlineselector);
+      }
+      break;
+    case 74:
+      bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][1] =
+          round(smallfloat * 127.0);
+      bqslope[ccfxlineselector][bqstage[ccfxlineselector]] = smallfloat;
+      if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
+        biquadcontrols(ccfxlineselector);
+      }
+      break;
+    case 75:
 
-  case 96:
-    // type
-    bqtype[ccfxlineselector][bqstage[ccfxlineselector]] =
-        round(smallfloat * 5.0);
-    if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
-      biquadcontrols(ccfxlineselector);
-    }
-    break;
+      bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][2] = round(smallfloat * 127.0);
+      bqgain[ccfxlineselector][bqstage[ccfxlineselector]] = smallfloat;
+      if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
+        biquadcontrols(ccfxlineselector);
+      }
+      break;
+    case 76:
+      //granular grains
+      granularVknobs[ccfxlineselector][0] = round(smallfloat * 127.0);
+      break;
 
-  case 97:
-    // Audio In level
-    MasterL.gain(2, smallfloat);
-    MasterR.gain(2, smallfloat);
+    case 77:
+      //granular speed ratio
+      granularVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
+      granular[ccfxlineselector]->setSpeed(0.125 + (map(granularVknobs[ccfxlineselector][1],0,127,0,7875)/1000.0));
+      break;
 
-    break;
+    case 78:
 
-  case 98:
-    debug_cpu = !debug_cpu;
-    break;
+      granular_shifting[ccfxlineselector] = !granular_shifting[ccfxlineselector];
+      granular_pitch_shift(ccfxlineselector);
+      Serial.println("");
+      Serial.print("granular shifting ");
+      Serial.print(granular_shifting[ccfxlineselector]);
+      break;
 
-  case 99:
+    case 79:
+      granular_freezing[ccfxlineselector] = !granular_freezing[ccfxlineselector];
+      granular_freeze(ccfxlineselector);
+      Serial.println("");
+      Serial.print("granular freezing ");
+      Serial.print(granular_freezing[ccfxlineselector]);
+      break;
 
-    break;
+    case 80:
+      Serial.println("80");
+      reverbVknobs[ccfxlineselector][0] = round(smallfloat * 127.0);
+      freeverbscontrl(ccfxlineselector);
+      break;
+    case 81:
+      reverbVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
+      freeverbscontrl(ccfxlineselector);
+      break;
+    case 82:
+      bitcrusherVknobs[ccfxlineselector][0] = round(smallfloat * 16.0);
+      bitcrusherctrl(ccfxlineselector);
+      break;
+    case 83:
+      bitcrusherVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
+      bitcrusherctrl(ccfxlineselector);
+      break;
+    case 84:
+      mixffilterzVknobs[ccfxlineselector][0] = round(smallfloat * 127.0);
+      filtercontrols(ccfxlineselector);
+      break;
+    case 85:
+      mixffilterzVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
+      filtercontrols(ccfxlineselector);
+      break;
+    case 86:
+      mixffilterzVknobs[ccfxlineselector][2] = round(smallfloat * 127.0);
 
-  case 100:
-    Serial.println("100");
-    writelemidi(lqcurrentpqt);
-    break;
+      filtercontrols(ccfxlineselector);
+      break;
+    case 87:
+      ffilterzVknobs[ccfxlineselector][0] = round(smallfloat * 127.0);
+      filtercontrols(ccfxlineselector);
+      break;
+    case 88:
+      ffilterzVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
+      filtercontrols(ccfxlineselector);
+      break;
+    case 89:
+      ffilterzVknobs[ccfxlineselector][2] = round(smallfloat * 127.0);
+      filtercontrols(ccfxlineselector);
+      break;
 
-  case 101:
-    // loqdcurrent
-    clearlapattern();
+    case 90:
+      Serial.println("90");
 
-    parsepattern(lqcurrentpqt);
-    break;
+      flangerVknobs[ccfxlineselector][0] = round(smallfloat * 127.0);
+      flangercontrols(ccfxlineselector);
+      break;
+    case 91:
+      flangerVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
+      flangercontrols(ccfxlineselector);
+      break;
+    case 92:
+      flangerVknobs[ccfxlineselector][2] = round(smallfloat * 127.0);
+      flangercontrols(ccfxlineselector);
+      break;
+    case 93:
+      delayVknobs[ccfxlineselector][0] = round(smallfloat * 127.0);
+      restartdelayline(ccfxlineselector);
+      Serial.println(delayVknobs[ccfxlineselector][0]);
+      break;
 
-  case 102:
+    case 94:
+      delayVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
+      restartdelayline(ccfxlineselector);
+      break;
 
-    break;
+    case 95:
+      delayVknobs[ccfxlineselector][2] = round(smallfloat * 127.0);
+      restartdelayline(ccfxlineselector);
+      Serial.println(delayVknobs[ccfxlineselector][2]);
+      break;
 
-  case 103:
+    case 96:
+      // type
+      bqtype[ccfxlineselector][bqstage[ccfxlineselector]] =
+          round(smallfloat * 5.0);
+      if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
+        biquadcontrols(ccfxlineselector);
+      }
+      break;
 
-    break;
+    case 97:
+      // Audio In level
+      MasterL.gain(2, smallfloat);
+      MasterR.gain(2, smallfloat);
 
-  case 104:
-    // freq1
+      break;
 
-    break;
+    case 98:
+      debug_cpu = !debug_cpu;
+      break;
 
-  case 105:
+    case 99:
 
-    break;
+      break;
 
-  case 106:
-    //  phase1
- 
-    break;
-  case 107:
-    // type2
+    case 100:
+      Serial.println("100");
+      writelemidi(lqcurrentpqt);
+      break;
+
+    case 101:
+      // loqdcurrent
       clearlapattern();
 
-      parsepattern(0);
-    //.gain(2,smallfloat);
-    break;
+      parsepattern(lqcurrentpqt);
+      break;
+    
+    case 102:
+      Serial.println(12);
+      // Recorder record
+      recorderrecord = 1;
+
+      if (recorderstop) {
+        recorderstop = 0;
+      }
+      if (recorderplay) {
+        recorderplay = 0;
+      }
+      startRecording();
+      break;
+    case 103:
+      Serial.println(13);
+      // play recorder
+      recorderplay = 1;
+      recorderstop = 0;
+      if (recorderrecord) {
+        recorderrecord = 0;
+        stopRecordingL();
+      }
+      playrecordsd();
+      break;
+    case 104:
+      Serial.println(14);
+      // stop recorder
+      recorderstop = 1;
+      if (recorderplay) {
+        recorderplay = 0;
+      }
+      if (recorderrecord) {
+        recorderrecord = 0;
+        stopRecordingL();
+        stopRecordingR();
+      }
+      break;
 
-  case 108:
-  parsefile(0);
+    case 105:
 
-    break;
-  case 109:
-    //auto record 10sec
-    start_sample_in_place();
-    break;
-  case 110:
-    smixervknobs[0] = byte(smallfloat * 128.0);
+      break;
 
-    break;
-  case 111:
+    case 106:
+      //  phase1
+  
+      break;
+    case 107:
+      // type2
+        clearlapattern();
 
-    smixervknobs[1] = byte(smallfloat * 128.0);
+        parsepattern(0);
+      //.gain(2,smallfloat);
+      break;
 
-    break;
-  case 112:
+    case 108:
+    parsefile(0);
 
-    smixervknobs[2] = byte(smallfloat * 128.0);
+      break;
+    case 109:
+      //auto record 10sec
+      start_sample_in_place();
+      break;
+    case 110:
+      smixervknobs[0] = byte(smallfloat * 127.0);
 
-    break;
-  case 113:
-    smixervknobs[3] = byte(smallfloat * 128.0);
+      break;
+    case 111:
 
-    break;
+      smixervknobs[1] = byte(smallfloat * 127.0);
 
-  case 114:
-    smixervknobs[4] = byte(smallfloat * 128.0);
+      break;
+    case 112:
 
-    break;
+      smixervknobs[2] = byte(smallfloat * 127.0);
 
-  case 115:
-    smixervknobs[5] = byte(smallfloat * 128.0);
+      break;
+    case 113:
+      smixervknobs[3] = byte(smallfloat * 127.0);
 
-    break;
+      break;
 
-  case 116:
-    smixervknobs[6] = byte(smallfloat * 128.0);
+    case 114:
+      smixervknobs[4] = byte(smallfloat * 127.0);
 
-    break;
+      break;
 
-  case 117:
-    smixervknobs[7] = byte(smallfloat * 128.0);
+    case 115:
+      smixervknobs[5] = byte(smallfloat * 127.0);
 
-    break;
-  case 118:
-    smixervknobs[8] = byte(smallfloat * 128.0);
+      break;
 
-    break;
+    case 116:
+      smixervknobs[6] = byte(smallfloat * 127.0);
 
-  case 119:
-    smixervknobs[9] = byte(smallfloat * 128.0);
+      break;
 
-    break;
+    case 117:
+      smixervknobs[7] = byte(smallfloat * 127.0);
 
-  case 120:
-    smixervknobs[10] = byte(smallfloat * 128.0);
+      break;
+    case 118:
+      smixervknobs[8] = byte(smallfloat * 127.0);
 
-    break;
+      break;
 
-  case 121:
-    smixervknobs[11] = byte(smallfloat * 128.0);
+    case 119:
+      smixervknobs[9] = byte(smallfloat * 127.0);
 
-    break;
-  case 122:
-    smixervknobs[12] = byte(smallfloat * 128.0);
+      break;
 
-    break;
+    case 120:
+      smixervknobs[10] = byte(smallfloat * 127.0);
 
-  case 123:
-    smixervknobs[13] = byte(smallfloat * 128.0);
+      break;
 
-    break;
+    case 121:
+      smixervknobs[11] = byte(smallfloat * 127.0);
 
-  case 124:
-    smixervknobs[14] = byte(smallfloat * 128.0);
+      break;
+    case 122:
+      smixervknobs[12] = byte(smallfloat * 127.0);
 
-    break;
+      break;
 
-  case 125:
-    smixervknobs[15] = byte(smallfloat * 128.0);
+    case 123:
+      smixervknobs[13] = byte(smallfloat * 127.0);
 
-    break;
+      break;
 
-  case 126:
-    // freq3
+    case 124:
+      smixervknobs[14] = byte(smallfloat * 127.0);
 
-    // wavesfreqs[2]=round(map(smallfloat,0,1,0,10));
-    break;
+      break;
 
-  case 127:
+    case 125:
+      smixervknobs[15] = byte(smallfloat * 127.0);
 
-    break;
+      break;
 
-  case 128:
-    //  phase3
+    case 126:
+      // freq3
 
-    break;
+      // wavesfreqs[2]=round(map(smallfloat,0,1,0,10));
+      break;
 
-  case 129:
-    // type4
+    case 127:
 
-    break;
+      break;
 
-  case 130:
-    Serial.println("130");
-    //  mixwave4
+    case 128:
+      //  phase3
 
-    break;
+      break;
 
-  case 131:
+    case 129:
+      // type4
 
-    break;
+      break;
 
-  case 132:
+    case 130:
+      Serial.println("130");
+      //  mixwave4
 
-    break;
-  case 133:
+      break;
 
-    break;
+    case 131:
 
-  case 134:
+      break;
 
-    break;
+    case 132:
 
-  case 135:
+      break;
+    case 133:
 
-    break;
+      break;
 
-  case 136:
+    case 134:
 
-    break;
+      break;
 
-  case 137:
-    // freq4
+    case 135:
 
-    break;
+      break;
 
-  case 138:
-    // pan4
+    case 136:
 
-    break;
+      break;
 
-  case 139:
+    case 137:
+      // freq4
 
-    break;
-  case 140:
-    // Serial.println("octave 140");
+      break;
 
-    break;
+    case 138:
+      // pan4
 
-  case 141:
-    // Serial.println("resonance 141");
+      break;
 
-    break;
-  case 142:
-    // Serial.println("filter freq pot 142");
-    // filterz[0]->frequency(valu);
-    break;
+    case 139:
 
-  case 143:
+      break;
+    case 140:
+      // Serial.println("octave 140");
 
-    break;
-  case 144:
+      break;
 
-    break;
+    case 141:
+      // Serial.println("resonance 141");
 
-  case 145:
+      break;
+    case 142:
+      // Serial.println("filter freq pot 142");
+      // filterz[0]->frequency(valu);
+      break;
 
-    break;
+    case 143:
 
-  case 146:
+      break;
+    case 144:
 
-    break;
+      break;
 
-  default:
-    break;
+    case 145:
+
+      break;
+
+    case 146:
+
+      break;
+
+    default:
+      break;
   }
 }

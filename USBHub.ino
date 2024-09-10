@@ -7,7 +7,7 @@ MIDIDevice midi1(myusb);
 
 void loopusbHub() {
 
-  myusb.Task();
+  //myusb.Task();
   midi1.read();
 }
 void setuphubusb() {
@@ -29,7 +29,7 @@ void setuphubusb() {
   // midi1.setHandleSongPosition(mySongPosition);
   // midi1.setHandleSongSelect(mySongSelect);
   //  midi1.setHandleTuneRequest(myTuneRequest);
-  midi1.setHandleClock(Mytickmidi);
+  //midi1.setHandleClock(Mytickmidi);
   //  midi1.setHandleStart(myStart);
   //  midi1.setHandleContinue(myContinue);
   //  midi1.setHandleStop(myStop);

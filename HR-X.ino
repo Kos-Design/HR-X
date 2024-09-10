@@ -48,8 +48,8 @@ float interval_ms = millitickinterval ;
 // IntervalTimer playNoteTimer;
 // Metro metrobuttons = Metro(20);
 
-byte smixervknobs[16] = {128, 128, 128, 128, 128, 128, 128, 128,
-                         128, 128, 128, 128, 128, 128, 128, 128};
+byte smixervknobs[16] = {127, 127, 127, 127, 127, 127, 127, 127,
+                         127, 127, 127, 127, 127, 127, 127, 127};
 int lehalfbeat;
 
 int cutoff_pulse = 8;
@@ -252,6 +252,13 @@ const byte numberofsynthsw = 3;
 const int patternlines = 4;
 bool tb303[nombreofliners];
 long le303start[nombreofliners];
+BlockNot blink303_1(le303pulsewidth);
+BlockNot blink303_2(le303pulsewidth);
+BlockNot blink303_3(le303pulsewidth);
+BlockNot blink303_4(le303pulsewidth);
+BlockNot blink303_5(le303pulsewidth);
+BlockNot blink303_6(le303pulsewidth);
+BlockNot* blink303[nombreofliners] = {&blink303_1,&blink303_2,&blink303_3,&blink303_4,&blink303_5,&blink303_6};
 byte bufferLoop[512];
 // used in recording
 EXTMEM byte bufferL[512];
@@ -478,13 +485,11 @@ const int lesformes[9] PROGMEM = {
 
 const byte truesizeofpresetmenulabels = 5;
 
-
 byte waveformIndex = 0 ;
 
 int16_t arbitrary_waveforms[numberofsynthsw][256] ; 
 
 byte lavalue;
-
 
 const byte leschords[6][12][3] PROGMEM = {{{0, 4, 7},
                                            {1, 5, 8},
@@ -657,11 +662,11 @@ Pads Pads;
 //const char ControlList[allfxes][23] PROGMEM = {
 const char ControlList[allfxes][21] = {
     // 0
-    "None", "SynthLevel", "Volume", "SDPlayer", "wetsynth", "wetsampler",
-    "WetMixM1", "WetMixM2", "WetMixM3", "Sampler level",
+    "None", "Volume","SynthLevel", "FlashLevel", "AuxLevel", "Fx1Level",
+    "Fx2Level", "Fx3Level", "SamplerDry","SynthDry",
     // 10
-    "slope1", "slope2", "Record Raw", "Play Recorded", "Stop Play&Rec", "BPM",
-    "le303pulse1", "le303pulse2", "le303filterzwet ", "Free",
+    "CtoffSlope", "ResoSlope", "free","free", "Free", "BPM",
+    "CtoffTime", "ResoTime", "FilterLevel ", "Free",
     // 20
     "le303filterzfreq", "le303filterzreso", "le303filterzoctv", "glidemode",
     "preampleswaves", "le303lfointime", "le303lfoouttime", "arpegiatortype",
@@ -676,24 +681,20 @@ const char ControlList[allfxes][21] = {
     "Waveformstyped", "wave1offset", "phaselevelsL", "LFOlevel", "LFOtype",
     "LFOfreqs", "LFOphase", "LFOoffset", "LFOsync", "Attack Delay",
     /// 60
-    "Attack", "Hold", "Decay", "Sustain", "Free", "Release",
-    "303ffilterz[0]", "303fgainz[1]", "303fgainz[2]",
-    "FXChannelselector",
+    "Attack", "Hold", "Decay", "Sustain", "granularOn", "Release",
+    "303ffilterz[0]", "303fgainz[1]", "303fgainz[2]", "FXChannelselector",
     // 70
-    "chorusVknobs[i]", "bqstage[i]", "LFOonfilterz[i]", "bqVpot[i][j][0]",
-    "bqVpot[i][j][1]", "bqVpot[i][j][2]", "granular[i][0]",
-    "granular[i][1]", "granular[i][2]", "granular[i][3]",
+    "chorusVknobs[i]", "bqstage[i]", "LFOonfilterz[i]", "bqVpot[i][j][0]", "bqVpot[i][j][1]", "bqVpot[i][j][2]",
+    "grlrGrain", "grlrRatio", "gShift-T", "gFreeze-T",
     // 80
-    "reverbVknobs[i][0]", "reverbVknobs[i][1]", "bitcrush[i][0]",
-    "bitcrush[i][1]", "mixVknobs[i][0]", "mix[i][1]",
-    "mix[i][2]", "filter[i][0]", "filterVknobs[i][1]",
-    "filterVknobs[i][2]",
+    "reverbVknobs[i][0]", "reverbVknobs[i][1]", "bitcrush[i][0]",  "bitcrush[i][1]", "mixVknobs[i][0]", 
+    "mix[i][1]", "mix[i][2]", "filter[i][0]", "filterVknobs[i][1]", "filterVknobs[i][2]",
     // 90
     "flanger[i][0]", "flanger[i][1]", "flanger[i][2]",
     "DelayFreq[i][0]", "DelayMult[i][1]", "DelayFeed[i][2]",
     "bqtype[i][bqstage]", "Audio In level", "Free", "Free",
     // 100
-    "Pat. Save", "Pat. Load", "Free", "Free", "Free", "Phase1", "Wtype2",
+    "Pat. Save", "Pat. Load", "Record Raw", "Play Recorded", "Stop Play&Rec", "Free", "Free",
     "free","Load Pat0", "preset 0", "Loop recorder", 
     // 110
     "Sp.Track 1", "Sp.Track 2", "Sp.Track 3", "Sp.Track 4", "Sp.Track 5",
@@ -708,7 +709,9 @@ float WetMixMasters[4] = {0.0, 0.0, 0.0, 0.0};
 
 bool patterninparse;
 
-
+bool granular_shifting[fxiterations] = {0,0,0};
+bool granular_freezing[fxiterations] = {0,0,0};
+bool granular_toggled[fxiterations] = {0,0,0};
 char leparsed[3];
 short lecaractere;
 short letempspattern;
@@ -723,7 +726,7 @@ const char *monthName[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 bool debug_cpu = false;
 byte bitcrusherVknobs[fxiterations][2];
-byte granularVknobs[fxiterations][4];
+byte granularVknobs[fxiterations][2];
 byte flangerVknobs[fxiterations][3];
 byte delayVknobs[fxiterations][3];
 byte chorusVknobs[fxiterations];
@@ -779,7 +782,7 @@ float panLs[numberofsynthsw] = {1, 1, 1};
 
 float mixlevelsL[numberofsynthsw] = {0.1, 0.0, 0.0};
 // 0 master , 1synth, 2 sampler, 3 unused
-byte mixlevelsM[4] = {128, 128, 38, 128};
+byte mixlevelsM[4] = {127, 127, 38, 127};
 
 unsigned int Waveformstyped[numberofsynthsw] = {1, 11, 11};
 byte notesOn[nombreofliners] = {0};
@@ -818,10 +821,11 @@ int flangedepth = FLANGE_DELAY_LENGTH / 4;
 
 double flangefreq = 0.5;
 
-#define GRANULAR_MEMORY_SIZE 640 // enough for 290 ms at 44.1 kHz
-EXTMEM int16_t granularMemory[GRANULAR_MEMORY_SIZE];
-EXTMEM int16_t granularMemory2[GRANULAR_MEMORY_SIZE];
-EXTMEM int16_t granularMemory3[GRANULAR_MEMORY_SIZE];
+#define GRANULAR_MEMORY_SIZE 12800 
+// 12800 enough for 290 ms at 44.1 kHz
+int16_t granularMemory[GRANULAR_MEMORY_SIZE];
+int16_t granularMemory2[GRANULAR_MEMORY_SIZE];
+int16_t granularMemory3[GRANULAR_MEMORY_SIZE];
 // int16_t granularMemory4[GRANULAR_MEMORY_SIZE];
 
 EXTMEM AudioConnection delayCord1(feedbackdelay1, delay1);

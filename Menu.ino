@@ -237,7 +237,7 @@ void show_avalable_controls() {
 }
 void knobassigner() {
   if (navlevel == 2) {
-    navrange = 128-1;
+    navrange = 127;
     //reinitsublevels(2);
     show_pots_to_assign();
     dodisplay();

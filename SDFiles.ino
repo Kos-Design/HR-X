@@ -27,7 +27,7 @@ String get_new_rec_file_name(String base_path_dir,String suffix="#L.RAW") {
   byte file_number = 0 ;
   String new_path = base_path_dir + "01" + suffix;
   while (SD.exists(new_path.c_str())) {
-    new_path = make_full_file_name(file_number,base_path_dir);
+    new_path = make_full_rec_file_name(file_number,base_path_dir);
     file_number++;
   }
   return new_path ;
