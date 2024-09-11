@@ -8,8 +8,8 @@ void allpasslevels() {
 }
 
 void pseudo303() {
-  float glidefactorCmode[nombreofliners];
-  for (int i = 0; i < nombreofliners; i++) {
+  float glidefactorCmode[liners_count];
+  for (int i = 0; i < liners_count; i++) {
     if (glidemode > 0 && dogliding[i]) {
       glidefactorCmode[i] =  (millis() - leglideposition[i]) /  (glidemode * millitickinterval * 1.0);
       //notefrequency = (glidefactorCmode[i]) * leglidershiftCmode[i] + notestofreq[lapreviousnotewCmode[i]][1];

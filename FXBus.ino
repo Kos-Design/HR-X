@@ -1517,9 +1517,9 @@ void filterVpanelAction(byte lefilter) {
     }
     if (slct == 6) {
       //navrange is 3 + 1 for none
-      navrange = numberofsynthsw;
+      navrange = synths_count;
       filter_lfo_option = sublevels[4];
-      if (filter_lfo_option < numberofsynthsw) {
+      if (filter_lfo_option < synths_count) {
         LFOonfilterz[lefilter] = filter_lfo_option;
       }
     }
@@ -1575,7 +1575,7 @@ void filtercontrols(byte lefilter) {
   filterzgainz[lefilter][1] = (mixffilterzVknobs[lefilter][1]) / 127.0;
   filterzgainz[lefilter][2] = (mixffilterzVknobs[lefilter][2]) / 127.0;
   unpluglfoonfilterz();
-  if (sublevels[4] < numberofsynthsw) {
+  if (sublevels[4] < synths_count) {
     lfoonfilterreplug(lefilter);
   }
   for (int i = 0; i < 3; i++) {

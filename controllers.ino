@@ -255,10 +255,10 @@ void controlswitcher(int caser, int valu) {
       break;
     case 51:
       wave1offset[ccsynthselector] = round(smallfloat * 127.0);
-      for (int i = 0; i < nombreofliners; i++) {
-        waveforms1[i + (ccsynthselector * nombreofliners)]->offset(
+      for (int i = 0; i < liners_count; i++) {
+        waveforms1[i + (ccsynthselector * liners_count)]->offset(
             (float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
-        FMwaveforms1[i + (ccsynthselector * nombreofliners)]->offset(
+        FMwaveforms1[i + (ccsynthselector * liners_count)]->offset(
             (float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
       }
 
@@ -316,9 +316,6 @@ void controlswitcher(int caser, int valu) {
       // granular toggle (inactive)
       granular_toggled[ccfxlineselector] = !granular_toggled[ccfxlineselector];
       toggle_granular(ccfxlineselector);
-      Serial.println("");
-      Serial.print("granular toggled = ");
-      Serial.print(granular_toggled[ccfxlineselector]);
       break;
     case 65:
       // release
@@ -326,7 +323,6 @@ void controlswitcher(int caser, int valu) {
       break;
       
     case 66:
-
       mixle303ffilterzVknobs[0] = round(smallfloat * 127.0);
       le303filterzgainz[0] = smallfloat;
       le303filtercontrols();
@@ -402,17 +398,11 @@ void controlswitcher(int caser, int valu) {
 
       granular_shifting[ccfxlineselector] = !granular_shifting[ccfxlineselector];
       granular_pitch_shift(ccfxlineselector);
-      Serial.println("");
-      Serial.print("granular shifting ");
-      Serial.print(granular_shifting[ccfxlineselector]);
       break;
 
     case 79:
       granular_freezing[ccfxlineselector] = !granular_freezing[ccfxlineselector];
       granular_freeze(ccfxlineselector);
-      Serial.println("");
-      Serial.print("granular freezing ");
-      Serial.print(granular_freezing[ccfxlineselector]);
       break;
 
     case 80:

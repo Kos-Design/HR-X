@@ -109,8 +109,8 @@ void setlePatternname(int lefile, char *lefname) {
 }
 
 void listPatternfiles() {
-  if (SD.exists((char *)Patternfiledir)) {
-    File susudir = SD.open((char *)Patternfiledir);
+  if (SD.exists(Patternfiledir.c_str())) {
+    File susudir = SD.open(Patternfiledir.c_str());
 
     while (true) {
       File subentry = susudir.openNextFile();
@@ -133,15 +133,8 @@ void dopatternfileslist() {
   listPatternfiles();
 }
 
-void initializeSynthPresetsselected() {
-  numberofSynthPresetsselected = 0;
-  for (int i = 0; i < 999; i++) {
-    SynthPresetsselected[i] = 0;
-  }
-}
-
 void initializeSynthPresetfullpath() {
-  numberofSynthPresets = 0;
+  presets_count = 0;
 
   for (int i = 0; i < 999; i++) {
     for (int j = 0; j < 28; j++) {
@@ -160,7 +153,6 @@ void initializeSynthPresetfullpath() {
 }
 
 void dopresetlist() {
-  initializeSynthPresetsselected();
   initializeSynthPresetfullpath();
   listSynthPresetfiles();
 }
@@ -183,8 +175,8 @@ void setleSynthPresetname(int lefile, char *lefname) {
 }
 
 void listSynthPresetfiles() {
-  if (SD.exists((char *)SynthPresetdir)) {
-    File susudir = SD.open((char *)SynthPresetdir);
+  if (SD.exists(SynthPresetdir.c_str())) {
+    File susudir = SD.open(SynthPresetdir.c_str());
 
     while (true) {
       File subentry = susudir.openNextFile();
@@ -193,8 +185,8 @@ void listSynthPresetfiles() {
       }
 
       if (!subentry.isDirectory()) {
-        setleSynthPresetname(numberofSynthPresets, (char *)subentry.name());
-        numberofSynthPresets++;
+        setleSynthPresetname(presets_count, (char *)subentry.name());
+        presets_count++;
       }
       subentry.close();
     }

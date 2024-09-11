@@ -23,7 +23,7 @@ void lemenuroot() {
 
       if (navlevel >= 1) {
         if (navlevel == 1) {
-          navrange = numberofsynthsw-1;
+          navrange = synths_count-1;
         }
         LFOmenu();
       }

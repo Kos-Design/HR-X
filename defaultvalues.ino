@@ -12,7 +12,7 @@ void initextmems() {
       }
     }
   }
-  for (int i = 0; i < nombreofliners; i++) {
+  for (int i = 0; i < liners_count; i++) {
     for (int j = 0; j < pbars; j++) {
       length0pbars[i][j] = 0;
       templength0pbars[i][j] = 0;
@@ -70,7 +70,7 @@ void loadsynthdefaults() {
   adsrlevels[4] = float(mappedsustain / 100);
   adsrlevels[5] = mappedrelease;
   
-  for (int i = 0; i < nombreofliners; i++) {
+  for (int i = 0; i < liners_count; i++) {
     enveloppesL[i]->delay(adsrlevels[0]);
     enveloppesL[i]->attack(adsrlevels[1]);
     // enveloppesL[i]->hold(adsrlevels[2]);
@@ -120,8 +120,8 @@ void setupdefaultvalues() {
   premixMaster.gain(0, 0.5);
   premixMaster.gain(1, 0.5);
 
-  for (int i = 0; i < nombreofliners; i++) {
-    for (int j = 0; j < numberofsynthsw; j++) {
+  for (int i = 0; i < liners_count; i++) {
+    for (int j = 0; j < synths_count; j++) {
       Wavesmix[i]->gain(j, mixlevelsL[j]);
     }
   }
@@ -149,7 +149,7 @@ void setupdefaultvalues() {
   granular3.begin(granularMemory3, GRANULAR_MEMORY_SIZE);
 */
 
-  for (int i = 0; i < numberofsynthsw; i++) {
+  for (int i = 0; i < synths_count; i++) {
     setwavetypefromlist(i, Waveformstyped[i]);
   }
   AudioNoInterrupts();
@@ -163,7 +163,7 @@ void setupdefaultvalues() {
     delayfeedbackmix[i]->gain(1, 0);
     delayprefeed[i]->gain(0, 1);
     delayprefeed[i]->gain(1, 1);
-    //for loop of 4 for convenience, not related to numberofsynthsw
+    //for loop of 4 for convenience, not related to synths_count
     for (int j = 0; j < 4; j++) {
       lesdelays[i]->disable(2 * j);
       lesdelays[i]->disable(2 * j + 1);

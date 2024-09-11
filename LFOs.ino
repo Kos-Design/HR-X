@@ -21,7 +21,7 @@ void LFOmenu() {
 
   if (navlevel == 1) {
     reinitsublevels(2);
-    navrange = numberofsynthsw - 1;
+    navrange = synths_count - 1;
     LFOlineBG();
 
     switch (sublevels[1]) {

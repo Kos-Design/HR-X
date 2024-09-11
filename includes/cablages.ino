@@ -318,14 +318,14 @@ AudioMixer4 *delaypostmix[fxiterations] = {&delaymix1, &delaymix2, &delaymix3};
 
 AudioMixer4 *delayprefeed[fxiterations] = {&premixmixx1, &premixmixx2, &premixmixx3};
 
-//AudioAmplifier *faders[nombreofliners] = {&fade0, &fade1, &fade2, &fade3, &fade4, &fade5};
+//AudioAmplifier *faders[liners_count] = {&fade0, &fade1, &fade2, &fade3, &fade4, &fade5};
 
 //AudioSynthWaveformSine *lfosinez[fxiterations] = {&lfosine1, &lfosine2, &lfosine3};
 
-AudioMixer4 *les303passes[nombreofliners] = {&mix303L1, &mix303L2, &mix303L3, &mix303L4, &mix303L5, &mix303L6};
+AudioMixer4 *les303passes[liners_count] = {&mix303L1, &mix303L2, &mix303L3, &mix303L4, &mix303L5, &mix303L6};
 
-AudioMixer4 *les303wet[nombreofliners] = {&mixerWet303L1, &mixerWet303L2, &mixerWet303L3,
+AudioMixer4 *les303wet[liners_count] = {&mixerWet303L1, &mixerWet303L2, &mixerWet303L3,
                              &mixerWet303L4, &mixerWet303L5, &mixerWet303L6};
 
-AudioFilterStateVariable *les303filterz[nombreofliners] = {
+AudioFilterStateVariable *les303filterz[liners_count] = {
     &filter303L1, &filter303L2, &filter303L3, &filter303L4, &filter303L5, &filter303L6};

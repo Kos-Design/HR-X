@@ -1,41 +1,89 @@
 
+class SynthLiner {
+  public:
+    byte line_index = 0 ;
+    bool activated = 0 ;
+    byte note_used = 0 ;
+
+    SynthLiner(byte line_index = 0 ) : line_index(line_index) {
+    }
+
+    void liner_on(byte channel, byte data1, byte data2) {
+      if (notesOn[line_index] == 0) {
+        notesOn[line_index] = data1;
+        if (!tb303[line_index]) {
+          blink303[line_index]->RESET; 
+          tb303[line_index] = 1;
+        }
+        enveloppesL[line_index]->hold(millitickinterval - adsrlevels[3]);
+        //enveloppesR[liner]->hold(500);
+        if (check_glide_status(data1)){
+          if (!chordson) {
+            notefrequency = notestofreq[note_before][1];
+            setfreqWavelines(notefrequency,line_index,data2);
+            startglidenote(line_index,data1);
+          } else {
+            notefrequency = notestofreq[lapreviousnotewCmode[line_index]][1];
+            startglidenoteChords(line_index, data1);
+            setfreqWavelines(notefrequency, line_index, data2);
+          }
+          note_before = data1 ;
+        } else {
+          notefrequency = notestofreq[data1][1];
+          setfreqWavelines(notefrequency, line_index, data2);
+        }
+        enveloppesL[line_index]->noteOn();
+      }
+    }
+
+    void liner_off(byte data1) {
+      // AudioNoInterrupts();
+      if (enveloppesL[line_index]->isActive()) {
+        enveloppesL[line_index]->hold(0);
+        enveloppesL[line_index]->noteOff();
+        if (tb303[line_index]) {
+          tb303[line_index] = 0;
+        }
+        notesOn[line_index] = 0;
+      }
+    }
+
+};
+
+SynthLiner* synth_lines[liners_count] = {nullptr};
+
 unsigned long lastMicros = micros();
 
 void elapse_one_tick(){
-     
-      while (!bpm_looper()){
-        ;;
-    }
-    
+  while (!bpm_looper()){
+    ;;
+  }
 }
 
 int clean_cursor(int pos){
-        
-      if (pos >= pbars ) {
-        pos = 0 ;
-        return pos;
-      } else if (pos < 0 ) {
-        pos = pbars - 1 ;
-        return pos;
-      }
-      return pos;
+  if (pos >= pbars ) {
+    pos = 0 ;
+    return pos;
+  } else if (pos < 0 ) {
+    pos = pbars - 1 ;
+    return pos;
+  }
+  return pos;
 }
 
 void advance_tick(){
-    tickposition = clean_cursor(tickposition+1);
-    //TODO : remove tickerlasttick logic
-    tickerlasttick = millis();
-    tick();
+  tickposition = clean_cursor(tickposition+1);
+  //TODO : remove tickerlasttick logic
+  tickerlasttick = millis();
+  tick();
 }
 
 bool bpm_looper() {
-   unsigned long currentMicros = micros();
+  unsigned long currentMicros = micros();
   unsigned long elapsedMicros = currentMicros - lastMicros;
-
   // Generate MIDI Clock pulse - should be 1/24th of a beat but we do 4
   if (elapsedMicros >= MICROSECONDS_PER_MIDI_CLOCK) {
     lastMicros = currentMicros; // Reset the timer
-    
     return true;
   }
    return false; 
@@ -44,60 +92,52 @@ bool bpm_looper() {
 void intervaltick() {
   //Serial.println(".");
   if (!stoptick){
-    
     advance_tick();
   }
-    
 }
 
 void arpegiate() {
-    for (int i = 0; i < nombreofarpeglines; i++) {
-      calledarpegenote[i][0] = 0;
-      for (int j = 0; j < nombreofliners; j++) {
-        if (arpegnoteoffin[i][j] == 1) {
-          shutlineroff(playingarpegiator[i][j]);
-          arpegnoteoffin[i][j] = 0;
-          playingarpegiator[i][j] = 0;
-        }
-        if (arpegnoteoffin[i][j] > 1) {
-          arpegnoteoffin[i][j]--;
-        }
+  for (int i = 0; i < nombreofarpeglines; i++) {
+    calledarpegenote[i][0] = 0;
+    for (int j = 0; j < liners_count; j++) {
+      if (arpegnoteoffin[i][j] == 1) {
+        shutlineroff(playingarpegiator[i][j]);
+        arpegnoteoffin[i][j] = 0;
+        playingarpegiator[i][j] = 0;
       }
-      if (arpegiatingNote[i] != 0) {
-        playarpegenote(i);
+      if (arpegnoteoffin[i][j] > 1) {
+        arpegnoteoffin[i][j]--;
       }
     }
-    if (stoptickernextcycle) {
-      closeallenvelopes();
-      if (patternOn != 1) {
-        stoptick = 1;
-      }
-      stoptickernextcycle = 0;
-
-      // allarpegeoffs();
+    if (arpegiatingNote[i] != 0) {
+      playarpegenote(i);
     }
+  }
+  if (stoptickernextcycle) {
+    closeallenvelopes();
+    if (patternOn != 1) {
+      stoptick = 1;
+    }
+    stoptickernextcycle = 0;
+  }
 }
 
 void use_pattern(){
-      //if (!stoptick) {
-      //doesccgonnachangeinpatfromnow(); 
-    //}
-    light_cc_change();
-    for (int i = 0; i < nombreofliners; i++) {
-      if ((synth_off_pat[i][tickposition][1] != 0 &&
-           synth_off_pat[i][tickposition][0] == synthmidichannel)) {
-        event1offs(i);
-      }
-      // if ( i < nombreofliners ) {
-      if (synth_partition[i][tickposition][1] != 0) {
-        play_synth_line(i);
-      }
-      
-      if (sampler_partition[i][tickposition][1] != 0) {
-        play_sampler_line(i);
-      }
+  light_cc_change();
+  for (int i = 0; i < liners_count; i++) {
+    if ((synth_off_pat[i][tickposition][1] != 0 &&
+          synth_off_pat[i][tickposition][0] == synthmidichannel)) {
+      event1offs(i);
+    }
+    // if ( i < liners_count ) {
+    if (synth_partition[i][tickposition][1] != 0) {
+      play_synth_line(i);
     }
     
+    if (sampler_partition[i][tickposition][1] != 0) {
+      play_sampler_line(i);
+    }
+  }
 }
 
 void update_song_player() {
@@ -380,7 +420,7 @@ void clearCCline() {
 void clearsynthpatternline() {
   // Serial.print("clearpatternline ");
   for (int j = 0; j < pbars; j++) {
-    for (int i = 0; i < nombreofliners; i++) {
+    for (int i = 0; i < liners_count; i++) {
 
       synth_partition[i][j][1] = 0;
       synth_partition[i][j][2] = 0;
@@ -602,7 +642,7 @@ void shiftnotesCCleft(int leshifter) {
 
 void shiftnotes1up(int leshifter) {
   for (int shifts = 0; shifts < leshifter; shifts++) {
-    for (int i = 0; i < nombreofliners; i++) {
+    for (int i = 0; i < liners_count; i++) {
       for (int j = 0; j < pbars; j++) {
         if (((int)synth_partition[i][j][1] < 127) &&
             ((int)synth_partition[i][j][1] > 2)) {
@@ -621,7 +661,7 @@ void shiftnotes1up(int leshifter) {
 void shiftnotes1down(int leshifter) {
   for (int shifts = 0; shifts < leshifter; shifts++) {
 
-    for (int i = 0; i < nombreofliners; i++) {
+    for (int i = 0; i < liners_count; i++) {
       for (int j = 0; j < pbars; j++) {
 
         if ((int)synth_partition[i][j][1] > 1) {
@@ -640,7 +680,7 @@ void shiftnotes1down(int leshifter) {
 void shiftnotes1right(int leshifter) {
   byte letempevent1[2][3];
   for (int shifts = 0; shifts < leshifter; shifts++) {
-    for (int i = 0; i < nombreofliners; i++) {
+    for (int i = 0; i < liners_count; i++) {
       for (int j = pbars - 1; j >= 0; j--) {
 
         if (j == pbars - 1) {
@@ -677,7 +717,7 @@ void shiftnotes1left(int leshifter) {
   byte letempevent1[2][3];
   for (int shifts = 0; shifts < leshifter; shifts++) {
 
-    for (int i = 0; i < nombreofliners; i++) {
+    for (int i = 0; i < liners_count; i++) {
       for (int j = 0; j < pbars; j++) {
 
         if (j == 0) {
@@ -1094,7 +1134,7 @@ void metronomer() {
 }
 
 void stopallnotes() {
-  for (int i = 0; i < nombreofliners; i++) {
+  for (int i = 0; i < liners_count; i++) {
     // stoplengthmesure(i);
     if (notesOn[i] != 0) {
       MaNoteOff(synthmidichannel, notesOn[i], 0);
@@ -1198,8 +1238,7 @@ void showplayheadpattern() {
 }
 
 void event1offs(int linei) {
-  // Serial.println("event1 noteoff");
-  lineroff(nombreofliners - 1 - linei, synth_off_pat[linei][tickposition][1]);
+  synth_lines[liners_count - 1 - linei]->liner_off(synth_off_pat[linei][tickposition][1]);
 }
 //changing_ccs[32][32][2] cc,val
 void light_cc_change() {
@@ -1250,21 +1289,10 @@ void doesccgonnachangeinpatfromnow() {
   }
 }
 void play_synth_line(int linei) {
-  // Serial.println("event1 ");
-
   if (synth_partition[linei][tickposition][1] != 0) {
     if (notesOn[linei] == 0) {
-      // lineron(nombreofliners-1-linei, synthmidichannel,
-      // synth_partition[linei][tickposition][1],
-      // synth_partition[linei][tickposition][2]) ;
-      lineron(nombreofliners - 1 - linei, synthmidichannel,
-              synth_partition[linei][tickposition][1],
-              synth_partition[linei][tickposition][2]);
+      synth_lines[liners_count - 1 - linei]->liner_on(synthmidichannel, synth_partition[linei][tickposition][1], synth_partition[linei][tickposition][2]);
     }
-    // else {
-    // MaNoteOn((byte)synthmidichannel, synth_partition[linei][tickposition][1],
-    // synth_partition[linei][tickposition][2]) ;
-    // }
   }
 }
 
@@ -1356,12 +1384,12 @@ void writemidiinfo() {
   for (int t = 0; t < pbars; t++) {
 
     latimeline = (3125 * t);
-    for (int j = 0; j < nombreofliners; j++) {
+    for (int j = 0; j < liners_count; j++) {
       if (synth_off_pat[j][t][1] != 0) {
         midifilelinerOff(j, t);
       }
     }
-    for (int j = 0; j < nombreofliners; j++) {
+    for (int j = 0; j < liners_count; j++) {
       if (synth_partition[j][t][1] != 0) {
         midifileliner(j, t);
       }
@@ -1677,7 +1705,7 @@ void showblocksofevent() {
   celltall = 8;
   startx = 0;
   starty = 0;
-  for (int liner = 0; liner < nombreofliners; liner++) {
+  for (int liner = 0; liner < liners_count; liner++) {
     for (int i = 0; i < pbars; i++) {
       if (synth_partition[liner][i][1] != 0) {
         canvasBIG.fillRect(startx + cellsizer * i + 1,
@@ -1713,7 +1741,7 @@ void clearevented0(int lapatline) {
 
 void refresh_track() {
   clearevented0(0);
-  for (int linerrd = 0; linerrd < nombreofliners; linerrd++) {
+  for (int linerrd = 0; linerrd < liners_count; linerrd++) {
 
     for (int i = 0; i < pbars; i++) {
 
@@ -1758,7 +1786,7 @@ int getstartingnoteline() {
   int averagenoteevent = 0;
   int nombrofnoteonliner = 0;
   // sublevels[navlevelpatedit+2] = 60 ;
-  for (int ni = 0; ni < nombreofliners; ni++) {
+  for (int ni = 0; ni < liners_count; ni++) {
     int decednote = synth_partition[sublevels[navlevelpatedit + 1]][ni][1];
     if (decednote != 0) {
       averagenoteevent = averagenoteevent + decednote;
@@ -1897,7 +1925,7 @@ void synth_event_cells() {
 void patedit1() {
   // liners
   display.clearDisplay();
-  navrange = nombreofliners - 1;
+  navrange = liners_count - 1;
 
   // drawguides();
   // if ( sublevels[navlevelpatedit] == 0 ) {
@@ -2187,7 +2215,7 @@ void patedit5B() {
   displayPatternmenu();
 }
 bool offhasOnbutnototheroff(byte liner, byte lanoteoff, byte fromi) {
-  // for (int j = 0 ; j < nombreofliners ; j++ ) {
+  // for (int j = 0 ; j < liners_count ; j++ ) {
   for (int i = fromi - 1; i >= 0; i--) {
     if (synth_off_pat[liner][i][1] == lanoteoff) {
       terminatenextnoteoff(liner, lanoteoff, i);
@@ -2207,7 +2235,7 @@ bool offhasOnbutnototheroff(byte liner, byte lanoteoff, byte fromi) {
   return 0;
 }
 void duplicatelenghofnotestarray() {
-  for (int j = 0; j < nombreofliners; j++) {
+  for (int j = 0; j < liners_count; j++) {
     for (int i = 0; i < pbars; i++) {
       templength0pbars[j][i] = length0pbars[j][i];
     }
@@ -2215,7 +2243,7 @@ void duplicatelenghofnotestarray() {
 }
 
 void duplicateevent1() {
-  for (int j = 0; j < nombreofliners; j++) {
+  for (int j = 0; j < liners_count; j++) {
     for (int i = 0; i < pbars; i++) {
       temp_synth_partition[j][i][0] = synth_partition[j][i][0];
       temp_synth_partition[j][i][2] = synth_partition[j][i][2];
@@ -2373,7 +2401,7 @@ void parsepattern(int lapatterne) {
         }
         if (letempspattern == previousTp) {
           lenint++;
-          if ((lenint > nombreofliners + nombreofSamplerliners - 1) ||
+          if ((lenint > liners_count + nombreofSamplerliners - 1) ||
               (leparsed[0] == (char)'O' && leparsed[1] == (char)'n') ||
               (leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
             // parserp.SkipUntil(parserp.IsNewLine);
@@ -2462,7 +2490,7 @@ void parsepattern(int lapatterne) {
         }
         if (letempspattern == previousTp) {
           lenint++;
-          if ((lenint > nombreofliners + nombreofSamplerliners - 1) ||
+          if ((lenint > liners_count + nombreofSamplerliners - 1) ||
               (leparsed[0] == (char)'O' && leparsed[1] == (char)'f') ||
               (leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
             // parserp.SkipUntil(parserp.IsNewLine);
@@ -2561,7 +2589,7 @@ void parsepattern(int lapatterne) {
 
         if (letempspattern == previousTp) {
           lenint++;
-          if ((lenint > nombreofliners - 1) ||
+          if ((lenint > liners_count - 1) ||
               (leparsed[0] == (char)'O' && leparsed[1] == (char)'f') ||
               (leparsed[0] == (char)'O' && leparsed[1] == (char)'n')) {
             leparsed[1] = (char)'z';

@@ -262,10 +262,10 @@ void arpegiatorVpanelAction() {
         //metro0.reset();
       } else {
         arpegiatorOn = 0;
-        for (int i = 0; i < nombreofliners; i++) {
+        for (int i = 0; i < liners_count; i++) {
           calledarpegenote[i][0] = 0;
           calledarpegenote[i][1] = 0;
-          for (int j = 0; j < nombreofliners; j++) {
+          for (int j = 0; j < liners_count; j++) {
             playingarpegiator[i][j] = 0;
             arpegnoteoffin[i][j] = 0;
           }

@@ -154,7 +154,8 @@ bool noteprint = 0;
 int moduleonfxline[3][2] = {{mainmenufxlistsize - 1, 0},
                             {mainmenufxlistsize - 1, 0},
                             {mainmenufxlistsize - 1, 0}};
-char Patternfiledir[26] = {"PATTERNS/"};
+//char Patternfiledir[26] = {"PATTERNS/"};
+String Patternfiledir = "PATTERNS/" ;
 // not EXTMEM for now
 EXTMEM char Patternfilename[999][13];
 EXTMEM char Patternfilefullpath[999][22];
@@ -167,14 +168,14 @@ bool demimalmode;
 bool addinglenght;
 EXTMEM char sampledirpath[99] = {"SOUNDSET/"};
 float freespace;
-char SynthPresetdir[32] = {"PRESETS/SYNTH/"};
+//char SynthPresetdir[32] = {"PRESETS/SYNTH/"};
+String SynthPresetdir = "PRESETS/SYNTH/" ;
 // not EXTMEM for now
 EXTMEM char SynthPresetname[999][13];
 EXTMEM char SynthPresetfullpath[999][28];
 EXTMEM char SynthPresetbase[999][9];
-EXTMEM bool SynthPresetsselected[999];
-int numberofSynthPresetsselected = 0;
-int numberofSynthPresets = 0;
+
+int presets_count = 0;
 const byte truesizeofwaveformsmenulabels = 7;
 EXTMEM char Waveformsname[999][13];
 EXTMEM char Waveformsfullpath[999][22];
@@ -246,19 +247,19 @@ char newmksamplefullpath[32] = {"SOUNDSET/MABANK01/SAMPLE00.RAW"};
 #include <Bounce.h>
 #include <Encoder.h>
 #include <string.h>
-const int nombreofliners = 6;
+const int liners_count = 6;
 const int nombreofSamplerliners = 16;
-const byte numberofsynthsw = 3;
+const byte synths_count = 3;
 const int patternlines = 4;
-bool tb303[nombreofliners];
-long le303start[nombreofliners];
+bool tb303[liners_count];
+long le303start[liners_count];
 BlockNot blink303_1(le303pulsewidth);
 BlockNot blink303_2(le303pulsewidth);
 BlockNot blink303_3(le303pulsewidth);
 BlockNot blink303_4(le303pulsewidth);
 BlockNot blink303_5(le303pulsewidth);
 BlockNot blink303_6(le303pulsewidth);
-BlockNot* blink303[nombreofliners] = {&blink303_1,&blink303_2,&blink303_3,&blink303_4,&blink303_5,&blink303_6};
+BlockNot* blink303[liners_count] = {&blink303_1,&blink303_2,&blink303_3,&blink303_4,&blink303_5,&blink303_6};
 byte bufferLoop[512];
 // used in recording
 EXTMEM byte bufferL[512];
@@ -273,8 +274,8 @@ byte navrec = 3;
 int leresultar2[2];
 int leresultnons[2];
 int availablliner;
-// unsigned long capturedlenghtnote[nombreofliners][2];
-// int startingPosofNoteonliner[nombreofliners];
+// unsigned long capturedlenghtnote[liners_count][2];
+// int startingPosofNoteonliner[liners_count];
 int tickposition;
 bool stoptick = true;
 
@@ -293,37 +294,37 @@ byte arpeggridC;
 
 byte arpeggridS;
 bool stoptickernextcycle;
-// unsigned long millisSincenLinerOn[nombreofliners];
-// unsigned long currentnotelength[nombreofliners];
+// unsigned long millisSincenLinerOn[liners_count];
+// unsigned long currentnotelength[liners_count];
 bool patrecord;
-byte arpegiatingNote[nombreofliners];
+byte arpegiatingNote[liners_count];
 // note , veloc
-const int nombreofarpeglines = nombreofliners;
+const int nombreofarpeglines = liners_count;
 bool tripletdirection[nombreofarpeglines];
-byte playingarpegiator[nombreofarpeglines][nombreofliners];
+byte playingarpegiator[nombreofarpeglines][liners_count];
 byte calledarpegenote[nombreofarpeglines][2];
 byte tickgamme[nombreofarpeglines];
 byte ticktriplet[nombreofarpeglines];
-byte arpegnoteoffin[nombreofarpeglines][nombreofliners] = {1};
+byte arpegnoteoffin[nombreofarpeglines][liners_count] = {1};
 byte arpegnotestick[nombreofarpeglines];
 byte arpegemptyticks[nombreofarpeglines];
 bool digitalplay = 0;
-bool lefadout[nombreofliners];
+bool lefadout[liners_count];
 bool targetNOsampler;
 bool targetNOsynth;
 bool targetNOcc;
 
 byte glidemode = 0;
 byte note_before;
-bool dogliding[nombreofliners];
+bool dogliding[liners_count];
 int freq_difference;
-long unsigned int leglideposition[nombreofliners];
+long unsigned int leglideposition[liners_count];
 int note_difference;
 float glidefactor;
 int time_of_last_note = 0 ;
-byte lapreviousnotewCmode[nombreofliners];
-int leglidershiftCmode[nombreofliners];
-int note_differenceCmode[nombreofliners];
+byte lapreviousnotewCmode[liners_count];
+int leglidershiftCmode[liners_count];
+int note_differenceCmode[liners_count];
 
 byte ccsynthselector;
 byte ccfxlineselector;
@@ -345,14 +346,14 @@ int navlevelpatedit = 2;
 
 bool track_cells[patternlines][pbars] = {0};
 
-EXTMEM byte synth_partition[nombreofliners][pbars][3];
-EXTMEM byte temp_synth_partition[nombreofliners][pbars][3];
-EXTMEM byte synth_off_pat[nombreofliners][pbars][3];
+EXTMEM byte synth_partition[liners_count][pbars][3];
+EXTMEM byte temp_synth_partition[liners_count][pbars][3];
+EXTMEM byte synth_off_pat[liners_count][pbars][3];
 
-EXTMEM int length0pbars[nombreofliners][pbars];
-EXTMEM int templength0pbars[nombreofliners][pbars];
-EXTMEM int length1notes1[nombreofliners][pbars];
-byte synth_start_tpos[nombreofliners];
+EXTMEM int length0pbars[liners_count][pbars];
+EXTMEM int templength0pbars[liners_count][pbars];
+EXTMEM int length1notes1[liners_count][pbars];
+byte synth_start_tpos[liners_count];
 
 EXTMEM byte sampler_partition[nombreofSamplerliners][pbars][3];
 EXTMEM byte temp_sampler_partition[nombreofSamplerliners][pbars][3];
@@ -487,7 +488,7 @@ const byte truesizeofpresetmenulabels = 5;
 
 byte waveformIndex = 0 ;
 
-int16_t arbitrary_waveforms[numberofsynthsw][256] ; 
+int16_t arbitrary_waveforms[synths_count][256] ; 
 
 byte lavalue;
 
@@ -627,20 +628,20 @@ byte lasetchord = 6;
 
 const byte truesizeofwavelineslabels = 8;
 
-int phaselevelsL[numberofsynthsw] = {0, 0, 0};
+int phaselevelsL[synths_count] = {0, 0, 0};
 
-int LFOphase[numberofsynthsw] = {0,0,0};
+int LFOphase[synths_count] = {0,0,0};
 const byte sizeofLFOlabels = 9;
 
 byte LFOmenuroot = 2;
 // TODO check offset of 50 ?
-int LFOoffset[numberofsynthsw] = {50,50,50};
-byte LFOformstype[numberofsynthsw] = {0, 0, 0};
-float LFOfreqs[numberofsynthsw] = {2.17, 2.17, 2.17};
-int LFOlevel[numberofsynthsw] = {100,100,100};
-bool LFOsync[numberofsynthsw];
+int LFOoffset[synths_count] = {50,50,50};
+byte LFOformstype[synths_count] = {0, 0, 0};
+float LFOfreqs[synths_count] = {2.17, 2.17, 2.17};
+int LFOlevel[synths_count] = {100,100,100};
+bool LFOsync[synths_count];
 
-byte wave1offset[numberofsynthsw] = {64,64,64};
+byte wave1offset[synths_count] = {64,64,64};
 File mytxtFile;
 // File originefile ;
 int adsrlevels[6] = {0, 5, 0, 50, 100, 60};
@@ -651,7 +652,7 @@ int mappedsustain = 100; // divide by 100 to float
 int MadsrAttackDelay = 0;
 int MadsrHold = 0;
 int navleveloverwrite = 2;
-int knobiprev[numberofsynthsw] = {0, 0, 0};
+int knobiprev[synths_count] = {0, 0, 0};
 
 const int allfxes = 146;
 
@@ -776,18 +777,18 @@ int midiknobassigned[128];
 int sublevels[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 // make it float
 
-float wavesfreqs[numberofsynthsw] = {1.0, 1.0, 2.0};
-float panLs[numberofsynthsw] = {1, 1, 1};
+float wavesfreqs[synths_count] = {1.0, 1.0, 2.0};
+float panLs[synths_count] = {1, 1, 1};
 
-float mixlevelsL[numberofsynthsw] = {0.1, 0.0, 0.0};
+float mixlevelsL[synths_count] = {0.1, 0.0, 0.0};
 // 0 master , 1synth, 2 sampler, 3 unused
 byte mixlevelsM[4] = {127, 127, 38, 127};
 
-unsigned int Waveformstyped[numberofsynthsw] = {1, 11, 11};
-byte notesOn[nombreofliners] = {0};
+unsigned int Waveformstyped[synths_count] = {1, 11, 11};
+byte notesOn[liners_count] = {0};
 byte samplesnotesOn[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-AudioEffectEnvelope *enveloppesL[nombreofliners] = {&envelopeL0, &envelopeL1, &envelopeL2,
+AudioEffectEnvelope *enveloppesL[liners_count] = {&envelopeL0, &envelopeL1, &envelopeL2,
                                                      &envelopeL3, &envelopeL4, &envelopeL5};
 
 // modulator for 303 mode
@@ -799,7 +800,7 @@ Adafruit_SSD1306 display(128, 64, &Wire2, -1);
 char *toprint = (char *)"Cosmix";
 
 bool initdone;
-byte FMmodulated[numberofsynthsw] = {0,0,0};
+byte FMmodulated[synths_count] = {0,0,0};
 #include "/home/kosmin/HR-X/includes/cablages.ino"
 
 #define FLANGE_DELAY_LENGTH (4 * AUDIO_BLOCK_SAMPLES)
@@ -979,62 +980,62 @@ AudioConnection MDstringCord22(string3L6, 0, modulate3L6, 0);
 
 AudioConnection *delayCords[3] = {&delayCord1, &delayCord2, &delayCord3};
 
-AudioConnection *stringcords1[nombreofliners*numberofsynthsw] = {
+AudioConnection *stringcords1[liners_count*synths_count] = {
     &stringCord01, &stringCord02, &stringCord03, &stringCord04, &stringCord05, &stringCord06,
     &stringCord09, &stringCord10, &stringCord11, &stringCord12, &stringCord13, &stringCord14, 
     &stringCord17, &stringCord18, &stringCord19, &stringCord20, &stringCord21, &stringCord22};
 
-AudioConnection *drumcords1[nombreofliners*numberofsynthsw] = {
+AudioConnection *drumcords1[liners_count*synths_count] = {
     &drumCord01, &drumCord02, &drumCord03, &drumCord04, &drumCord05, &drumCord06, 
     &drumCord09, &drumCord10, &drumCord11, &drumCord12, &drumCord13, &drumCord14, 
     &drumCord17, &drumCord18, &drumCord19, &drumCord20, &drumCord21, &drumCord22};
 
-AudioConnection *modulatecords1[nombreofliners*numberofsynthsw] = {
+AudioConnection *modulatecords1[liners_count*synths_count] = {
     &modulateCord01, &modulateCord02, &modulateCord03, &modulateCord04, &modulateCord05, &modulateCord06, 
     &modulateCord09, &modulateCord10, &modulateCord11, &modulateCord12, &modulateCord13, &modulateCord14, 
     &modulateCord17, &modulateCord18, &modulateCord19, &modulateCord20, &modulateCord21, &modulateCord22};
 
-AudioConnection *MDdrumcords1[nombreofliners*numberofsynthsw] = {
+AudioConnection *MDdrumcords1[liners_count*synths_count] = {
     &MDdrumCord01, &MDdrumCord02, &MDdrumCord03, &MDdrumCord04, &MDdrumCord05, &MDdrumCord06, 
     &MDdrumCord09, &MDdrumCord10, &MDdrumCord11, &MDdrumCord12, &MDdrumCord13, &MDdrumCord14, 
     &MDdrumCord17, &MDdrumCord18, &MDdrumCord19, &MDdrumCord20, &MDdrumCord21, &MDdrumCord22};
 
-AudioConnection *MDstringcords1[nombreofliners*numberofsynthsw] = {
+AudioConnection *MDstringcords1[liners_count*synths_count] = {
     &MDstringCord01, &MDstringCord02, &MDstringCord03, &MDstringCord04, &MDstringCord05, &MDstringCord06, 
     &MDstringCord09, &MDstringCord10, &MDstringCord11, &MDstringCord12, &MDstringCord13, &MDstringCord14,
     &MDstringCord17, &MDstringCord18, &MDstringCord19, &MDstringCord20, &MDstringCord21, &MDstringCord22};
 
-AudioConnection *FMwavecords1[nombreofliners*numberofsynthsw] = {
+AudioConnection *FMwavecords1[liners_count*synths_count] = {
     &FMWaveCord01, &FMWaveCord02, &FMWaveCord03, &FMWaveCord04, &FMWaveCord05, &FMWaveCord06,
     &FMWaveCord09, &FMWaveCord10, &FMWaveCord11, &FMWaveCord12, &FMWaveCord13, &FMWaveCord14, 
     &FMWaveCord17, &FMWaveCord18, &FMWaveCord19, &FMWaveCord20, &FMWaveCord21, &FMWaveCord22};
 
-AudioConnection *wavelinescords[nombreofliners*numberofsynthsw] = {
+AudioConnection *wavelinescords[liners_count*synths_count] = {
     &wavelinecord24, &wavelinecord22, &wavelinecord23, &wavelinecord21, &wavelinecord19, &wavelinecord20, 
     &wavelinecord47, &wavelinecord45, &wavelinecord39, &wavelinecord41, &wavelinecord33, &wavelinecord35, 
     &wavelinecord44, &wavelinecord43, &wavelinecord37, &wavelinecord42, &wavelinecord34, &wavelinecord36};
 
-AudioSynthWaveform *waveforms1[nombreofliners*numberofsynthsw] = {
+AudioSynthWaveform *waveforms1[liners_count*synths_count] = {
     &waveform1L1, &waveform1L2, &waveform1L3, &waveform1L4, &waveform1L5, &waveform1L6, 
     &waveform2L1, &waveform2L2, &waveform2L3, &waveform2L4, &waveform2L5, &waveform2L6, 
     &waveform3L1, &waveform3L2, &waveform3L3, &waveform3L4, &waveform3L5, &waveform3L6};
     
-AudioSynthWaveformModulated *FMwaveforms1[nombreofliners*numberofsynthsw] = {
+AudioSynthWaveformModulated *FMwaveforms1[liners_count*synths_count] = {
     &FMWaveform1L1, &FMWaveform1L2, &FMWaveform1L3, &FMWaveform1L4, &FMWaveform1L5, &FMWaveform1L6, 
     &FMWaveform2L1, &FMWaveform2L2, &FMWaveform2L3, &FMWaveform2L4, &FMWaveform2L5, &FMWaveform2L6, 
     &FMWaveform3L1, &FMWaveform3L2, &FMWaveform3L3, &FMWaveform3L4, &FMWaveform3L5, &FMWaveform3L6};
 
-AudioSynthSimpleDrum *drums1[nombreofliners*numberofsynthsw] = {
+AudioSynthSimpleDrum *drums1[liners_count*synths_count] = {
     &drum1L1, &drum1L2, &drum1L3, &drum1L4, &drum1L5, &drum1L6, 
     &drum2L1, &drum2L2, &drum2L3, &drum2L4, &drum2L5, &drum2L6,
     &drum3L1, &drum3L2, &drum3L3, &drum3L4, &drum3L5, &drum3L6};
 
-AudioSynthKarplusStrong *strings1[nombreofliners*numberofsynthsw] = {
+AudioSynthKarplusStrong *strings1[liners_count*synths_count] = {
     &string1L1, &string1L2, &string1L3, &string1L4, &string1L5, &string1L6,
     &string2L1, &string2L2, &string2L3, &string2L4,&string2L5, &string2L6, 
     &string3L1, &string3L2, &string3L3, &string3L4, &string3L5, &string3L6};
 
-AudioMixer4 *Wavesmix[nombreofliners] = {&WavesL1, &WavesL2, &WavesL3, &WavesL4, &WavesL5, &WavesL6};
+AudioMixer4 *Wavesmix[liners_count] = {&WavesL1, &WavesL2, &WavesL3, &WavesL4, &WavesL5, &WavesL6};
 
 AudioPlaySerialflashRaw *FlashSampler[16] = {
     &FlashSampler1,  &FlashSampler2,  &FlashSampler3,  &FlashSampler4,
@@ -1044,10 +1045,10 @@ AudioPlaySerialflashRaw *FlashSampler[16] = {
 
 AudioMixer4 *Flashmixer[4] = {&flashmix1, &flashmix2, &flashmix3, &flashmix4};
 
-AudioAmplifier *Wavespreamp303[nombreofliners] = {&wavePAmp0, &wavePAmp1, &wavePAmp2,
+AudioAmplifier *Wavespreamp303[liners_count] = {&wavePAmp0, &wavePAmp1, &wavePAmp2,
                                      &wavePAmp3, &wavePAmp4, &wavePAmp5};
 
-AudioSynthWaveform *LFOwaveforms1[numberofsynthsw] = {&LFOrm1, &LFOrm2, &LFOrm3};
+AudioSynthWaveform *LFOwaveforms1[synths_count] = {&LFOrm1, &LFOrm2, &LFOrm3};
 
 int16_t waveformed_sine[256] = {
     0,     201,   402,   603,   804,   1005,  1206,  1406,  1607,  1808,  2008,

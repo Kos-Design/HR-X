@@ -2,7 +2,7 @@
 void unplugsynth() {
 
   // unplugfx();
-  for (int i = 0; i < nombreofliners*numberofsynthsw; i++) {
+  for (int i = 0; i < liners_count*synths_count; i++) {
 
     FMwavecords1[i]->disconnect();
     modulatecords1[i]->disconnect();
@@ -37,7 +37,7 @@ void setup() {
   delay(500);
   // metrodrum1.frequency(100);
   // metrodrum1.length(50);
-
+  init_synth_liners();
   // metrodrum1.pitchMod(0.9);
   AudioInterrupts();
 
