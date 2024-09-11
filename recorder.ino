@@ -183,10 +183,8 @@ void dolistRecdisplay() {
 void recordcontrols() { Serial.print("rec controlled"); }
 
 void recordVpanelAction() {
-
   if (navlevel == navrec + 1) {
     byte slct = sublevels[navrec];
-
     if (slct == 0) {
       recorderrecord = !recorderrecord;
       if (recorderrecord) {
@@ -206,7 +204,6 @@ void recordVpanelAction() {
     if (slct == 1) {
       recorderplay = !recorderplay;
       if (recorderplay) {
-
         if (recorderstop) {
           recorderstop = 0;
         }
@@ -244,7 +241,6 @@ void recordVpanelAction() {
 }
 
 void recordVpanelSelector() {
-
   if (navlevel == navrec) {
     navrange = 2;
   }
@@ -277,13 +273,10 @@ void recordVpanelSelector() {
 }
 
 void recordVpanel() {
-
   recordVpanelAction();
-
   display.clearDisplay();
   canvasBIG.fillScreen(SSD1306_BLACK);
   canvastitle.fillScreen(SSD1306_BLACK);
-
   if (!recorderrecord) {
     canvasBIG.drawRoundRect(80, 16, 128 - 80, 20, 2, SSD1306_WHITE);
     canvasBIG.setTextColor(SSD1306_WHITE);
@@ -327,26 +320,14 @@ void recordVpanel() {
 }
 
 void loopRecorder() {
-  // First, read the buttons
-  // buttonRecord.update();
-  // buttonStop.update();
-
-  // Respond to button presses
-  // if (buttonRecord.fallingEdge()) {
-  // If we're playing or recording, carry on...
   if (modeL == 1) {
     continueRecording();
-    // continueRecordingR();
   }
-
-  // when using a microphone, continuously adjust gain
-  // if (myInput == AUDIO_INPUT_MIC) adjustMicLevel();
 }
 
 void playrecordsd() {
   if (SD.exists(newRecpathL.c_str())) {
     AudioNoInterrupts();
-
     playRawL.play(newRecpathL.c_str());
     if (modestereo) {
       playRawR.play(newRecpathR.c_str());
@@ -359,10 +340,10 @@ void playrecordsd() {
 
 void stopplayrecordsd() {
 
-  AudioNoInterrupts();
+  //AudioNoInterrupts();
   playRawL.stop();
   playRawR.stop();
-  AudioInterrupts();
+  //AudioInterrupts();
 }
 
 void startRecording() {
@@ -497,62 +478,75 @@ void stopRecordingR() {
     Serial.println("stopRecordingR");
   }
 }
+
 void auto_stop_rec(){
   if (millis() - tocker > 10000) {
-        rec_looping = false ;
-        end_sample_in_place();
-         pre_record = false;
-      }
-
+    rec_looping = false ;
+    end_sample_in_place();
+    pre_record = false;
+  }
 }
 
-void continue_looper(){
-  //AudioNoInterrupts();
+void continue_looper_old(){
   if (queue1.available() > 1 && looper ) {
-        for (int i = 0; i < 2; i++) {
-      //      looper.write((byte*)queue1.readBuffer(), 256);
-       //     queue1.freeBuffer();
-      //  }
-
-     
-      //audio_block_t *block1 = (audio_block_t *)queue1.readBuffer();
-      
-      //audio_block_t *block2 = (audio_block_t *)queue1.readBuffer();
-      //queue1.freeBuffer();
-     //memcpy(bufferLoop, block1, 256);
-      //memcpy(bufferLoop + 256, block2, 256);
-      //looper.write(bufferLoop, 512);
+    for (int i = 0; i < 2; i++) {
       looper.write((byte *)queue1.readBuffer(), 256);
       queue1.freeBuffer();
-        }
+    }
   }
-  //AudioInterrupts();
+  auto_stop_rec();
+}
+
+void continue_looper() {
+  if (queue1.available() >= 2) {
+    byte rec_buffer[512];
+    memcpy(rec_buffer, queue1.readBuffer(), 256);
+    queue1.freeBuffer();
+    memcpy(rec_buffer+256, queue1.readBuffer(), 256);
+    queue1.freeBuffer();
+    // write all 512 bytes to the SD card
+    //elapsedMicros usec = 0;
+    looper.write(rec_buffer, 512);
+    // Uncomment these lines to see how long SD writes
+    // are taking.  A pair of audio blocks arrives every
+    // 5802 microseconds, so hopefully most of the writes
+    // take well under 5802 us.  Some will take more, as
+    // the SD library also must write to the FAT tables
+    // and the SD card controller manages media erase and
+    // wear leveling.  The queue1 object can buffer
+    // approximately 301700 us of audio, to allow time
+    // for occasional high SD card latency, as long as
+    // the average write time is under 5802 us.
+    //Serial.print("SD write, us=");
+    //Serial.println(usec);
+  }
   auto_stop_rec();
 }
 
 void start_sample_in_place() {
   if (!just_pressed_rec){
-
-      just_pressed_rec = true ;
+    just_pressed_rec = true ;
+    String recfolder = "SOUNDSET/REC" ;
+    if (!(SD.exists(recfolder.c_str()))) {
+      SD.mkdir(recfolder.c_str());
+    }
     tocker = millis();
-   Serial.println("looping");
-  
-  newloopedpath = get_new_rec_file_name("SOUNDSET/REC/LOOP");
-  Serial.println(newloopedpath);
-  if (SD.exists(newloopedpath.c_str())) {
+    Serial.println("looping");
+    newloopedpath = get_new_rec_file_name("SOUNDSET/REC/LOOP");
+    if (SD.exists(newloopedpath.c_str())) {
       SD.remove(newloopedpath.c_str());
     }
     looper = SD.open(newloopedpath.c_str(), FILE_WRITE);
-  if (looper) {
-    //Serial.println("start rec looper ");
-   //Serial.print(looper.name());
-    //Serial.println("");
-    //AudioNoInterrupts();
-    queue1.begin();
-    pre_record = true;
-    //AudioInterrupts();
-    //rec_looping = true ;
-  } else {
+    if (looper) {
+      //Serial.println("start rec looper ");
+      //Serial.print(looper.name());
+      //Serial.println("");
+      //AudioNoInterrupts();
+      queue1.begin();
+      pre_record = true;
+      //AudioInterrupts();
+      //rec_looping = true ;
+    } else {
       String formattedString = "error opening " + newloopedpath;
       Serial.println(formattedString);
       rec_looping = false ;
@@ -566,7 +560,7 @@ void start_sample_in_place() {
 // set pattern empty and place note 50 on 0
 //clear locks
   
-}
+  }
 }
 
 void end_sample_in_place() {
@@ -574,7 +568,7 @@ void end_sample_in_place() {
       Serial.println("stop rec looper ");
     Serial.print(looper.name());
     Serial.println("");
-    AudioNoInterrupts();
+    //AudioNoInterrupts();
     queue1.end();
     while (queue1.available() > 0) {
       looper.write((byte *)queue1.readBuffer(), 256);
@@ -582,7 +576,7 @@ void end_sample_in_place() {
     }
     looper.close();
     queue1.clear();
-    AudioInterrupts();
+    //AudioInterrupts();
     dosoundlist();
     }
     just_pressed_rec = false ;

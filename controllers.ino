@@ -59,52 +59,42 @@ void controlswitcher(int caser, int valu) {
       set_dry_mix(0);
       break;
     case 10:
-      // 303
-      slope1 = smallfloat * 127;
+     //wetness Audio In, metronome & sd player
+      wetins[2] = smallfloat * 127;
+      set_dry_mix(2);
       break;
     case 11:
-      Serial.println(11);
-      // 303
-      slope2 = smallfloat * 127;
+      // 303 cutoff pulse length
+      slope1 = smallfloat * 127;
       break;
     case 12:
-      //free
+      // 303 resonance pulse length
+      slope2 = smallfloat * 127;
       break;
     case 13:
       //FREE
       break;
     case 14:
-    
+      //free
       break;
     case 15:
-      Serial.println(15);
-      // bpms
-      millitickinterval = map(smallfloat, 0, 1, 250, 63);
-      //metro0.interval(millitickinterval);
-
-      setbpms();
+     //free
       break;
     case 16:
-      Serial.println(16);
       cutoff_pulse = round(smallfloat * 32.0);
       break;
     case 17:
-      Serial.println(17);
       reson_pulse = round(smallfloat * 32.0);
-
       break;
     case 18:
       le303filterzwet = round(smallfloat * 100.0);
       le303filterzWet();
       break;
     case 19:
-      //wetness Audio In, metronome & sd player
-      wetins[2] = smallfloat * 127;
-      set_dry_mix(2);
+     //"free"
       break;
     case 20:
-      Serial.println(20);
-      // le303filterzfreq and range
+      // Cutoff freq and range
       le303ffilterzVknobs[0] = smallfloat * 127.0;
       le303filterzfreq = round((le303ffilterzVknobs[0] / 127.0) * 14000);
       le303filterzrange = le303filterzfreq;
@@ -112,12 +102,12 @@ void controlswitcher(int caser, int valu) {
       setlepulse1();
       break;
     case 21:
-      // le303filterzreso
+      // Resonance 
       le303ffilterzVknobs[1] = smallfloat * 127.0;
       le303filterzreso = ((le303ffilterzVknobs[1]) / 127.0) * 5;
       break;
     case 22:
-      // le303filterzoctv
+      // Filter Octave range
       le303ffilterzVknobs[2] = smallfloat * 127.0;
       le303filterzoctv = ((le303ffilterzVknobs[2]) / 127.0) * 7;
 
@@ -126,6 +116,7 @@ void controlswitcher(int caser, int valu) {
       glidemode = smallfloat * 127.0;
       break;
     case 24:
+    //filter Input gain
       preampleswaves = smallfloat * 127.0;
       break;
     case 25:
@@ -519,7 +510,9 @@ void controlswitcher(int caser, int valu) {
       break;
 
     case 99:
-
+       // bpms
+      millitickinterval = map(smallfloat, 0, 1, 250, 63);
+      setbpms();
       break;
 
     case 100:

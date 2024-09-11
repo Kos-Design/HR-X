@@ -314,17 +314,17 @@ bool targetNOsynth;
 bool targetNOcc;
 
 byte glidemode = 0;
-byte lapreviousnotew;
+byte note_before;
 bool dogliding[nombreofliners];
-int leglidershift;
-int leglideposition[nombreofliners];
-int leglidenoteshift;
+int freq_difference;
+long unsigned int leglideposition[nombreofliners];
+int note_difference;
 float glidefactor;
-
+int time_of_last_note = 0 ;
 byte lapreviousnotewCmode[nombreofliners];
 int leglidershiftCmode[nombreofliners];
-int leglidenoteshiftCmode[nombreofliners];
-float glidefactorCmode[nombreofliners];
+int note_differenceCmode[nombreofliners];
+
 byte ccsynthselector;
 byte ccfxlineselector;
 
@@ -665,12 +665,11 @@ const char ControlList[allfxes][21] = {
     "None", "Volume","SynthLevel", "FlashLevel", "AuxLevel", "Fx1Level",
     "Fx2Level", "Fx3Level", "SamplerDry","SynthDry",
     // 10
-    "CtoffSlope", "ResoSlope", "free","free", "Free", "BPM",
+    "AuxDry", "CtoffSlope","ResoSlope","Free", "Free", "Free",
     "CtoffTime", "ResoTime", "FilterLevel ", "Free",
     // 20
-    "le303filterzfreq", "le303filterzreso", "le303filterzoctv", "glidemode",
-    "preampleswaves", "le303lfointime", "le303lfoouttime", "arpegiatortype",
-    "arpegmode", "arpegstartoffset",
+    "CutOff", "Resonance", "OctRange", "glidemode", "FilterIn", "free", 
+    "free", "arpegiatortype", "arpegmode", "arpegstartoffset",
     // 30
     "arpegnumofnotes", "arpeggridC", "arpeggridS", "arpeglengh", "digitalplay",
     "CuePlay", "Start", "Stop", "Metronome", "Capture",
@@ -690,9 +689,8 @@ const char ControlList[allfxes][21] = {
     "reverbVknobs[i][0]", "reverbVknobs[i][1]", "bitcrush[i][0]",  "bitcrush[i][1]", "mixVknobs[i][0]", 
     "mix[i][1]", "mix[i][2]", "filter[i][0]", "filterVknobs[i][1]", "filterVknobs[i][2]",
     // 90
-    "flanger[i][0]", "flanger[i][1]", "flanger[i][2]",
-    "DelayFreq[i][0]", "DelayMult[i][1]", "DelayFeed[i][2]",
-    "bqtype[i][bqstage]", "Audio In level", "Free", "Free",
+    "flanger[i][0]", "flanger[i][1]", "flanger[i][2]","DelayFreq[i][0]", "DelayMult[i][1]", "DelayFeed[i][2]",
+    "bqtype[i][bqstage]", "Audio In level", "Free", "Free","BPM",
     // 100
     "Pat. Save", "Pat. Load", "Record Raw", "Play Recorded", "Stop Play&Rec", "Free", "Free",
     "free","Load Pat0", "preset 0", "Loop recorder", 
@@ -703,7 +701,8 @@ const char ControlList[allfxes][21] = {
     "Sp.Track 11", "Sp.Track 12", "Sp.Track 13", "Sp.Track 14", "Sp.Track 15",
     "Sp.Track 16", "Free", "Free", "Free", "Free", "Free",
     // 130
-    "Free", "Free", "Free", "Wfreq4", "Pan 4", "Phase4"};
+    "Free", "Free", "Free", "Wfreq4", "Pan 4", "Phase4"
+};
 
 float WetMixMasters[4] = {0.0, 0.0, 0.0, 0.0};
 

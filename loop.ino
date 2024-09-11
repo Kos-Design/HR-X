@@ -8,27 +8,16 @@ void allpasslevels() {
 }
 
 void pseudo303() {
-
+  float glidefactorCmode[nombreofliners];
   for (int i = 0; i < nombreofliners; i++) {
-
     if (glidemode > 0 && dogliding[i]) {
-
-      glidefactorCmode[i] = leglideposition[i] / (millitickinterval * 1.0);
-
-      notefrequency = (glidefactorCmode[i]) * leglidershiftCmode[i] +
-                      notestofreq[lapreviousnotewCmode[i]][1];
-
+      glidefactorCmode[i] =  (millis() - leglideposition[i]) /  (glidemode * millitickinterval * 1.0);
+      //notefrequency = (glidefactorCmode[i]) * leglidershiftCmode[i] + notestofreq[lapreviousnotewCmode[i]][1];
+      notefrequency = glidefactorCmode[i] * freq_difference + notestofreq[note_before][1];
       tweakfreqlive(i, notefrequency);
-
-      if (leglideposition[i] <
-          (millitickinterval * 2.0 * (glidemode / 127.0) / 2.0)) {
-        leglideposition[i]++;
-        // Serial.print(leglideposition[i]);
-      } else {
+      if ((int)(millis() - leglideposition[i]) > glidemode * millitickinterval ) {
         stopglidenoteChords(i);
       }
-
-      // }
     }
 
    // if (!stoptick) {

@@ -37,23 +37,21 @@ void setlastpathlisted(char *lepath) {
 }
 
 void playsamplepreview() {
-  AudioNoInterrupts();
+  //AudioNoInterrupts();
   playRawL.play((const char *)samplefullpath[sublevels[3]][sublevels[4]]);
   playRawR.play((const char *)samplefullpath[sublevels[3]][sublevels[4]]);
-  AudioInterrupts();
+  //AudioInterrupts();
 }
 
 void playflashsamplepreview() {
-  AudioNoInterrupts();
+  //AudioNoInterrupts();
   FlashRaw.play((const char *)Flashsamplename[sublevels[3]]);
-
-  AudioInterrupts();
+  //AudioInterrupts();
 }
 void playflashsamplepreviews4() {
-  AudioNoInterrupts();
+  //AudioNoInterrupts();
   FlashRaw.play((const char *)Flashsamplename[sublevels[4]]);
-
-  AudioInterrupts();
+  //AudioInterrupts();
 }
 
 void initializenewmksamplefullpath() {

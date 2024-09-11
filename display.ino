@@ -13,13 +13,10 @@ void setupscreen() {
   display.clearDisplay();
 }
 
-
 void dodisplay() {
-  
   display.drawBitmap(0, 0, canvasBIG.getBuffer(), 128, 64, SSD1306_WHITE);
   display.drawBitmap(0, 0, canvastitle.getBuffer(), 128, 16, SSD1306_WHITE);
   display.display();
-  
 }
 
 void printlabel(char *toprint) {
@@ -28,48 +25,41 @@ void printlabel(char *toprint) {
   display.setCursor(0, 0);
   display.println(toprint);
 }
+
 void displayleBGimg(const unsigned char *img) {
   display.clearDisplay();
   display.drawBitmap(0, 0, img, 128, 64, SSD1306_WHITE);
 }
+
 void selectbox(int posX, int posY) {
-  // toprint = (char*)"Menu";
-  // display.clearDisplay();
-  // display.drawBitmap(0, 0, img, 128, 64, SSD1306_WHITE);
   display.drawRoundRect(posX, posY, 21, 21, 3, SSD1306_WHITE);
 }
 
 void dodisplayplayhead() {
-  //display.clearDisplay();
-
-  //display.drawBitmap(0, 0, canvasBIG2.getBuffer(), 128, 64, SSD1306_WHITE);
   canvasBIG.drawLine(tickposition * 4, 0, tickposition * 4, 64, SSD1306_INVERSE);
-  //display.display();
 }
 
 void initializelapleasewaitarray() {
-
   for (int i = 0; i < 10; i++) {
     for (int j = 0; j < 32; j++) {
       pleasewaitarray[i][j] = (char)'\0';
     }
   }
 }
+
 void shiftlapleasewaitarray() {
   for (int i = 9; i > 0; i--) {
     setlapleasewaitarray(i, (char *)pleasewaitarray[i - 1]);
   }
 }
-void setlapleasewaitarray(int consoleline, char *lemsg) {
 
+void setlapleasewaitarray(int consoleline, char *lemsg) {
   for (int i = 0; i < 32; i++) {
     pleasewaitarray[consoleline][i] = lemsg[i];
   }
 }
-void pleasewait(float lewait, float letotwait) {
-  // shiftlapleasewaitarray();
-  // setlapleasewaitarray(0, (char*)lemsg) ;
 
+void pleasewait(float lewait, float letotwait) {
   display.clearDisplay();
   display.setTextSize(2);
   display.setCursor(6, 0);
@@ -90,17 +80,12 @@ void pleasewait(float lewait, float letotwait) {
   display.setCursor(20, 50);
   display.setTextSize(1);
   display.print("(Please Wait)");
-  //   for (int i = 0 ; i < 10 ; i++) {
-  //   display.println((char*)pleasewaitarray[i]);
-  //   }
   display.display();
-  // popukate 6 chars arrays and display/copy them to scroll
 }
 
 void pseudoconsole(const char *lemsg) {
   shiftconsolemsgarray();
   setleconsolemsg(0, (char *)lemsg);
-
   display.clearDisplay();
   display.setTextSize(1);
   display.setCursor(0, 0);
@@ -108,24 +93,23 @@ void pseudoconsole(const char *lemsg) {
     display.println((char *)consolemsg[i]);
   }
   display.display();
-  // popukate 6 chars arrays and display/copy them to scroll
 }
 
 void initializeconsolemsg() {
-
   for (int i = 0; i < 10; i++) {
     for (int j = 0; j < 32; j++) {
       consolemsg[i][j] = (char)'\0';
     }
   }
 }
+
 void shiftconsolemsgarray() {
   for (int i = 9; i > 0; i--) {
     setleconsolemsg(i, (char *)consolemsg[i - 1]);
   }
 }
-void setleconsolemsg(int consoleline, char *lemsg) {
 
+void setleconsolemsg(int consoleline, char *lemsg) {
   for (int i = 0; i < 32; i++) {
     consolemsg[consoleline][i] = lemsg[i];
   }
@@ -139,9 +123,7 @@ void print_memory_usage(){
       AudioMemoryUsageMaxReset();
       Serial.println("Reset all max numbers");
       }
-      
     }
-    
   // print a summary of the current & maximum usage
   Serial.print("CPU: ");
   Serial.print("all=");
@@ -154,5 +136,4 @@ void print_memory_usage(){
   Serial.print(",");
   Serial.print(AudioMemoryUsageMax());
   Serial.println("    ");
-
 }

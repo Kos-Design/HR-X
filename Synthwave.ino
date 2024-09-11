@@ -1539,12 +1539,9 @@ void setwavetypefromlist(int lesinthy, int letype) {
   Serial.println("setting wave type");
   AudioNoInterrupts();
   Waveformstyped[lesinthy] = letype;
-
   if (FMmodulated[lesinthy] == 0) {
-
     if (letype < 9) {
       for (int i = 0; i < nombreofliners; i++) {
-
         FMwavecords1[i + (nombreofliners * lesinthy)]->disconnect();
         stringcords1[i + (nombreofliners * lesinthy)]->disconnect();
         modulatecords1[i + (nombreofliners * lesinthy)]->disconnect();
@@ -1553,12 +1550,10 @@ void setwavetypefromlist(int lesinthy, int letype) {
         drumcords1[i + (nombreofliners * lesinthy)]->disconnect();
         wavelinescords[i + (nombreofliners * lesinthy)]->connect();
         waveforms1[i + (nombreofliners * lesinthy)]->begin(lesformes[letype]);
-
         if (letype == 7) {
           waveforms1[i + (nombreofliners * lesinthy)]->arbitraryWaveform(arbitrary_waveforms[lesinthy],1.0);
         }
       }
-
     } else if (letype == 9) {
       for (int i = 0; i < nombreofliners; i++) {
         wavelinescords[i + (lesinthy * nombreofliners)]->disconnect();
@@ -1661,22 +1656,18 @@ void setpanlevel(int lesynth, int laval) {
 
 void setphaselevel(int lesynth) {
   AudioNoInterrupts();
-
   for (int i = 0; i < nombreofliners; i++) {
     waveforms1[i + (nombreofliners * lesynth)]->phase(phaselevelsL[lesynth]);
   }
-
   AudioInterrupts();
 }
 
 void setphaser(int lesynth, float laphaze) {
   AudioNoInterrupts();
   phaselevelsL[lesynth] = round(laphaze * 360.0);
-
   for (int i = 0; i < nombreofliners; i++) {
     waveforms1[i + (nombreofliners * lesynth)]->phase(phaselevelsL[lesynth]);
   }
-
   AudioInterrupts();
 }
 

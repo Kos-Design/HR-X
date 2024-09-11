@@ -825,13 +825,13 @@ int getnextposofevent1Off(int linei, byte lanote, int fromi) {
 }
 
 void tweakfreqlive(int liner, float tune) {
-  AudioNoInterrupts();
+  //AudioNoInterrupts();
   for (int j = 0; j < numberofsynthsw; j++) {
     waveforms1[liner + (j * nombreofliners)]->frequency(tune * wavesfreqs[j]);
     FMwaveforms1[liner + (j * nombreofliners)]->frequency(tune * wavesfreqs[j]);
     drums1[liner + (j * nombreofliners)]->frequency(tune * wavesfreqs[j]);
   }
-  AudioInterrupts();
+  //AudioInterrupts();
 }
 
 void stopglidenote(byte liner) {
@@ -839,69 +839,66 @@ void stopglidenote(byte liner) {
   // glide duration hold+atck?
   dogliding[liner] = 0;
 
-  //Serial.println(" ");
-  //Serial.print("note before ");
-  //Serial.print(lapreviousnotew);
+  Serial.println(" ");
+  Serial.print("note before ");
+  Serial.print(note_before);
 
-  lapreviousnotew += leglidenoteshift;
-  //Serial.print("note now ");
-  //Serial.println(lapreviousnotew);
+  note_before += note_difference;
+  Serial.print("note now ");
+  Serial.println(note_before);
 }
 void stopglidenoteChords(byte liner) {
   // during loop shift freq & restart freqs interpolating from last note during
   // glide duration hold+atck?
   dogliding[liner] = 0;
 
-  lapreviousnotewCmode[liner] += leglidenoteshiftCmode[liner];
+  lapreviousnotewCmode[liner] += note_differenceCmode[liner];
 }
+
 void startglidenote(byte liner, byte data1) {
   // during loop shift freq & restart freqs interpolating from last note during
   // glide duration hold+atck?
+
+  //glide for this liner activated
   dogliding[liner] = 1;
-  leglidenoteshift = data1 - lapreviousnotew;
-  //Serial.println(leglidenoteshift);
-  leglidershift = notestofreq[data1][1] - notestofreq[lapreviousnotew][1];
-  leglideposition[liner] = 0;
- 
+
+  note_difference = data1 - note_before;
+  freq_difference = notestofreq[data1][1] - notestofreq[note_before][1];
+  leglideposition[liner] = millis();
+  //Serial.println(note_difference);
 }
+
 void startglidenoteChords(byte liner, byte data1) {
   // during loop shift freq & restart freqs interpolating from last note during
   // glide duration hold+atck?
   dogliding[liner] = 1;
-  leglidenoteshiftCmode[liner] = data1 - lapreviousnotewCmode[liner];
-  // Serial.println(leglidenoteshift);
-  leglidershiftCmode[liner] =
-      notestofreq[data1][1] - notestofreq[lapreviousnotewCmode[liner]][1];
-  leglideposition[liner] = 0;
-
+  note_differenceCmode[liner] = data1 - lapreviousnotewCmode[liner];
+  // Serial.println(note_difference);
+  leglidershiftCmode[liner] = notestofreq[data1][1] - notestofreq[lapreviousnotewCmode[liner]][1];
+  leglideposition[liner] = millis();
 }
 
 void computelenghtmesureoffline() {
   for (int linei = 0; linei < nombreofliners; linei++) {
     for (int i = 0; i < pbars; i++) {
       if (synth_partition[linei][i][1] != 0) {
-
-        int laposof =
-            getnextposofevent1Off(linei, synth_partition[linei][i][1], i);
-
+        int laposof = getnextposofevent1Off(linei, synth_partition[linei][i][1], i);
         if (laposof < pbars - 1) {
           length0pbars[linei][i] = (laposof - i) * 4;
           templength0pbars[linei][i] = (laposof - i) * 4;
-
         } else {
           // synth_off_pat[linei][0][0] = synth_partition[linei][i][0] ;
           // synth_off_pat[linei][0][1] = synth_partition[linei][i][1] ;
           length0pbars[linei][i] = (pbars - i) * 4;
           templength0pbars[linei][i] = (pbars - i) * 4;
         }
-        length1notes1[linei][i] =
-            round((length0pbars[linei][i] / 4.0) * millitickinterval);
+        length1notes1[linei][i] = round((length0pbars[linei][i] / 4.0) * millitickinterval);
       }
     }
   }
 }
-void closeallenvelopes() {
 
+void closeallenvelopes() {
   for (int i = 0; i < nombreofliners; i++) {
     enveloppesL[i]->noteOff();
     enveloppesL[i]->hold(0);
@@ -909,59 +906,45 @@ void closeallenvelopes() {
   }
 }
 
+bool check_glide_status(byte this_note){
+  bool do_glide = 0;
+  if (glidemode > 0 ){
+    if (millis() - time_of_last_note > 5000) {
+      note_before = this_note ;
+      time_of_last_note = millis();
+    } else {
+      do_glide = 1;
+    }
+  }
+  return do_glide ;
+}
+
 // TODO adsr check
 void lineron(int liner, byte channel, byte data1, byte data2) {
-
   if (notesOn[liner] == 0) {
-
     notesOn[liner] = data1;
-    //AudioNoInterrupts();
-    // printlinearparams(availablliner);
-
-    // lavelocity = (int)( velocity);
-
     if (!tb303[liner]) {
       blink303[liner]->RESET; 
-      
-      //le303start[liner] = millis();
       tb303[liner] = 1;
     }
-    // Serial.print("tb303 set on ");
-    // Serial.println(liner);
-
     enveloppesL[liner]->hold(millitickinterval - adsrlevels[3]);
-
-    //      enveloppesR[liner]->hold(500);
-    if (glidemode > 0) {
-      //          if (!chordson) {
-      //          notefrequency = notestofreq[lapreviousnotew][1];
-      //            startglidenote(liner,data1);
-      //            setfreqWavelines(notefrequency,liner,data2);
-      //          } else {
-
-      notefrequency = notestofreq[lapreviousnotewCmode[liner]][1];
-      startglidenoteChords(liner, data1);
-      setfreqWavelines(notefrequency, liner, data2);
-
-      // }
+    //enveloppesR[liner]->hold(500);
+    if (check_glide_status(data1)){
+      if (!chordson) {
+        notefrequency = notestofreq[note_before][1];
+        setfreqWavelines(notefrequency,liner,data2);
+        startglidenote(liner,data1);
+      } else {
+        notefrequency = notestofreq[lapreviousnotewCmode[liner]][1];
+        startglidenoteChords(liner, data1);
+        setfreqWavelines(notefrequency, liner, data2);
+      }
+      note_before = data1 ;
     } else {
-
       notefrequency = notestofreq[data1][1];
       setfreqWavelines(notefrequency, liner, data2);
     }
     enveloppesL[liner]->noteOn();
-
-    // lefadout[liner] = 1 ;
-    // faders[liner]->gain(1);
-    // faders[liner]->fadeOut(int((millitickinterval*(le303envlfofadintime/127.0))));
-    // faders[liner]->fadeIn(adsrlevels[1]);
-    // enveloppesR[liner]->noteOn();
-  /*
-    for (int i = 0; i < numberofsynthsw; i++) {
-      doLFOallcontrols(i);
-    }
-  */
-    //AudioInterrupts();
   }
 }
 

@@ -146,7 +146,6 @@ void LFOrmType(int leLFO) {
 }
 
 void restartLFO(int leLFO) {
-  
   AudioNoInterrupts() ;
   if (LFOsync[leLFO]) {
     // lfosinez[leLFO]->frequency(((LFOfreqs[leLFO]/100.0)*(1000/millitickinterval)));

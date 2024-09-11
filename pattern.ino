@@ -50,10 +50,6 @@ void intervaltick() {
     
 }
 
-void metro30(){
-  pseudo303();
- }
-
 void arpegiate() {
     for (int i = 0; i < nombreofarpeglines; i++) {
       calledarpegenote[i][0] = 0;
