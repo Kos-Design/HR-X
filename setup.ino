@@ -38,6 +38,7 @@ void setup() {
   // metrodrum1.frequency(100);
   // metrodrum1.length(50);
   init_synth_liners();
+  init_fxes();
   // metrodrum1.pitchMod(0.9);
   AudioInterrupts();
 

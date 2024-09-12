@@ -1,145 +1,70 @@
-void returntonav(byte lelevel, byte lanavrange = navrange) {
-  navlevel = lelevel;
-  vraipos = sublevels[lelevel];
-  myEnc.write(vraipos * 4);
-  navrange = lanavrange;
-  lemenuroot();
-}
 
-byte getavailablefx(byte leeffect) {
-  for (int i = 0; i < fxiterations; i++) {
-    if (fxmoduleisconnected[leeffect][i] == fxiterations + 1) {
-      return i + 1;
+class FxBus {
+  public:
+    byte f_index = 0 ;
+    bool active = 0 ;
+    byte plugged_fx_type = mainmenufxlistsize-1;
+    //find safe off value
+    int premixesMto_index = 1000 ;
+    int fxcording_index = 1000 ;
+
+    FxBus(byte f_index) : f_index(f_index) {}
+
+    void route_fx(byte selected_fx_type) {
+      //remembver to manage avoid_fx_bounce if plugging fx outside of menu
+      if (!avoid_fx_bounce){
+        avoid_fx_bounce = true ;
+      if (plugged_fx_type != (mainmenufxlistsize - 1)) {
+        Serial.print("Disconnecting existing ");
+        unplug_fx_line();
+      }
+      if (selected_fx_type != (mainmenufxlistsize - 1)) {
+        plug_fx_line(selected_fx_type);
+        plugged_fx_type = selected_fx_type;
+      } else {
+          Serial.println(" Selected effect is None ");
+        }
+      }
     }
-  }
-  // Serial.print("Found none available");
-  return 0;
-}
 
-  //for (int i = 0; i < sizeopremixtoM; i++) {
-    //premixesMto[i]->disconnect();
-  //}
-  //for (int i = 0; i < sizeofxcords; i++) {
-    //fxcording[i]->disconnect();
-  //}
-
-void switchfxes(byte lafxline, byte leeffect) {
-    if (!done_once){
-      done_once = true ;
-  // Serial.println("Before: ");
-  // listfxmoduleconnectionstate(leeffect);
- 
-
-  if (moduleonfxline[lafxline][0] != (mainmenufxlistsize - 1)) {
-     Serial.print("Disconnecting existing ");
-    disconnectfxline(lafxline);
-  }
-  // if effect on liner is different or same, is a slot of the 3 modules of the
-  // leeffect used here -> clean and do if le effect has one slot used but not
-  // used here ignore and let getavailable do its job
-
-  if (leeffect != (mainmenufxlistsize - 1)) {
-
-    fxmoduleiteration = getavailablefx(leeffect);
-    Serial.println(" availablefx(leeffect)= ");
-    Serial.print(fxmoduleiteration);
-    // 0 is off so -1
-
-    if (fxmoduleiteration > 0) {
-       AudioNoInterrupts();
-       //delay
-       if (leeffect == 8) {
-        Serial.println("replugging delay line");
-        replug_delays_from_feedback(lafxline);
-       }
-      fxslotMaster[lafxline][1] = (leeffect * (fxiterations * 2 * 3)) + (lafxline * (fxiterations * 2)) + (2 * (fxmoduleiteration - 1));
-      fxslotMaster[lafxline][0] = (leeffect * fxiterations) + (fxmoduleiteration - 1);
-      premixesMto[fxslotMaster[lafxline][0]]->connect();
-      fxcording[fxslotMaster[lafxline][1]]->connect();
-      fxcording[fxslotMaster[lafxline][1] + 1]->connect();
-      fxmoduleisconnected[leeffect][fxmoduleiteration - 1] = lafxline;
-      moduleonfxline[lafxline][0] = leeffect;
-      moduleonfxline[lafxline][1] = fxmoduleiteration - 1;
+    void plug_fx_line(byte selected_fx_type){
+      AudioNoInterrupts();
+      //delay
+      if (selected_fx_type == 8) {
+        delayCords[f_index]->connect();
+      }
+      premixesMto_index = (selected_fx_type * fxs_count) + (f_index);
+      fxcording_index = (selected_fx_type*fxs_count*2*3) + (f_index*fxs_count*2) + (2*f_index);
+      premixesMto[premixesMto_index]->connect();
+      fxcording[fxcording_index]->connect();
+      fxcording[fxcording_index + 1]->connect();
       AudioInterrupts();
-
-      Serial.print(" premixesMto ");
-      Serial.print(fxslotMaster[lafxline][0]);
-      Serial.print(" connected , ");
-      Serial.print(" fxcording ");
-      Serial.print(fxslotMaster[lafxline][1]);
-      Serial.print(" & ");
-      Serial.print(fxslotMaster[lafxline][1] + 1);
-      Serial.print(" connected");
-      Serial.println(" ");
-      Serial.print(" fxmoduleisconnected[");
-      Serial.print(leeffect);
-      Serial.print("][");
-      Serial.print(fxmoduleiteration - 1);
-      Serial.print("] = ");
-      Serial.print(lafxline);
-      Serial.println(" ");
-      Serial.print(" moduleonfxline[");
-      Serial.print(lafxline);
-      Serial.print("][0] = ");
-      Serial.print(leeffect);
-      Serial.print(" ");
-      Serial.print(" moduleonfxline[");
-      Serial.print(lafxline);
-      Serial.print("][1] = ");
-      Serial.print(fxmoduleiteration - 1);
-      Serial.println(" ");
-
     }
-  } else {
-      Serial.println(" Selected effect is None ");
-    if (lafxline < fxiterations - 1) {
-      WetMixMasters[lafxline + 1] = 0;
-      wetmixmastercontrols();
-      Serial.print(" lafxline < fxiterations - 1, so WetMixMasters[");
-      Serial.print(lafxline + 1);
-      Serial.print("] set to 0 ");
-      //already disconnected, could crash if reattempting while not connected!!!
-      // NO disconnectfxline(lafxline);
-      Serial.println(" ");
-      Serial.print(" disconnected");
-      Serial.print(lafxline);
-      
-    }
-  }
 
-  // Serial.println("After: ");
-  // listfxmoduleconnectionstate(leeffect);
+    void unplug_fx_line() {
+      AudioNoInterrupts();
+      Serial.println("disconnecting Fxes");
+      premixesMto[premixesMto_index]->disconnect();
+      fxcording[fxcording_index]->disconnect();
+      fxcording[fxcording_index + 1]->disconnect();
+      premixesMto_index = 1000;
+      fxcording_index = 1000;
+      stopdelayline(f_index);
+      delayCords[f_index]->disconnect(); 
+      AudioInterrupts();
+      plugged_fx_type = mainmenufxlistsize-1;
     }
-}
+};
 
-void initializefxmoduleisconnected() {
-  // Serial.print("initializefxmoduleisconnected");
-  for (int i = 0; i < mainmenufxlistsize - 1; i++) {
-    for (int j = 0; j < fxiterations; j++) {
-      fxmoduleisconnected[i][j] = fxiterations + 1;
-    }
+FxBus* fx[fxs_count]={nullptr};
+
+void init_fxes(){
+  for (int i = 0; i < fxs_count; i++) {
+    fx[i] = new FxBus(i);
   }
 }
-void disconnectfxline(byte lafxline) {
-  AudioNoInterrupts();
-  Serial.println("disconnecting Fxes");
-  premixesMto[fxslotMaster[lafxline][0]]->disconnect();
-  fxcording[fxslotMaster[lafxline][1]]->disconnect();
-  fxcording[fxslotMaster[lafxline][1] + 1]->disconnect();
-  fxmoduleisconnected[moduleonfxline[lafxline][0]][moduleonfxline[lafxline][1]] = fxiterations + 1;
-  moduleonfxline[lafxline][0] = mainmenufxlistsize - 1;
-  moduleonfxline[lafxline][1] = 0;
-  fxslotMaster[lafxline][0] = 1000;
-  fxslotMaster[lafxline][1] = 1000;
-  stopdelayline((int)lafxline);
-  unplug_delays_from_feedback((int)lafxline);
-  AudioInterrupts();
-  
-}
+
 void dolistMainFxPanel() {
-  char mainmenufxlist[mainmenufxlistsize][12] = {
-      "Multiply", "Reverb", "Granular", "BitCrusher", "Flanger",
-      "Chorus",   "Biquad", "Filter",   "Delay",      "None"};
   byte startx = 5;
   byte starty = 16;
   char *textin = (char *)mainmenufxlist[sublevels[navlevel]];
@@ -151,25 +76,23 @@ void dolistMainFxPanel() {
   canvasBIG.fillScreen(SSD1306_BLACK);
 
   for (int filer = 0; filer < navrange - (sublevels[navlevel]); filer++) {
-    canvasBIG.setCursor(startx, starty + ((filer)*10));
+    canvasBIG.setCursor(startx, starty + (filer*10));
     canvasBIG.println(mainmenufxlist[sublevels[navlevel] + 1 + filer]);
   }
   for (int filer = 0; filer < sublevels[navlevel]; filer++) {
-    canvasBIG.setCursor(startx, (10 * (navrange + 1 - sublevels[navlevel])) +
-                                    6 + ((filer)*10));
+    canvasBIG.setCursor(startx, (10 * (navrange + 1 - sublevels[navlevel])) + 6 + (filer*10));
     canvasBIG.println(mainmenufxlist[filer]);
   }
 }
+
 void dolistmainfxlines() {
-  char mainmenufxlist[mainmenufxlistsize][12] = {
-      "Multiply", "Reverb", "Granular", "BitCrusher", "Flanger",
-      "Chorus",   "Biquad", "Filter",   "Delay",      "None"};
-  char mainfxlineslist[mainfxlines][12] = {"FX Line1", "FX Line2", "FX Line3"};
+
+  char mainfxlineslist[fxs_count][12] = {"FX Line1", "FX Line2", "FX Line3"};
   byte startx = 5;
   byte starty = 16;
   String textin;
-  if (moduleonfxline[sublevels[1]][0] != (mainmenufxlistsize - 1)) {
-    textin = (String)mainmenufxlist[moduleonfxline[sublevels[1]][0]];
+  if (fx[sublevels[1]]->plugged_fx_type != (mainmenufxlistsize - 1)) {
+    textin = (String)mainmenufxlist[fx[sublevels[1]]->plugged_fx_type];
   } else {
     textin = (String)mainfxlineslist[sublevels[1]];
   }
@@ -180,28 +103,20 @@ void dolistmainfxlines() {
   canvasBIG.setTextSize(1);
   canvasBIG.fillScreen(SSD1306_BLACK);
 
-  for (int filer = 0; filer < mainfxlines - 1 - (sublevels[1]); filer++) {
-
-    canvasBIG.setCursor(startx, starty + ((filer)*10));
-
-    if (moduleonfxline[sublevels[1] + 1 + filer][0] !=
-        (mainmenufxlistsize - 1)) {
-      canvasBIG.println(
-          (String)mainmenufxlist[moduleonfxline[sublevels[1] + 1 + filer][0]]);
-      // textin = (char*)mainmenufxlist[moduleonfxline[sublevels[1]][0]];
+  for (int i = 0; i < fxs_count - 1 - sublevels[1]; i++) {
+    canvasBIG.setCursor(startx, starty + ((i)*10));
+    if (fx[sublevels[1] + 1 + i]->plugged_fx_type != mainmenufxlistsize-1) {
+      canvasBIG.println((String)mainmenufxlist[fx[sublevels[1] + 1 + i]->plugged_fx_type]);
     } else {
-      canvasBIG.println(mainfxlineslist[sublevels[1] + 1 + filer]);
+      canvasBIG.println(mainfxlineslist[sublevels[1] + 1 + i]);
     }
   }
-  for (int filer = 0; filer < sublevels[1]; filer++) {
-
-    canvasBIG.setCursor(startx,
-                        (10 * (mainfxlines - sublevels[1]) + 6 + ((filer)*10)));
-    if (moduleonfxline[filer][0] != (mainmenufxlistsize - 1)) {
-      canvasBIG.println((String)mainmenufxlist[moduleonfxline[filer][0]]);
-      // textin = (char*)mainmenufxlist[moduleonfxline[sublevels[1]][0]];
+  for (int i = 0; i < sublevels[1]; i++) {
+    canvasBIG.setCursor(startx, (10 * (fxs_count - sublevels[1]) + 6 + ((i)*10)));
+    if (fx[i]->plugged_fx_type != (mainmenufxlistsize - 1)) {
+      canvasBIG.println((String)mainmenufxlist[fx[i]->plugged_fx_type]);
     } else {
-      canvasBIG.println(mainfxlineslist[filer]);
+      canvasBIG.println(mainfxlineslist[i]);
     }
   }
 }
@@ -214,10 +129,10 @@ void MainFxPanel() {
     display.clearDisplay();
     dolistmainfxlines();
     dodisplay();
-    sublevels[2] = moduleonfxline[sublevels[1]][0];
+    sublevels[2] = fx[sublevels[1]]->plugged_fx_type ;
   }
   if (navlevel == 2) {
-    done_once = false ;
+    avoid_fx_bounce = false ;
     display.clearDisplay();
     navrange = 9;
     dolistMainFxPanel();
@@ -225,8 +140,8 @@ void MainFxPanel() {
   }
   if (navlevel > 2) {
     //do once
-    switchfxes(sublevels[1], sublevels[2]);
-    displayfxVcontrols(fxmoduleiteration - 1);
+    fx[sublevels[1]]->route_fx(sublevels[2]);
+    displayfxVcontrols(sublevels[1]);
   }
 }
 
@@ -456,26 +371,17 @@ void flangerVpanelAction(byte lefilter) {
     }
     if (slct == 3) {
       navrange = 100;
-
-      WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] = sublevels[4] / 100.0;
-      wetmixmastercontrols();
-      // le303filterzwet = (mixle303ffilterzVknobs[2])/127.0 ;
-      // applygain
-      // le303filterzWet();
+      set_wet_mix_at_sub4(lefilter);
     }
   }
-
-  // to avoid setting up a stage unconfigured while browsing
-  // if (bqfreq[0][bqstage[0]] >= 303) {
-  // TODO filtercontrols like biquad control
-  //  le303filtercontrols();
-  // AudioInterrupts();
-  //}
-
   if (navlevel > 4) {
-
     returntonav(3);
   }
+}
+
+void set_wet_mix_at_sub4(byte i){
+  WetMixMasters[i + 1] = sublevels[4] / 100.0;
+  wetmixmastercontrols();
 }
 
 void flangerVpanelSelector(byte lefilter) {
@@ -511,11 +417,8 @@ void flangerVpanelSelector(byte lefilter) {
 
   // wet
   if (slct == 3) {
-    sublevels[4] =
-        round(WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] *
-              100.0);
-    canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
-                       wbarwidth2 - 4, SSD1306_WHITE);
+    sublevels[4] = round(WetMixMasters[lefilter+ 1] * 100.0);
+    canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
     canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
   }
 }
@@ -547,41 +450,32 @@ void flangerVpanel(byte lefilter) {
   // float freqflange = flangerVknobs[lefilter][2]/127.0 ;
   // voices(flangeoffset, flangedepth, flangefreq);
   // Roomsize
-  coeffangle =
-      (6.2831 - (flangerVknobs[lefilter][0] / 127.0) * 6.2831) + 3.1416;
+  coeffangle = (6.2831 - (flangerVknobs[lefilter][0] / 127.0) * 6.2831) + 3.1416;
   canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
   ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
   ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-  canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx,
-                     ftVcursorpointy, SSD1306_WHITE);
-  canvasBIG.setCursor(centercirclex - knobradius + 1,
-                      centercircley + knobradius + 4);
+  canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+  canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
   canvasBIG.setTextSize(1);
 
-  canvasBIG.print(
-      round((flangerVknobs[lefilter][0] / 127.0) * FLANGE_DELAY_LENGTH / 4));
+  canvasBIG.print(round((flangerVknobs[lefilter][0] / 127.0) * FLANGE_DELAY_LENGTH / 4));
   // canvasBIG.setCursor(centercirclex-knobradius+1, 8);
-  canvasBIG.setCursor(centercirclex - knobradius - 6,
-                      centercircley + knobradius + 4 + 10);
+  canvasBIG.setCursor(centercirclex - knobradius - 6, centercircley + knobradius + 4 + 10);
   canvasBIG.print("Offset");
 
   // damping
-  coeffangle =
-      (6.2831 - (flangerVknobs[lefilter][1] / 127.0) * 6.2831) + 3.1416;
+  coeffangle = (6.2831 - (flangerVknobs[lefilter][1] / 127.0) * 6.2831) + 3.1416;
   centercirclex = centercirclex + 40;
   canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
   ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
   ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-  canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx,
-                     ftVcursorpointy, SSD1306_WHITE);
-  canvasBIG.setCursor(centercirclex - knobradius + 1,
-                      centercircley + knobradius + 4);
+  canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+  canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
   canvasBIG.setTextSize(1);
   canvasBIG.print(
       round((flangerVknobs[lefilter][1] / 127.0) * FLANGE_DELAY_LENGTH / 4));
   // canvasBIG.setCursor(centercirclex-knobradius+1, 8);
-  canvasBIG.setCursor(centercirclex - knobradius - 2,
-                      centercircley + knobradius + 4 + 10);
+  canvasBIG.setCursor(centercirclex - knobradius - 2, centercircley + knobradius + 4 + 10);
   canvasBIG.print("Depth");
 
   coeffangle =
@@ -590,30 +484,21 @@ void flangerVpanel(byte lefilter) {
   canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
   ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
   ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-  canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx,
-                     ftVcursorpointy, SSD1306_WHITE);
-  canvasBIG.setCursor(centercirclex - knobradius + 1,
-                      centercircley + knobradius + 4);
+  canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+  canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
   canvasBIG.setTextSize(1);
   canvasBIG.print(((flangerVknobs[lefilter][2] / 127.0) * 2), 2);
-  canvasBIG.setCursor(centercirclex - knobradius - 2,
-                      centercircley + knobradius + 4 + 10);
+  canvasBIG.setCursor(centercirclex - knobradius - 2, centercircley + knobradius + 4 + 10);
   // canvasBIG.setCursor(centercirclex-knobradius+1, 8);
   canvasBIG.print("Delay");
 
   // wetbar
-  barsize =
-      round(WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] *
-            (totbartall - 4));
-  canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall,
-                          wbarwidth2, 2, SSD1306_WHITE);
-  canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4,
-                     SSD1306_WHITE);
+  barsize = round(WetMixMasters[lefilter + 1] * (totbartall - 4));
+  canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
+  canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
   canvasBIG.setCursor(startlex2 - 6, 0);
   canvasBIG.print("Wet:");
-
   flangerVpanelSelector(lefilter);
-
   dodisplay();
 }
 
@@ -632,28 +517,12 @@ void chorusVpanelAction(byte lefilter) {
       choruscontrols(lefilter);
     }
     // res
-
     if (slct == 1) {
       navrange = 100;
-      WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] =
-          sublevels[4] / 100.0;
-
-      wetmixmastercontrols();
-      // le303filterzwet = (mixle303ffilterzVknobs[2])/127.0 ;
-      // applygain
-      // le303filterzWet();
+      set_wet_mix_at_sub4(lefilter);
     }
   }
-
-  // to avoid setting up a stage unconfigured while browsing
-  // if (bqfreq[0][bqstage[0]] >= 303) {
-  // TODO filtercontrols like biquad control
-  //  le303filtercontrols();
-  // AudioInterrupts();
-  //}
-
   if (navlevel > 4) {
-
     returntonav(3);
   }
 }
@@ -681,8 +550,7 @@ void chorusVpanelSelector(byte lefilter) {
   // wet
   if (slct == 1) {
     sublevels[4] =
-        round(WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] *
-              100.0);
+        round(WetMixMasters[lefilter + 1] * 100.0);
     canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
                        wbarwidth2 - 4, SSD1306_WHITE);
     canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
@@ -729,7 +597,7 @@ void chorusVpanel(byte lefilter) {
 
   // wetbar
   barsize =
-      round(WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] *
+      round(WetMixMasters[lefilter + 1] *
             (totbartall - 4));
   canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall,
                           wbarwidth2, 2, SSD1306_WHITE);
@@ -838,9 +706,7 @@ void granularVpanelAction(byte lefilter) {
 
     if (slct == 4) {
       navrange = 100;
-      //WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] = sublevels[4] / 100.0;
-      WetMixMasters[lefilter+1] = sublevels[4] / 100.0;
-      wetmixmastercontrols();
+      set_wet_mix_at_sub4(lefilter);
     }
   }
 
@@ -891,7 +757,7 @@ void granularVpanelSelector(byte lefilter) {
   // wet
   if (slct == 4) {
     sublevels[4] =
-        round(WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] *
+        round(WetMixMasters[lefilter + 1] *
               100.0);
     canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
                        wbarwidth2 - 4, SSD1306_WHITE);
@@ -981,7 +847,7 @@ void granularVpanel(byte lefilter) {
     canvasBIG.setTextColor(SSD1306_WHITE);
   }
   // wetbar
-  barsize = round(((WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)]) * (totbartall - 4)));
+  barsize = round(((WetMixMasters[lefilter + 1]) * (totbartall - 4)));
   //barsize = round(((WetMixMasters[lefilter+1]) * (totbartall - 4)));
   canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
   canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
@@ -1017,23 +883,10 @@ void bitcrusherVpanelAction(byte lefilter) {
 
     if (slct == 2) {
       navrange = 100;
-      WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] = sublevels[4] / 100.0;
-      wetmixmastercontrols();
-      // le303filterzwet = (mixle303ffilterzVknobs[2])/127.0 ;
-      // applygain
-      // le303filterzWet();
+      set_wet_mix_at_sub4(lefilter);
     }
   }
-
-  // to avoid setting up a stage unconfigured while browsing
-  // if (bqfreq[0][bqstage[0]] >= 303) {
-  // TODO filtercontrols like biquad control
-  //  le303filtercontrols();
-  // AudioInterrupts();
-  //}
-
   if (navlevel > 4) {
-
     returntonav(3);
   }
 }
@@ -1064,7 +917,7 @@ void bitcrusherVpanelSelector(byte lefilter) {
 
   // wet
   if (slct == 2) {
-    sublevels[4] = round(WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] * 100.0);
+    sublevels[4] = round(WetMixMasters[lefilter + 1] * 100.0);
     canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
     canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
   }
@@ -1126,7 +979,7 @@ void bitcrusherVpanel(byte lefilter) {
 
   // wetbar
   barsize = round(
-      ((WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)]) *
+      ((WetMixMasters[lefilter + 1]) *
        (totbartall - 4)));
   canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall,
                           wbarwidth2, 2, SSD1306_WHITE);
@@ -1166,22 +1019,9 @@ void reverbVpanelAction(byte lefilter) {
 
     if (slct == 2) {
       navrange = 100;
-      WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] =
-          sublevels[4] / 100.0;
-      wetmixmastercontrols();
-      // le303filterzwet = (mixle303ffilterzVknobs[2])/127.0 ;
-      // applygain
-      // le303filterzWet();
+      set_wet_mix_at_sub4(lefilter);
     }
   }
-
-  // to avoid setting up a stage unconfigured while browsing
-  // if (bqfreq[0][bqstage[0]] >= 303) {
-  // TODO filtercontrols like biquad control
-  //  le303filtercontrols();
-  // AudioInterrupts();
-  //}
-
   if (navlevel > 4) {
 
     returntonav(3);
@@ -1217,7 +1057,7 @@ void reverbVpanelSelector(byte lefilter) {
   // wet
   if (slct == 2) {
     sublevels[4] =
-        round(WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] *
+        round(WetMixMasters[lefilter + 1] *
               100.0);
     canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
                        wbarwidth2 - 4, SSD1306_WHITE);
@@ -1280,7 +1120,7 @@ void reverbVpanel(byte lefilter) {
 
   // wetbar
   barsize = round(
-      ((WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)]) *
+      ((WetMixMasters[lefilter + 1]) *
        (totbartall - 4)));
   canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall,
                           wbarwidth2, 2, SSD1306_WHITE);
@@ -1293,10 +1133,6 @@ void reverbVpanel(byte lefilter) {
 
   dodisplay();
 }
-
-// delaytimingselect(int lefilter, float leselecta)
-// delayfeedback(int lefilter, float leselecta)
-// delaymultiplier
 
 void delayVpanelAction(byte lefilter) {
   if (navlevel == 4) {
@@ -1318,32 +1154,18 @@ void delayVpanelAction(byte lefilter) {
       // apply
     }
     // feedback
-    // depth
     if (slct == 2) {
       navrange = 127;
       delayVknobs[lefilter][2] = sublevels[4];
-      // delayfeedback(lefilter, (delayVknobs[lefilter][2]/127.0)*0.45);
       restartdelayline(lefilter);
-      // apply
     }
     if (slct == 3) {
       navrange = 100;
-      WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] =
+      WetMixMasters[lefilter + 1] =
           sublevels[4] / 100.0;
       wetmixmastercontrols();
-      // le303filterzwet = (mixle303ffilterzVknobs[2])/127.0 ;
-      // applygain
-      // le303filterzWet();
     }
   }
-
-  // to avoid setting up a stage unconfigured while browsing
-  // if (bqfreq[0][bqstage[0]] >= 303) {
-  // TODO filtercontrols like biquad control
-  //  le303filtercontrols();
-  // AudioInterrupts();
-  //}
-
   if (navlevel > 4) {
 
     returntonav(3);
@@ -1384,7 +1206,7 @@ void delayVpanelSelector(byte lefilter) {
   // wet
   if (slct == 3) {
     sublevels[4] =
-        round(WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] *
+        round(WetMixMasters[lefilter + 1] *
               100.0);
     canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
                        wbarwidth2 - 4, SSD1306_WHITE);
@@ -1469,7 +1291,7 @@ void delayVpanel(byte lefilter) {
   canvasBIG.print("Fback");
 
   // wetbar
-  barsize = round(((WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)]) * (totbartall - 4)));
+  barsize = round(((WetMixMasters[lefilter + 1]) * (totbartall - 4)));
   canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
   canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4,
                      SSD1306_WHITE);
@@ -1525,40 +1347,30 @@ void filterVpanelAction(byte lefilter) {
     }
     if (slct == 7) {
       navrange = 100;
-      WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] = sublevels[4] / 100.0;
-      wetmixmastercontrols();
+      set_wet_mix_at_sub4(lefilter);
     }
-    // to avoid setting up a stage unconfigured while browsing
-    // if (bqfreq[lefilter][bqstage[lefilter]] >= 303) {
-    // TODO filtercontrols like biquad control
     filtercontrols(lefilter);
     AudioInterrupts();
-    //}
   }
   if (navlevel > 4) {
-
     returntonav(3);
   }
 }
 
 void lfoonfilterreplug(byte lefilter) {
 
-  for (int i = 0; i < fxiterations; i++) {
-    // Serial.print("disconnecting lfos ");
-    // Serial.println(((4*lefilter)+i));
-    LFOtoFilterz[((fxiterations * lefilter) + i)]->disconnect();
+  for (int i = 0; i < fxs_count; i++) {
+    LFOtoFilterz[((fxs_count * lefilter) + i)]->disconnect();
   }
-  // LFO1toFilter1.disconnect();
-  // Serial.println(LFO1toFilter1.isConnected);
   if (LFOonfilterz[lefilter] < 3) {
-    LFOtoFilterz[((fxiterations * lefilter) + LFOonfilterz[lefilter])]
+    LFOtoFilterz[((fxs_count * lefilter) + LFOonfilterz[lefilter])]
         ->connect();
   }
 }
 // TODO Fix this , fxlines have fixed lfos or at least persistent
 // this currently unplugs lfos for all other fxlines who may have it == BAD
 void unpluglfoonfilterz() {
-  // fxiterations*fxiterations = 9
+  // fxs_count*fxs_count = 9
   for (int i = 0; i < 9; i++) {
     LFOtoFilterz[i]->disconnect();
   }
@@ -1704,9 +1516,7 @@ void filterVpanel(byte lefilter) {
   canvasBIG.setCursor(114, totbartall + topwbarstart + 4);
   canvasBIG.print("HP");
 
-  barsize = round(
-      ((WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)]) *
-       (totbartall - 4)));
+  barsize = round(((WetMixMasters[lefilter + 1]) * (totbartall - 4)));
   canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall,
                           wbarwidth2, 2, SSD1306_WHITE);
   canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4,
@@ -1778,7 +1588,7 @@ void filterVpanelSelector(byte lefilter) {
     canvasBIG.print((char)9);
   }
   if (slct == 7) {
-    sublevels[4] = round(WetMixMasters[(fxmoduleisconnected[sublevels[2]][lefilter] + 1)] * 100.0);
+    sublevels[4] = round(WetMixMasters[lefilter + 1] * 100.0);
     canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, SSD1306_WHITE);
     canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
   }
@@ -1825,12 +1635,7 @@ void biquadVpanelAction(byte lebiquad) {
 
     if (slct == 4) {
       navrange = 100;
-      WetMixMasters[(fxmoduleisconnected[sublevels[2]][lebiquad] + 1)] =
-          sublevels[4] / 100.0;
-      wetmixmastercontrols();
-      // le303filterzwet = (mixle303ffilterzVknobs[2])/127.0 ;
-      // applygain
-      // le303filterzWet();
+      set_wet_mix_at_sub4(lebiquad);
     }
   }
   if (navlevel > 4) {
@@ -1923,9 +1728,7 @@ void biquadVpanel(byte lebiquad) {
     canvasBIG.setCursor(90, 18);
     canvasBIG.print(bqgain[lebiquad][bqstage[lebiquad]]);
   }
-  barsize = round(
-      ((WetMixMasters[(fxmoduleisconnected[sublevels[2]][lebiquad] + 1)]) *
-       (totbartall + 13 - 4)));
+  barsize = round(((WetMixMasters[lebiquad + 1]) * (totbartall + 13 - 4)));
   canvasBIG.drawRoundRect(topwbarstart - 12 + startlex2 + 4, 0, totbartall + 13,
                           wbarwidth2, 2, SSD1306_WHITE);
   canvasBIG.fillRect((topwbarstart - 12 + startlex2 + 6), 2, barsize,
@@ -1982,27 +1785,24 @@ void biquadVpanelSelector(byte lebiquad) {
   }
 
   if (slct == 4) {
-    sublevels[4] =
-        round(WetMixMasters[(fxmoduleisconnected[sublevels[2]][lebiquad] + 1)] *
-              100.0);
-    canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
-                       wbarwidth2 - 4, SSD1306_WHITE);
+    sublevels[4] = round(WetMixMasters[lebiquad + 1] * 100.0);
+    canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
     canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
   }
 }
 
 void allfxcontrolled() {
-
   for (int i = 0; i < 3; i++) {
+    //to avoid configuring unused biquad filters stages
+    //bad logic,should loop 3x4 for biquads
+    //also make switch depending on fx->pluggedfx
     if (bqfreq[i][bqstage[i]] >= 303) {
       biquadcontrols(i);
     }
-
     filtercontrols(i);
     restartdelayline(i);
     freeverbscontrl(i);
     bitcrusherctrl(i);
-    //granularcontrols(i);
     choruscontrols(i);
     flangercontrols(i);
   }

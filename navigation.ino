@@ -1,4 +1,5 @@
 
+
 // rotaencoder library increments 4 steps for 1 and keeps absolute count
 void evalrota() {
   newPosition = myEnc.read();

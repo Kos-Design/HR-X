@@ -247,8 +247,8 @@ void writesynthpreset() {
     INTinsertmytxtfile(smixervknobs[i], (char*)"smixer");
   }
 
-  for (int i = 0; i < fxiterations; i++) {
-    INTinsertmytxtfile(moduleonfxline[i][0], (char*)"effect");
+  for (int i = 0; i < 3; i++) {
+    INTinsertmytxtfile(fx[i]->plugged_fx_type, (char*)"effect");
   }
   for (int i = 0; i < 4; i++) {
     FLOATinsertmytxtfile(WetMixMasters[i], (char*)"wetmixes");
@@ -354,6 +354,7 @@ void FLOATinsertmytxtfile(float leint, char *leparam) {
 }
 
 void parsefile(int presetn) {
+  int tmp_fx ;
   byte tmp_mixlevelsM[4];
   float tmp_mixlevelsL[synths_count];
   float tmp_WetMixMasters[4];
@@ -520,8 +521,15 @@ void parsefile(int presetn) {
   for (int i = 0; i < 3; i++) {
     parser.Read_String('#');
     parser.Skip(1);
-    moduleonfxline[i][0] = parser.Read_Int16();
+    tmp_fx = parser.Read_Int16();
+    fx[i]->route_fx(tmp_fx);
+    avoid_fx_bounce = false ;
+    Serial.println("");
+    Serial.print("Plugged in ");
+    Serial.print((String)mainmenufxlist[fx[i]->plugged_fx_type]);
   }
+  allfxcontrolled();
+
   for (int i = 0; i < 4; i++) {
     parser.Read_String('#');
     parser.Skip(1);
@@ -692,11 +700,7 @@ void parsefile(int presetn) {
       }
     }
   }
-  Serial.println(" ");
-    Serial.print("bqVpot[1][1][1] ");
-    Serial.print(bqVpot[1][1][1]);
 
-  //}
   parser.Reset();
   preset_file.close();
   // Serial.println("parsing done");
@@ -707,24 +711,20 @@ void parsefile(int presetn) {
   // Serial.println("adsr done");
   le303filterzWet();
   Wavespreamp303controls();
-
   le303filtercontrols();
   set_dry_mix(0);
   set_dry_mix(1);
 
-  
-  // Serial.println("switchfxes done");
   for (int i = 0; i < synths_count; i++) {
     setwavemixlevel(i);
     setwavetypefromlist(i, Waveformstyped[i]);
-    //should not be in there but mixlevelsM only uses 3 channels , TODO: separate loop for wetmixmaster
-    mixlevelsM[i] = tmp_mixlevelsM[i];
     mixlevelsL[i] = tmp_mixlevelsL[i];
-    WetMixMasters[i] = tmp_WetMixMasters[i];
     setwavemixlevel(i);
   }
-  for (int i = 0; i < 3; i++) {
-  //  switchfxes(i, moduleonfxline[i][0]);
+  for (int i = 0; i < 4; i++) {
+    WetMixMasters[i] = tmp_WetMixMasters[i];
+    mixlevelsM[i] = tmp_mixlevelsM[i];
+    //setmastersmixlevel ignores 4th iteration (3)
     setmastersmixlevel(i);
   }
   wetmixmastercontrols();

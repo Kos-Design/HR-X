@@ -340,11 +340,8 @@ void controlswitcher(int caser, int valu) {
       le303filtercontrols();
       break;
     case 69:
-      // gets the fx connected on 1, 2, or 3rd position on the fx lines
-      //ccfxlineselector = moduleonfxline[round(smallfloat * 2.0)][1];
-
-        ccfxlineselector = map((int)(smallfloat*100.0),0,100,0,2);
-        Serial.println(ccfxlineselector);
+      ccfxlineselector = map((int)(smallfloat*100.0),0,100,0,2);
+      Serial.println(ccfxlineselector);
       break;
     case 70:
       Serial.println("70");
@@ -354,29 +351,24 @@ void controlswitcher(int caser, int valu) {
       bqstage[ccfxlineselector] = round(smallfloat * 3.0);
       break;
     case 72:
-
       LFOonfilterz[ccfxlineselector] = round(smallfloat * 3.0);
       filtercontrols(ccfxlineselector);
       break;
     case 73:
-      bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][0] =
-          round(smallfloat * 127.0);
-      bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] =
-          (smallfloat * bqrange) + 101;
+      bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][0] = round(smallfloat * 127.0);
+      bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] = (smallfloat * bqrange) + 101;
       if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
         biquadcontrols(ccfxlineselector);
       }
       break;
     case 74:
-      bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][1] =
-          round(smallfloat * 127.0);
+      bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][1] = round(smallfloat * 127.0);
       bqslope[ccfxlineselector][bqstage[ccfxlineselector]] = smallfloat;
       if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
         biquadcontrols(ccfxlineselector);
       }
       break;
     case 75:
-
       bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][2] = round(smallfloat * 127.0);
       bqgain[ccfxlineselector][bqstage[ccfxlineselector]] = smallfloat;
       if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {

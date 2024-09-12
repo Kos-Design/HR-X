@@ -41,17 +41,6 @@ void initextmems() {
   // ignorethatcc[88] = true;
 }
 
-void unplug_delays_from_feedback(int delay_line){
-
-    delayCords[delay_line]->disconnect();
-    
-}
-void replug_delays_from_feedback(int delay_line){
-    
-    delayCords[delay_line]->connect();
-
-  
-}
 void unplug_notefreq_from_ampL(){
   Notespy_cable.disconnect();
 }
@@ -107,13 +96,9 @@ void loadsynthdefaults() {
 }
 
 void setupdefaultvalues() {
-  initializefxmoduleisconnected();
   initialize303group();
-
   ampL.gain(1);
   ampR.gain(1);
-
-
   // ADSR & synths
   loadsynthdefaults();
 
@@ -126,9 +111,9 @@ void setupdefaultvalues() {
     }
   }
   unplug_notefreq_from_ampL();
-  for (int i = 0; i < fxiterations; i++) {
+  for (int i = 0; i < fxs_count; i++) {
     stopdelayline(i);
-    unplug_delays_from_feedback(i);
+    delayCords[i]->disconnect(); 
   }
   //we begin these on fx asignement only
   /*
@@ -153,7 +138,7 @@ void setupdefaultvalues() {
     setwavetypefromlist(i, Waveformstyped[i]);
   }
   AudioNoInterrupts();
-  for (int i = 0; i < fxiterations; i++) {
+  for (int i = 0; i < fxs_count; i++) {
     // lfo sines used by FXes, only amplitude freq & phase
     //lfosinez[i]->amplitude(0.1);
     //lfosinez[i]->frequency(5);

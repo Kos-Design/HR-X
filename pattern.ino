@@ -1,52 +1,62 @@
 
 class SynthLiner {
   public:
-    byte line_index = 0 ;
+    byte l_index = 0 ;
     bool activated = 0 ;
-    byte note_used = 0 ;
+    byte note = 0 ;
+    byte velocity = 0 ;
 
-    SynthLiner(byte line_index = 0 ) : line_index(line_index) {
+    SynthLiner(byte line_index = 0 ) : l_index(line_index) {
     }
 
-    void liner_on(byte channel, byte data1, byte data2) {
-      if (notesOn[line_index] == 0) {
-        notesOn[line_index] = data1;
-        if (!tb303[line_index]) {
-          blink303[line_index]->RESET; 
-          tb303[line_index] = 1;
+    void liner_on(byte data1, byte data2) {
+      if (activated||data1==note) {
+        liner_off();
+      }
+      activated=true;
+      note=data1;
+      velocity=data2;
+      //to avoid bounces and midi panik !
+      if (!enveloppesL[l_index]->isActive()){
+        if (!tb303[l_index]) {
+          blink303[l_index]->RESET; 
+          tb303[l_index] = 1;
         }
-        enveloppesL[line_index]->hold(millitickinterval - adsrlevels[3]);
+        enveloppesL[l_index]->hold(millitickinterval - adsrlevels[3]);
         //enveloppesR[liner]->hold(500);
-        if (check_glide_status(data1)){
+        if (check_glide_status(note)){
           if (!chordson) {
             notefrequency = notestofreq[note_before][1];
-            setfreqWavelines(notefrequency,line_index,data2);
-            startglidenote(line_index,data1);
+            setfreqWavelines(notefrequency,l_index,velocity);
+            startglidenote(l_index,note);
           } else {
-            notefrequency = notestofreq[lapreviousnotewCmode[line_index]][1];
-            startglidenoteChords(line_index, data1);
-            setfreqWavelines(notefrequency, line_index, data2);
+            notefrequency = notestofreq[lapreviousnotewCmode[l_index]][1];
+            startglidenoteChords(l_index, note);
+            setfreqWavelines(notefrequency, l_index, velocity);
           }
-          note_before = data1 ;
+          note_before = note ;
         } else {
-          notefrequency = notestofreq[data1][1];
-          setfreqWavelines(notefrequency, line_index, data2);
+          notefrequency = notestofreq[note][1];
+          setfreqWavelines(notefrequency, l_index, velocity);
         }
-        enveloppesL[line_index]->noteOn();
+        enveloppesL[l_index]->noteOn();
+      } else {
+        liner_off();
       }
     }
 
-    void liner_off(byte data1) {
+    void liner_off() {
       // AudioNoInterrupts();
-      if (enveloppesL[line_index]->isActive()) {
-        enveloppesL[line_index]->hold(0);
-        enveloppesL[line_index]->noteOff();
-        if (tb303[line_index]) {
-          tb303[line_index] = 0;
+      //if (enveloppesL[l_index]->isActive()) {
+        enveloppesL[l_index]->hold(0);
+        enveloppesL[l_index]->noteOff();
+        if (tb303[l_index]) {
+          tb303[l_index] = 0;
         }
-        notesOn[line_index] = 0;
+        activated = false;
+        note = 0 ;
       }
-    }
+    //}
 
 };
 
@@ -125,9 +135,8 @@ void arpegiate() {
 void use_pattern(){
   light_cc_change();
   for (int i = 0; i < liners_count; i++) {
-    if ((synth_off_pat[i][tickposition][1] != 0 &&
-          synth_off_pat[i][tickposition][0] == synthmidichannel)) {
-      event1offs(i);
+    if ((synth_off_pat[i][tickposition][1] != 0 && synth_off_pat[i][tickposition][0] == synthmidichannel)) {
+      synth_lines[i]->liner_off();
     }
     // if ( i < liners_count ) {
     if (synth_partition[i][tickposition][1] != 0) {
@@ -1136,8 +1145,8 @@ void metronomer() {
 void stopallnotes() {
   for (int i = 0; i < liners_count; i++) {
     // stoplengthmesure(i);
-    if (notesOn[i] != 0) {
-      MaNoteOff(synthmidichannel, notesOn[i], 0);
+    if (synth_lines[i]->note != 0) {
+      MaNoteOff(synthmidichannel, synth_lines[i]->note, 0);
     }
   }
 }
@@ -1237,9 +1246,6 @@ void showplayheadpattern() {
   canvasBIG.drawLine(tickposition * 4, 16, tickposition * 4, 64, SSD1306_WHITE);
 }
 
-void event1offs(int linei) {
-  synth_lines[liners_count - 1 - linei]->liner_off(synth_off_pat[linei][tickposition][1]);
-}
 //changing_ccs[32][32][2] cc,val
 void light_cc_change() {
   for (int i = 0; i < 32; i++) {
@@ -1288,10 +1294,11 @@ void doesccgonnachangeinpatfromnow() {
     }
   }
 }
+
 void play_synth_line(int linei) {
   if (synth_partition[linei][tickposition][1] != 0) {
-    if (notesOn[linei] == 0) {
-      synth_lines[liners_count - 1 - linei]->liner_on(synthmidichannel, synth_partition[linei][tickposition][1], synth_partition[linei][tickposition][2]);
+    if (!synth_lines[linei]->activated) {
+      synth_lines[linei]->liner_on(synth_partition[linei][tickposition][1], synth_partition[linei][tickposition][2]);
     }
   }
 }

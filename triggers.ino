@@ -6,16 +6,12 @@ void init_synth_liners(){
   }
 }
 
-short getNewavailableliner() {
-
-  for (int i = 0; i < liners_count; i++) {
-    if (notesOn[i] == 0) {
-      // stoplengthmesure(i);
-      // Serial.println("note available");
+byte get_free_liner(byte note) {
+  for (byte i = 0; i < liners_count; i++) {
+    if (!synth_lines[i]->activated) {
       if (patrecord) {
+        //merge liner tracks after recording instead
         if (i + offsetliner < liners_count) {
-          // Serial.print("playing lineroffset");
-          // Serial.println(offsetliner);
           return i + offsetliner;
         }
       } else {
@@ -23,7 +19,6 @@ short getNewavailableliner() {
       }
     }
   }
-  //  Serial.println("no notes free");
   return liners_count;
 }
 
@@ -130,8 +125,6 @@ void playFlashsample(byte channel, byte data1, byte data2) {
 void printnoteon(byte channel, byte data1, byte data2) {
   Serial.print("Note On, ch=");
   Serial.print(channel);
-  //  Serial.print(", liner=");
-  // Serial.print(availablliner);
   Serial.print(", note=");
   Serial.print(data1);
   Serial.print(", velocity=");
@@ -228,30 +221,30 @@ bool decrementarpegiatingNote() {
 }
 
 void initiatearpegesynthliner(byte larpegeline, byte data1, byte data2) {
-  availablliner = getNewavailableliner();
-  if (availablliner < liners_count) {
+  byte free_line = get_free_liner(data1);
+  if (free_line < liners_count) {
     for (int i = 0; i < liners_count; i++) {
       if (data1 == calledarpegenote[i][0]) {
-        arpegnoteoffin[i][availablliner] = arpeglengh + 1;
-        playingarpegiator[i][availablliner] = data1;
+        arpegnoteoffin[i][free_line] = arpeglengh + 1;
+        playingarpegiator[i][free_line] = data1;
       }
     }
-    arpegnoteoffin[larpegeline][availablliner] = arpeglengh + 1;
-    playingarpegiator[larpegeline][availablliner] = data1;
+    arpegnoteoffin[larpegeline][free_line] = arpeglengh + 1;
+    playingarpegiator[larpegeline][free_line] = data1;
     if (patrecord) {
-      recordmidinotes(availablliner, synthmidichannel, data1, data2);
+      recordmidinotes(free_line, synthmidichannel, data1, data2);
     }
-    synth_lines[availablliner]->liner_on(synthmidichannel, data1, data2);
+    synth_lines[free_line]->liner_on(data1, data2);
   }
 }
 
 void initiateasynthliner(byte data1, byte data2) {
-  availablliner = getNewavailableliner();
-  if (availablliner < liners_count) {
+  byte free_line = get_free_liner(data1);
+  if (free_line < liners_count) {
     if (patrecord) {
-      recordmidinotes(availablliner, synthmidichannel, data1, data2);
+      recordmidinotes(free_line, synthmidichannel, data1, data2);
     }
-    synth_lines[availablliner]->liner_on(synthmidichannel, data1, data2);
+    synth_lines[free_line]->liner_on(data1, data2);
   }
 }
 
@@ -266,11 +259,9 @@ void MaProgramchange(byte channel, byte data1) {
   }
 }
 
-byte checkiflinerhasthatnoteOn(byte data1) {
-  // int lechannel = (int)( channel) ;
-  // int lenote = (int)( data1) ;
+byte is_using_note(byte data1) {
   for (int i = 0; i < liners_count; i++) {
-    if (data1 == notesOn[i]) {
+    if (data1 == synth_lines[i]->note) {
       return (byte)i;
     }
   }
@@ -278,13 +269,12 @@ byte checkiflinerhasthatnoteOn(byte data1) {
 }
 
 void shutlineroff(byte data1) {
-  byte lalinetoOff;
-  lalinetoOff = checkiflinerhasthatnoteOn(data1);
-  if ((lalinetoOff < liners_count)) {
+  byte active_line = is_using_note(data1);
+  if ((active_line < liners_count)) {
     if (patrecord) {
-      recordmidinotesOff(lalinetoOff, synthmidichannel, data1, 0);
+      recordmidinotesOff(active_line, synthmidichannel, data1, 0);
     }
-    synth_lines[lalinetoOff]->liner_off(data1);
+    synth_lines[active_line]->liner_off();
   }
 }
 
@@ -838,9 +828,13 @@ void computelenghtmesureoffline() {
 
 void closeallenvelopes() {
   for (int i = 0; i < liners_count; i++) {
+    synth_lines[i]->liner_off();
+    /*
     enveloppesL[i]->noteOff();
     enveloppesL[i]->hold(0);
-    notesOn[i] = 0;
+    synth_lines[i]->note = 0;
+    synth_lines[i]->activated = 0;
+    */
   }
 }
 

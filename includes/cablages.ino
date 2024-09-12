@@ -246,7 +246,7 @@ AudioConnection *premixesMto[sizeopremixtoM] = {
     &premixMtobq3,  &premixMtoff1,  &premixMtoff2, &premixMtoff3,
     &premixMtode1,  &premixMtode2,  &premixMtode3};
 
-AudioConnection *LFOtoFilterz[fxiterations * fxiterations] = {
+AudioConnection *LFOtoFilterz[fxs_count * fxs_count] = {
     &LFO1toFilter1, &LFO2toFilter1, &LFO3toFilter1,
     &LFO1toFilter2, &LFO2toFilter2, &LFO3toFilter2,
     &LFO1toFilter3, &LFO2toFilter3, &LFO3toFilter3};
@@ -288,39 +288,39 @@ AudioConnection *fxcording[sizeofxcords] = {
 
 };
 
-AudioEffectMultiply *multiply[fxiterations] = {&multiply1, &multiply2, &multiply3};
+AudioEffectMultiply *multiply[fxs_count] = {&multiply1, &multiply2, &multiply3};
 
-AudioEffectGranular *granular[fxiterations] = {&granular1, &granular2, &granular3};
+AudioEffectGranular *granular[fxs_count] = {&granular1, &granular2, &granular3};
 
-AudioEffectFlange *flange[fxiterations] = {&flange1, &flange2, &flange3};
+AudioEffectFlange *flange[fxs_count] = {&flange1, &flange2, &flange3};
 
-AudioEffectChorus *chorus[fxiterations] = {&chorus1, &chorus2, &chorus3};
+AudioEffectChorus *chorus[fxs_count] = {&chorus1, &chorus2, &chorus3};
 
-AudioEffectBitcrusher *bitcrusher[fxiterations] = {&bitcrusher1, &bitcrusher2, &bitcrusher3};
+AudioEffectBitcrusher *bitcrusher[fxs_count] = {&bitcrusher1, &bitcrusher2, &bitcrusher3};
 
-AudioFilterStateVariable *filterz[fxiterations] = {&filter1, &filter2, &filter3};
+AudioFilterStateVariable *filterz[fxs_count] = {&filter1, &filter2, &filter3};
 
-AudioFilterBiquad *biquad[fxiterations] = {&biquad1, &biquad2, &biquad3};
+AudioFilterBiquad *biquad[fxs_count] = {&biquad1, &biquad2, &biquad3};
 
-AudioEffectFreeverb *freeverbs[fxiterations] = {&freeverbs1, &freeverbs2, &freeverbs3};
+AudioEffectFreeverb *freeverbs[fxs_count] = {&freeverbs1, &freeverbs2, &freeverbs3};
 
-AudioEffectDelay *lesdelays[fxiterations] = {&delay1, &delay2, &delay3};
+AudioEffectDelay *lesdelays[fxs_count] = {&delay1, &delay2, &delay3};
 
-AudioMixer4 *mixfilter[fxiterations] = {&mixfilter1, &mixfilter2, &mixfilter3};
+AudioMixer4 *mixfilter[fxs_count] = {&mixfilter1, &mixfilter2, &mixfilter3};
 
-AudioMixer4 *delaypremix[fxiterations * 2] = {&delay1pre1, &delay1pre2,
+AudioMixer4 *delaypremix[fxs_count * 2] = {&delay1pre1, &delay1pre2,
                                               &delay2pre1, &delay2pre2,
                                               &delay3pre1, &delay3pre2};
 
-AudioMixer4 *delayfeedbackmix[fxiterations] = {&feedbackdelay1, &feedbackdelay2, &feedbackdelay3};
+AudioMixer4 *delayfeedbackmix[fxs_count] = {&feedbackdelay1, &feedbackdelay2, &feedbackdelay3};
 
-AudioMixer4 *delaypostmix[fxiterations] = {&delaymix1, &delaymix2, &delaymix3};
+AudioMixer4 *delaypostmix[fxs_count] = {&delaymix1, &delaymix2, &delaymix3};
 
-AudioMixer4 *delayprefeed[fxiterations] = {&premixmixx1, &premixmixx2, &premixmixx3};
+AudioMixer4 *delayprefeed[fxs_count] = {&premixmixx1, &premixmixx2, &premixmixx3};
 
 //AudioAmplifier *faders[liners_count] = {&fade0, &fade1, &fade2, &fade3, &fade4, &fade5};
 
-//AudioSynthWaveformSine *lfosinez[fxiterations] = {&lfosine1, &lfosine2, &lfosine3};
+//AudioSynthWaveformSine *lfosinez[fxs_count] = {&lfosine1, &lfosine2, &lfosine3};
 
 AudioMixer4 *les303passes[liners_count] = {&mix303L1, &mix303L2, &mix303L3, &mix303L4, &mix303L5, &mix303L6};
 

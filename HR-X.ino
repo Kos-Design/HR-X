@@ -30,7 +30,7 @@ float tapaverage;
 int millitickinterval = 115;
 //freeze, can't record wav
 //#include <MsTimer2.h>
-bool done_once ;
+bool avoid_fx_bounce = false;
 //not precise
 //Metro metro0 = Metro(millitickinterval);
 //Metro metro303 = Metro(25);
@@ -134,26 +134,17 @@ char consolemsg[10][32];
 
 int waits = 0;
 char pleasewaitarray[10][32];
-const int fxiterations = 3;
+const int fxs_count = 3;
 bool pre_record = false ;
-int delaymultiplier[fxiterations] = {55};
-const int sizeopremixtoM = 9 * fxiterations;
-const int sizeopremixWtoM = 9 * fxiterations;
-const int sizeofxcords = 9 * fxiterations * 2 * 3;
-byte fxmoduleiteration;
-bool fxcordingisconnected[sizeofxcords];
-// wet channel-1 used by effect instance start from 0 4 disabled add 1 for real
-// wet channel
-int fxmoduleisconnected[mainmenufxlistsize - 1][fxiterations] = {fxiterations +
-                                                                 1};
-// premix , fxcording
-int fxslotMaster[3][2];
+int delaymultiplier[fxs_count] = {55};
+const int sizeopremixtoM = 9 * fxs_count;
+const int sizeopremixWtoM = 9 * fxs_count;
+const int sizeofxcords = 9 * fxs_count * 2 * 3;
+
 float interpot;
 bool overdubmidi;
 bool noteprint = 0;
-int moduleonfxline[3][2] = {{mainmenufxlistsize - 1, 0},
-                            {mainmenufxlistsize - 1, 0},
-                            {mainmenufxlistsize - 1, 0}};
+
 //char Patternfiledir[26] = {"PATTERNS/"};
 String Patternfiledir = "PATTERNS/" ;
 // not EXTMEM for now
@@ -161,7 +152,7 @@ EXTMEM char Patternfilename[999][13];
 EXTMEM char Patternfilefullpath[999][22];
 EXTMEM char Patternfilebase[999][9];
 EXTMEM bool Patternfilesselected[999];
-byte leeffectID[fxiterations];
+byte leeffectID[fxs_count];
 int numberofPatternfilesselected = 0;
 int numberofPatternfiles = 0;
 bool demimalmode;
@@ -215,14 +206,14 @@ EXTMEM int numofsamplesfoldersselected = 0;
 #include "/home/kosmin/HR-X/includes/AudioSetup.ino"
 // current stage to configure [lebiquad] instance
 const int bqstagesnum = 4;
-int bqstage[fxiterations];
+int bqstage[fxs_count];
 // [lebiquad] [stage]
-float bqslope[fxiterations][bqstagesnum] = {0.5};
-float bqgain[fxiterations][bqstagesnum];
-float bqfreq[fxiterations][bqstagesnum] = {300};
-int bqtype[fxiterations][bqstagesnum];
+float bqslope[fxs_count][bqstagesnum] = {0.5};
+float bqgain[fxs_count][bqstagesnum];
+float bqfreq[fxs_count][bqstagesnum] = {300};
+int bqtype[fxs_count][bqstagesnum];
 // [lebiquad] [lestage] freq slope gain
-int bqVpot[fxiterations][bqstagesnum][3];
+int bqVpot[fxs_count][bqstagesnum][3];
 // max bqfreq (in Hz) wich will be multiplied by the CC (from 0 to 127) + 300Hz
 // ---> because of the poor biquad response below 400hz
 int bqrange = 20000;
@@ -271,11 +262,6 @@ byte synthmidichannel = 16;
 
 byte navrec = 3;
 // various hard to pass params
-int leresultar2[2];
-int leresultnons[2];
-int availablliner;
-// unsigned long capturedlenghtnote[liners_count][2];
-// int startingPosofNoteonliner[liners_count];
 int tickposition;
 bool stoptick = true;
 
@@ -659,6 +645,10 @@ const int allfxes = 146;
 #include "pads.h"
 Pads Pads;
 
+char mainmenufxlist[mainmenufxlistsize][12] = {
+      "Multiply", "Reverb", "Granular", "BitCrusher", "Flanger",
+      "Chorus",   "Biquad", "Filter",   "Delay",      "None"};
+
 // TODO
 //const char ControlList[allfxes][23] PROGMEM = {
 const char ControlList[allfxes][21] = {
@@ -709,9 +699,9 @@ float WetMixMasters[4] = {0.0, 0.0, 0.0, 0.0};
 
 bool patterninparse;
 
-bool granular_shifting[fxiterations] = {0,0,0};
-bool granular_freezing[fxiterations] = {0,0,0};
-bool granular_toggled[fxiterations] = {0,0,0};
+bool granular_shifting[fxs_count] = {0,0,0};
+bool granular_freezing[fxs_count] = {0,0,0};
+bool granular_toggled[fxs_count] = {0,0,0};
 char leparsed[3];
 short lecaractere;
 short letempspattern;
@@ -725,12 +715,12 @@ const byte sizeofpatternlistlabels = 8;
 const char *monthName[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 bool debug_cpu = false;
-byte bitcrusherVknobs[fxiterations][2];
-byte granularVknobs[fxiterations][2];
-byte flangerVknobs[fxiterations][3];
-byte delayVknobs[fxiterations][3];
-byte chorusVknobs[fxiterations];
-byte reverbVknobs[fxiterations][2];
+byte bitcrusherVknobs[fxs_count][2];
+byte granularVknobs[fxs_count][2];
+byte flangerVknobs[fxs_count][3];
+byte delayVknobs[fxs_count][3];
+byte chorusVknobs[fxs_count];
+byte reverbVknobs[fxs_count][2];
 SerialFlashFile dummy_flash_file ;
 File dummyier_file ;
 // char* filespath[] = {(char*)"/",};
@@ -739,21 +729,19 @@ const int sizeofsoundlines = 4;
 char soundlines[sizeofsoundlines][12] = {"Synth", "Sampler", "AudioIn",
                                          "SDcard"};
 // 4 is none
-int LFOonfilterz[fxiterations] = {3};
+int LFOonfilterz[fxs_count] = {3};
 // fq res oct 127
-byte ffilterzVknobs[fxiterations][3];
+byte ffilterzVknobs[fxs_count][3];
 // LP BP HP 127
-int mixffilterzVknobs[fxiterations][3];
+int mixffilterzVknobs[fxs_count][3];
 
-float filterzgainz[fxiterations][3];
+float filterzgainz[fxs_count][3];
 
-float filterzfreq[fxiterations];
-float filterzreso[fxiterations] = {0.7};
-float filterzoctv[fxiterations];
+float filterzfreq[fxs_count];
+float filterzreso[fxs_count] = {0.7};
+float filterzoctv[fxs_count];
 
 int filterzrange = 14000;
-
-const int mainfxlines = 3;
 
 char masterlabels[3][3] = {"m", "w", "s"};
 
@@ -785,7 +773,6 @@ float mixlevelsL[synths_count] = {0.1, 0.0, 0.0};
 byte mixlevelsM[4] = {127, 127, 38, 127};
 
 unsigned int Waveformstyped[synths_count] = {1, 11, 11};
-byte notesOn[liners_count] = {0};
 byte samplesnotesOn[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 AudioEffectEnvelope *enveloppesL[liners_count] = {&envelopeL0, &envelopeL1, &envelopeL2,
@@ -1075,4 +1062,11 @@ int16_t waveformed_sine[256] = {
     31275, 31294, 31313, 31330, 31346, 31361, 31374, 31386, 31397, 31406, 31414,
     31420, 31426, 31430, 31433, 31434, 31435, 31434, 31432, 31428, 31423, 31417,
     31409, 31400, 31389};
-    
+
+void returntonav(byte lelevel, byte lanavrange = navrange) {
+  navlevel = lelevel;
+  vraipos = sublevels[lelevel];
+  myEnc.write(vraipos * 4);
+  navrange = lanavrange;
+  lemenuroot();
+}
