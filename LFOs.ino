@@ -58,7 +58,6 @@ void printLFObanner(int startx, int starty, int leLFO) {
   display.println("LFO ");
   display.setCursor(116, 0);
   display.print(leLFO);
-  // display.println(leLFO);
   display.display();
 }
 
@@ -148,26 +147,18 @@ void LFOrmType(int leLFO) {
 void restartLFO(int leLFO) {
   AudioNoInterrupts() ;
   if (LFOsync[leLFO]) {
-    // lfosinez[leLFO]->frequency(((LFOfreqs[leLFO]/100.0)*(1000/millitickinterval)));
-    LFOwaveforms1[leLFO]->begin(
-        (float)(LFOlevel[leLFO] / 512.00),
-        ((LFOfreqs[leLFO] / 100.0) * (1000 / millitickinterval)),
-        lesformes[LFOformstype[leLFO]]);
+    LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO] / 127.00), ((LFOfreqs[leLFO] / 127.0) * (1000 / millitickinterval)), lesformes[LFOformstype[leLFO]]);
   } else {
-    LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO] / 512.00),
-                                (LFOfreqs[leLFO] / 100.0) * 0.5,
-                                lesformes[LFOformstype[leLFO]]);
-    // lfosinez[leLFO]->frequency((LFOfreqs[leLFO]/100.0)*0.5);
+    LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO] / 127.00), (LFOfreqs[leLFO] / 127.0) * 2, lesformes[LFOformstype[leLFO]]);
   }
  
   
   if (LFOformstype[leLFO] == 7 ) {
     LFOwaveforms1[leLFO]->arbitraryWaveform(arbitrary_waveforms[leLFO],1.0);
   }
-  // lfosinez[leLFO]->amplitude((LFOlevel[leLFO]/127.0)*0.5);
-
   AudioInterrupts() ;
 }
+
 void displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int leLFO, typeof(WAVEFORM_SINE) wavetype) {
 
   canvasBIG.drawBitmap(70, 20, img, 32, 32, SSD1306_WHITE);
@@ -179,19 +170,10 @@ void displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int l
 }
 
 void syncLFO(int leLFO) {
-  //  if ( LFOsync[leLFO] ) {
-  //         LFOfreqs[leLFO] = (1.0/(BPMs/4.0))*1000.0;
-  //         Serial.println(LFOfreqs[leLFO]);
   restartLFO(leLFO);
-  //  } else {
-  //    LFOfreqs[leLFO] = 1 ;
-  //  }
 }
+
 void doLFObool(int leLFO) {
-
-  // dolistLFOparams();
-  // dodisplay();
-
   if (navlevel >= 3) {
     //  Serial.println("Setting Sync switch");
     LFOsync[leLFO] = !LFOsync[leLFO];
@@ -199,63 +181,55 @@ void doLFObool(int leLFO) {
     returntonav(2);
   }
   display.setCursor(55, 0);
-
   display.setTextSize(2);
-
   if (LFOsync[leLFO]) {
-
     display.print("Active");
   } else {
     display.print("Off");
   }
-
   display.display();
 }
+
 void gobacktolfoparams() { returntonav(2); }
 
 void doLFOparamdisplayval(int laval) {
   canvastitle.setCursor(80, 0);
   canvastitle.setTextSize(2);
   canvastitle.print(laval);
-  // dodisplay();
-  //   canvastitle.display();
 }
-void doFloatLFOparamdisplayval(float laval) {
+
+void draw_lfo_val(float laval) {
   canvastitle.setCursor(80, 0);
   canvastitle.setTextSize(2);
   canvastitle.print(laval);
-  // dodisplay();
-  //   canvastitle.display();
 }
+
 void doLFOlevel(int leLFO) {
   if (navlevel == 3) {
     // Serial.println("Setting LFO level");
-    navrange = 512;
+    navrange = 127;
     LFOlevel[leLFO] = sublevels[3];
-    // restartLFO(leLFO);
   } else {
     sublevels[3] = LFOlevel[leLFO];
   }
   if (navlevel >= 4) {
     gobacktolfoparams();
   }
-  doFloatLFOparamdisplayval(LFOlevel[leLFO] / 512.0);
+  draw_lfo_val(LFOlevel[leLFO] / 127.0);
 }
 
 void doLFOoffset(int leLFO) {
   if (navlevel == 3) {
-    //  Serial.println(((50-LFOoffset[leLFO])/50));
     navrange = 100;
     LFOoffset[leLFO] = sublevels[3];
     doLFOallcontrols(leLFO);
-    // restartLFO(leLFO);
   } else {
     sublevels[3] = LFOoffset[leLFO];
   }
   if (navlevel >= 4) {
     gobacktolfoparams();
   }
-  doFloatLFOparamdisplayval(((50.0 - LFOoffset[leLFO]) / 50.0));
+  draw_lfo_val(((50.0 - LFOoffset[leLFO]) / 50.0));
 }
 
 void doLFOphase(int leLFO) {
@@ -273,11 +247,12 @@ void doLFOphase(int leLFO) {
   }
   doLFOparamdisplayval(LFOphase[leLFO]);
 }
+
 void doLFOfreqd(int leLFO) {
   // set lfosine1 lfosinez[leLFO]->
   if (navlevel == 3) {
     // Serial.println("Setting LFO freq");
-    navrange = 100;
+    navrange = 127;
     LFOfreqs[leLFO] = sublevels[3];
      doLFOallcontrols(leLFO);
   } else {
@@ -288,6 +263,7 @@ void doLFOfreqd(int leLFO) {
   }
   doLFOparamdisplayval(LFOfreqs[leLFO]);
 }
+
 void dolistLFOparams() {
   char LFOlabels[sizeofLFOlabels][12] = {"Type",  "Level",  "Sync",
                                          "Freq",  "Offset", "Phase",
@@ -320,44 +296,23 @@ void dolistLFOparams() {
     canvasBIG.println(LFOlabels[filer]);
   }
 }
+
 void doLFOallcontrols(byte leLFO) {
   restartLFO(leLFO);
   LFOwaveforms1[leLFO]->phase(0.36 * LFOphase[leLFO]);
   LFOwaveforms1[leLFO]->offset((float)(((50.0 - LFOoffset[leLFO]) / 50.0)));
 }
-void LFOlining(int leLFO) {
-  // LFOmenuroot is 2
 
+void LFOlining(int leLFO) {
   dolistLFOparams();
-  //  if (navlevel >= LFOmenuroot) {
   if (navlevel >= LFOmenuroot) {
     navrange = sizeofLFOlabels - 1;
-
-    if (sublevels[2] == 0) {
-      
-      LFOrmType(leLFO);
-    }
-
-    if (sublevels[2] == 1) {
-      doLFOlevel(leLFO);
-    }
-
-    if (sublevels[2] == 2) {
-      doLFObool(leLFO);
-    }
-
-    if (sublevels[2] == 3) {
-      doLFOfreqd(leLFO);
-    }
-
-    if (sublevels[2] == 4) {
-      doLFOoffset(leLFO);
-    }
-
-    if (sublevels[2] == 5) {
-      doLFOphase(leLFO);
-    }
-
+    if (sublevels[2] == 0) {LFOrmType(leLFO);}
+    if (sublevels[2] == 1) {doLFOlevel(leLFO);}
+    if (sublevels[2] == 2) {doLFObool(leLFO);}
+    if (sublevels[2] == 3) {doLFOfreqd(leLFO);}
+    if (sublevels[2] == 4) {doLFOoffset(leLFO);}
+    if (sublevels[2] == 5) {doLFOphase(leLFO);}
     if (sublevels[2] == 6) {
       if (navlevel >= 3) {
         // go to synth
@@ -366,27 +321,28 @@ void LFOlining(int leLFO) {
         wavelinepanel(sublevels[2]);
       }
     }
+    //previous <--
     if (sublevels[2] == 7) {
       if (navlevel >= 3) {
         // Serial.print("Previous");
         if (leLFO > 0) {
           sublevels[1]--;
         } else {
-          sublevels[1] = 3;
+          sublevels[1] = 2;
         }
         navlevel--;
         // Serial.println("back to menu");
         lemenuroot();
       }
     }
+    // next -->
     if (sublevels[2] == 8) {
       if (navlevel >= 3) {
-        if (leLFO < 3) {
+        if (leLFO < 2) {
           sublevels[1]++;
         } else {
           sublevels[1] = 0;
         }
-
         navlevel--;
         lemenuroot();
       }

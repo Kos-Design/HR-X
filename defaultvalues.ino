@@ -129,9 +129,6 @@ void setupdefaultvalues() {
   flange3.begin(flangedelay3, FLANGE_DELAY_LENGTH, flangeoffset, flangedepth,
                 flangefreq);
 
-  granular1.begin(granularMemory, GRANULAR_MEMORY_SIZE);
-  granular2.begin(granularMemory2, GRANULAR_MEMORY_SIZE);
-  granular3.begin(granularMemory3, GRANULAR_MEMORY_SIZE);
 */
 
   for (int i = 0; i < synths_count; i++) {
@@ -139,9 +136,6 @@ void setupdefaultvalues() {
   }
   AudioNoInterrupts();
   for (int i = 0; i < fxs_count; i++) {
-    // lfo sines used by FXes, only amplitude freq & phase
-    //lfosinez[i]->amplitude(0.1);
-    //lfosinez[i]->frequency(5);
     delaypostmix[i]->gain(0, 1);
     delaypostmix[i]->gain(1, 1);
     delayfeedbackmix[i]->gain(0, 1);
@@ -156,11 +150,7 @@ void setupdefaultvalues() {
       delaypremix[i * 2 + 1]->gain(j, 0);
     }
     AudioInterrupts();
-    /*
-    flange[i]->voices(flangeoffset, flangedepth, flangefreq);
-    chorus[i]->voices(chorusvoices);
-    granular[i]->setSpeed(1.0);
-    */
+ 
   }
 
   ////
@@ -178,7 +168,6 @@ void setupdefaultvalues() {
   //flash wet
   MasterL1.gain(3, 0);
   MasterR1.gain(3, 0);
-
   // Wavplayer
   MasterL.gain(0, 1.0);
   MasterR.gain(0, 1.0);
@@ -201,23 +190,13 @@ void setupdefaultvalues() {
   } 
 
   for (int i = 0; i < all_buttonns; i++) {
-
     if (!((i <= 11) || (i >= 46))) {
       pot_assignements[i] = i + 128 + 30;
-      // pot_assignements[i] = i ;
-      // midiknobassigned[pot_assignements[i]] = pot_assignements[i];
     } else {
       pot_assignements[i] = ordered_pots[potsboards[i]];
     }
   }
-  /*for (int i = 0; i < 15 ; i++) {
-    ordered_pots[i] = i ;
-  }*/
-  // pot_assignements[35] = 64 ;
-
-  // test
-  // pot_assignements[44] = allfxes + 64 ;
-
+  
   /*
    //Defaults for external midi keyboard
   midiknobassigned[91]=2;
@@ -256,18 +235,14 @@ void setupdefaultvalues() {
   midiknobassigned[12] = 2;
   //midiknobassigned[13] = 3;
 
-  
   midiknobassigned[14] = 93;
   midiknobassigned[15] = 94;
   midiknobassigned[16] = 95;
   
-
-  // lfos
   //phase
   midiknobassigned[17] = 76;
   midiknobassigned[18] = 77;
   midiknobassigned[19] = 81;
-  
 
   // FX Wet
   midiknobassigned[20] = 5;
@@ -305,25 +280,13 @@ void setupdefaultvalues() {
   // looper
   //midiknobassigned[109] = 109;
   //note: WetMixMasterLs[0] is the dry channel
-  // TODO : remove myaudiomixer4 class override
+
   // USB Line in
   InMixL.gain(0, 0);
   InMixR.gain(0, 0);
-  
   // LineIn
   InMixL.gain(1,1.0);
   InMixR.gain(1, 1.0);
-
   LineInPreAmpL.gain(1.0);
   LineInPreAmpR.gain(1.0);
-
-  //  DelayBusL.gain(1, 0.5);
-  // DelayBusR.gain(1, 0.5);
-  // //DelayBusL
-
-  // delay2.delay(7,600);
-
-  // delay
-
-  
 }

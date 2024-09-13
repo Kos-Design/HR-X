@@ -268,14 +268,14 @@ void controlswitcher(int caser, int valu) {
       setphaselevel(ccsynthselector);
       break;
     case 53:
-      LFOlevel[ccsynthselector] = round(smallfloat * 512.0);
+      LFOlevel[ccsynthselector] = round(smallfloat * 127.0);
       break;
     case 54:
       LFOformstype[ccsynthselector] = round(smallfloat * 8.0);
 
       break;
     case 55:
-      LFOfreqs[ccsynthselector] = smallfloat * 100.0;
+      LFOfreqs[ccsynthselector] = round(smallfloat * 127.0);
       break;
     case 56:
 
@@ -313,9 +313,7 @@ void controlswitcher(int caser, int valu) {
       break;
       
     case 64:
-      // granular toggle (inactive)
-      granular_toggled[ccfxlineselector] = !granular_toggled[ccfxlineselector];
-      toggle_granular(ccfxlineselector);
+      //free
       break;
     case 65:
       // release
@@ -383,7 +381,7 @@ void controlswitcher(int caser, int valu) {
     case 77:
       //granular speed ratio
       granularVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
-      granular[ccfxlineselector]->setSpeed(0.125 + (map(granularVknobs[ccfxlineselector][1],0,127,0,7875)/1000.0));
+      granularcontrols(ccfxlineselector);
       break;
 
     case 78:

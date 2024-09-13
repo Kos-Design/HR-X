@@ -612,7 +612,7 @@ byte chordnotesoff[3];
 // 6 is off
 byte lasetchord = 6;
 
-const byte truesizeofwavelineslabels = 8;
+const byte synth_params_count = 8;
 
 int phaselevelsL[synths_count] = {0, 0, 0};
 
@@ -623,8 +623,8 @@ byte LFOmenuroot = 2;
 // TODO check offset of 50 ?
 int LFOoffset[synths_count] = {50,50,50};
 byte LFOformstype[synths_count] = {0, 0, 0};
-float LFOfreqs[synths_count] = {2.17, 2.17, 2.17};
-int LFOlevel[synths_count] = {100,100,100};
+byte LFOfreqs[synths_count] = {100,100,100};
+byte LFOlevel[synths_count] = {100,100,100};
 bool LFOsync[synths_count];
 
 byte wave1offset[synths_count] = {64,64,64};
@@ -671,7 +671,7 @@ const char ControlList[allfxes][21] = {
     "Waveformstyped", "wave1offset", "phaselevelsL", "LFOlevel", "LFOtype",
     "LFOfreqs", "LFOphase", "LFOoffset", "LFOsync", "Attack Delay",
     /// 60
-    "Attack", "Hold", "Decay", "Sustain", "granularOn", "Release",
+    "Attack", "Hold", "Decay", "Sustain", "free", "Release",
     "303ffilterz[0]", "303fgainz[1]", "303fgainz[2]", "FXChannelselector",
     // 70
     "chorusVknobs[i]", "bqstage[i]", "LFOonfilterz[i]", "bqVpot[i][j][0]", "bqVpot[i][j][1]", "bqVpot[i][j][2]",
@@ -701,7 +701,6 @@ bool patterninparse;
 
 bool granular_shifting[fxs_count] = {0,0,0};
 bool granular_freezing[fxs_count] = {0,0,0};
-bool granular_toggled[fxs_count] = {0,0,0};
 char leparsed[3];
 short lecaractere;
 short letempspattern;
@@ -809,11 +808,10 @@ int flangedepth = FLANGE_DELAY_LENGTH / 4;
 double flangefreq = 0.5;
 
 #define GRANULAR_MEMORY_SIZE 12800 
-// 12800 enough for 290 ms at 44.1 kHz
+// 12800 is for 290 ms at 44.1 kHz
 int16_t granularMemory[GRANULAR_MEMORY_SIZE];
 int16_t granularMemory2[GRANULAR_MEMORY_SIZE];
 int16_t granularMemory3[GRANULAR_MEMORY_SIZE];
-// int16_t granularMemory4[GRANULAR_MEMORY_SIZE];
 
 EXTMEM AudioConnection delayCord1(feedbackdelay1, delay1);
 EXTMEM AudioConnection delayCord2(feedbackdelay2, delay2);

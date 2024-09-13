@@ -3,23 +3,17 @@ void displaypanbars(int score) {
   if (navlevel >= 4) {
     if (navlevel == 4) {
       navrange = 20;
-      //        int lepan = round(map(sublevels[4],0,1,0,19));
-      // setpanlevel(0,lepan);
       setpanlevel(sublevels[2], sublevels[4]);
-      // Serial.println(panLs[sublevels[2]]);
-      //   Serial.println(panLs[sublevels[2]]);
     }
     if (navlevel >= 5) {
-      // Serial.println("nav = 5 panned");
       setpanlevel(sublevels[2], sublevels[4]);
       returntonav(3, 9);
-
-      // lemenuroot();
     }
   }
+  
   int sizepan = map(score, 0, 2, 0, 35);
   wavelinemenuBG(sublevels[2]);
-  dolistwavelineparams();
+  draw_synth_params();
   dodisplay();
   display.drawRect(45, 16, 7, 35, SSD1306_WHITE);
   display.drawRect(57, 16, 7, 35, SSD1306_WHITE);
@@ -35,30 +29,16 @@ void displayoffsetwav(int synthi) {
   if (navlevel == 4) {
     navrange = 127;
     wave1offset[synthi] = sublevels[4];
-
     for (int i = 0; i < liners_count; i++) {
-      waveforms1[i + (synthi * liners_count)]->offset(
-          (float)(((64.0 - wave1offset[synthi]) / 64.0)));
-      FMwaveforms1[i + (synthi * liners_count)]->offset(
-          (float)(((64.0 - wave1offset[synthi]) / 64.0)));
+      waveforms1[i + (synthi * liners_count)]->offset((float)(((64.0 - wave1offset[synthi]) / 64.0)));
+      FMwaveforms1[i + (synthi * liners_count)]->offset((float)(((64.0 - wave1offset[synthi]) / 64.0)));
     }
   }
-
   if (navlevel >= 5) {
     returntonav(3, 9);
   }
-
-  //       sizefreq = map(score,0,127,0,35);
-  //         wavelinemenuBG(sublevels[2]);
-  //        dolistwavelineparams();
-  //          dodisplay();
-  //        display.drawRect(45, 16, 7, 35, SSD1306_WHITE);
-  //        display.drawRect(57, 16, 7, 35, SSD1306_WHITE);
-  //        display.fillRect(45, 64-sizefreq-13, 7, sizefreq, SSD1306_WHITE);
-  //        display.fillRect(57, 64-sizefreq-13, 7, sizefreq, SSD1306_WHITE);
-  //          display.setTextSize(2);
   wavelinemenuBG(sublevels[2]);
-  dolistwavelineparams();
+  draw_synth_params();
   dodisplay();
   canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setTextSize(2);
@@ -70,47 +50,22 @@ void displayoffsetwav(int synthi) {
 void displayfreqbars(int score) {
   // weird but usefull behavior to switch encoder resolution between 0 and 1
   if (navlevel >= 4) {
-
     if (navlevel == 4) {
       navrange = 10;
-      if (wavesfreqs[sublevels[2]] == 1) {
-        demimalmode = !demimalmode;
-      } else {
-        if (wavesfreqs[sublevels[2]] <= 1) {
-          demimalmode = 1;
-        }
-      }
-      if (!demimalmode) {
-        wavesfreqs[sublevels[2]] = sublevels[4];
-      }
-      if (demimalmode) {
-        wavesfreqs[sublevels[2]] = (sublevels[4]) / 10.0;
-      }
-
-      // Serial.println("nav = 4 freq");
+      if (wavesfreqs[sublevels[2]] == 1) { demimalmode = !demimalmode;} 
+      else { if (wavesfreqs[sublevels[2]] <= 1) {demimalmode = 1; } }
+      if (!demimalmode) {wavesfreqs[sublevels[2]] = sublevels[4]; }
+      if (demimalmode) {wavesfreqs[sublevels[2]] = (sublevels[4]) / 10.0; }
     }
     if (navlevel >= 5) {
-      // Serial.println("nav = 5 freq");
-      // wavesfreqs[sublevels[2]] = sublevels[4] ;
-
-      if (demimalmode) {
-        wavesfreqs[sublevels[2]] = (sublevels[4]) / 10.0;
-      }
-
-      if (!demimalmode) {
-        wavesfreqs[sublevels[2]] = sublevels[4];
-      }
+      if (demimalmode) { wavesfreqs[sublevels[2]] = (sublevels[4]) / 10.0; }
+      if (!demimalmode) { wavesfreqs[sublevels[2]] = sublevels[4]; }
       returntonav(3, 9);
     }
   }
-  
   wavelinemenuBG(sublevels[2]);
-  dolistwavelineparams();
+  draw_synth_params();
   dodisplay();
-  //        display.drawRect(45, 16, 7, 35, SSD1306_WHITE);
-  //        display.drawRect(57, 16, 7, 35, SSD1306_WHITE);
-  //        display.fillRect(45, 64-sizefreq-13, 7, sizefreq, SSD1306_WHITE);
-  //        display.fillRect(57, 64-sizefreq-13, 7, sizefreq, SSD1306_WHITE);
   display.setTextSize(2);
   display.setCursor(65, 0);
   display.println(wavesfreqs[sublevels[2]]);
@@ -118,31 +73,20 @@ void displayfreqbars(int score) {
 }
 
 void displayphasebars(int score) {
-
   if (navlevel >= 4) {
     if (navlevel == 4) {
-
       navrange = 360;
       phaselevelsL[sublevels[2]] = int(sublevels[4]);
-
       setphaselevel(sublevels[2]);
-      // Serial.println("nav = 4 phase");
     }
     if (navlevel >= 5) {
       setphaselevel(sublevels[2]);
-
       returntonav(3, 9);
     }
   }
-
-  // int sizephase = map(score,0,360,0,35);
   wavelinemenuBG(sublevels[2]);
-  dolistwavelineparams();
+  draw_synth_params();
   dodisplay();
-  //    display.drawRect(45, 16, 7, 35, SSD1306_WHITE);
-  //    display.drawRect(57, 16, 7, 35, SSD1306_WHITE);
-  //    display.fillRect(45, 64-sizephase-13, 7, sizephase, SSD1306_WHITE);
-  //    display.fillRect(57, 64-sizephase-13, 7, sizephase, SSD1306_WHITE);
   display.setCursor(80, 0);
   display.setTextSize(2);
   display.println(phaselevelsL[sublevels[2]]);
@@ -151,7 +95,7 @@ void displayphasebars(int score) {
 
 void displayModulatedbool(int lesynthb) {
   wavelinemenuBG(lesynthb);
-  dolistwavelineparams();
+  draw_synth_params();
   dodisplay();
   display.setCursor(110, 0);
   display.setTextSize(2);
@@ -202,17 +146,15 @@ void wavelineoffset(int lesynthi) {
   displayoffsetwav(lesynthi);
 }
 
-void displaywaveformicon(int letype, char *lelabelw, const unsigned char img[],
-                         int lesinthy, typeof(WAVEFORM_SINE) wavetype) {
-
+void displaywaveformicon(int letype, char *lelabelw, const unsigned char img[], int lesinthy, typeof(WAVEFORM_SINE) wavetype) {
   wavelinemenuBG(sublevels[2]);
-  dolistwavelineparams();
+  draw_synth_params();
   dodisplay();
   display.drawBitmap(74, 20, img, 32, 32, SSD1306_WHITE);
   display.setTextSize(1); // Draw 1X-scale text
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(64, 0);
-  dolistwavelineparams();
+  draw_synth_params();
   dodisplay();
   display.println(lelabelw);
   display.display();
@@ -233,7 +175,6 @@ void displaywaveformicon(int letype, char *lelabelw, const unsigned char img[],
 }
 
 void wavelineType(int lesynthi) {
-
   switch (sublevels[4]) {
   case 0:
     displaywaveformicon(sublevels[4], (char *)"SineWave", sinewave, lesynthi,
@@ -290,60 +231,47 @@ void wavelineType(int lesynthi) {
 }
 
 void wavelinepanel(int synthi) {
-
   switch (sublevels[3]) {
-
-  case 0:
-
-    wavelineType(synthi);
-
-    break;
-  case 1:
-
-    wavelineModulatedbool(synthi);
-
-    break;
-  case 2:
-    displayLFOpanel(synthi);
-    break;
-  case 3:
-    wavelineFreq(synthi);
-    break;
-  case 4:
-    wavelineoffset(synthi);
-
-    break;
-  case 5:
-    wavelinePhase(synthi);
-
-    break;
-
-  case 7:
-    if (sublevels[2] < 3) {
-      sublevels[2]++;
-    } else {
-      sublevels[2] = 0;
-    }
-
-    navlevel--;
-    lemenuroot();
-
-    // Serial.print("Next");
-    break;
-
-  case 6:
-    // Serial.print("Previous");
-    if (sublevels[2] > 0) {
-      sublevels[2]--;
-    } else {
-      sublevels[2] = 3;
-    }
-    navlevel--;
-    lemenuroot();
-    break;
-
-  default:
-    break;
+    case 0:
+      wavelineType(synthi);
+      break;
+    case 1:
+      wavelineModulatedbool(synthi);
+      break;
+    case 2:
+      displayLFOpanel(synthi);
+      break;
+    case 3:
+      wavelineFreq(synthi);
+      break;
+    case 4:
+      wavelineoffset(synthi);
+      break;
+    case 5:
+      wavelinePhase(synthi);
+      break;
+    case 6:
+      // Serial.print("Previous <--");
+      if (sublevels[2] > 0) {
+        sublevels[2]--;
+      } else {
+        sublevels[2] = 2;
+      }
+      navlevel--;
+      lemenuroot();
+      break;
+    case 7:
+      // Serial.print("Next -->");
+      if (sublevels[2] < 2) {
+        sublevels[2]++;
+      } else {
+        sublevels[2] = 0;
+      }
+      navlevel--;
+      lemenuroot();
+      break;  
+    default:
+      break;
   }
 }
 
@@ -366,36 +294,29 @@ void wavelinesBG() {
 void wavelining(int startx, int starty, char *leprintlabel, int synthi) {
   if (navlevel >= 2) {
     if (navlevel == 2) {
-
       display.fillRect(startx, starty, 64, 24, SSD1306_INVERSE);
       printlabel(leprintlabel);
       display.display();
     }
     if (navlevel >= 3) {
       if (navlevel == 3) {
-        navrange = truesizeofwavelineslabels - 1;
-
+        navrange = synth_params_count - 1;
         wavelinemenuBG(sublevels[2]);
         display.display();
-        dolistwavelineparams();
+        draw_synth_params();
         dodisplay();
-
         if (sublevels[3] == 0) {
           sublevels[4] = Waveformstyped[synthi];
           wavelinepanel(synthi);
         }
         if (sublevels[3] == 1) {
-          // Modulated bool switch
-          // sublevels[4] = int(mixlevelsL[synthi]*100) ;
           wavelinepanel(synthi);
         }
-        
         if (sublevels[3] == 3) {
           sublevels[4] = round(wavesfreqs[synthi]);
           wavelinepanel(synthi);
         }
         if (sublevels[3] == 5) {
-
           //  Serial.println("phasing");
           sublevels[4] = int(phaselevelsL[synthi]);
           wavelinepanel(synthi);
@@ -403,11 +324,9 @@ void wavelining(int startx, int starty, char *leprintlabel, int synthi) {
         if (sublevels[3] == 4) {
           sublevels[4] = wave1offset[synthi];
           wavelinepanel(synthi);
-
         }
       }
       if (navlevel >= 4) {
-
         wavelinepanel(synthi);
       }
     }
@@ -713,36 +632,25 @@ void sliceR() {
   canvastitle.println(mappedrelease);
 }
 
-void dolistwavelineparams() {
-  char wavelineslabels[truesizeofwavelineslabels][12] = {
+void draw_synth_params() {
+  char wavelineslabels[synth_params_count][12] = {
       "Type", "Modulated", "LFO", "Freq", "Offset", "Phase", "<-  ", "  ->"};
   int startx = 5;
   int starty = 16;
   char *textin = (char *)wavelineslabels[sublevels[3]];
-
   canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setCursor(0, 0);
-
   canvastitle.setTextSize(2);
-
   canvastitle.println(textin);
-
   canvasBIG.setTextSize(1);
-
   canvasBIG.fillScreen(SSD1306_BLACK);
-
-  for (int filer = 0; filer < truesizeofwavelineslabels - 1 - (sublevels[3]);
-       filer++) {
-
-    canvasBIG.setCursor(startx, starty + ((filer)*10));
-    canvasBIG.println(wavelineslabels[sublevels[3] + 1 + filer]);
+  for (int i = 0; i < synth_params_count - 1 - (sublevels[3]); i++) {
+    canvasBIG.setCursor(startx, starty + ((i)*10));
+    canvasBIG.println(wavelineslabels[sublevels[3] + 1 + i]);
   }
-  for (int filer = 0; filer < sublevels[3]; filer++) {
-
-    canvasBIG.setCursor(
-        startx,
-        (10 * (truesizeofwavelineslabels - sublevels[3]) + 6 + ((filer)*10)));
-    canvasBIG.println(wavelineslabels[filer]);
+  for (int i = 0; i < sublevels[3]; i++) {
+    canvasBIG.setCursor(startx,(10 * (synth_params_count - sublevels[3]) + 6 + ((i)*10)));
+    canvasBIG.println(wavelineslabels[i]);
   }
 }
 
@@ -759,13 +667,13 @@ void dolistsyntmenu() {
   canvastitle.println(textin);
   canvasBIG.setTextSize(1);
   canvasBIG.fillScreen(SSD1306_BLACK);
-  for (int filer = 0; filer < 4 - (sublevels[1]); filer++) {
-    canvasBIG.setCursor(startx, starty + ((filer)*10));
-    canvasBIG.println(synthmenulabels[sublevels[1] + 1 + filer]);
+  for (int i = 0; i < 4 - (sublevels[1]); i++) {
+    canvasBIG.setCursor(startx, starty + ((i)*10));
+    canvasBIG.println(synthmenulabels[sublevels[1] + 1 + i]);
   }
-  for (int filer = 0; filer < sublevels[1]; filer++) {
-    canvasBIG.setCursor(startx, (10 * (5 - sublevels[1])) + 6 + ((filer)*10));
-    canvasBIG.println(synthmenulabels[filer]);
+  for (int i = 0; i < sublevels[1]; i++) {
+    canvasBIG.setCursor(startx, (10 * (5 - sublevels[1])) + 6 + ((i)*10));
+    canvasBIG.println(synthmenulabels[i]);
   }
 }
 
@@ -779,7 +687,7 @@ void synthmenu() {
 
   if (sublevels[1] == 3 && navlevel > 1) {
     navrange = synths_count-1;
-    showsynthparamspanel();
+    placeholder();
   }
   //adsr section
   if (sublevels[1] == 2) {
@@ -787,7 +695,6 @@ void synthmenu() {
       if (navlevel == 2) {
         navrange = 5;
       }
-      
       navleveloverwrite = 2;
       displayadsrgraph();
     }
@@ -796,30 +703,25 @@ void synthmenu() {
   if (sublevels[1] == 0) {
     if (navlevel >= 2) {
       if (navlevel == 2) {
-
         navrange = synths_count-1;
         wavelinesBG();
         sublevels[3] = 0;
       }
-
       switch (sublevels[2]) {
-
-      case 0:
-        toprint = (char *)"Waveline 1";
-        wavelining(0, 16, toprint, sublevels[2]);
-
-        break;
-      case 1:
-        toprint = (char *)"Waveline 2";
-        wavelining(64, 16, toprint, sublevels[2]);
-        break;
-      case 2:
-        toprint = (char *)"Waveline 3";
-        wavelining(0, 40, toprint, sublevels[2]);
-        break;
-      
-      default:
-        break;
+        case 0:
+          toprint = (char *)"Waveline 1";
+          wavelining(0, 16, toprint, sublevels[2]);
+          break;
+        case 1:
+          toprint = (char *)"Waveline 2";
+          wavelining(64, 16, toprint, sublevels[2]);
+          break;
+        case 2:
+          toprint = (char *)"Waveline 3";
+          wavelining(0, 40, toprint, sublevels[2]);
+          break;
+        default:
+          break;
       }
     }
   }
@@ -833,35 +735,10 @@ void synthmenu() {
 }
 
 float fxslopedown2(byte curve, float laxval) {
-  // 0 to 1 10 vals 1 to 2 10 2 to 3 10
-  // float leresult ;
   return pow(laxval, (double)(curve / 127.0));
 }
 
-float fxslopedown(byte slope, float laxval) {
-  float leresult = 0;
-  switch (slope) {
-  case 0:
-    leresult = 1 - (((1 / (pow(10, (double)laxval))) * 5.55556) - 0.555556) / 5;
-    break;
-  case 1:
-    leresult = laxval;
-    break;
-  case 2:
-    leresult = sqrt(abs(sin(((laxval)) * 3.14159 + 1.57)));
-    break;
-  case 3:
-    leresult = 1.0 - ((sin(laxval * 3.14159 + 1.57)) * 0.5) + 0.5;
-    break;
-
-  default:
-    break;
-  }
-  return abs(leresult);
-}
-
-void actionsynthparamspanel() {
-
+void act_placeholder() {
   if (navlevel == 3) {
     navrange = 127;
     if (sublevels[2] == 0) {
@@ -877,7 +754,7 @@ void actionsynthparamspanel() {
   }
 }
 
-void selectsynthparamspanel() {
+void select_placeholder() {
   if (navlevel == 2) {
     navrange = 1;
     if (sublevels[2] == 0) {
@@ -893,32 +770,10 @@ void selectsynthparamspanel() {
   }
 }
 
-void showsynthparamspanel() {
-  actionsynthparamspanel();
+void placeholder() {
+  act_placeholder();
   display.clearDisplay();
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
-  selectsynthparamspanel();
-  canvasBIG.setCursor(0, 16);
-  canvasBIG.setTextSize(1);
-  canvasBIG.print("Sl1: ");
-  canvasBIG.print(slope1);
-  canvasBIG.setCursor(64, 16);
-  canvasBIG.print("Sl2: ");
-  canvasBIG.print(slope2);
-  canvasBIG.setCursor(0, 16 + 10);
-  canvasBIG.print("C.mode:");
-  canvasBIG.print(cutoffmode);
-  canvasBIG.setCursor(64, 16 + 10);
-  canvasBIG.print("R.mode:");
-  canvasBIG.print(resonancemode);
-  canvasBIG.setCursor(0, 16 + 20);
-  canvasBIG.print("param5:");
-  canvasBIG.print(paramse1);
-  canvasBIG.setCursor(64, 16 + 20);
-  canvasBIG.print("param6:");
-  canvasBIG.print(paramse2);
-  dodisplay();
+  //placeholder
 }
 
 void setlepulse1() {
@@ -1677,38 +1532,26 @@ void setleLFOfrequency(float tune, int lelfor) {
 
 void setsynthfrequencyi(float tune, int voice, byte velocityz) {
   // AudioNoInterrupts();
-
   for (int i = 0; i < synths_count; i++) {
-
     waveforms1[voice + (i * liners_count)]->frequency(tune * wavesfreqs[i - 1]);
     waveforms1[voice + (i * liners_count)]->amplitude(velocityz / 127.0);
-    //FMwaveforms1[i + voice * 4]->frequency(tune * wavesfreqs[i - 1]);
-    //FMwaveforms1[i + voice * 4]->amplitude(velocityz / 127.0);
     FMwaveforms1[voice + (i * liners_count)]->frequency(tune * wavesfreqs[i - 1]);
     FMwaveforms1[voice + (i * liners_count)]->amplitude(velocityz / 127.0);
-
-    //drums1[i + voice * liners_count]->length(velocityz * 5);
-    //drums1[i + 4 + voice * liners_count]->length(velocityz * 5);
     drums1[voice + (i * liners_count)]->length(velocityz * 5);
-    //drums1[voice + (i * liners_count)]->length(velocityz * 5);
   }
-
   // AudioInterrupts();
 }
 
 void SetADSR() {
-  
-      adsrlevels[0] = MadsrAttackDelay;
-      adsrlevels[4] = mappedsustain;
-      adsrlevels[5] = mappedrelease;
-      adsrlevels[3] = mappeddecay;
-      adsrlevels[1] = mappedattack;
-      adsrlevels[2] = MadsrHold;
-     
+  adsrlevels[0] = MadsrAttackDelay;
+  adsrlevels[4] = mappedsustain;
+  adsrlevels[5] = mappedrelease;
+  adsrlevels[3] = mappeddecay;
+  adsrlevels[1] = mappedattack;
+  adsrlevels[2] = MadsrHold;
 }
 
 void ApplyADSR() {
-
   for (int i = 0; i < liners_count; i++) {
     enveloppesL[i]->delay(adsrlevels[0]);
     enveloppesL[i]->attack(adsrlevels[1]);
@@ -1717,14 +1560,12 @@ void ApplyADSR() {
     enveloppesL[i]->sustain(adsrlevels[4] / 100.0);
     enveloppesL[i]->release(adsrlevels[5]);
   }
-
   mappedattack = adsrlevels[1];
   mappeddecay = adsrlevels[3];
   mappedrelease = adsrlevels[5];
   mappedsustain = adsrlevels[4];
   MadsrAttackDelay = adsrlevels[0];
   MadsrHold = adsrlevels[2];
-  
 }
 
 int getwavetyped(int lawavetype) {

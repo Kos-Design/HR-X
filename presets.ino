@@ -268,7 +268,7 @@ void writesynthpreset() {
     FLOATinsertmytxtfile(phaselevelsL[i], (char*)"phaselL");
     INTinsertmytxtfile(LFOlevel[i], (char*)"lfolevel");
     INTinsertmytxtfile(LFOformstype[i], (char*)"lfoType");
-    FLOATinsertmytxtfile(LFOfreqs[i], (char*)"lfofreqs");
+    INTinsertmytxtfile(LFOfreqs[i], (char*)"lfofreqs");
     INTinsertmytxtfile(LFOphase[i], (char*)"lfoPhase");
     INTinsertmytxtfile(LFOoffset[i], (char*)"lfoOffset");
     INTinsertmytxtfile(LFOsync[i] + 1, (char*)"lfosync");
@@ -528,7 +528,7 @@ void parsefile(int presetn) {
     Serial.print("Plugged in ");
     Serial.print((String)mainmenufxlist[fx[i]->plugged_fx_type]);
   }
-  allfxcontrolled();
+  
 
   for (int i = 0; i < 4; i++) {
     parser.Read_String('#');
@@ -585,7 +585,7 @@ void parsefile(int presetn) {
 
     parser.Read_String('#');
     parser.Skip(1);
-    LFOfreqs[i] = parser.Read_Float();
+    LFOfreqs[i] = parser.Read_Int16();
 
     parser.Read_String('#');
     parser.Skip(1);
@@ -708,6 +708,7 @@ void parsefile(int presetn) {
   setlepulse1();
   setlepulse2();
   ApplyADSR();
+  allfxcontrolled();
   // Serial.println("adsr done");
   le303filterzWet();
   Wavespreamp303controls();
