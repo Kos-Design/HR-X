@@ -64,6 +64,81 @@ SynthLiner* synth_lines[liners_count] = {nullptr};
 
 unsigned long lastMicros = micros();
 
+
+String get_pattern_name(byte number) {
+  char formatted_number[4] ;
+  sprintf(formatted_number,"%02d",number);
+  return "PATTERN" + (String)formatted_number ;
+} 
+
+String get_current_pattern_path(){
+  return "PATTERNS/" + patterns_names[0] + ".TXT";
+}
+
+void refresh_patterns_names() {
+  for (int i = 0 ; i < ptn_size ; i++) {
+    //empty spots are left at the end of the list if it is small, otherwise the names are looped
+    patterns_names[i] = " ";
+    if (patterns_names_offset+i < patterns_count ) {
+      patterns_names[i] = get_pattern_name(patterns_indexes[patterns_names_offset+i]);
+    } else if (patterns_count >= ptn_size ){ 
+      patterns_names[i] = get_pattern_name(patterns_indexes[(patterns_names_offset+i)%patterns_count]); 
+    } 
+  }
+}
+          
+void list_patterns_files() {
+  patterns_count = 0;
+  String patterns_dir = "PATTERNS/";
+  if (SD.exists(patterns_dir.c_str())) {
+    File pattern_filer = SD.open(patterns_dir.c_str());
+    while (patterns_count < 99) {
+      File entry = pattern_filer.openNextFile();
+      if (!entry) {
+        break;
+      }
+      if (!entry.isDirectory()) {
+        char* named = (char*)entry.name();
+        named[strlen(named) - 4] = '\0';
+        //int is 7 chars after prefix
+        patterns_indexes[patterns_count] = atoi(named+7);
+        patterns_count++;
+      }
+      entry.close();
+    }
+    pattern_filer.close();
+  }
+}
+
+void displaythelistofpatterns() {
+  patterns_names_offset = sublevels[2];
+  refresh_patterns_names();
+  int startx = 73;
+  int starty = 16;
+  canvastitle.fillScreen(SSD1306_BLACK);
+  canvastitle.setCursor(startx, 0);
+  canvastitle.setTextSize(1);
+  if (sublevels[2] == patterns_count && sublevels[1] == 1) {
+    canvastitle.print("New()");
+  } else {
+    canvastitle.print(patterns_names[0].c_str());
+  }
+  canvastitle.setTextSize(1);
+  canvasBIG.setTextSize(1);
+  canvasBIG.fillScreen(SSD1306_BLACK);
+  if (sublevels[2] == patterns_count) {
+    for (int i = 0; i < ptn_size-1; i++) {
+      canvasBIG.setCursor(startx, (10 * (patterns_count - sublevels[2])) + 16 + i*10);
+      canvasBIG.println(patterns_names[i]);
+    }
+  } else {
+    for (int i = 0; i < ptn_size - 1 ; i++) {
+      canvasBIG.setCursor(startx, starty + i*10);
+      canvasBIG.println(patterns_names[1 + i]);
+    }
+  }
+}
+
 void elapse_one_tick(){
   while (!bpm_looper()){
     ;;
@@ -222,19 +297,15 @@ void displayPatternmenu() {
 }
 
 void PatternmenuBG() {
-
   display.clearDisplay();
   if (navlevel == 1) {
     navrange = sizeofpatternlistlabels - 1;
   }
-
   if (navlevel > 1 && sublevels[1] != 0) {
     if (sublevels[1] == 1) {
-      navrange = numberofPatternfiles;
-      // lqcurrentpqt =
+      navrange = patterns_count;
     } else {
-      // setnavrange();
-      navrange = numberofPatternfiles - 1;
+      navrange = max(patterns_count - 1, 0);
       lqcurrentpqt = sublevels[2];
     }
   }
@@ -245,53 +316,44 @@ void PatternmenuBG() {
                        sublevels[1] == 3 || sublevels[1] == 4)) {
     // Serial.println("preset action selected");
     lqcurrentpqt = sublevels[2];
-    navlevel = 1;
+    returntonav(1);
+   /* navlevel = 1;
     // sublevels[3] = 1;
     vraipos = 1;
-    myEnc.write(4);
-    // navrange = numberofPatternfiles - 1;
+    myEnc.write(4);*/
+    // navrange = patterns_count - 1;
     switch (sublevels[1]) {
-
-    case 0:
-
-      break;
-
-    case 1:
-
-      writelemidi(sublevels[2]);
-      break;
-
-    case 2:
-      clearlapattern();
-
-      parsepattern(sublevels[2]);
-      break;
-
-    case 3:
-      copypattern(sublevels[2]);
-      // deletepreset();
-      break;
-
-    case 4:
-      deletepattern(sublevels[2]);
-      break;
-
-    case 5:
-      // optionspattern();
-      break;
-    case 6:
-
-      break;
-    case 7:
-      // editlaccninou();
-      break;
-
-    default:
-      break;
+      case 0:
+        break;
+      case 1:
+        writelemidi();
+        break;
+      case 2:
+        clearlapattern();
+        parsepattern();
+        break;
+      case 3:
+        copypattern();
+        // deletepreset();
+        break;
+      case 4:
+        deletepattern();
+        break;
+      case 5:
+        // optionspattern();
+        break;
+      case 6:
+        break;
+      case 7:
+        // editlaccninou();
+        break;
+      default:
+        break;
     }
     displayPatternmenu();
   }
 }
+
 void showleditcc() {
   int lavaluecc = 0;
   int lacellwidth = 128 / pbars;
@@ -354,12 +416,14 @@ void showleditcc() {
 
   dodisplay();
 }
+
 void editlaccninou() {
   navrange = 127;
   showleditcc();
   editlaccactionpath();
   dodisplay();
 }
+
 void headerccedit() {
   display.clearDisplay();
   canvastitle.fillScreen(SSD1306_BLACK);
@@ -379,6 +443,7 @@ void headerccedit() {
     canvastitle.print("Off");
   }
 }
+
 void editlaccactionpath() {
   if (navlevel == 3) {
 
@@ -401,10 +466,12 @@ void editlaccactionpath() {
     navrange = pbars - 1;
   }
 }
+
 void showvertlinecursor(int lavertpos) {
   display.drawLine(lavertpos * (128 / pbars), 16, lavertpos * (128 / pbars), 64,
                    SSD1306_WHITE);
 }
+
 void clearlapattern() {
   if (!targetNOsynth || songplaying) {
     clearsynthpatternline();
@@ -417,6 +484,7 @@ void clearlapattern() {
   }
   // cc as well
 }
+
 void clearCCline() {
   // Serial.print("clearpatternline ");
   for (int j = 0; j < pbars; j++) {
@@ -426,6 +494,7 @@ void clearCCline() {
     }
   }
 }
+
 void clearsynthpatternline() {
   // Serial.print("clearpatternline ");
   for (int j = 0; j < pbars; j++) {
@@ -441,6 +510,7 @@ void clearsynthpatternline() {
     track_cells[0][j] = 0;
   }
 }
+
 void clearsamplerpatternline() {
   // Serial.print("clearpatternline ");
   for (int j = 0; j < pbars; j++) {
@@ -553,6 +623,7 @@ void dotransposesynth() {
   }
   refresh_track();
 }
+
 void dotransposeCC() {
   // Serial.println("synth transposed");
   if (sublevels[3] - 7 > 0) {
@@ -574,6 +645,7 @@ void doShifterCC() {
     shiftnotesCCright(abs(sublevels[3] - 16));
   }
 }
+
 void shiftnotesCCup(int leshifter) {
 
   for (int shifts = 0; shifts < leshifter; shifts++) {
@@ -589,6 +661,7 @@ void shiftnotesCCup(int leshifter) {
     }
   }
 }
+
 void shiftnotesCCdown(int leshifter) {
 
   for (int shifts = 0; shifts < leshifter; shifts++) {
@@ -667,6 +740,7 @@ void shiftnotes1up(int leshifter) {
     }
   }
 }
+
 void shiftnotes1down(int leshifter) {
   for (int shifts = 0; shifts < leshifter; shifts++) {
 
@@ -769,6 +843,7 @@ void dotransposesampler() {
   }
   refreshevented2();
 }
+
 void doShiftersampler() {
   // Serial.println("sampler Shifterd");
   if (sublevels[3] - 16 > 0) {
@@ -800,6 +875,7 @@ void shiftnotes2up(int leshifter) {
     }
   }
 }
+
 void shiftnotes2down(int leshifter) {
   for (int shifts = 0; shifts < leshifter; shifts++) {
     for (int j = 0; j < pbars; j++) {
@@ -1043,6 +1119,7 @@ void showlestargetdisplays() {
   // canvasBIG.print(latransposition);
   dodisplay();
 }
+
 void optionspatterndisplays() {
   display.clearDisplay();
   canvastitle.fillScreen(SSD1306_BLACK);
@@ -1061,70 +1138,26 @@ void optionspatterndisplays() {
   }
   dodisplay();
 }
-void displaythelistofpatterns() {
-  int startx = 80;
-  int starty = 16;
-  // char* textinz = (char*)lesfiles[sublevels[3]].name() ;
 
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(startx, 0);
-  canvastitle.setTextSize(1);
-
-  if (sublevels[2] == numberofPatternfiles && sublevels[1] == 1) {
-
-    canvastitle.print("New()");
+void writelemidi() {
+  File pat_filer ;
+  if (patterns_names_offset == patterns_count) {
+    pat_filer = SD.open(get_new_file_name("PATTERNS/PATTERN").c_str(), FILE_WRITE);
   } else {
-    canvastitle.print((char *)Patternfilebase[sublevels[2]]);
+    if (SD.exists(get_current_pattern_path().c_str())) {
+      SD.remove(get_current_pattern_path().c_str());
+    }
+    pat_filer = SD.open(get_current_pattern_path().c_str(), FILE_WRITE);
   }
-  canvastitle.setTextSize(1);
-  canvasBIG.setTextSize(1);
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  if (sublevels[2] == numberofPatternfiles) {
-    for (int filer = 0; filer < sublevels[2] - 1; filer++) {
-      canvasBIG.setCursor(startx, (10 * (numberofPatternfiles - sublevels[2])) +
-                                      16 + ((filer)*10));
-      canvasBIG.println((char *)Patternfilebase[filer]);
-    }
+  if (pat_filer) {
+    write_midi_info(pat_filer);
+    pat_filer.close();
   } else {
-    for (int filer = 0; filer < numberofPatternfiles - 1 - (sublevels[2]);
-         filer++) {
-      canvasBIG.setCursor(startx, starty + ((filer)*10));
-      canvasBIG.println((char *)Patternfilebase[sublevels[2] + 1 + filer]);
-    }
-
-    for (int filer = 0; filer < sublevels[2]; filer++) {
-
-      canvasBIG.setCursor(startx, (10 * (numberofPatternfiles - sublevels[2])) +
-                                      6 + ((filer)*10));
-      canvasBIG.println((char *)Patternfilebase[filer]);
-    }
-  }
-}
-
-void writelemidi(byte lefilenu) {
-  if (lefilenu == numberofPatternfiles) {
-    myMidiFile = SD.open(get_new_file_name("PATTERNS/PATERN").c_str(), FILE_WRITE);
-  } else {
-    // Serial.println("overwriting.");
-    if (SD.exists((char *)Patternfilefullpath[lefilenu])) {
-      // Serial.println("removing existing.");
-      SD.remove((char *)Patternfilefullpath[lefilenu]);
-      // Serial.println("removed.");
-    }
-    myMidiFile = SD.open((char *)Patternfilefullpath[lefilenu], FILE_WRITE);
-  }
-  // if the file opened okay, write to it:
-  if (SD.exists((char *)Patternfilefullpath[lefilenu])) {
-    writemidiinfo();
-    myMidiFile.close();
-    // Serial.println("wrote.");
-  } else {
-    // if the file didn't open, print an error:
     Serial.println("error opening");
-    Serial.println(myMidiFile.name());
+    Serial.println(pat_filer.name());
   }
-  myMidiFile.close();
-  dopatternfileslist();
+  pat_filer.close();
+  list_patterns_files();
 }
 
 void metronomer() {
@@ -1325,7 +1358,7 @@ void play_sampler_line(int linei) {
     }
   }
 }
-void midifileliner(int liner, int ticker) {
+void midifileliner(File &pat_filer,int liner, int ticker) {
 
   myMidiFile.print(latimeline);
   myMidiFile.print(" On ch=");
@@ -1339,7 +1372,7 @@ void midifileliner(int liner, int ticker) {
   myMidiFile.print(leintv);
   myMidiFile.print("\n");
 }
-void midifilelinerSampler(int liner, int ticker) {
+void midifilelinerSampler(File &pat_filer,int liner, int ticker) {
 
   myMidiFile.print(latimeline);
   myMidiFile.print(" On ch=");
@@ -1354,7 +1387,7 @@ void midifilelinerSampler(int liner, int ticker) {
   myMidiFile.print("\n");
 }
 
-void midifilelinerOff(int liner, int ticker) {
+void midifilelinerOff(File &pat_filer, int liner, int ticker) {
   myMidiFile.print(latimeline);
   myMidiFile.print(" Off ch=");
   int leintc = (int)synth_off_pat[liner][ticker][0];
@@ -1367,7 +1400,7 @@ void midifilelinerOff(int liner, int ticker) {
   myMidiFile.print(leintv);
   myMidiFile.print("\n");
 }
-void midifileCC(int lecc, int ticker) {
+void midifileCC(File &pat_filer,int lecc, int ticker) {
   myMidiFile.print(latimeline);
   myMidiFile.print(" Par ch=");
   int leintc = (int)synthmidichannel;
@@ -1381,11 +1414,11 @@ void midifileCC(int lecc, int ticker) {
   myMidiFile.print("\n");
 }
 
-void writemidiinfo() {
+void write_midi_info(File &pat_filer) {
   latimeline = 0;
   // latimelineshifter = ((60000/19200)*pbars) ;
   // (60.0/BPMs)*1000)*pbars) = 1 bar millis 92 original
-  myMidiFile.print("MFile 0 1 19200\nMTrk\n");
+  pat_filer.print("MFile 0 1 19200\nMTrk\n");
   // for (int i = 0 ; i<5 ; i++ ) {
 
   for (int t = 0; t < pbars; t++) {
@@ -1393,31 +1426,31 @@ void writemidiinfo() {
     latimeline = (3125 * t);
     for (int j = 0; j < liners_count; j++) {
       if (synth_off_pat[j][t][1] != 0) {
-        midifilelinerOff(j, t);
+        midifilelinerOff(pat_filer,j, t);
       }
     }
     for (int j = 0; j < liners_count; j++) {
       if (synth_partition[j][t][1] != 0) {
-        midifileliner(j, t);
+        midifileliner(pat_filer,j, t);
       }
     }
     for (int j = 0; j < nombreofSamplerliners; j++) {
       if (sampler_partition[j][t][1] != 0) {
-        midifilelinerSampler(j, t);
+        midifilelinerSampler(pat_filer,j, t);
       }
     }
 
     for (int j = 0; j < 128; j++) {
       if (cc_partition[j][t] != 127) {
-        midifileCC(j, t);
+        midifileCC(pat_filer,j, t);
       }
     }
   }
 
   //}
-  myMidiFile.print(100000);
-  myMidiFile.print(" Meta TrkEnd\n");
-  myMidiFile.print("TrkEnd\n");
+  pat_filer.print(100000);
+  pat_filer.print(" Meta TrkEnd\n");
+  pat_filer.print("TrkEnd\n");
 }
 
 int print2digits(int number) {
@@ -1443,13 +1476,13 @@ void drawguides() {
   int celltall = 9;
   int startx = 0;
   int starty = 16;
-  for (int filer = 0; filer < pbars; filer++) {
-    canvasBIG.drawLine(startx + (cellsizer * 4) * filer, starty - 1,
-                       cellsizer + startx + (cellsizer * 4) * filer, starty - 1,
+  for (int i = 0; i < pbars; i++) {
+    canvasBIG.drawLine(startx + (cellsizer * 4) * i, starty - 1,
+                       cellsizer + startx + (cellsizer * 4) * i, starty - 1,
                        SSD1306_WHITE);
-    canvasBIG.drawLine(startx + (cellsizer * 4) * filer,
+    canvasBIG.drawLine(startx + (cellsizer * 4) * i,
                        (4 * celltall) + starty + 1,
-                       cellsizer + startx + (cellsizer * 4) * filer,
+                       cellsizer + startx + (cellsizer * 4) * i,
                        (4 * celltall) + starty + 1, SSD1306_WHITE);
   }
 }
@@ -1458,16 +1491,16 @@ void drawpatterngrid(int nombrelines, int collumns, int startx, int starty) {
   celltall = round((63 - starty) / nombrelines);
   cellsizer = round((127 - startx) / collumns);
   int listoffsetter;
-  for (int filer = 0; filer < nombrelines + 1; filer++) {
-    listoffsetter = starty + ((filer)*celltall);
+  for (int i = 0; i < nombrelines + 1; i++) {
+    listoffsetter = starty + ((i)*celltall);
     // horizontallines
     canvasBIG.drawLine(startx, listoffsetter, startx + cellsizer * pbars,
                        listoffsetter, SSD1306_WHITE);
   }
-  for (int filer = 0; filer < pbars + 1; filer++) {
+  for (int i = 0; i < pbars + 1; i++) {
     // verticalbars
-    canvasBIG.drawLine(startx + cellsizer * filer, starty + 1,
-                       startx + cellsizer * filer, (4 * celltall) + starty,
+    canvasBIG.drawLine(startx + cellsizer * i, starty + 1,
+                       startx + cellsizer * i, (4 * celltall) + starty,
                        SSD1306_WHITE);
   }
 }
@@ -2280,54 +2313,47 @@ void drawCursorCol2() {
 
 void dolistPatternsmenu() {
   char patternlistlabels[sizeofpatternlistlabels][12] = {
-      "Edit", "Save", "Load", "Copy", "Delete", "Options", "Clear", "C-Edit"};
+      "Edit", "Save", "Load", "Copy", "Delete", "Params", "Clear", "C-Edit"};
   byte startx = 5;
   byte starty = 16;
   char *textin = (char *)patternlistlabels[sublevels[1]];
   // Serial.println(textin);
   canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setCursor(0, 0);
-
   canvastitle.setTextSize(2);
-
   canvastitle.println(textin);
-
   canvasBIG.setTextSize(1);
-
   canvasBIG.fillScreen(SSD1306_BLACK);
-
-  for (int filer = 0; filer < sizeofpatternlistlabels - 1 - (sublevels[1]);
-       filer++) {
-
-    canvasBIG.setCursor(startx, starty + ((filer)*10));
-    canvasBIG.println(patternlistlabels[sublevels[1] + 1 + filer]);
+  for (int i = 0; i < sizeofpatternlistlabels - 1 - (sublevels[1]); i++) {
+    canvasBIG.setCursor(startx, starty + ((i)*10));
+    canvasBIG.println(patternlistlabels[sublevels[1] + 1 + i]);
   }
-  for (int filer = 0; filer < sublevels[1]; filer++) {
-
-    canvasBIG.setCursor(startx, (10 * (sizeofpatternlistlabels - sublevels[1]) +
-                                 6 + ((filer)*10)));
-    canvasBIG.println(patternlistlabels[filer]);
+  for (int i = 0; i < sublevels[1]; i++) {
+    canvasBIG.setCursor(startx, (10 * (sizeofpatternlistlabels - sublevels[1]) + 6 + ((i)*10)));
+    canvasBIG.println(patternlistlabels[i]);
   }
 }
 
-void deletepattern(int lapattern) {
-  if (SD.exists((const char *)Patternfilefullpath[lapattern])) {
-    SD.remove((const char *)Patternfilefullpath[lapattern]);
+void deletepattern() {
+  if (SD.exists(get_current_pattern_path().c_str())) {
+    SD.remove(get_current_pattern_path().c_str());
   }
-  dopatternfileslist();
+  list_patterns_files();
 }
 
-void copypattern(int lapattern) {
-  File originpatternfile = SD.open((const char *)Patternfilefullpath[lapattern]);
-  File mypatterntxtFile = SD.open(get_new_file_name("PATTERNS/PATERN").c_str(), FILE_WRITE);
+void copypattern() {
+  File originpatternfile = SD.open(get_current_pattern_path().c_str());
+  File mypatterntxtFile = SD.open(get_new_file_name("PATTERNS/PATTERN").c_str(), FILE_WRITE);
   size_t n;
   uint8_t buf[64];
-  while ((n = originpatternfile.read(buf, sizeof(buf))) > 0) {
-    mypatterntxtFile.write(buf, n);
+  if (originpatternfile) {
+    while ((n = originpatternfile.read(buf, sizeof(buf))) > 0) {
+      mypatterntxtFile.write(buf, n);
+    }
+    originpatternfile.close();
   }
-  originpatternfile.close();
   mypatterntxtFile.close();
-  dopatternfileslist();
+  list_patterns_files();
 }
 
 void dosavepattern() { canvastitle.fillScreen(SSD1306_BLACK); }
@@ -2342,15 +2368,15 @@ void print_last_received() {
       
 }
 
-void parsepattern(int lapatterne) {
+void parsepattern() {
   byte laccnote;
   byte parsedchannel;
   // Serial.println("Loading attempt");
   int letimescaler = 3125;
-  File lepatternfile = SD.open((char *)Patternfilefullpath[lapatterne]);
+  File lepatternfile = SD.open(get_current_pattern_path().c_str());
 
   // Serial.println(lepatternfile.name());
-  if (SD.exists((char *)Patternfilefullpath[lapatterne])) {
+  if (lepatternfile) {
     Serial.println("File OK");
     for (int i = 0; i < parsinglength; i++) {
       receivedbitinchar[i] = lepatternfile.read();
@@ -2371,8 +2397,8 @@ void parsepattern(int lapatterne) {
       parserp.Reset();
       lenint = 0;
 
-      for (int filer = 0; filer < 128; filer++) {
-        // Serial.println(filer);
+      for (int k = 0; k < 128; k++) {
+        // Serial.println(k);
         while (!(leparsed[0] == (char)'O' && leparsed[1] == (char)'f')) {
           parserp.JumpTo(Parser::IsDigit);
           letempspattern = round((parserp.Read_Int32() / letimescaler));
@@ -2466,8 +2492,8 @@ void parsepattern(int lapatterne) {
       parserp.Reset();
       lenint = 0;
 
-      for (int filer = 0; filer < 128; filer++) {
-        // Serial.println(filer);
+      for (int k = 0; k < 128; k++) {
+        // Serial.println(k);
         while (!(leparsed[0] == (char)'O' && leparsed[1] == (char)'n')) {
           parserp.JumpTo(Parser::IsDigit);
           letempspattern = round((parserp.Read_Int32() / letimescaler));

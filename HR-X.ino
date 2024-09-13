@@ -145,36 +145,27 @@ float interpot;
 bool overdubmidi;
 bool noteprint = 0;
 
-//char Patternfiledir[26] = {"PATTERNS/"};
 String Patternfiledir = "PATTERNS/" ;
-// not EXTMEM for now
-EXTMEM char Patternfilename[999][13];
-EXTMEM char Patternfilefullpath[999][22];
-EXTMEM char Patternfilebase[999][9];
-EXTMEM bool Patternfilesselected[999];
-byte leeffectID[fxs_count];
-int numberofPatternfilesselected = 0;
-int numberofPatternfiles = 0;
+
+byte patterns_indexes[99];
+byte patterns_count = 0 ;
+const byte ptn_size = 6;
+String patterns_names[ptn_size];
+byte patterns_names_offset = 0 ;
+
 bool demimalmode;
 bool addinglenght;
 EXTMEM char sampledirpath[99] = {"SOUNDSET/"};
-float freespace;
-//char SynthPresetdir[32] = {"PRESETS/SYNTH/"};
+
 String SynthPresetdir = "PRESETS/SYNTH/" ;
-// not EXTMEM for now
+
 EXTMEM char SynthPresetname[999][13];
 EXTMEM char SynthPresetfullpath[999][28];
 EXTMEM char SynthPresetbase[999][9];
 
 int presets_count = 0;
 const byte truesizeofwaveformsmenulabels = 7;
-EXTMEM char Waveformsname[999][13];
-EXTMEM char Waveformsfullpath[999][22];
-EXTMEM char Waveformsbase[999][9];
-EXTMEM bool Waveformsselected[999];
-int numberofWaveformsselected = 0;
-int numberofWaveforms = 0;
-char Waveformsdir[10] = {"WAVEFORM/"};
+
 String newloopedpath = "SOUNDSET/REC/LOOP00#L.RAW";
 String newRecpathL = "SOUNDSET/REC/RECZ00#L.RAW";
 String newRecpathR = "SOUNDSET/REC/RECZ00#R.RAW";
@@ -182,8 +173,6 @@ int navlevelvbuttons = 1;
 const int numberofvbuttonslabels = 8;
 byte vbuttonsCC[numberofvbuttonslabels + 14 + 17];
 byte vPots[17] = {0};
-
-// float angleofknob = 3.1416 ;
 
 byte tapnote = byte(3);
 bool tapstarted;

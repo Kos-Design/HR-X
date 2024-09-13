@@ -497,14 +497,15 @@ void controlswitcher(int caser, int valu) {
 
     case 100:
       Serial.println("100");
-      writelemidi(lqcurrentpqt);
+      //TODO FIXME
+     // writelemidi(lqcurrentpqt);
       break;
 
     case 101:
       // loqdcurrent
       clearlapattern();
-
-      parsepattern(lqcurrentpqt);
+      //TODO FIXME
+     // parsepattern(lqcurrentpqt);
       break;
     
     case 102:
@@ -557,7 +558,7 @@ void controlswitcher(int caser, int valu) {
       // type2
         clearlapattern();
 
-        parsepattern(0);
+       // parsepattern(0);
       //.gain(2,smallfloat);
       break;
 

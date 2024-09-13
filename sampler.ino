@@ -71,7 +71,6 @@ void copybacklaflashfile(int leflashfile) {
   }
   originflashfile.close();
   mynewsample.close();
-  dopatternfileslist();
 }
 void copyflashtoSD() {
   for (int i = 0; i < 128; i++) {
@@ -460,9 +459,7 @@ void drawFlashSamplesList() {
   canvastitle.setTextSize(1);
   canvastitle.setCursor(startx, 0);
   canvastitle.print((char *)Flashsamplebase[sublevels[navlevel]]);
-  drawtickboxflashtitle(startx - 13, 0, 6, 6, SSD1306_WHITE,
-                        sublevels[navlevel]);
-
+  drawtickboxflashtitle(startx - 13, 0, 6, 6, SSD1306_WHITE, sublevels[navlevel]);
   canvasBIG.setTextSize(1);
   canvasBIG.fillScreen(SSD1306_BLACK);
   // Serial.println("doing other part");
@@ -470,26 +467,20 @@ void drawFlashSamplesList() {
   if (maxsizefirstpart > 6) {
     maxsizefirstpart = 6;
   }
-  for (int filer = 0; filer < maxsizefirstpart; filer++) {
-    canvasBIG.setCursor(startx, starty + ((filer)*10));
-    canvasBIG.println((char *)Flashsamplebase[sublevels[navlevel] + 1 + filer]);
-    drawtickboxflashBIG(startx - 13, starty + ((filer)*10), 6, 6, SSD1306_WHITE,
-                        sublevels[navlevel] + 1 + filer);
+  for (int i = 0; i < maxsizefirstpart; i++) {
+    canvasBIG.setCursor(startx, starty + ((i)*10));
+    canvasBIG.println((char *)Flashsamplebase[sublevels[navlevel] + 1 + i]);
+    drawtickboxflashBIG(startx - 13, starty + ((i)*10), 6, 6, SSD1306_WHITE, sublevels[navlevel] + 1 + i);
   }
   // Serial.println("last part");
   int maxsizelastpart = sublevels[navlevel];
   if (maxsizelastpart > 6) {
     maxsizelastpart = 6;
   }
-  for (int filer = 0; filer < maxsizelastpart; filer++) {
-    canvasBIG.setCursor(startx,
-                        (10 * (numberofFlashfiles - sublevels[navlevel])) + 6 +
-                            ((filer)*10));
-    canvasBIG.println((char *)Flashsamplebase[filer]);
-    drawtickboxflashBIG(startx - 13,
-                        (10 * (numberofFlashfiles - sublevels[navlevel])) + 6 +
-                            ((filer)*10),
-                        6, 6, SSD1306_WHITE, filer);
+  for (int i = 0; i < maxsizelastpart; i++) {
+    canvasBIG.setCursor(startx, (10 * (numberofFlashfiles - sublevels[navlevel])) + 6 + ((i)*10));
+    canvasBIG.println((char *)Flashsamplebase[i]);
+    drawtickboxflashBIG(startx - 13, (10 * (numberofFlashfiles - sublevels[navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, i);
   }
 }
 
@@ -500,10 +491,8 @@ void drawsamplerfilesList() {
   canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setTextSize(1);
   canvastitle.setCursor(startx, 0);
-
   canvastitle.print((char *)samplebase[sublevels[3]][sublevels[navlevel]]);
-  drawtickboxincanvastitle(startx - 13, 0, 6, 6, SSD1306_WHITE, sublevels[3],
-                           sublevels[navlevel]);
+  drawtickboxincanvastitle(startx - 13, 0, 6, 6, SSD1306_WHITE, sublevels[3], sublevels[navlevel]);
   canvasBIG.setTextSize(1);
   canvasBIG.fillScreen(SSD1306_BLACK);
   // Serial.println("doing other part");
@@ -512,48 +501,32 @@ void drawsamplerfilesList() {
   if (maxsizefirstpart > 6) {
     maxsizefirstpart = 6;
   }
-  for (int filer = 0; filer < maxsizefirstpart; filer++) {
-    canvasBIG.setCursor(startx, starty + ((filer)*10));
-    canvasBIG.println(
-        (char *)samplebase[sublevels[3]][sublevels[navlevel] + 1 + filer]);
-    drawtickboxincanvasBIG(startx - 13, starty + ((filer)*10), 6, 6,
-                           SSD1306_WHITE, sublevels[3],
-                           sublevels[navlevel] + 1 + filer);
+  for (int i = 0; i < maxsizefirstpart; i++) {
+    canvasBIG.setCursor(startx, starty + ((i)*10));
+    canvasBIG.println((char *)samplebase[sublevels[3]][sublevels[navlevel] + 1 + i]);
+    drawtickboxincanvasBIG(startx - 13, starty + ((i)*10), 6, 6, SSD1306_WHITE, sublevels[3], sublevels[navlevel] + 1 + i);
   }
   // Serial.println("last part");
   int maxsizelastpart = sublevels[navlevel];
   if (maxsizelastpart > 6) {
     maxsizelastpart = 6;
   }
-  for (int filer = 0; filer < maxsizelastpart; filer++) {
-    canvasBIG.setCursor(startx, (10 * (sizeofsamplefolder[sublevels[3]] -
-                                       sublevels[navlevel])) +
-                                    6 + ((filer)*10));
-    canvasBIG.println((char *)samplebase[sublevels[3]][filer]);
-    drawtickboxincanvasBIG(
-        startx - 13,
-        (10 * (sizeofsamplefolder[sublevels[3]] - sublevels[navlevel])) + 6 +
-            ((filer)*10),
-        6, 6, SSD1306_WHITE, sublevels[3], filer);
+  for (int i = 0; i < maxsizelastpart; i++) {
+    canvasBIG.setCursor(startx, (10 * (sizeofsamplefolder[sublevels[3]] - sublevels[navlevel])) + 6 + ((i)*10));
+    canvasBIG.println((char *)samplebase[sublevels[3]][i]);
+    drawtickboxincanvasBIG(startx - 13, (10 * (sizeofsamplefolder[sublevels[3]] - sublevels[navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, sublevels[3], i);
   }
 }
 
 void drawSamplerFoldersList() {
-  // Serial.println("listing samplerList");
   int startx = 15;
   int starty = 16;
   canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setTextSize(1);
   canvastitle.setCursor(startx, 0);
-
   canvastitle.print((char *)samplefoldersregistered[sublevels[navlevel]]);
-  // Serial.println("listed title, 1st test");
-  // ?? checkbox display ?
   if (sublevels[2] == 1) {
-
-    drawtickboxfoldertitle(startx - 13, 0, 6, 6, SSD1306_WHITE,
-                           sublevels[navlevel]);
-    // }
+    drawtickboxfoldertitle(startx - 13, 0, 6, 6, SSD1306_WHITE, sublevels[navlevel]);
   }
   canvasBIG.setTextSize(1);
   canvasBIG.fillScreen(SSD1306_BLACK);
@@ -562,44 +535,27 @@ void drawSamplerFoldersList() {
   if (maxsizefirstpart > 6) {
     maxsizefirstpart = 6;
   }
-  for (int filer = 0; filer < maxsizefirstpart; filer++) {
-    canvasBIG.setCursor(startx, starty + ((filer)*10));
-    canvasBIG.println(
-        (char *)samplefoldersregistered[sublevels[navlevel] + 1 + filer]);
+  for (int i = 0; i < maxsizefirstpart; i++) {
+    canvasBIG.setCursor(startx, starty + ((i)*10));
+    canvasBIG.println((char *)samplefoldersregistered[sublevels[navlevel] + 1 + i]);
     if (sublevels[2] == 1) {
-      // if (
-      // !(isitadir((char*)samplefoldersregistered[sublevels[navlevel]+1+filer])))
-      // {
-      drawtickboxfolderBIG(startx - 13, starty + ((filer)*10), 6, 6,
-                           SSD1306_WHITE, sublevels[navlevel] + 1 + filer);
-      // }
+      drawtickboxfolderBIG(startx - 13, starty + ((i)*10), 6, 6, SSD1306_WHITE, sublevels[navlevel] + 1 + i);
     }
   }
-  // Serial.println("last part");
   int maxsizelastpart = sublevels[navlevel];
   if (maxsizelastpart > 6) {
     maxsizelastpart = 6;
   }
-  for (int filer = 0; filer < maxsizelastpart; filer++) {
-    canvasBIG.setCursor(startx,
-                        (10 * (sampledirsregistered - sublevels[navlevel])) +
-                            6 + ((filer)*10));
-    canvasBIG.println((char *)samplefoldersregistered[filer]);
-    // checkbox
+  for (int i = 0; i < maxsizelastpart; i++) {
+    canvasBIG.setCursor(startx, (10 * (sampledirsregistered - sublevels[navlevel])) + 6 + ((i)*10));
+    canvasBIG.println((char *)samplefoldersregistered[i]);
     if (sublevels[2] == 1) {
-
-      drawtickboxfolderBIG(startx - 13,
-                           (10 * (keepcount - sublevels[navlevel])) + 6 +
-                               ((filer)*10),
-                           6, 6, SSD1306_WHITE, filer);
-      //  }
+      drawtickboxfolderBIG(startx - 13, (10 * (keepcount - sublevels[navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, i);
     }
   }
-  // Serial.println("drawn");
 }
 
 void dolistLoadSampleMenu() {
-
   const int sizeofmenuloadsample = 4;
   char menuloadsample[sizeofmenuloadsample][16] = {
       "Select", "Whole pack", "Load Selection", "Clear Selection"};
@@ -609,30 +565,17 @@ void dolistLoadSampleMenu() {
   // Serial.println(textin);
   canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setCursor(0, 0);
-
   canvastitle.setTextSize(1);
-
   canvastitle.println(textin);
-
-  // canvastitle.setCursor(45,8);
-  // canvastitle.print("free mem:");
-  // canvastitle.print(freespace);
-  // canvastitle.println("%");
   canvasBIG.setTextSize(1);
-
   canvasBIG.fillScreen(SSD1306_BLACK);
-
-  for (int filer = 0; filer < sizeofmenuloadsample - 1 - (sublevels[2]);
-       filer++) {
-
-    canvasBIG.setCursor(startx, starty + ((filer)*10));
-    canvasBIG.println(menuloadsample[sublevels[2] + 1 + filer]);
+  for (int i = 0; i < sizeofmenuloadsample - 1 - (sublevels[2]); i++) {
+    canvasBIG.setCursor(startx, starty + ((i)*10));
+    canvasBIG.println(menuloadsample[sublevels[2] + 1 + i]);
   }
-  for (int filer = 0; filer < sublevels[2]; filer++) {
-
-    canvasBIG.setCursor(startx, (10 * (sizeofmenuloadsample - sublevels[2]) +
-                                 6 + ((filer)*10)));
-    canvasBIG.println(menuloadsample[filer]);
+  for (int i = 0; i < sublevels[2]; i++) {
+    canvasBIG.setCursor(startx, (10 * (sizeofmenuloadsample - sublevels[2]) + 6 + ((i)*10)));
+    canvasBIG.println(menuloadsample[i]);
   }
 }
 void dolistDelSampleMenu() {
@@ -642,29 +585,19 @@ void dolistDelSampleMenu() {
   int startx = 5;
   int starty = 16;
   char *textin = (char *)menudelsample[sublevels[2]];
-  // Serial.println(textin);
   canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setCursor(0, 0);
-
   canvastitle.setTextSize(1);
-
   canvastitle.println(textin);
-
   canvasBIG.setTextSize(1);
-
   canvasBIG.fillScreen(SSD1306_BLACK);
-
-  for (int filer = 0; filer < sizeofmenudelsample - 1 - (sublevels[2]);
-       filer++) {
-
-    canvasBIG.setCursor(startx, starty + ((filer)*10));
-    canvasBIG.println(menudelsample[sublevels[2] + 1 + filer]);
+  for (int i = 0; i < sizeofmenudelsample - 1 - (sublevels[2]); i++) {
+    canvasBIG.setCursor(startx, starty + ((i)*10));
+    canvasBIG.println(menudelsample[sublevels[2] + 1 + i]);
   }
-  for (int filer = 0; filer < sublevels[2]; filer++) {
-
-    canvasBIG.setCursor(
-        startx, (10 * (sizeofmenudelsample - sublevels[2]) + 6 + ((filer)*10)));
-    canvasBIG.println(menudelsample[filer]);
+  for (int i = 0; i < sublevels[2]; i++) {
+    canvasBIG.setCursor(startx, (10 * (sizeofmenudelsample - sublevels[2]) + 6 + ((i)*10)));
+    canvasBIG.println(menudelsample[i]);
   }
 }
 void dolistAssignSampleMenu() {
@@ -672,29 +605,22 @@ void dolistAssignSampleMenu() {
   const int sizeofmenuassignsample = 4;
   char menuassignsample[sizeofmenuassignsample][19] = {
       "Auto-assign", "Individual", "Clear All", "Save assigned"};
-
   int startx = 5;
   int starty = 16;
   char *textin = (char *)menuassignsample[sublevels[2]];
-  // Serial.println(textin);
   canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setCursor(0, 0);
   canvastitle.setTextSize(1);
   canvastitle.println(textin);
   canvasBIG.setTextSize(1);
   canvasBIG.fillScreen(SSD1306_BLACK);
-
-  for (int filer = 0; filer < sizeofmenuassignsample - 1 - (sublevels[2]);
-       filer++) {
-
-    canvasBIG.setCursor(startx, starty + ((filer)*10));
-    canvasBIG.println(menuassignsample[sublevels[2] + 1 + filer]);
+  for (int i = 0; i < sizeofmenuassignsample - 1 - (sublevels[2]); i++) {
+    canvasBIG.setCursor(startx, starty + ((i)*10));
+    canvasBIG.println(menuassignsample[sublevels[2] + 1 + i]);
   }
-  for (int filer = 0; filer < sublevels[2]; filer++) {
-
-    canvasBIG.setCursor(startx, (10 * (sizeofmenuassignsample - sublevels[2]) +
-                                 6 + ((filer)*10)));
-    canvasBIG.println(menuassignsample[filer]);
+  for (int i = 0; i < sublevels[2]; i++) {
+    canvasBIG.setCursor(startx, (10 * (sizeofmenuassignsample - sublevels[2]) + 6 + ((i)*10)));
+    canvasBIG.println(menuassignsample[i]);
   }
 }
 void dolistsamplermenu() {
@@ -704,29 +630,19 @@ void dolistsamplermenu() {
   int startx = 5;
   int starty = 16;
   char *textin = (char *)samplerlabels[sublevels[1]];
-  // Serial.println(textin);
   canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setCursor(0, 0);
-
   canvastitle.setTextSize(2);
-
   canvastitle.println(textin);
-
   canvasBIG.setTextSize(1);
-
   canvasBIG.fillScreen(SSD1306_BLACK);
-
-  for (int filer = 0; filer < sizeofsamplerlabels - 1 - (sublevels[1]);
-       filer++) {
-
-    canvasBIG.setCursor(startx, starty + ((filer)*10));
-    canvasBIG.println(samplerlabels[sublevels[1] + 1 + filer]);
+  for (int i = 0; i < sizeofsamplerlabels - 1 - (sublevels[1]); i++) {
+    canvasBIG.setCursor(startx, starty + ((i)*10));
+    canvasBIG.println(samplerlabels[sublevels[1] + 1 + i]);
   }
-  for (int filer = 0; filer < sublevels[1]; filer++) {
-
-    canvasBIG.setCursor(
-        startx, (10 * (sizeofsamplerlabels - sublevels[1]) + 6 + ((filer)*10)));
-    canvasBIG.println(samplerlabels[filer]);
+  for (int i = 0; i < sublevels[1]; i++) {
+    canvasBIG.setCursor(startx, (10 * (sizeofsamplerlabels - sublevels[1]) + 6 + ((i)*10)));
+    canvasBIG.println(samplerlabels[i]);
   }
 }
 
@@ -1120,42 +1036,29 @@ void errorsd(const char *message) {
 void listFlashfiles() {
   initializeFlashsamplename();
   initializeFlashsamplebase();
-  // int laspace ;
   if (!SerialFlash.begin(FlashChipSelect)) {
     errorsd("Unable to access SPI Flash chip");
   }
-
   SerialFlash.opendir();
   while (1) {
     char flashenamex[13];
     uint32_t flashfilesize;
-
     if (SerialFlash.readdir(flashenamex, sizeof(flashenamex), flashfilesize)) {
-      //  Serial.print("  ");
-      //  Serial.print(flashenamex);
       addtoFlashsamplelist(flashenamex);
-      //  laspace += flashfilesize ;
-      // spacespr(20 - strlen(flashenamex));
-      //  Serial.print("  ");
-      // Serial.print(flashfilesize);
-      // Serial.print(" bytes");
-      // Serial.println();
     } else {
       break; // no more files
     }
   }
-  //   freespace = ((laspace/16777216.0)*100);
 }
 
+//unused
 void getavailablespace() {
   long laspace = 0;
   SerialFlashFile lefile;
   for (int i = 0; i < numberofFlashfiles; i++) {
     lefile = SerialFlash.open((char *)Flashsamplename[i]);
     if (lefile) {
-
       if (lefile.size() > 536900000) {
-
         laspace += lefile.size() - 536900000;
       } else {
         laspace += lefile.size();
@@ -1165,13 +1068,7 @@ void getavailablespace() {
     }
   }
   lefile.close();
-  // unsigned char id[5];
-  // SerialFlash.readID(id);
-  // unsigned long latotsize = SerialFlash.capacity(id);
-
-  // Serial.println(latotsize);
-  // Serial.println((laspace/16777216.0)*100);
-  freespace = ((laspace / 16777216.0) * 100);
+  float freespace = ((laspace / 16777216.0) * 100);
   Serial.print(freespace);
 }
 

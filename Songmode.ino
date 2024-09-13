@@ -8,11 +8,10 @@ byte numberofpatonsong;
 bool songplaying;
 
 byte numberofSongs = 0;
-char Songdir[7] = {"SONGS/"};
+
 char Songname[99][13];
 char Songfullpath[99][22];
 char Songbase[99][9];
-bool Songsselected[99];
 
 const byte truesizeofSongmenulabels = 8;
 const byte navSongmenu = 1;
@@ -217,6 +216,7 @@ void setleSongname(int lefile, char *lefname) {
 }
 
 void listSongs() {
+  char Songdir[7] = {"SONGS/"};
   if (SD.exists((char *)Songdir)) {
     File susudir = SD.open((char *)Songdir);
 
@@ -442,7 +442,7 @@ void showplayheadprogress() {
   display.drawLine(songplayhead * 8, 16, songplayhead * 8, 64, SSD1306_INVERSE);
 }
 void loadsongpattern() {
-
+  //TODO make parsefile loader !! SONGMODE INACTIVE without
   // Serial.println(songplayhead);
   if (patternonsong[songplayhead] > 0) {
 
@@ -450,7 +450,9 @@ void loadsongpattern() {
     Serial.print("cleared ");
     Serial.print("loading ");
     Serial.println(patternonsong[songplayhead] - 1);
-    parsepattern(patternonsong[songplayhead] - 1);
+    //TODO make parsefile loader
+    //parsepattern(patternonsong[songplayhead] - 1);
+
     Serial.println("Loaded");
   } else {
     stopdasong();
@@ -544,8 +546,7 @@ void showsongnavarrows() {
 }
 void setpatterninsong() {
   Serial.println(songpage);
-  patternonsong[(songpage * 16) + sublevels[songedit] - 8] =
-      sublevels[songedit + 1];
+  patternonsong[(songpage * 16) + sublevels[songedit] - 8] = sublevels[songedit + 1];
   returntonav(songedit);
 }
 
@@ -563,9 +564,7 @@ void showsongcell() {
   canvastitle.setTextSize(1);
   if (navlevel == songedit) {
     if (lasongcell > 0) {
-
-      canvastitle.print((char *)Patternfilebase[lasongcell - 1]);
-
+      canvastitle.print(get_pattern_name(patterns_indexes[lasongcell - 1]));
     } else {
       canvastitle.print("Empty");
     }
@@ -574,43 +573,39 @@ void showsongcell() {
 
 void selectormoveX() {
   songselectorX = 8 * (sublevels[songedit] - 8);
-  // if (sublevels[songedit]-8 >15 ) {
 }
 
 void songTransportSelector() {
   int startyp = 8;
   int ecart = 14;
-
-  display.drawPixel(ecart * (sublevels[songedit]) + 6, startyp + 7,
-                    SSD1306_WHITE);
-  display.drawPixel(ecart * (sublevels[songedit]) + 7, startyp + 6,
-                    SSD1306_WHITE);
-  display.drawPixel(ecart * (sublevels[songedit]) + 7, startyp + 7,
-                    SSD1306_WHITE);
+  display.drawPixel(ecart * (sublevels[songedit]) + 6, startyp + 7, SSD1306_WHITE);
+  display.drawPixel(ecart * (sublevels[songedit]) + 7, startyp + 6, SSD1306_WHITE);
+  display.drawPixel(ecart * (sublevels[songedit]) + 7, startyp + 7, SSD1306_WHITE);
 }
+
 void showpatonSongGrid() {
   int lasongcell;
-
   for (int j = 0; j < 16; j++) {
     lasongcell = patternonsong[(songpage * 16) + j];
-
     if (lasongcell > 0) {
       display.fillRect(j * 8 + 1, 16 + 1, 8 - 2, 12 - 2, SSD1306_WHITE);
     }
   }
 }
+
 void selectpatterninsong() {
-  navrange = numberofPatternfiles;
+  navrange = patterns_count;
   canvastitle.setCursor(0, 0);
   canvastitle.setTextSize(1);
 
   if (sublevels[songedit + 1] > 0) {
-    canvastitle.print((char *)Patternfilebase[sublevels[songedit + 1] - 1]);
+    canvastitle.print(get_pattern_name(patterns_indexes[sublevels[songedit + 1] - 1]));
 
   } else {
     canvastitle.print("Empty");
   }
 }
+
 void selectsongnavarrows() {
   if (navlevel == songedit) {
 
@@ -631,6 +626,7 @@ void selectsongnavarrows() {
     returntonav(songedit);
   }
 }
+
 void songgridposselector() {
   if (sublevels[songedit] > 7) {
     if (sublevels[songedit] < 24) {

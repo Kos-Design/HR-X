@@ -145,18 +145,16 @@ void LFOrmType(int leLFO) {
 }
 
 void restartLFO(int leLFO) {
-  AudioNoInterrupts() ;
+  AudioNoInterrupts();
   if (LFOsync[leLFO]) {
-    LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO] / 127.00), ((LFOfreqs[leLFO] / 127.0) * (1000 / millitickinterval)), lesformes[LFOformstype[leLFO]]);
+    LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), ((LFOfreqs[leLFO]/127.0)*(1000/millitickinterval)), lesformes[LFOformstype[leLFO]]);
   } else {
-    LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO] / 127.00), (LFOfreqs[leLFO] / 127.0) * 2, lesformes[LFOformstype[leLFO]]);
+    LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), (LFOfreqs[leLFO]/127.0)*2, lesformes[LFOformstype[leLFO]]);
   }
- 
-  
-  if (LFOformstype[leLFO] == 7 ) {
+  if (LFOformstype[leLFO] == 7) {
     LFOwaveforms1[leLFO]->arbitraryWaveform(arbitrary_waveforms[leLFO],1.0);
   }
-  AudioInterrupts() ;
+  AudioInterrupts();
 }
 
 void displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int leLFO, typeof(WAVEFORM_SINE) wavetype) {
@@ -169,15 +167,11 @@ void displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int l
   // dodisplay();
 }
 
-void syncLFO(int leLFO) {
-  restartLFO(leLFO);
-}
-
 void doLFObool(int leLFO) {
   if (navlevel >= 3) {
     //  Serial.println("Setting Sync switch");
     LFOsync[leLFO] = !LFOsync[leLFO];
-    syncLFO(leLFO);
+    restartLFO(leLFO);
     returntonav(2);
   }
   display.setCursor(55, 0);
