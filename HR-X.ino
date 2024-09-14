@@ -145,8 +145,6 @@ float interpot;
 bool overdubmidi;
 bool noteprint = 0;
 
-String Patternfiledir = "PATTERNS/" ;
-
 byte patterns_indexes[99];
 byte patterns_count = 0 ;
 const byte ptn_size = 6;
@@ -157,13 +155,6 @@ bool demimalmode;
 bool addinglenght;
 EXTMEM char sampledirpath[99] = {"SOUNDSET/"};
 
-String SynthPresetdir = "PRESETS/SYNTH/" ;
-
-EXTMEM char SynthPresetname[999][13];
-EXTMEM char SynthPresetfullpath[999][28];
-EXTMEM char SynthPresetbase[999][9];
-
-int presets_count = 0;
 const byte truesizeofwaveformsmenulabels = 7;
 
 String newloopedpath = "SOUNDSET/REC/LOOP00#L.RAW";
@@ -617,7 +608,7 @@ byte LFOlevel[synths_count] = {100,100,100};
 bool LFOsync[synths_count];
 
 byte wave1offset[synths_count] = {64,64,64};
-File mytxtFile;
+
 // File originefile ;
 int adsrlevels[6] = {0, 5, 0, 50, 100, 60};
 int mappedattack = 5;

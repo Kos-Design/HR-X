@@ -45,7 +45,6 @@ void getlinerwithoutevents() {
   }
 }
 
-// return liners_count;
 void setfreqWavelines(float tune, int liner, byte velocityz) {
   // AudioNoInterrupts();
   //TODO adsrlevels correspondance
@@ -253,9 +252,9 @@ void MaProgramchange(byte channel, byte data1) {
     debugmidi((char *)"ProgramChange", (int)(channel), (int)(data1));
   }
   int leprogchanged = (int)(data1);
-  // if (SD.exists((char*)SynthPresetfullpath[(int)( data1)]) ) {
   if (leprogchanged < presets_count) {
-    parsefile(leprogchanged);
+    Serial.print(" loading presets outside of menu is currently disabled");
+    //parsefile(leprogchanged);
   }
 }
 

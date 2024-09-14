@@ -563,7 +563,7 @@ void controlswitcher(int caser, int valu) {
       break;
 
     case 108:
-    parsefile(0);
+    //parsefile(0);
 
       break;
     case 109:

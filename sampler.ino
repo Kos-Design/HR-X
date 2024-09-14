@@ -1,25 +1,17 @@
 
-
 const int FlashChipSelect = 6;
-
 int samplesSelected = 0;
-
 int recupsublevel;
 
 void setlefilenamed(int lefolder, int lefile, char *lefname) {
-
   int fnamesize = strlen((char *)lefname);
-  
   int foldersize = strlen((char *)samplefoldersregistered[lefolder]);
-
   for (int i = 0; i < fnamesize; i++) {
-
     samplefullpath[lefolder][lefile][foldersize + 10 + i] = lefname[i];
     if (i < fnamesize - 4) {
       samplebase[lefolder][lefile][i] = lefname[i];
     }
   }
-
   samplefullpath[lefolder][lefile][foldersize + 10 + fnamesize] = (char)'\0';
   samplebase[lefolder][lefile][fnamesize - 4] = (char)'\0';
 }
@@ -29,6 +21,7 @@ void voidlastpathlisted() {
     lastpathlisted[i] = (char)'\0';
   }
 }
+
 void setlastpathlisted(char *lepath) {
   voidlastpathlisted();
   for (int i = 0; i < (int)strlen((char *)lepath); i++) {

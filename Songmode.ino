@@ -1,3 +1,4 @@
+
 int songedit = 2;
 int songselectorX;
 int songselectorY;
@@ -6,120 +7,144 @@ int songplayhead = 0;
 byte numberofpatonsong;
 
 bool songplaying;
-
-byte numberofSongs = 0;
-
-char Songname[99][13];
-char Songfullpath[99][22];
-char Songbase[99][9];
-
 const byte truesizeofSongmenulabels = 8;
 const byte navSongmenu = 1;
 
-void doSonglist() {
+byte songs_indexes[99];
+byte songs_count = 0 ;
+const byte sng_size = 6;
+String songs_names[sng_size];
+byte songs_names_offset = 0 ;
 
-  initializeSongfullpath();
+String get_song_name(byte number) {
+  char formatted_number[4] ;
+  sprintf(formatted_number,"%02d",number);
+  return "SONG#" + (String)formatted_number ;
+} 
 
-  listSongs();
+String get_current_song_path(){
+  return "SONGS/" + songs_names[0] + ".TXT";
 }
-void writedasong() {
 
-  if (sublevels[navSongmenu + 1] == numberofSongs) {
-    mytxtFile = SD.open(get_new_file_name("SONGS/SONG#").c_str(), FILE_WRITE);
-  } else {
-    if (SD.exists((char *)Songfullpath[sublevels[navSongmenu + 1]])) {
-      SD.remove((char *)Songfullpath[sublevels[navSongmenu + 1]]);
+void refresh_songs_names() {
+  for (int i = 0 ; i < sng_size ; i++) {
+    //empty spots are left at the end of the list if it is small, otherwise the names are looped
+    songs_names[i] = " ";
+    if (songs_names_offset+i < songs_count ) {
+      songs_names[i] = get_song_name(songs_indexes[songs_names_offset+i]);
+    } else if (songs_count >= sng_size ){ 
+      songs_names[i] = get_song_name(songs_indexes[((songs_names_offset+i)%songs_count)]); 
+    } 
+  }
+}
+          
+void list_songs_files() {
+  songs_count = 0;
+  String songs_dir = "SONGS/";
+  if (SD.exists(songs_dir.c_str())) {
+    File song_filer = SD.open(songs_dir.c_str());
+    while (songs_count < 99) {
+      File entry = song_filer.openNextFile();
+      if (!entry) {
+        break;
+      }
+      if (!entry.isDirectory()) {
+        char* named = (char*)entry.name();
+        named[strlen(named) - 4] = '\0';
+        //int is at 5 chars after prefix
+        songs_indexes[songs_count] = atoi(named+5);
+        songs_count++;
+      }
+      entry.close();
     }
-
-    mytxtFile =
-        SD.open((char *)Songfullpath[sublevels[navSongmenu + 1]], FILE_WRITE);
+    song_filer.close();
   }
-  // if the file opened okay, write to it:
-  // if (mytxtFile) {
-  Serial.println("writing");
-  // Serial.print("Writing to ");
-  //  Serial.println(mytxtFile.name());
-  writeSong();
-  // close the file:
-  mytxtFile.close();
-  // Serial.println("done.");
-  doSonglist();
-  // } else {
-  // if the file didn't open, print an error:
-  // Serial.println("error opening test.txt");
-  //  }
-  // listfileslist("/");
-  // mytxtFile.close();
 }
 
-void writeSong() {
-  mytxtFile.print("<Song>\n");
-  // patternonsong[sublevels[songedit]][sublevels[songedit+1]]
+void writedasong() {
+  File song_filer ;
+  if (sublevels[navSongmenu + 1] == songs_count) {
+    song_filer = SD.open(get_new_file_name("SONGS/SONG#").c_str(), FILE_WRITE);
+  } else {
+    if (SD.exists(get_current_song_path().c_str())) {
+      SD.remove(get_current_song_path().c_str());
+    }
+    song_filer = SD.open(get_current_song_path().c_str(), FILE_WRITE);
+  }
+  writeSong(song_filer);
+  song_filer.close();
+  list_songs_files();
+}
 
-  INTinsertmytxtfile(numberofpatonsong, (char*)"nums");
+void insert_int_in_song_file(File &song_filer,int leint, char *leparam) {
+  size_t param_length = strlen(leparam);
+  if (param_length > 5 ) {
+    leparam[6] = '\0';
+  }
+  //strncpy(truncated, leparam, 5);
+  song_filer.print((char *)leparam);
+  song_filer.print(" ");
+  song_filer.print("#");
+  song_filer.print(int(leint));
+  song_filer.print("\n");
+}
+
+void writeSong(File &song_filer) {
+  song_filer.print("<Song>\n");
+  insert_int_in_song_file(song_filer,numberofpatonsong, (char*)"nums");
   for (byte i = 0; i < 99; i++) {
-    INTinsertmytxtfile(patternonsong[i], (char*)"songpat");
+    insert_int_in_song_file(song_filer,patternonsong[i], (char*)"songpat");
   }
-  Serial.println("wrote");
 }
 
-void parseSong(int Songn) {
-  mytxtFile = SD.open((char *)Songfullpath[Songn]);
-  if (mytxtFile) {
-    // already full, increse parsingbuffersize if more settings are added
+void parseSong() {
+  File song_filer = SD.open(get_current_song_path().c_str());
+  if (song_filer) {
+    //increse parsingbuffersize if more settings are added
     for (int i = 0; i < parsingbuffersize; i++) {
-      receivedbitinchar[i] = mytxtFile.read();
+      receivedbitinchar[i] = song_filer.read();
     }
   }
   Parser parser((byte *)receivedbitinchar, parsinglength);
-
   parser.Read_String('#');
   parser.Skip(1);
   numberofpatonsong = parser.Read_Int16();
-
   for (int i = 0; i < 99; i++) {
     parser.Read_String('#');
     parser.Skip(1);
     patternonsong[i] = parser.Read_Int16();
   }
-
-  //}
   parser.Reset();
-  mytxtFile.close();
-  // Serial.println("parsing done");
+  song_filer.close();
 }
-void readSong() { parseSong(sublevels[navSongmenu + 1]); }
 
 void copySong() {
-  File originefile;
-  if (SD.exists((char *)Songfullpath[sublevels[navSongmenu + 1]])) {
-    mytxtFile = SD.open(get_new_file_name("SONGS/SONG#").c_str(), FILE_WRITE);
-    originefile = SD.open((char *)Songfullpath[sublevels[navSongmenu + 1]], FILE_READ);
+  File origin_file;
+  File target_file;
+  if (SD.exists(get_current_song_path().c_str())) {
+    target_file = SD.open(get_new_file_name("SONGS/SONG#").c_str(), FILE_WRITE);
+    origin_file = SD.open(get_current_song_path().c_str(), FILE_READ);
     size_t n;
     uint8_t buf[64];
-    while ((n = originefile.read(buf, sizeof(buf))) > 0) {
-      mytxtFile.write(buf, n);
+    while ((n = origin_file.read(buf, sizeof(buf))) > 0) {
+      target_file.write(buf, n);
     }
   }
-
-  originefile.close();
-  mytxtFile.close();
-  doSonglist();
+  origin_file.close();
+  target_file.close();
+  list_songs_files();
 }
 
 void deleteSong() {
-  if (SD.exists((char *)Songfullpath[sublevels[2]])) {
-    SD.remove((char *)Songfullpath[sublevels[2]]);
+  if (SD.exists(get_current_song_path().c_str())) {
+    SD.remove(get_current_song_path().c_str());
   }
-  doSonglist();
+  list_songs_files();
 }
 
 void shiftSongright(int leshifter) {
-  Serial.print("song right Shifterd");
-  Serial.println(leshifter);
   for (int shifts = 0; shifts < leshifter; shifts++) {
     for (int i = 98; i >= 0; i--) {
-
       patternonsong[i + 1] = patternonsong[i];
       patternonsong[i] = 0;
     }
@@ -127,11 +152,8 @@ void shiftSongright(int leshifter) {
 }
 
 void shiftSongleft(int leshifter) {
-  Serial.print("song left Shifterd");
-  Serial.println(leshifter);
   for (int shifts = 0; shifts < leshifter; shifts++) {
     for (int i = 1; i < 99; i++) {
-
       patternonsong[i - 1] = patternonsong[i];
       patternonsong[i] = 0;
     }
@@ -139,36 +161,27 @@ void shiftSongleft(int leshifter) {
 }
 
 void doSongShifter(int shifter) {
-  Serial.println(shifter);
   if (shifter - 16 > 0) {
     shiftSongleft(abs(shifter - 16));
   }
   if (shifter - 16 < 0) {
-
     shiftSongright(abs(shifter - 16));
   }
 }
 
 void showSongShifterdisplays() {
-  Serial.println("shifterz");
   navrange = 32;
-  //  if (navlevel > 2 ) {
-  //    doSongShifter();
-  //    returntonav(navSongmenu);
-  //  }
   display.clearDisplay();
   canvastitle.fillScreen(SSD1306_BLACK);
   canvasBIG.fillScreen(SSD1306_BLACK);
   canvastitle.setCursor(0, 0);
   canvastitle.setTextSize(2);
-  // canvastitle.print((char*)optionspatternlabels[sublevels[2]]);
   canvastitle.print("Shift Song");
   int latransposition;
   latransposition = 16 - sublevels[2];
   sublevels[3] = sublevels[2];
   canvasBIG.setCursor(0, 16);
   canvasBIG.setTextSize(2);
-
   if (latransposition > 0) {
     canvasBIG.print("+");
   }
@@ -179,114 +192,38 @@ void showSongShifterdisplays() {
   dodisplay();
 }
 
-void initializeSongfullpath() {
-  numberofSongs = 0;
-
-  for (int i = 0; i < 99; i++) {
-    for (int j = 0; j < 22; j++) {
-      Songfullpath[i][j] = (char)'\0';
-      if (j < 6) {
-        Songfullpath[i][j] = (char)("SONGS/"[j]);
-      }
-      if (j < 13) {
-        Songname[i][j] = (char)'\0';
-      }
-      if (j < 9) {
-        Songbase[i][j] = (char)'\0';
-      }
-    }
-  }
-}
-//  SONGS/SONG#00.TXT
-void setleSongname(int lefile, char *lefname) {
-
-  int fnamesize = strlen((char *)lefname);
-  for (int i = 0; i < fnamesize; i++) {
-
-    Songname[lefile][i] = lefname[i];
-
-    Songfullpath[lefile][6 + i] = Songname[lefile][i];
-    if (i < fnamesize - 4) {
-      Songbase[lefile][i] = Songname[lefile][i];
-    }
-  }
-  Songname[lefile][fnamesize] = (char)'\0';
-  Songfullpath[lefile][6 + fnamesize] = (char)'\0';
-  Songbase[lefile][fnamesize - 4] = (char)'\0';
-}
-
-void listSongs() {
-  char Songdir[7] = {"SONGS/"};
-  if (SD.exists((char *)Songdir)) {
-    File susudir = SD.open((char *)Songdir);
-
-    while (true) {
-      File subentry = susudir.openNextFile();
-      if (!subentry) {
-        break;
-      }
-
-      if (!subentry.isDirectory()) {
-        setleSongname(numberofSongs, (char*)subentry.name());
-        numberofSongs++;
-        // Serial.print("adding song");
-        // Serial.println(subentry.name());
-      }
-      subentry.close();
-    }
-  }
-}
 void displaySongmenu() {
-  Serial.println("displaySongmenu");
-  // navrange = 4 ;
   canvasBIG.fillScreen(SSD1306_BLACK);
   canvastitle.fillScreen(SSD1306_BLACK);
   display.clearDisplay();
-
   SongmenuAction();
-
   dodisplay();
-  // getSongdir()   ;
 }
-void dolistofSongs() {
+
+void draw_song_list() {
   int startx = 80;
   int starty = 16;
-  // char* textinz = (char*)less[sublevels[3]].name() ;
-
+  songs_names_offset = sublevels[navSongmenu + 1];
+  refresh_songs_names();
   canvastitle.setCursor(startx, 0);
   canvastitle.setTextSize(1);
-
-  if (sublevels[navSongmenu + 1] == numberofSongs &&
-      sublevels[navSongmenu] == 1) {
-
+  if (sublevels[navSongmenu + 1] == songs_count && sublevels[navSongmenu] == 1) {
     canvastitle.print("New()");
   } else {
-    canvastitle.print((char *)Songbase[sublevels[navSongmenu + 1]]);
+    canvastitle.print(songs_names[0]);
   }
   canvastitle.setTextSize(1);
   canvasBIG.setTextSize(1);
-  // canvasBIG.fillScreen(SSD1306_BLACK);
-  if (sublevels[navSongmenu + 1] == numberofSongs) {
-    for (int filer = 0; filer < sublevels[navSongmenu + 1] - 1; filer++) {
-      canvasBIG.setCursor(startx,
-                          (10 * (numberofSongs - sublevels[navSongmenu + 1])) +
-                              16 + ((filer)*10));
-      canvasBIG.println((char *)Songbase[filer]);
+  if (sublevels[navSongmenu + 1] == songs_count) {
+    //if cursor is on new(), the sng_size-1 elements are displayed below.
+    for (int i = 0; i < sng_size-1; i++) {
+      canvasBIG.setCursor(startx, (10 * (songs_count - sublevels[navSongmenu + 1])) + 16 + ((i)*10));
+      canvasBIG.println(songs_names[i]);
     }
   } else {
-    for (int filer = 0;
-         filer < numberofSongs - 1 - (sublevels[navSongmenu + 1]); filer++) {
-      canvasBIG.setCursor(startx, starty + ((filer)*10));
-      canvasBIG.println(
-          (char *)Songbase[sublevels[navSongmenu + 1] + 1 + filer]);
-    }
-
-    for (int filer = 0; filer < sublevels[navSongmenu + 1]; filer++) {
-
-      canvasBIG.setCursor(startx,
-                          (10 * (numberofSongs - sublevels[navSongmenu + 1])) +
-                              6 + ((filer)*10));
-      canvasBIG.println((char *)Songbase[filer]);
+    for (int i = 0; i < sng_size - 1 ; i++) {
+      canvasBIG.setCursor(startx, starty + ((i)*10));
+      canvasBIG.println(songs_names[i+1]);
     }
   }
 }
@@ -298,7 +235,7 @@ void SongmenuAction() {
     navrange = truesizeofSongmenulabels - 1;
 
     dolistSongdisplay();
-    dolistofSongs();
+    draw_song_list();
   }
 
   if ((sublevels[navSongmenu] == 0) && (navlevel > navSongmenu)) {
@@ -322,7 +259,7 @@ void SongmenuAction() {
         break;
       case 2:
 
-        readSong();
+        parseSong();
 
         break;
       case 3:
@@ -362,9 +299,9 @@ void SongmenuAction() {
       }
 
       if (sublevels[navSongmenu] == 1) {
-        navrange = numberofSongs;
+        navrange = songs_count;
       } else {
-        navrange = numberofSongs - 1;
+        navrange = max(songs_count - 1 , 0);
       }
       if (sublevels[navSongmenu] == 7) {
         navrange = 32;
@@ -372,47 +309,36 @@ void SongmenuAction() {
       }
       if (sublevels[navSongmenu] != 7) {
         dolistSongdisplay();
-        dolistofSongs();
+        draw_song_list();
       }
     }
 
     // if (navlevel == navSongmenu ) {
     // dolistSongdisplay();
-    // dolistofSongs();
+    // draw_song_list();
 
     // }
   }
 }
 
 void dolistSongdisplay() {
-
   char Songmenulabels[truesizeofSongmenulabels][12] = {
       "Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params", "Shift"};
   byte startx = 5;
   byte starty = 16;
   char *textin = (char *)Songmenulabels[sublevels[navSongmenu]];
-  // Serial.println(textin);
-  // canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setCursor(0, 0);
   canvastitle.setTextSize(2);
   canvastitle.println(textin);
-
   canvasBIG.setTextSize(1);
   // canvasBIG.fillScreen(SSD1306_BLACK);
-
-  for (int filer = 0;
-       filer < truesizeofSongmenulabels - 1 - (sublevels[navSongmenu]);
-       filer++) {
-
-    canvasBIG.setCursor(startx, starty + ((filer)*10));
-    canvasBIG.println(Songmenulabels[sublevels[navSongmenu] + 1 + filer]);
+  for (int i = 0; i < truesizeofSongmenulabels - 1 - (sublevels[navSongmenu]); i++) {
+    canvasBIG.setCursor(startx, starty + ((i)*10));
+    canvasBIG.println(Songmenulabels[sublevels[navSongmenu] + 1 + i]);
   }
-  for (int filer = 0; filer < sublevels[navSongmenu]; filer++) {
-
-    canvasBIG.setCursor(
-        startx, (10 * (truesizeofSongmenulabels - sublevels[navSongmenu]) + 6 +
-                 ((filer)*10)));
-    canvasBIG.println(Songmenulabels[filer]);
+  for (int i = 0; i < sublevels[navSongmenu]; i++) {
+    canvasBIG.setCursor(startx, (10 * (truesizeofSongmenulabels - sublevels[navSongmenu]) + 6 + ((i)*10)));
+    canvasBIG.println(Songmenulabels[i]);
   }
 }
 

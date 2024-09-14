@@ -1,5 +1,55 @@
 
-File preset_file ;
+byte presets_indexes[99];
+byte presets_count = 0 ;
+const byte pst_size = 6;
+String presets_names[pst_size];
+byte presets_names_offset = 0 ;
+
+String get_preset_name(byte number) {
+  char formatted_number[4] ;
+  sprintf(formatted_number,"%02d",number);
+  return "SYNSET" + (String)formatted_number ;
+} 
+
+String get_current_preset_path(){
+  return "PRESETS/SYNTH/" + presets_names[0] + ".TXT";
+}
+
+void refresh_presets_names() {
+  for (int i = 0 ; i < pst_size ; i++) {
+    //empty spots are left at the end of the list if it is small, otherwise the names are looped
+    presets_names[i] = " ";
+    if (presets_names_offset+i < presets_count ) {
+      presets_names[i] = get_preset_name(presets_indexes[presets_names_offset+i]);
+    } else if (presets_count >= pst_size ){ 
+      presets_names[i] = get_preset_name(presets_indexes[((presets_names_offset+i)%presets_count)]); 
+    } 
+  }
+}
+          
+void list_presets_files() {
+  presets_count = 0;
+  String presets_dir = "PRESETS/SYNTH/";
+  if (SD.exists(presets_dir.c_str())) {
+    File preset_filer = SD.open(presets_dir.c_str());
+    while (presets_count < 99) {
+      File entry = preset_filer.openNextFile();
+      if (!entry) {
+        break;
+      }
+      if (!entry.isDirectory()) {
+        char* named = (char*)entry.name();
+        named[strlen(named) - 4] = '\0';
+        //int is at 6 chars after prefix
+        presets_indexes[presets_count] = atoi(named+6);
+        Serial.println(presets_indexes[presets_count]);
+        presets_count++;
+      }
+      entry.close();
+    }
+    preset_filer.close();
+  }
+}
 
 void displaypresetmenu() {
   navrange = 4;
@@ -25,10 +75,10 @@ void presetmenuBG() {
       navrange = presets_count;
     } else {
       // setnavrange();
-      navrange = presets_count - 1;
+      navrange = max(presets_count - 1, 0);
     }
   }
-  dolistofpresets();
+  draw_presets_list();
   dodisplay();
 
   if (navlevel >= 3) {
@@ -47,7 +97,7 @@ void presetmenuBG() {
 
     case 1:
 
-      readpreset();
+      parsefile();
       break;
 
     case 2:
@@ -79,26 +129,20 @@ void dolistpresetsmenu() {
   canvastitle.setCursor(0, 0);
   canvastitle.setTextSize(2);
   canvastitle.println(textin);
-
   canvasBIG.setTextSize(1);
   canvasBIG.fillScreen(SSD1306_BLACK);
-
-  for (int filer = 0; filer < truesizeofpresetmenulabels - 1 - (sublevels[1]);
-       filer++) {
-
-    canvasBIG.setCursor(startx, starty + ((filer)*10));
-    canvasBIG.println(presetmenulabels[sublevels[1] + 1 + filer]);
+  for (int i = 0; i < truesizeofpresetmenulabels - 1 - (sublevels[1]); i++) {
+    canvasBIG.setCursor(startx, starty + ((i)*10));
+    canvasBIG.println(presetmenulabels[sublevels[1] + 1 + i]);
   }
-  for (int filer = 0; filer < sublevels[1]; filer++) {
-
-    canvasBIG.setCursor(
-        startx,
-        (10 * (truesizeofpresetmenulabels - sublevels[1]) + 6 + ((filer)*10)));
-    canvasBIG.println(presetmenulabels[filer]);
+  for (int i = 0; i < sublevels[1]; i++) {
+    canvasBIG.setCursor(startx, (10 * (truesizeofpresetmenulabels - sublevels[1]) + 6 + i*10));
+    canvasBIG.println(presetmenulabels[i]);
   }
 }
 
 void writepreset() {
+  File preset_filer;
   if (sublevels[2] == presets_count) {
     String presets_base_path = "PRESETS" ;
     String presets_sub_path = "SYNTH" ;
@@ -114,70 +158,49 @@ void writepreset() {
     }
     
     String new_preset_name = get_new_file_name("PRESETS/SYNTH/SYNSET") ;
-   //mytxtFile = SD.open(new_preset_name.c_str(), FILE_WRITE);
-    preset_file = SD.open(new_preset_name.c_str(), FILE_WRITE);
+    preset_filer = SD.open(new_preset_name.c_str(), FILE_WRITE);
 
     Serial.println(new_preset_name);
-    Serial.println(preset_file.name());
+    Serial.println(preset_filer.name());
   } else {
-    if (SD.exists((char *)SynthPresetfullpath[sublevels[2]])) {
-      SD.remove((char *)SynthPresetfullpath[sublevels[2]]);
+    if (SD.exists(get_current_preset_path().c_str())) {
+      SD.remove(get_current_preset_path().c_str());
     }
-    preset_file = SD.open((char *)SynthPresetfullpath[sublevels[2]], FILE_WRITE);
+    preset_filer = SD.open(get_current_preset_path().c_str(), FILE_WRITE);
   }
-  // if the file opened okay, write to it:
-  if (preset_file) {
-    // Serial.print("Writing to ");
-    //  Serial.println(preset_file.name());
-    writesynthpreset();
-    // close the file:
-    preset_file.close();
-    // Serial.println("done.");
-  } else {
-    // if the file didn't open, print an error:
-    // Serial.println("error opening test.txt");
+  if (preset_filer) {
+    writesynthpreset(preset_filer);
+    preset_filer.close();
   }
-  // listfileslist("/");
-  preset_file.close();
-  dopresetlist();
+  preset_filer.close();
+  list_presets_files();
 }
 
-void dolistofpresets() {
+void draw_presets_list() {
   int startx = 80;
   int starty = 16;
-  // char* textinz = (char*)lesfiles[sublevels[3]].name() ;
-
+  presets_names_offset = sublevels[2];
+  refresh_presets_names();
   canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setCursor(startx, 0);
   canvastitle.setTextSize(1);
-
   if (sublevels[2] == presets_count && sublevels[1] == 0) {
-
     canvastitle.print("New()");
   } else {
-    canvastitle.print((char *)SynthPresetbase[sublevels[2]]);
+    canvastitle.print(presets_names[0]);
   }
   canvastitle.setTextSize(1);
   canvasBIG.setTextSize(1);
   canvasBIG.fillScreen(SSD1306_BLACK);
   if (sublevels[2] == presets_count) {
-    for (int filer = 0; filer < sublevels[2] - 1; filer++) {
-      canvasBIG.setCursor(startx, (10 * (presets_count - sublevels[2])) +
-                                      16 + ((filer)*10));
-      canvasBIG.println((char *)SynthPresetbase[filer]);
+    for (int i = 0; i < pst_size-1; i++) {
+      canvasBIG.setCursor(startx, (10 * (presets_count - sublevels[2])) + 16 + i*10);
+      canvasBIG.println(presets_names[i]);
     }
   } else {
-    for (int filer = 0; filer < presets_count - 1 - (sublevels[2]);
-         filer++) {
-      canvasBIG.setCursor(startx, starty + ((filer)*10));
-      canvasBIG.println((char *)SynthPresetbase[sublevels[2] + 1 + filer]);
-    }
-
-    for (int filer = 0; filer < sublevels[2]; filer++) {
-
-      canvasBIG.setCursor(startx, (10 * (presets_count - sublevels[2])) +
-                                      6 + ((filer)*10));
-      canvasBIG.println((char *)SynthPresetbase[filer]);
+    for (int i = 0; i < pst_size - 1 ; i++) {
+      canvasBIG.setCursor(startx, starty + i*10);
+      canvasBIG.println(presets_names[1 + i]);
     }
   }
 }
@@ -187,139 +210,127 @@ void setnavrange() {
     navrange = 2;
     // Serial.println("SOMETHING IS WRONG");
   } else {
-    navrange = presets_count - 1;
+    navrange = max(presets_count - 1, 0);
   }
 }
 
-void writesynthpreset() {
-
-  preset_file.print("<Presets><Synth>\n");
-
-  INTinsertmytxtfile(slope1, (char*)"slope1");
-     Serial.println(" ");
-    Serial.print("slope1 ");
-    Serial.print(slope1);
-  
-  INTinsertmytxtfile(slope2, (char*)"slope2");
-  INTinsertmytxtfile(millitickinterval, (char*)"milli");
-  INTinsertmytxtfile(cutoff_pulse, (char*)"pulse1");
-  INTinsertmytxtfile(reson_pulse, (char*)"pulse2");
-        Serial.println(" ");
-    Serial.print("reson_pulse ");
-    Serial.print(reson_pulse);
+void writesynthpreset(File &preset_filer) {
+  preset_filer.print("<Presets><Synth>\n");
+  insert_int(preset_filer,slope1, (char*)"slope1"); 
+  insert_int(preset_filer,slope2, (char*)"slope2");
+  insert_int(preset_filer,millitickinterval, (char*)"milli");
+  insert_int(preset_filer,cutoff_pulse, (char*)"pulse1");
+  insert_int(preset_filer,reson_pulse, (char*)"pulse2");
 
   for (int i = 0; i < 3; i++) {
-    INTinsertmytxtfile(le303ffilterzVknobs[i], (char*)"f303vknobs");
-    INTinsertmytxtfile(mixle303ffilterzVknobs[i], (char*)"mixfilters303");
-    FLOATinsertmytxtfile(le303filterzgainz[i], (char*)"filtergainz303");
+    insert_int(preset_filer,le303ffilterzVknobs[i], (char*)"f303vknobs");
+    insert_int(preset_filer,mixle303ffilterzVknobs[i], (char*)"mixfilters303");
+    insert_float(preset_filer,le303filterzgainz[i], (char*)"filtergainz303");
   }
 
-  INTinsertmytxtfile(le303filterzwet, (char*)"le303filterzwet");
-  INTinsertmytxtfile(le303filterzrange, (char*)"le303range");
-  FLOATinsertmytxtfile(le303filterzfreq, (char*)"le303freq");
-  FLOATinsertmytxtfile(le303filterzreso, (char*)"le303reso");
-        Serial.println(" ");
-    Serial.print("le303filterzreso ");
-    Serial.print(le303filterzreso);
-
-  FLOATinsertmytxtfile(le303filterzoctv, (char*)"le303octv");
-  INTinsertmytxtfile(int(glidemode), (char*)"glidemode");
-  INTinsertmytxtfile(preampleswaves, (char*)"preampleswaves");
-  INTinsertmytxtfile(int(arpegiatorOn) + 1, (char*)"arpegiatorOn");
-  INTinsertmytxtfile(arpegiatortype, (char*)"arpegiatortype");
-  INTinsertmytxtfile(arpeglengh, (char*)"arpeglengh");
-  INTinsertmytxtfile(arpegmode, (char*)"arpegmode");
-  INTinsertmytxtfile(arpegnumofnotes, (char*)"arpegnumofnotes");
-  INTinsertmytxtfile(arpegstartoffset, (char*)"arpegstartoffset");
-  INTinsertmytxtfile(arpeggridC, (char*)"arpeggridC");
-  INTinsertmytxtfile(arpeggridS, (char*)"arpeggridS");
-  INTinsertmytxtfile(int(digitalplay) + 1, (char*)"digitalplay");
-  INTinsertmytxtfile(int(chordson) + 1, (char*)"chordsOn");
-  INTinsertmytxtfile(lasetchord, (char*)"lasetchord");
-  INTinsertmytxtfile(wetins[0], (char*)"wetsynth");
-  INTinsertmytxtfile(wetins[1], (char*)"wetsampler");
-  INTinsertmytxtfile(wetins[2], (char*)"wetother");
-  INTinsertmytxtfile(synthmidichannel, (char*)"synthmidichannel");
-  INTinsertmytxtfile(samplermidichannel, (char*)"samplermidichannel");
-  INTinsertmytxtfile(tapnote, (char*)"tapnote");
+  insert_int(preset_filer,le303filterzwet, (char*)"le303filterzwet");
+  insert_int(preset_filer,le303filterzrange, (char*)"le303range");
+  insert_float(preset_filer,le303filterzfreq, (char*)"le303freq");
+  insert_float(preset_filer,le303filterzreso, (char*)"le303reso");
+  
+  insert_float(preset_filer,le303filterzoctv, (char*)"le303octv");
+  insert_int(preset_filer,int(glidemode), (char*)"glidemode");
+  insert_int(preset_filer,preampleswaves, (char*)"preampleswaves");
+  insert_int(preset_filer,int(arpegiatorOn) + 1, (char*)"arpegiatorOn");
+  insert_int(preset_filer,arpegiatortype, (char*)"arpegiatortype");
+  insert_int(preset_filer,arpeglengh, (char*)"arpeglengh");
+  insert_int(preset_filer,arpegmode, (char*)"arpegmode");
+  insert_int(preset_filer,arpegnumofnotes, (char*)"arpegnumofnotes");
+  insert_int(preset_filer,arpegstartoffset, (char*)"arpegstartoffset");
+  insert_int(preset_filer,arpeggridC, (char*)"arpeggridC");
+  insert_int(preset_filer,arpeggridS, (char*)"arpeggridS");
+  insert_int(preset_filer,int(digitalplay) + 1, (char*)"digitalplay");
+  insert_int(preset_filer,int(chordson) + 1, (char*)"chordsOn");
+  insert_int(preset_filer,lasetchord, (char*)"lasetchord");
+  insert_int(preset_filer,wetins[0], (char*)"wetsynth");
+  insert_int(preset_filer,wetins[1], (char*)"wetsampler");
+  insert_int(preset_filer,wetins[2], (char*)"wetother");
+  insert_int(preset_filer,synthmidichannel, (char*)"synthmidichannel");
+  insert_int(preset_filer,samplermidichannel, (char*)"samplermidichannel");
+  insert_int(preset_filer,tapnote, (char*)"tapnote");
 
   for (int i = 0; i < 16; i++) {
-    INTinsertmytxtfile(smixervknobs[i], (char*)"smixer");
+    insert_int(preset_filer,smixervknobs[i], (char*)"smixer");
   }
 
   for (int i = 0; i < 3; i++) {
-    INTinsertmytxtfile(fx[i]->plugged_fx_type, (char*)"effect");
+    insert_int(preset_filer,fx[i]->plugged_fx_type, (char*)"effect");
   }
   for (int i = 0; i < 4; i++) {
-    FLOATinsertmytxtfile(WetMixMasters[i], (char*)"wetmixes");
+    insert_float(preset_filer,WetMixMasters[i], (char*)"wetmixes");
     Serial.println(" ");
     Serial.print("WetMixMasters ");
     Serial.print(WetMixMasters[i]);
-    INTinsertmytxtfile(mixlevelsM[i], (char*)"mixlevelsM");
+    insert_int(preset_filer,mixlevelsM[i], (char*)"mixlevelsM");
   }
   for (int i = 0; i < synths_count; i++) {
     //TODO:wetmix & mixers out of synths_count loop ,still iter to 4
-    FLOATinsertmytxtfile(mixlevelsL[i], (char*)"mixlevelsL");
-    FLOATinsertmytxtfile(wavesfreqs[i], (char*)"wavefreq");
-    FLOATinsertmytxtfile(panLs[i], (char*)"panL");
-    INTinsertmytxtfile(FMmodulated[i], (char*)"modu");
-    INTinsertmytxtfile(Waveformstyped[i], (char*)"Waveform");
-    INTinsertmytxtfile(wave1offset[i], (char*)"offset");
-    FLOATinsertmytxtfile(phaselevelsL[i], (char*)"phaselL");
-    INTinsertmytxtfile(LFOlevel[i], (char*)"lfolevel");
-    INTinsertmytxtfile(LFOformstype[i], (char*)"lfoType");
-    INTinsertmytxtfile(LFOfreqs[i], (char*)"lfofreqs");
-    INTinsertmytxtfile(LFOphase[i], (char*)"lfoPhase");
-    INTinsertmytxtfile(LFOoffset[i], (char*)"lfoOffset");
-    INTinsertmytxtfile(LFOsync[i] + 1, (char*)"lfosync");
+    insert_float(preset_filer,mixlevelsL[i], (char*)"mixlevelsL");
+    insert_float(preset_filer,wavesfreqs[i], (char*)"wavefreq");
+    insert_float(preset_filer,panLs[i], (char*)"panL");
+    insert_int(preset_filer,FMmodulated[i], (char*)"modu");
+    insert_int(preset_filer,Waveformstyped[i], (char*)"Waveform");
+    insert_int(preset_filer,wave1offset[i], (char*)"offset");
+    insert_float(preset_filer,phaselevelsL[i], (char*)"phaselL");
+    insert_int(preset_filer,LFOlevel[i], (char*)"lfolevel");
+    insert_int(preset_filer,LFOformstype[i], (char*)"lfoType");
+    insert_int(preset_filer,LFOfreqs[i], (char*)"lfofreqs");
+    insert_int(preset_filer,LFOphase[i], (char*)"lfoPhase");
+    insert_int(preset_filer,LFOoffset[i], (char*)"lfoOffset");
+    insert_int(preset_filer,LFOsync[i] + 1, (char*)"lfosync");
   }
   
     for (int j = 0; j < 6; j++) {
-      INTinsertmytxtfile(adsrlevels[j], (char*)"adsr");
+      insert_int(preset_filer,adsrlevels[j], (char*)"adsr");
     }
   
 
   for (int i = 0; i < all_buttonns; i++) {
-    INTinsertmytxtfile(pot_assignements[i], (char*)"pot_assigned");
-    INTinsertmytxtfile(but_channel[i], (char*)"but_channel");
-    INTinsertmytxtfile(but_velocity[i], (char*)"but_velocity");
+    insert_int(preset_filer,pot_assignements[i], (char*)"pot_assigned");
+    insert_int(preset_filer,but_channel[i], (char*)"but_channel");
+    insert_int(preset_filer,but_velocity[i], (char*)"but_velocity");
   }
   for (int i = 0; i < 15; i++) {
-    INTinsertmytxtfile(ordered_pots[i], (char*)"muxed_pots");
-    INTinsertmytxtfile(muxed_channels[i], (char*)"muxed_channels");
+    insert_int(preset_filer,ordered_pots[i], (char*)"muxed_pots");
+    insert_int(preset_filer,muxed_channels[i], (char*)"muxed_channels");
   }
   for (int i = 0; i < 128; i++) {
 
     Serial.print(", ");
     Serial.println(midiknobassigned[i]);
-    INTinsertmytxtfile(midiknobassigned[i], (char*)"Midiknobassigned");
-    INTinsertmytxtfile(Sampleassigned[i], (char*)"Sampleassigned");
+    insert_int(preset_filer,midiknobassigned[i], (char*)"Midiknobassigned");
+    insert_int(preset_filer,Sampleassigned[i], (char*)"Sampleassigned");
   }
   for (int i = 0; i < 17; i++) {
-    INTinsertmytxtfile(vPots[i], (char*)"vPots");
+    insert_int(preset_filer,vPots[i], (char*)"vPots");
   }
 
   for (int i = 0; i < 3; i++) {
-    INTinsertmytxtfile(chorusVknobs[i], (char*)"chorusV");
-    INTinsertmytxtfile(bqstage[i], (char*)"bqstage");
-    INTinsertmytxtfile(LFOonfilterz[i], (char*)"LFOonfilterz");
+    insert_int(preset_filer,chorusVknobs[i], (char*)"chorusV");
+    insert_int(preset_filer,bqstage[i], (char*)"bqstage");
+    insert_int(preset_filer,LFOonfilterz[i], (char*)"LFOonfilterz");
 
     for (int j = 0; j < 2; j++) {
-      INTinsertmytxtfile(reverbVknobs[i][j], (char*)"reverbV");
-      INTinsertmytxtfile(bitcrusherVknobs[i][j], (char*)"bitcrusherV");
-      INTinsertmytxtfile(granularVknobs[i][j], (char*)"granularV");
+      insert_int(preset_filer,reverbVknobs[i][j], (char*)"reverbV");
+      insert_int(preset_filer,bitcrusherVknobs[i][j], (char*)"bitcrusherV");
+      insert_int(preset_filer,granularVknobs[i][j], (char*)"granularV");
     }
 
     for (int j = 0; j < 3; j++) {
-      INTinsertmytxtfile(mixffilterzVknobs[i][j], (char*)"mixffilterzV");
-      INTinsertmytxtfile(ffilterzVknobs[i][j], (char*)"ffilterzV");
-      INTinsertmytxtfile(flangerVknobs[i][j], (char*)"flangerV");
-      INTinsertmytxtfile(delayVknobs[i][j], (char*)"delayV");
+      insert_int(preset_filer,mixffilterzVknobs[i][j], (char*)"mixffilterzV");
+      insert_int(preset_filer,ffilterzVknobs[i][j], (char*)"ffilterzV");
+      insert_int(preset_filer,flangerVknobs[i][j], (char*)"flangerV");
+      insert_int(preset_filer,delayVknobs[i][j], (char*)"delayV");
     }
     for (int j = 0; j < 4; j++) {
-      INTinsertmytxtfile(bqtype[i][j], (char*)"bqtypeV");
+      insert_int(preset_filer,bqtype[i][j], (char*)"bqtypeV");
       for (int k = 0; k < 3; k++) {
-        INTinsertmytxtfile(bqVpot[i][j][k], (char*)"bqVpot");
+        insert_int(preset_filer,bqVpot[i][j][k], (char*)"bqVpot");
       }
     }
   }
@@ -328,42 +339,43 @@ void writesynthpreset() {
   Serial.print(bqVpot[1][1][1]);
 }
 
-void INTinsertmytxtfile(int leint, char *leparam) {
+void insert_int(File &preset_filer, int leint, char *leparam) {
   size_t param_length = strlen(leparam);
   if (param_length > 5 ) {
     leparam[6] = '\0';
   }
   //strncpy(truncated, leparam, 5);
-  preset_file.print((char *)leparam);
-  preset_file.print(" ");
-  preset_file.print("#");
-  preset_file.print(int(leint));
-  preset_file.print("\n");
+  preset_filer.print((char *)leparam);
+  preset_filer.print(" ");
+  preset_filer.print("#");
+  preset_filer.print(int(leint));
+  preset_filer.print("\n");
 }
 
-void FLOATinsertmytxtfile(float leint, char *leparam) {
+void insert_float(File &preset_filer,float leint, char *leparam) {
   size_t param_length = strlen(leparam);
   if (param_length > 5 ) {
     leparam[6] = '\0';
   }
-  preset_file.print((char *)leparam);
-  preset_file.print(" ");
-  preset_file.print("#");
-  preset_file.print(float(leint));
-  preset_file.print("\n");
+  preset_filer.print((char *)leparam);
+  preset_filer.print(" ");
+  preset_filer.print("#");
+  preset_filer.print(float(leint));
+  preset_filer.print("\n");
 }
 
-void parsefile(int presetn) {
+void parsefile() {
+  
   int tmp_fx ;
   byte tmp_mixlevelsM[4];
   float tmp_mixlevelsL[synths_count];
   float tmp_WetMixMasters[4];
-  preset_file = SD.open((char *)SynthPresetfullpath[presetn]);
-  if (preset_file) {
-    Serial.println(preset_file.name());
+  File preset_filer = SD.open(get_current_preset_path().c_str());
+  if (preset_filer) {
+    Serial.println(preset_filer.name());
     // if already full, increse parsingbuffersize when much more settings are added + reduce total char usage
     for (int i = 0; i < parsingbuffersize; i++) {
-      receivedbitinchar[i] = preset_file.read();
+      receivedbitinchar[i] = preset_filer.read();
     }
   } else {
     Serial.print("Error with preset file");
@@ -425,11 +437,7 @@ void parsefile(int presetn) {
   parser.Read_String('#');
   parser.Skip(1);
   le303filterzreso = parser.Read_Float();
-      
-      Serial.println(" ");
-    Serial.print("le303filterzreso ");
-    Serial.print(le303filterzreso);
-
+    
   parser.Read_String('#');
   parser.Skip(1);
   le303filterzoctv = parser.Read_Float();
@@ -524,9 +532,6 @@ void parsefile(int presetn) {
     tmp_fx = parser.Read_Int16();
     fx[i]->route_fx(tmp_fx);
     avoid_fx_bounce = false ;
-    Serial.println("");
-    Serial.print("Plugged in ");
-    Serial.print((String)mainmenufxlist[fx[i]->plugged_fx_type]);
   }
   
 
@@ -535,9 +540,6 @@ void parsefile(int presetn) {
     parser.Skip(1);
     WetMixMasters[i] = parser.Read_Float();
     tmp_WetMixMasters[i] = WetMixMasters[i];
-    Serial.println(" ");
-    Serial.print("WetMixMasters ");
-    Serial.print(WetMixMasters[i]);
     parser.Read_String('#');
     parser.Skip(1);
     mixlevelsM[i] = parser.Read_Int16();
@@ -600,11 +602,11 @@ void parsefile(int presetn) {
     LFOsync[i] = parser.Read_Int16() - 1;
   }
   
-    for (int i = 0; i < 6; i++) {
-      parser.Read_String('#');
-      parser.Skip(1);
-      adsrlevels[i] = parser.Read_Int16();
-    }
+  for (int i = 0; i < 6; i++) {
+    parser.Read_String('#');
+    parser.Skip(1);
+    adsrlevels[i] = parser.Read_Int16();
+  }
     
   for (int i = 0; i < all_buttonns; i++) {
     parser.Read_String('#');
@@ -702,7 +704,7 @@ void parsefile(int presetn) {
   }
 
   parser.Reset();
-  preset_file.close();
+  preset_filer.close();
   // Serial.println("parsing done");
   setbpms();
   setlepulse1();
@@ -731,28 +733,27 @@ void parsefile(int presetn) {
   wetmixmastercontrols();
 }
 
-void readpreset() { parsefile(sublevels[2]); }
-
 void copypreset() {
-  File originefile;
-  if (SD.exists((char *)SynthPresetfullpath[sublevels[2]])) {
-    mytxtFile = SD.open(get_new_file_name("PRESETS/SYNTH/SYNSET").c_str(), FILE_WRITE);
-    originefile = SD.open((char *)SynthPresetfullpath[sublevels[2]], FILE_READ);
+  File origin_file;
+  File target_file;
+  if (SD.exists(get_current_preset_path().c_str())) {
+    target_file = SD.open(get_new_file_name("PRESETS/SYNTH/SYNSET").c_str(), FILE_WRITE);
+    origin_file = SD.open(get_current_preset_path().c_str(), FILE_READ);
     size_t n;
     uint8_t buf[64];
-    while ((n = originefile.read(buf, sizeof(buf))) > 0) {
-      preset_file.write(buf, n);
+    while ((n = origin_file.read(buf, sizeof(buf))) > 0) {
+      target_file.write(buf, n);
     }
   }
 
-  originefile.close();
-  preset_file.close();
-  dopresetlist();
+  origin_file.close();
+  target_file.close();
+  list_presets_files();
 }
 
 void deletepreset() {
-  if (SD.exists((char *)SynthPresetfullpath[sublevels[2]])) {
-    SD.remove((char *)SynthPresetfullpath[sublevels[2]]);
+  if (SD.exists(get_current_preset_path().c_str())) {
+    SD.remove(get_current_preset_path().c_str());
   }
-  dopresetlist();
+  list_presets_files();
 }
