@@ -44,7 +44,7 @@ void lemenuroot() {
 
       if (navlevel >= 1) {
         navrange = sizeofpatternlistlabels - 1;
-        displayPatternmenu();
+        route_pattern_menu();
       }
 
       break;

@@ -497,15 +497,19 @@ void controlswitcher(int caser, int valu) {
 
     case 100:
       Serial.println("100");
-      //TODO FIXME
-     // writelemidi(lqcurrentpqt);
+      //to save in a new pattern
+      patterns_names_offset = patterns_count ;
+      refresh_patterns_names();
+      writelemidi();
       break;
 
     case 101:
-      // loqdcurrent
       clearlapattern();
-      //TODO FIXME
-     // parsepattern(lqcurrentpqt);
+      //loads 1st pattern, increment patterns_names_offset for a different one
+      patterns_names_offset = 0 ;
+      refresh_patterns_names();
+      parsepattern();
+      
       break;
     
     case 102:
@@ -556,101 +560,72 @@ void controlswitcher(int caser, int valu) {
       break;
     case 107:
       // type2
-        clearlapattern();
-
-       // parsepattern(0);
-      //.gain(2,smallfloat);
+      clearlapattern();
+      patterns_names_offset = 0 ;
+      refresh_patterns_names();
+      parsepattern();
       break;
-
     case 108:
-    //parsefile(0);
-
+      presets_names_offset = 0 ;
+      refresh_presets_names();
+      parsefile();
       break;
     case 109:
       //auto record 10sec
       start_sample_in_place();
       break;
     case 110:
+    //velocity levels for samplerlines
       smixervknobs[0] = byte(smallfloat * 127.0);
-
       break;
     case 111:
-
       smixervknobs[1] = byte(smallfloat * 127.0);
-
       break;
     case 112:
-
       smixervknobs[2] = byte(smallfloat * 127.0);
-
       break;
     case 113:
       smixervknobs[3] = byte(smallfloat * 127.0);
-
       break;
-
     case 114:
       smixervknobs[4] = byte(smallfloat * 127.0);
-
       break;
-
     case 115:
       smixervknobs[5] = byte(smallfloat * 127.0);
-
       break;
-
     case 116:
       smixervknobs[6] = byte(smallfloat * 127.0);
-
       break;
-
     case 117:
       smixervknobs[7] = byte(smallfloat * 127.0);
-
       break;
     case 118:
       smixervknobs[8] = byte(smallfloat * 127.0);
-
       break;
-
     case 119:
       smixervknobs[9] = byte(smallfloat * 127.0);
-
       break;
-
     case 120:
       smixervknobs[10] = byte(smallfloat * 127.0);
-
       break;
-
     case 121:
       smixervknobs[11] = byte(smallfloat * 127.0);
-
       break;
     case 122:
       smixervknobs[12] = byte(smallfloat * 127.0);
-
       break;
-
     case 123:
       smixervknobs[13] = byte(smallfloat * 127.0);
-
       break;
-
     case 124:
       smixervknobs[14] = byte(smallfloat * 127.0);
-
       break;
-
     case 125:
       smixervknobs[15] = byte(smallfloat * 127.0);
-
       break;
 
     case 126:
-      // freq3
-
-      // wavesfreqs[2]=round(map(smallfloat,0,1,0,10));
+      merge_synth_partition_liners();
       break;
 
     case 127:

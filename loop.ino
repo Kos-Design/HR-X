@@ -67,6 +67,13 @@ void check_pads() {
         lemenuroot();
       }
     }
+    //inside sample assigner
+    if ((sublevels[0] == 7) && (sublevels[1] == 2) && (sublevels[2] == 1) && (navlevel == 3)) {
+      if (cc_note_num > 0) {
+        //sets the navigation wheel to the captured note position for easier selection when assigning Flashsamples
+        returntonav(3,127,cc_note_num);
+      }
+    }
     //inside Onboards Panel
     if ((sublevels[0] == 5) && (sublevels[1] == 11) && (navlevel == 2)) {
 
@@ -81,6 +88,7 @@ void check_pads() {
       }
       if ((paddered != 26) && (paddered != 17)) {
         // set selection to last pad pushed
+        //use returntonav
         sublevels[2] = paddered + 11;
         vraipos = sublevels[2];
         myEnc.write(4 * sublevels[2]);
@@ -97,9 +105,7 @@ void check_pads() {
         trace_waveform = !trace_waveform;
       }
     } else {
-      if (cc_note_num <= 0) {
-        MaControlChange(but_channel[11 + paddered],
-                        (byte)pot_assignements[11 + paddered], 64);
+      if (cc_note_num <= 0) {MaControlChange(but_channel[11 + paddered],(byte)pot_assignements[11 + paddered], 64);
       } 
       //normal note pad
       else {
@@ -110,8 +116,7 @@ void check_pads() {
         Serial.print("pot_assignements ([11+paddered])=");
         Serial.print(cc_note_num);
         */
-        MaNoteOn(but_channel[11 + paddered], cc_note_num,
-                 but_velocity[11 + paddered]);
+        MaNoteOn(but_channel[11 + paddered], cc_note_num, but_velocity[11 + paddered]);
       }
     }
   } else if ((pad_result.pad_result[2] == 0) && (paddered != 36) &&
@@ -125,12 +130,10 @@ void check_pots() {
     if (c_change > 0) {
         //ordered_pots[9] broken, ignoring
       if (itr < 15 && itr !=9) {
-
         if ((sublevels[0] == 5) && (sublevels[1] == 11) && (itr == 6)) {
           but_velocity[sublevels[2]] = (byte)((c_change / 1024.0) * 127);
           OnBoardVpanel();
         }
-        
          else {
           MaControlChange(muxed_channels[itr], (byte)ordered_pots[itr], (byte)((c_change / 1024.0) * 127));
         }
@@ -148,9 +151,11 @@ void loop() {
   if (millis() % 2 == 0) {
     pseudo303();
   }
+  /*
   if (debug_cpu){
     print_memory_usage();
   }
+  */
   if (pre_record) {
     if (millis() - tocker > 500) {
       rec_looping = true ;

@@ -368,16 +368,15 @@ void showplayheadprogress() {
   display.drawLine(songplayhead * 8, 16, songplayhead * 8, 64, SSD1306_INVERSE);
 }
 void loadsongpattern() {
-  //TODO make parsefile loader !! SONGMODE INACTIVE without
   // Serial.println(songplayhead);
   if (patternonsong[songplayhead] > 0) {
-
     clearlapattern();
     Serial.print("cleared ");
     Serial.print("loading ");
     Serial.println(patternonsong[songplayhead] - 1);
-    //TODO make parsefile loader
-    //parsepattern(patternonsong[songplayhead] - 1);
+    patterns_names_offset = patternonsong[songplayhead] - 1 ;
+    refresh_patterns_names();
+    parsepattern();
 
     Serial.println("Loaded");
   } else {

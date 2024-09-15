@@ -65,7 +65,6 @@ int le303ffilterzVknobs[3];
 
 byte songpage = 0;
 byte samplelinerspage;
-byte lqcurrentpqt = 0;
 // LP BP HP 127
 int mixle303ffilterzVknobs[3];
 byte navrecmenu = 2;
@@ -151,6 +150,12 @@ const byte ptn_size = 6;
 String patterns_names[ptn_size];
 byte patterns_names_offset = 0 ;
 
+byte presets_indexes[99];
+byte presets_count = 0 ;
+const byte pst_size = 6;
+String presets_names[pst_size];
+byte presets_names_offset = 0 ;
+
 bool demimalmode;
 bool addinglenght;
 EXTMEM char sampledirpath[99] = {"SOUNDSET/"};
@@ -203,10 +208,7 @@ EXTMEM char Flashsamplebase[999][9];
 EXTMEM bool Flashsamplesselected[999];
 int numberofFlashsamplesselected = 0;
 int numberofFlashfiles = 0;
-// changed from int to byte seems fine
-
 int Sampleassigned[128];
-//char newmkdirpath[18] = {"SOUNDSET/MABANK00"};
 String newmkdirpath = "SOUNDSET/MABANK01" ;
 char newmksamplefullpath[32] = {"SOUNDSET/MABANK01/SAMPLE00.RAW"};
 
@@ -301,6 +303,8 @@ byte Ccinterpolengh[128][3];
 
 const int parsingbuffersize = 16000;
 int parsinglength = parsingbuffersize;
+const int pat_parser_size = 32000;
+
 EXTMEM char receivedbitinchar[parsingbuffersize];
 
 // = 89.6 ( 1.02678 ) 92 original
@@ -686,9 +690,9 @@ short lecaractere;
 short letempspattern;
 short linerpat;
 int previousTp;
-const byte sizeofoptionspattern = 5;
+const byte sizeofoptionspattern = 6;
 const char optionspatternlabels[sizeofoptionspattern][12] PROGMEM = {
-    "Transpose", "Shift", "Clear", "Target", "Smooth CC"};
+    "Transpose", "Shift", "Clear", "Target", "Smooth CC","Merge Pat"};
 const byte sizeofpatternlistlabels = 8;
 
 const char *monthName[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -1041,9 +1045,9 @@ int16_t waveformed_sine[256] = {
     31420, 31426, 31430, 31433, 31434, 31435, 31434, 31432, 31428, 31423, 31417,
     31409, 31400, 31389};
 
-void returntonav(byte lelevel, byte lanavrange = navrange) {
+void returntonav(byte lelevel, byte lanavrange = navrange,byte t_vraipos = vraipos) {
   navlevel = lelevel;
-  vraipos = sublevels[lelevel];
+  vraipos = t_vraipos;
   myEnc.write(vraipos * 4);
   navrange = lanavrange;
   lemenuroot();

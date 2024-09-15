@@ -1,9 +1,4 @@
 
-byte presets_indexes[99];
-byte presets_count = 0 ;
-const byte pst_size = 6;
-String presets_names[pst_size];
-byte presets_names_offset = 0 ;
 
 String get_preset_name(byte number) {
   char formatted_number[4] ;
@@ -300,9 +295,6 @@ void writesynthpreset(File &preset_filer) {
     insert_int(preset_filer,muxed_channels[i], (char*)"muxed_channels");
   }
   for (int i = 0; i < 128; i++) {
-
-    Serial.print(", ");
-    Serial.println(midiknobassigned[i]);
     insert_int(preset_filer,midiknobassigned[i], (char*)"Midiknobassigned");
     insert_int(preset_filer,Sampleassigned[i], (char*)"Sampleassigned");
   }

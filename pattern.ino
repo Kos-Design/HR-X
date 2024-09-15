@@ -1,3 +1,7 @@
+         
+          // 8+6 X 32 X 3 Noteson
+          //+ 8+6 X 32 X 3 Notesoff
+          //+ 128 X 32 X 3 Ccs
 
 class SynthLiner {
   public:
@@ -72,6 +76,9 @@ String get_pattern_name(byte number) {
 } 
 
 String get_current_pattern_path(){
+  Serial.println("");
+  Serial.print("Attempting to open ");
+  Serial.print("PATTERNS/" + patterns_names[0] + ".TXT");  
   return "PATTERNS/" + patterns_names[0] + ".TXT";
 }
 
@@ -253,47 +260,51 @@ void tick() {
   
 }
 
-void displayPatternmenu() {
-
+void route_pattern_menu() {
   if (navlevel == 1) {
     navrange = sizeofpatternlistlabels - 1;
     PatternmenuBG();
     dolistPatternsmenu();
     dodisplay();
   }
-
-  if (navlevel > 1 && sublevels[1] == 0) {
-    drawsequencer();
-    // return;
-  }
-
-  if (navlevel > 1 && sublevels[1] == 5) {
-    optionspattern();
-  }
-  if (navlevel > 1 && sublevels[1] == 6) {
-    //  Serial.println("clearing pattern");
-    clearlapattern();
-    vraipos = 6;
-    myEnc.write(4 * vraipos);
-    navlevel--;
-  }
-  if (navlevel > 1 && sublevels[1] == 7) {
-    //  Serial.println("editing CCs");
-
-    editlaccninou();
-    // when back:
-    //   vraipos = 7;
-    //    myEnc.write(4*vraipos);
-    //   navlevel--;
-  }
-
-  if (navlevel > 1 && sublevels[1] != 0 && sublevels[1] != 7 &&
-      sublevels[1] != 5) {
+  if (navlevel > 1){
+    switch(sublevels[1]){
+      case 0:
+        drawsequencer();
+        break;
+      case 1:
+      break;
+      case 2:
+      break;
+      case 3:
+      break;
+      case 4:
+      break;
+      case 5:
+        optionspattern();
+        break;
+      case 6:
+        clearlapattern();
+        returntonav(1,navrange,6);
+        /*
+        vraipos = 6;
+        myEnc.write(4 * vraipos);
+        navlevel--;
+        */
+      break;
+      case 7:
+      editlaccninou();
+      break;
+      default:
+      break;
+    }
+    if (sublevels[1] != 0 && sublevels[1] != 7 && sublevels[1] != 5) {
     navrange = sizeofpatternlistlabels - 1;
     PatternmenuBG();
     dolistPatternsmenu();
     dodisplay();
-  }
+    }
+  } 
 }
 
 void PatternmenuBG() {
@@ -306,7 +317,6 @@ void PatternmenuBG() {
       navrange = patterns_count;
     } else {
       navrange = max(patterns_count - 1, 0);
-      lqcurrentpqt = sublevels[2];
     }
   }
   displaythelistofpatterns();
@@ -315,13 +325,7 @@ void PatternmenuBG() {
   if (navlevel > 2 && (sublevels[1] == 1 || sublevels[1] == 2 ||
                        sublevels[1] == 3 || sublevels[1] == 4)) {
     // Serial.println("preset action selected");
-    lqcurrentpqt = sublevels[2];
     returntonav(1);
-   /* navlevel = 1;
-    // sublevels[3] = 1;
-    vraipos = 1;
-    myEnc.write(4);*/
-    // navrange = patterns_count - 1;
     switch (sublevels[1]) {
       case 0:
         break;
@@ -350,7 +354,7 @@ void PatternmenuBG() {
       default:
         break;
     }
-    displayPatternmenu();
+    route_pattern_menu();
   }
 }
 
@@ -407,15 +411,41 @@ void showleditcc() {
         }
       }
     }
-
     lalinex2 = lalinex1;
     laliney2 = laliney1;
   }
-
-  // canvasBIG.drawLine(0,16,0,64,SSD1306_WHITE);
-
   dodisplay();
 }
+/*
+EXTMEM byte synth_partition[liners_count][pbars][3];
+EXTMEM byte temp_synth_partition[liners_count][pbars][3];
+EXTMEM byte synth_off_pat[liners_count][pbars][3];
+*/
+void merge_synth_partition_liners(){
+  byte note_encoutered ;
+  byte liner_encoutered[liners_count] = {0,0,0,0,0,0} ;
+  
+  for (int j=0;j<pbars;j++){
+    note_encoutered = 0 ;
+    for (int i=0;i<liners_count;i++){
+      if(synth_partition[i][j][1]!=0 && synth_partition[i][j][2]!=0){
+        liner_encoutered[note_encoutered] = i ;
+        note_encoutered++;
+      //si note on same tickpos, open niw line, otherwise merge all liners count if one line only is noteon
+      }
+    }
+    for (int i=0;i<note_encoutered;i++){
+      if (liner_encoutered[i]!=i){
+        //to avoid clearing current stage
+        synth_partition[i][j][1] = synth_partition[liner_encoutered[i]][j][1] ;
+        synth_partition[i][j][2] = synth_partition[liner_encoutered[i]][j][2] ;
+        synth_partition[liner_encoutered[i]][j][1] = 0 ;
+        synth_partition[liner_encoutered[i]][j][2] = 0 ;
+      }
+    }
+  }
+}
+
 
 void editlaccninou() {
   navrange = 127;
@@ -549,6 +579,11 @@ void optionspattern() {
     if (sublevels[2] == 4) {
       // navrange = 14 ;
       interpolOn = !interpolOn;
+      returntonav(2, sizeofoptionspattern - 1);
+    }
+    if (sublevels[2] == 5) {
+      // navrange = 14 ;
+      merge_synth_partition_liners();
       returntonav(2, sizeofoptionspattern - 1);
     }
     if (sublevels[2] == 2) {
@@ -1360,58 +1395,64 @@ void play_sampler_line(int linei) {
 }
 void midifileliner(File &pat_filer,int liner, int ticker) {
 
-  myMidiFile.print(latimeline);
-  myMidiFile.print(" On ch=");
+  pat_filer.print(latimeline);
+  pat_filer.print(" On ch=");
   int leintc = (int)synth_partition[liner][ticker][0];
-  myMidiFile.print(leintc);
-  myMidiFile.print(" n=");
+  pat_filer.print(leintc);
+  pat_filer.print(" n=");
+  Serial.println("");
+  Serial.print(leintc);
+  Serial.print(", ");
   int leintn = (int)synth_partition[liner][ticker][1];
-  myMidiFile.print(leintn);
-  myMidiFile.print(" v=");
+  pat_filer.print(leintn);
+  Serial.print(leintn);
+  Serial.print(", ");
+  pat_filer.print(" v=");
   int leintv = (int)synth_partition[liner][ticker][2];
-  myMidiFile.print(leintv);
-  myMidiFile.print("\n");
+  pat_filer.print(leintv);
+  Serial.print(leintv);
+  pat_filer.print("\n");
 }
 void midifilelinerSampler(File &pat_filer,int liner, int ticker) {
 
-  myMidiFile.print(latimeline);
-  myMidiFile.print(" On ch=");
+  pat_filer.print(latimeline);
+  pat_filer.print(" On ch=");
   int leintc = (int)sampler_partition[liner][ticker][0];
-  myMidiFile.print(leintc);
-  myMidiFile.print(" n=");
+  pat_filer.print(leintc);
+  pat_filer.print(" n=");
   int leintn = (int)sampler_partition[liner][ticker][1];
-  myMidiFile.print(leintn);
-  myMidiFile.print(" v=");
+  pat_filer.print(leintn);
+  pat_filer.print(" v=");
   int leintv = (int)sampler_partition[liner][ticker][2];
-  myMidiFile.print(leintv);
-  myMidiFile.print("\n");
+  pat_filer.print(leintv);
+  pat_filer.print("\n");
 }
 
 void midifilelinerOff(File &pat_filer, int liner, int ticker) {
-  myMidiFile.print(latimeline);
-  myMidiFile.print(" Off ch=");
+  pat_filer.print(latimeline);
+  pat_filer.print(" Off ch=");
   int leintc = (int)synth_off_pat[liner][ticker][0];
-  myMidiFile.print(leintc);
-  myMidiFile.print(" n=");
+  pat_filer.print(leintc);
+  pat_filer.print(" n=");
   int leintn = (int)synth_off_pat[liner][ticker][1];
-  myMidiFile.print(leintn);
-  myMidiFile.print(" v=");
+  pat_filer.print(leintn);
+  pat_filer.print(" v=");
   int leintv = (int)synth_off_pat[liner][ticker][2];
-  myMidiFile.print(leintv);
-  myMidiFile.print("\n");
+  pat_filer.print(leintv);
+  pat_filer.print("\n");
 }
 void midifileCC(File &pat_filer,int lecc, int ticker) {
-  myMidiFile.print(latimeline);
-  myMidiFile.print(" Par ch=");
+  pat_filer.print(latimeline);
+  pat_filer.print(" Par ch=");
   int leintc = (int)synthmidichannel;
-  myMidiFile.print(leintc);
-  myMidiFile.print(" c=");
+  pat_filer.print(leintc);
+  pat_filer.print(" c=");
   int leintn = lecc;
-  myMidiFile.print(leintn);
-  myMidiFile.print(" v=");
+  pat_filer.print(leintn);
+  pat_filer.print(" v=");
   int leintv = (int)cc_partition[lecc][ticker];
-  myMidiFile.print(leintv);
-  myMidiFile.print("\n");
+  pat_filer.print(leintv);
+  pat_filer.print("\n");
 }
 
 void write_midi_info(File &pat_filer) {
@@ -2132,7 +2173,7 @@ void patedit4() {
     doshownoteline2();
     drawnoteRow();
     drawCursorCol2();
-    display.display(); // displayPatternmenu();
+    display.display(); // route_pattern_menu();
   }
 }
 void patedit4B() {
@@ -2178,7 +2219,7 @@ void patedit4B() {
     doshownoteline2B();
     drawnoteRow();
     drawCursorCol2();
-    display.display(); // displayPatternmenu();
+    display.display(); // route_pattern_menu();
   }
 }
 void terminatenotesinbetween() {
@@ -2234,7 +2275,7 @@ void patedit5() {
   returntonav(5);
   refresh_track();
   // computelenghtmesureoffline();
-  displayPatternmenu();
+  route_pattern_menu();
 }
 void patedit5B() {
   sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]
@@ -2252,7 +2293,7 @@ void patedit5B() {
   returntonav(navlevelpatedit + 3);
   refreshevented2();
 
-  displayPatternmenu();
+  route_pattern_menu();
 }
 bool offhasOnbutnototheroff(byte liner, byte lanoteoff, byte fromi) {
   // for (int j = 0 ; j < liners_count ; j++ ) {
@@ -2362,13 +2403,9 @@ void startparsinginfos() { patterninparse = 1; }
 //    latimelineshifter = ((60000/19200)*pbars) ;
 // (60.0/BPMs)*1000)*pbars) = 1 bar millis
 
-void print_last_received() {
-     Serial.println(" first received: ");
-      Serial.print((char *)receivedbitinchar);
-      
-}
-
 void parsepattern() {
+  const int pat_parser_size = 32000;
+  char received_pattern[pat_parser_size];
   byte laccnote;
   byte parsedchannel;
   // Serial.println("Loading attempt");
@@ -2378,11 +2415,10 @@ void parsepattern() {
   // Serial.println(lepatternfile.name());
   if (lepatternfile) {
     Serial.println("File OK");
-    for (int i = 0; i < parsinglength; i++) {
-      receivedbitinchar[i] = lepatternfile.read();
+    for (int i = 0; i < pat_parser_size; i++) {
+      received_pattern[i] = lepatternfile.read();
     }
-    print_last_received();
-    Parser parserp((byte *)receivedbitinchar, parsinglength);
+    Parser parserp((byte *)received_pattern, pat_parser_size);
     parserp.Reset();
     letempspattern = 0;
     int lenint = 0;
@@ -2497,7 +2533,6 @@ void parsepattern() {
         while (!(leparsed[0] == (char)'O' && leparsed[1] == (char)'n')) {
           parserp.JumpTo(Parser::IsDigit);
           letempspattern = round((parserp.Read_Int32() / letimescaler));
-
           if (letempspattern > 31) {
             break;
           }
@@ -2528,12 +2563,17 @@ void parsepattern() {
               (leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
             // parserp.SkipUntil(parserp.IsNewLine);
             letempspattern = round((parserp.Read_Int32() / letimescaler));
+            Serial.println("");
+            Serial.print("letempspattern: ");
+            Serial.print(letempspattern);
             lenint = 0;
           }
         } else {
           lenint = 0;
           previousTp = letempspattern;
-          // Serial.println(previousTp);
+          Serial.println("");
+          Serial.print("previousTp set to letempspattern: ");
+          Serial.print(letempspattern);
         }
         if (letempspattern > 31) {
           break;
@@ -2542,20 +2582,26 @@ void parsepattern() {
         parserp.JumpTo(Parser::IsDigit);
 
         parsedchannel = parserp.Read_Int32();
+
+        Serial.println("");
+        Serial.print("parsedchannel: ");
+        Serial.print(parsedchannel);
         if (parsedchannel == 0) {
           Serial.println("broke On");
           break;
         }
         if (parsedchannel == synthmidichannel) {
-
+          Serial.println("");
           synth_partition[lenint][letempspattern][0] = parsedchannel;
-          // Serial.println(synth_partition[lenint][letempspattern][0]);
+          Serial.print(synth_partition[lenint][letempspattern][0]);
           parserp.JumpTo(Parser::IsDigit);
           synth_partition[lenint][letempspattern][1] = parserp.Read_Int32();
-          // Serial.println(synth_partition[lenint][letempspattern][1]);
+          Serial.print(", ");
+          Serial.print(synth_partition[lenint][letempspattern][1]);
           parserp.JumpTo(Parser::IsDigit);
           synth_partition[lenint][letempspattern][2] = parserp.Read_Int32();
-          // Serial.println(synth_partition[lenint][letempspattern][2]);
+          Serial.print(", ");
+          Serial.println(synth_partition[lenint][letempspattern][2]);
         }
         if (parsedchannel == samplermidichannel) {
 
@@ -2567,10 +2613,15 @@ void parsepattern() {
           parserp.JumpTo(Parser::IsDigit);
           sampler_partition[lenint][letempspattern][2] = parserp.Read_Int32();
           Serial.println(sampler_partition[lenint][letempspattern][2]);
-          addnoteoff2next(sampler_partition[lenint][letempspattern][1],
-                          letempspattern);
+          addnoteoff2next(sampler_partition[lenint][letempspattern][1], letempspattern);
           track_cells[1][letempspattern] = 1;
         }
+        if (parsedchannel != synthmidichannel && parsedchannel != samplermidichannel ) {
+          Serial.println("");
+          Serial.print("Parsing: ");
+          Serial.print(parsedchannel);
+        }
+        
 
         track_cells[0][letempspattern] = 1;
         leparsed[1] = (char)'z';

@@ -1,10 +1,7 @@
 void initextmems() {
   for (int i = 0; i < nombreofSamplerliners; i++) {
     for (int j = 0; j < pbars; j++) {
-      // length2notes1[i][j] = 0 ;
-      // length2pbars[i][j] = 0 ;
-      // templength2pbars[i][j] = 0 ;
-
+      
       for (int k = 0; k < 3; k++) {
         sampler_off_pat[j][k] = 0;
         sampler_partition[i][j][k] = 0;
@@ -269,7 +266,9 @@ void setupdefaultvalues() {
   //midiknobassigned[106] = 98;
   //granular fx toggle
   midiknobassigned[100] = 78;
-  midiknobassigned[101] = 79;
+  
+  //midiknobassigned[101] = ;
+  
   //midiknobassigned[101] = 108;
   //midiknobassigned[111] = 109;
   

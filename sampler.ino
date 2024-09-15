@@ -31,20 +31,38 @@ void setlastpathlisted(char *lepath) {
 
 void playsamplepreview() {
   //AudioNoInterrupts();
-  playRawL.play((const char *)samplefullpath[sublevels[3]][sublevels[4]]);
-  playRawR.play((const char *)samplefullpath[sublevels[3]][sublevels[4]]);
+  String playable_file = (String)samplefullpath[sublevels[3]][sublevels[4]];
+  if (!test_flash_sample_name(playable_file)){
+    playable_file = lower_extension_case(playable_file);
+  }
+  if (!SD.exists(playable_file.c_str())){
+    return;
+  }
+  playRawL.play(playable_file.c_str());
+  playRawR.play(playable_file.c_str());
   //AudioInterrupts();
 }
 
 void playflashsamplepreview() {
-  //AudioNoInterrupts();
-  FlashRaw.play((const char *)Flashsamplename[sublevels[3]]);
-  //AudioInterrupts();
+   String playable_file = (String)Flashsamplename[sublevels[3]];
+  if (!test_flash_sample_name(playable_file)){
+    playable_file = lower_extension_case(playable_file);
+  }
+  if (!test_flash_sample_name(playable_file)){
+    return;
+  }
+  FlashRaw.play(playable_file.c_str());
 }
 void playflashsamplepreviews4() {
   //AudioNoInterrupts();
-  FlashRaw.play((const char *)Flashsamplename[sublevels[4]]);
-  //AudioInterrupts();
+  String playable_file = (String)Flashsamplename[sublevels[4]];
+  if (!test_flash_sample_name(playable_file)){
+    playable_file = lower_extension_case(playable_file);
+  }
+  if (!test_flash_sample_name(playable_file)){
+    return;
+  }
+  FlashRaw.play(playable_file.c_str());
 }
 
 void initializenewmksamplefullpath() {
@@ -85,16 +103,17 @@ void Assingexplorer() {
     if (sublevels[2] == 1) {
       Sampleassigner();
       playflashsamplepreviews4();
+      //returntonav(2,127,sublevels[2]);
       // return ;
     }
     if (sublevels[2] == 0 && sublevels[3] == 1) {
       autoassignsamples();
-      returntonav(2);
+      returntonav(2,127,sublevels[2]);
       // return ;
     }
     if (sublevels[2] == 2 && sublevels[3] == 1) {
       clearassignedsamples();
-      returntonav(2);
+      returntonav(2,127,sublevels[2]);
       // return ;
     }
 
@@ -102,13 +121,13 @@ void Assingexplorer() {
       //saves assigned flash samples to a new folder on SD
       domkdir();
       dosoundlist();
-      returntonav(2);
+      returntonav(2,127,sublevels[2]);
       // return ;
     }
 
     if (sublevels[3] == 0) {
       //  Serial.println(" One of the 2 Cancelled");
-      returntonav(2);
+      returntonav(2,127,sublevels[2]);
       // return ;
     }
   }
@@ -1083,10 +1102,10 @@ void Sampleassigner() {
     listsamplesassigner2();
     dodisplay();
   }
-  if (navlevel == 5) {
+  if (navlevel >= 5) {
 
     samplesetter();
-    returntonav(3);
+    returntonav(3,127,sublevels[3]);
   }
 }
 void listsamplesassigner() {

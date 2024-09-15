@@ -90,29 +90,35 @@ byte getNewavailablesampler() {
   return 0;
 }
 
+String lower_extension_case(String f_name){
+  char named[50];  // Ensure the array is large enough
+  strcpy(named, f_name.c_str());
+  named[strlen(named) - 4] = '\0';
+  return (String)named + ".raw";
+}
+
+bool test_flash_sample_name(String f_s_name){
+  return SerialFlash.exists(f_s_name.c_str());
+}
+
 void initiatesamplerline(byte lesampleliner, byte channel, byte data1,  byte data2) {
-  // float veloc = (int)(data2);
-  // printnoteon(channel, data1, data2);
-  const char *tobeplayed = (const char *)Flashsamplename[Sampleassigned[(int)(data1)]];
+  //const char *tobeplayed = (const char *)Flashsamplename[Sampleassigned[(int)(data1)]];
+  String playable_file = (String)Flashsamplename[Sampleassigned[(int)(data1)]];
+  if (!test_flash_sample_name(playable_file)){
+    playable_file = lower_extension_case(playable_file);
+  }
   if (FlashSampler[lesampleliner]->isPlaying()) {
     FlashSampler[lesampleliner]->stop();
   }
   if (!digitalplay) {
-    // if ( lesampleliner < 4 ) {
-    Flashmixer[int(lesampleliner / 4)]->gain(
-        lesampleliner - 4 * int(lesampleliner / 4),
-        (smixervknobs[lesampleliner] / 127.0) * (data2 / 127.0));
+    Flashmixer[int(lesampleliner / 4)]->gain(lesampleliner - 4 * int(lesampleliner / 4),(smixervknobs[lesampleliner] / 127.0) * (data2 / 127.0));
   } else {
-    Flashmixer[int(lesampleliner / 4)]->gain(
-        lesampleliner - 4 * int(lesampleliner / 4),
-        (smixervknobs[lesampleliner] / 127.0));
+    Flashmixer[int(lesampleliner / 4)]->gain(lesampleliner - 4 * int(lesampleliner / 4),(smixervknobs[lesampleliner] / 127.0));
   }
-  FlashSampler[lesampleliner]->play(tobeplayed);
+  FlashSampler[lesampleliner]->play(playable_file.c_str());
 }
 
 void playFlashsample(byte channel, byte data1, byte data2) {
-  // Serial.print("vel = ");
-  // Serial.print(mixergain);
   byte lesampleliner = getNewavailablesampler();
   if (patrecord) {
     recordmidinotes2(lesampleliner, channel, data1, data2);
@@ -138,13 +144,10 @@ void MaNoteOn(byte channel, byte data1, byte data2) {
     taptap();
     return;
   }
-
   if (debugmidion) {
     debugmidi((char *)"NoteOn", (int)(channel), (int)(data1), (int)(data2));
   }
-
   // printnoteon(channel, data1, data2);
-
   if ((channel == synthmidichannel) or (synthmidichannel == -1)) {
     if (!arpegiatorOn) {
       if (!chordson) {
@@ -175,8 +178,7 @@ void MaNoteOn(byte channel, byte data1, byte data2) {
     // keep track and/or a way to noteoff
   }
 
-  if (Sampleassigned[(int)(data1)] != 0 &&
-      ((channel == (byte)samplermidichannel) or (samplermidichannel == -1))) {
+  if (Sampleassigned[(int)(data1)] != 0 && ((channel == (byte)samplermidichannel) or (samplermidichannel == -1))) {
     playFlashsample((byte)samplermidichannel, data1, data2);
   }
   if (SendMidiOut) {
@@ -253,8 +255,9 @@ void MaProgramchange(byte channel, byte data1) {
   }
   int leprogchanged = (int)(data1);
   if (leprogchanged < presets_count) {
-    Serial.print(" loading presets outside of menu is currently disabled");
-    //parsefile(leprogchanged);
+    presets_names_offset = leprogchanged ;
+    refresh_presets_names();
+    parsefile();
   }
 }
 
