@@ -25,7 +25,6 @@ void pseudo303() {
    // }
 
     if (tb303[i] == 1) {
-     
       //int letimerz303 = millis() - le303start[i];
       //if (letimerz303 > le303pulsewidth) {
 
@@ -165,7 +164,8 @@ void loop() {
   if ( rec_looping ) { 
     continue_looper();
   } 
-  if ( !rec_looping && !pre_record) {
+  //( !rec_looping && !pre_record)
+  if (true) {
     if (millis() % display_lag == 0) {
     
       if (noteprint) {

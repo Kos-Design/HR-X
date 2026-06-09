@@ -1,10 +1,11 @@
-                   
+
 File frec;
 File frec2;
 File looper;
 
 int modeL = 0;
 int modeR = 0;
+bool autoassign = 0;
 // 0=stopped, 1=recording,
 bool modestereo = 0;
 
@@ -325,7 +326,21 @@ void loopRecorder() {
   }
 }
 
+
 void playrecordsd() {
+  if (SD.exists(newloopedpath.c_str())) {
+    AudioNoInterrupts();
+    playRawL.play(newloopedpath.c_str());
+    if (modestereo) {
+      playRawR.play(newRecpathR.c_str());
+    } else {
+      playRawR.play(newloopedpath.c_str());
+    }
+    AudioInterrupts();
+  }
+}
+
+void playrecordsd_old() {
   if (SD.exists(newRecpathL.c_str())) {
     AudioNoInterrupts();
     playRawL.play(newRecpathL.c_str());
@@ -346,7 +361,51 @@ void stopplayrecordsd() {
   //AudioInterrupts();
 }
 
+void start_sample_in_place() {
+  if (!just_pressed_rec){
+    just_pressed_rec = true ;
+    String recfolder = "SOUNDSET/REC" ;
+    if (!(SD.exists(recfolder.c_str()))) {
+      SD.mkdir(recfolder.c_str());
+    }
+    tocker = millis();
+    Serial.println("looping");
+    newloopedpath = get_new_rec_file_name("SOUNDSET/REC/LOOP");
+    if (SD.exists(newloopedpath.c_str())) {
+      SD.remove(newloopedpath.c_str());
+    }
+    looper = SD.open(newloopedpath.c_str(), FILE_WRITE);
+    if (looper) {
+      //Serial.println("start rec looper ");
+      //Serial.print(looper.name());
+      //Serial.println("");
+      //AudioNoInterrupts();
+      queue1.begin();
+      pre_record = true;
+      //AudioInterrupts();
+      //rec_looping = true ;
+    } else {
+      String formattedString = "error opening " + newloopedpath;
+      Serial.println(formattedString);
+      rec_looping = false ;
+    }
+    
+//start at pat pos
+//rec mono
+// ends in 32 ticks
+//save sample
+// assign saved to note 50
+// set pattern empty and place note 50 on 0
+//clear locks
+  
+  }
+}
+
+// should use start_sample_in_place
 void startRecording() {
+  start_sample_in_place();
+}
+void startRecording_old() {
 
   Serial.println("startRecording");
  
@@ -432,8 +491,12 @@ void continueRecording() {
   // if (frec) {Serial.println("Frec1 still opened");}
   // delay(3000);
 }
+void stopRecordingL(){
+  end_sample_in_place();
+  pre_record = false;
 
-void stopRecordingL() {
+}
+void stopRecordingL_old() {
   // if ( !frec ) {
   //  frec = SD.open("RECORDL.RAW", FILE_WRITE);
   //}
@@ -523,46 +586,6 @@ void continue_looper() {
   auto_stop_rec();
 }
 
-void start_sample_in_place() {
-  if (!just_pressed_rec){
-    just_pressed_rec = true ;
-    String recfolder = "SOUNDSET/REC" ;
-    if (!(SD.exists(recfolder.c_str()))) {
-      SD.mkdir(recfolder.c_str());
-    }
-    tocker = millis();
-    Serial.println("looping");
-    newloopedpath = get_new_rec_file_name("SOUNDSET/REC/LOOP");
-    if (SD.exists(newloopedpath.c_str())) {
-      SD.remove(newloopedpath.c_str());
-    }
-    looper = SD.open(newloopedpath.c_str(), FILE_WRITE);
-    if (looper) {
-      //Serial.println("start rec looper ");
-      //Serial.print(looper.name());
-      //Serial.println("");
-      //AudioNoInterrupts();
-      queue1.begin();
-      pre_record = true;
-      //AudioInterrupts();
-      //rec_looping = true ;
-    } else {
-      String formattedString = "error opening " + newloopedpath;
-      Serial.println(formattedString);
-      rec_looping = false ;
-    }
-    
-//start at pat pos
-//rec mono
-// ends in 32 ticks
-//save sample
-// assign saved to note 50
-// set pattern empty and place note 50 on 0
-//clear locks
-  
-  }
-}
-
 void end_sample_in_place() {
     if (looper) {
       Serial.println("stop rec looper ");
@@ -580,7 +603,10 @@ void end_sample_in_place() {
     dosoundlist();
     }
     just_pressed_rec = false ;
-    
+    if (autoassign) {
+      Serial.println("attempting copy");
+      loadSampledSound();
+    }
 }
 
   //rien  SOUNDSET/REC/WAV_01.WAV

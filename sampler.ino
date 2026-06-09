@@ -168,7 +168,7 @@ void samplerexplorer() {
       // return ;
     }
     if (sublevels[2] == 2 && sublevels[3] == 1) {
-      //   Serial.println("del selected confirmed");
+      //   Serial.println("load selected confirmed");
       loadSelectedSamples();
       // clear selection
       navlevel = 2;
@@ -1023,6 +1023,66 @@ void loadSelectedSamples() {
   listFlashfiles();
 }
 
+void loadSampledSound() {
+  unsigned long lengthz;
+  File currentsample;
+  SerialFlashFile currentFlashfile;
+  //addfolderstoselectionset();
+  delay(1);
+  if (!SerialFlash.begin(FlashChipSelect)) {
+    Serial.println("Unable to access SPI Flash chip");
+  }
+  currentsample = SD.open(newloopedpath.c_str());
+  Serial.println(newloopedpath.c_str());
+  if (!currentsample) {
+    Serial.println("not on sd");
+  }
+  const char *currentflashname = currentsample.name();
+  Serial.println(currentsample.name());
+  lengthz = currentsample.size();
+  Serial.println(lengthz);
+  if (SerialFlash.exists(currentflashname)) {
+    Serial.println("  already exists on the Flash chip");
+    currentFlashfile = SerialFlash.open(currentflashname);
+    if (currentFlashfile) {
+      SerialFlash.remove(currentflashname);
+      delay(1);
+      }
+    }
+
+  if (SerialFlash.create(currentflashname, lengthz)) {
+    SerialFlashFile currentFlashfile = SerialFlash.open(currentflashname);
+    if (currentFlashfile) {
+      //  Serial.print("  copying");
+      // copy data loop
+      unsigned long count = 0;
+      unsigned char dotcount = 9;
+      while (count < lengthz) {
+        char buf[256];
+        unsigned int n;
+        n = currentsample.read(buf, 256);
+        currentFlashfile.write(buf, n);
+        count = count + n;
+        // Serial.print(".");
+        if (++dotcount > 100) {
+          //  Serial.println();
+          dotcount = 0;
+        }
+      }
+      currentFlashfile.close();
+      // if (dotcount > 0) Serial.println();
+      } 
+    } else {
+      Serial.println("  unable to create file");
+    }
+  currentsample.close();
+
+  initializesamplesselectedlist();
+  initializesamplesfoldersselectedlist();
+  listFlashfiles();
+  
+}
+
 bool comparemesFiles(typeof(myMidiFile) &file, SerialFlashFile &ffile) {
   file.seek(0);
   ffile.seek(0);
@@ -1042,7 +1102,7 @@ bool comparemesFiles(typeof(myMidiFile) &file, SerialFlashFile &ffile) {
 }
 
 void errorsd(const char *message) {
-  // Serial.println(message);
+   Serial.println(message);
 }
 
 void listFlashfiles() {
@@ -1082,6 +1142,7 @@ void getavailablespace() {
   lefile.close();
   float freespace = ((laspace / 16777216.0) * 100);
   Serial.print(freespace);
+  
 }
 
 void spacespr(int num) {
