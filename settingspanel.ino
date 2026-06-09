@@ -605,7 +605,9 @@ void displaysettingspanel() {
     makesettingslist();
     dodisplay();
   }
-  // 2 lines have need this exception for settings menu, find the 2nd
+  canvasBIG.setTextSize(1);
+  canvastitle.setTextSize(1);
+  // 2 lines need this exception for settings menu, find the 2nd
   if (navlevel == 2 && sublevels[1] != 8 && sublevels[1] != 11) {
     // navrange = 2 ;
 
@@ -691,8 +693,12 @@ void displaysettingspanel() {
       AudioInSource = !AudioInSource;
       if (AudioInSource) {
         audioShield.inputSelect(AUDIO_INPUT_MIC);
+        InMixL.gain(1, 0.01);
+        InMixR.gain(1, 0.01);
       } else {
         audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+        InMixL.gain(1,1.0);
+        InMixR.gain(1, 1.0);
       }
       returntonav(1);
       // navlevel--;

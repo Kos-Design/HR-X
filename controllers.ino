@@ -6,7 +6,7 @@ int fakeselector(float smallv, int maxrange) {
 
 void controlswitcher(int caser, int valu) {
 
-  // all pots seems to be wired backwards, inverting result
+  // pots values backwards, inverting results
   smallfloat = 1.0 - valu / 1023.0;
 
   switch (caser) {
@@ -27,9 +27,10 @@ void controlswitcher(int caser, int valu) {
       // SDSamplePlayer
       MasterL.gain(0, smallfloat);
       MasterR.gain(0, smallfloat);
+      Serial.println(smallfloat);
       break;
     case 4:
-    //auxIn
+    //flash sampler
       mixlevelsM[2] = smallfloat * 127;
       setmastersmixlevel(2);
       break;
@@ -482,7 +483,7 @@ void controlswitcher(int caser, int valu) {
       // Audio In level
       MasterL.gain(2, smallfloat);
       MasterR.gain(2, smallfloat);
-
+      Serial.println(smallfloat); 
       break;
 
     case 98:

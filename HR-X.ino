@@ -215,8 +215,9 @@ char newmksamplefullpath[32] = {"SOUNDSET/MABANK01/SAMPLE00.RAW"};
 #include "/home/kosmin/HR-X/includes/images.ino"
 #include "/home/kosmin/HR-X/includes/notestofrequency.ino"
 #include "ParserLib.h"
-#include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <Adafruit_GFX.h>
+
 #include <Bounce.h>
 #include <Encoder.h>
 #include <string.h>
@@ -637,7 +638,7 @@ char mainmenufxlist[mainmenufxlistsize][12] = {
 //const char ControlList[allfxes][23] PROGMEM = {
 const char ControlList[allfxes][21] = {
     // 0
-    "None", "Volume","SynthLevel", "FlashLevel", "AuxLevel", "Fx1Level",
+    "None", "Volume","SynthLevel", "SDLvl", "FlashLevel", "Fx1Level",
     "Fx2Level", "Fx3Level", "SamplerDry","SynthDry",
     // 10
     "AuxDry", "CtoffSlope","ResoSlope","Free", "Free", "Free",
@@ -656,16 +657,16 @@ const char ControlList[allfxes][21] = {
     "LFOfreqs", "LFOphase", "LFOoffset", "LFOsync", "Attack Delay",
     /// 60
     "Attack", "Hold", "Decay", "Sustain", "free", "Release",
-    "303ffilterz[0]", "303fgainz[1]", "303fgainz[2]", "FXChannelselector",
+    "303ffilterz[0]", "303fgainz[1]", "303fgainz[2]", "FXselector",
     // 70
     "chorusVknobs[i]", "bqstage[i]", "LFOonfilterz[i]", "bqVpot[i][j][0]", "bqVpot[i][j][1]", "bqVpot[i][j][2]",
     "grlrGrain", "grlrRatio", "gShift-T", "gFreeze-T",
     // 80
     "reverbVknobs[i][0]", "reverbVknobs[i][1]", "bitcrush[i][0]",  "bitcrush[i][1]", "mixVknobs[i][0]", 
-    "mix[i][1]", "mix[i][2]", "filter[i][0]", "filterVknobs[i][1]", "filterVknobs[i][2]",
+    "mix[i][1]", "mix[i][2]", "fltrVknob[i][0]", "fltrVknob[i][1]", "fltrVknob[i][2]",
     // 90
     "flanger[i][0]", "flanger[i][1]", "flanger[i][2]","DelayFreq[i][0]", "DelayMult[i][1]", "DelayFeed[i][2]",
-    "bqtype[i][bqstage]", "Audio In level", "Free", "Free","BPM",
+    "bqtype[i][bq]", "In level", "Free", "Free","BPM",
     // 100
     "Pat. Save", "Pat. Load", "Record Raw", "Play Recorded", "Stop Play&Rec", "Free", "Free",
     "free","Load Pat0", "preset 0", "Loop recorder", 
