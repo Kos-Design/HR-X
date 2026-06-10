@@ -3,7 +3,7 @@ char usnotes[12][5] = {"C",  "C#", "D",  "Eb", "E",  "F",
 
 char eunotes[12][5] = {"Do",  "Do#", "Re",   "Mib", "Mi",  "Fa",
                        "Fa#", "Sol", "Sol#", "La",  "Sib", "Si"};
-bool AudioInSource;
+int AudioInSource = 1;
 float freqtonotes[9 * 12] = {
     16.35, 17.32, 18.35, 19.45, 20.60, 21.83, 23.12, 24.50, 25.96, 27.50, 29.14,
     30.87, 32.70, 34.65, 36.71, 38.89, 41.20, 43.65, 46.25, 49.00, 51.91, 55.00,
@@ -690,15 +690,25 @@ void displaysettingspanel() {
 
     case 12:
       // navrange = 8 ;
-      AudioInSource = !AudioInSource;
-      if (AudioInSource) {
-        audioShield.inputSelect(AUDIO_INPUT_MIC);
-        InMixL.gain(1, 0.01);
-        InMixR.gain(1, 0.01);
-      } else {
-        audioShield.inputSelect(AUDIO_INPUT_LINEIN);
-        InMixL.gain(1,1.0);
-        InMixR.gain(1, 1.0);
+      AudioInSource = (1 + AudioInSource)%3 ;
+      switch (AudioInSource) {
+        case 0 :
+          audioShield.inputSelect(AUDIO_INPUT_MIC);
+          InMixL.gain(1, 0.01);
+          InMixR.gain(1, 0.01);
+          break;
+        case 1 :
+          audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+          InMixL.gain(1,1.0);
+          InMixR.gain(1, 1.0);
+          break;
+        case 2 :
+          InMixL.gain(1, 0.0);
+          InMixR.gain(1, 0.0);
+          break;
+
+        default :
+        break;
       }
       returntonav(1);
       // navlevel--;
@@ -730,15 +740,16 @@ void displaysettingspanel() {
 
 
 void makesettingslist() {
+  char audio_source_lbl[3][5]= {"Mic","Line","Off"};
   char chordslabels[7][12] = {"Major", "Minor", "Diminished", "Augmented",
                               "Sus2",  "Sus4",  "None"};
   char midichlist[17][4] = {"All", "1",  "2",  "3",  "4",  "5",  "6",  "7", "8",
                             "9",   "10", "11", "12", "13", "14", "15", "16"};
-  char displaysettingslabels[numbofsettinglabels][24] = {"Echo Midi",
+  char displaysettingslabels[numbofsettinglabels][18] = {"Echo Midi",
                                                          "Freeze midi CC",
                                                          "Synth midi ch",
                                                          "Sampler midi ch",
-                                                         "Sampler analog touch",
+                                                         "Analog touch",
                                                          "Set Tap note",
                                                          "Tempo",
                                                          "Chorus",
@@ -809,11 +820,9 @@ void makesettingslist() {
   }
   if (sublevels[1] == 12) {
     canvastitle.setCursor(96, 0);
-    if (AudioInSource) {
-      canvastitle.println("Mic");
-    } else {
-      canvastitle.println("Line");
-    }
+    
+    canvastitle.println(audio_source_lbl[AudioInSource]);
+    
     // canvasBIG.setTextSize(1);
   }
 

@@ -104,22 +104,35 @@ bool test_flash_sample_name(String f_s_name){
 void initiatesamplerline(byte lesampleliner, byte channel, byte data1,  byte data2) {
   //const char *tobeplayed = (const char *)Flashsamplename[Sampleassigned[(int)(data1)]];
   String playable_file = (String)Flashsamplename[Sampleassigned[(int)(data1)]];
-  if (!test_flash_sample_name(playable_file)){
-    playable_file = lower_extension_case(playable_file);
-  }
-  if (FlashSampler[lesampleliner]->isPlaying()) {
-    FlashSampler[lesampleliner]->stop();
-  }
-  if (!digitalplay) {
-    Flashmixer[int(lesampleliner / 4)]->gain(lesampleliner - 4 * int(lesampleliner / 4),(smixervknobs[lesampleliner] / 127.0) * (data2 / 127.0));
+  if (lesampleliner == 17) {
+    Serial.println("playing SD sample");
+    playrecordsd();
+
   } else {
-    Flashmixer[int(lesampleliner / 4)]->gain(lesampleliner - 4 * int(lesampleliner / 4),(smixervknobs[lesampleliner] / 127.0));
+    if (!test_flash_sample_name(playable_file)){
+      playable_file = lower_extension_case(playable_file);
+    }
+    if (FlashSampler[lesampleliner]->isPlaying()) {
+      FlashSampler[lesampleliner]->stop();
+    }
+    if (!digitalplay) {
+      Flashmixer[int(lesampleliner / 4)]->gain(lesampleliner - 4 * int(lesampleliner / 4),(smixervknobs[lesampleliner] / 127.0) * (data2 / 127.0));
+    } else {
+      Flashmixer[int(lesampleliner / 4)]->gain(lesampleliner - 4 * int(lesampleliner / 4),(smixervknobs[lesampleliner] / 127.0));
+    }
+    FlashSampler[lesampleliner]->play(playable_file.c_str());
   }
-  FlashSampler[lesampleliner]->play(playable_file.c_str());
 }
 
 void playFlashsample(byte channel, byte data1, byte data2) {
-  byte lesampleliner = getNewavailablesampler();
+  byte lesampleliner = 17 ;
+  if (data1 == SD_Player_note) {
+    Serial.println("Sdeed") ;
+    //playSdWav1
+
+  } else {
+    lesampleliner = getNewavailablesampler();
+  }
   if (patrecord) {
     recordmidinotes2(lesampleliner, channel, data1, data2);
   }

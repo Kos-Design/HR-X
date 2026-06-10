@@ -242,7 +242,7 @@ EXTMEM byte bufferR[512];
 const int numbofsettinglabels = 14;
 int samplermidichannel = 8;
 byte synthmidichannel = 16;
-
+bool blocked = false ;
 byte navrec = 3;
 // various hard to pass params
 int tickposition;
@@ -726,7 +726,7 @@ float filterzreso[fxs_count] = {0.7};
 float filterzoctv[fxs_count];
 
 int filterzrange = 14000;
-
+byte SD_Player_note = 65;
 char masterlabels[3][3] = {"m", "w", "s"};
 
 // int shifts ;

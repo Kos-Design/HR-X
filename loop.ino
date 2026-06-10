@@ -164,8 +164,8 @@ void loop() {
   if ( rec_looping ) { 
     continue_looper();
   } 
-  //( !rec_looping && !pre_record)
-  if (true) {
+  
+  if (!blocked) {
     if (millis() % display_lag == 0) {
     
       if (noteprint) {

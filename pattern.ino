@@ -1,4 +1,4 @@
-         
+
           // 8+6 X 32 X 3 Noteson
           //+ 8+6 X 32 X 3 Notesoff
           //+ 128 X 32 X 3 Ccs
@@ -23,7 +23,7 @@ class SynthLiner {
       //to avoid bounces and midi panik !
       if (!enveloppesL[l_index]->isActive()){
         if (!tb303[l_index]) {
-          blink303[l_index]->RESET; 
+          blink303[l_index]->RESET;
           tb303[l_index] = 1;
         }
         enveloppesL[l_index]->hold(millitickinterval - adsrlevels[3]);
