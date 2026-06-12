@@ -2,13 +2,81 @@
 
 USBHost myusb;
 USBHub hub1(myusb);
-//USBHub hub2(myusb);
+USBHub hub2(myusb);
+USBHub hub3(myusb);
 MIDIDevice midi1(myusb);
+MIDIDevice midi2(myusb);
+MIDIDevice midi3(myusb);
 
 void loopusbHub() {
+  
 
-  //myusb.Task();
+  //works without .Task() but task seems to do other things too
+  myusb.Task();
+  //some devices have multiple IDs
+ 
   midi1.read();
+  midi2.read();
+  midi3.read();
+
+  //TODO: make devices selector
+  //
+  //if (midi1) {
+  //  Serial.printf("midi1 VID=%04X PID=%04X\n",
+  //                midi1.idVendor(),
+  //                midi1.idProduct());
+  //  }
+  //
+  //  if (midi2) {
+  //     Serial.printf("midi2 VID=%04X PID=%04X\n",
+  //                   midi2.idVendor(),
+  //                   midi2.idProduct());
+  //}
+
+  // need to handle MidiUSB.read() for msgs from pc or front usb
+  midiEventPacket_t rx;
+  do {
+    rx = MidiUSB.read();
+    if (rx.header != 0) {
+      //Serial.println(rx.header);
+      switch(rx.header){
+        case 8:
+          MaNoteOn(rx.byte1,rx.byte2,rx.byte3);
+          //rec_test(0,rx.byte1,rx.byte2,rx.byte3);
+          //song.send_to_wire(0,rx.byte1,rx.byte2,rx.byte3);
+        break;
+
+        case 9:
+          //rec_test(1,rx.byte1,rx.byte2,rx.byte3);
+          //song.send_to_wire(1,rx.byte1,rx.byte2,rx.byte3);
+          MaNoteOff(rx.byte1,rx.byte2,rx.byte3);
+        break;
+
+        case 11:
+          MaControlChange(rx.byte1,rx.byte2,rx.byte3);
+        break;
+
+        default:
+        break;
+      }
+      /*
+      Serial.print("Received: ");
+      byte m_status = (rx.header, HEX) ;
+      byte m_messageType = m_status & 0xF0;  // Extract the message type (upper nibble)
+      Serial.print(" ");
+      byte m_channel = (rx.byte1, HEX) & 0x0F;
+      Serial.print(rx.header);
+      Serial.print(" ");
+      Serial.print(m_channel);
+      Serial.print(" ");
+      Serial.print("-");
+      Serial.print(rx.byte2);
+      Serial.print("-");
+      Serial.println(rx.byte3);
+      */
+    }
+  } while (rx.header != 0);
+
 }
 void setuphubusb() {
 
@@ -16,8 +84,17 @@ void setuphubusb() {
 
   midi1.setHandleNoteOn(MaNoteOn);
   midi1.setHandleNoteOff(MaNoteOff);
-  // midi1.setHandleAfterTouchPoly(myAfterTouchPoly);
   midi1.setHandleControlChange(MaControlChange);
+
+  midi2.setHandleNoteOn(MaNoteOn);
+  midi2.setHandleNoteOff(MaNoteOff);
+  midi2.setHandleControlChange(MaControlChange);
+
+  midi3.setHandleNoteOn(MaNoteOn);
+  midi3.setHandleNoteOff(MaNoteOff);
+  midi3.setHandleControlChange(MaControlChange);
+
+  // midi1.setHandleAfterTouchPoly(myAfterTouchPoly);
   //  midi1.setHandleProgramChange(myProgramChange);
   //  midi1.setHandleAfterTouchChannel(myAfterTouchChannel);
   //  midi1.setHandlePitchChange(myPitchChange);
