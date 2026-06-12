@@ -906,6 +906,29 @@ AudioConnection modulateCord20(modulate3L4, 0, WavesL4, 2);
 AudioConnection modulateCord21(modulate3L5, 0, WavesL5, 2);
 AudioConnection modulateCord22(modulate3L6, 0, WavesL6, 2);
 
+AudioConnection MDwaveCord01(waveform1L1, 0, modulate1L1, 0);
+AudioConnection MDwaveCord02(waveform1L2, 0, modulate1L2, 0);
+AudioConnection MDwaveCord03(waveform1L3, 0, modulate1L3, 0);
+AudioConnection MDwaveCord04(waveform1L4, 0, modulate1L4, 0);
+AudioConnection MDwaveCord05(waveform1L5, 0, modulate1L5, 0);
+AudioConnection MDwaveCord06(waveform1L6, 0, modulate1L6, 0);
+
+AudioConnection MDwaveCord09(waveform2L1, 0, modulate2L1, 0);
+AudioConnection MDwaveCord10(waveform2L2, 0, modulate2L2, 0);
+AudioConnection MDwaveCord11(waveform2L3, 0, modulate2L3, 0);
+AudioConnection MDwaveCord12(waveform2L4, 0, modulate2L4, 0);
+AudioConnection MDwaveCord13(waveform2L5, 0, modulate2L5, 0);
+AudioConnection MDwaveCord14(waveform2L6, 0, modulate2L6, 0);
+
+AudioConnection MDwaveCord17(waveform3L1, 0, modulate3L1, 0);
+AudioConnection MDwaveCord18(waveform3L2, 0, modulate3L2, 0);
+AudioConnection MDwaveCord19(waveform3L3, 0, modulate3L3, 0);
+AudioConnection MDwaveCord20(waveform3L4, 0, modulate3L4, 0);
+AudioConnection MDwaveCord21(waveform3L5, 0, modulate3L5, 0);
+AudioConnection MDwaveCord22(waveform3L6, 0, modulate3L6, 0);
+
+
+
 AudioConnection MDdrumCord01(drum1L1, 0, modulate1L1, 0);
 AudioConnection MDdrumCord02(drum1L2, 0, modulate1L2, 0);
 AudioConnection MDdrumCord03(drum1L3, 0, modulate1L3, 0);
@@ -969,6 +992,11 @@ AudioConnection *MDdrumcords1[liners_count*synths_count] = {
     &MDdrumCord01, &MDdrumCord02, &MDdrumCord03, &MDdrumCord04, &MDdrumCord05, &MDdrumCord06, 
     &MDdrumCord09, &MDdrumCord10, &MDdrumCord11, &MDdrumCord12, &MDdrumCord13, &MDdrumCord14, 
     &MDdrumCord17, &MDdrumCord18, &MDdrumCord19, &MDdrumCord20, &MDdrumCord21, &MDdrumCord22};
+
+AudioConnection *MDwavecords1[liners_count*synths_count] = {
+    &MDwaveCord01, &MDwaveCord02, &MDwaveCord03, &MDwaveCord04, &MDwaveCord05, &MDwaveCord06, 
+    &MDwaveCord09, &MDwaveCord10, &MDwaveCord11, &MDwaveCord12, &MDwaveCord13, &MDwaveCord14, 
+    &MDwaveCord17, &MDwaveCord18, &MDwaveCord19, &MDwaveCord20, &MDwaveCord21, &MDwaveCord22};
 
 AudioConnection *MDstringcords1[liners_count*synths_count] = {
     &MDstringCord01, &MDstringCord02, &MDstringCord03, &MDstringCord04, &MDstringCord05, &MDstringCord06, 

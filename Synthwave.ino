@@ -94,41 +94,38 @@ void displayphasebars(int score) {
 }
 
 void displayModulatedbool(int lesynthb) {
+  char modulation_labels[4][7] = {"Off", "Freq", "Phase", "Ampl"};
   wavelinemenuBG(lesynthb);
   draw_synth_params();
   dodisplay();
-  display.setCursor(110, 0);
+  display.setCursor(64, 0);
   display.setTextSize(2);
-  display.println(FMmodulated[lesynthb]);
+  display.println(modulation_labels[FMmodulated[lesynthb]]);
 
   display.display();
 }
 
 void setfmtophase(byte lesynth) {
   for (byte i = 0; i < liners_count; i++) {
+    //phaseModulation should be based on lfo level
     FMwaveforms1[i + (lesynth * liners_count)]->phaseModulation(180);
   }
 }
 
 void setfmtofreq(byte lesynth) {
   for (byte i = 0; i < liners_count; i++) {
+    //phaseModulation should be based on lfo level
     FMwaveforms1[i + (lesynth * liners_count)]->frequencyModulation(10);
   }
 }
 
 void wavelineModulatedbool(int lesynthi) {
   if (navlevel == 4) {
-    navrange = 2;
+    navrange = 3;
     // Serial.println("Setting Mdulation switch");
     FMmodulated[lesynthi] = sublevels[4];
   }
   if (navlevel > 4) {
-    if (FMmodulated[lesynthi] == 1) {
-      setfmtofreq(lesynthi);
-    }
-    if (FMmodulated[lesynthi] == 2) {
-      setfmtophase(lesynthi);
-    }
     setwavetypefromlist(lesynthi, Waveformstyped[lesynthi]);
     returntonav(3);
   }
@@ -634,7 +631,8 @@ void sliceR() {
 
 void draw_synth_params() {
   char wavelineslabels[synth_params_count][12] = {
-      "Type", "Modulated", "LFO", "Freq", "Offset", "Phase", "<-  ", "  ->"};
+      "Type", "Mod", "LFO", "Freq", "Offset", "Phase", "<-  ", "  ->"};
+  
   int startx = 5;
   int starty = 16;
   char *textin = (char *)wavelineslabels[sublevels[3]];
@@ -1389,101 +1387,150 @@ void setmastersmixlevel(int lebus) {
   }
   //AudioInterrupts();
 }
-
 void setwavetypefromlist(int lesinthy, int letype) {
   Serial.println("setting wave type");
   AudioNoInterrupts();
   Waveformstyped[lesinthy] = letype;
-  if (FMmodulated[lesinthy] == 0) {
-    if (letype < 9) {
-      for (int i = 0; i < liners_count; i++) {
-        FMwavecords1[i + (liners_count * lesinthy)]->disconnect();
-        stringcords1[i + (liners_count * lesinthy)]->disconnect();
-        modulatecords1[i + (liners_count * lesinthy)]->disconnect();
-        MDdrumcords1[i + (liners_count * lesinthy)]->disconnect();
-        MDstringcords1[i + (liners_count * lesinthy)]->disconnect();
-        drumcords1[i + (liners_count * lesinthy)]->disconnect();
-        wavelinescords[i + (liners_count * lesinthy)]->connect();
-        waveforms1[i + (liners_count * lesinthy)]->begin(lesformes[letype]);
-        if (letype == 7) {
-          waveforms1[i + (liners_count * lesinthy)]->arbitraryWaveform(arbitrary_waveforms[lesinthy],1.0);
+  switch (FMmodulated[lesinthy]){
+
+    case 0:
+      
+      if (letype < 9) {
+        for (int i = 0; i < liners_count; i++) {
+          FMwavecords1[i + (liners_count * lesinthy)]->disconnect();
+          stringcords1[i + (liners_count * lesinthy)]->disconnect();
+          modulatecords1[i + (liners_count * lesinthy)]->disconnect();
+          MDdrumcords1[i + (liners_count * lesinthy)]->disconnect();
+          MDstringcords1[i + (liners_count * lesinthy)]->disconnect();
+          MDwavecords1[i + (liners_count * lesinthy)]->disconnect();
+          drumcords1[i + (liners_count * lesinthy)]->disconnect();
+          wavelinescords[i + (liners_count * lesinthy)]->connect();
+          waveforms1[i + (liners_count * lesinthy)]->begin(lesformes[letype]);
+          if (letype == 7) {
+            waveforms1[i + (liners_count * lesinthy)]->arbitraryWaveform(arbitrary_waveforms[lesinthy],1.0);
+          }
+        }
+      } 
+      else if (letype == 9) {
+        for (int i = 0; i < liners_count; i++) {
+          wavelinescords[i + (lesinthy * liners_count)]->disconnect();
+          stringcords1[i + (lesinthy * liners_count)]->disconnect();
+          FMwavecords1[i + (lesinthy * liners_count)]->disconnect();
+          modulatecords1[i + (liners_count * lesinthy)]->disconnect();
+          MDwavecords1[i + (liners_count * lesinthy)]->disconnect();
+          MDdrumcords1[i + (liners_count * lesinthy)]->disconnect();
+          MDstringcords1[i + (liners_count * lesinthy)]->disconnect();
+          drumcords1[i + (lesinthy * liners_count)]->connect();
+        }
+      } 
+      else if (letype == 10) {
+
+        for (int i = 0; i < liners_count; i++) {
+          wavelinescords[i + (lesinthy * liners_count)]->disconnect();
+          drumcords1[i + (lesinthy * liners_count)]->disconnect();
+          FMwavecords1[i + (lesinthy * liners_count)]->disconnect();
+          modulatecords1[i + (liners_count * lesinthy)]->disconnect();
+          MDwavecords1[i + (liners_count * lesinthy)]->disconnect();
+          MDdrumcords1[i + (liners_count * lesinthy)]->disconnect();
+          MDstringcords1[i + (liners_count * lesinthy)]->disconnect();
+          stringcords1[i + (lesinthy * liners_count)]->connect();
         }
       }
-    } else if (letype == 9) {
-      for (int i = 0; i < liners_count; i++) {
-        wavelinescords[i + (lesinthy * liners_count)]->disconnect();
-        stringcords1[i + (lesinthy * liners_count)]->disconnect();
-        FMwavecords1[i + (lesinthy * liners_count)]->disconnect();
-        modulatecords1[i + (liners_count * lesinthy)]->disconnect();
-        MDdrumcords1[i + (liners_count * lesinthy)]->disconnect();
-        MDstringcords1[i + (liners_count * lesinthy)]->disconnect();
-        drumcords1[i + (lesinthy * liners_count)]->connect();
+    
+    break;
+
+    case 1:
+      if (letype < 9) {
+        for (int i = 0; i < liners_count; i++) {
+          wavelinescords[i + (liners_count * lesinthy)]->disconnect();
+          modulatecords1[i + (liners_count * lesinthy)]->disconnect();
+          MDdrumcords1[i + (liners_count * lesinthy)]->disconnect();
+          MDstringcords1[i + (liners_count * lesinthy)]->disconnect();
+          stringcords1[i + (liners_count * lesinthy)]->disconnect();
+          drumcords1[i + (liners_count * lesinthy)]->disconnect();
+          MDwavecords1[i + (liners_count * lesinthy)]->disconnect();
+          FMwavecords1[i + (liners_count * lesinthy)]->connect();
+          FMwaveforms1[i + (liners_count * lesinthy)]->begin(lesformes[letype]);     
+          // LFO begin
+        }
+      restartLFO(lesinthy);
       }
-    } else if (letype == 10) {
+      
+    break;
 
-      for (int i = 0; i < liners_count; i++) {
-        wavelinescords[i + (lesinthy * liners_count)]->disconnect();
-        drumcords1[i + (lesinthy * liners_count)]->disconnect();
-        FMwavecords1[i + (lesinthy * liners_count)]->disconnect();
-        modulatecords1[i + (liners_count * lesinthy)]->disconnect();
-        MDdrumcords1[i + (liners_count * lesinthy)]->disconnect();
-        MDstringcords1[i + (liners_count * lesinthy)]->disconnect();
-        stringcords1[i + (lesinthy * liners_count)]->connect();
+    case 2:
+      if (letype < 9) {
+        for (int i = 0; i < liners_count; i++) {
+          wavelinescords[i + (liners_count * lesinthy)]->disconnect();
+          modulatecords1[i + (liners_count * lesinthy)]->disconnect();
+          MDdrumcords1[i + (liners_count * lesinthy)]->disconnect();
+          MDstringcords1[i + (liners_count * lesinthy)]->disconnect();
+          stringcords1[i + (liners_count * lesinthy)]->disconnect();
+          drumcords1[i + (liners_count * lesinthy)]->disconnect();
+          MDwavecords1[i + (liners_count * lesinthy)]->disconnect();
+          FMwavecords1[i + (liners_count * lesinthy)]->connect();
+          FMwaveforms1[i + (liners_count * lesinthy)]->begin(lesformes[letype]);     
+          // LFO begin
+          }
+        restartLFO(lesinthy);
       }
-    }
-  }
+      
+    break;
 
-  else {
+    case 3:
+       if (letype < 9) {
 
-    // modulated
-    if (FMmodulated[lesinthy] == 1) {
-      setfmtofreq(lesinthy);
-    }
-    if (FMmodulated[lesinthy] == 2) {
-      setfmtophase(lesinthy);
-    }
-
-    if (letype < 9) {
-
-      for (int i = 0; i < liners_count; i++) {
-        wavelinescords[i + (liners_count * lesinthy)]->disconnect();
-        modulatecords1[i + (liners_count * lesinthy)]->disconnect();
-        MDdrumcords1[i + (liners_count * lesinthy)]->disconnect();
-        MDstringcords1[i + (liners_count * lesinthy)]->disconnect();
-        stringcords1[i + (liners_count * lesinthy)]->disconnect();
-        drumcords1[i + (liners_count * lesinthy)]->disconnect();
-
-        FMwavecords1[i + (liners_count * lesinthy)]->connect();
-        FMwaveforms1[i + (liners_count * lesinthy)]->begin(lesformes[letype]);     
-        
-        // LFO begin
+        for (int i = 0; i < liners_count; i++) {
+          wavelinescords[i + (liners_count * lesinthy)]->disconnect();
+          MDdrumcords1[i + (liners_count * lesinthy)]->disconnect();
+          MDstringcords1[i + (liners_count * lesinthy)]->disconnect();
+          stringcords1[i + (liners_count * lesinthy)]->disconnect();
+          drumcords1[i + (liners_count * lesinthy)]->disconnect();
+          //FMwavecords1[i + (liners_count * lesinthy)]->connect();
+          FMwavecords1[i + (lesinthy * liners_count)]->disconnect();
+          MDwavecords1[i + (liners_count * lesinthy)]->connect();
+          modulatecords1[i + (liners_count * lesinthy)]->connect();
+          //FMwaveforms1[i + (liners_count * lesinthy)]->begin(lesformes[letype]);     
+          waveforms1[i + (liners_count * lesinthy)]->begin(lesformes[letype]);
+          if (letype == 7) {
+            waveforms1[i + (liners_count * lesinthy)]->arbitraryWaveform(arbitrary_waveforms[lesinthy],1.0);
+          }
+          // LFO begin ffsake !!!
+        }
+      } 
+      else if (letype == 9) {
+        // modulated drum
+        for (int i = 0; i < liners_count; i++) {
+          wavelinescords[i + (lesinthy * liners_count)]->disconnect();
+          stringcords1[i + (lesinthy * liners_count)]->disconnect();
+          FMwavecords1[i + (lesinthy * liners_count)]->disconnect();
+          drumcords1[i + (lesinthy * liners_count)]->disconnect();
+          MDwavecords1[i + (liners_count * lesinthy)]->disconnect();
+          MDstringcords1[i + (liners_count * lesinthy)]->disconnect();
+          //TODO: apply to other types too
+          modulatecords1[i + (liners_count * lesinthy)]->connect();
+          MDdrumcords1[i + (liners_count * lesinthy)]->connect();
+        }
+      } 
+      else if (letype == 10) {
+        // modulated string
+        for (int i = 0; i < liners_count; i++) {
+          wavelinescords[i + (lesinthy * liners_count)]->disconnect();
+          drumcords1[i + (lesinthy * liners_count)]->disconnect();
+          FMwavecords1[i + (lesinthy * liners_count)]->disconnect();
+          stringcords1[i + (lesinthy * liners_count)]->disconnect();
+          MDwavecords1[i + (liners_count * lesinthy)]->disconnect();
+          MDdrumcords1[i + (liners_count * lesinthy)]->disconnect();
+          MDstringcords1[i + (liners_count * lesinthy)]->connect();
+          modulatecords1[i + (liners_count * lesinthy)]->connect();
+        }
       }
-    } else if (letype == 9) {
-      // modulated drum
-      for (int i = 0; i < liners_count; i++) {
-        wavelinescords[i + (lesinthy * liners_count)]->disconnect();
-        stringcords1[i + (lesinthy * liners_count)]->disconnect();
-        FMwavecords1[i + (lesinthy * liners_count)]->disconnect();
-        drumcords1[i + (lesinthy * liners_count)]->disconnect();
-        MDstringcords1[i + (liners_count * lesinthy)]->disconnect();
+    restartLFO(lesinthy);
+    break;
 
-        modulatecords1[i + (liners_count * lesinthy)]->connect();
-        MDdrumcords1[i + (liners_count * lesinthy)]->connect();
-      }
-    } else if (letype == 10) {
-      // modulated string
-      for (int i = 0; i < liners_count; i++) {
-        wavelinescords[i + (lesinthy * liners_count)]->disconnect();
-        drumcords1[i + (lesinthy * liners_count)]->disconnect();
-        FMwavecords1[i + (lesinthy * liners_count)]->disconnect();
-        stringcords1[i + (lesinthy * liners_count)]->disconnect();
-        MDdrumcords1[i + (liners_count * lesinthy)]->disconnect();
-        MDstringcords1[i + (liners_count * lesinthy)]->connect();
-        modulatecords1[i + (liners_count * lesinthy)]->connect();
-      }
-    }
-  }
-
+    default:
+    break;
+  }   
   // synth line off
   if (letype == 11) {
     mixlevelsL[lesinthy] = 0;
@@ -1493,6 +1540,7 @@ void setwavetypefromlist(int lesinthy, int letype) {
       drumcords1[i + (liners_count * lesinthy)]->disconnect();
       FMwavecords1[i + (liners_count * lesinthy)]->disconnect();
       MDdrumcords1[i + (liners_count * lesinthy)]->disconnect();
+      MDwavecords1[i + (liners_count * lesinthy)]->disconnect();
       MDstringcords1[i + (liners_count * lesinthy)]->disconnect();
       modulatecords1[i + (liners_count * lesinthy)]->disconnect();
     }

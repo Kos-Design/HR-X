@@ -10,6 +10,7 @@ void unplugsynth() {
     MDdrumcords1[i]->disconnect();
     drumcords1[i]->disconnect();
     MDstringcords1[i]->disconnect();
+    MDwavecords1[i]->disconnect();
     wavelinescords[i]->disconnect();
   }
   // Serial.println("unplugcalled");

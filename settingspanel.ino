@@ -691,25 +691,7 @@ void displaysettingspanel() {
     case 12:
       // navrange = 8 ;
       AudioInSource = (1 + AudioInSource)%3 ;
-      switch (AudioInSource) {
-        case 0 :
-          audioShield.inputSelect(AUDIO_INPUT_MIC);
-          InMixL.gain(1, 0.01);
-          InMixR.gain(1, 0.01);
-          break;
-        case 1 :
-          audioShield.inputSelect(AUDIO_INPUT_LINEIN);
-          InMixL.gain(1,1.0);
-          InMixR.gain(1, 1.0);
-          break;
-        case 2 :
-          InMixL.gain(1, 0.0);
-          InMixR.gain(1, 0.0);
-          break;
-
-        default :
-        break;
-      }
+      set_in_source();
       returntonav(1);
       // navlevel--;
       break;
@@ -738,7 +720,27 @@ void displaysettingspanel() {
   }
 }
 
+void set_in_source(){
+  switch (AudioInSource) {
+        case 0 :
+          audioShield.inputSelect(AUDIO_INPUT_MIC);
+          InMixL.gain(1, 0.01);
+          InMixR.gain(1, 0.01);
+          break;
+        case 1 :
+          audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+          InMixL.gain(1,1.0);
+          InMixR.gain(1, 1.0);
+          break;
+        case 2 :
+          InMixL.gain(1, 0.0);
+          InMixR.gain(1, 0.0);
+          break;
 
+        default :
+        break;
+      }
+}
 void makesettingslist() {
   char audio_source_lbl[3][5]= {"Mic","Line","Off"};
   char chordslabels[7][12] = {"Major", "Minor", "Diminished", "Augmented",

@@ -9,15 +9,17 @@ MIDIDevice midi2(myusb);
 MIDIDevice midi3(myusb);
 
 void loopusbHub() {
-  
 
   //works without .Task() but task seems to do other things too
   myusb.Task();
-  //some devices have multiple IDs
- 
+  //for multi devices in hub or devices with multiple IDs
   midi1.read();
-  midi2.read();
-  midi3.read();
+  if (!midi1){
+    midi2.read();
+    if (!midi2){
+       midi3.read();
+    }
+  }
 
   //TODO: make devices selector
   //
