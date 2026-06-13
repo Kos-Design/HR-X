@@ -147,7 +147,12 @@ void LFOrmType(int leLFO) {
 void restartLFO(int leLFO) {
   AudioNoInterrupts();
   if (LFOsync[leLFO]) {
-    LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), ((LFOfreqs[leLFO]/127.0)*(1000/millitickinterval)), lesformes[LFOformstype[leLFO]]);
+    float syncher = 1.0 ;
+    if (millitickinterval) {
+      syncher = (1000.00/(millitickinterval+1));
+    }
+    
+    LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), (LFOfreqs[leLFO]/127.0)*syncher, lesformes[LFOformstype[leLFO]]);
   } else {
     LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), (LFOfreqs[leLFO]/127.0)*2, lesformes[LFOformstype[leLFO]]);
   }
@@ -161,7 +166,7 @@ void restartLFO(int leLFO) {
       FMwaveforms1[i + (leLFO * liners_count)]->frequencyModulation((LFOlevel[leLFO]/127.00)*10);
     }
     else if (FMmodulated[leLFO] == 2) {
-      FMwaveforms1[i + (leLFO * liners_count)]->phaseModulation((LFOlevel[leLFO]/127.00)*180);
+      FMwaveforms1[i + (leLFO * liners_count)]->phaseModulation((LFOlevel[leLFO]/127.00) * 360 - 180);
     }
   }
   
@@ -179,11 +184,10 @@ void displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int l
 }
 
 void doLFObool(int leLFO) {
-  if (navlevel >= 3) {
+  if (navlevel == 3) {
     //  Serial.println("Setting Sync switch");
     LFOsync[leLFO] = !LFOsync[leLFO];
     restartLFO(leLFO);
-    returntonav(2);
   }
   display.setCursor(55, 0);
   display.setTextSize(2);
@@ -193,6 +197,9 @@ void doLFObool(int leLFO) {
     display.print("Off");
   }
   display.display();
+  if (navlevel >= 4) {
+    returntonav(2, 2);
+  }
 }
 
 void gobacktolfoparams() { returntonav(2); }

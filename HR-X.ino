@@ -309,8 +309,6 @@ const int pat_parser_size = 32000;
 EXTMEM char receivedbitinchar[parsingbuffersize];
 
 // = 89.6 ( 1.02678 ) 92 original
-// sets analog flashsample player, 1 = digital-onOff, 0 = analog-sensitive
-
 bool debugmidion = 0;
 bool freezemidicc = 0;
 int navlevelpatedit = 2;

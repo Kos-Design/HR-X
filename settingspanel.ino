@@ -589,14 +589,6 @@ void OnBoardVpanel() {
 
 void displaysettingspanel() {
 
-  if (navlevel > 2 && sublevels[1] != 8 && sublevels[1] != 11) {
-    if (sublevels[1] == 2 || sublevels[1] == 3 || sublevels[1] == 5 ||
-        sublevels[1] == 6 || sublevels[1] == 7) {
-      returntonav(1);
-    }
-    makesettingslist();
-    dodisplay();
-  }
   if (navlevel == 1) {
     reinitsublevels(2);
     debugmidion = 0;
@@ -607,118 +599,126 @@ void displaysettingspanel() {
   }
   canvasBIG.setTextSize(1);
   canvastitle.setTextSize(1);
-  // 2 lines need this exception for settings menu, find the 2nd
-  if (navlevel == 2 && sublevels[1] != 8 && sublevels[1] != 11) {
-    // navrange = 2 ;
-
+  // arpegiator has its own panel -> 8 , same for 11 which is OnboardPanel
+  if (navlevel >= 2) {
     switch (sublevels[1]) {
 
-    case 0:
-      debugmidion = 1;
+      case 0:
+        debugmidion = 1;
+        break;
 
+      case 1:
+        freezemidicc = !freezemidicc;
+        returntonav(1,13,1);
+        break;
+
+      case 2:
+        navrange = 16;
+
+        synthmidichannel = (byte)sublevels[2];
+        if (navlevel >= 3) {
+          returntonav(1,13,2);
+        }
+        break;
+
+      case 3:
+        navrange = 16;
+        samplermidichannel = sublevels[2];
+        if (navlevel >= 3) {
+          returntonav(1,13,3);
+        }
+        break;
+
+      case 4:
+        digitalplay = !digitalplay;
+        returntonav(1,13,4);
+        break;
+
+      case 5:
+        navrange = 127;
+        tapnote = byte(sublevels[2]);
+        if (navlevel >= 3 ){
+          returntonav(1,13,5);
+        }
+        break;
+
+      case 6:
+        navrange = 190;
+        millitickinterval = sublevels[2] + 60;
+        setbpms();
+        if (navlevel >= 3) {
+          returntonav(1,13,6);
+        }
+        break;
+
+      case 7:
+        navrange = 6;
+
+        lasetchord = sublevels[2];
+        if (lasetchord < 6) {
+          chordson = 1;
+        } else {
+          chordson = 0;
+        }
+        if (navlevel >= 3) {
+          returntonav(1,13,7);
+        }
+        break;
+
+      case 8:
+        arpegiatorVpanel();
       break;
 
-    case 1:
-      freezemidicc = !freezemidicc;
-      navlevel--;
-      break;
+      case 9:
+        externalticker = !externalticker;
+        returntonav(1,13,9);
+        break;
 
-    case 2:
-      navrange = 16;
-
-      synthmidichannel = (byte)sublevels[2];
-      // setuphubusb();
-      break;
-
-    case 3:
-      navrange = 16;
-      samplermidichannel = sublevels[2];
-
-      break;
-
-    case 4:
-      digitalplay = !digitalplay;
-      navlevel--;
-      break;
-
-    case 5:
-      navrange = 127;
-      tapnote = byte(sublevels[2]);
-      // navlevel--;
-      break;
-
-    case 6:
-      navrange = 190;
-
-      millitickinterval = sublevels[2] + 60;
-      setbpms();
-      // navlevel--;
-      break;
-    case 7:
-      navrange = 6;
-
-      lasetchord = sublevels[2];
-      if (lasetchord < 6) {
-        chordson = 1;
-      } else {
-        chordson = 0;
-      }
-      // navlevel--;
-      break;
-    // no case for 8 or 11
-
-    // navlevel--;
-    case 9:
-      // navrange = 8 ;
-      externalticker = !externalticker;
-      returntonav(1);
-      // navlevel--;
-      break;
-    case 10:
-      // navrange = 8 ;
+      case 10:
+        noteprint = !noteprint;
+        if (noteprint) {
+          replug_notefreq_from_ampL();
+          notefreq1.begin(.15);
+        } else {
+          unplug_notefreq_from_ampL();
+        }
+        if (navlevel >= 3) {
+          returntonav(1,13,10);
+        }
+        break;
       
-      noteprint = !noteprint;
-      if (noteprint) {
-        replug_notefreq_from_ampL();
-        notefreq1.begin(.15);
-      } else {
-        unplug_notefreq_from_ampL();
-      }
-      // returntonav(1);
-      // navlevel--;
-      break;
+      case 11:
+        OnBoardVpanel();
+        break;
+      
+      case 12:
+        navrange = 2 ;
+        AudioInSource = sublevels[2] ;
+        if (navlevel >= 3) {
+          set_in_source();
+          returntonav(1,13,12);
+        }
+        break;
 
-    case 12:
-      // navrange = 8 ;
-      AudioInSource = (1 + AudioInSource)%3 ;
-      set_in_source();
-      returntonav(1);
-      // navlevel--;
-      break;
+      case 13:
 
-    case 13:
+        SendMidiOut = !SendMidiOut;
+        returntonav(1,13,13);
+        break;
 
-      SendMidiOut = !SendMidiOut;
-      returntonav(1);
-      // navlevel--;
-      break;
-
-    default:
-      break;
+      default:
+        break;
     }
-    makesettingslist();
+    if (sublevels[1] != 8 && sublevels[1] != 11 ) {
+      makesettingslist();
+    }
     dodisplay();
   }
+} 
+  
+  
+    
 
-  if (navlevel >= 2 && sublevels[1] == 8) {
-    arpegiatorVpanel();
-    dodisplay();
-  }
-  if (navlevel >= 2 && sublevels[1] == 11) {
-    OnBoardVpanel();
-    dodisplay();
-  }
-}
 
 void set_in_source(){
   switch (AudioInSource) {
@@ -774,6 +774,15 @@ void makesettingslist() {
 
   canvastitle.println(textin);
 
+  if (sublevels[1] == 1) {
+    canvastitle.setCursor(96, 0);
+    if (freezemidicc) {
+      canvastitle.println("On");
+    } else {
+      canvastitle.println("Off");
+    }
+  }
+
   if (sublevels[1] == 2) {
     canvastitle.setCursor(96, 0);
     canvastitle.println(midichlist[synthmidichannel]);
@@ -783,6 +792,14 @@ void makesettingslist() {
     canvastitle.setCursor(96, 0);
     canvastitle.println(midichlist[samplermidichannel]);
     sublevels[2] = int(samplermidichannel);
+  }
+  if (sublevels[1] == 4) {
+    canvastitle.setCursor(96, 0);
+    if (digitalplay) {
+      canvastitle.println("On");
+    } else {
+      canvastitle.println("Off");
+    }
   }
   if (sublevels[1] == 5) {
     canvastitle.setCursor(96, 0);
@@ -820,6 +837,7 @@ void makesettingslist() {
     }
     canvasBIG.setTextSize(1);
   }
+  
   if (sublevels[1] == 12) {
     canvastitle.setCursor(96, 0);
     
