@@ -36,8 +36,12 @@ class FxBus {
       premixesMto_index = (selected_fx_type * fxs_count) + (f_index);
       fxcording_index = (selected_fx_type*fxs_count*2*3) + (f_index*fxs_count*2) + (2*f_index);
       premixesMto[premixesMto_index]->connect();
+      Serial.println(premixesMto_names[premixesMto_index]);
+      
       fxcording[fxcording_index]->connect();
       fxcording[fxcording_index + 1]->connect();
+      Serial.println(fxcording_names[fxcording_index]);
+      Serial.println(fxcording_names[fxcording_index+1]);
       AudioInterrupts();
     }
 
@@ -945,8 +949,19 @@ void bitcrusherVpanel(byte lefilter) {
 
 void freeverbscontrl(byte lefilter) {
   //AudioNoInterrupts();
-  freeverbs[lefilter]->roomsize(reverbVknobs[lefilter][0] / 127.0);
-  freeverbs[lefilter]->damping(reverbVknobs[lefilter][1] / 127.0);
+  //other reverb type, disabled for noisy noise
+  //freeverbs[lefilter]->roomsize(reverbVknobs[lefilter][0] / 127.0);
+  //freeverbs[lefilter]->damping(reverbVknobs[lefilter][1] / 127.0);
+  freeverbs[lefilter]->reverbTime((reverbVknobs[lefilter][0] / 127.0)*10);
+  Serial.print("Audio Mem: ");
+  Serial.print(AudioMemoryUsage());
+  Serial.print(" / ");
+  Serial.println(AudioMemoryUsageMax());
+  Serial.print("CPU: ");
+  Serial.print(AudioProcessorUsage());
+  Serial.print("%, Max: ");
+  Serial.println(AudioProcessorUsageMax());
+
   //AudioInterrupts();
 }
 
@@ -961,12 +976,12 @@ void reverbVpanelAction(byte lefilter) {
       freeverbscontrl(lefilter);
     }
     // res
+    //if (slct == 1) {
+    //  navrange = 127;
+    //  reverbVknobs[lefilter][1] = sublevels[4];
+    //  freeverbscontrl(lefilter);
+    //}
     if (slct == 1) {
-      navrange = 127;
-      reverbVknobs[lefilter][1] = sublevels[4];
-      freeverbscontrl(lefilter);
-    }
-    if (slct == 2) {
       navrange = 100;
       set_wet_mix_at_sub4(lefilter);
     }
@@ -986,22 +1001,22 @@ void reverbVpanelSelector(byte lefilter) {
   byte topwbarstart = 16;
   byte wbarwidth2 = 8;
   if (navlevel == 3) {
-    navrange = 2;
+    navrange = 1;
   }
   int slct = sublevels[3];
-  // size
+  // second
   if (slct == 0) {
     sublevels[4] = reverbVknobs[lefilter][0];
     canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
   }
-  // damp
-  if (slct == 1) {
-    sublevels[4] = reverbVknobs[lefilter][1];
-    canvasBIG.drawCircle(knobradius + 68, centercircley, knobradius - 2, SSD1306_WHITE);
-  }
+  // damp ( disabled , from other freeverb module)
+  //if (slct == 1) {
+  //  sublevels[4] = reverbVknobs[lefilter][1];
+  //  canvasBIG.drawCircle(knobradius + 68, centercircley, knobradius - 2, SSD1306_WHITE);
+  //}
 
   // wet
-  if (slct == 2) {
+  if (slct == 1) {
     sublevels[4] = round(WetMixMasters[lefilter + 1] * 100.0);
     canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
     canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
@@ -1030,7 +1045,7 @@ void reverbVpanel(byte lefilter) {
   canvastitle.setTextSize(1);
   canvastitle.print("Reverb ");
   canvastitle.print(lefilter + 1);
-  float ledamping = reverbVknobs[lefilter][1] / 127.0;
+  //float ledamping = reverbVknobs[lefilter][1] / 127.0;
   float leroomsize = reverbVknobs[lefilter][0] / 127.0;
   // Roomsize
   coeffangle = (6.2831 - (leroomsize)*6.2831) + 3.1416;
@@ -1040,22 +1055,22 @@ void reverbVpanel(byte lefilter) {
   canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
   canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
   canvasBIG.setTextSize(1);
-  canvasBIG.print(leroomsize, 2);
+  canvasBIG.print(leroomsize*10, 2);
   canvasBIG.setCursor(centercirclex - knobradius + 1, 8);
-  canvasBIG.print("Size");
+  canvasBIG.print("Seconds");
 
   // damping
-  coeffangle = (6.2831 - (ledamping)*6.2831) + 3.1416;
-  centercirclex = knobradius + 68;
-  canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
-  ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
-  ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-  canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
-  canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
-  canvasBIG.setTextSize(1);
-  canvasBIG.print(ledamping, 2);
-  canvasBIG.setCursor(centercirclex - knobradius + 1, 8);
-  canvasBIG.print("Damping");
+  //coeffangle = (6.2831 - (ledamping)*6.2831) + 3.1416;
+  //centercirclex = knobradius + 68;
+  //canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+  //ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
+  //ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
+  //canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+  //canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
+  //canvasBIG.setTextSize(1);
+  //canvasBIG.print(ledamping, 2);
+  //canvasBIG.setCursor(centercirclex - knobradius + 1, 8);
+  //canvasBIG.print("Damping");
 
   // wetbar
   barsize = round((WetMixMasters[lefilter + 1]) * (totbartall - 4));

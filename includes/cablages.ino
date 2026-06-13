@@ -246,6 +246,15 @@ AudioConnection *premixesMto[sizeopremixtoM] = {
     &premixMtobq3,  &premixMtoff1,  &premixMtoff2, &premixMtoff3,
     &premixMtode1,  &premixMtode2,  &premixMtode3};
 
+const char premixesMto_names[sizeopremixtoM][15] = {
+    "premixMtom1",    "premixMtom2",    "premixMtom3",    "premixMtorev1",
+    "premixMtorev2",    "premixMtorev3",    "premixMtog1",    "premixMtog2",
+    "premixMtog3",    "premixMtobt1",    "premixMtobt2",    "premixMtobt3",
+    "premixMtofl1",    "premixMtofl2",    "premixMtofl3",    "premixMtoch1",
+    "premixMtoch2",    "premixMtoch3",    "premixMtobq1",    "premixMtobq2",
+    "premixMtobq3",    "premixMtoff1",    "premixMtoff2",    "premixMtoff3",
+    "premixMtode1",    "premixMtode2",    "premixMtode3"};
+
 AudioConnection *LFOtoFilterz[fxs_count * fxs_count] = {
     &LFO1toFilter1, &LFO2toFilter1, &LFO3toFilter1,
     &LFO1toFilter2, &LFO2toFilter2, &LFO3toFilter2,
@@ -288,6 +297,43 @@ AudioConnection *fxcording[sizeofxcords] = {
 
 };
 
+const char fxcording_names[sizeofxcords][13] = {
+    "mul1towetL1","mul1towetR1","mul2towetL1","mul2towetR1","mul3towetL1",
+    "mul3towetR1","mul1towetL2","mul1towetR2","mul2towetL2","mul2towetR2",
+    "mul3towetL2","mul3towetR2","mul1towetL3","mul1towetR3","mul2towetL3",
+    "mul2towetR3","mul3towetL3","mul3towetR3","rev1towetL1","rev1towetR1",
+    "rev2towetL1","rev2towetR1","rev3towetL1","rev3towetR1","rev1towetL2",
+    "rev1towetR2","rev2towetL2","rev2towetR2","rev3towetL2","rev3towetR2",
+    "rev1towetL3","rev1towetR3","rev2towetL3","rev2towetR3","rev3towetL3",
+    "rev3towetR3","g1towetL1","g1towetR1","g2towetL1","g2towetR1",
+    "g3towetL1","g3towetR1","g1towetL2","g1towetR2","g2towetL2",
+    "g2towetR2","g3towetL2","g3towetR2","g1towetL3","g1towetR3",
+    "g2towetL3","g2towetR3","g3towetL3","g3towetR3","bt1towetL1",
+    "bt1towetR1","bt2towetL1","bt2towetR1","bt3towetL1","bt3towetR1",
+    "bt1towetL2","bt1towetR2","bt2towetL2","bt2towetR2","bt3towetL2",
+    "bt3towetR2","bt1towetL3","bt1towetR3","bt2towetL3","bt2towetR3",
+    "bt3towetL3","bt3towetR3","fl1towetL1","fl1towetR1","fl2towetL1",
+    "fl2towetR1","fl3towetL1","fl3towetR1","fl1towetL2","fl1towetR2",
+    "fl2towetL2","fl2towetR2","fl3towetL2","fl3towetR2","fl1towetL3",
+    "fl1towetR3","fl2towetL3","fl2towetR3","fl3towetL3","fl3towetR3",
+    "ch1towetL1","ch1towetR1","ch2towetL1","ch2towetR1","ch3towetL1",
+    "ch3towetR1","ch1towetL2","ch1towetR2","ch2towetL2","ch2towetR2",
+    "ch3towetL2","ch3towetR2","ch1towetL3","ch1towetR3","ch2towetL3",
+    "ch2towetR3","ch3towetL3","ch3towetR3","bq1towetL1","bq1towetR1",
+    "bq2towetL1","bq2towetR1","bq3towetL1","bq3towetR1","bq1towetL2",
+    "bq1towetR2","bq2towetL2","bq2towetR2","bq3towetL2","bq3towetR2",
+    "bq1towetL3","bq1towetR3","bq2towetL3","bq2towetR3","bq3towetL3",
+    "bq3towetR3","ff1towetL1","ff1towetR1","ff2towetL1","ff2towetR1",
+    "ff3towetL1","ff3towetR1","ff1towetL2","ff1towetR2","ff2towetL2",
+    "ff2towetR2","ff3towetL2","ff3towetR2","ff1towetL3","ff1towetR3",
+    "ff2towetL3","ff2towetR3","ff3towetL3","ff3towetR3","de1towetL1",
+    "de1towetR1","de2towetL1","de2towetR1","de3towetL1","de3towetR1",
+    "de1towetL2","de1towetR2","de2towetL2","de2towetR2","de3towetL2",
+    "de3towetR2","de1towetL3","de1towetR3","de2towetL3","de2towetR3",
+    "de3towetL3","de3towetR3"
+
+};
+
 AudioEffectMultiply *multiply[fxs_count] = {&multiply1, &multiply2, &multiply3};
 
 AudioEffectGranular *granular[fxs_count] = {&granular1, &granular2, &granular3};
@@ -302,7 +348,7 @@ AudioFilterStateVariable *filterz[fxs_count] = {&filter1, &filter2, &filter3};
 
 AudioFilterBiquad *biquad[fxs_count] = {&biquad1, &biquad2, &biquad3};
 
-AudioEffectFreeverb *freeverbs[fxs_count] = {&freeverbs1, &freeverbs2, &freeverbs3};
+AudioEffectReverb *freeverbs[fxs_count] = {&freeverbs1, &freeverbs2, &freeverbs3};
 
 AudioEffectDelay *lesdelays[fxs_count] = {&delay1, &delay2, &delay3};
 

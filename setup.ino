@@ -91,6 +91,7 @@ void setup() {
   audioShield.inputSelect(AUDIO_INPUT_LINEIN);
   audioShield.enable();
   audioShield.volume(1.0);
+  set_in_source();
   initdone = 1;
   pseudoconsole((char *)"Enjoy !");
   //Serial.print("Device is plugged via usb: ");

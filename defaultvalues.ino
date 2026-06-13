@@ -98,7 +98,7 @@ void setupdefaultvalues() {
   ampR.gain(1);
   // ADSR & synths
   loadsynthdefaults();
-  set_in_source();
+  
   premixMaster.gain(0, 0.5);
   premixMaster.gain(1, 0.5);
 

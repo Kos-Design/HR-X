@@ -3,7 +3,7 @@ char usnotes[12][5] = {"C",  "C#", "D",  "Eb", "E",  "F",
 
 char eunotes[12][5] = {"Do",  "Do#", "Re",   "Mib", "Mi",  "Fa",
                        "Fa#", "Sol", "Sol#", "La",  "Sib", "Si"};
-int AudioInSource = 1;
+int AudioInSource = 2;
 float freqtonotes[9 * 12] = {
     16.35, 17.32, 18.35, 19.45, 20.60, 21.83, 23.12, 24.50, 25.96, 27.50, 29.14,
     30.87, 32.70, 34.65, 36.71, 38.89, 41.20, 43.65, 46.25, 49.00, 51.91, 55.00,

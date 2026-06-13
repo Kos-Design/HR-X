@@ -402,8 +402,9 @@ void controlswitcher(int caser, int valu) {
       freeverbscontrl(ccfxlineselector);
       break;
     case 81:
-      reverbVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
-      freeverbscontrl(ccfxlineselector);
+    //disabled with this reverb
+      //reverbVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
+      //freeverbscontrl(ccfxlineselector);
       break;
     case 82:
       bitcrusherVknobs[ccfxlineselector][0] = round(smallfloat * 16.0);
