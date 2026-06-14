@@ -1,9 +1,13 @@
-
-
+#define MULTIPLEXED_PADS 0
 const int display_lag = 10 ;
 const int control_lag = 10 ;
+
+
+//#if MULTIPLEXED_PADS
 #include "muxer.h"
 Muxer Muxer;
+//#endif
+
 byte itr = 0;
 int c_change;
 int cc_note_num;
@@ -397,6 +401,12 @@ Bounce clicked = Bounce(32, 50);
 // Bounce buttonStop =   Bounce(35, 8);  // 8 = 8 ms debounce time
 // Bounce buttonPlay =  clicked;
 Encoder myEnc(30, 31);
+//placeholder
+#if MULTIPLEXED_PADS
+Bounce Backb = Bounce( 99, 5 );
+#else 
+Bounce Backb = Bounce( 33, 5 );
+#endif
 const unsigned int manyinputpins = 1;
 const int inputpins[manyinputpins] = {32};
 // which input on the audio shield will be used?

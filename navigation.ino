@@ -35,9 +35,14 @@ void evalrota() {
 void evalinputs() {
   
   clicked.update();
+  if (!MULTIPLEXED_PADS) {
+    Backb.update();
+  }
+  
   bool backed = false;
   backed = Pads.get_back();
-  if (backed) {
+ 
+  if (backed || (!MULTIPLEXED_PADS && Backb.fallingEdge()))  {
 
     sublevels[navlevel] = 0;
 

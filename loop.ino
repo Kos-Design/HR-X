@@ -61,7 +61,7 @@ void check_pads() {
     //inside pattern mode
     if (sublevels[0] == 4 && navlevel >=5 && sublevels[1] == 0) {
       if (paddered == 17) {
-        Serial.println(Muxer.get_raw(6));
+       
         synth_partition[sublevels[2]][sublevels[5]][2] = (int)((Muxer.get_raw(6)/1024.0)*127);
         lemenuroot();
       }
@@ -176,7 +176,7 @@ void loop() {
       evalrota();
     }
 
-    if (millis() % (control_lag + 1) == 0) {
+    if ((millis() % (control_lag + 1) == 0) && MULTIPLEXED_PADS){
       check_pads();
     }
 
@@ -187,7 +187,7 @@ void loop() {
     } 
     //else {
       
-      if ((millis() % control_lag) == 0) {
+      if ((millis() % control_lag == 0) && MULTIPLEXED_PADS) {
         check_pots() ;
       //}
     }
