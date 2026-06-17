@@ -1224,6 +1224,7 @@ void stopticker() {
   stoptick = 1;
   recordCC = 0;
   overdubmidi = 0;
+  clocker.stop = 1;
   // if (patrecord) {
   // computelenghtmesureoffline();
   patternOn = 0;
@@ -1238,33 +1239,17 @@ void startticker() {
   
   }
   stoptick = 0;
+  clocker.stop = 0;
   patternOn = 1;
 }
 
 void setbpms() {
-
+  clocker.setBPM(BPMs);
+  //clocker.setDivision(4);
   //  BPMs = (60000.0/millitickinterval)/4.0 ;
+  //not sure where that 15k is from
   BPMs = 15000.0 / millitickinterval;
-/*
-  //metro0.interval(millitickinterval);
-  //metro0.reset();
-  
-  metro303.interval(millitickinterval / 5);
-  metro303.reset();
-  
-  metro1.end();
-  metro3.end();
-  metro1.begin(intervaltick, millitickinterval * 1000);
-  metro3.begin(metro30, (millitickinterval / 5) * 1000);
-  */
-  /*
-   ITimer0.stopTimer();
-   ITimer1.stopTimer();
-  ITimer0.restartTimer();
-  ITimer1.restartTimer();
-  */
-  // refresh display
-  // lemenuroot();
+  clocker.setBPM(BPMs);
 }
 
 void dotapaverage() {

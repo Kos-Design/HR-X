@@ -348,21 +348,18 @@ void playdasong() {
   }
   songplaying = 1;
   loadsongpattern();
-  stoptick = 0;
-  patternOn = 1;
+  startticker();
 }
 
 void stopdasong() {
   songplaying = 0;
   songplayhead = 0;
-  stoptick = 1;
-  patternOn = 0;
+  stopticker();
 }
 
 void pausedasong() {
   songplaying = 0;
-  stoptick = 1;
-  patternOn = 0;
+  stopticker();
 }
 void showplayheadprogress() {
   display.drawLine(songplayhead * 8, 16, songplayhead * 8, 64, SSD1306_INVERSE);

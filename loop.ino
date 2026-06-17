@@ -167,35 +167,24 @@ void loop() {
   
   if (!blocked) {
     if (millis() % display_lag == 0) {
-    
       if (noteprint) {
         printlanote();
       }
-      
       evalinputs();
       evalrota();
     }
-
     if ((millis() % (control_lag + 1) == 0) && MULTIPLEXED_PADS){
       check_pads();
     }
-
-    if ( !stoptick ) {
-      if (blinkTimer.TRIGGERED) {
-        advance_tick();
-        }
-    } 
-    //else {
-      
-      if ((millis() % control_lag == 0) && MULTIPLEXED_PADS) {
-        check_pots() ;
-      //}
+    if ((millis() % control_lag == 0) && MULTIPLEXED_PADS) {
+      check_pots() ;
     }
   }
   loopusbHub();
 }
 
 void printit() {
+
   Serial.print(" navrange: ");
   Serial.print(navrange);
   Serial.print(" navlevel: ");

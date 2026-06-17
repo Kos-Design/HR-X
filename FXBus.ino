@@ -1229,6 +1229,9 @@ void delayVpanel(byte lefilter) {
 }
 
 void filterVpanelAction(byte lefilter) {
+  if (navlevel == 3) {
+    filter_lfo_option = LFOonfilterz[lefilter] ;
+  }
   if (navlevel == 4) {
     byte slct = sublevels[3];
     // fq
@@ -1281,19 +1284,17 @@ void filterVpanelAction(byte lefilter) {
 }
 
 void lfoonfilterreplug(byte lefilter) {
-  for (int i = 0; i < fxs_count; i++) {
-    LFOtoFilterz[((fxs_count * lefilter) + i)]->disconnect();
-  }
-  if (LFOonfilterz[lefilter] < 3) {
+  unpluglfoonfilterz(lefilter);
+  if (LFOonfilterz[lefilter] < synths_count) {
     LFOtoFilterz[((fxs_count * lefilter) + LFOonfilterz[lefilter])]->connect();
   }
+  //restart lfo maybe
 }
-// TODO Fix this , fxlines have fixed lfos or at least persistent
-// this currently unplugs lfos for all other fxlines who may have it == BAD
-void unpluglfoonfilterz() {
-  // fxs_count*fxs_count = 9
-  for (int i = 0; i < 9; i++) {
-    LFOtoFilterz[i]->disconnect();
+
+void unpluglfoonfilterz(byte lefilter) {
+  //each line has 3 lfo linked to a filter
+  for (int i = 0; i < fxs_count; i++) {
+    LFOtoFilterz[lefilter*fxs_count+i]->disconnect();
   }
 }
 
@@ -1307,7 +1308,7 @@ void filtercontrols(byte lefilter) {
   filterzgainz[lefilter][0] = (mixffilterzVknobs[lefilter][0]) / 127.0;
   filterzgainz[lefilter][1] = (mixffilterzVknobs[lefilter][1]) / 127.0;
   filterzgainz[lefilter][2] = (mixffilterzVknobs[lefilter][2]) / 127.0;
-  unpluglfoonfilterz();
+  unpluglfoonfilterz(lefilter);
   if (sublevels[4] < synths_count) {
     lfoonfilterreplug(lefilter);
   }

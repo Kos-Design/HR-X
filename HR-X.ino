@@ -1,4 +1,4 @@
-#define MULTIPLEXED_PADS 0
+#define MULTIPLEXED_PADS 1
 const int display_lag = 10 ;
 const int control_lag = 10 ;
 
@@ -41,8 +41,6 @@ bool avoid_fx_bounce = false;
 //#include <IntervalTimer.h>
 
 #include <BlockNot.h>
-
-BlockNot blinkTimer(millitickinterval);
 
 //freezes can't record
 //IntervalTimer metro1;
@@ -721,7 +719,7 @@ const int sizeofsoundlines = 4;
 char soundlines[sizeofsoundlines][12] = {"Synth", "Sampler", "AudioIn",
                                          "SDcard"};
 // 4 is none
-int LFOonfilterz[fxs_count] = {3};
+int LFOonfilterz[fxs_count] = {3,3,3};
 // fq res oct 127
 byte ffilterzVknobs[fxs_count][3];
 // LP BP HP 127
@@ -1089,3 +1087,125 @@ void returntonav(byte lelevel, byte lanavrange = navrange,byte t_vraipos = vraip
   navrange = lanavrange;
   lemenuroot();
 }
+
+class SequencerClocker : public AudioStream
+{
+public:
+    SequencerClocker() : AudioStream(0, nullptr) {}
+    bool stop = 1 ;
+    void setBPM(float bpm)
+    {
+        _bpm = bpm;
+        calculatePPQN();
+    }
+
+    void setPPQN(uint8_t ppqn) {
+        _PPQN = ppqn;
+        calculatePPQN();
+    }
+
+    void attach(void (*cb)())
+    {
+        _callback = cb;
+    }
+
+    void attach_96(void (*cb)())
+    {
+        _callback_96 = cb;
+    }
+
+    void attach_48(void (*cb)())
+    {
+        _callback_48 = cb;
+    }
+
+    void attach_12(void (*cb)())
+    {
+        _callback_12 = cb;
+    }
+
+    virtual void update() override {
+        if (_samplesPerTick <= 0.0)
+        return;
+        _sampleAccumulator += AUDIO_BLOCK_SAMPLES;
+        while (_sampleAccumulator >= _samplesPerTick) {
+            _sampleAccumulator -= _samplesPerTick;
+
+            tick96++;
+
+            if (((tick96 % 96) == 0) && (_callback_96 && !stop)){
+                quarter++;
+                _callback_96();
+            }
+                
+            if (((tick96 % 48) == 0) && (_callback_48 && !stop)){
+                eighth++;
+                _callback_48();
+            }
+
+            if (((tick96 % 24) == 0) && (_callback && !stop)){
+                sixteenth++;
+                _callback();
+            }
+            //never stops
+            if (((tick96 % 12) == 0) && (_callback_12 )){
+                thirtySecond++;
+                _callback_12();
+            }
+        }
+    }
+
+private:
+
+   
+    void calculatePPQN() {
+        if (_PPQN == 0 || _bpm <= 0.0f)
+        return;
+        _samplesPerTick =
+            AUDIO_SAMPLE_RATE_EXACT *
+            60.0 /
+            (_bpm * _PPQN);
+    }
+
+    void calculateTiming() {
+        _samplesPerTick =
+            AUDIO_SAMPLE_RATE_EXACT *
+            60.0 /
+            (_bpm * _divisionsPerQuarter);
+    }
+    volatile uint32_t tick96 = 0;
+    volatile uint32_t quarter = 0;
+    volatile uint32_t eighth = 0;
+    volatile uint32_t sixteenth = 0;
+    volatile uint32_t thirtySecond = 0;
+
+    float  _bpm = 120.0f;
+    uint8_t _divisionsPerQuarter = 4;
+    uint8_t _PPQN = 96 ;
+    double _samplesPerTick = 0;
+    double _sampleAccumulator = 0;
+    void (*_callback)() = nullptr;
+    void (*_callback_12)() = nullptr;
+    void (*_callback_48)() = nullptr;
+    void (*_callback_96)() = nullptr;
+};
+
+SequencerClocker clocker;
+
+class ClockSink : public AudioStream
+{
+public:
+    ClockSink() : AudioStream(1, inputQueueArray) {}
+
+    void update(void) override {}
+
+private:
+    audio_block_t *inputQueueArray[1];
+};
+
+ClockSink sink;
+
+AudioConnection patchCord_sinker(clocker, 0, sink, 0);
+
+//these 2 last classes may be overkill but I wanted to try having a clock synched with audio samples
+//maybe I was not using IntervalTimer the right way

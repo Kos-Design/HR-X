@@ -34,7 +34,9 @@ void setup() {
   AudioNoInterrupts();
   unplugsynth();
   unplugfx();
-  unpluglfoonfilterz();
+  for (int i=0;i<synths_count;i++) {
+  unpluglfoonfilterz(i);
+  }
   delay(500);
   // metrodrum1.frequency(100);
   // metrodrum1.length(50);
@@ -50,7 +52,7 @@ void setup() {
   initializeconsolemsg();
   setupscreen();
   pseudoconsole((char *)"initializing...");
-  initializesomevars();
+  initializepatternonsong();
   //delay(100);
   //Initialise the AutoVolumeLeveller
   //audioShield.autoVolumeControl(1, 1, 0, -6, 40, 20); // **BUG** with a max
@@ -92,10 +94,12 @@ void setup() {
   audioShield.enable();
   audioShield.volume(1.0);
   set_in_source();
+  clocker.attach(advance_tick);
+  clocker.setBPM(120);
+  clocker.setPPQN(96);
   initdone = 1;
   pseudoconsole((char *)"Enjoy !");
   //Serial.print("Device is plugged via usb: ");
   //Serial.println(usb_configuration);
 }
 
-void initializesomevars() { initializepatternonsong(); }

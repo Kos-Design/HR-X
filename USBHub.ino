@@ -13,14 +13,16 @@ void loopusbHub() {
   //works without .Task() but task seems to do other things too
   myusb.Task();
   //for multi devices in hub or devices with multiple IDs
+  //TODO: check notes, may double trigger
   midi1.read();
-  if (!midi1){
+  //if (!midi1){
     midi2.read();
-    if (!midi2){
+    //if (!midi2){
        midi3.read();
-    }
-  }
+    //}
 
+  //}
+  
   //TODO: make devices selector
   //
   //if (midi1) {
