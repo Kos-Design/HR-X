@@ -72,7 +72,6 @@ void applyLFOrmicon(int lesinthy) {
   // displaywaveformicon(sublevels[4],(char*)"SineWave",sinewave, lesynthi,
   // WAVEFORM_SINE);
   if (navlevel > 3) {
-    // Serial.println("Setting TYPE");
     LFOformstype[lesinthy] = sublevels[3];
 
     if (navlevel >= 4) {
@@ -86,9 +85,9 @@ void LFOrmType(int leLFO) {
     sublevels[3] = LFOformstype[leLFO];
   }
   if (navlevel == 3) {
-    navrange = 8; 
-  } 
- 
+    navrange = 8;
+  }
+
   switch (sublevels[3]) {
   case 0:
     displayLFOrmimg(sublevels[3], (char *)"SineWave", sinewave, leLFO,
@@ -144,7 +143,7 @@ void restartLFO(int leLFO) {
     if (millitickinterval) {
       syncher = (1000.00/(millitickinterval+1));
     }
-    
+
     LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), (LFOfreqs[leLFO]/127.0)*syncher, lesformes[LFOformstype[leLFO]]);
   } else {
     LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), (LFOfreqs[leLFO]/127.0)*2, lesformes[LFOformstype[leLFO]]);
@@ -152,7 +151,7 @@ void restartLFO(int leLFO) {
   if (LFOformstype[leLFO] == 7) {
     LFOwaveforms1[leLFO]->arbitraryWaveform(arbitrary_waveforms[leLFO],1.0);
   }
-  
+
   for (byte i = 0; i < liners_count; i++) {
     if (FMmodulated[leLFO] == 1) {
       //phaseModulation should be based on lfo level
@@ -162,7 +161,7 @@ void restartLFO(int leLFO) {
       FMwaveforms1[i + (leLFO * liners_count)]->phaseModulation((LFOlevel[leLFO]/127.00) * 360 - 180);
     }
   }
-  
+
   AudioInterrupts();
 }
 
@@ -178,7 +177,6 @@ void displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int l
 
 void doLFObool(int leLFO) {
   if (navlevel == 3) {
-    //  Serial.println("Setting Sync switch");
     LFOsync[leLFO] = !LFOsync[leLFO];
     restartLFO(leLFO);
   }
@@ -211,7 +209,6 @@ void draw_lfo_val(float laval) {
 
 void doLFOlevel(int leLFO) {
   if (navlevel == 3) {
-    // Serial.println("Setting LFO level");
     navrange = 127;
     LFOlevel[leLFO] = sublevels[3];
   } else {
@@ -239,7 +236,6 @@ void doLFOoffset(int leLFO) {
 
 void doLFOphase(int leLFO) {
   if (navlevel == 3) {
-    // Serial.println("Setting LFO phase");
     navrange = 100;
     LFOphase[leLFO] = sublevels[3];
     doLFOallcontrols(leLFO);
@@ -256,7 +252,6 @@ void doLFOphase(int leLFO) {
 void doLFOfreqd(int leLFO) {
   // set lfosine1 lfosinez[leLFO]->
   if (navlevel == 3) {
-    // Serial.println("Setting LFO freq");
     navrange = 127;
     LFOfreqs[leLFO] = sublevels[3];
      doLFOallcontrols(leLFO);
@@ -329,14 +324,12 @@ void LFOlining(int leLFO) {
     //previous <--
     if (sublevels[2] == 7) {
       if (navlevel >= 3) {
-        // Serial.print("Previous");
         if (leLFO > 0) {
           sublevels[1]--;
         } else {
           sublevels[1] = 2;
         }
         navlevel--;
-        // Serial.println("back to menu");
         dm.lemenuroot();
       }
     }

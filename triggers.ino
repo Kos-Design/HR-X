@@ -25,7 +25,6 @@ byte get_free_liner(byte note) {
 bool linerhasevents(byte liner) {
   for (int i = 0; i < pbars; i++) {
     if (synth_partition[liner][i][1] != 0) {
-      // Serial.println(offsetliner);
       return 1;
     }
   }
@@ -40,8 +39,6 @@ void getlinerwithoutevents() {
     } else {
       return;
     }
-    // stoplengthmesure(i);
-    // Serial.println("note available");
   }
 }
 
@@ -80,12 +77,9 @@ void setchordnotesOff(byte absolutenote, byte lachord) {
 byte getNewavailablesampler() {
   for (int i = 0; i < 16; i++) {
     if (!FlashSampler[i]->isPlaying()) {
-      // stoplengthmesure(i);
-      // Serial.println("note available");
       return i;
     }
   }
-  //  Serial.println("no notes free");
   FlashSampler1.stop();
   return 0;
 }
@@ -105,7 +99,6 @@ void initiatesamplerline(byte lesampleliner, byte channel, byte data1,  byte dat
   //const char *tobeplayed = (const char *)Flashsamplename[Sampleassigned[(int)(data1)]];
   String playable_file = (String)Flashsamplename[Sampleassigned[(int)(data1)]];
   if (lesampleliner == 17) {
-    Serial.println("playing SD sample");
     playrecordsd();
 
   } else {
@@ -140,14 +133,7 @@ void playFlashsample(byte channel, byte data1, byte data2) {
   // if no liners are available stoping player 1 to make room
 }
 
-void printnoteon(byte channel, byte data1, byte data2) {
-  Serial.print("Note On, ch=");
-  Serial.print(channel);
-  Serial.print(", note=");
-  Serial.print(data1);
-  Serial.print(", velocity=");
-  Serial.println(data2);
-}
+
 
 void MaNoteOn(byte channel, byte data1, byte data2) {
   byte larpegeline;
@@ -508,7 +494,7 @@ void playarpegenote(byte larpegeline) {
 
 void MaNoteOff(byte channel, byte data1, byte data2) {
   uint8_t statusByte = static_cast<uint8_t>(0x80 | channel);
-  int lachordnote;  
+  int lachordnote;
   if (SendMidiOut) {
     MidiUSB.sendMIDI({0x08, statusByte, data1, data2});
     MidiUSB.flush();
@@ -562,7 +548,7 @@ bool isalreadysamenoteinpat(byte lenote) {
 }
 
 int tick_for_that(int tick){
-  tick -= 1 ; 
+  tick -= 1 ;
   if (tick < 0 ){
     tick = 31 ;
   }
@@ -738,10 +724,7 @@ void terminateOffz(int linei) {
   for (int i = 0; i < pbars; i++) {
     if (synth_off_pat[linei][i][1] != 0) {
       if (terminateorphanseventsOff(linei, synth_off_pat[linei][i][1])) {
-        //Serial.print("terminated orphan note ");
-        //Serial.print(synth_off_pat[linei][i][1]);
         clearsaniloop = 0;
-        //Serial.println((int)synth_off_pat[linei][i][1]);
         synth_off_pat[linei][i][0] = 0;
         synth_off_pat[linei][i][1] = 0;
       }
@@ -786,12 +769,7 @@ void stopglidenote(byte liner) {
   // during loop shift freq & restart freqs interpolating from last note during
   // glide duration hold+atck?
   dogliding[liner] = 0;
-  Serial.println(" ");
-  Serial.print("note before ");
-  Serial.print(note_before);
   note_before += note_difference;
-  Serial.print("note now ");
-  Serial.println(note_before);
 }
 
 void stopglidenoteChords(byte liner) {
@@ -810,7 +788,6 @@ void startglidenote(byte liner, byte data1) {
   note_difference = data1 - note_before;
   freq_difference = notestofreq[data1][1] - notestofreq[note_before][1];
   leglideposition[liner] = millis();
-  //Serial.println(note_difference);
 }
 
 void startglidenoteChords(byte liner, byte data1) {
@@ -818,7 +795,6 @@ void startglidenoteChords(byte liner, byte data1) {
   // glide duration hold+atck?
   dogliding[liner] = 1;
   note_differenceCmode[liner] = data1 - lapreviousnotewCmode[liner];
-  // Serial.println(note_difference);
   leglidershiftCmode[liner] = notestofreq[data1][1] - notestofreq[lapreviousnotewCmode[liner]][1];
   leglideposition[liner] = millis();
 }
@@ -868,17 +844,15 @@ bool check_glide_status(byte this_note){
 
 // TODO adsr check
 void Mytickmidi() {
-  // Serial.println("mclock");
   advance_tick();
 }
+
 void moncontrollercc(byte channel, byte control, byte value) {
   if (value < 127) {
     if (midiknobassigned[control] != 0 && !freezemidicc) {
       if (SendMidiOut) {
-        //Serial.println("sending CC");
         uint8_t statusByte = static_cast<uint8_t>(0xB0 | channel);
         MidiUSB.sendMIDI({0x0B, statusByte, control, value});
-
         MidiUSB.flush();
       }
 
@@ -897,21 +871,8 @@ void MaControlChange(byte channel, byte control, byte value) {
   if (sublevels[0] == 2 && navlevel == 2){
     learn_midi(control);
   }
-
   moncontrollercc(channel, control, value);
-
-  // Serial.print("Control Change, ch=");
-  // Serial.print(lechannel);
-  if (stoptick) {
-
-    //Serial.print("CC=");
-    //Serial.print(control);
-    //Serial.print(" V=");
-    //Serial.println(value);
-  }
-
   if ((patrecord || recordCC) && !stoptick && !isignored) {
-    // Serial.println(int(recordCC));
     recordCCmidinotes(channel, control, value);
   }
   if (!songplaying && !isignored && !debugmidion) {
@@ -1012,12 +973,6 @@ void continueCCinterpol(byte lecc) {
   if (leccinterpolated[lecc] != letempipolate) {
     leccinterpolated[lecc] = letempipolate;
     moncontrollercc((byte)1, (byte)lecc, leccinterpolated[lecc]);
-    //     Serial.print("Le CC");
-    //     Serial.print(lecc);
-    //     Serial.print(" = ");
-    //     Serial.print(leccinterpolated[lecc]);
-    //      Serial.print(" at pos ");
-    //     Serial.println(tickposition);
     if (leccinterpolated[lecc] ==
         cc_partition[lecc][Ccinterpolengh[lecc][1]]) {
       activateinterpolatecc[lecc] = 0;

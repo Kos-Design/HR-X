@@ -383,7 +383,7 @@ Encoder myEnc(30, 31);
 //placeholder
 #if MULTIPLEXED_PADS
 Bounce Backb = Bounce( 99, 5 );
-#else 
+#else
 Bounce Backb = Bounce( 33, 5 );
 #endif
 const unsigned int manyinputpins = 1;
@@ -408,7 +408,7 @@ const byte truesizeofpresetmenulabels = 5;
 
 byte waveformIndex = 0 ;
 
-int16_t arbitrary_waveforms[synths_count][256] ; 
+int16_t arbitrary_waveforms[synths_count][256] ;
 
 byte lavalue;
 
@@ -593,7 +593,7 @@ const char ControlList[allfxes][21] = {
     "AuxDry", "CtoffSlope","ResoSlope","Free", "Free", "Free",
     "CtoffTime", "ResoTime", "FilterLevel ", "Free",
     // 20
-    "CutOff", "Resonance", "OctRange", "glidemode", "FilterIn", "free", 
+    "CutOff", "Resonance", "OctRange", "glidemode", "FilterIn", "free",
     "free", "arpegiatortype", "arpegmode", "arpegstartoffset",
     // 30
     "arpegnumofnotes", "arpeggridC", "arpeggridS", "arpeglengh", "digitalplay",
@@ -611,14 +611,14 @@ const char ControlList[allfxes][21] = {
     "chorusVknobs[i]", "bqstage[i]", "LFOonfilterz[i]", "bqVpot[i][j][0]", "bqVpot[i][j][1]", "bqVpot[i][j][2]",
     "grlrGrain", "grlrRatio", "gShift-T", "gFreeze-T",
     // 80
-    "reverbVknobs[i][0]", "reverbVknobs[i][1]", "bitcrush[i][0]",  "bitcrush[i][1]", "mixVknobs[i][0]", 
+    "reverbVknobs[i][0]", "reverbVknobs[i][1]", "bitcrush[i][0]",  "bitcrush[i][1]", "mixVknobs[i][0]",
     "mix[i][1]", "mix[i][2]", "fltrVknob[i][0]", "fltrVknob[i][1]", "fltrVknob[i][2]",
     // 90
     "flanger[i][0]", "flanger[i][1]", "flanger[i][2]","DelayFreq[i][0]", "DelayMult[i][1]", "DelayFeed[i][2]",
     "bqtype[i][bq]", "In level", "Free", "Free","BPM",
     // 100
     "Pat. Save", "Pat. Load", "Record Raw", "Play Recorded", "Stop Play&Rec", "Free", "Free",
-    "free","Load Pat0", "preset 0", "Loop recorder", 
+    "free","Load Pat0", "preset 0", "Loop recorder",
     // 110
     "Sp.Track 1", "Sp.Track 2", "Sp.Track 3", "Sp.Track 4", "Sp.Track 5",
     "Sp.Track 6", "Sp.Track 7", "Sp.Track 8", "Sp.Track 9", "Sp.Track 10",
@@ -741,7 +741,7 @@ int flangedepth = FLANGE_DELAY_LENGTH / 4;
 
 double flangefreq = 0.5;
 
-#define GRANULAR_MEMORY_SIZE 12800 
+#define GRANULAR_MEMORY_SIZE 12800
 // 12800 is for 290 ms at 44.1 kHz
 int16_t granularMemory[GRANULAR_MEMORY_SIZE];
 int16_t granularMemory2[GRANULAR_MEMORY_SIZE];
@@ -924,62 +924,62 @@ AudioConnection *delayCords[3] = {&delayCord1, &delayCord2, &delayCord3};
 
 AudioConnection *stringcords1[liners_count*synths_count] = {
     &stringCord01, &stringCord02, &stringCord03, &stringCord04, &stringCord05, &stringCord06,
-    &stringCord09, &stringCord10, &stringCord11, &stringCord12, &stringCord13, &stringCord14, 
+    &stringCord09, &stringCord10, &stringCord11, &stringCord12, &stringCord13, &stringCord14,
     &stringCord17, &stringCord18, &stringCord19, &stringCord20, &stringCord21, &stringCord22};
 
 AudioConnection *drumcords1[liners_count*synths_count] = {
-    &drumCord01, &drumCord02, &drumCord03, &drumCord04, &drumCord05, &drumCord06, 
-    &drumCord09, &drumCord10, &drumCord11, &drumCord12, &drumCord13, &drumCord14, 
+    &drumCord01, &drumCord02, &drumCord03, &drumCord04, &drumCord05, &drumCord06,
+    &drumCord09, &drumCord10, &drumCord11, &drumCord12, &drumCord13, &drumCord14,
     &drumCord17, &drumCord18, &drumCord19, &drumCord20, &drumCord21, &drumCord22};
 
 AudioConnection *modulatecords1[liners_count*synths_count] = {
-    &modulateCord01, &modulateCord02, &modulateCord03, &modulateCord04, &modulateCord05, &modulateCord06, 
-    &modulateCord09, &modulateCord10, &modulateCord11, &modulateCord12, &modulateCord13, &modulateCord14, 
+    &modulateCord01, &modulateCord02, &modulateCord03, &modulateCord04, &modulateCord05, &modulateCord06,
+    &modulateCord09, &modulateCord10, &modulateCord11, &modulateCord12, &modulateCord13, &modulateCord14,
     &modulateCord17, &modulateCord18, &modulateCord19, &modulateCord20, &modulateCord21, &modulateCord22};
 
 AudioConnection *MDdrumcords1[liners_count*synths_count] = {
-    &MDdrumCord01, &MDdrumCord02, &MDdrumCord03, &MDdrumCord04, &MDdrumCord05, &MDdrumCord06, 
-    &MDdrumCord09, &MDdrumCord10, &MDdrumCord11, &MDdrumCord12, &MDdrumCord13, &MDdrumCord14, 
+    &MDdrumCord01, &MDdrumCord02, &MDdrumCord03, &MDdrumCord04, &MDdrumCord05, &MDdrumCord06,
+    &MDdrumCord09, &MDdrumCord10, &MDdrumCord11, &MDdrumCord12, &MDdrumCord13, &MDdrumCord14,
     &MDdrumCord17, &MDdrumCord18, &MDdrumCord19, &MDdrumCord20, &MDdrumCord21, &MDdrumCord22};
 
 AudioConnection *MDwavecords1[liners_count*synths_count] = {
-    &MDwaveCord01, &MDwaveCord02, &MDwaveCord03, &MDwaveCord04, &MDwaveCord05, &MDwaveCord06, 
-    &MDwaveCord09, &MDwaveCord10, &MDwaveCord11, &MDwaveCord12, &MDwaveCord13, &MDwaveCord14, 
+    &MDwaveCord01, &MDwaveCord02, &MDwaveCord03, &MDwaveCord04, &MDwaveCord05, &MDwaveCord06,
+    &MDwaveCord09, &MDwaveCord10, &MDwaveCord11, &MDwaveCord12, &MDwaveCord13, &MDwaveCord14,
     &MDwaveCord17, &MDwaveCord18, &MDwaveCord19, &MDwaveCord20, &MDwaveCord21, &MDwaveCord22};
 
 AudioConnection *MDstringcords1[liners_count*synths_count] = {
-    &MDstringCord01, &MDstringCord02, &MDstringCord03, &MDstringCord04, &MDstringCord05, &MDstringCord06, 
+    &MDstringCord01, &MDstringCord02, &MDstringCord03, &MDstringCord04, &MDstringCord05, &MDstringCord06,
     &MDstringCord09, &MDstringCord10, &MDstringCord11, &MDstringCord12, &MDstringCord13, &MDstringCord14,
     &MDstringCord17, &MDstringCord18, &MDstringCord19, &MDstringCord20, &MDstringCord21, &MDstringCord22};
 
 AudioConnection *FMwavecords1[liners_count*synths_count] = {
     &FMWaveCord01, &FMWaveCord02, &FMWaveCord03, &FMWaveCord04, &FMWaveCord05, &FMWaveCord06,
-    &FMWaveCord09, &FMWaveCord10, &FMWaveCord11, &FMWaveCord12, &FMWaveCord13, &FMWaveCord14, 
+    &FMWaveCord09, &FMWaveCord10, &FMWaveCord11, &FMWaveCord12, &FMWaveCord13, &FMWaveCord14,
     &FMWaveCord17, &FMWaveCord18, &FMWaveCord19, &FMWaveCord20, &FMWaveCord21, &FMWaveCord22};
 
 AudioConnection *wavelinescords[liners_count*synths_count] = {
-    &wavelinecord24, &wavelinecord22, &wavelinecord23, &wavelinecord21, &wavelinecord19, &wavelinecord20, 
-    &wavelinecord47, &wavelinecord45, &wavelinecord39, &wavelinecord41, &wavelinecord33, &wavelinecord35, 
+    &wavelinecord24, &wavelinecord22, &wavelinecord23, &wavelinecord21, &wavelinecord19, &wavelinecord20,
+    &wavelinecord47, &wavelinecord45, &wavelinecord39, &wavelinecord41, &wavelinecord33, &wavelinecord35,
     &wavelinecord44, &wavelinecord43, &wavelinecord37, &wavelinecord42, &wavelinecord34, &wavelinecord36};
 
 AudioSynthWaveform *waveforms1[liners_count*synths_count] = {
-    &waveform1L1, &waveform1L2, &waveform1L3, &waveform1L4, &waveform1L5, &waveform1L6, 
-    &waveform2L1, &waveform2L2, &waveform2L3, &waveform2L4, &waveform2L5, &waveform2L6, 
+    &waveform1L1, &waveform1L2, &waveform1L3, &waveform1L4, &waveform1L5, &waveform1L6,
+    &waveform2L1, &waveform2L2, &waveform2L3, &waveform2L4, &waveform2L5, &waveform2L6,
     &waveform3L1, &waveform3L2, &waveform3L3, &waveform3L4, &waveform3L5, &waveform3L6};
-    
+
 AudioSynthWaveformModulated *FMwaveforms1[liners_count*synths_count] = {
-    &FMWaveform1L1, &FMWaveform1L2, &FMWaveform1L3, &FMWaveform1L4, &FMWaveform1L5, &FMWaveform1L6, 
-    &FMWaveform2L1, &FMWaveform2L2, &FMWaveform2L3, &FMWaveform2L4, &FMWaveform2L5, &FMWaveform2L6, 
+    &FMWaveform1L1, &FMWaveform1L2, &FMWaveform1L3, &FMWaveform1L4, &FMWaveform1L5, &FMWaveform1L6,
+    &FMWaveform2L1, &FMWaveform2L2, &FMWaveform2L3, &FMWaveform2L4, &FMWaveform2L5, &FMWaveform2L6,
     &FMWaveform3L1, &FMWaveform3L2, &FMWaveform3L3, &FMWaveform3L4, &FMWaveform3L5, &FMWaveform3L6};
 
 AudioSynthSimpleDrum *drums1[liners_count*synths_count] = {
-    &drum1L1, &drum1L2, &drum1L3, &drum1L4, &drum1L5, &drum1L6, 
+    &drum1L1, &drum1L2, &drum1L3, &drum1L4, &drum1L5, &drum1L6,
     &drum2L1, &drum2L2, &drum2L3, &drum2L4, &drum2L5, &drum2L6,
     &drum3L1, &drum3L2, &drum3L3, &drum3L4, &drum3L5, &drum3L6};
 
 AudioSynthKarplusStrong *strings1[liners_count*synths_count] = {
     &string1L1, &string1L2, &string1L3, &string1L4, &string1L5, &string1L6,
-    &string2L1, &string2L2, &string2L3, &string2L4,&string2L5, &string2L6, 
+    &string2L1, &string2L2, &string2L3, &string2L4,&string2L5, &string2L6,
     &string3L1, &string3L2, &string3L3, &string3L4, &string3L5, &string3L6};
 
 AudioMixer4 *Wavesmix[liners_count] = {&WavesL1, &WavesL2, &WavesL3, &WavesL4, &WavesL5, &WavesL6};
@@ -1047,7 +1047,7 @@ public:
                     quarter++;
                     _callback_6();
                 }
-                    
+
                 if ((tick96 % 48) == 0 && _callback_48){
                     eighth++;
                     _callback_48();
@@ -1057,7 +1057,7 @@ public:
                     sixteenth++;
                     _callback_24();
                 }
-                
+
                 if ((tick96 % 3) == 0 && _callback_3){
                     thirtySecond++;
                     _callback_3();
@@ -1068,7 +1068,7 @@ public:
 
 private:
 
-   
+
     void calculatePPQN() {
         if (_PPQN == 0 || _bpm <= 0.0f)
         return;
@@ -1156,7 +1156,7 @@ public:
         printlabel(menus_lbl[sublevels[0]]);
         display.display();
     }
-    
+
     void attach_synth_menus(uint8_t index, void (*cb)())
     {
         if (index < 10)
@@ -1175,10 +1175,10 @@ private:
             displaymenu();
         }
         if (navlevel > 0) {
-            _synth_menus[sublevels[0]]();    
+            _synth_menus[sublevels[0]]();
         }
     }
-    
+
     void _setupscreen_ILI() {
 
         if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {

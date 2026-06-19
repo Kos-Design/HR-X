@@ -14,15 +14,12 @@ class FxBus {
       //remembver to manage avoid_fx_bounce if plugging fx outside of menu
       if (!avoid_fx_bounce){
         avoid_fx_bounce = true ;
-      if (plugged_fx_type != (mainmenufxlistsize - 1)) {
-        Serial.print("Disconnecting existing ");
-        unplug_fx_line();
-      }
-      if (selected_fx_type != (mainmenufxlistsize - 1)) {
-        plug_fx_line(selected_fx_type);
-        plugged_fx_type = selected_fx_type;
-      } else {
-          Serial.println(" Selected effect is None ");
+        if (plugged_fx_type != (mainmenufxlistsize - 1)) {
+          unplug_fx_line();
+        }
+        if (selected_fx_type != (mainmenufxlistsize - 1)) {
+          plug_fx_line(selected_fx_type);
+          plugged_fx_type = selected_fx_type;
         }
       }
     }
@@ -36,25 +33,20 @@ class FxBus {
       premixesMto_index = (selected_fx_type * fxs_count) + (f_index);
       fxcording_index = (selected_fx_type*fxs_count*2*3) + (f_index*fxs_count*2) + (2*f_index);
       premixesMto[premixesMto_index]->connect();
-      Serial.println(premixesMto_names[premixesMto_index]);
-      
       fxcording[fxcording_index]->connect();
       fxcording[fxcording_index + 1]->connect();
-      Serial.println(fxcording_names[fxcording_index]);
-      Serial.println(fxcording_names[fxcording_index+1]);
       AudioInterrupts();
     }
 
     void unplug_fx_line() {
       AudioNoInterrupts();
-      Serial.println("disconnecting Fxes");
       premixesMto[premixesMto_index]->disconnect();
       fxcording[fxcording_index]->disconnect();
       fxcording[fxcording_index + 1]->disconnect();
       premixesMto_index = 1000;
       fxcording_index = 1000;
       stopdelayline(f_index);
-      delayCords[f_index]->disconnect(); 
+      delayCords[f_index]->disconnect();
       AudioInterrupts();
       plugged_fx_type = mainmenufxlistsize-1;
     }
@@ -126,7 +118,7 @@ void dolistmainfxlines() {
 }
 
 void MainFxPanel() {
- 
+
   if (navlevel == 1) {
     reinitsublevels(2);
     navrange = 2;
@@ -275,7 +267,7 @@ void delaytimingselect(int lefilter, int leselecta) {
 }
 
 void restartdelayline(int lefilter) {
-  
+
   delaymultiplier[lefilter] = delayVknobs[lefilter][1] + 1;
   delaytimingselect(lefilter, delayVknobs[lefilter][0]);
 
@@ -300,37 +292,29 @@ void changebiquadfreqvalue(byte lebiquad, int valub) {
 }
 
 void displayfxVcontrols(byte fxinstance) {
-  //make switch
+  //TODO:make switch
   if (sublevels[2] == 6) {
-    // Serial.print("selected biquad") ;
     biquadVpanel(fxinstance);
   }
   if (sublevels[2] == 7) {
-    //  Serial.print("selected filter") ;
     filterVpanel(fxinstance);
   }
   if (sublevels[2] == 8) {
-    //  Serial.print("selected delay") ;
     delayVpanel(fxinstance);
   }
   if (sublevels[2] == 1) {
-    //   Serial.print("selected reverb") ;
     reverbVpanel(fxinstance);
   }
   if (sublevels[2] == 3) {
-    //   Serial.print("selected bitcrusher") ;
     bitcrusherVpanel(fxinstance);
   }
   if (sublevels[2] == 2) {
-    //   Serial.print("selected granular") ;
     granularVpanel(fxinstance);
   }
   if (sublevels[2] == 5) {
-    //   Serial.print("selected chorus") ;
     chorusVpanel(fxinstance);
   }
   if (sublevels[2] == 4) {
-    //   Serial.print("selected flanger") ;
     flangerVpanel(fxinstance);
   }
   if (sublevels[2] == 9 || sublevels[2] == 0) {
@@ -626,7 +610,7 @@ void granular_pitch_shift(byte lefilter){
     granularcontrols(lefilter);
     granular[lefilter]->beginPitchShift(legrainleng);
     //octavedown1.begin(120.0, 33.0);
-    
+
   } else if(granular_freezing[lefilter]){
       granular_freeze(lefilter);
   } else {
@@ -956,15 +940,6 @@ void freeverbscontrl(byte lefilter) {
   //freeverbs[lefilter]->roomsize(reverbVknobs[lefilter][0] / 127.0);
   //freeverbs[lefilter]->damping(reverbVknobs[lefilter][1] / 127.0);
   freeverbs[lefilter]->reverbTime((reverbVknobs[lefilter][0] / 127.0)*10);
-  Serial.print("Audio Mem: ");
-  Serial.print(AudioMemoryUsage());
-  Serial.print(" / ");
-  Serial.println(AudioMemoryUsageMax());
-  Serial.print("CPU: ");
-  Serial.print(AudioProcessorUsage());
-  Serial.print("%, Max: ");
-  Serial.println(AudioProcessorUsageMax());
-
   //AudioInterrupts();
 }
 
@@ -1292,7 +1267,7 @@ void lfoonfilterreplug(byte lefilter) {
     LFOtoFilterz[((fxs_count * lefilter) + LFOonfilterz[lefilter])]->connect();
     restartLFO(LFOonfilterz[lefilter]);
   }
-  
+
 }
 
 void unpluglfoonfilterz(byte lefilter) {
@@ -1701,7 +1676,7 @@ void allfxcontrolled() {
       case 8:
         restartdelayline(i);
       break;
-      
+
       default:
       break;
     }

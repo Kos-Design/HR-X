@@ -26,9 +26,4 @@ int Muxer::read_val(int iterer) {
     return val;
   }
   return -1;
-  /*
-  Serial.print("analog ");
-  Serial.print(iterat);
-  Serial.print(" is: ");
-  Serial.println(val);*/
 }

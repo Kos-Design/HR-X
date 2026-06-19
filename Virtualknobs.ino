@@ -67,7 +67,6 @@ void doposkselector() {
     } else {
       if (sublevels[navlevelvbuttons] >= numberofvbuttonslabels + 7 &&
           sublevels[navlevelvbuttons] < numberofvbuttonslabels + 14) {
-        // Serial.println( "not a pot");
         canvasBIG.fillRoundRect(
             119,
             16 + ((sublevels[navlevelvbuttons] - numberofvbuttonslabels - 7) *

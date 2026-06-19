@@ -20,7 +20,7 @@ String get_song_name(byte number) {
   char formatted_number[4] ;
   sprintf(formatted_number,"%02d",number);
   return "SONG#" + (String)formatted_number ;
-} 
+}
 
 String get_current_song_path(){
   return "SONGS/" + songs_names[0] + ".TXT";
@@ -32,12 +32,12 @@ void refresh_songs_names() {
     songs_names[i] = " ";
     if (songs_names_offset+i < songs_count ) {
       songs_names[i] = get_song_name(songs_indexes[songs_names_offset+i]);
-    } else if (songs_count >= sng_size ){ 
-      songs_names[i] = get_song_name(songs_indexes[((songs_names_offset+i)%songs_count)]); 
-    } 
+    } else if (songs_count >= sng_size ){
+      songs_names[i] = get_song_name(songs_indexes[((songs_names_offset+i)%songs_count)]);
+    }
   }
 }
-          
+
 void list_songs_files() {
   songs_count = 0;
   String songs_dir = "SONGS/";
@@ -343,9 +343,9 @@ void dolistSongdisplay() {
 }
 
 void playdasong() {
-  if (!externalticker) {
+  //if (!externalticker) {
     //metro0.reset();
-  }
+  //}
   songplaying = 1;
   loadsongpattern();
   startticker();
@@ -365,17 +365,11 @@ void showplayheadprogress() {
   display.drawLine(songplayhead * 8, 16, songplayhead * 8, 64, SSD1306_INVERSE);
 }
 void loadsongpattern() {
-  // Serial.println(songplayhead);
+
   if (patternonsong[songplayhead] > 0) {
-    clearlapattern();
-    Serial.print("cleared ");
-    Serial.print("loading ");
-    Serial.println(patternonsong[songplayhead] - 1);
     patterns_names_offset = patternonsong[songplayhead] - 1 ;
     refresh_patterns_names();
     parsepattern();
-
-    Serial.println("Loaded");
   } else {
     stopdasong();
   }
@@ -403,8 +397,6 @@ void actionSongTransport() {
 void Songmodepanel() {
   songselectorY = 16;
   songmodetopbar();
-  // drawsonggrid() ;
-  // Serial.println("see things?");
   if (navlevel == songedit) {
     if (songpage > 0) {
       navrange = 8 + 16 + 1;
@@ -467,7 +459,6 @@ void showsongnavarrows() {
   }
 }
 void setpatterninsong() {
-  Serial.println(songpage);
   patternonsong[(songpage * 16) + sublevels[songedit] - 8] = sublevels[songedit + 1];
   returntonav(songedit);
 }
@@ -539,11 +530,9 @@ void selectsongnavarrows() {
   if (navlevel == songedit + 1) {
     if (sublevels[songedit] == 25 && songpage > 0) {
       songpage--;
-      Serial.println(songpage);
     }
     if (sublevels[songedit] == 24 && songpage < 6) {
       songpage++;
-      Serial.println(songpage);
     }
     returntonav(songedit);
   }

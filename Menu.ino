@@ -35,9 +35,9 @@ void show_pots_to_assign() {
   }
 }
 
-void knobsettermidi() { 
+void knobsettermidi() {
   midiknobassigned[find_assigned_knob(sublevels[1])] = 0;
-  midiknobassigned[sublevels[2]] = sublevels[1]; 
+  midiknobassigned[sublevels[2]] = sublevels[1];
 }
 
 int find_assigned_knob(int k){
@@ -77,7 +77,7 @@ void show_avalable_controls() {
       canvasBIG.print(":");
       canvasBIG.setTextSize(2);
       canvasBIG.setCursor(85, 40);
-      
+
       canvasBIG.print(sublevels[2]);
     } else {
       //canvasBIG.setTextSize(1);

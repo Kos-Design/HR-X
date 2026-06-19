@@ -27,7 +27,6 @@ void controlswitcher(int caser, int valu) {
       // SDSamplePlayer
       MasterL.gain(0, smallfloat);
       MasterR.gain(0, smallfloat);
-      Serial.println(smallfloat);
       break;
     case 4:
     //flash sampler
@@ -103,7 +102,7 @@ void controlswitcher(int caser, int valu) {
       setlepulse1();
       break;
     case 21:
-      // Resonance 
+      // Resonance
       le303ffilterzVknobs[1] = smallfloat * 127.0;
       le303filterzreso = ((le303ffilterzVknobs[1]) / 127.0) * 5;
       break;
@@ -205,7 +204,6 @@ void controlswitcher(int caser, int valu) {
       break;
 
     case 44:
-      // Serial.println("got to 44");
       // record just CCs
       recordCC = 1;
       startticker();
@@ -236,7 +234,6 @@ void controlswitcher(int caser, int valu) {
       break;
 
     case 47:
-      Serial.println("got to 47");
       mixlevelsL[ccsynthselector] = smallfloat;
       break;
     case 48:
@@ -250,7 +247,6 @@ void controlswitcher(int caser, int valu) {
       break;
 
     case 50:
-      // Serial.println("50");
       Waveformstyped[ccsynthselector] = round(smallfloat * 11.0);
       setwavetypefromlist(ccsynthselector, Waveformstyped[ccsynthselector]);
       break;
@@ -288,13 +284,12 @@ void controlswitcher(int caser, int valu) {
     case 58:
       LFOsync[ccsynthselector] = !LFOsync[ccsynthselector];
       break;
-      
+
     case 59:
       // delayAtck
       adsrlevels[0] = round(smallfloat * 32.0);
       break;
     case 60:
-      Serial.println("60");
       // attack
       adsrlevels[1] = round(smallfloat * 127.0);
       break;
@@ -312,7 +307,7 @@ void controlswitcher(int caser, int valu) {
       // sustain
       adsrlevels[4] = round(smallfloat * 100.0);
       break;
-      
+
     case 64:
       //free
       break;
@@ -320,7 +315,7 @@ void controlswitcher(int caser, int valu) {
       // release
       adsrlevels[5] = round(smallfloat * 512.0);
       break;
-      
+
     case 66:
       mixle303ffilterzVknobs[0] = round(smallfloat * 127.0);
       le303filterzgainz[0] = smallfloat;
@@ -340,10 +335,9 @@ void controlswitcher(int caser, int valu) {
       break;
     case 69:
       ccfxlineselector = map((int)(smallfloat*100.0),0,100,0,2);
-      Serial.println(ccfxlineselector);
+      //Serial.println(ccfxlineselector);
       break;
     case 70:
-      Serial.println("70");
       chorusVknobs[ccfxlineselector] = round(smallfloat * 127.0);
       break;
     case 71:
@@ -397,7 +391,6 @@ void controlswitcher(int caser, int valu) {
       break;
 
     case 80:
-      Serial.println("80");
       reverbVknobs[ccfxlineselector][0] = round(smallfloat * 127.0);
       freeverbscontrl(ccfxlineselector);
       break;
@@ -441,8 +434,6 @@ void controlswitcher(int caser, int valu) {
       break;
 
     case 90:
-      Serial.println("90");
-
       flangerVknobs[ccfxlineselector][0] = round(smallfloat * 127.0);
       flangercontrols(ccfxlineselector);
       break;
@@ -457,7 +448,6 @@ void controlswitcher(int caser, int valu) {
     case 93:
       delayVknobs[ccfxlineselector][0] = round(smallfloat * 127.0);
       restartdelayline(ccfxlineselector);
-      Serial.println(delayVknobs[ccfxlineselector][0]);
       break;
 
     case 94:
@@ -468,7 +458,6 @@ void controlswitcher(int caser, int valu) {
     case 95:
       delayVknobs[ccfxlineselector][2] = round(smallfloat * 127.0);
       restartdelayline(ccfxlineselector);
-      Serial.println(delayVknobs[ccfxlineselector][2]);
       break;
 
     case 96:
@@ -484,7 +473,6 @@ void controlswitcher(int caser, int valu) {
       // Audio In level
       MasterL.gain(2, smallfloat);
       MasterR.gain(2, smallfloat);
-      Serial.println(smallfloat); 
       break;
 
     case 98:
@@ -498,7 +486,6 @@ void controlswitcher(int caser, int valu) {
       break;
 
     case 100:
-      Serial.println("100");
       //to save in a new pattern
       patterns_names_offset = patterns_count ;
       refresh_patterns_names();
@@ -511,11 +498,10 @@ void controlswitcher(int caser, int valu) {
       patterns_names_offset = 0 ;
       refresh_patterns_names();
       parsepattern();
-      
+
       break;
-    
+
     case 102:
-      Serial.println(12);
       // Recorder record
       recorderrecord = 1;
 
@@ -528,7 +514,6 @@ void controlswitcher(int caser, int valu) {
       startRecording();
       break;
     case 103:
-      Serial.println(13);
       // play recorder
       recorderplay = 1;
       recorderstop = 0;
@@ -539,7 +524,7 @@ void controlswitcher(int caser, int valu) {
       playrecordsd();
       break;
     case 104:
-      Serial.println(14);
+     
       // stop recorder
       recorderstop = 1;
       if (recorderplay) {
@@ -558,7 +543,7 @@ void controlswitcher(int caser, int valu) {
 
     case 106:
       //  phase1
-  
+
       break;
     case 107:
       // type2
@@ -645,7 +630,6 @@ void controlswitcher(int caser, int valu) {
       break;
 
     case 130:
-      Serial.println("130");
       //  mixwave4
 
       break;
@@ -687,16 +671,11 @@ void controlswitcher(int caser, int valu) {
 
       break;
     case 140:
-      // Serial.println("octave 140");
-
       break;
 
     case 141:
-      // Serial.println("resonance 141");
-
       break;
     case 142:
-      // Serial.println("filter freq pot 142");
       // filterz[0]->frequency(valu);
       break;
 

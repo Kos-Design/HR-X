@@ -1,7 +1,7 @@
 void initextmems() {
   for (int i = 0; i < nombreofSamplerliners; i++) {
     for (int j = 0; j < pbars; j++) {
-      
+
       for (int k = 0; k < 3; k++) {
         sampler_off_pat[j][k] = 0;
         sampler_partition[i][j][k] = 0;
@@ -25,7 +25,7 @@ void initextmems() {
     leccinterpolated[i] = 0;
     for (int j = 0; j < pbars; j++) {
       cc_partition[i][j] = 127;
-      
+
     }
   }
   for (int i = 0; i < 32; i++) {
@@ -49,13 +49,13 @@ void replug_notefreq_from_ampL(){
 void loadsynthdefaults() {
 
   AudioNoInterrupts();
-  
+
   adsrlevels[0] = MadsrAttackDelay;
   adsrlevels[1] = mappedattack;
   adsrlevels[3] = mappeddecay;
   adsrlevels[4] = float(mappedsustain / 100);
   adsrlevels[5] = mappedrelease;
-  
+
   for (int i = 0; i < liners_count; i++) {
     enveloppesL[i]->delay(adsrlevels[0]);
     enveloppesL[i]->attack(adsrlevels[1]);
@@ -98,7 +98,7 @@ void setupdefaultvalues() {
   ampR.gain(1);
   // ADSR & synths
   loadsynthdefaults();
-  
+
   premixMaster.gain(0, 0.5);
   premixMaster.gain(1, 0.5);
 
@@ -110,9 +110,9 @@ void setupdefaultvalues() {
   unplug_notefreq_from_ampL();
   for (int i = 0; i < fxs_count; i++) {
     stopdelayline(i);
-    delayCords[i]->disconnect(); 
+    delayCords[i]->disconnect();
   }
-  
+
   //for (int i = 0; i < 256; i++) {
     //  arbitrary_waveforms[0][i] = dreamWave[i];
    // }
@@ -151,7 +151,7 @@ void setupdefaultvalues() {
       delaypremix[i * 2 + 1]->gain(j, 0);
     }
     AudioInterrupts();
- 
+
   }
 
   ////
@@ -188,7 +188,7 @@ void setupdefaultvalues() {
   //needed to level fxBus & wetins
   for (int i = 0; i < 3; i++) {
     set_dry_mix(i);
-  } 
+  }
 
   for (int i = 0; i < all_buttonns; i++) {
     if (!((i <= 11) || (i >= 46))) {
@@ -197,7 +197,7 @@ void setupdefaultvalues() {
       pot_assignements[i] = ordered_pots[potsboards[i]];
     }
   }
-  
+
   /*
    //Defaults for external midi keyboard
   midiknobassigned[91]=2;
@@ -225,7 +225,6 @@ void setupdefaultvalues() {
   midiknobassigned[15]= 45;
   //fxmoduleselect
   midiknobassigned[72]= 69;
-  //showallnotes
   midiknobassigned[67]= 100;
   //BPM
   midiknobassigned[20]= 15;
@@ -239,7 +238,7 @@ void setupdefaultvalues() {
   midiknobassigned[14] = 93;
   midiknobassigned[15] = 94;
   midiknobassigned[16] = 95;
-  
+
   //phase
   midiknobassigned[17] = 76;
   midiknobassigned[18] = 77;
@@ -270,12 +269,12 @@ void setupdefaultvalues() {
   //midiknobassigned[106] = 98;
   //granular fx toggle
   midiknobassigned[100] = 78;
-  
+
   //midiknobassigned[101] = ;
-  
+
   //midiknobassigned[101] = 108;
   //midiknobassigned[111] = 109;
-  
+
   // stop
   //midiknobassigned[110] = 37;
   // play

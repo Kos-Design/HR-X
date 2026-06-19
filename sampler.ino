@@ -126,9 +126,7 @@ void Assingexplorer() {
     }
 
     if (sublevels[3] == 0) {
-      //  Serial.println(" One of the 2 Cancelled");
       returntonav(2,127,sublevels[2]);
-      // return ;
     }
   }
 
@@ -137,70 +135,50 @@ void Assingexplorer() {
     if (sublevels[2] == 2) {
       display.clearDisplay();
       doConfirmClearassign();
-      // return ;
     }
     if (sublevels[2] == 3) {
       display.clearDisplay();
       doConfirmmkdir();
-      // return ;
     }
     if (sublevels[2] == 0) {
-      // autoassignsamples();
       display.clearDisplay();
-      // navlevel = 2;
       doConfirmautoassign();
-      // return ;
     }
     if (sublevels[2] == 1) {
       navrange = 127;
       Sampleassigner();
-
-      // return ;
     }
   }
 }
 void samplerexplorer() {
   if (navlevel > 3) {
     if (sublevels[2] == 1) {
-      // navrange = 127 ;
       Sampleassigner();
-
-      // return ;
     }
     if (sublevels[2] == 2 && sublevels[3] == 1) {
-      //   Serial.println("load selected confirmed");
       loadSelectedSamples();
-      // clear selection
       navlevel = 2;
-      //  return ;
     }
     if (sublevels[2] == 3 && sublevels[3] == 1) {
-      //  Serial.println("clear selection confirmed");
       initializesamplesselectedlist();
       initializesamplesfoldersselectedlist();
-      // clear selection
       navlevel = 2;
-      // return ;
     }
 
     if (sublevels[2] != 0 && sublevels[2] != 1 && sublevels[3] == 0) {
-      // Serial.println(" One of the 2 Cancelled");
       navlevel = 2;
       // refresh the menu
       displaysamplermenu();
-      // return ;
     }
 
     if (sublevels[2] == 1) {
       if (!samplesfoldersselected[sublevels[3]]) {
         samplesfoldersselected[sublevels[3]] = 1;
         numofsamplesfoldersselected++;
-        // playflashsamplepreview();
       } else {
         samplesfoldersselected[sublevels[3]] = 0;
         numofsamplesfoldersselected--;
       }
-
       returntonav(3);
     }
 
@@ -258,32 +236,24 @@ void Flashsamplerexplorer() {
   if (navlevel > 3) {
 
     if (sublevels[2] == 2 && sublevels[3] == 1) {
-      //   Serial.println("del selected confirmed");
       DelSelectedFlashSamples();
       // clear selection
       navlevel = 2;
-      // return ;
     }
     if (sublevels[2] == 3 && sublevels[3] == 1) {
-      //    Serial.println("clear selection confirmed");
       initializeFlashsamplesselected();
       // clear selection
       navlevel = 2;
-      //  return ;
     }
     if (sublevels[2] == 1 && sublevels[3] == 1) {
-      // Serial.println("Delete All confirmed");
       RemoveAllfromFlash();
       // clear selection
       navlevel = 2;
-      // return ;
     }
     if (sublevels[2] != 0 && sublevels[3] == 0) {
-      // Serial.println(" One of the 3 Cancelled");
       navlevel = 2;
       // refresh the menu
       displaysamplermenu();
-      // return ;
     }
     if (sublevels[2] == 0) {
       if (Flashsamplesselected[sublevels[3]] == 0) {
@@ -464,7 +434,7 @@ void clearsamplesselectedlist(int lefolder) {
 }
 
 void drawFlashSamplesList() {
-  // Serial.println("listing samplerList");
+
   int startx = 15;
   int starty = 16;
   canvastitle.fillScreen(SSD1306_BLACK);
@@ -474,7 +444,7 @@ void drawFlashSamplesList() {
   drawtickboxflashtitle(startx - 13, 0, 6, 6, SSD1306_WHITE, sublevels[navlevel]);
   canvasBIG.setTextSize(1);
   canvasBIG.fillScreen(SSD1306_BLACK);
-  // Serial.println("doing other part");
+
   int maxsizefirstpart = numberofFlashfiles - 1 - (sublevels[navlevel]);
   if (maxsizefirstpart > 6) {
     maxsizefirstpart = 6;
@@ -484,7 +454,6 @@ void drawFlashSamplesList() {
     canvasBIG.println((char *)Flashsamplebase[sublevels[navlevel] + 1 + i]);
     drawtickboxflashBIG(startx - 13, starty + ((i)*10), 6, 6, SSD1306_WHITE, sublevels[navlevel] + 1 + i);
   }
-  // Serial.println("last part");
   int maxsizelastpart = sublevels[navlevel];
   if (maxsizelastpart > 6) {
     maxsizelastpart = 6;
@@ -497,7 +466,6 @@ void drawFlashSamplesList() {
 }
 
 void drawsamplerfilesList() {
-  // Serial.println("listing samplerList");
   int startx = 15;
   int starty = 16;
   canvastitle.fillScreen(SSD1306_BLACK);
@@ -507,7 +475,6 @@ void drawsamplerfilesList() {
   drawtickboxincanvastitle(startx - 13, 0, 6, 6, SSD1306_WHITE, sublevels[3], sublevels[navlevel]);
   canvasBIG.setTextSize(1);
   canvasBIG.fillScreen(SSD1306_BLACK);
-  // Serial.println("doing other part");
   int maxsizefirstpart =
       sizeofsamplefolder[sublevels[3]] - 1 - (sublevels[navlevel]);
   if (maxsizefirstpart > 6) {
@@ -518,7 +485,6 @@ void drawsamplerfilesList() {
     canvasBIG.println((char *)samplebase[sublevels[3]][sublevels[navlevel] + 1 + i]);
     drawtickboxincanvasBIG(startx - 13, starty + ((i)*10), 6, 6, SSD1306_WHITE, sublevels[3], sublevels[navlevel] + 1 + i);
   }
-  // Serial.println("last part");
   int maxsizelastpart = sublevels[navlevel];
   if (maxsizelastpart > 6) {
     maxsizelastpart = 6;
@@ -542,7 +508,7 @@ void drawSamplerFoldersList() {
   }
   canvasBIG.setTextSize(1);
   canvasBIG.fillScreen(SSD1306_BLACK);
-  // Serial.println("doing other part");
+
   int maxsizefirstpart = sampledirsregistered - 1 - (sublevels[navlevel]);
   if (maxsizefirstpart > 6) {
     maxsizefirstpart = 6;
@@ -574,7 +540,6 @@ void dolistLoadSampleMenu() {
   int startx = 5;
   int starty = 16;
   char *textin = (char *)menuloadsample[sublevels[2]];
-  // Serial.println(textin);
   canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setCursor(0, 0);
   canvastitle.setTextSize(1);
@@ -708,13 +673,11 @@ void displaysamplermenu() {
     default:
       break;
     }
-    // dm.lemenuroot();
     dodisplay();
     display.display();
   }
 
   if (navlevel >= 3) {
-    //  Serial.println("3rd level of menu");
     if (sublevels[1] == 0) {
       display.clearDisplay();
       samplerexplorer();
@@ -770,23 +733,22 @@ void doclearassign() {
 void doConfirmmkdir() {
   char messageconfirm[32] = "Make dir ?";
   doConfirmpanel((char *)messageconfirm);
-  // Serial.println("display confirm Clear");
+
 }
 void doConfirmClearassign() {
   char messageconfirm[32] = "Clear selection ?";
   doConfirmpanel((char *)messageconfirm);
-  // Serial.println("display confirm Clear");
+
 }
 
 void doConfirmClearList() {
   char messageconfirm[32] = "Clear selection ?";
   doConfirmpanel((char *)messageconfirm);
-  // Serial.println("display confirm Clear");
+
 }
 void doConfirmautoassign() {
   char messageconfirm[32] = "Confirm autoassign ?";
   doConfirmpanel((char *)messageconfirm);
-  // Serial.println("display confirm assign");
 }
 
 void doConfirmDelsamples() {
@@ -820,7 +782,6 @@ void doConfirmpanel(char *letitlemsg) {
   canvasBIG.print("NO         YES");
   canvasBIG.drawRect(14 + sublevels[navlevel] * 66, 23,
                      23 + sublevels[navlevel] * 6, 17, SSD1306_WHITE);
-  // Serial.println("display confirm load");
   dodisplay();
   display.display();
 }
@@ -863,13 +824,9 @@ void RemoveAllfromFlash() {
         Serial.print(".");
         dotcount = dotcount + 1;
         pleasewait(dotcount, seconds);
-        // if (dotcount >= 60) {
-        //   Serial.println();
-        //   dotcount = 0;
-        // }
       }
     }
-    
+
     if (dotcount > 0) {
       Serial.println();
     Serial.println("Erase completed");
@@ -901,7 +858,6 @@ void DelSelectedFlashSamples() {
     if (Flashsamplesselected[j] == 1) {
       if (SerialFlash.exists((const char *)Flashsamplename[j])) {
         SerialFlash.remove((const char *)Flashsamplename[j]);
-        //  Serial.println("sampledeleted");
       }
     }
   }
@@ -954,42 +910,27 @@ void loadSelectedSamples() {
     pleasewait(i, 99);
     for (int j = 0; j < 999; j++) {
       if (samplesselected[i][j] == 1) {
-
         currentsample = SD.open((const char *)samplefullpath[i][j]);
         if (!currentsample)
           break;
         const char *currentflashname = currentsample.name();
         lengthz = currentsample.size();
         if (SerialFlash.exists(currentflashname)) {
-          // Serial.println("  already exists on the Flash chip");
           currentFlashfile = SerialFlash.open(currentflashname);
           if (currentFlashfile &&
               currentFlashfile.size() == currentsample.size()) {
-            // Serial.println("  size is the same, comparing data...");
             if (comparer(currentsample, currentFlashfile)) {
-              // Serial.println("  files are identical :)");
               currentsample.close();
               currentFlashfile.close();
               continue; // advance to next file
-            } else {
-              //  Serial.println("  files are different");
-            }
-          } else {
-            //   Serial.print("  size is different, ");
-            //   Serial.print(currentFlashfile.size());
-            //  Serial.println(" bytes");
-          }
-          // delete the copy on the Flash chip, if different
-          // Serial.println("  delete file from Flash chip");
+            } 
+          } 
           SerialFlash.remove(currentflashname);
         }
 
-        // create the file on the Flash chip and copy data
         if (SerialFlash.create(currentflashname, lengthz)) {
           SerialFlashFile currentFlashfile = SerialFlash.open(currentflashname);
           if (currentFlashfile) {
-            //  Serial.print("  copying");
-            // copy data loop
             unsigned long count = 0;
             unsigned char dotcount = 9;
             while (count < lengthz) {
@@ -998,19 +939,14 @@ void loadSelectedSamples() {
               n = currentsample.read(buf, 256);
               currentFlashfile.write(buf, n);
               count = count + n;
-              // Serial.print(".");
               if (++dotcount > 100) {
-                //  Serial.println();
                 dotcount = 0;
               }
             }
             currentFlashfile.close();
-            // if (dotcount > 0) Serial.println();
-          } else {
-          }
-        } else {
-          //  Serial.println("  unable to create file");
-        }
+
+          } 
+        } 
         currentsample.close();
       }
     }
@@ -1027,22 +963,14 @@ void loadSampledSound() {
   unsigned long lengthz;
   File currentsample;
   SerialFlashFile currentFlashfile;
-  //addfolderstoselectionset();
   delay(1);
   if (!SerialFlash.begin(FlashChipSelect)) {
-    Serial.println("Unable to access SPI Flash chip");
+    pseudoconsole("Unable to access SPI Flash chip");
   }
   currentsample = SD.open(newloopedpath.c_str());
-  Serial.println(newloopedpath.c_str());
-  if (!currentsample) {
-    Serial.println("not on sd");
-  }
   const char *currentflashname = currentsample.name();
-  Serial.println(currentsample.name());
   lengthz = currentsample.size();
-  Serial.println(lengthz);
   if (SerialFlash.exists(currentflashname)) {
-    Serial.println("  already exists on the Flash chip");
     currentFlashfile = SerialFlash.open(currentflashname);
     if (currentFlashfile) {
       SerialFlash.remove(currentflashname);
@@ -1053,8 +981,6 @@ void loadSampledSound() {
   if (SerialFlash.create(currentflashname, lengthz)) {
     SerialFlashFile currentFlashfile = SerialFlash.open(currentflashname);
     if (currentFlashfile) {
-      //  Serial.print("  copying");
-      // copy data loop
       unsigned long count = 0;
       unsigned char dotcount = 9;
       while (count < lengthz) {
@@ -1063,24 +989,18 @@ void loadSampledSound() {
         n = currentsample.read(buf, 256);
         currentFlashfile.write(buf, n);
         count = count + n;
-        // Serial.print(".");
         if (++dotcount > 100) {
-          //  Serial.println();
           dotcount = 0;
         }
       }
       currentFlashfile.close();
-      // if (dotcount > 0) Serial.println();
-      } 
-    } else {
-      Serial.println("  unable to create file");
+      }
     }
   currentsample.close();
-
   initializesamplesselectedlist();
   initializesamplesfoldersselectedlist();
   listFlashfiles();
-  
+
 }
 
 bool comparemesFiles(typeof(myMidiFile) &file, SerialFlashFile &ffile) {
@@ -1102,7 +1022,7 @@ bool comparemesFiles(typeof(myMidiFile) &file, SerialFlashFile &ffile) {
 }
 
 void errorsd(const char *message) {
-   Serial.println(message);
+   pseudoconsole(message);
 }
 
 void listFlashfiles() {
@@ -1135,20 +1055,12 @@ void getavailablespace() {
       } else {
         laspace += lefile.size();
       }
-      Serial.println(lefile.size());
       lefile.close();
     }
   }
   lefile.close();
   float freespace = ((laspace / 16777216.0) * 100);
-  Serial.print(freespace);
-  
-}
 
-void spacespr(int num) {
-  for (int i = 0; i < num; i++) {
-    // Serial.print(" ");
-  }
 }
 
 void Sampleassigner() {
@@ -1158,7 +1070,7 @@ void Sampleassigner() {
     dodisplay();
   }
   if (navlevel == 4) {
-    // to avoid the weird last one
+    // to avoid the weird last one <--- probably an overflow
     navrange = numberofFlashfiles - 1;
     listsamplesassigner2();
     dodisplay();
@@ -1176,15 +1088,11 @@ void listsamplesassigner() {
   canvastitle.setCursor(0, 0);
   toprint = (char *)"Note";
   canvastitle.setTextSize(2);
-
   canvastitle.println(toprint);
   canvastitle.setCursor(85, 0);
-  // toprint = (char*)"Knob";
   canvastitle.println(sublevels[3]);
 
   canvasBIG.fillScreen(SSD1306_BLACK);
-  // if (sublevels[3] < 127 ) {
-  // Serial.println(sublevels[3]);
   if (Sampleassigned[sublevels[3]] != 0) {
 
     canvasBIG.setTextSize(2);

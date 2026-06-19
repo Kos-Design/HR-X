@@ -6,7 +6,7 @@ void evalrota() {
   if (newPosition != oldPosition) {
     count++;
   }
-  
+
   if (count >= 4) {
     oldPosition = newPosition;
     count = 0;
@@ -33,15 +33,15 @@ void evalrota() {
 }
 
 void evalinputs() {
-  
+
   clicked.update();
   if (!MULTIPLEXED_PADS) {
     Backb.update();
   }
-  
+
   bool backed = false;
   backed = Pads.get_back();
- 
+
   if (backed || (!MULTIPLEXED_PADS && Backb.fallingEdge()))  {
 
     sublevels[navlevel] = 0;
@@ -51,14 +51,12 @@ void evalinputs() {
     }
 
     dm.lemenuroot();
-    //printit();
   }
   if (clicked.fallingEdge()) {
     navlevel++;
     vraipos = sublevels[navlevel];
     myEnc.write(sublevels[navlevel] * 4);
-    printit();
     dm.lemenuroot();
-    printit();
+    //printit();
   }
 }

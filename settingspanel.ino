@@ -238,11 +238,12 @@ void printlanote() {
     dodisplay();
   }
 }
+
+//TODO: implement in notespy
 void notefreqloop() {
   if (notefreq1.available()) {
     float notep = notefreq1.read();
     float probz = notefreq1.probability();
-    Serial.printf("Note: %3.2f | Probability: %.2f\n", notep, probz);
     //  pseudoconsole("Note: %3.2f | Probability: %.2f\n", notep, probz);
   }
 }
@@ -451,11 +452,7 @@ char ch_lbl_buffer[4]; // Buffer to hold formatted number
 void OnBoardVpanelAction() {
   if (navlevel > 3) {
     if (((sublevels[2] <= 11) || (sublevels[2] > 45)) && (navlevel == 4)) {
-      Serial.print("index=");
-      Serial.println(potsboards[sublevels[2]]);
       ordered_pots[potsboards[sublevels[2]]] = pot_assignements[sublevels[2]];
-      Serial.print("muxed_pots ");
-      Serial.println(ordered_pots[potsboards[sublevels[2]]]);
     }
     returntonav(2);
   }
@@ -509,10 +506,6 @@ void OnBoardVpanelSelector() {
   if (navlevel == 3) {
     sublevels[4] = pot_assignements[sublevels[2]];
     pot_assignements[sublevels[2]] = sublevels[3];
-    Serial.print("setting pot ");
-    Serial.print(sublevels[2]);
-    Serial.print(" to ");
-    Serial.println(sublevels[3]);
     if (selecta <= 11) {
       navrange = 127;
     }
@@ -689,11 +682,11 @@ void displaysettingspanel() {
           returntonav(1,13,10);
         }
         break;
-      
+
       case 11:
         OnBoardVpanel();
         break;
-      
+
       case 12:
         navrange = 2 ;
         AudioInSource = sublevels[2] ;
@@ -717,10 +710,10 @@ void displaysettingspanel() {
     }
     dodisplay();
   }
-} 
-  
-  
-    
+}
+
+
+
 
 
 void set_in_source(){
@@ -840,12 +833,12 @@ void makesettingslist() {
     }
     canvasBIG.setTextSize(1);
   }
-  
+
   if (sublevels[1] == 12) {
     canvastitle.setCursor(96, 0);
-    
+
     canvastitle.println(audio_source_lbl[AudioInSource]);
-    
+
     // canvasBIG.setTextSize(1);
   }
 

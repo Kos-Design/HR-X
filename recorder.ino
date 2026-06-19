@@ -18,15 +18,11 @@ byte getrecdir() {
 
       return i;
     }
-
-    // Serial.print("folder = ");
-    // Serial.println((char*)samplefoldersregistered[i]);
   }
   return sampledirsregistered;
 }
 
 void displayRecmenu() {
-  Serial.println("displayRecmenu");
   navrange = 4;
   canvasBIG.fillScreen(SSD1306_BLACK);
   canvastitle.fillScreen(SSD1306_BLACK);
@@ -79,7 +75,7 @@ void deleteRec() {
   }
   dosoundlist();
 }
-void copyRec() { Serial.println("why copy since we don't overwrite?"); }
+void copyRec() { pseudoconsole("why copy since we don't overwrite?"); }
 
 void getthisRecname() {
   byte lerecdiri = getrecdir();
@@ -157,8 +153,6 @@ void dolistRecdisplay() {
   byte startx = 5;
   byte starty = 16;
   char *textin = (char *)Recmenulabels[sublevels[navrecmenu]];
-  // Serial.println(textin);
-  // canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setCursor(0, 0);
   canvastitle.setTextSize(2);
   canvastitle.println(textin);
@@ -181,7 +175,6 @@ void dolistRecdisplay() {
   }
 }
 
-void recordcontrols() { Serial.print("rec controlled"); }
 
 void recordVpanelAction() {
   if (navlevel == navrec + 1) {
@@ -230,8 +223,6 @@ void recordVpanelAction() {
         }
       }
     }
-
-    recordcontrols();
     returntonav(navrec);
   }
 
@@ -369,27 +360,21 @@ void start_sample_in_place() {
       SD.mkdir(recfolder.c_str());
     }
     tocker = millis();
-    Serial.println("looping");
     newloopedpath = get_new_rec_file_name("SOUNDSET/REC/LOOP");
     if (SD.exists(newloopedpath.c_str())) {
       SD.remove(newloopedpath.c_str());
     }
     looper = SD.open(newloopedpath.c_str(), FILE_WRITE);
     if (looper) {
-      //Serial.println("start rec looper ");
-      //Serial.print(looper.name());
-      //Serial.println("");
       //AudioNoInterrupts();
       queue1.begin();
       pre_record = true;
       //AudioInterrupts();
       //rec_looping = true ;
     } else {
-      String formattedString = "error opening " + newloopedpath;
-      Serial.println(formattedString);
       rec_looping = false ;
     }
-    
+
 //start at pat pos
 //rec mono
 // ends in 32 ticks
@@ -397,37 +382,13 @@ void start_sample_in_place() {
 // assign saved to note 50
 // set pattern empty and place note 50 on 0
 //clear locks
-  
+
   }
 }
 
 // should use start_sample_in_place
 void startRecording() {
   start_sample_in_place();
-}
-void startRecording_old() {
-
-  Serial.println("startRecording");
- 
-  newRecpathL = get_new_rec_file_name("SOUNDSET/REC/RECZ") ;
-  frec = SD.open(newRecpathL.c_str(), FILE_WRITE);
-  // delay(15);
-  if (frec) {
-    modeL = 1;
-    queue1.begin();
-    Serial.println("Freq opened");
-    if (modestereo) {
-      //will get a different index than L file
-      newRecpathR = get_new_rec_file_name("SOUNDSET/REC/RECZ","#R.RAW") ;
-      frec2 = SD.open(newRecpathR.c_str(), FILE_WRITE);
-      if (frec2) {
-        Serial.println("Frec2 opened");
-        modeR = 1;
-        queue2.begin();
-      }
-    }
-  }
-  // AudioInterrupts();
 }
 
 void continueRecording() {
@@ -447,7 +408,6 @@ void continueRecording() {
       // write all 512 bytes to the SD card
       // elapsedMicros usec = 0;
       frec.write(bufferL, 512);
-      //  Serial.println("DumpedL");
       //  delay(round((knobs[3]*10)));
       // Uncomment these lines to see how long SD writes
       // are taking.  A pair of audio blocks arrives every
@@ -459,13 +419,9 @@ void continueRecording() {
       // approximately 301700 us of audio, to allow time
       // for occasional high SD card latency, as long as
       // the average write time is under 5802 us.
-      // Serial.print("SD write, us=");
-      // Serial.println(usec);
-
       // if ( modestereo) {
       // frec.close();
       //}
-      // Serial.println("Buffer_L Dumped");
     }
   }
   if (modestereo) {
@@ -477,68 +433,30 @@ void continueRecording() {
         queue2.freeBuffer();
         memcpy(bufferR + 256, queue2.readBuffer(), 256);
         queue2.freeBuffer();
-        // write all 512 bytes to the SD card
-        // elapsedMicros usec = 0;
         frec2.write(bufferR, 512);
-        //  Serial.println("DumpedR");
-        // delay(round((knobs[3]*10)));
-        // frec2.close();
-        // Serial.println("Buffer_R Dumped");
       }
     }
   }
-  // if (frec2) {  Serial.println("Frec2 still opened");}
-  // if (frec) {Serial.println("Frec1 still opened");}
-  // delay(3000);
 }
+
 void stopRecordingL(){
   end_sample_in_place();
   pre_record = false;
 
 }
-void stopRecordingL_old() {
-  // if ( !frec ) {
-  //  frec = SD.open("RECORDL.RAW", FILE_WRITE);
-  //}
-
-  queue1.end();
-  // synchro !
-
-  if (modeL == 1) {
-    while (queue1.available() > 0) {
-      frec.write((byte *)queue1.readBuffer(), 256);
-      queue1.freeBuffer();
-      // Serial.println("Freeing L Buffer");
-    }
-    frec.close();
-    modeL = 0;
-    queue1.clear();
-    // Serial.println("stopRecordingL");
-  }
-  if (modestereo) {
-    stopRecordingR();
-  }
-  dosoundlist();
-}
 
 void stopRecordingR() {
-
   // frec2 = SD.open("RECORDR.RAW", FILE_WRITE);
-
   queue2.end();
-
   // queue2.end();
   if (modeR == 1) {
     while (queue2.available() > 0) {
       frec2.write((byte *)queue2.readBuffer(), 256);
       queue2.freeBuffer();
-
-      // Serial.println("Freeing R Buffer");
     }
     frec2.close();
     modeR = 0;
     queue2.clear();
-    Serial.println("stopRecordingR");
   }
 }
 
@@ -580,17 +498,13 @@ void continue_looper() {
     // approximately 301700 us of audio, to allow time
     // for occasional high SD card latency, as long as
     // the average write time is under 5802 us.
-    //Serial.print("SD write, us=");
-    //Serial.println(usec);
+
   }
   auto_stop_rec();
 }
 
 void end_sample_in_place() {
     if (looper) {
-      Serial.println("stop rec looper ");
-    Serial.print(looper.name());
-    Serial.println("");
     //AudioNoInterrupts();
     queue1.end();
     while (queue1.available() > 0) {
@@ -604,30 +518,18 @@ void end_sample_in_place() {
     }
     just_pressed_rec = false ;
     if (autoassign) {
-      Serial.println("attempting copy");
       loadSampledSound();
     }
 }
 
   //rien  SOUNDSET/REC/WAV_01.WAV
-  // in setup : 
+  // in setup :
   // recorder.begin("SOUNDSET/REC/WAV_01.WAV");
-  
+
 void wav_record_loop() {
   // Check if the recorder is active and has new data
   if (true) {
- 
+
 }
   //}
 }
-
-void startVHSRecording() {
-  //recorder.start();
-}
-
-void stopVHSRecording() {
- // recorder.stop();
-  Serial.println("Recording stopped");
-}
-
- 

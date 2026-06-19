@@ -3,7 +3,7 @@ String make_full_rec_file_name(byte number,String base_path_dir,String suffix="#
   char formatted_number[4] ;
   sprintf(formatted_number,"%02d",number);
   return(String)(base_path_dir + (String)formatted_number + suffix);
-} 
+}
 
 String get_new_rec_file_name(String base_path_dir,String suffix="#L.RAW") {
   byte file_number = 0 ;
@@ -19,7 +19,7 @@ String make_full_file_name(byte number,String base_path_dir) {
   char formatted_number[4] ;
   sprintf(formatted_number,"%02d",number);
   return(String)(base_path_dir + (String)formatted_number + ".TXT");
-} 
+}
 
 String get_new_file_name(String base_path_dir) {
   byte file_number = 0 ;
@@ -35,7 +35,7 @@ String make_full_dir_name(byte number,String base_path_dir) {
   char formatted_number[4] ;
   sprintf(formatted_number,"%02d",number);
   return(String)(base_path_dir + (String)formatted_number);
-} 
+}
 
 String get_new_dir_name(String base_path_dir) {
   byte file_number = 0 ;
@@ -95,7 +95,6 @@ void makesoundsetfullpathfromchars(int eldir) {
   int lelast = (int)strlen((char *)sampledirpath);
   sampledirpath[lelast] = (char)'/';
   sampledirpath[lelast + 1] = (char)'\0';
-  // Serial.println((char*)sampledirpath);
 }
 
 void listSoundset() {
@@ -122,12 +121,7 @@ void listSoundset() {
 
 void listSoundsetsubdir(int ledir) {
   if (SD.exists((char *)sampledirpath)) {
-
-    // Serial.println(" dir = ");
-    // Serial.println((char*)sampledirpath);
-
     File susudir = SD.open((char *)sampledirpath);
-
     while (true) {
       File subentry = susudir.openNextFile();
       if (!subentry) {
@@ -135,11 +129,8 @@ void listSoundsetsubdir(int ledir) {
       }
 
       if (!subentry.isDirectory()) {
-        // Serial.println(" 1 = 1 ");
         setlefilenamed(ledir, sizeofsamplefolder[ledir], (char*)subentry.name());
-
         (sizeofsamplefolder[ledir])++;
-        // subentry.close();
       }
       subentry.close();
     }
@@ -152,7 +143,6 @@ void dosamplerfullpath(int lefolder, int lefile, char *lefilename) {
                    (strlen((char *)lefilename));
   for (int j = 0; j < stringsize; j++) {
     samplefullpath[lefolder][lefile][j + stringsize] = (char)(lefilename[j]);
-    // Serial.println((char)(lepathtoadd[i]));
   }
   // samplefullpath[lefolder][i][(strlen((char*)lepath)+9)]=(char*)"/"[0];
   //}
@@ -162,7 +152,6 @@ void addtofullsamplerfolderpath(int lefolder, char *lepath) {
   for (int i = 0; i < 999; i++) {
     for (int j = 9; j < (int)strlen((char *)lepath) + 9; j++) {
       samplefullpath[lefolder][i][j] = (char)(lepath[j - 9]);
-      // Serial.println((char)(lepathtoadd[i]));
     }
     samplefullpath[lefolder][i][(strlen((char *)lepath) + 9)] = (char)("/"[0]);
   }
@@ -219,25 +208,19 @@ void setupsamplefoldersregistered() {
   for (int i = 0; i < szsset; i++) {
     for (int j = 0; j < ssnamsize; j++) {
       samplefoldersregistered[i][j] = (char)'\0';
-      // delay(1);
     }
   }
   samplefoldersregistered[0][0] = (char)("/"[0]);
-  // delay(1);
   sampledirsregistered++;
-  // Serial.println((char*)(samplefoldersregistered[0]));
 }
 
 void setupSD() {
 
   if (!(SD.begin(chipSelect))) {
-    Serial.println("initialization SD failed!");
+    errorsd("initialization SD failed!");
     return;
   }
-  // Serial.println("initialization 0 done.");
-
-  // scans Soundset samples folders
-
+  
   initializesamplesselectedlist();
   pseudoconsole((char *)"Scanning Samples");
   dosoundlist();
@@ -249,5 +232,4 @@ void setupSD() {
   list_wforms_files();
   pseudoconsole((char *)"Scanning Songs");
   list_songs_files();
-  // getavailablespace();
 }

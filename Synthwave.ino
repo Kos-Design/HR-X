@@ -10,7 +10,7 @@ void displaypanbars(int score) {
       returntonav(3, 9);
     }
   }
-  
+
   int sizepan = map(score, 0, 2, 0, 35);
   wavelinemenuBG(sublevels[2]);
   draw_synth_params();
@@ -52,7 +52,7 @@ void displayfreqbars(int score) {
   if (navlevel >= 4) {
     if (navlevel == 4) {
       navrange = 10;
-      if (wavesfreqs[sublevels[2]] == 1) { demimalmode = !demimalmode;} 
+      if (wavesfreqs[sublevels[2]] == 1) { demimalmode = !demimalmode;}
       else { if (wavesfreqs[sublevels[2]] <= 1) {demimalmode = 1; } }
       if (!demimalmode) {wavesfreqs[sublevels[2]] = sublevels[4]; }
       if (demimalmode) {wavesfreqs[sublevels[2]] = (sublevels[4]) / 10.0; }
@@ -122,7 +122,6 @@ void setfmtofreq(byte lesynth) {
 void wavelineModulatedbool(int lesynthi) {
   if (navlevel == 4) {
     navrange = 3;
-    // Serial.println("Setting Mdulation switch");
     FMmodulated[lesynthi] = sublevels[4];
   }
   if (navlevel > 4) {
@@ -157,7 +156,6 @@ void displaywaveformicon(int letype, char *lelabelw, const unsigned char img[], 
   display.display();
   if (navlevel == 4) {
     navrange = 11;
-    // Serial.println("Setting TYPE");
     Waveformstyped[lesinthy] = sublevels[4];
   }
 
@@ -248,7 +246,6 @@ void wavelinepanel(int synthi) {
       wavelinePhase(synthi);
       break;
     case 6:
-      // Serial.print("Previous <--");
       if (sublevels[2] > 0) {
         sublevels[2]--;
       } else {
@@ -258,7 +255,6 @@ void wavelinepanel(int synthi) {
       dm.lemenuroot();
       break;
     case 7:
-      // Serial.print("Next -->");
       if (sublevels[2] < 2) {
         sublevels[2]++;
       } else {
@@ -266,7 +262,7 @@ void wavelinepanel(int synthi) {
       }
       navlevel--;
       dm.lemenuroot();
-      break;  
+      break;
     default:
       break;
   }
@@ -314,7 +310,6 @@ void wavelining(int startx, int starty, char *leprintlabel, int synthi) {
           wavelinepanel(synthi);
         }
         if (sublevels[3] == 5) {
-          //  Serial.println("phasing");
           sublevels[4] = int(phaselevelsL[synthi]);
           wavelinepanel(synthi);
         }
@@ -429,12 +424,12 @@ void displayadsrgraph() {
 
     sliceR();
     break;
-    
+
   default:
     break;
   }
-  
- 
+
+
   dodisplay();
 
   canvastitle.fillScreen(SSD1306_BLACK);
@@ -443,10 +438,10 @@ void displayadsrgraph() {
 }
 
 void GlobalADSR() {
-  
+
   SetADSR();
   ApplyADSR();
-    
+
 }
 
 void sliceA() {
@@ -465,14 +460,10 @@ void sliceA() {
     mappedattack = sublevels[navleveloverwrite + 2];
   }
   if (navlevel == navleveloverwrite + 3) {
-    // Serial.println("after2clicks");
-
     if (sublevels[1] == 2) {
-      // Serial.println("setting global");
       GlobalADSR();
     }
     returntonav(navleveloverwrite, 5);
-    Serial.println("returned twice");
 
   }
   canvastitle.setTextSize(1);
@@ -482,7 +473,6 @@ void sliceA() {
   canvastitle.setCursor(55, 0);
   canvastitle.setTextSize(1);
   canvastitle.println(mappedattack);
-  // Serial.print("displayd SliceA");
 }
 
 void sliceDa() {
@@ -500,7 +490,6 @@ void sliceDa() {
   }
   if (navlevel == navleveloverwrite + 3) {
     if (sublevels[1] == 2) {
-      // Serial.println("setting global");
       GlobalADSR();
     }
 
@@ -512,7 +501,7 @@ void sliceDa() {
   canvastitle.println((char *)"Attack Delay ");
   canvastitle.setCursor(55, 0);
   canvastitle.println(MadsrAttackDelay);
-  
+
 }
 
 void sliceH() {
@@ -528,7 +517,6 @@ void sliceH() {
   }
   if (navlevel == navleveloverwrite + 3) {
     if (sublevels[1] == 2) {
-      // Serial.println("setting global");
       GlobalADSR();
     }
 
@@ -557,7 +545,6 @@ void sliceD() {
   }
   if (navlevel == navleveloverwrite + 3) {
     if (sublevels[1] == 2) {
-      // Serial.println("setting global");
       GlobalADSR();
     }
 
@@ -586,7 +573,6 @@ void sliceS() {
   }
   if (navlevel == navleveloverwrite + 3) {
     if (sublevels[1] == 2) {
-      // Serial.println("setting global");
       GlobalADSR();
     }
 
@@ -614,7 +600,6 @@ void sliceR() {
   }
   if (navlevel == navleveloverwrite + 3) {
     if (sublevels[1] == 2) {
-      // Serial.println("setting global");
       GlobalADSR();
     }
 
@@ -632,7 +617,7 @@ void sliceR() {
 void draw_synth_params() {
   char wavelineslabels[synth_params_count][12] = {
       "Type", "Mod", "LFO", "Freq", "Offset", "Phase", "<-  ", "  ->"};
-  
+
   int startx = 5;
   int starty = 16;
   char *textin = (char *)wavelineslabels[sublevels[3]];
@@ -677,7 +662,7 @@ void dolistsyntmenu() {
 
 void synthmenu() {
   if (navlevel == 1) {
-    navrange = 4;           
+    navrange = 4;
     display.clearDisplay();
     reinitsublevels(2);
     dolistsyntmenu();
@@ -782,7 +767,7 @@ void setlepulse1() {
   }
   for (int i = 0; i < liners_count ; i++) {
     //blink303[i]->setDuration(le303pulsewidth);
-    pulsers[i][1]=le303pulsewidth; 
+    pulsers[i][1]=le303pulsewidth;
   }
 }
 
@@ -813,7 +798,7 @@ void le303filterVpanelAction() {
       //  le303filterzreso = 0.7;
       //  }
     }
-    
+
     // lowpass
     if (slct == 2) {
       navrange = 127;
@@ -860,7 +845,7 @@ void le303filterVpanelAction() {
       navrange = 5;
       glidemode = sublevels[3];
     }
-    
+
     le303filtercontrols();
   }
   if (navlevel > 3) {
@@ -884,7 +869,7 @@ void le303filterzWet() {
 void le303filtercontrols() {
   for (int i = 0; i < liners_count; i++) {
     setle303filterpass(i);
-    
+
   }
 }
 
@@ -1229,7 +1214,7 @@ void showmixerwaves() {
     canvastitle.setCursor(95, 0);
     canvastitle.print((wetins[slct - 6] / 127.0) * 100.0, 1);
   }
-  
+
   for (int i = 0; i < synths_count; i++) {
     coeffangle = (6.2831 - (mixlevelsL[i]) * 6.2831) + 3.1416;
     centercirclex = knobradius + (xcentershifter * i) + 25 + (xcentershifter * 2);
@@ -1308,7 +1293,7 @@ void set_dry_mix(int lebus) {
     MasterR1.gain(2, wetins[0] / 127.0);
     FXBusL.gain(2, 1 - (wetins[0] / 127.0));
     FXBusR.gain(2, 1 - (wetins[0] / 127.0));
-    
+
     break;
   case 1:
     // set sampler wetness on fx main bus
@@ -1390,13 +1375,12 @@ void setmastersmixlevel(int lebus) {
   //AudioInterrupts();
 }
 void setwavetypefromlist(int lesinthy, int letype) {
-  Serial.println("setting wave type");
   AudioNoInterrupts();
   Waveformstyped[lesinthy] = letype;
   switch (FMmodulated[lesinthy]){
 
     case 0:
-      
+
       if (letype < 9) {
         for (int i = 0; i < liners_count; i++) {
           FMwavecords1[i + (liners_count * lesinthy)]->disconnect();
@@ -1412,7 +1396,7 @@ void setwavetypefromlist(int lesinthy, int letype) {
             waveforms1[i + (liners_count * lesinthy)]->arbitraryWaveform(arbitrary_waveforms[lesinthy],1.0);
           }
         }
-      } 
+      }
       else if (letype == 9) {
         for (int i = 0; i < liners_count; i++) {
           wavelinescords[i + (lesinthy * liners_count)]->disconnect();
@@ -1424,7 +1408,7 @@ void setwavetypefromlist(int lesinthy, int letype) {
           MDstringcords1[i + (liners_count * lesinthy)]->disconnect();
           drumcords1[i + (lesinthy * liners_count)]->connect();
         }
-      } 
+      }
       else if (letype == 10) {
 
         for (int i = 0; i < liners_count; i++) {
@@ -1438,7 +1422,7 @@ void setwavetypefromlist(int lesinthy, int letype) {
           stringcords1[i + (lesinthy * liners_count)]->connect();
         }
       }
-    
+
     break;
 
     case 1:
@@ -1452,12 +1436,12 @@ void setwavetypefromlist(int lesinthy, int letype) {
           drumcords1[i + (liners_count * lesinthy)]->disconnect();
           MDwavecords1[i + (liners_count * lesinthy)]->disconnect();
           FMwavecords1[i + (liners_count * lesinthy)]->connect();
-          FMwaveforms1[i + (liners_count * lesinthy)]->begin(lesformes[letype]);     
+          FMwaveforms1[i + (liners_count * lesinthy)]->begin(lesformes[letype]);
           // LFO begin
         }
       restartLFO(lesinthy);
       }
-      
+
     break;
 
     case 2:
@@ -1471,12 +1455,12 @@ void setwavetypefromlist(int lesinthy, int letype) {
           drumcords1[i + (liners_count * lesinthy)]->disconnect();
           MDwavecords1[i + (liners_count * lesinthy)]->disconnect();
           FMwavecords1[i + (liners_count * lesinthy)]->connect();
-          FMwaveforms1[i + (liners_count * lesinthy)]->begin(lesformes[letype]);     
+          FMwaveforms1[i + (liners_count * lesinthy)]->begin(lesformes[letype]);
           // LFO begin
           }
         restartLFO(lesinthy);
       }
-      
+
     break;
 
     case 3:
@@ -1492,14 +1476,14 @@ void setwavetypefromlist(int lesinthy, int letype) {
           FMwavecords1[i + (lesinthy * liners_count)]->disconnect();
           MDwavecords1[i + (liners_count * lesinthy)]->connect();
           modulatecords1[i + (liners_count * lesinthy)]->connect();
-          //FMwaveforms1[i + (liners_count * lesinthy)]->begin(lesformes[letype]);     
+          //FMwaveforms1[i + (liners_count * lesinthy)]->begin(lesformes[letype]);
           waveforms1[i + (liners_count * lesinthy)]->begin(lesformes[letype]);
           if (letype == 7) {
             waveforms1[i + (liners_count * lesinthy)]->arbitraryWaveform(arbitrary_waveforms[lesinthy],1.0);
           }
           // LFO begin ffsake !!!
         }
-      } 
+      }
       else if (letype == 9) {
         // modulated drum
         for (int i = 0; i < liners_count; i++) {
@@ -1513,7 +1497,7 @@ void setwavetypefromlist(int lesinthy, int letype) {
           modulatecords1[i + (liners_count * lesinthy)]->connect();
           MDdrumcords1[i + (liners_count * lesinthy)]->connect();
         }
-      } 
+      }
       else if (letype == 10) {
         // modulated string
         for (int i = 0; i < liners_count; i++) {
@@ -1532,7 +1516,7 @@ void setwavetypefromlist(int lesinthy, int letype) {
 
     default:
     break;
-  }   
+  }
   // synth line off
   if (letype == 11) {
     mixlevelsL[lesinthy] = 0;

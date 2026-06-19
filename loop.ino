@@ -41,15 +41,12 @@ void check_pads() {
     PadResult pad_result = Pads.padloop();
   int paddered = arranged_buttons[pad_result.pad_result[0]][pad_result.pad_result[1]];
   cc_note_num = pot_assignements[11 + paddered] - 128;
-
-  // Serial.print(" received ");
-  // Serial.print(c_change);
-  // 36 is the cancel button, should not trigger another note or control.
+  // TODO: if multiplexed condition || 36 is the cancel button when in multiplexed mode, should not trigger another note or control.
   if ((pad_result.pad_result[2] == 1) && (paddered != 36)) {
     //inside pattern mode
     if (sublevels[0] == 4 && navlevel >=5 && sublevels[1] == 0) {
       if (paddered == 17) {
-       
+
         synth_partition[sublevels[2]][sublevels[5]][2] = (int)((Muxer.get_raw(6)/1024.0)*127);
         dm.lemenuroot();
       }
@@ -85,7 +82,7 @@ void check_pads() {
     //inside Set Knobs level 2: learn midi
     else if (sublevels[0] == 2 && navlevel == 2 && cc_note_num <= 0){
       learn_midi((byte)pot_assignements[11 + paddered]);
-    } 
+    }
     //inside waveform tracer
     else if ((sublevels[0] == 8) && (sublevels[1] == 4) && (navlevel == 2)) {
       if (paddered == 17) {
@@ -93,16 +90,9 @@ void check_pads() {
       }
     } else {
       if (cc_note_num <= 0) {MaControlChange(but_channel[11 + paddered],(byte)pot_assignements[11 + paddered], 64);
-      } 
+      }
       //normal note pad
       else {
-        /*Serial.println(" ");
-        Serial.print("paddered ");
-        Serial.print(paddered);
-        Serial.println(" ");
-        Serial.print("pot_assignements ([11+paddered])=");
-        Serial.print(cc_note_num);
-        */
         MaNoteOn(but_channel[11 + paddered], cc_note_num, but_velocity[11 + paddered]);
       }
     }
@@ -149,10 +139,10 @@ void loop() {
       pre_record = false ;
     }
   }
-  if ( rec_looping ) { 
+  if ( rec_looping ) {
     continue_looper();
-  } 
-  
+  }
+
   if (!blocked) {
     if (millis() % display_lag == 0) {
       if (noteprint) {
@@ -194,5 +184,5 @@ void printit() {
   Serial.print(sublevels[4]);
   Serial.print(" s5 = ");
   Serial.println(sublevels[5]);
-  
+
 }

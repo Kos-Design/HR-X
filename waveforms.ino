@@ -9,7 +9,7 @@ String get_wform_name(byte number) {
   char formatted_number[4] ;
   sprintf(formatted_number,"%02d",number);
   return "WFORM-" + (String)formatted_number ;
-} 
+}
 
 String get_current_waveform_path(){
   return "WAVEFORM/" + wforms_names[0] + ".TXT";
@@ -21,12 +21,12 @@ void refresh_wforms_names() {
     wforms_names[i] = " ";
     if (wforms_names_offset+i < wforms_count ) {
       wforms_names[i] = get_wform_name(wforms_indexes[wforms_names_offset+i]);
-    } else if (wforms_count >= wfn_size ){ 
-      wforms_names[i] = get_wform_name(wforms_indexes[((wforms_names_offset+i)%wforms_count) ]); 
-    } 
+    } else if (wforms_count >= wfn_size ){
+      wforms_names[i] = get_wform_name(wforms_indexes[((wforms_names_offset+i)%wforms_count) ]);
+    }
   }
 }
-          
+
 void list_wforms_files() {
   wforms_count = 0;
   String wforms_dir = "WAVEFORM/";
@@ -127,15 +127,20 @@ void WaveformsmenuBG() {
       default:
         break;
     }
-    returntonav(1,6);
+    //if (sublevels[1] != 4){
+      returntonav(1,6);
+    //}
     displaywaveformsmenu();
   }
 }
 
+int cw_change = 64;
+int w_cursor_y = 32;
+
 void WaveformEditer() {
-  int cw_change = 0;
+  //TODO:interpolate every 2 to smooth 128px range and speedup h-scrolling
   int vc_change;
-  int w_cursor_y = 32;
+  
   int16_t y1;
   int16_t y2;
   navrange = 256;
@@ -145,12 +150,13 @@ void WaveformEditer() {
   canvastitle.setCursor(0, 0);
   // draw cursor
   vc_change = Muxer.read_val(6);
+  
   if (vc_change > 0) {
     cw_change = vc_change;
-    w_cursor_y = map(cw_change, 0, 1024, 64, 0);
+    w_cursor_y = 64 - map(cw_change, 0, 128, 0, 64);
   }
   if (trace_waveform && navlevel >= 2) {
-    arbitrary_waveforms[waveformIndex][sublevels[2]] = map(cw_change, 0, 1024, -32768, 32767);
+    arbitrary_waveforms[waveformIndex][sublevels[2]] = map(cw_change, 0, 128, -32768, 32767);
   }
   canvasBIG.drawCircle(w_cursor_x, w_cursor_y, 2, SSD1306_WHITE);
   for (int i = 0; i < 128; i++) {
@@ -169,7 +175,6 @@ void dolistwaveformsmenu() {
   byte startx = 5;
   byte starty = 16;
   char *textin = (char *)waveformsmenulabels[sublevels[1]];
-  // Serial.println(textin);
   canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setCursor(0, 0);
   canvastitle.setTextSize(2);
@@ -202,8 +207,6 @@ void writewaveform() {
     waveform_file = SD.open(selected_waveform.c_str(), FILE_WRITE);
   }
   if (waveform_file) {
-    Serial.print("Writing to ");
-    Serial.println(waveform_file.name());
     writewaveforms(waveform_file);
     waveform_file.close();
   }
@@ -228,7 +231,7 @@ void dolistofwaveforms() {
   canvastitle.setTextSize(1);
   canvasBIG.setTextSize(1);
   canvasBIG.fillScreen(SSD1306_BLACK);
-    
+
   if (sublevels[2] == wforms_count) {
     //if cursor is on new(), the wfn_size-1 elements are displayed below.
     for (int i = 0; i < wfn_size-1; i++) {
@@ -247,7 +250,6 @@ void dolistofwaveforms() {
 void setwaveformsnavrange() {
   if (wforms_count < 2) {
     navrange = 2;
-    // Serial.println("SOMETHING IS WRONG");
   } else {
     navrange = max(wforms_count - 1, 0);
   }
@@ -255,11 +257,6 @@ void setwaveformsnavrange() {
 
 void writewaveforms(File &filer) {
   size_t writtenBytes = filer.write((byte *)arbitrary_waveforms[waveformIndex], sizeof(arbitrary_waveforms[waveformIndex]));
-  if (writtenBytes != sizeof(arbitrary_waveforms[waveformIndex])) {
-    Serial.println("Error while writing waveform data to file");
-  } else {
-    Serial.println("Waveform data written to file.");
-  }
 }
 
 void readwaveform() { parsewaveformfile(sublevels[2]); }
@@ -293,13 +290,5 @@ void deletewaveform() {
 void parsewaveformfile(int presetn) {
   File target_waveform = SD.open(get_current_waveform_path().c_str(), FILE_READ);
   size_t readBytes = target_waveform.read((byte *)arbitrary_waveforms[waveformIndex], sizeof(arbitrary_waveforms[waveformIndex]));
-  if (readBytes != sizeof(arbitrary_waveforms[waveformIndex])) {
-    Serial.println("Failed to read complete waveform data");
-  } else {
-    Serial.println("Waveform data read from file:");
-    for (int i = 0; i < 256; i++) {
-      Serial.println(arbitrary_waveforms[waveformIndex][i]);
-    }
-  }
   target_waveform.close();
 }

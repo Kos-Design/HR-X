@@ -60,11 +60,9 @@ bool Pads::get_back() {
 int Pads::check_cancel_pad(char bitter, bool state) {
   if (bitter == 'L') {
     if (state) {
-      // Serial.println("back pressed");
       back_pressed = true;
       return 0;
     }
-    // else { Serial.println("back released");}
   }
   return 0;
 }

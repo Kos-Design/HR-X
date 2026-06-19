@@ -13,7 +13,6 @@ void unplugsynth() {
     MDwavecords1[i]->disconnect();
     wavelinescords[i]->disconnect();
   }
-  // Serial.println("unplugcalled");
 }
 
 void unplugfx() {
@@ -48,7 +47,7 @@ void setup() {
   initextmems();
   // setupmemtest();
   Serial.begin(9600);
-  
+
   initializeconsolemsg();
   dm.setupscreen();
   pseudoconsole((char *)"initializing...");
@@ -83,7 +82,6 @@ void setup() {
   pseudoconsole((char *)"Loading Defaults");
   stopticker();
   setupdefaultvalues();
-  Serial.println("done3");
   Doautoassign();
   pseudoconsole((char *)"All Done !");
   pseudoconsole((char *)"starting muxer");

@@ -1,6 +1,4 @@
 
-
-
 void dodisplay() {
   display.drawBitmap(0, 0, canvasBIG.getBuffer(), 128, 64, SSD1306_WHITE);
   display.drawBitmap(0, 0, canvastitle.getBuffer(), 128, 16, SSD1306_WHITE);
@@ -86,6 +84,15 @@ void setleconsolemsg(int consoleline, char *lemsg) {
   for (int i = 0; i < 32; i++) {
     consolemsg[consoleline][i] = lemsg[i];
   }
+}
+
+void printnoteon(byte channel, byte data1, byte data2) {
+  Serial.print("Note On, ch=");
+  Serial.print(channel);
+  Serial.print(", note=");
+  Serial.print(data1);
+  Serial.print(", velocity=");
+  Serial.println(data2);
 }
 
 void print_memory_usage(){

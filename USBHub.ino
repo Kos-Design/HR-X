@@ -22,27 +22,11 @@ void loopusbHub() {
     //}
 
   //}
-  
-  //TODO: make devices selector
-  //
-  //if (midi1) {
-  //  Serial.printf("midi1 VID=%04X PID=%04X\n",
-  //                midi1.idVendor(),
-  //                midi1.idProduct());
-  //  }
-  //
-  //  if (midi2) {
-  //     Serial.printf("midi2 VID=%04X PID=%04X\n",
-  //                   midi2.idVendor(),
-  //                   midi2.idProduct());
-  //}
-
   // need to handle MidiUSB.read() for msgs from pc or front usb
   midiEventPacket_t rx;
   do {
     rx = MidiUSB.read();
     if (rx.header != 0) {
-      //Serial.println(rx.header);
       switch(rx.header){
         case 8:
           MaNoteOn(rx.byte1,rx.byte2,rx.byte3);
@@ -63,21 +47,6 @@ void loopusbHub() {
         default:
         break;
       }
-      /*
-      Serial.print("Received: ");
-      byte m_status = (rx.header, HEX) ;
-      byte m_messageType = m_status & 0xF0;  // Extract the message type (upper nibble)
-      Serial.print(" ");
-      byte m_channel = (rx.byte1, HEX) & 0x0F;
-      Serial.print(rx.header);
-      Serial.print(" ");
-      Serial.print(m_channel);
-      Serial.print(" ");
-      Serial.print("-");
-      Serial.print(rx.byte2);
-      Serial.print("-");
-      Serial.println(rx.byte3);
-      */
     }
   } while (rx.header != 0);
 
