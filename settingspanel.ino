@@ -643,10 +643,13 @@ void displaysettingspanel() {
         break;
 
       case 6:
-        navrange = 190;
-        millitickinterval = sublevels[2] + 60;
-        setbpms();
+        navrange = 620;
+        millitickinterval = sublevels[2];
+        //setbpms();
         if (navlevel >= 3) {
+          millitickinterval = sublevels[2];
+          setbpms();
+          //tempo = millitickinterval;
           returntonav(1,13,6);
         }
         break;
@@ -808,13 +811,13 @@ void makesettingslist() {
   }
   if (sublevels[1] == 6) {
     canvastitle.setCursor(96, 0);
-    canvastitle.println(BPMs, 1);
-    sublevels[2] = millitickinterval;
+    //canvastitle.println(BPMs, 1);
+    canvastitle.println(15000 / millitickinterval, 1);
+    if (navlevel <= 2) {
+      sublevels[2] = millitickinterval;
+    }
   }
   if (sublevels[1] == 7) {
-    // canvastitle.setCursor(96,0);
-    // canvastitle.println(BPMs,1);
-
     sublevels[2] = lasetchord;
     canvasBIG.setTextSize(1);
     canvasBIG.setCursor(66, 0);

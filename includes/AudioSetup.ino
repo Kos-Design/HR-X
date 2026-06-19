@@ -3,6 +3,7 @@
 #include <SPI.h>
 #include <SerialFlash.h>
 #include <Wire.h>
+//#include "../octave_down.h"
 
 // GUItool: begin automatically generated code
 EXTMEM AudioSynthWaveform       LFOrm2;         //xy=156.88333129882812,1057.9999694824219
@@ -142,12 +143,12 @@ EXTMEM AudioAmplifier           wavePAmp2;      //xy=1746.8833312988281,964
 EXTMEM AudioAmplifier           wavePAmp3;      //xy=1751.8833312988281,1079
 EXTMEM AudioAmplifier           fade4;          //xy=1770.8833312988281,1288
 EXTMEM AudioAmplifier           wavePAmp4;      //xy=1783.8833312988281,1250
-AudioFilterStateVariable filter303L6;    //xy=1851.5500106811523,1380.0001640319824
-AudioFilterStateVariable filter303L1;    //xy=1880.8833312988281,716
-AudioFilterStateVariable filter303L2;    //xy=1889.8833312988281,845
-AudioFilterStateVariable filter303L3;    //xy=1894.8833312988281,969
-AudioFilterStateVariable filter303L4;    //xy=1905.8833312988281,1093
-AudioFilterStateVariable filter303L5;    //xy=1935.8833312988281,1261
+EXTMEM AudioFilterStateVariable filter303L6;    //xy=1851.5500106811523,1380.0001640319824
+EXTMEM AudioFilterStateVariable filter303L1;    //xy=1880.8833312988281,716
+EXTMEM AudioFilterStateVariable filter303L2;    //xy=1889.8833312988281,845
+EXTMEM AudioFilterStateVariable filter303L3;    //xy=1894.8833312988281,969
+EXTMEM AudioFilterStateVariable filter303L4;    //xy=1905.8833312988281,1093
+EXTMEM AudioFilterStateVariable filter303L5;    //xy=1935.8833312988281,1261
 EXTMEM AudioMixer4              flashmix1;      //xy=1945.8833312988281,83
 EXTMEM AudioMixer4              flashmix2;      //xy=1946.8833312988281,239
 EXTMEM AudioMixer4              flashmix3;      //xy=1947.8833312988281,396
@@ -191,13 +192,13 @@ EXTMEM AudioEffectChorus        chorus1;        //xy=2941.883331298828,1080
 EXTMEM AudioFilterBiquad        biquad1;        //xy=2942.883331298828,1128
 EXTMEM AudioEffectGranular      granular1;      //xy=2949.883331298828,923
 EXTMEM AudioMixer4              MasterL1;       //xy=2955.88330078125,459
-AudioEffectReverb      freeverbs1;     //xy=2954.883331298828,881
+EXTMEM AudioEffectReverb      freeverbs1;     //xy=2954.883331298828,881
 EXTMEM AudioMixer4              MasterR1;       //xy=2963.88330078125,553
 EXTMEM AudioEffectGranular      granular2;      //xy=3081.883331298828,926
 EXTMEM AudioEffectBitcrusher    bitcrusher2;    //xy=3081.883331298828,996
 EXTMEM AudioEffectFlange        flange2;        //xy=3086.883331298828,1050
 EXTMEM AudioEffectChorus        chorus2;        //xy=3090.883331298828,1094
-AudioEffectReverb      freeverbs2;     //xy=3095.883331298828,872
+EXTMEM AudioEffectReverb      freeverbs2;     //xy=3095.883331298828,872
 EXTMEM AudioFilterBiquad        biquad2;        //xy=3097.883331298828,1141
 EXTMEM AudioFilterStateVariable filter3;        //xy=3098.883331298828,1366
 EXTMEM AudioFilterStateVariable filter1;        //xy=3100.883331298828,1223
@@ -209,7 +210,7 @@ EXTMEM AudioEffectFlange        flange3;        //xy=3231.883331298828,1048
 EXTMEM AudioEffectChorus        chorus3;        //xy=3234.883331298828,1091
 EXTMEM AudioFilterBiquad        biquad3;        //xy=3242.883331298828,1139
 EXTMEM AudioEffectBitcrusher    bitcrusher3;    //xy=3243.883331298828,996
-AudioEffectReverb      freeverbs3;     //xy=3244.883331298828,876
+EXTMEM AudioEffectReverb      freeverbs3;     //xy=3244.883331298828,876
 EXTMEM AudioMixer4              mixfilter1;     //xy=3256.883331298828,1229
 EXTMEM AudioMixer4              mixfilter3;     //xy=3261.883331298828,1366
 EXTMEM AudioMixer4              mixfilter2;     //xy=3263.883331298828,1297

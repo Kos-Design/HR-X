@@ -23,7 +23,7 @@ class SynthLiner {
       //to avoid bounces and midi panik !
       if (!enveloppesL[l_index]->isActive()){
         if (!tb303[l_index]) {
-          blink303[l_index]->RESET;
+          pulsers[l_index][0]=millis();
           tb303[l_index] = 1;
         }
         enveloppesL[l_index]->hold(millitickinterval - adsrlevels[3]);
@@ -1244,11 +1244,11 @@ void startticker() {
 }
 
 void setbpms() {
-  clocker.setBPM(BPMs);
+  
   //clocker.setDivision(4);
   //  BPMs = (60000.0/millitickinterval)/4.0 ;
-  //not sure where that 15k is from
-  BPMs = 15000.0 / millitickinterval;
+ 
+  BPMs = 15000 / millitickinterval;
   clocker.setBPM(BPMs);
 }
 

@@ -708,7 +708,7 @@ void displaysamplermenu() {
     default:
       break;
     }
-    // lemenuroot();
+    // dm.lemenuroot();
     dodisplay();
     display.display();
   }
@@ -877,7 +877,7 @@ void RemoveAllfromFlash() {
     Serial.print("  actual wait: ");
     Serial.print(elapsed / 1000ul);
     Serial.println(" seconds.");
-    lemenuroot();
+    dm.lemenuroot();
     }
   }
 }

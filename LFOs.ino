@@ -13,15 +13,11 @@ void displayLFOpanel(int lesynth) {
 }
 
 void LFOmenu() {
-  //  if (navlevel == 1) {
-  //  selectbox(500,170, wavesbg , (char*)"\0" );
-
-  //  dodisplay();
-  //  }
 
   if (navlevel == 1) {
+    navrange = synths_count-1;
     reinitsublevels(2);
-    navrange = synths_count - 1;
+
     LFOlineBG();
 
     switch (sublevels[1]) {
@@ -52,10 +48,7 @@ void LFOmenu() {
 
 void printLFObanner(int startx, int starty, int leLFO) {
   display.fillRect(startx, starty, 64, 24, SSD1306_INVERSE);
-  display.setTextSize(2);
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 0);
-  display.println("LFO ");
+  dm.printlabel((char*)"LFO ");
   display.setCursor(116, 0);
   display.print(leLFO);
   display.display();
@@ -344,7 +337,7 @@ void LFOlining(int leLFO) {
         }
         navlevel--;
         // Serial.println("back to menu");
-        lemenuroot();
+        dm.lemenuroot();
       }
     }
     // next -->
@@ -356,7 +349,7 @@ void LFOlining(int leLFO) {
           sublevels[1] = 0;
         }
         navlevel--;
-        lemenuroot();
+        dm.lemenuroot();
       }
     }
     LFOmenuBG(leLFO);

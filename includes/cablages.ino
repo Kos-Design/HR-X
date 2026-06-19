@@ -375,3 +375,10 @@ AudioMixer4 *les303wet[liners_count] = {&mixerWet303L1, &mixerWet303L2, &mixerWe
 
 AudioFilterStateVariable *les303filterz[liners_count] = {
     &filter303L1, &filter303L2, &filter303L3, &filter303L4, &filter303L5, &filter303L6};
+
+/*
+AudioEffectOctaveDown	 octavedown1;
+AudioConnection octowetL2(octavedown1, 0, WetMixMasterL, 2);
+AudioConnection octowetR2(octavedown1, 0, WetMixMasterR, 2);
+AudioConnection premixMtoOc(premixMaster, octavedown1);
+*/

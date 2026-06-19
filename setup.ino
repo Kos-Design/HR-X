@@ -50,7 +50,7 @@ void setup() {
   Serial.begin(9600);
   
   initializeconsolemsg();
-  setupscreen();
+  dm.setupscreen();
   pseudoconsole((char *)"initializing...");
   initializepatternonsong();
   //delay(100);
@@ -94,12 +94,19 @@ void setup() {
   audioShield.enable();
   audioShield.volume(1.0);
   set_in_source();
-  clocker.attach(advance_tick);
+  clocker.attach_24(advance_tick);
   clocker.setBPM(120);
   clocker.setPPQN(96);
   initdone = 1;
   pseudoconsole((char *)"Enjoy !");
-  //Serial.print("Device is plugged via usb: ");
-  //Serial.println(usb_configuration);
-}
+  attach_menus();
 
+}
+void attach_menus(){
+  void (*menus[])() = {
+    synthmenu,LFOmenu,knobassigner,displaySongmenu,route_pattern_menu,
+    displaysettingspanel,MainFxPanel,displaysamplermenu,displaywaveformsmenu,displaypresetmenu};
+  for (int i=0;i<10;i++){
+    dm.attach_synth_menus(i,menus[i]);
+  }
+}

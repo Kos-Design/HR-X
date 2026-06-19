@@ -625,10 +625,13 @@ void granular_pitch_shift(byte lefilter){
     }
     granularcontrols(lefilter);
     granular[lefilter]->beginPitchShift(legrainleng);
+    //octavedown1.begin(120.0, 33.0);
+    
   } else if(granular_freezing[lefilter]){
       granular_freeze(lefilter);
   } else {
     granular[lefilter]->stop();
+    //octavedown1.end();
   }
 }
 
@@ -1287,8 +1290,9 @@ void lfoonfilterreplug(byte lefilter) {
   unpluglfoonfilterz(lefilter);
   if (LFOonfilterz[lefilter] < synths_count) {
     LFOtoFilterz[((fxs_count * lefilter) + LFOonfilterz[lefilter])]->connect();
+    restartLFO(LFOonfilterz[lefilter]);
   }
-  //restart lfo maybe
+  
 }
 
 void unpluglfoonfilterz(byte lefilter) {
@@ -1703,3 +1707,4 @@ void allfxcontrolled() {
     }
   }
 }
+

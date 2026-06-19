@@ -26,7 +26,7 @@ void evalrota() {
   if (vraipos != oldvraipos) {
     oldvraipos = vraipos;
     sublevels[navlevel] = vraipos;
-    lemenuroot();
+    dm.lemenuroot();
 
     //printit();
   }
@@ -50,7 +50,7 @@ void evalinputs() {
       navlevel--;
     }
 
-    lemenuroot();
+    dm.lemenuroot();
     //printit();
   }
   if (clicked.fallingEdge()) {
@@ -58,7 +58,7 @@ void evalinputs() {
     vraipos = sublevels[navlevel];
     myEnc.write(sublevels[navlevel] * 4);
     printit();
-    lemenuroot();
+    dm.lemenuroot();
     printit();
   }
 }

@@ -915,7 +915,7 @@ void MaControlChange(byte channel, byte control, byte value) {
     recordCCmidinotes(channel, control, value);
   }
   if (!songplaying && !isignored && !debugmidion) {
-    lemenuroot();
+    dm.lemenuroot();
   }
 }
 

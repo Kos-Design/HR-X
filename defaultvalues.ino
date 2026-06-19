@@ -112,6 +112,10 @@ void setupdefaultvalues() {
     stopdelayline(i);
     delayCords[i]->disconnect(); 
   }
+  
+  //for (int i = 0; i < 256; i++) {
+    //  arbitrary_waveforms[0][i] = dreamWave[i];
+   // }
   //we begin these on fx asignement only
   /*
   chorus1.begin(chorusdelayline, CHORUS_DELAY_LENGTH, chorusvoices);

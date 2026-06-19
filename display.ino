@@ -1,17 +1,5 @@
 
-void setupscreen() {
 
-  if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-    Serial.println(F("Screen SSD1306 allocation failed"));
-    for (;;)
-      ; // Don't proceed, loop forever
-  }
-  display.display();
-  display.setCursor(0, 0);
-  display.setTextSize(1.5);
-  display.setTextColor(SSD1306_WHITE);
-  display.clearDisplay();
-}
 
 void dodisplay() {
   display.drawBitmap(0, 0, canvasBIG.getBuffer(), 128, 64, SSD1306_WHITE);
@@ -19,21 +7,6 @@ void dodisplay() {
   display.display();
 }
 
-void printlabel(char *toprint) {
-  display.setTextSize(2); // Draw 2X-scale text
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(0, 0);
-  display.println(toprint);
-}
-
-void displayleBGimg(const unsigned char *img) {
-  display.clearDisplay();
-  display.drawBitmap(0, 0, img, 128, 64, SSD1306_WHITE);
-}
-
-void selectbox(int posX, int posY) {
-  display.drawRoundRect(posX, posY, 21, 21, 3, SSD1306_WHITE);
-}
 
 void dodisplayplayhead() {
   canvasBIG.drawLine(tickposition * 4, 0, tickposition * 4, 64, SSD1306_INVERSE);

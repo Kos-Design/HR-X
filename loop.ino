@@ -19,22 +19,11 @@ void pseudo303() {
         stopglidenoteChords(i);
       }
     }
-
-   // if (!stoptick) {
-   //   checkall128cc();
-   // }
-
     if (tb303[i] == 1) {
-      //int letimerz303 = millis() - le303start[i];
-      //if (letimerz303 > le303pulsewidth) {
-
-      //blink303[i]->
-      ladiff1 = (blink303[i]->getTimeSinceLastReset() * 1.0 / le303pulsewidth);
-      ladiff2 = (blink303[i]->getTimeSinceLastReset() * 1.0 / le303pulsewidth2);
-
+      ladiff1 = ( (millis()-pulsers[i][0]) / (1.0*pulsers[i][1]));
+      ladiff2 = ladiff1 ;
       letbfreq = le303filterzrange + 50 - (le303filterzrange * (fxslopedown2(slope1, ladiff1)));
-      // AudioNoInterrupts();
-      if (blink303[i]->HAS_TRIGGERED){
+      if (millis()-pulsers[i][0]>pulsers[i][1]){
         tb303[i] = 0;
         letbfreq = 50 ;
         ladiff2 = 0 ;
@@ -42,7 +31,6 @@ void pseudo303() {
       les303filterz[i]->frequency(letbfreq);
 
       if (ladiff2 <= 1) {
-
         les303filterz[i]->resonance(0.1 + (le303filterzreso) * (fxslopedown2(slope2, ladiff2)));
       }
     }
@@ -63,7 +51,7 @@ void check_pads() {
       if (paddered == 17) {
        
         synth_partition[sublevels[2]][sublevels[5]][2] = (int)((Muxer.get_raw(6)/1024.0)*127);
-        lemenuroot();
+        dm.lemenuroot();
       }
     }
     //inside sample assigner

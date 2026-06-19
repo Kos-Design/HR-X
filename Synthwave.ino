@@ -255,7 +255,7 @@ void wavelinepanel(int synthi) {
         sublevels[2] = 2;
       }
       navlevel--;
-      lemenuroot();
+      dm.lemenuroot();
       break;
     case 7:
       // Serial.print("Next -->");
@@ -265,7 +265,7 @@ void wavelinepanel(int synthi) {
         sublevels[2] = 0;
       }
       navlevel--;
-      lemenuroot();
+      dm.lemenuroot();
       break;  
     default:
       break;
@@ -292,7 +292,7 @@ void wavelining(int startx, int starty, char *leprintlabel, int synthi) {
   if (navlevel >= 2) {
     if (navlevel == 2) {
       display.fillRect(startx, starty, 64, 24, SSD1306_INVERSE);
-      printlabel(leprintlabel);
+      dm.printlabel(leprintlabel);
       display.display();
     }
     if (navlevel >= 3) {
@@ -677,6 +677,7 @@ void dolistsyntmenu() {
 
 void synthmenu() {
   if (navlevel == 1) {
+    navrange = 4;           
     display.clearDisplay();
     reinitsublevels(2);
     dolistsyntmenu();
@@ -780,7 +781,8 @@ void setlepulse1() {
     le303pulsewidth = 50;
   }
   for (int i = 0; i < liners_count ; i++) {
-    blink303[i]->setDuration(le303pulsewidth); 
+    //blink303[i]->setDuration(le303pulsewidth);
+    pulsers[i][1]=le303pulsewidth; 
   }
 }
 

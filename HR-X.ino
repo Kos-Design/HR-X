@@ -39,9 +39,6 @@ bool avoid_fx_bounce = false;
 //Metro metro0 = Metro(millitickinterval);
 //Metro metro303 = Metro(25);
 //#include <IntervalTimer.h>
-
-#include <BlockNot.h>
-
 //freezes can't record
 //IntervalTimer metro1;
 //IntervalTimer metro3;
@@ -215,7 +212,7 @@ String newmkdirpath = "SOUNDSET/MABANK01" ;
 char newmksamplefullpath[32] = {"SOUNDSET/MABANK01/SAMPLE00.RAW"};
 
 #include "/home/kosmin/HR-X/includes/images.ino"
-#include "/home/kosmin/HR-X/includes/notestofrequency.ino"
+#include "/home/kosmin/HR-X/includes/notestofrequency_442.ino"
 #include "ParserLib.h"
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
@@ -229,13 +226,9 @@ const byte synths_count = 3;
 const int patternlines = 4;
 bool tb303[liners_count];
 long le303start[liners_count];
-BlockNot blink303_1(le303pulsewidth);
-BlockNot blink303_2(le303pulsewidth);
-BlockNot blink303_3(le303pulsewidth);
-BlockNot blink303_4(le303pulsewidth);
-BlockNot blink303_5(le303pulsewidth);
-BlockNot blink303_6(le303pulsewidth);
-BlockNot* blink303[liners_count] = {&blink303_1,&blink303_2,&blink303_3,&blink303_4,&blink303_5,&blink303_6};
+
+EXTMEM unsigned long pulsers[liners_count][2]= { {0,120}, {0,120}, {0,120},{0,120}, {0,120}, {0,120}};
+
 byte bufferLoop[512];
 // used in recording
 EXTMEM byte bufferL[512];
@@ -356,20 +349,13 @@ byte startx = 8;
 byte starty = 18;
 
 GFXcanvas1 canvasBIG(128, 64);
-//GFXcanvas1 canvasBIG2(128, 64);
+GFXcanvas1 canvastitle(128, 16);
 // SD on audio board
 #define SDCARD_CS_PIN 10
 #define SDCARD_MOSI_PIN 7
 #define SDCARD_SCK_PIN 14
-// idx tick cc,val
-
 short lefakeselector;
-// File rootsd;
 const int chipSelect = 10;
-int numTabs = 0;
-
-GFXcanvas1 canvastitle(128, 16);
-
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
@@ -392,12 +378,7 @@ GFXcanvas1 canvastitle(128, 16);
 File myMidiFile;
 int filecount;
 int keepcount;
-Bounce clicked = Bounce(32, 50);
-// Bounce Menub = Bounce( 29, 5 );
-// Bounce Backb = Bounce( 41, 5 );
-// Bounce buttonRecord = Bounce(34, 8);
-// Bounce buttonStop =   Bounce(35, 8);  // 8 = 8 ms debounce time
-// Bounce buttonPlay =  clicked;
+Bounce clicked = Bounce(32, 100);
 Encoder myEnc(30, 31);
 //placeholder
 #if MULTIPLEXED_PADS
@@ -407,11 +388,7 @@ Bounce Backb = Bounce( 33, 5 );
 #endif
 const unsigned int manyinputpins = 1;
 const int inputpins[manyinputpins] = {32};
-// which input on the audio shield will be used?
-const int myInput = AUDIO_INPUT_LINEIN;
-// rotary encoder
 int startingnoteline;
-
 int vraipos = 0;
 int oldvraipos = 0;
 int oldPosition = -999;
@@ -420,41 +397,7 @@ float notefrequency = 440.0;
 int newPosition = 0;
 int filelenght;
 bool selectedFileorDir;
-
-// char leselecteddir[99] = {"/"};
 float smallfloat;
-// short knobcontrolled[4] = {0,1,0,0} ;
-
-int16_t myCustomWaveform[256] = {
-    32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,
-    32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,
-    32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,
-    32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,
-    32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,
-    32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,
-    32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,
-    32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,
-    32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,
-    32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,
-    32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,
-    32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,
-    32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,
-    32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,  32767,
-    32767,  32767,  -32768, -32768, -32768, -32768, -32768, -32768, -32768,
-    -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768,
-    -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768,
-    -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768,
-    -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768,
-    -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768,
-    -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768,
-    -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768,
-    -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768,
-    -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768,
-    -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768,
-    -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768,
-    -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768,
-    -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768, -32768,
-    -32768, -32768, -32768, -32768};
 
 const int lesformes[9] PROGMEM = {
     WAVEFORM_SINE,     WAVEFORM_SAWTOOTH,          WAVEFORM_SAWTOOTH_REVERSE,
@@ -1054,39 +997,6 @@ AudioAmplifier *Wavespreamp303[liners_count] = {&wavePAmp0, &wavePAmp1, &wavePAm
 
 AudioSynthWaveform *LFOwaveforms1[synths_count] = {&LFOrm1, &LFOrm2, &LFOrm3};
 
-int16_t waveformed_sine[256] = {
-    0,     201,   402,   603,   804,   1005,  1206,  1406,  1607,  1808,  2008,
-    2209,  2409,  2609,  2809,  3009,  3209,  3409,  3608,  3808,  4007,  4206,
-    4405,  4603,  4802,  5000,  5199,  5397,  5594,  5792,  5989,  6186,  6383,
-    6580,  6776,  6972,  7168,  7363,  7559,  7753,  7948,  8142,  8336,  8529,
-    8722,  8915,  9107,  9299,  9490,  9681,  9871,  10061, 10251, 10440, 10628,
-    10817, 11004, 11191, 11378, 11564, 11750, 11935, 12119, 12303, 12487, 12670,
-    12852, 13034, 13215, 13396, 13576, 13755, 13934, 14112, 14290, 14467, 14643,
-    14819, 14994, 15168, 15342, 15515, 15687, 15859, 16030, 16200, 16370, 16539,
-    16707, 16875, 17042, 17208, 17374, 17539, 17703, 17867, 18029, 18191, 18353,
-    18513, 18673, 18832, 18990, 19148, 19304, 19460, 19615, 19770, 19923, 20076,
-    20228, 20380, 20530, 20680, 20829, 20977, 21124, 21270, 21416, 21560, 21704,
-    21847, 21989, 22131, 22271, 22411, 22549, 22687, 22824, 22960, 23095, 23229,
-    23362, 23494, 23626, 23756, 23886, 24014, 24142, 24268, 24394, 24518, 24642,
-    24765, 24887, 25007, 25127, 25245, 25363, 25479, 25595, 25709, 25823, 25935,
-    26047, 26157, 26266, 26375, 26482, 26589, 26694, 26798, 26901, 27004, 27105,
-    27205, 27304, 27402, 27499, 27595, 27689, 27783, 27876, 27967, 28058, 28147,
-    28236, 28323, 28409, 28494, 28578, 28660, 28742, 28823, 28902, 28980, 29057,
-    29133, 29208, 29281, 29354, 29425, 29495, 29564, 29632, 29699, 29764, 29828,
-    29891, 29953, 30014, 30074, 30132, 30189, 30245, 30299, 30353, 30405, 30456,
-    30506, 30554, 30601, 30647, 30691, 30735, 30777, 30818, 30857, 30896, 30933,
-    30968, 31003, 31036, 31068, 31098, 31127, 31155, 31182, 31207, 31231, 31253,
-    31275, 31294, 31313, 31330, 31346, 31361, 31374, 31386, 31397, 31406, 31414,
-    31420, 31426, 31430, 31433, 31434, 31435, 31434, 31432, 31428, 31423, 31417,
-    31409, 31400, 31389};
-
-void returntonav(byte lelevel, byte lanavrange = navrange,byte t_vraipos = vraipos) {
-  navlevel = lelevel;
-  vraipos = t_vraipos;
-  myEnc.write(vraipos * 4);
-  navrange = lanavrange;
-  lemenuroot();
-}
 
 class SequencerClocker : public AudioStream
 {
@@ -1104,14 +1014,14 @@ public:
         calculatePPQN();
     }
 
-    void attach(void (*cb)())
+    void attach_24(void (*cb)())
     {
-        _callback = cb;
+        _callback_24 = cb;
     }
 
-    void attach_96(void (*cb)())
+    void attach_6(void (*cb)())
     {
-        _callback_96 = cb;
+        _callback_6 = cb;
     }
 
     void attach_48(void (*cb)())
@@ -1119,9 +1029,9 @@ public:
         _callback_48 = cb;
     }
 
-    void attach_12(void (*cb)())
+    void attach_3(void (*cb)())
     {
-        _callback_12 = cb;
+        _callback_3 = cb;
     }
 
     virtual void update() override {
@@ -1132,25 +1042,26 @@ public:
             _sampleAccumulator -= _samplesPerTick;
 
             tick96++;
+            if (!stop) {
+                if ((tick96 % 6) == 0 && _callback_6){
+                    quarter++;
+                    _callback_6();
+                }
+                    
+                if ((tick96 % 48) == 0 && _callback_48){
+                    eighth++;
+                    _callback_48();
+                }
 
-            if (((tick96 % 96) == 0) && (_callback_96 && !stop)){
-                quarter++;
-                _callback_96();
-            }
+                if ((tick96 % 24) == 0 && _callback_24){
+                    sixteenth++;
+                    _callback_24();
+                }
                 
-            if (((tick96 % 48) == 0) && (_callback_48 && !stop)){
-                eighth++;
-                _callback_48();
-            }
-
-            if (((tick96 % 24) == 0) && (_callback && !stop)){
-                sixteenth++;
-                _callback();
-            }
-            //never stops
-            if (((tick96 % 12) == 0) && (_callback_12 )){
-                thirtySecond++;
-                _callback_12();
+                if ((tick96 % 3) == 0 && _callback_3){
+                    thirtySecond++;
+                    _callback_3();
+                }
             }
         }
     }
@@ -1167,12 +1078,6 @@ private:
             (_bpm * _PPQN);
     }
 
-    void calculateTiming() {
-        _samplesPerTick =
-            AUDIO_SAMPLE_RATE_EXACT *
-            60.0 /
-            (_bpm * _divisionsPerQuarter);
-    }
     volatile uint32_t tick96 = 0;
     volatile uint32_t quarter = 0;
     volatile uint32_t eighth = 0;
@@ -1184,10 +1089,10 @@ private:
     uint8_t _PPQN = 96 ;
     double _samplesPerTick = 0;
     double _sampleAccumulator = 0;
-    void (*_callback)() = nullptr;
-    void (*_callback_12)() = nullptr;
+    void (*_callback_24)() = nullptr;
+    void (*_callback_3)() = nullptr;
     void (*_callback_48)() = nullptr;
-    void (*_callback_96)() = nullptr;
+    void (*_callback_6)() = nullptr;
 };
 
 SequencerClocker clocker;
@@ -1207,5 +1112,93 @@ ClockSink sink;
 
 AudioConnection patchCord_sinker(clocker, 0, sink, 0);
 
-//these 2 last classes may be overkill but I wanted to try having a clock synched with audio samples
+//these 3 last classes may be overkill but I wanted to try having a clock synched with audio samples
 //maybe I was not using IntervalTimer the right way
+
+class DisplayManager{
+public:
+    DisplayManager() {}
+
+    bool ILI_128x64 = true;
+
+    void display_home()
+    {
+        if (ILI_128x64) {
+            Serial.println("ILI_128x64 detected");
+        }
+    }
+    void setupscreen(){
+        if (ILI_128x64) {
+            _setupscreen_ILI();
+        }
+    }
+
+    void lemenuroot() {_lemenuroot();}
+
+    void displayleBGimg(const unsigned char *img) {_displayleBGimg(img);}
+
+    void printlabel(char *toprint) {
+        display.setTextSize(2);
+        display.setTextColor(SSD1306_WHITE);
+        display.setCursor(0, 0);
+        display.println(toprint);
+    }
+
+    void displaymenu() {
+        char menus_lbl[10][11] = {"WaveSynth", "LFOs", "Set Knobs", "Song", "Pattern", "Settings",
+                       "MainFX", "Sampler", "Waveformer", "Presets"};
+        if (navlevel == 0) {
+            previousnavlevel = 0;
+            navrange = 9;
+            displayleBGimg(menuBG);
+        }
+        display.drawRoundRect(5 + (sublevels[0]%5)*24, 17+((sublevels[0]/5)*24), 21, 21, 3, SSD1306_WHITE);
+        printlabel(menus_lbl[sublevels[0]]);
+        display.display();
+    }
+    
+    void attach_synth_menus(uint8_t index, void (*cb)())
+    {
+        if (index < 10)
+            _synth_menus[index] = cb;
+    }
+
+private:
+
+    void _displayleBGimg(const unsigned char *img) {
+        display.clearDisplay();
+        display.drawBitmap(0, 0, img, 128, 64, SSD1306_WHITE);
+    }
+
+    void _lemenuroot() {
+        if (navlevel == 0) {
+            displaymenu();
+        }
+        if (navlevel > 0) {
+            _synth_menus[sublevels[0]]();    
+        }
+    }
+    
+    void _setupscreen_ILI() {
+
+        if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+            Serial.println(F("Screen SSD1306 allocation failed"));
+            return;
+        }
+        display.display();
+        display.setCursor(0, 0);
+        display.setTextSize(1.5);
+        display.setTextColor(SSD1306_WHITE);
+        display.clearDisplay();
+    }
+    void (*_synth_menus[10])() = {nullptr};
+};
+DisplayManager dm = DisplayManager();
+
+void returntonav(byte lelevel, byte lanavrange = navrange,byte t_vraipos = vraipos) {
+  navlevel = lelevel;
+  vraipos = t_vraipos;
+  myEnc.write(vraipos * 4);
+  navrange = lanavrange;
+  dm.lemenuroot();
+}
