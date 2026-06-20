@@ -56,6 +56,10 @@ int reson_pulse = 8;
 int le303pulsewidth =(int)((cutoff_pulse / 32.0) * 2 * millitickinterval + 50);
 int le303pulsewidth2 =(int)((reson_pulse / 32.0) * 2 * millitickinterval + 50);
 byte offsetliner;
+byte x_axis_cc = 17 ;
+byte y_axis_cc = 18 ;
+byte trace_wave_cc = 58 ;
+byte *valz[3]= {&x_axis_cc,&y_axis_cc,&trace_wave_cc};
 
 bool rec_looping;
 int tocker ;
@@ -159,7 +163,7 @@ bool demimalmode;
 bool addinglenght;
 EXTMEM char sampledirpath[99] = {"SOUNDSET/"};
 
-const byte truesizeofwaveformsmenulabels = 7;
+const byte truesizeofwaveformsmenulabels = 8;
 
 String newloopedpath = "SOUNDSET/REC/LOOP00#L.RAW";
 String newRecpathL = "SOUNDSET/REC/RECZ00#L.RAW";
@@ -411,6 +415,20 @@ byte waveformIndex = 0 ;
 int16_t arbitrary_waveforms[synths_count][256] ;
 
 byte lavalue;
+
+#define BLUR_W_MAX_RANGE 32
+
+static const uint8_t fake_gauss_kernel[17] = {
+      0,   2,   5,  11,
+     22,  40,  66, 100,
+    140, 185, 220, 240,
+    250, 253, 254, 255,
+    255
+};
+
+int cw_change = 64;
+int w_cursor_y = 32;
+int w_cursor_x = 0;
 
 const byte leschords[6][12][3] PROGMEM = {{{0, 4, 7},
                                            {1, 5, 8},
@@ -1202,3 +1220,16 @@ void returntonav(byte lelevel, byte lanavrange = navrange,byte t_vraipos = vraip
   navrange = lanavrange;
   dm.lemenuroot();
 }
+
+
+class SectionHolder{
+public:
+    SectionHolder() {}
+    //categories dict
+    bool ILI_128x64 = true;
+    typedef struct {int sublevels_address; int char_name; int depth;} Menu_Section;
+    typedef struct {int idx_order; int char_name; int depth;} Paged;
+    typedef struct {const char *key; int value;} DictEntry;
+    void home() {
+    }
+};

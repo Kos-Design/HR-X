@@ -54,27 +54,74 @@ void list_wforms_files() {
 void displaywaveformsmenu() {
   canvasBIG.fillScreen(SSD1306_BLACK);
   canvastitle.fillScreen(SSD1306_BLACK);
+  if (navlevel >= 2 && sublevels[1] == 7) {
+    WaveformParams();
+    return;
+  }
   WaveformsmenuBG();
   if (navlevel <= 1) {
-    navrange = 6;
+    navrange = truesizeofwaveformsmenulabels-1;
     dolistwaveformsmenu();
   } else if (navlevel > 1 && sublevels[1] != 4) {
     dolistwaveformsmenu();
   }
   dodisplay();
+  
+}
+
+
+void WaveformParams(){
+  
+  navrange = 2 ;
+  if (navlevel == 3 ){
+    navrange = 127;
+    Serial.println("sel");
+    *valz[sublevels[2]]=sublevels[3];
+  }
+  
+  sublevels[3]=*valz[sublevels[2]];
+  display.clearDisplay();
+  display.setCursor(0,0);
+  display.setTextSize(1);
+  //println adds new line each iteration!!!
+  display.print("Params");
+  display.println(" ");
+  display.println(" ");
+  display.print("X-Axis CC: ");
+  //17
+  display.print(x_axis_cc);
+  display.println(" ");
+  display.println(" ");
+  display.print("Y-Axis CC: ");
+  display.print(y_axis_cc);
+  //18
+  display.println(" ");
+  display.println(" ");
+  display.print("Tracenote: ");
+  display.print(trace_wave_cc);
+  //note 58
+  display.drawRoundRect(62,11+16*sublevels[2], 25, 16, 3, SSD1306_WHITE);
+  //display.drawRoundRect(62,11+16, 25, 16, 3, SSD1306_WHITE);
+  //display.drawRoundRect(62,11+16 +16, 25, 16, 3, SSD1306_WHITE);
+  display.display();
+  
+  if (navlevel > 3 ){
+    returntonav(2,2,sublevels[2]);
+  }
 }
 
 void WaveformsmenuBG() {
   display.clearDisplay();
   if (navlevel == 1 && sublevels[1] != 4) {
     reinitsublevels(2);
-    navrange = 6;
+    navrange = truesizeofwaveformsmenulabels-1;
     dolistofwaveforms();
   }
   if (navlevel >= 2 && sublevels[1] == 4) {
     WaveformEditer();
   }
-  if (navlevel > 1 && sublevels[1] < 4)  {
+  
+  if (navlevel > 1 && sublevels[1] < 4 )  {
     if (sublevels[1] == 0) {
       navrange = wforms_count;
     } else {
@@ -83,7 +130,8 @@ void WaveformsmenuBG() {
     dolistofwaveforms();
   }
   dodisplay();
-  if (navlevel >= 2 && sublevels[1] > 4) {
+  
+  if (navlevel >= 2 && sublevels[1] > 4 && sublevels[1] != 7) {
     switch (sublevels[1]) {
       case 5:
         waveformIndex ++;
@@ -103,7 +151,7 @@ void WaveformsmenuBG() {
     returntonav(1,6);
     displaywaveformsmenu();
   }
-  if (navlevel >= 3) {
+  if (navlevel >= 3 && sublevels[1] != 7) {
     switch (sublevels[1]) {
       case 0:
         writewaveform();
@@ -119,11 +167,19 @@ void WaveformsmenuBG() {
         break;
       case 4:
         WaveformEditer();
+        smooth_w_bounds();
         break;
       case 5:
+      //placeholder next
         break;
       case 6:
+      //placeholder prev
         break;
+      /* filtered in switch condition already
+      case 7:
+      //params
+        break;
+        */
       default:
         break;
     }
@@ -134,31 +190,109 @@ void WaveformsmenuBG() {
   }
 }
 
-int cw_change = 64;
-int w_cursor_y = 32;
+void set_y_cursor_value(byte la_val){
+  if (la_val > 0) {
+    cw_change = la_val;
+    w_cursor_y = 64 - map(cw_change, 0, 127, 0, 64);
+  }
+}
 
-void WaveformEditer() {
-  //TODO:interpolate every 2 to smooth 128px range and speedup h-scrolling
-  int vc_change;
-  
+void blur_w_graph_region(int16_t *arr, int index, uint8_t intensity) {
+    int range = (intensity / 255.0)*BLUR_W_MAX_RANGE;
+    int temp[2 * BLUR_W_MAX_RANGE + 1];
+
+    if (range > BLUR_W_MAX_RANGE)
+        range = BLUR_W_MAX_RANGE;
+
+    // Calculate blurred values
+    for (int d = -range; d <= range; d++)
+    {
+        int pos = index + d;
+
+        if ((unsigned)pos >= 256)
+            continue;
+
+        int64_t sum = 0;
+        uint32_t wsum = 0;
+
+        for (int k = -range; k <= range; k++)
+        {
+            int src = pos + k;
+
+            if ((unsigned)src >= 256)
+                continue;
+
+            int ak = k < 0 ? -k : k;
+            int ki = (ak * 16) / range;
+
+            uint32_t w = fake_gauss_kernel[16 - ki];
+
+            sum += (int64_t)arr[src] * w;
+            wsum += w;
+        }
+
+        temp[d + range] = (int)(sum / wsum);
+    }
+
+    // Blend back according to intensity
+    for (int d = -range; d <= range; d++)
+    {
+        int pos = index + d;
+
+        if ((unsigned)pos >= 256)
+            continue;
+
+        int blurred = temp[d + range];
+
+        arr[pos] +=
+            ((blurred - arr[pos]) * intensity) >> 8;
+    }
+}
+
+void blur_w_graph_boundary( int16_t *arr,int range) {
+  for (int i = 1; i < range; i++)  {
+      // 255 at edge, 0 at end of range
+      int pull = ((range - i) * 255) / range;
+
+      arr[i] -= (arr[i] * pull) >> 8;
+
+      int j = 255 - i;
+      arr[j] -= (arr[j] * pull) >> 8;
+  }
+  arr[0]   = 0;
+  arr[255] = 0;
+}
+
+void smooth_w_bounds(){
+  blur_w_graph_boundary(arbitrary_waveforms[waveformIndex], 32);
+}
+
+void smooth_w_graph(){
+  blur_w_graph_region(arbitrary_waveforms[waveformIndex], w_cursor_x, 64);
+}
+
+void set_array_at_cursor(int c_pos_w=w_cursor_x){
+  int w_graph_y = map(cw_change, 0, 127, -32768, 32767);
+  arbitrary_waveforms[waveformIndex][c_pos_w] = w_graph_y;
+  arbitrary_waveforms[waveformIndex][(c_pos_w-1)%256] = w_graph_y;
+  smooth_w_graph();
+}
+
+void set_x_cursor_value(byte la_val){
+  if (la_val > 0) {
+    w_cursor_x = map(la_val, 0, 127, 0, 255);
+  //arbitrary_waveforms[waveformIndex][w_cursor_x] = map(cw_change, 0, 127, -32768, 32767);
+  sublevels[2]=w_cursor_x;
+  vraipos = w_cursor_x;
+  myEnc.write(vraipos * 4);
+  set_array_at_cursor();
+
+ }
+}
+
+void draw_wave_graph(){
   int16_t y1;
   int16_t y2;
-  navrange = 256;
-  int w_cursor_x = sublevels[2] / 2;
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  // draw cursor
-  vc_change = Muxer.read_val(6);
-  
-  if (vc_change > 0) {
-    cw_change = vc_change;
-    w_cursor_y = 64 - map(cw_change, 0, 128, 0, 64);
-  }
-  if (trace_waveform && navlevel >= 2) {
-    arbitrary_waveforms[waveformIndex][sublevels[2]] = map(cw_change, 0, 128, -32768, 32767);
-  }
-  canvasBIG.drawCircle(w_cursor_x, w_cursor_y, 2, SSD1306_WHITE);
   for (int i = 0; i < 128; i++) {
     if ((i * 2) + 2 < 256) {
       y1 = map(arbitrary_waveforms[waveformIndex][i * 2], -32768, 32767, 63, 0);
@@ -166,12 +300,25 @@ void WaveformEditer() {
       canvasBIG.drawLine(i, y1, i + 1, y2, SSD1306_WHITE);
     }
   }
-  canvastitle.print(arbitrary_waveforms[waveformIndex][sublevels[2]]);
+}
+
+void WaveformEditer() {
+  navrange = 255;
+  canvastitle.fillScreen(SSD1306_BLACK);
+  canvasBIG.fillScreen(SSD1306_BLACK);
+  canvastitle.setCursor(0, 0);
+  if (trace_waveform && navlevel >= 2) {
+    w_cursor_x=sublevels[2];
+    set_array_at_cursor();
+  }
+  canvasBIG.drawCircle(sublevels[2]/2, w_cursor_y, 2, SSD1306_WHITE);
+  draw_wave_graph();
+  //canvastitle.print(arbitrary_waveforms[waveformIndex][sublevels[2]]);
 }
 
 void dolistwaveformsmenu() {
   char waveformsmenulabels[truesizeofwaveformsmenulabels][12] = {
-      "Save", "Load", "Copy", "Delete", "Edit", "-->", "<--"};
+      "Save", "Load", "Copy", "Delete", "Edit", "-->", "<--","Params"};
   byte startx = 5;
   byte starty = 16;
   char *textin = (char *)waveformsmenulabels[sublevels[1]];

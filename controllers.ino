@@ -335,7 +335,6 @@ void controlswitcher(int caser, int valu) {
       break;
     case 69:
       ccfxlineselector = map((int)(smallfloat*100.0),0,100,0,2);
-      //Serial.println(ccfxlineselector);
       break;
     case 70:
       chorusVknobs[ccfxlineselector] = round(smallfloat * 127.0);

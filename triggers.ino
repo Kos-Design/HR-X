@@ -861,6 +861,22 @@ void moncontrollercc(byte channel, byte control, byte value) {
     }
   }
 }
+
+void cc_edgecases(byte control, byte value){
+  if (sublevels[0] == 2 && navlevel == 2){
+    learn_midi(control);
+  }
+
+  if (sublevels[0] == 8 && navlevel == 2 && trace_waveform){
+    if (control == y_axis_cc ) {
+       set_y_cursor_value(value);
+    }
+    if (control == x_axis_cc ) {
+       set_x_cursor_value(value);
+    }
+  }
+}
+
 void MaControlChange(byte channel, byte control, byte value) {
   bool isignored = noCCrecordlist(control);
 
@@ -868,9 +884,7 @@ void MaControlChange(byte channel, byte control, byte value) {
     debugmidi((char *)("ControlChange"), channel, control, value);
   }
 
-  if (sublevels[0] == 2 && navlevel == 2){
-    learn_midi(control);
-  }
+  cc_edgecases(control, value);
   moncontrollercc(channel, control, value);
   if ((patrecord || recordCC) && !stoptick && !isignored) {
     recordCCmidinotes(channel, control, value);

@@ -85,7 +85,7 @@ void check_pads() {
     }
     //inside waveform tracer
     else if ((sublevels[0] == 8) && (sublevels[1] == 4) && (navlevel == 2)) {
-      if (paddered == 17) {
+      if (cc_note_num == trace_wave_cc) {
         trace_waveform = !trace_waveform;
       }
     } else {

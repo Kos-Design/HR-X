@@ -28,7 +28,7 @@ void evalrota() {
     sublevels[navlevel] = vraipos;
     dm.lemenuroot();
 
-    //printit();
+    printit();
   }
 }
 
@@ -57,6 +57,6 @@ void evalinputs() {
     vraipos = sublevels[navlevel];
     myEnc.write(sublevels[navlevel] * 4);
     dm.lemenuroot();
-    //printit();
+    printit();
   }
 }
