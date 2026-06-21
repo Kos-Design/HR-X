@@ -7,7 +7,7 @@ int songplayhead = 0;
 byte numberofpatonsong;
 
 bool songplaying;
-const byte truesizeofSongmenulabels = 8;
+
 const byte navSongmenu = 1;
 
 byte songs_indexes[99];
@@ -160,7 +160,8 @@ void shiftSongleft(int leshifter) {
   }
 }
 
-void doSongShifter(int shifter) {
+void doSongShifter() {
+  int shifter=sublevels[3];
   if (shifter - 16 > 0) {
     shiftSongleft(abs(shifter - 16));
   }
@@ -171,11 +172,7 @@ void doSongShifter(int shifter) {
 
 void showSongShifterdisplays() {
   navrange = 32;
-  display.clearDisplay();
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(2);
+  dm.clean_title_2();
   canvastitle.print("Shift Song");
   int latransposition;
   latransposition = 16 - sublevels[2];
@@ -193,9 +190,7 @@ void showSongShifterdisplays() {
 }
 
 void displaySongmenu() {
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
-  display.clearDisplay();
+  dm.clear_3();
   SongmenuAction();
   dodisplay();
 }
@@ -280,7 +275,7 @@ void SongmenuAction() {
 
         break;
       case 7:
-        doSongShifter(sublevels[3]);
+        doSongShifter();
 
         break;
 
@@ -465,8 +460,7 @@ void setpatterninsong() {
 
 void songmodetopbar() {
   display.clearDisplay();
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
+dm.clear_buffs();
   canvasBIG.setTextSize(1);
   drawtransport();
 }

@@ -1009,11 +1009,7 @@ void shiftnotes2left(int leshifter) {
 }
 
 void showtransposedisplays() {
-  display.clearDisplay();
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(2);
+  dm.clean_title_2();
   canvastitle.print((char *)optionspatternlabels[sublevels[2]]);
 
   int latransposition;
@@ -1043,11 +1039,7 @@ void doShiftersynth() {
 }
 
 void showShifterdisplays() {
-  display.clearDisplay();
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(2);
+  dm.clean_title_2();
   canvastitle.print((char *)optionspatternlabels[sublevels[2]]);
 
   int latransposition;
@@ -1066,11 +1058,7 @@ void showShifterdisplays() {
 }
 
 void showlestargetdisplays() {
-  display.clearDisplay();
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(2);
+  dm.clean_title_2();
   canvastitle.print((char *)optionspatternlabels[sublevels[2]]);
 
   int latransposition;
@@ -1135,11 +1123,7 @@ void showlestargetdisplays() {
 }
 
 void optionspatterndisplays() {
-  display.clearDisplay();
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(2);
+  dm.clean_title_2();
   canvastitle.print((char *)optionspatternlabels[sublevels[2]]);
   if (sublevels[2] == 4) {
     canvasBIG.setCursor(0, 16);

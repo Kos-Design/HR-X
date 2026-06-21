@@ -64,12 +64,8 @@ void dolistMainFxPanel() {
   byte startx = 5;
   byte starty = 16;
   char *textin = (char *)mainmenufxlist[sublevels[navlevel]];
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(2);
+  dm.clear_buffs_2_1();
   canvastitle.println(textin);
-  canvasBIG.setTextSize(1);
-  canvasBIG.fillScreen(SSD1306_BLACK);
 
   for (int filer = 0; filer < navrange - (sublevels[navlevel]); filer++) {
     canvasBIG.setCursor(startx, starty + (filer*10));
@@ -92,13 +88,8 @@ void dolistmainfxlines() {
   } else {
     textin = (String)mainfxlineslist[sublevels[1]];
   }
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(2);
+  dm.clear_buffs_2_1();
   canvastitle.println(textin);
-  canvasBIG.setTextSize(1);
-  canvasBIG.fillScreen(SSD1306_BLACK);
-
   for (int i = 0; i < fxs_count - 1 - sublevels[1]; i++) {
     canvasBIG.setCursor(startx, starty + ((i)*10));
     if (fx[sublevels[1] + 1 + i]->plugged_fx_type != mainmenufxlistsize-1) {
@@ -425,11 +416,7 @@ void flangerVpanel(byte lefilter) {
   byte wbarwidth2 = 8;
   byte barsize;
   byte startlex2 = 67;
-  display.clearDisplay();
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
+      dm.clean_title_1();
   canvastitle.print("Flanger ");
   canvastitle.print(lefilter + 1);
   //  flangerVknobs[lefilter][0] ;
@@ -559,11 +546,7 @@ void chorusVpanel(byte lefilter) {
   byte wbarwidth2 = 8;
   byte barsize;
   byte startlex2 = 67;
-  display.clearDisplay();
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
+      dm.clean_title_1();
   canvastitle.print("Chorus ");
   canvastitle.print(lefilter + 1);
 
@@ -739,11 +722,7 @@ void granularVpanel(byte lefilter) {
   int legrainleng = map(granularVknobs[lefilter][0],0,127,1,GRANULAR_MEMORY_SIZE);
   float leratio = 0.125 + (map(granularVknobs[lefilter][1],0,127,0,7875)/1000.0);
 
-  display.clearDisplay();
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
+      dm.clean_title_1();
   canvastitle.print("Granular ");
   canvastitle.print(lefilter + 1);
   float grain_speed = granularVknobs[lefilter][1] / 127.0;
@@ -889,11 +868,7 @@ void bitcrusherVpanel(byte lefilter) {
   byte wbarwidth2 = 8;
   byte barsize;
   byte startlex2 = 67;
-  display.clearDisplay();
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
+      dm.clean_title_1();
   canvastitle.print("Bitcrusher ");
   canvastitle.print(lefilter + 1);
   float lesamperate = bitcrusherVknobs[lefilter][1] / 127.0;
@@ -1016,11 +991,7 @@ void reverbVpanel(byte lefilter) {
   byte wbarwidth2 = 8;
   byte barsize;
   byte startlex2 = 67;
-  display.clearDisplay();
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
+      dm.clean_title_1();
   canvastitle.print("Reverb ");
   canvastitle.print(lefilter + 1);
   //float ledamping = reverbVknobs[lefilter][1] / 127.0;
@@ -1144,11 +1115,7 @@ void delayVpanel(byte lefilter) {
   byte wbarwidth2 = 8;
   byte barsize;
   byte startlex2 = 67;
-  display.clearDisplay();
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
+      dm.clean_title_1();
   canvastitle.print("Delay ");
   canvastitle.print(lefilter + 1);
   float delaytime = delayVknobs[lefilter][0] / 127.0;
@@ -1315,11 +1282,7 @@ void filterVpanel(byte lefilter) {
   byte barsize;
   byte startlex2 = 67;
 
-  display.clearDisplay();
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
+      dm.clean_title_1();
   canvastitle.print("Filter ");
   canvastitle.print(lefilter + 1);
   canvastitle.setCursor(0, 8);
@@ -1526,11 +1489,7 @@ void biquadVpanel(byte lebiquad) {
   byte topwbarstart = 16 + 12;
   byte wbarwidth = 9;
   byte barsize = round((bqVpot[lebiquad][bqstage[lebiquad]][2] / 127.0) * (totbartall - 4));
-  display.clearDisplay();
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
+      dm.clean_title_1();
   canvastitle.print("Biquad ");
   canvastitle.print(lebiquad + 1);
   canvastitle.setCursor(107, 8);

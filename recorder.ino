@@ -24,9 +24,7 @@ byte getrecdir() {
 
 void displayRecmenu() {
   navrange = 4;
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
-  display.clearDisplay();
+  dm.clear_3();
 
   RecmenuAction();
 
@@ -267,8 +265,7 @@ void recordVpanelSelector() {
 void recordVpanel() {
   recordVpanelAction();
   display.clearDisplay();
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
+dm.clear_buffs();
   if (!recorderrecord) {
     canvasBIG.drawRoundRect(80, 16, 128 - 80, 20, 2, SSD1306_WHITE);
     canvasBIG.setTextColor(SSD1306_WHITE);

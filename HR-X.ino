@@ -31,6 +31,7 @@ int starttaptime;
 int numberoftaps;
 int tapstime[5] = {0};
 float tapaverage;
+const byte truesizeofSongmenulabels = 8;
 int millitickinterval = 115;
 //freeze, can't record wav
 //#include <MsTimer2.h>
@@ -1175,12 +1176,62 @@ public:
         display.display();
     }
 
-    void attach_synth_menus(uint8_t index, void (*cb)())
+    void attach_nav_zero(uint8_t index, void (*cb)())
     {
         if (index < 10)
-            _synth_menus[index] = cb;
+            _nav_zero[index] = cb;
+    }
+    void clear_buffs(){
+        canvasBIG.fillScreen(SSD1306_BLACK);
+        canvastitle.fillScreen(SSD1306_BLACK);
+    }
+    void clear_buffs_1_1(){
+        clear_buffs();
+        canvastitle.setCursor(0, 0);
+        canvastitle.setTextSize(1);
+        canvasBIG.setTextSize(1);
+    }
+    void clear_buffs_2_1(){
+        clear_buffs();
+        canvastitle.setCursor(0, 0);
+        canvastitle.setTextSize(2);
+        canvasBIG.setTextSize(1);
+    }
+    void clear_buffs_2_2(){
+        clear_buffs();
+        canvastitle.setCursor(0, 0);
+        canvastitle.setTextSize(2);
+        canvasBIG.setTextSize(2);
+    }
+    void clear_3(){
+        clear_buffs();
+        display.clearDisplay();
     }
 
+    void clean_title_2(){
+        clear_3();
+        canvastitle.setCursor(0, 0);
+        canvastitle.setTextSize(2);
+    }
+    void clean_title_2_1(){
+        clear_3();
+        canvastitle.setCursor(0, 0);
+        canvastitle.setTextSize(2);
+        canvasBIG.setTextSize(1);
+    }
+    void clean_title_2_2(){
+        clear_3();
+        canvastitle.setCursor(0, 0);
+        canvastitle.setTextSize(2);
+        canvasBIG.setTextSize(2);
+    }
+    void clean_title_1(){
+        clear_3();
+        canvastitle.setCursor(0, 0);
+        canvastitle.setTextSize(1);
+    }
+    //10 menu entries
+    void (*_nav_zero[10])() = {nullptr};
 private:
 
     void _displayleBGimg(const unsigned char *img) {
@@ -1193,7 +1244,7 @@ private:
             displaymenu();
         }
         if (navlevel > 0) {
-            _synth_menus[sublevels[0]]();
+            _nav_zero[sublevels[0]]();
         }
     }
 
@@ -1209,8 +1260,13 @@ private:
         display.setTextColor(SSD1306_WHITE);
         display.clearDisplay();
     }
-    void (*_synth_menus[10])() = {nullptr};
+
+
+    //10 methods dispatchin using sublevels zero context
+    void (*_nav_one[10])() = {nullptr};
+    void (**_nav[2])() = {_nav_zero,_nav_one};
 };
+
 DisplayManager dm = DisplayManager();
 
 void returntonav(byte lelevel, byte lanavrange = navrange,byte t_vraipos = vraipos) {
@@ -1221,15 +1277,256 @@ void returntonav(byte lelevel, byte lanavrange = navrange,byte t_vraipos = vraip
   dm.lemenuroot();
 }
 
+typedef struct {const char *key; int value;} MenuPager;
+
+// refresh display --> find context
+// context [pages lvl1] -> x10 pointers list of page drawers methods
+// --> or sub contextes
+// pages list
 
 class SectionHolder{
 public:
     SectionHolder() {}
-    //categories dict
-    bool ILI_128x64 = true;
-    typedef struct {int sublevels_address; int char_name; int depth;} Menu_Section;
-    typedef struct {int idx_order; int char_name; int depth;} Paged;
-    typedef struct {const char *key; int value;} DictEntry;
+    //categories can't do dicts, so lists of pointers placeholders §?...
+    //bool ILI_128x64 = true;
+    //typedef struct {int sublevels_address; int char_name; int depth;} Menu_Section;
+    //typedef struct {int idx_order; int char_name; int depth;} Paged;
+    //typedef struct {const char *key; int value;} DictEntry;
+    //const char *pages[]={};
     void home() {
+        if(_home){
+            this->_home();
+        }
     }
+    void set_home(void (*cb)())
+    {
+        this->_home = cb;
+    }
+
+private:
+
+void (*_home)() = nullptr;
 };
+
+class SynthMenuRouter{
+public:
+    SynthMenuRouter() {}
+
+    void show() {
+        if (_nav_synth[sublevels[1]]) {
+            _nav_synth[sublevels[1]]();
+        }
+    }
+
+    void attach_nav_synth(uint8_t index, void (*cb)())
+    {
+        if (index < 5)
+            _nav_synth[index] = cb;
+    }
+
+private:
+void (*_nav_synth[5])() = {nullptr};
+};
+
+SynthMenuRouter sn = SynthMenuRouter();
+
+class LFOMenuRouter{
+    public:
+        LFOMenuRouter() {}
+
+        void show() {
+            //(ka.*KnobAssigner::actions[0])();
+            (this->*LFOMenuRouter::_route_nav[navlevel-1])();
+        }
+
+        void route_navlevel_1(){
+            home();
+        }    
+        void route_navlevel_2(){
+            _lvl_2();
+
+            //LFOlining();
+        }
+        void route_navlevel_3(){
+            Serial.println("lfo3");        
+        }    
+        void route_navlevel_4(){
+            Serial.println("lfo4");
+        }
+
+        void printLFObanner(int startx, int starty, int leLFO) {
+            display.fillRect(startx, starty, 64, 24, SSD1306_INVERSE);
+            dm.printlabel((char*)"LFO ");
+            display.setCursor(116, 0);
+            display.print(leLFO);
+            display.display();
+        }
+
+        void LFOlineBG() {
+            display.clearDisplay();
+            display.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
+
+            display.display();
+        }
+
+        void home(){
+            navrange = synths_count-1;
+            //TODO:remove maybe
+            reinitsublevels(2);
+
+            LFOlineBG();
+
+            switch (sublevels[1]) {
+            case 0:
+            printLFObanner(0, 16, 1);
+            break;
+
+            case 1:
+            printLFObanner(64, 16, 2);
+            break;
+
+            case 2:
+            printLFObanner(0, 40, 3);
+            break;
+
+            case 3:
+            printLFObanner(64, 40, 4);
+            break;
+
+            default:
+            break;
+            }
+        }
+        void attach_nav_lfo(uint8_t index, void (*cb)())
+        {
+            if (index < 5)
+                _nav_lfo[index] = cb;
+        }
+        void attach_lvl_2(void (*cb)())
+        {
+            _lvl_2 = cb;
+        }
+    private:
+        using Action = void (LFOMenuRouter::*)();
+
+        static constexpr Action _route_nav[4] = {
+            &LFOMenuRouter::route_navlevel_1,
+            &LFOMenuRouter::route_navlevel_2,
+            &LFOMenuRouter::route_navlevel_3,
+            &LFOMenuRouter::route_navlevel_4
+        };
+
+        //static constexpr void (*_route_nav[4])() = {route_navlevel_1,route_navlevel_2,route_navlevel_3,route_navlevel_4};
+        void (*_nav_lfo[3])() = {nullptr};
+
+        void (*_lvl_2)() = nullptr;
+};
+/*
+class old_LFOMenuRouter{
+    public:
+        LFOMenuRouter() {}
+
+        void show() {
+            //(ka.*KnobAssigner::actions[0])();
+            (this->*LFOMenuRouter::_route_nav[navlevel-1])();
+        }
+
+        void route_navlevel_1(){
+            home();
+        }    
+        void route_navlevel_2(){
+            LFOMenuRouter::_nav_lfo[sublevels[1]]();
+        }
+        void route_navlevel_3(){
+            Serial.println("lfo3");        
+        }    
+        void route_navlevel_4(){
+            Serial.println("lfo4");
+        }
+
+        void printLFObanner(int startx, int starty, int leLFO) {
+            display.fillRect(startx, starty, 64, 24, SSD1306_INVERSE);
+            dm.printlabel((char*)"LFO ");
+            display.setCursor(116, 0);
+            display.print(leLFO);
+            display.display();
+        }
+
+        void LFOlineBG() {
+            display.clearDisplay();
+            display.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
+
+            display.display();
+        }
+
+        void home(){
+            navrange = synths_count-1;
+            //TODO:remove maybe
+            reinitsublevels(2);
+
+            LFOlineBG();
+
+            switch (sublevels[1]) {
+            case 0:
+            printLFObanner(0, 16, 1);
+            break;
+
+            case 1:
+            printLFObanner(64, 16, 2);
+            break;
+
+            case 2:
+            printLFObanner(0, 40, 3);
+            break;
+
+            case 3:
+            printLFObanner(64, 40, 4);
+            break;
+
+            default:
+            break;
+            }
+        }
+        void attach_nav_lfo(uint8_t index, void (*cb)())
+        {
+            if (index < 5)
+                _nav_lfo[index] = cb;
+        }
+
+    private:
+        using Action = void (LFOMenuRouter::*)();
+
+        static constexpr Action _route_nav[4] = {
+            &LFOMenuRouter::route_navlevel_1,
+            &LFOMenuRouter::route_navlevel_2,
+            &LFOMenuRouter::route_navlevel_3,
+            &LFOMenuRouter::route_navlevel_4
+        };
+
+        //static constexpr void (*_route_nav[4])() = {route_navlevel_1,route_navlevel_2,route_navlevel_3,route_navlevel_4};
+        void (*_nav_lfo[3])() = {nullptr};
+};
+*/
+LFOMenuRouter lf = LFOMenuRouter();
+
+class SongMenuRouter{
+public:
+    SongMenuRouter() {}
+
+    void show() {
+        if (_nav_song[sublevels[1]]) {
+            _nav_song[sublevels[1]]();
+        }
+    }
+
+    void attach_nav_songs_menu(uint8_t index, void (*cb)())
+    {
+        if (index < truesizeofSongmenulabels)
+            _nav_song[index] = cb;
+    }
+
+private:
+void (*_nav_song[truesizeofSongmenulabels])() = {nullptr};
+};
+
+SongMenuRouter sg = SongMenuRouter();

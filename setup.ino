@@ -25,6 +25,46 @@ void unplugfx() {
   }
 }
 
+void attach_menus(){
+  void (*menus[])() = {
+    synthmenu,call_lf,_ka.show,displaySongmenu,route_pattern_menu,
+    displaysettingspanel,MainFxPanel,displaysamplermenu,displaywaveformsmenu,displaypresetmenu};
+  for (int i=0;i<10;i++){
+    dm.attach_nav_zero(i,menus[i]);
+  }
+}
+
+void call_lf(){
+  //TODO: chack why Ihad to call it that way since I populate some pointers unlike static _ka.show
+  lf.show();
+}
+void attach_menus_synths(){
+  // wavesline_selector,showmixerwaves, displayadsrgraph, empty,le303filterVpanel,
+  void (*synther_menus[])() = {wavesline_selector,showmixerwaves, displayadsrgraph, nullptr,le303filterVpanel};
+  for (int i=0;i<5;i++){
+    sn.attach_nav_synth(i,synther_menus[i]);
+  }
+}
+
+void attach_lfo_menus(){
+  lf.attach_lvl_2(LFOlining);
+  /*
+  void (*lfo_menus[3])() = {LFOlining,LFOlining, LFOlining};
+  
+  for (int i=0;i<3;i++){
+    lf.attach_nav_lfo(i,lfo_menus[i]);
+  }
+  */
+}
+void attach_menus_songs(){
+  // wavesline_selector,showmixerwaves, displayadsrgraph, empty,le303filterVpanel,
+  //void (*nav_songs_menu[])() = {"Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params","showSongShifterdisplays"};
+  void (*nav_songs_menu_tmp[])() = {showSongShifterdisplays,showSongShifterdisplays, showSongShifterdisplays, showSongShifterdisplays, showSongShifterdisplays,showSongShifterdisplays,showSongShifterdisplays,showSongShifterdisplays};
+  for (int i=0;i<truesizeofSongmenulabels;i++){
+    sg.attach_nav_songs_menu(i,nav_songs_menu_tmp[i]);
+  }
+}
+
 void setup() {
 
   // pseudoconsole((char*)"initializing...");
@@ -98,13 +138,10 @@ void setup() {
   initdone = 1;
   pseudoconsole((char *)"Enjoy !");
   attach_menus();
+  attach_menus_synths();
+  attach_lfo_menus();
+  //knobsetter
+  //
+  attach_menus_songs();
+}
 
-}
-void attach_menus(){
-  void (*menus[])() = {
-    synthmenu,LFOmenu,knobassigner,displaySongmenu,route_pattern_menu,
-    displaysettingspanel,MainFxPanel,displaysamplermenu,displaywaveformsmenu,displaypresetmenu};
-  for (int i=0;i<10;i++){
-    dm.attach_synth_menus(i,menus[i]);
-  }
-}

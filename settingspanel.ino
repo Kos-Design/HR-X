@@ -238,7 +238,7 @@ void printlanote() {
     dodisplay();
   }
 }
-
+/*
 //TODO: implement in notespy
 void notefreqloop() {
   if (notefreq1.available()) {
@@ -247,6 +247,7 @@ void notefreqloop() {
     //  pseudoconsole("Note: %3.2f | Probability: %.2f\n", notep, probz);
   }
 }
+*/
 
 void arpegiatorVpanelAction() {
    if (navlevel == 3) {
@@ -376,11 +377,7 @@ void arpegiatorVpanel() {
   byte wbarwidth2 = 7;
   char lesarpegestype[arpeges_types][12] = {"Ionian",     "Dorian",  "Phrygian", "Lydian",
                                 "Mixolydian", "Aeolian", "Harmonic", "Locrian"};
-  display.clearDisplay();
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
+      dm.clean_title_1();
   canvastitle.print("Arpegiator ");
   if (arpegiatortype < arpeges_types) {
     canvastitle.print((char *)lesarpegestype[arpegiatortype]);
@@ -539,8 +536,7 @@ void OnBoardVpanel() {
 
   OnBoardVpanelAction();
   display.clearDisplay();
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
+dm.clear_buffs();
 
   // channel label
   canvasBIG.setCursor(8, 14);

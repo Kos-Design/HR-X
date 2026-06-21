@@ -52,8 +52,7 @@ void list_wforms_files() {
 }
 
 void displaywaveformsmenu() {
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
+dm.clear_buffs();
   if (navlevel >= 2 && sublevels[1] == 7) {
     WaveformParams();
     return;
@@ -403,7 +402,7 @@ void setwaveformsnavrange() {
 }
 
 void writewaveforms(File &filer) {
-  size_t writtenBytes = filer.write((byte *)arbitrary_waveforms[waveformIndex], sizeof(arbitrary_waveforms[waveformIndex]));
+  filer.write((byte *)arbitrary_waveforms[waveformIndex], sizeof(arbitrary_waveforms[waveformIndex]));
 }
 
 void readwaveform() { parsewaveformfile(sublevels[2]); }
@@ -436,6 +435,6 @@ void deletewaveform() {
 
 void parsewaveformfile(int presetn) {
   File target_waveform = SD.open(get_current_waveform_path().c_str(), FILE_READ);
-  size_t readBytes = target_waveform.read((byte *)arbitrary_waveforms[waveformIndex], sizeof(arbitrary_waveforms[waveformIndex]));
+  target_waveform.read((byte *)arbitrary_waveforms[waveformIndex], sizeof(arbitrary_waveforms[waveformIndex]));
   target_waveform.close();
 }

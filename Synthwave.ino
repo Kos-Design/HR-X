@@ -374,9 +374,7 @@ void displayadsrgraph() {
   dodisplay();
 
   // preparing for next display loop
-  canvastitle.fillScreen(SSD1306_BLACK);
-
-  canvasBIG.fillScreen(SSD1306_BLACK);
+  dm.clear_buffs();
 
   switch (sublevels[navleveloverwrite]) {
   case 0:
@@ -432,9 +430,7 @@ void displayadsrgraph() {
 
   dodisplay();
 
-  canvastitle.fillScreen(SSD1306_BLACK);
-
-  canvasBIG.fillScreen(SSD1306_BLACK);
+dm.clear_buffs();
 }
 
 void GlobalADSR() {
@@ -659,7 +655,29 @@ void dolistsyntmenu() {
     canvasBIG.println(synthmenulabels[i]);
   }
 }
-
+void wavesline_selector(){
+   if (navlevel == 2) {
+        navrange = synths_count-1;
+        wavelinesBG();
+        sublevels[3] = 0;
+      }
+      switch (sublevels[2]) {
+        case 0:
+          toprint = (char *)"Waveline 1";
+          wavelining(0, 16, toprint, sublevels[2]);
+          break;
+        case 1:
+          toprint = (char *)"Waveline 2";
+          wavelining(64, 16, toprint, sublevels[2]);
+          break;
+        case 2:
+          toprint = (char *)"Waveline 3";
+          wavelining(0, 40, toprint, sublevels[2]);
+          break;
+        default:
+          break;
+      }
+}
 void synthmenu() {
   if (navlevel == 1) {
     navrange = 4;
@@ -686,27 +704,7 @@ void synthmenu() {
   // waves menu
   if (sublevels[1] == 0) {
     if (navlevel >= 2) {
-      if (navlevel == 2) {
-        navrange = synths_count-1;
-        wavelinesBG();
-        sublevels[3] = 0;
-      }
-      switch (sublevels[2]) {
-        case 0:
-          toprint = (char *)"Waveline 1";
-          wavelining(0, 16, toprint, sublevels[2]);
-          break;
-        case 1:
-          toprint = (char *)"Waveline 2";
-          wavelining(64, 16, toprint, sublevels[2]);
-          break;
-        case 2:
-          toprint = (char *)"Waveline 3";
-          wavelining(0, 40, toprint, sublevels[2]);
-          break;
-        default:
-          break;
-      }
+     wavesline_selector();
     }
   }
   // mixer
@@ -887,11 +885,7 @@ void le303filterVpanel() {
   int wbarwidth2 = 8;
   int barsize;
   int startlex2 = 67;
-  display.clearDisplay();
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
+      dm.clean_title_1();
   canvastitle.print("303 ");
   canvastitle.setCursor(22, 0);
 

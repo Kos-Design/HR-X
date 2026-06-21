@@ -540,12 +540,8 @@ void dolistLoadSampleMenu() {
   int startx = 5;
   int starty = 16;
   char *textin = (char *)menuloadsample[sublevels[2]];
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
+  dm.clear_buffs_1_1();
   canvastitle.println(textin);
-  canvasBIG.setTextSize(1);
-  canvasBIG.fillScreen(SSD1306_BLACK);
   for (int i = 0; i < sizeofmenuloadsample - 1 - (sublevels[2]); i++) {
     canvasBIG.setCursor(startx, starty + ((i)*10));
     canvasBIG.println(menuloadsample[sublevels[2] + 1 + i]);
@@ -562,12 +558,8 @@ void dolistDelSampleMenu() {
   int startx = 5;
   int starty = 16;
   char *textin = (char *)menudelsample[sublevels[2]];
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
+    dm.clear_buffs_1_1();
   canvastitle.println(textin);
-  canvasBIG.setTextSize(1);
-  canvasBIG.fillScreen(SSD1306_BLACK);
   for (int i = 0; i < sizeofmenudelsample - 1 - (sublevels[2]); i++) {
     canvasBIG.setCursor(startx, starty + ((i)*10));
     canvasBIG.println(menudelsample[sublevels[2] + 1 + i]);
@@ -585,12 +577,8 @@ void dolistAssignSampleMenu() {
   int startx = 5;
   int starty = 16;
   char *textin = (char *)menuassignsample[sublevels[2]];
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
+    dm.clear_buffs_1_1();
   canvastitle.println(textin);
-  canvasBIG.setTextSize(1);
-  canvasBIG.fillScreen(SSD1306_BLACK);
   for (int i = 0; i < sizeofmenuassignsample - 1 - (sublevels[2]); i++) {
     canvasBIG.setCursor(startx, starty + ((i)*10));
     canvasBIG.println(menuassignsample[sublevels[2] + 1 + i]);
@@ -1059,7 +1047,7 @@ void getavailablespace() {
     }
   }
   lefile.close();
-  float freespace = ((laspace / 16777216.0) * 100);
+  //float freespace = ((laspace / 16777216.0) * 100);
 
 }
 

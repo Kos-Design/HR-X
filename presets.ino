@@ -48,8 +48,7 @@ void list_presets_files() {
 void displaypresetmenu() {
 
   navrange = 4;
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.fillScreen(SSD1306_BLACK);
+dm.clear_buffs();
 
   presetmenuBG();
   dolistpresetsmenu();

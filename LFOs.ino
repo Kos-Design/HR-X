@@ -4,7 +4,8 @@ void displayLFOpanel(int lesynth) {
   sublevels[2] = 0;
   navrange = sizeofLFOlabels - 1;
   navlevel = 2;
-  LFOlining(lesynth);
+  dm._nav_zero[sublevels[0]]();
+  //LFOlining();
   // type
   // amplitude
   // offset
@@ -12,60 +13,10 @@ void displayLFOpanel(int lesynth) {
   // sync
 }
 
-void LFOmenu() {
-
-  if (navlevel == 1) {
-    navrange = synths_count-1;
-    reinitsublevels(2);
-
-    LFOlineBG();
-
-    switch (sublevels[1]) {
-    case 0:
-      printLFObanner(0, 16, 1);
-      break;
-
-    case 1:
-      printLFObanner(64, 16, 2);
-      break;
-
-    case 2:
-      printLFObanner(0, 40, 3);
-      break;
-
-    case 3:
-      printLFObanner(64, 40, 4);
-      break;
-
-    default:
-      break;
-    }
-  }
-  if (navlevel > 1) {
-    LFOlining(sublevels[1]);
-  }
-}
-
-void printLFObanner(int startx, int starty, int leLFO) {
-  display.fillRect(startx, starty, 64, 24, SSD1306_INVERSE);
-  dm.printlabel((char*)"LFO ");
-  display.setCursor(116, 0);
-  display.print(leLFO);
-  display.display();
-}
-
-void LFOlineBG() {
-  display.clearDisplay();
-  display.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
-
-  display.display();
-}
-
 void LFOmenuBG(int leLFO) {
-  canvasBIG.setTextSize(1); // Draw 2X-scale text
+  canvasBIG.setTextSize(1);
   canvasBIG.setCursor(122, 58);
   canvasBIG.print(leLFO + 1);
-  canvasBIG.setTextSize(1);
 }
 
 void applyLFOrmicon(int lesinthy) {
@@ -273,16 +224,12 @@ void dolistLFOparams() {
   int starty = 16;
   char *textin = (char *)LFOlabels[sublevels[2]];
 
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-
-  canvastitle.setTextSize(2);
-
+  dm.clean_title_2();
   canvastitle.println(textin);
 
   canvasBIG.setTextSize(1);
 
-  canvasBIG.fillScreen(SSD1306_BLACK);
+
 
   for (int filer = 0; filer < sizeofLFOlabels - 1 - (sublevels[2]); filer++) {
 
@@ -303,7 +250,8 @@ void doLFOallcontrols(byte leLFO) {
   LFOwaveforms1[leLFO]->offset((float)(((50.0 - LFOoffset[leLFO]) / 50.0)));
 }
 
-void LFOlining(int leLFO) {
+void LFOlining() {
+  int leLFO = sublevels[1];
   dolistLFOparams();
   if (navlevel >= LFOmenuroot) {
     navrange = sizeofLFOlabels - 1;
