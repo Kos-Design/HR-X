@@ -51,23 +51,25 @@ void list_wforms_files() {
   //refresh_wforms_names();
 }
 
-void displaywaveformsmenu() {
-dm.clear_buffs();
-  if (navlevel >= 2 && sublevels[1] == 7) {
-    WaveformParams();
-    return;
-  }
+void waveforms_nav_zero(){
+  dm.clear_buffs();
+  navrange = truesizeofwaveformsmenulabels-1;
   WaveformsmenuBG();
-  if (navlevel <= 1) {
-    navrange = truesizeofwaveformsmenulabels-1;
-    dolistwaveformsmenu();
-  } else if (navlevel > 1 && sublevels[1] != 4) {
-    dolistwaveformsmenu();
-  }
+  dolistwaveformsmenu();
   dodisplay();
-  
 }
 
+void waveforms_nav_one(){
+  dm.clear_buffs();
+  if (sublevels[1] == 0) {
+      navrange = wforms_count;
+    } else {
+      navrange = max(wforms_count - 1, 0);
+    }
+  WaveformsmenuBG();
+  dolistwaveformsmenu();
+  dodisplay();
+}
 
 void WaveformParams(){
   
@@ -147,8 +149,7 @@ void WaveformsmenuBG() {
       default:
       break;
     }
-    returntonav(1,6);
-    displaywaveformsmenu();
+    returntonav(1,6,sublevels[1]);
   }
   if (navlevel >= 3 && sublevels[1] != 7) {
     switch (sublevels[1]) {
@@ -182,10 +183,7 @@ void WaveformsmenuBG() {
       default:
         break;
     }
-    //if (sublevels[1] != 4){
-      returntonav(1,6);
-    //}
-    displaywaveformsmenu();
+    returntonav(1,6,sublevels[1]);
   }
 }
 
@@ -438,3 +436,61 @@ void parsewaveformfile(int presetn) {
   target_waveform.read((byte *)arbitrary_waveforms[waveformIndex], sizeof(arbitrary_waveforms[waveformIndex]));
   target_waveform.close();
 }
+
+class WaveformsMenuRouter : public SectionHolder {
+    public:
+       
+        WaveformsMenuRouter() {
+                    this->home_navrange=truesizeofwaveformsmenulabels-1;
+                    this->relative_navlevel=1;
+                    this->max_navlevel=5;
+                    this->sublevels_address={8,0,0};
+                    //home method not really used yet
+                    //this->set_home(call_fx_mainpanel);
+                    }
+
+        void show() {
+            (this->*WaveformsMenuRouter::_route_nav[navlevel-1])();
+        }
+        
+        void attach_nav_waveforms_menu(uint8_t index, void (*cb)())
+        {
+            if (index < truesizeofwaveformsmenulabels)
+                _nav_wforms[index] = cb;
+        }
+        void wf_home(){
+            dm.clear_buffs();
+            if (navlevel >= 2 && sublevels[1] == 7) {
+                WaveformParams();
+                return;
+            }
+            WaveformsmenuBG();
+            if (navlevel <= 1) {
+                navrange = truesizeofwaveformsmenulabels-1;
+                dolistwaveformsmenu();
+            } else if (navlevel > 1 && sublevels[1] != 4) {
+                dolistwaveformsmenu();
+            }
+            dodisplay();
+        }
+
+        void route_navlevel_1(){
+            waveforms_nav_zero();
+        }    
+        
+        void route_navlevel_2(){
+            if (_nav_wforms[sublevels[1]]) {
+                _nav_wforms[sublevels[1]]();
+            }
+        }
+
+        using Action = void (WaveformsMenuRouter::*)();
+        static constexpr Action _route_nav[5] = {&WaveformsMenuRouter::route_navlevel_1, &WaveformsMenuRouter::route_navlevel_2,
+        &WaveformsMenuRouter::route_navlevel_2, &WaveformsMenuRouter::route_navlevel_2, &WaveformsMenuRouter::route_navlevel_2};
+    private:
+        void (*_nav_wforms[truesizeofwaveformsmenulabels])() = {nullptr};
+        
+
+};
+
+WaveformsMenuRouter _wf = WaveformsMenuRouter();

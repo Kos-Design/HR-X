@@ -108,30 +108,6 @@ void dolistmainfxlines() {
   }
 }
 
-void MainFxPanel() {
-
-  if (navlevel == 1) {
-    reinitsublevels(2);
-    navrange = 2;
-    display.clearDisplay();
-    dolistmainfxlines();
-    dodisplay();
-    sublevels[2] = fx[sublevels[1]]->plugged_fx_type ;
-  }
-  if (navlevel == 2) {
-    avoid_fx_bounce = false ;
-    display.clearDisplay();
-    navrange = 9;
-    dolistMainFxPanel();
-    dodisplay();
-  }
-  if (navlevel > 2) {
-    //do once
-    fx[sublevels[1]]->route_fx(sublevels[2]);
-    displayfxVcontrols(sublevels[1]);
-  }
-}
-
 void biquadcontrols(byte lebiquad) {
   // AudioNoInterrupts();
 
@@ -1642,3 +1618,66 @@ void allfxcontrolled() {
   }
 }
 
+
+class FxMenuRouter : public SectionHolder {
+public:
+    FxMenuRouter() {
+                    this->home_navrange=2;
+                    this->relative_navlevel=1;
+                    this->max_navlevel=5;
+                    this->sublevels_address={6,0,0};
+                    //home method not really used yet
+                    this->set_home(call_fx_mainpanel);
+                    }
+
+    void show() {
+        if (_nav_song[sublevels[1]]) {
+            _nav_song[sublevels[1]]();
+        }
+    }
+    void fx_nav_zero(){
+      reinitsublevels(2);
+      navrange = this->home_navrange;
+      display.clearDisplay();
+      dolistmainfxlines();
+      dodisplay();
+      sublevels[2] = fx[sublevels[1]]->plugged_fx_type ;
+    }
+
+    void fx_nav_one(){
+      avoid_fx_bounce = false ;
+      display.clearDisplay();
+      navrange = 9;
+      dolistMainFxPanel();
+      dodisplay();
+    }
+
+    void fx_nav_two(){
+      fx[sublevels[1]]->route_fx(sublevels[2]);
+      displayfxVcontrols(sublevels[1]);
+    }
+
+    void MainFxPanel() {
+
+      if (navlevel == 1) {
+        fx_nav_zero();
+      }
+      if (navlevel == 2) {
+        fx_nav_one();
+      }
+      if (navlevel > 2) {
+        fx_nav_two();
+      }
+    }
+
+    void attach_nav_songs_menu(uint8_t index, void (*cb)())
+    {
+        if (index < truesizeofSongmenulabels)
+            _nav_song[index] = cb;
+    }
+
+private:
+void (*_nav_song[truesizeofSongmenulabels])() = {nullptr};
+};
+
+FxMenuRouter _fx = FxMenuRouter();

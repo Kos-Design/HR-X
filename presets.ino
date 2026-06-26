@@ -44,11 +44,9 @@ void list_presets_files() {
     preset_filer.close();
   }
 }
-
-void displaypresetmenu() {
-
-  navrange = 4;
-dm.clear_buffs();
+void presets_nav_zero(){
+  navrange = truesizeofpresetmenulabels-1;
+  dm.clear_buffs();
 
   presetmenuBG();
   dolistpresetsmenu();
@@ -59,7 +57,7 @@ void presetmenuBG() {
   display.clearDisplay();
   if (navlevel == 1) {
     reinitsublevels(2);
-    navrange = 4;
+    navrange = truesizeofpresetmenulabels-1;
   }
   
   if (navlevel > 1) {
@@ -104,7 +102,7 @@ void presetmenuBG() {
     default:
       break;
     }
-    displaypresetmenu();
+    returntonav(1,truesizeofpresetmenulabels-1,sublevels[1]);
   }
 }
 
@@ -670,7 +668,7 @@ void parsefile() {
 
   parser.Reset();
   preset_filer.close();
-  setbpms();
+  call_set_bpms();
   setlepulse1();
   setlepulse2();
   ApplyADSR();
@@ -720,3 +718,44 @@ void deletepreset() {
   }
   list_presets_files();
 }
+
+class PresetsMenuRouter : public SectionHolder {
+    public:
+        PresetsMenuRouter() {
+                    this->home_navrange=truesizeofpresetmenulabels-1;
+                    this->relative_navlevel=1;
+                    this->max_navlevel=5;
+                    this->sublevels_address={9,0,0};
+                    //home method not really used yet
+                    //this->set_home(call_fx_mainpanel);
+                    }
+
+        void route_navlevel_2(){
+            if (_nav_presets[sublevels[1]]) {
+                _nav_presets[sublevels[1]]();
+            }
+        }
+            
+        void show() {
+            (this->*PresetsMenuRouter::_route_nav[navlevel-1])();
+        }
+
+        void route_navlevel_1(){
+            presets_nav_zero();
+        } 
+
+        void attach_presets_menu(uint8_t index, void (*cb)())
+        {
+            if (index < truesizeofpresetmenulabels)
+                _nav_presets[index] = cb;
+        }
+
+        using Action = void (PresetsMenuRouter::*)();
+        static constexpr Action _route_nav[5] = {&PresetsMenuRouter::route_navlevel_1, &PresetsMenuRouter::route_navlevel_2,
+        &PresetsMenuRouter::route_navlevel_2, &PresetsMenuRouter::route_navlevel_2, &PresetsMenuRouter::route_navlevel_2};
+        
+    private:
+        void (*_nav_presets[truesizeofpresetmenulabels])() = {nullptr};
+};
+
+PresetsMenuRouter _ps = PresetsMenuRouter();

@@ -168,7 +168,7 @@ void samplerexplorer() {
     if (sublevels[2] != 0 && sublevels[2] != 1 && sublevels[3] == 0) {
       navlevel = 2;
       // refresh the menu
-      displaysamplermenu();
+      call_sp_show();
     }
 
     if (sublevels[2] == 1) {
@@ -253,7 +253,7 @@ void Flashsamplerexplorer() {
     if (sublevels[2] != 0 && sublevels[3] == 0) {
       navlevel = 2;
       // refresh the menu
-      displaysamplermenu();
+      call_sp_show();
     }
     if (sublevels[2] == 0) {
       if (Flashsamplesselected[sublevels[3]] == 0) {
@@ -588,110 +588,7 @@ void dolistAssignSampleMenu() {
     canvasBIG.println(menuassignsample[i]);
   }
 }
-void dolistsamplermenu() {
-  const int sizeofsamplerlabels = 5;
-  char samplerlabels[sizeofsamplerlabels][12] = {"Load", "Delete", "Assign",
-                                                 "Recorder", "Mixer"};
-  int startx = 5;
-  int starty = 16;
-  char *textin = (char *)samplerlabels[sublevels[1]];
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(2);
-  canvastitle.println(textin);
-  canvasBIG.setTextSize(1);
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  for (int i = 0; i < sizeofsamplerlabels - 1 - (sublevels[1]); i++) {
-    canvasBIG.setCursor(startx, starty + ((i)*10));
-    canvasBIG.println(samplerlabels[sublevels[1] + 1 + i]);
-  }
-  for (int i = 0; i < sublevels[1]; i++) {
-    canvasBIG.setCursor(startx, (10 * (sizeofsamplerlabels - sublevels[1]) + 6 + ((i)*10)));
-    canvasBIG.println(samplerlabels[i]);
-  }
-}
 
-void displaysamplermenu() {
-
-  if (navlevel == 1) {
-    reinitsublevels(2);
-    navrange = 4;
-    cellsizer = 4;
-    celltall = 8;
-    startx = 0;
-    starty = 17;
-    display.clearDisplay();
-    dolistsamplermenu();
-    dodisplay();
-
-    display.display();
-  }
-
-  if (navlevel == 2) {
-    display.clearDisplay();
-    switch (sublevels[1]) {
-
-    case 0:
-      navrange = 4 - 1;
-      dolistLoadSampleMenu();
-
-      break;
-
-    case 1:
-      // deletesamples menu
-      navrange = 4 - 1;
-      dolistDelSampleMenu();
-      break;
-
-    case 2:
-      // assign samples menu
-      navrange = 4 - 1;
-      dolistAssignSampleMenu();
-      break;
-    case 3:
-      // assign samples menu
-      navrange = 3;
-      displayRecmenu();
-      break;
-    case 4:
-      // assign samples menu
-      // navrange = 16;
-      smixerVpanel();
-      break;
-    default:
-      break;
-    }
-    dodisplay();
-    display.display();
-  }
-
-  if (navlevel >= 3) {
-    if (sublevels[1] == 0) {
-      display.clearDisplay();
-      samplerexplorer();
-    }
-    if (sublevels[1] == 1) {
-      display.clearDisplay();
-
-      Flashsamplerexplorer();
-    }
-    if (sublevels[1] == 2) {
-      display.clearDisplay();
-
-      Assingexplorer();
-    }
-    if (sublevels[1] == 3) {
-      display.clearDisplay();
-
-      displayRecmenu();
-    }
-    if (sublevels[1] == 4) {
-      // display.clearDisplay();
-
-      smixerVpanel();
-    }
-  }
-}
 
 void autoassignsamples() {
   Doautoassign();
@@ -1115,3 +1012,298 @@ void listsamplesassigner2() {
   canvasBIG.setCursor(0, 40);
   canvasBIG.println((char *)Flashsamplebase[sublevels[4]]);
 }
+class SamplerMenuRouter : public SectionHolder {
+    public:
+        SamplerMenuRouter() {
+                    this->home_navrange=sizeofsamplerlabels-1;
+                    this->relative_navlevel=1;
+                    this->max_navlevel=5;
+                    this->sublevels_address={7,0,0};
+                    //home method not really used yet
+                    //this->set_home(call_fx_mainpanel);
+                    }
+        void sampler_nav_two(){
+            if (sublevels[1] == 0) {
+                display.clearDisplay();
+                samplerexplorer();
+            }
+            if (sublevels[1] == 1) {
+                display.clearDisplay();
+
+                Flashsamplerexplorer();
+            }
+            if (sublevels[1] == 2) {
+                display.clearDisplay();
+
+                Assingexplorer();
+            }
+            if (sublevels[1] == 3) {
+                display.clearDisplay();
+
+                displayRecmenu();
+            }
+            if (sublevels[1] == 4) {
+                // display.clearDisplay();
+
+                smixerVpanel();
+            }
+        }
+
+        void sampler_nav_one(){
+            display.clearDisplay();
+            switch (sublevels[1]) {
+
+                case 0:
+                navrange = 4 - 1;
+                dolistLoadSampleMenu();
+
+                break;
+
+                case 1:
+                // deletesamples menu
+                navrange = 4 - 1;
+                dolistDelSampleMenu();
+                break;
+
+                case 2:
+                // assign samples menu
+                navrange = 4 - 1;
+                dolistAssignSampleMenu();
+                break;
+                case 3:
+                // assign samples menu
+                navrange = 3;
+                displayRecmenu();
+                break;
+                case 4:
+                // assign samples menu
+                // navrange = 16;
+                smixerVpanel();
+                break;
+                default:
+                break;
+            }
+            dodisplay();
+            //display.display();
+        }
+
+        void sampler_nav_zero(){
+            reinitsublevels(2);
+            navrange = 4;
+            cellsizer = 4;
+            celltall = 8;
+            startx = 0;
+            starty = 17;
+            display.clearDisplay();
+            dolistsamplermenu();
+            dodisplay();
+            display.display();
+        }
+
+        void show() {
+            (this->*SamplerMenuRouter::_route_nav[navlevel-1])();
+        }
+        void smixerVpanelAction() {
+          if (navlevel == 3) {
+            navrange = 127;
+            smixervknobs[sublevels[2]] = sublevels[3];
+          }
+          if (navlevel == 2) {
+            navrange = 15;
+            sublevels[3] = smixervknobs[sublevels[2]];
+          }
+          if (navlevel > 3) {
+
+            returntonav(2);
+          }
+        }
+
+        void smixerVpanelSelector() {
+          byte startlex = 4;
+
+          byte ecartl = 19;
+
+          int totbartall = 32;
+          int topwbarstart = 16;
+          int wbarwidth2 = 7;
+
+          int slct = sublevels[2];
+          canvasBIG.drawLine(
+              startlex - 2 + slct * ecartl, topwbarstart + totbartall + 2,
+              startlex - 2 + slct * ecartl,
+              topwbarstart + totbartall + 1 + wbarwidth2 + 3 - 1, SSD1306_WHITE);
+          canvasBIG.drawLine(startlex - 2 + 1 + slct * ecartl,
+                            topwbarstart + totbartall + wbarwidth2 + 4,
+                            wbarwidth2 + 3 + startlex - 4 + slct * ecartl,
+                            topwbarstart + totbartall + wbarwidth2 + 4, SSD1306_WHITE);
+
+          if (slct == 0) {
+
+            sublevels[3] = arpegiatortype;
+            // canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2,
+            // SSD1306_WHITE);
+          }
+          // damp
+          if (slct == 1) {
+
+            sublevels[3] = arpegmode;
+            // canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2,
+            // SSD1306_WHITE);
+          }
+          if (slct == 2) {
+
+            sublevels[3] = arpegstartoffset;
+            // canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2,
+            // SSD1306_WHITE);
+          }
+          if (slct == 3) {
+
+            sublevels[3] = arpegnumofnotes - 1;
+            // canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2,
+            // SSD1306_WHITE);
+          }
+          if (slct == 4) {
+
+            sublevels[3] = arpeggridC;
+            // canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2,
+            // SSD1306_WHITE);
+          }
+          if (slct == 5) {
+
+            sublevels[3] = arpeggridS;
+            // canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2,
+            // SSD1306_WHITE);
+          }
+          if (slct == 6) {
+
+            sublevels[3] = arpeglengh;
+            // canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2,
+            // SSD1306_WHITE);
+          }
+        }
+
+        void smixerVpanel() {
+
+          smixerVpanelAction();
+
+          display.clearDisplay();
+          canvastitle.fillScreen(SSD1306_BLACK);
+          canvasBIG.fillScreen(SSD1306_BLACK);
+          // canvastitle.setCursor(70,0);
+          canvasBIG.setTextSize(1);
+          canvasBIG.setCursor(0, 0);
+          canvasBIG.print(smixervknobs[sublevels[2]]);
+
+          byte centercirclex;
+          byte centercircley;
+          byte xcentershifter;
+          byte knobradius = 6;
+          byte trianglepointx;
+          byte trianglepointy;
+          byte yshifter = 46;
+          float coeffangle;
+          xcentershifter = (knobradius * 2) + 4;
+          byte slct = sublevels[2];
+
+          for (int i = 0; i < 8; i++) {
+
+            coeffangle = (6.2831 - (smixervknobs[i] / 127.0) * 6.2831) + 3.1416;
+            centercirclex = knobradius + (xcentershifter * i);
+            centercircley = 16 + knobradius;
+            canvastitle.setCursor(centercirclex - 5 + 3, 8);
+            canvastitle.setTextSize(1);
+
+            canvastitle.print(i + 1);
+            // canvastitle.print((char)masterfulllabels[i][2]);
+
+            canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
+                                SSD1306_WHITE);
+
+            trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
+            trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
+
+            display.drawLine(centercirclex, centercircley, trianglepointx,
+                            trianglepointy, SSD1306_WHITE);
+          }
+
+          if (slct < 8) {
+            centercirclex = knobradius + (xcentershifter * slct);
+            canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
+                                SSD1306_WHITE);
+            canvastitle.setCursor(95, 0);
+            canvastitle.print((smixervknobs[slct] / 127.0) * 100.0, 1);
+          }
+          centercircley = yshifter + knobradius;
+          for (int i = 0; i < 8; i++) {
+
+            coeffangle = (6.2831 - (smixervknobs[i + 8] / 127.0) * 6.2831) + 3.1416;
+            centercirclex = knobradius + (xcentershifter * i);
+            canvasBIG.setCursor(centercirclex - 5,
+                                centercircley - (2 + knobradius * 2) - 1);
+
+            // canvastitle.setCursor(centercirclex-5,8);
+            canvasBIG.setTextSize(1);
+
+            canvasBIG.print(i + 1 + 8);
+            // canvastitle.print((char)masterfulllabels[i][2]);
+
+            canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
+                                SSD1306_WHITE);
+
+            trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
+            trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
+
+            display.drawLine(centercirclex, centercircley, trianglepointx,
+                            trianglepointy, SSD1306_WHITE);
+          }
+
+          if (slct > 7) {
+            centercirclex = knobradius + (xcentershifter * (slct - 8));
+            canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
+                                SSD1306_WHITE);
+            canvastitle.setCursor(95, 0);
+            canvastitle.print((smixervknobs[slct] / 127.0) * 100.0, 1);
+          }
+
+          // smixerVpanelSelector();
+          dodisplay();
+        }
+
+        void dolistsamplermenu() {
+            
+            char samplerlabels[sizeofsamplerlabels][12] = {"Load", "Delete", "Assign",
+                                                            "Recorder", "Mixer"};
+            int startx = 5;
+            int starty = 16;
+            char *textin = (char *)samplerlabels[sublevels[1]];
+            canvastitle.fillScreen(SSD1306_BLACK);
+            canvastitle.setCursor(0, 0);
+            canvastitle.setTextSize(2);
+            canvastitle.println(textin);
+            canvasBIG.setTextSize(1);
+            canvasBIG.fillScreen(SSD1306_BLACK);
+            for (int i = 0; i < sizeofsamplerlabels - 1 - (sublevels[1]); i++) {
+                canvasBIG.setCursor(startx, starty + ((i)*10));
+                canvasBIG.println(samplerlabels[sublevels[1] + 1 + i]);
+            }
+            for (int i = 0; i < sublevels[1]; i++) {
+                canvasBIG.setCursor(startx, (10 * (sizeofsamplerlabels - sublevels[1]) + 6 + ((i)*10)));
+                canvasBIG.println(samplerlabels[i]);
+            }
+        }
+        void attach_nav_sampler_menu(uint8_t index, void (*cb)())
+        {
+            if (index < sizeofsamplerlabels)
+                _nav_sampler[index] = cb;
+        }
+
+        using Action = void (SamplerMenuRouter::*)();
+        static constexpr Action _route_nav[5] = {&SamplerMenuRouter::sampler_nav_zero, &SamplerMenuRouter::sampler_nav_one, &SamplerMenuRouter::sampler_nav_two, 
+                                                    &SamplerMenuRouter::sampler_nav_two, &SamplerMenuRouter::sampler_nav_two};
+        
+    private:
+        
+        void (*_nav_sampler[sizeofsamplerlabels])() = {nullptr};
+};
+
+SamplerMenuRouter _sp = SamplerMenuRouter();

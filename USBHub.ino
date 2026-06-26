@@ -51,6 +51,12 @@ void loopusbHub() {
   } while (rx.header != 0);
 
 }
+
+void Mytickmidi() {
+  Serial.println("ext click");
+  advance_tick();
+}
+
 void setuphubusb() {
 
   myusb.begin();

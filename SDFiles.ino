@@ -214,22 +214,4 @@ void setupsamplefoldersregistered() {
   sampledirsregistered++;
 }
 
-void setupSD() {
 
-  if (!(SD.begin(chipSelect))) {
-    errorsd("initialization SD failed!");
-    return;
-  }
-  
-  initializesamplesselectedlist();
-  pseudoconsole((char *)"Scanning Samples");
-  dosoundlist();
-  pseudoconsole((char *)"Scanning Presets");
-  list_presets_files();
-  pseudoconsole((char *)"Scanning Patterns");
-  list_patterns_files();
-  pseudoconsole((char *)"Scanning Waveforms");
-  list_wforms_files();
-  pseudoconsole((char *)"Scanning Songs");
-  list_songs_files();
-}

@@ -43,11 +43,17 @@ void evalinputs() {
   backed = Pads.get_back();
 
   if (backed || (!MULTIPLEXED_PADS && Backb.fallingEdge()))  {
-
-    sublevels[navlevel] = 0;
-
+    //TODO: make overridable back like return to nav
+    // one shot self disarming bool, or args in method call
     if (navlevel > 0) {
       navlevel--;
+    }
+    sublevels[navlevel] = 0;
+    if (retroaction) {
+      sublevels[navlevel] = retroaction ;
+      vraipos = retroaction;
+      myEnc.write(retroaction * 4);
+      retroaction = 0;
     }
 
     dm.lemenuroot();

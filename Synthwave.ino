@@ -634,7 +634,7 @@ void draw_synth_params() {
 }
 
 void dolistsyntmenu() {
-  char synthmenulabels[5][12] = {"Synths", "Mixer", "ADSR", "  ", "Filter"};
+  char synthmenulabels[truesizeofsynthmenulabels][12] = {"Synths", "Mixer", "ADSR", "  ", "Filter"};
 
   // removeExt(textin);
   byte startx = 5;
@@ -678,7 +678,7 @@ void wavesline_selector(){
           break;
       }
 }
-void synthmenu() {
+void synth_nav_zero() {
   if (navlevel == 1) {
     navrange = 4;
     display.clearDisplay();
@@ -1636,3 +1636,52 @@ int getwavetyped(int lawavetype) {
   // Waveformstyped
   // return Wavetype
 }
+
+class SynthMenuRouter : public SectionHolder {
+    public:
+        SynthMenuRouter() {
+                    this->home_navrange=truesizeofsynthmenulabels-1;
+                    this->relative_navlevel=1;
+                    this->max_navlevel=5;
+                    this->sublevels_address={0,0,0};
+                    //home method not really used yet
+                    this->set_home(synth_nav_zero);
+                    }
+        
+        using Action = void (SynthMenuRouter::*)();
+
+        void show() {
+                //(ka.*KnobAssigner::actions[0])();
+                (this->*SynthMenuRouter::_route_nav[navlevel-1])();
+            }
+
+        void route_navlevel_1(){
+            synth_nav_zero();
+        }    
+        void route_navlevel_2(){
+            if (_nav_synth[sublevels[1]]) {
+                _nav_synth[sublevels[1]]();
+            }
+
+            //LFOlining();
+        }
+        void attach_nav_synth(uint8_t index, void (*cb)())
+        {
+            if (index < 5)
+                _nav_synth[index] = cb;
+        }
+
+        static constexpr Action _route_nav[5] = {
+            &SynthMenuRouter::route_navlevel_1,
+            &SynthMenuRouter::route_navlevel_2,
+            &SynthMenuRouter::route_navlevel_2,
+            &SynthMenuRouter::route_navlevel_2,
+            &SynthMenuRouter::route_navlevel_2
+        };
+    private:
+        void (*_nav_synth[5])() = {nullptr};
+    
+};
+
+SynthMenuRouter _sn = SynthMenuRouter();
+

@@ -73,7 +73,7 @@ void writedasong() {
   }
   writeSong(song_filer);
   song_filer.close();
-  list_songs_files();
+
 }
 
 void insert_int_in_song_file(File &song_filer,int leint, char *leparam) {
@@ -116,6 +116,7 @@ void parseSong() {
   }
   parser.Reset();
   song_filer.close();
+
 }
 
 void copySong() {
@@ -132,14 +133,12 @@ void copySong() {
   }
   origin_file.close();
   target_file.close();
-  list_songs_files();
 }
 
 void deleteSong() {
   if (SD.exists(get_current_song_path().c_str())) {
     SD.remove(get_current_song_path().c_str());
   }
-  list_songs_files();
 }
 
 void shiftSongright(int leshifter) {
@@ -189,11 +188,79 @@ void showSongShifterdisplays() {
   dodisplay();
 }
 
-void displaySongmenu() {
+void song_nav_zero(){
   dm.clear_3();
-  SongmenuAction();
+  reinitsublevels(navSongmenu + 1);
+  navrange = truesizeofSongmenulabels - 1;
+  use_song_list();
   dodisplay();
+
 }
+
+void song_nav_one(){
+  dm.clear_3();
+  reinitsublevels(navSongmenu + 1);
+  navrange = songs_count;
+  use_song_list();
+  dodisplay();
+
+}
+
+void song_nav_two(){
+  dm.clear_3();
+  reinitsublevels(navSongmenu + 1);
+  navrange = max(songs_count - 1 , 0);
+  use_song_list();
+  dodisplay();
+
+}
+
+void song_nav_three(){
+  switch (sublevels[navSongmenu]) {
+    //returntonav(navSongmenu, truesizeofSongmenulabels - 1);
+    case 0:
+      call_songeditor();
+      // into edit already ;
+      break;
+    case 1:
+      writedasong();
+      returntonav(navSongmenu, truesizeofSongmenulabels - 1);
+      // save();
+      break;
+    case 2:
+
+      parseSong();
+      returntonav(navSongmenu, truesizeofSongmenulabels - 1);
+      break;
+    case 3:
+      copySong();
+      returntonav(navSongmenu, truesizeofSongmenulabels - 1);
+      break;
+
+    case 4:
+      deleteSong();
+      returntonav(navSongmenu, truesizeofSongmenulabels - 1);
+      break;
+
+    case 5:
+      initializepatternonsong();
+
+      break;
+    case 6:
+
+      break;
+    case 7:
+      doSongShifter();
+
+      break;
+
+    default:
+      break;
+  }
+  returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
+}
+
+
 
 void draw_song_list() {
   int startx = 80;
@@ -223,100 +290,15 @@ void draw_song_list() {
   }
 }
 
-void SongmenuAction() {
-
-  if (navlevel == navSongmenu) {
-    reinitsublevels(navSongmenu + 1);
-    navrange = truesizeofSongmenulabels - 1;
-
-    dolistSongdisplay();
-    draw_song_list();
-  }
-
-  if ((sublevels[navSongmenu] == 0) && (navlevel > navSongmenu)) {
-    Songmodepanel();
-  }
-
-  if (sublevels[navSongmenu] != 0) {
-
-    if (navlevel > navSongmenu + 1) {
-
-      switch (sublevels[navSongmenu]) {
-
-      case 0:
-        Songmodepanel();
-        // into edit already ;
-        break;
-      case 1:
-        writedasong();
-
-        // save();
-        break;
-      case 2:
-
-        parseSong();
-
-        break;
-      case 3:
-        copySong();
-
-        break;
-
-      case 4:
-        deleteSong();
-
-        break;
-
-      case 5:
-        initializepatternonsong();
-
-        break;
-      case 6:
-
-        break;
-      case 7:
-        doSongShifter();
-
-        break;
-
-      default:
-        break;
-      }
-      // displaySongmenu();
-      returntonav(navSongmenu, truesizeofSongmenulabels - 1);
-      // returntonav(navSongmenu,truesizeofSongmenulabels-1);
-    }
-
-    if (navlevel > navSongmenu) {
-
-      if (sublevels[navSongmenu] == 5) {
-        returntonav(navSongmenu, truesizeofSongmenulabels - 1);
-      }
-
-      if (sublevels[navSongmenu] == 1) {
-        navrange = songs_count;
-      } else {
-        navrange = max(songs_count - 1 , 0);
-      }
-      if (sublevels[navSongmenu] == 7) {
-        navrange = 32;
-        showSongShifterdisplays();
-      }
-      if (sublevels[navSongmenu] != 7) {
-        dolistSongdisplay();
-        draw_song_list();
-      }
-    }
-
-    // if (navlevel == navSongmenu ) {
-    // dolistSongdisplay();
-    // draw_song_list();
-
-    // }
-  }
+void clear_song_popup(){
+  char messageconfirm[32] = "Delete Song ?";
+  doConfirmpanel((char *)messageconfirm);
+}
+void song_params_panel(){
+  byte tmp__;
 }
 
-void dolistSongdisplay() {
+void use_song_list(){
   char Songmenulabels[truesizeofSongmenulabels][12] = {
       "Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params", "Shift"};
   byte startx = 5;
@@ -335,7 +317,9 @@ void dolistSongdisplay() {
     canvasBIG.setCursor(startx, (10 * (truesizeofSongmenulabels - sublevels[navSongmenu]) + 6 + ((i)*10)));
     canvasBIG.println(Songmenulabels[i]);
   }
+  draw_song_list();
 }
+
 
 void playdasong() {
   //if (!externalticker) {
@@ -343,18 +327,18 @@ void playdasong() {
   //}
   songplaying = 1;
   loadsongpattern();
-  startticker();
+  clocker.startticker();
 }
 
 void stopdasong() {
   songplaying = 0;
   songplayhead = 0;
-  stopticker();
+  clocker.stopticker();
 }
 
 void pausedasong() {
   songplaying = 0;
-  stopticker();
+  clocker.stopticker();
 }
 void showplayheadprogress() {
   display.drawLine(songplayhead * 8, 16, songplayhead * 8, 64, SSD1306_INVERSE);
@@ -363,8 +347,7 @@ void loadsongpattern() {
 
   if (patternonsong[songplayhead] > 0) {
     patterns_names_offset = patternonsong[songplayhead] - 1 ;
-    refresh_patterns_names();
-    parsepattern();
+    call_parsepattern();
   } else {
     stopdasong();
   }
@@ -386,63 +369,9 @@ void actionSongTransport() {
   if (sublevels[songedit] == 3) {
     playdasong();
   }
-
-  returntonav(songedit);
+  returntonav(songedit, navrange,sublevels[songedit]);
 }
-void Songmodepanel() {
-  songselectorY = 16;
-  songmodetopbar();
-  if (navlevel == songedit) {
-    if (songpage > 0) {
-      navrange = 8 + 16 + 1;
-    } else {
-      navrange = 8 + 16;
-    }
-    if (sublevels[songedit] > 7) {
 
-      // navrange = 127/8 - 1;
-      selectormoveX();
-    }
-
-    else {
-      // songselectorY = 12 * sublevels[songedit] + 16
-      songTransportSelector();
-    }
-  }
-  if (navlevel == songedit + 1) {
-    if (sublevels[songedit] > 7) {
-      if (sublevels[songedit] < 24) {
-        selectpatterninsong();
-      } else {
-        selectsongnavarrows();
-      }
-    } else {
-      actionSongTransport();
-    }
-  }
-  if (navlevel == songedit + 2) {
-
-    setpatterninsong();
-    if (patternonsong[sublevels[songedit] - 8] > 0) {
-      numberofpatonsong++;
-    } else {
-      numberofpatonsong = sublevels[songedit] - 8;
-    }
-  }
-
-  if (sublevels[songedit] > 7) {
-    showsongcell();
-  }
-
-  showpatonSongGrid();
-  showsongnavarrows();
-  dodisplay();
-  songgridposselector();
-  if (songplaying) {
-    showplayheadprogress();
-  }
-  dodisplay();
-}
 void showsongnavarrows() {
   canvasBIG.setTextSize(2);
 
@@ -455,12 +384,12 @@ void showsongnavarrows() {
 }
 void setpatterninsong() {
   patternonsong[(songpage * 16) + sublevels[songedit] - 8] = sublevels[songedit + 1];
-  returntonav(songedit);
+  returntonav(songedit, navrange,sublevels[songedit]);
 }
 
 void songmodetopbar() {
   display.clearDisplay();
-dm.clear_buffs();
+  dm.clear_buffs();
   canvasBIG.setTextSize(1);
   drawtransport();
 }
@@ -471,7 +400,7 @@ void showsongcell() {
   canvastitle.setTextSize(1);
   if (navlevel == songedit) {
     if (lasongcell > 0) {
-      canvastitle.print(get_pattern_name(patterns_indexes[lasongcell - 1]));
+      canvastitle.print(get_pattern_name_from_pt(patterns_indexes[lasongcell - 1]));
     } else {
       canvastitle.print("Empty");
     }
@@ -506,7 +435,7 @@ void selectpatterninsong() {
   canvastitle.setTextSize(1);
 
   if (sublevels[songedit + 1] > 0) {
-    canvastitle.print(get_pattern_name(patterns_indexes[sublevels[songedit + 1] - 1]));
+    canvastitle.print(get_pattern_name_from_pt(patterns_indexes[sublevels[songedit + 1] - 1]));
 
   } else {
     canvastitle.print("Empty");
@@ -528,7 +457,7 @@ void selectsongnavarrows() {
     if (sublevels[songedit] == 24 && songpage < 6) {
       songpage++;
     }
-    returntonav(songedit);
+    returntonav(songedit, navrange,sublevels[songedit]);
   }
 }
 
@@ -547,3 +476,246 @@ void songgridposselector() {
     }
   }
 }
+
+
+
+class SongEditorRouter : public SectionHolder {
+    public:
+        SongEditorRouter() {
+                    this->home_navrange=truesizeofSongmenulabels-1;
+                    this->relative_navlevel=1;
+                    this->max_navlevel=5;
+                    this->sublevels_address={3,0,0};
+                    //home method not really used yet
+                    //this->set_home(call_song_home);
+                    }
+
+        //changing_ccs[32][32][2] cc,val
+        void light_cc_change() {
+          for (int i = 0; i < 32; i++) {
+            if (recorded_ccs[i] != 0 && pots_controllers[i][tickposition][1] != 127){
+              moncontrollercc(1, pots_controllers[i][tickposition][0], pots_controllers[i][tickposition][1]);
+            }
+
+          }
+        /*
+          for (int i = 0; i < 128; i++) {
+            if (cc_partition[i][tickposition] != 127) {
+              moncontrollercc(1, i, cc_partition[i][tickposition]);
+            }
+          }
+          */
+        }
+
+        void use_pattern(){
+          light_cc_change();
+          for (int i = 0; i < liners_count; i++) {
+            if ((synth_off_pat[i][tickposition][1] != 0 && synth_off_pat[i][tickposition][0] == synthmidichannel)) {
+              synth_lines[i]->liner_off();
+            }
+            // if ( i < liners_count ) {
+            if (synth_partition[i][tickposition][1] != 0) {
+              play_synth_line(i);
+            }
+
+            if (sampler_partition[i][tickposition][1] != 0) {
+              play_sampler_line(i);
+            }
+          }
+        }
+
+        void update_song_player() {
+          if (tickposition == pbars - 1) {
+
+              if (songplayhead < numberofpatonsong - 1) {
+                songplayhead++;
+              } else {
+                songplayhead = 0;
+              }
+
+              loadsongpattern();
+            }
+
+        }
+
+        void play_synth_line(int linei) {
+          if (synth_partition[linei][tickposition][1] != 0) {
+            if (!synth_lines[linei]->activated) {
+              synth_lines[linei]->liner_on(synth_partition[linei][tickposition][1], synth_partition[linei][tickposition][2]);
+            }
+          }
+        }
+
+        void play_sampler_line(int linei) {
+          if (sampler_partition[linei][tickposition][1] != 0) {
+            //        event2lineplayingfrom[linei][0]=
+            //        sampler_partition[linei][tickposition][1];
+            // channel
+            // event2lineplayingfrom[linei][1]= sampler_partition[linei][tickposition][0];
+            if (Sampleassigned[sampler_partition[linei][tickposition][1]] != 0 &&
+                ((samplermidichannel == 0) ||
+                ((byte)samplermidichannel == sampler_partition[linei][tickposition][0]))) {
+              initiatesamplerline(nombreofSamplerliners - 1 - linei,
+                                  (byte)samplermidichannel,
+                                  sampler_partition[linei][tickposition][1],
+                                  sampler_partition[linei][tickposition][2]);
+              // MaNoteOn( (byte)samplermidichannel,
+              // sampler_partition[linei][tickposition][1],
+              // sampler_partition[linei][tickposition][2]) ;
+            }
+          }
+        }
+
+        void Songmodepanel() {
+          songselectorY = 16;
+          songmodetopbar();
+          if (navlevel == songedit) {
+            if (songpage > 0) {
+              navrange = 8 + 16 + 1;
+            } else {
+              navrange = 8 + 16;
+            }
+            if (sublevels[songedit] > 7) {
+
+              // navrange = 127/8 - 1;
+              selectormoveX();
+            }
+
+            else {
+              // songselectorY = 12 * sublevels[songedit] + 16
+              songTransportSelector();
+            }
+          }
+          if (navlevel == songedit + 1) {
+            if (sublevels[songedit] > 7) {
+              if (sublevels[songedit] < 24) {
+                selectpatterninsong();
+              } else {
+                selectsongnavarrows();
+              }
+            } else {
+              actionSongTransport();
+            }
+          }
+          if (navlevel == songedit + 2) {
+
+            setpatterninsong();
+            if (patternonsong[sublevels[songedit] - 8] > 0) {
+              numberofpatonsong++;
+            } else {
+              numberofpatonsong = sublevels[songedit] - 8;
+            }
+          }
+
+          if (sublevels[songedit] > 7) {
+            showsongcell();
+          }
+
+          showpatonSongGrid();
+          showsongnavarrows();
+          dodisplay();
+          songgridposselector();
+          if (songplaying) {
+            showplayheadprogress();
+          }
+          dodisplay();
+        }
+};
+
+SongEditorRouter _se = SongEditorRouter();
+
+
+class SongMenuRouter : public SectionHolder {
+    public:
+        SongMenuRouter() {
+                    this->home_navrange=truesizeofSongmenulabels-1;
+                    this->relative_navlevel=1;
+                    this->max_navlevel=5;
+                    this->sublevels_address={3,0,0};
+                    //home method not really used yet
+                    this->set_home(call_song_home);
+                    }
+
+        void route_navlevel_1(){
+            song_home();
+        }
+        void route_navlevel_2(){
+            _lvl_2();
+        }
+        void displaySongmenu() {
+          dm.clear_3();
+          if (navlevel == navSongmenu) {
+            song_nav_zero();
+          }
+
+          if ((sublevels[navSongmenu] == 0) && (navlevel > navSongmenu)) {
+            call_songeditor();
+          }
+          if ((sublevels[navSongmenu] == 7) && (navlevel > navSongmenu)) {
+            navrange = 32;
+            showSongShifterdisplays();
+            }
+
+          if (sublevels[navSongmenu] != 0) {
+
+            if (navlevel > navSongmenu + 1) {
+              song_nav_three();
+            }
+
+            if (navlevel > navSongmenu) {
+
+              if (sublevels[navSongmenu] >= 5) {
+                returntonav(navSongmenu, truesizeofSongmenulabels - 1);
+              }
+
+              if (sublevels[navSongmenu] == 1) {
+                navrange = songs_count;
+              } else {
+                navrange = max(songs_count - 1 , 0);
+              }
+
+              if (sublevels[navSongmenu] != 7) {
+                use_song_list();
+              }
+            }
+
+            // if (navlevel == navSongmenu ) {
+            // dolistSongdisplay();
+            // draw_song_list();
+
+            // }
+          }
+          dodisplay();
+        }
+
+        void show() {
+            (this->*SongMenuRouter::_route_nav[navlevel-1])();
+        }
+
+        void song_home(){
+            _lvl_2();
+        }
+        void _lvl_2() {
+            if (_nav_song[sublevels[1]]) {
+                _nav_song[sublevels[1]]();
+            }
+        }
+
+        void attach_nav_songs_menu(uint8_t index, void (*cb)())
+        {
+            if (index < truesizeofSongmenulabels)
+                _nav_song[index] = cb;
+        }
+
+        using Action = void (SongMenuRouter::*)();
+        static constexpr Action _route_nav[5] = {&SongMenuRouter::route_navlevel_1, &SongMenuRouter::route_navlevel_2,
+                                                &SongMenuRouter::route_navlevel_2, &SongMenuRouter::route_navlevel_2, &SongMenuRouter::route_navlevel_2};
+
+    private:
+
+        void (*_nav_song[truesizeofSongmenulabels])() = {nullptr};
+};
+
+SongMenuRouter _sg = SongMenuRouter();
+
+

@@ -297,3 +297,105 @@ void LFOlining() {
     dodisplay();
   }
 }
+
+class LFOMenuRouter : public SectionHolder {
+    public:
+        LFOMenuRouter() {
+                    this->home_navrange=2;
+                    this->relative_navlevel=1;
+                    this->max_navlevel=5;
+                    this->sublevels_address={1,0,0};
+                    //home method not really used yet
+                    this->set_home(call_lf_show);
+                    }
+        void show() {
+            //(ka.*KnobAssigner::actions[0])();
+            (this->*LFOMenuRouter::_route_nav[navlevel-1])();
+        }
+
+        void route_navlevel_1(){
+            home();
+        }    
+        void route_navlevel_2(){
+            _lvl_2();
+
+            //LFOlining();
+        }
+        void route_navlevel_3(){
+            Serial.println("lfo3");        
+        }    
+        void route_navlevel_4(){
+            Serial.println("lfo4");
+        }
+
+        void printLFObanner(int startx, int starty, int leLFO) {
+            display.fillRect(startx, starty, 64, 24, SSD1306_INVERSE);
+            dm.printlabel((char*)"LFO ");
+            display.setCursor(116, 0);
+            display.print(leLFO);
+            display.display();
+        }
+
+        void LFOlineBG() {
+            display.clearDisplay();
+            display.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
+
+            display.display();
+        }
+
+        void lfo_zero(){
+            navrange = synths_count-1;
+            //TODO:remove maybe
+            reinitsublevels(2);
+
+            LFOlineBG();
+
+            switch (sublevels[1]) {
+            case 0:
+            printLFObanner(0, 16, 1);
+            break;
+
+            case 1:
+            printLFObanner(64, 16, 2);
+            break;
+
+            case 2:
+            printLFObanner(0, 40, 3);
+            break;
+
+            case 3:
+            printLFObanner(64, 40, 4);
+            break;
+
+            default:
+            break;
+            }
+        }
+
+        void attach_nav_lfo(uint8_t index, void (*cb)())
+        {
+            if (index < 5)
+                _nav_lfo[index] = cb;
+        }
+        void attach_lvl_2(void (*cb)())
+        {
+            _lvl_2 = cb;
+        }
+    private:
+        using Action = void (LFOMenuRouter::*)();
+
+        static constexpr Action _route_nav[5] = {
+            &LFOMenuRouter::route_navlevel_1,
+            &LFOMenuRouter::route_navlevel_2,
+            &LFOMenuRouter::route_navlevel_2,
+            &LFOMenuRouter::route_navlevel_2,
+            &LFOMenuRouter::route_navlevel_2
+        };
+
+        //static constexpr void (*_route_nav[4])() = {route_navlevel_1,route_navlevel_2,route_navlevel_3,route_navlevel_4};
+        void (*_nav_lfo[3])() = {nullptr};
+
+        void (*_lvl_2)() = nullptr;
+};
+
+LFOMenuRouter _lf = LFOMenuRouter();

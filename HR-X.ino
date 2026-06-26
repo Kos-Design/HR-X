@@ -14,6 +14,7 @@ int cc_note_num;
 // adcHighPassFilterDisable();
 bool le_303_On ;
 
+int retroaction = 0;
 //#include <Metro.h>
 // int startccrecordpos;
 // int stopccrecordpos;
@@ -32,6 +33,12 @@ int numberoftaps;
 int tapstime[5] = {0};
 float tapaverage;
 const byte truesizeofSongmenulabels = 8;
+const byte truesizeofwaveformsmenulabels = 8;
+const byte truesizeofpresetmenulabels = 5;
+const byte truesizeofsynthmenulabels = 5 ;
+const byte sizeofLFOlabels = 9;
+const byte numbofsettinglabels = 14;
+
 int millitickinterval = 115;
 //freeze, can't record wav
 //#include <MsTimer2.h>
@@ -61,7 +68,7 @@ byte x_axis_cc = 17 ;
 byte y_axis_cc = 18 ;
 byte trace_wave_cc = 58 ;
 byte *valz[3]= {&x_axis_cc,&y_axis_cc,&trace_wave_cc};
-
+bool taptap_on = true;
 bool rec_looping;
 int tocker ;
 byte filter_lfo_option = 3 ;
@@ -69,6 +76,7 @@ int le303ffilterzVknobs[3];
 
 byte songpage = 0;
 byte samplelinerspage;
+byte synthlinerspage;
 // LP BP HP 127
 int mixle303ffilterzVknobs[3];
 byte navrecmenu = 2;
@@ -164,7 +172,6 @@ bool demimalmode;
 bool addinglenght;
 EXTMEM char sampledirpath[99] = {"SOUNDSET/"};
 
-const byte truesizeofwaveformsmenulabels = 8;
 
 String newloopedpath = "SOUNDSET/REC/LOOP00#L.RAW";
 String newRecpathL = "SOUNDSET/REC/RECZ00#L.RAW";
@@ -227,8 +234,9 @@ char newmksamplefullpath[32] = {"SOUNDSET/MABANK01/SAMPLE00.RAW"};
 #include <string.h>
 const int liners_count = 6;
 const int nombreofSamplerliners = 16;
+const int sizeofsamplerlabels = 5;
 const byte synths_count = 3;
-const int patternlines = 4;
+const int patternlines = 2;
 bool tb303[liners_count];
 long le303start[liners_count];
 
@@ -239,7 +247,7 @@ byte bufferLoop[512];
 EXTMEM byte bufferL[512];
 EXTMEM byte bufferR[512];
 
-const int numbofsettinglabels = 14;
+
 int samplermidichannel = 8;
 byte synthmidichannel = 16;
 bool blocked = false ;
@@ -409,7 +417,6 @@ const int lesformes[9] PROGMEM = {
     WAVEFORM_TRIANGLE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SQUARE,
     WAVEFORM_PULSE,    WAVEFORM_ARBITRARY,         WAVEFORM_SAMPLE_HOLD};
 
-const byte truesizeofpresetmenulabels = 5;
 
 byte waveformIndex = 0 ;
 
@@ -570,7 +577,7 @@ const byte synth_params_count = 8;
 int phaselevelsL[synths_count] = {0, 0, 0};
 
 int LFOphase[synths_count] = {0,0,0};
-const byte sizeofLFOlabels = 9;
+
 
 byte LFOmenuroot = 2;
 // TODO check offset of 50 ?
@@ -1053,6 +1060,31 @@ public:
         _callback_3 = cb;
     }
 
+    void stopticker() {
+        stoptick = 1;
+        recordCC = 0;
+        overdubmidi = 0;
+        this->stop = 1;
+        // if (patrecord) {
+        // computelenghtmesureoffline();
+        patternOn = 0;
+        patrecord = 0;
+        // tickposition = 0 ;
+    }
+
+    void startticker() {
+        //TODO: reimplement external midi clock use
+        //if (!externalticker) {
+        // metro0.reset();
+        //MsTimer2::set(millitickinterval, advance_tick);
+        //MsTimer2::start();
+
+        //}
+        stoptick = 0;
+        this->stop = 0;
+        patternOn = 1;
+    }
+
     virtual void update() override {
         if (_samplesPerTick <= 0.0)
         return;
@@ -1116,14 +1148,13 @@ private:
 
 SequencerClocker clocker;
 
-class ClockSink : public AudioStream
-{
-public:
-    ClockSink() : AudioStream(1, inputQueueArray) {}
+class ClockSink : public AudioStream {
+    public:
+        ClockSink() : AudioStream(1, inputQueueArray) {}
 
-    void update(void) override {}
+        void update(void) override {}
 
-private:
+    private:
     audio_block_t *inputQueueArray[1];
 };
 
@@ -1135,136 +1166,134 @@ AudioConnection patchCord_sinker(clocker, 0, sink, 0);
 //maybe I was not using IntervalTimer the right way
 
 class DisplayManager{
-public:
-    DisplayManager() {}
+    public:
+        DisplayManager() {}
 
-    bool ILI_128x64 = true;
+        bool ILI_128x64 = true;
 
-    void display_home()
-    {
-        if (ILI_128x64) {
-            Serial.println("ILI_128x64 detected");
+        void display_home()
+        {
+            if (ILI_128x64) {
+                Serial.println("ILI_128x64 detected");
+            }
         }
-    }
-    void setupscreen(){
-        if (ILI_128x64) {
-            _setupscreen_ILI();
+        void setupscreen(){
+            if (ILI_128x64) {
+                _setupscreen_ILI();
+            }
         }
-    }
 
-    void lemenuroot() {_lemenuroot();}
+        void displayleBGimg(const unsigned char *img) {_displayleBGimg(img);}
 
-    void displayleBGimg(const unsigned char *img) {_displayleBGimg(img);}
-
-    void printlabel(char *toprint) {
-        display.setTextSize(2);
-        display.setTextColor(SSD1306_WHITE);
-        display.setCursor(0, 0);
-        display.println(toprint);
-    }
-
-    void displaymenu() {
-        char menus_lbl[10][11] = {"WaveSynth", "LFOs", "Set Knobs", "Song", "Pattern", "Settings",
-                       "MainFX", "Sampler", "Waveformer", "Presets"};
-        if (navlevel == 0) {
-            previousnavlevel = 0;
-            navrange = 9;
-            displayleBGimg(menuBG);
+        void printlabel(char *toprint) {
+            display.setTextSize(2);
+            display.setTextColor(SSD1306_WHITE);
+            display.setCursor(0, 0);
+            display.println(toprint);
         }
-        display.drawRoundRect(5 + (sublevels[0]%5)*24, 17+((sublevels[0]/5)*24), 21, 21, 3, SSD1306_WHITE);
-        printlabel(menus_lbl[sublevels[0]]);
-        display.display();
-    }
 
-    void attach_nav_zero(uint8_t index, void (*cb)())
-    {
-        if (index < 10)
-            _nav_zero[index] = cb;
-    }
-    void clear_buffs(){
-        canvasBIG.fillScreen(SSD1306_BLACK);
-        canvastitle.fillScreen(SSD1306_BLACK);
-    }
-    void clear_buffs_1_1(){
-        clear_buffs();
-        canvastitle.setCursor(0, 0);
-        canvastitle.setTextSize(1);
-        canvasBIG.setTextSize(1);
-    }
-    void clear_buffs_2_1(){
-        clear_buffs();
-        canvastitle.setCursor(0, 0);
-        canvastitle.setTextSize(2);
-        canvasBIG.setTextSize(1);
-    }
-    void clear_buffs_2_2(){
-        clear_buffs();
-        canvastitle.setCursor(0, 0);
-        canvastitle.setTextSize(2);
-        canvasBIG.setTextSize(2);
-    }
-    void clear_3(){
-        clear_buffs();
-        display.clearDisplay();
-    }
-
-    void clean_title_2(){
-        clear_3();
-        canvastitle.setCursor(0, 0);
-        canvastitle.setTextSize(2);
-    }
-    void clean_title_2_1(){
-        clear_3();
-        canvastitle.setCursor(0, 0);
-        canvastitle.setTextSize(2);
-        canvasBIG.setTextSize(1);
-    }
-    void clean_title_2_2(){
-        clear_3();
-        canvastitle.setCursor(0, 0);
-        canvastitle.setTextSize(2);
-        canvasBIG.setTextSize(2);
-    }
-    void clean_title_1(){
-        clear_3();
-        canvastitle.setCursor(0, 0);
-        canvastitle.setTextSize(1);
-    }
-    //10 menu entries
-    void (*_nav_zero[10])() = {nullptr};
-private:
-
-    void _displayleBGimg(const unsigned char *img) {
-        display.clearDisplay();
-        display.drawBitmap(0, 0, img, 128, 64, SSD1306_WHITE);
-    }
-
-    void _lemenuroot() {
-        if (navlevel == 0) {
-            displaymenu();
+        void displaymenu() {
+            char menus_lbl[10][11] = {"WaveSynth", "LFOs", "Set Knobs", "Song", "Pattern", "Settings",
+                        "MainFX", "Sampler", "Waveformer", "Presets"};
+            if (navlevel == 0) {
+                previousnavlevel = 0;
+                navrange = 9;
+                displayleBGimg(menuBG);
+            }
+            display.drawRoundRect(5 + (sublevels[0]%5)*24, 17+((sublevels[0]/5)*24), 21, 21, 3, SSD1306_WHITE);
+            printlabel(menus_lbl[sublevels[0]]);
+            display.display();
         }
-        if (navlevel > 0) {
-            _nav_zero[sublevels[0]]();
+
+        void attach_nav_zero(uint8_t index, void (*cb)())
+        {
+            if (index < 10)
+                _nav_zero[index] = cb;
         }
-    }
-
-    void _setupscreen_ILI() {
-
-        if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-            Serial.println(F("Screen SSD1306 allocation failed"));
-            return;
+        void clear_buffs(){
+            canvasBIG.fillScreen(SSD1306_BLACK);
+            canvastitle.fillScreen(SSD1306_BLACK);
         }
-        display.display();
-        display.setCursor(0, 0);
-        display.setTextSize(1.5);
-        display.setTextColor(SSD1306_WHITE);
-        display.clearDisplay();
-    }
+        void clear_buffs_1_1(){
+            clear_buffs();
+            canvastitle.setCursor(0, 0);
+            canvastitle.setTextSize(1);
+            canvasBIG.setTextSize(1);
+        }
+        void clear_buffs_2_1(){
+            clear_buffs();
+            canvastitle.setCursor(0, 0);
+            canvastitle.setTextSize(2);
+            canvasBIG.setTextSize(1);
+        }
+        void clear_buffs_2_2(){
+            clear_buffs();
+            canvastitle.setCursor(0, 0);
+            canvastitle.setTextSize(2);
+            canvasBIG.setTextSize(2);
+        }
+        void clear_3(){
+            clear_buffs();
+            display.clearDisplay();
+        }
 
+        void clean_title_2(){
+            clear_3();
+            canvastitle.setCursor(0, 0);
+            canvastitle.setTextSize(2);
+        }
+        void clean_title_2_1(){
+            clear_3();
+            canvastitle.setCursor(0, 0);
+            canvastitle.setTextSize(2);
+            canvasBIG.setTextSize(1);
+        }
+        void clean_title_2_2(){
+            clear_3();
+            canvastitle.setCursor(0, 0);
+            canvastitle.setTextSize(2);
+            canvasBIG.setTextSize(2);
+        }
+        void clean_title_1(){
+            clear_3();
+            canvastitle.setCursor(0, 0);
+            canvastitle.setTextSize(1);
+        }
+        
+        void lemenuroot() {
+            if (navlevel == 0) {
+                displaymenu();
+            }
+            if (navlevel > 0) {
+                _nav_zero[sublevels[0]]();
+            }
+        }
 
-    //10 methods dispatchin using sublevels zero context
-    void (*_nav_one[10])() = {nullptr};
-    void (**_nav[2])() = {_nav_zero,_nav_one};
+        //10 menu entries
+        void (*_nav_zero[10])() = {nullptr};
+        void (*_nav_one[10])() = {nullptr};
+        void (**_nav[2])() = {_nav_zero,_nav_one};
+
+    private:
+
+        void _displayleBGimg(const unsigned char *img) {
+            display.clearDisplay();
+            display.drawBitmap(0, 0, img, 128, 64, SSD1306_WHITE);
+        }
+
+        void _setupscreen_ILI() {
+
+            if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+                Serial.println(F("Screen SSD1306 allocation failed"));
+                return;
+            }
+            display.display();
+            display.setCursor(0, 0);
+            display.setTextSize(1.5);
+            display.setTextColor(SSD1306_WHITE);
+            display.clearDisplay();
+        }
+        
 };
 
 DisplayManager dm = DisplayManager();
@@ -1277,7 +1306,9 @@ void returntonav(byte lelevel, byte lanavrange = navrange,byte t_vraipos = vraip
   dm.lemenuroot();
 }
 
-typedef struct {const char *key; int value;} MenuPager;
+//typedef struct {const char *key; int value;} MenuPagerer;
+
+typedef struct {byte value1; byte value3; byte value2;} MenuPager;
 
 // refresh display --> find context
 // context [pages lvl1] -> x10 pointers list of page drawers methods
@@ -1285,248 +1316,28 @@ typedef struct {const char *key; int value;} MenuPager;
 // pages list
 
 class SectionHolder{
-public:
-    SectionHolder() {}
-    //categories can't do dicts, so lists of pointers placeholders §?...
-    //bool ILI_128x64 = true;
-    //typedef struct {int sublevels_address; int char_name; int depth;} Menu_Section;
-    //typedef struct {int idx_order; int char_name; int depth;} Paged;
-    //typedef struct {const char *key; int value;} DictEntry;
-    //const char *pages[]={};
-    void home() {
-        if(_home){
-            this->_home();
-        }
-    }
-    void set_home(void (*cb)())
-    {
-        this->_home = cb;
-    }
-
-private:
-
-void (*_home)() = nullptr;
-};
-
-class SynthMenuRouter{
-public:
-    SynthMenuRouter() {}
-
-    void show() {
-        if (_nav_synth[sublevels[1]]) {
-            _nav_synth[sublevels[1]]();
-        }
-    }
-
-    void attach_nav_synth(uint8_t index, void (*cb)())
-    {
-        if (index < 5)
-            _nav_synth[index] = cb;
-    }
-
-private:
-void (*_nav_synth[5])() = {nullptr};
-};
-
-SynthMenuRouter sn = SynthMenuRouter();
-
-class LFOMenuRouter{
     public:
-        LFOMenuRouter() {}
+        SectionHolder() {}
+        
+        byte relative_navlevel;
+        //max absolute as it should be tested against the relative one
+        byte max_navlevel = 5;
+        MenuPager sublevels_address = {0,0,0};
+        byte home_navrange ;
 
-        void show() {
-            //(ka.*KnobAssigner::actions[0])();
-            (this->*LFOMenuRouter::_route_nav[navlevel-1])();
-        }
-
-        void route_navlevel_1(){
-            home();
-        }    
-        void route_navlevel_2(){
-            _lvl_2();
-
-            //LFOlining();
-        }
-        void route_navlevel_3(){
-            Serial.println("lfo3");        
-        }    
-        void route_navlevel_4(){
-            Serial.println("lfo4");
-        }
-
-        void printLFObanner(int startx, int starty, int leLFO) {
-            display.fillRect(startx, starty, 64, 24, SSD1306_INVERSE);
-            dm.printlabel((char*)"LFO ");
-            display.setCursor(116, 0);
-            display.print(leLFO);
-            display.display();
-        }
-
-        void LFOlineBG() {
-            display.clearDisplay();
-            display.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
-
-            display.display();
-        }
-
-        void home(){
-            navrange = synths_count-1;
-            //TODO:remove maybe
-            reinitsublevels(2);
-
-            LFOlineBG();
-
-            switch (sublevels[1]) {
-            case 0:
-            printLFObanner(0, 16, 1);
-            break;
-
-            case 1:
-            printLFObanner(64, 16, 2);
-            break;
-
-            case 2:
-            printLFObanner(0, 40, 3);
-            break;
-
-            case 3:
-            printLFObanner(64, 40, 4);
-            break;
-
-            default:
-            break;
+        void home() {
+            if(_home){
+                this->_home();
             }
         }
-        void attach_nav_lfo(uint8_t index, void (*cb)())
+
+        void set_home(void (*cb)())
         {
-            if (index < 5)
-                _nav_lfo[index] = cb;
-        }
-        void attach_lvl_2(void (*cb)())
-        {
-            _lvl_2 = cb;
-        }
-    private:
-        using Action = void (LFOMenuRouter::*)();
-
-        static constexpr Action _route_nav[4] = {
-            &LFOMenuRouter::route_navlevel_1,
-            &LFOMenuRouter::route_navlevel_2,
-            &LFOMenuRouter::route_navlevel_3,
-            &LFOMenuRouter::route_navlevel_4
-        };
-
-        //static constexpr void (*_route_nav[4])() = {route_navlevel_1,route_navlevel_2,route_navlevel_3,route_navlevel_4};
-        void (*_nav_lfo[3])() = {nullptr};
-
-        void (*_lvl_2)() = nullptr;
-};
-/*
-class old_LFOMenuRouter{
-    public:
-        LFOMenuRouter() {}
-
-        void show() {
-            //(ka.*KnobAssigner::actions[0])();
-            (this->*LFOMenuRouter::_route_nav[navlevel-1])();
-        }
-
-        void route_navlevel_1(){
-            home();
-        }    
-        void route_navlevel_2(){
-            LFOMenuRouter::_nav_lfo[sublevels[1]]();
-        }
-        void route_navlevel_3(){
-            Serial.println("lfo3");        
-        }    
-        void route_navlevel_4(){
-            Serial.println("lfo4");
-        }
-
-        void printLFObanner(int startx, int starty, int leLFO) {
-            display.fillRect(startx, starty, 64, 24, SSD1306_INVERSE);
-            dm.printlabel((char*)"LFO ");
-            display.setCursor(116, 0);
-            display.print(leLFO);
-            display.display();
-        }
-
-        void LFOlineBG() {
-            display.clearDisplay();
-            display.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
-
-            display.display();
-        }
-
-        void home(){
-            navrange = synths_count-1;
-            //TODO:remove maybe
-            reinitsublevels(2);
-
-            LFOlineBG();
-
-            switch (sublevels[1]) {
-            case 0:
-            printLFObanner(0, 16, 1);
-            break;
-
-            case 1:
-            printLFObanner(64, 16, 2);
-            break;
-
-            case 2:
-            printLFObanner(0, 40, 3);
-            break;
-
-            case 3:
-            printLFObanner(64, 40, 4);
-            break;
-
-            default:
-            break;
-            }
-        }
-        void attach_nav_lfo(uint8_t index, void (*cb)())
-        {
-            if (index < 5)
-                _nav_lfo[index] = cb;
+            this->_home = cb;
         }
 
     private:
-        using Action = void (LFOMenuRouter::*)();
 
-        static constexpr Action _route_nav[4] = {
-            &LFOMenuRouter::route_navlevel_1,
-            &LFOMenuRouter::route_navlevel_2,
-            &LFOMenuRouter::route_navlevel_3,
-            &LFOMenuRouter::route_navlevel_4
-        };
-
-        //static constexpr void (*_route_nav[4])() = {route_navlevel_1,route_navlevel_2,route_navlevel_3,route_navlevel_4};
-        void (*_nav_lfo[3])() = {nullptr};
-};
-*/
-LFOMenuRouter lf = LFOMenuRouter();
-
-class SongMenuRouter{
-public:
-    SongMenuRouter() {}
-
-    void show() {
-        if (_nav_song[sublevels[1]]) {
-            _nav_song[sublevels[1]]();
-        }
-    }
-
-    void attach_nav_songs_menu(uint8_t index, void (*cb)())
-    {
-        if (index < truesizeofSongmenulabels)
-            _nav_song[index] = cb;
-    }
-
-private:
-void (*_nav_song[truesizeofSongmenulabels])() = {nullptr};
+        void (*_home)() = nullptr;
 };
 
-SongMenuRouter sg = SongMenuRouter();

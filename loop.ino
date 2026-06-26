@@ -77,7 +77,7 @@ void check_pads() {
         vraipos = sublevels[2];
         myEnc.write(4 * sublevels[2]);
       }
-      OnBoardVpanel();
+      call_st_onboardPanel();
     }
     //inside Set Knobs level 2: learn midi
     else if (sublevels[0] == 2 && navlevel == 2 && cc_note_num <= 0){
@@ -109,7 +109,7 @@ void check_pots() {
       if (itr < 15 && itr !=9) {
         if ((sublevels[0] == 5) && (sublevels[1] == 11) && (itr == 6)) {
           but_velocity[sublevels[2]] = (byte)((c_change / 1024.0) * 127);
-          OnBoardVpanel();
+          call_st_onboardPanel();
         }
          else {
           MaControlChange(muxed_channels[itr], (byte)ordered_pots[itr], (byte)((c_change / 1024.0) * 127));
@@ -120,45 +120,6 @@ void check_pots() {
     if (itr >= 16) {
       itr = 0;
     }
-}
-void loop() {
-  //wav_record_loop();
- // if (!stoptick) {
- // if (millis() % 2 == 0) {
-  if (millis() % 2 == 0) {
-    pseudo303();
-  }
-  /*
-  if (debug_cpu){
-    print_memory_usage();
-  }
-  */
-  if (pre_record) {
-    if (millis() - tocker > 500) {
-      rec_looping = true ;
-      pre_record = false ;
-    }
-  }
-  if ( rec_looping ) {
-    continue_looper();
-  }
-
-  if (!blocked) {
-    if (millis() % display_lag == 0) {
-      if (noteprint) {
-        printlanote();
-      }
-      evalinputs();
-      evalrota();
-    }
-    if ((millis() % (control_lag + 1) == 0) && MULTIPLEXED_PADS){
-      check_pads();
-    }
-    if ((millis() % control_lag == 0) && MULTIPLEXED_PADS) {
-      check_pots() ;
-    }
-  }
-  loopusbHub();
 }
 
 void printit() {

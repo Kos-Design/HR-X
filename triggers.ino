@@ -133,14 +133,12 @@ void playFlashsample(byte channel, byte data1, byte data2) {
   // if no liners are available stoping player 1 to make room
 }
 
-
-
 void MaNoteOn(byte channel, byte data1, byte data2) {
   byte larpegeline;
   int lachordon;
   uint8_t statusByte = static_cast<uint8_t>(0x90 | channel);
-  if (data1 == tapnote) {
-    taptap();
+  if (data1 == tapnote && taptap_on) {
+    _st.taptap();
     return;
   }
   if (debugmidion) {
@@ -197,7 +195,7 @@ void allarpegeoffs() {
     }
     arpegiatingNote[i] = 0;
   }
-  stopallnotes();
+  _st.stopallnotes();
 }
 
 byte incrementarpegiatingNote(byte lanote) {
@@ -840,11 +838,6 @@ bool check_glide_status(byte this_note){
     }
   }
   return do_glide ;
-}
-
-// TODO adsr check
-void Mytickmidi() {
-  advance_tick();
 }
 
 void moncontrollercc(byte channel, byte control, byte value) {

@@ -13,9 +13,16 @@ void learn_midi(byte captured){
   returntonav(1,allfxes-1,sublevels[1]);
 }
 
-class KnobAssigner{
+class KnobAssigner : public SectionHolder {
   public:
-      KnobAssigner() {}
+      KnobAssigner() {
+                    this->home_navrange=allfxes-1;
+                    this->relative_navlevel=1;
+                    this->max_navlevel=3;
+                    this->sublevels_address={2,0,0};
+                    //home method not really used yet
+                    this->set_home(this->kb_home);
+                    }
       //static int midiknobassigned[128];
 
       static void show() {
@@ -31,7 +38,7 @@ class KnobAssigner{
         return 0 ;
       }
 
-      static void home(){
+      static void kb_home(){
         navrange = allfxes-1;
         dm.clear_3();
         canvastitle.setCursor(0, 0);
@@ -109,8 +116,71 @@ class KnobAssigner{
 
   private:
 
-    static constexpr void (*_actionable[3])() = { home, assigner, set_it };
+    static constexpr void (*_actionable[3])() = { kb_home, assigner, set_it };
 
 };
 
 KnobAssigner _ka = KnobAssigner();
+
+class SynthLiner {
+  public:
+    byte l_index = 0 ;
+    bool activated = 0 ;
+    byte note = 0 ;
+    byte velocity = 0 ;
+
+    SynthLiner(byte line_index = 0 ) : l_index(line_index) {
+    }
+
+    void liner_on(byte data1, byte data2) {
+      if (activated||data1==note) {
+        liner_off();
+      }
+      activated=true;
+      note=data1;
+      velocity=data2;
+      //to avoid bounces and midi panik !
+      if (!enveloppesL[l_index]->isActive()){
+        if (!tb303[l_index]) {
+          pulsers[l_index][0]=millis();
+          tb303[l_index] = 1;
+        }
+        enveloppesL[l_index]->hold(millitickinterval - adsrlevels[3]);
+        //enveloppesR[liner]->hold(500);
+        if (check_glide_status(note)){
+          if (!chordson) {
+            notefrequency = notestofreq[note_before][1];
+            setfreqWavelines(notefrequency,l_index,velocity);
+            startglidenote(l_index,note);
+          } else {
+            notefrequency = notestofreq[lapreviousnotewCmode[l_index]][1];
+            startglidenoteChords(l_index, note);
+            setfreqWavelines(notefrequency, l_index, velocity);
+          }
+          note_before = note ;
+        } else {
+          notefrequency = notestofreq[note][1];
+          setfreqWavelines(notefrequency, l_index, velocity);
+        }
+        enveloppesL[l_index]->noteOn();
+      } else {
+        liner_off();
+      }
+    }
+
+    void liner_off() {
+      // AudioNoInterrupts();
+      //if (enveloppesL[l_index]->isActive()) {
+        enveloppesL[l_index]->hold(0);
+        enveloppesL[l_index]->noteOff();
+        if (tb303[l_index]) {
+          tb303[l_index] = 0;
+        }
+        activated = false;
+        note = 0 ;
+      }
+    //}
+
+};
+
+SynthLiner* synth_lines[liners_count] = {nullptr};
