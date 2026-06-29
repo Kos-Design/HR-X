@@ -130,11 +130,9 @@ void setupdefaultvalues() {
   flange3.begin(flangedelay3, FLANGE_DELAY_LENGTH, flangeoffset, flangedepth,
                 flangefreq);
 
-*/
+  */
 
-  for (int i = 0; i < synths_count; i++) {
-    setwavetypefromlist(i, Waveformstyped[i]);
-  }
+
   AudioNoInterrupts();
   for (int i = 0; i < fxs_count; i++) {
     delaypostmix[i]->gain(0, 1);
@@ -282,7 +280,10 @@ void setupdefaultvalues() {
   // looper
   //midiknobassigned[109] = 109;
   //note: WetMixMasterLs[0] is the dry channel
-
+  for (int i = 0; i < synths_count; i++) {
+    ccsynthselector = i;
+    call_setwavetypefromlist();
+  }
   // USB Line in
   InMixL.gain(0, 0);
   InMixR.gain(0, 0);

@@ -28,6 +28,8 @@ byte resonancemode;
 byte paramse1;
 byte paramse2;
 bool externalticker;
+bool filter_validated = 0 ;
+bool temp_buff_armed = 0 ;
 int starttaptime;
 int numberoftaps;
 int tapstime[5] = {0};
@@ -59,8 +61,8 @@ byte smixervknobs[16] = {127, 127, 127, 127, 127, 127, 127, 127,
                          127, 127, 127, 127, 127, 127, 127, 127};
 int lehalfbeat;
 
-int cutoff_pulse = 8;
-int reson_pulse = 8;
+byte cutoff_pulse = 8;
+byte reson_pulse = 8;
 int le303pulsewidth =(int)((cutoff_pulse / 32.0) * 2 * millitickinterval + 50);
 int le303pulsewidth2 =(int)((reson_pulse / 32.0) * 2 * millitickinterval + 50);
 byte offsetliner;
@@ -72,13 +74,13 @@ bool taptap_on = true;
 bool rec_looping;
 int tocker ;
 byte filter_lfo_option = 3 ;
-int le303ffilterzVknobs[3];
+byte le303ffilterzVknobs[3];
 
 byte songpage = 0;
 byte samplelinerspage;
 byte synthlinerspage;
 // LP BP HP 127
-int mixle303ffilterzVknobs[3];
+byte mixle303ffilterzVknobs[3];
 byte navrecmenu = 2;
 int laCCduration;
 int letempipolate;
@@ -87,7 +89,7 @@ byte settointerpolate[128];
 EXTMEM byte leccinterpolated[128];
 bool interpolOn = 1;
 float le303filterzgainz[3] = {1.0, 0, 0};
-int le303filterzwet;
+byte le303filterzwet;
 float le303filterzfreq = 10000;
 float le303filterzreso = 0.7;
 float le303filterzoctv = 0.25;
@@ -303,8 +305,9 @@ byte lapreviousnotewCmode[liners_count];
 int leglidershiftCmode[liners_count];
 int note_differenceCmode[liners_count];
 
-byte ccsynthselector;
-byte ccfxlineselector;
+byte ccsynthselector = 0;
+byte cclfoselector = 0 ;
+byte ccfxlineselector = 0;
 
 // lenght of the current interpolation
 // from leinterpolstart to [1] interpole target position
@@ -580,13 +583,13 @@ int LFOphase[synths_count] = {0,0,0};
 
 
 byte LFOmenuroot = 2;
-// TODO check offset of 50 ?
+//50 is center 0 for -1  +1 range
 int LFOoffset[synths_count] = {50,50,50};
 byte LFOformstype[synths_count] = {0, 0, 0};
 byte LFOfreqs[synths_count] = {100,100,100};
-byte LFOlevel[synths_count] = {100,100,100};
-bool LFOsync[synths_count];
-
+byte LFOlevel[synths_count] = {0,0,0};
+bool LFOsync[synths_count] = {0,0,0};
+//64 is center 0 for -1  +1 range
 byte wave1offset[synths_count] = {64,64,64};
 
 // File originefile ;
@@ -1341,3 +1344,9 @@ class SectionHolder{
         void (*_home)() = nullptr;
 };
 
+#include <play_sd_mp3.h>
+
+AudioPlaySdMp3           playMp31; 
+
+AudioConnection          mp3toInMix1(playMp31, 0, InMixL, 2);
+AudioConnection          mp3toInMix2(playMp31, 1, InMixR, 2);

@@ -680,10 +680,11 @@ void parsefile() {
   set_dry_mix(1);
 
   for (int i = 0; i < synths_count; i++) {
-    setwavemixlevel(i);
-    setwavetypefromlist(i, Waveformstyped[i]);
+    ccsynthselector = i ;
+    call_setwavemixlevel();
+    call_setwavetypefromlist();
     mixlevelsL[i] = tmp_mixlevelsL[i];
-    setwavemixlevel(i);
+    call_setwavemixlevel();
   }
   for (int i = 0; i < 4; i++) {
     WetMixMasters[i] = tmp_WetMixMasters[i];

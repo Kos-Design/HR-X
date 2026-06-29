@@ -28,6 +28,15 @@ void attach_menus(){
   }
 }
 //this feels so dumb
+void call_restart_lfo(int lelfo) {
+  _lf.restartLFO(lelfo%synths_count);
+};
+void call_setwavetypefromlist(){
+  _sn.setwavetypefromlist();
+}
+void call_setwavemixlevel(){
+  _sn.setwavemixlevel();
+}
 void call_sn_show(){
   _sn.show();
 }
@@ -62,13 +71,6 @@ void call_lf_show(){
   //TODO: chack why I had to call it that way since I populate some pointers unlike static _ka.show
   _lf.show();
 }
-void attach_menus_synths(){
-  // wavesline_selector,showmixerwaves, displayadsrgraph, empty,le303filterVpanel,
-  void (*synther_menus[])() = {wavesline_selector,showmixerwaves, displayadsrgraph, nullptr,le303filterVpanel};
-  for (int i=0;i<5;i++){
-    _sn.attach_nav_synth(i,synther_menus[i]);
-  }
-}
 
 String get_pattern_name_from_pt(int p_index) {
   return _pt.get_pattern_name(p_index);
@@ -88,17 +90,13 @@ void call_refresh_track(){
 void call_refreshevented2(){
   _pe.refreshevented2();
 }
+/*
+void MyClass::lfo_zero() {}
+void MyClass::LFOlining() {}
+*/
 
-void attach_lfo_menus(){
-  _lf.attach_lvl_2(LFOlining);
-  /*
-  void (*lfo_menus[3])() = {LFOlining,LFOlining, LFOlining};
-  
-  for (int i=0;i<3;i++){
-    lf.attach_nav_lfo(i,lfo_menus[i]);
-  }
-  */
-}
+
+
 void attach_menus_songs(){
   // wavesline_selector,showmixerwaves, displayadsrgraph, empty,le303filterVpanel,
   //void (*nav_songs_menu[])() = {"Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params","showSongShifterdisplays"};
@@ -233,8 +231,8 @@ void setup() {
   initdone = 1;
   pseudoconsole((char *)"Enjoy !");
   attach_menus();
-  attach_menus_synths();
-  attach_lfo_menus();
+  //attach_menus_synths();
+  //attach_lfo_menus();
   //knobs not
   attach_menus_songs();
   //done in class init
@@ -243,7 +241,7 @@ void setup() {
   attach_menus_sampler();
   attach_menus_waveforms();
   attach_menus_presets();
-
+  
 }
 
 
@@ -482,16 +480,17 @@ void controlswitcher(int caser, int valu) {
     case 48:
       // panLs[i-1]
       panLs[ccsynthselector] = map(smallfloat * 10.0, 0, 2, 0, 1);
-      setwavemixlevel(ccsynthselector);
+      _sn.setwavemixlevel();
       break;
     case 49:
-      FMmodulated[ccsynthselector] = round(smallfloat * 2.0);
-      setwavetypefromlist(ccsynthselector, Waveformstyped[ccsynthselector]);
+      FMmodulated[ccsynthselector] = round(smallfloat * 3.0);
+      //Waveformstyped[ccsynthselector] = ;
+      _sn.setwavetypefromlist();
       break;
 
     case 50:
       Waveformstyped[ccsynthselector] = round(smallfloat * 11.0);
-      setwavetypefromlist(ccsynthselector, Waveformstyped[ccsynthselector]);
+      _sn.setwavetypefromlist();
       break;
     case 51:
       wave1offset[ccsynthselector] = round(smallfloat * 127.0);
@@ -505,7 +504,7 @@ void controlswitcher(int caser, int valu) {
       break;
     case 52:
       phaselevelsL[ccsynthselector] = round(smallfloat * 360.0);
-      setphaselevel(ccsynthselector);
+      _sn.setphaselevel();
       break;
     case 53:
       LFOlevel[ccsynthselector] = round(smallfloat * 127.0);

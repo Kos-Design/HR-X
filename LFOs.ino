@@ -1,302 +1,3 @@
-void displayLFOpanel(int lesynth) {
-  sublevels[0] = 1;
-  sublevels[1] = lesynth;
-  sublevels[2] = 0;
-  navrange = sizeofLFOlabels - 1;
-  navlevel = 2;
-  dm._nav_zero[sublevels[0]]();
-  //LFOlining();
-  // type
-  // amplitude
-  // offset
-  // phase
-  // sync
-}
-
-void LFOmenuBG(int leLFO) {
-  canvasBIG.setTextSize(1);
-  canvasBIG.setCursor(122, 58);
-  canvasBIG.print(leLFO + 1);
-}
-
-void applyLFOrmicon(int lesinthy) {
-  // displaywaveformicon(sublevels[4],(char*)"SineWave",sinewave, lesynthi,
-  // WAVEFORM_SINE);
-  if (navlevel > 3) {
-    LFOformstype[lesinthy] = sublevels[3];
-
-    if (navlevel >= 4) {
-      returntonav(2, 9);
-    }
-  }
-}
-
-void LFOrmType(int leLFO) {
-  if (navlevel == 2){
-    sublevels[3] = LFOformstype[leLFO];
-  }
-  if (navlevel == 3) {
-    navrange = 8;
-  }
-
-  switch (sublevels[3]) {
-  case 0:
-    displayLFOrmimg(sublevels[3], (char *)"SineWave", sinewave, leLFO,
-                    WAVEFORM_SINE);
-    break;
-  case 1:
-    displayLFOrmimg(sublevels[3], (char *)"SawWave", sawtoothwave, leLFO,
-                    WAVEFORM_SAWTOOTH);
-    break;
-  case 2:
-    displayLFOrmimg(sublevels[3], (char *)"ReverseSaw", reversesawtoothwave,
-                    leLFO, WAVEFORM_SAWTOOTH_REVERSE);
-    break;
-  case 3:
-    displayLFOrmimg(sublevels[3], (char *)"Triangle", trianglewave, leLFO,
-                    WAVEFORM_TRIANGLE);
-    break;
-  case 4:
-    displayLFOrmimg(sublevels[3], (char *)"V-Triangle", variabletriangle, leLFO,
-                    WAVEFORM_TRIANGLE_VARIABLE);
-    break;
-  case 5:
-    displayLFOrmimg(sublevels[3], (char *)"SquareWave", squarewave, leLFO,
-                    WAVEFORM_SQUARE);
-    break;
-  case 6:
-    displayLFOrmimg(sublevels[3], (char *)"PulseWave", pulsewave, leLFO,
-                    WAVEFORM_PULSE);
-    break;
-  case 7:
-    displayLFOrmimg(sublevels[3], (char *)"Arbitrary", arbitrarywave, leLFO,
-                    WAVEFORM_ARBITRARY);
-    break;
-  case 8:
-    displayLFOrmimg(sublevels[3], (char *)"SampleHold", samplehold, leLFO,
-                    WAVEFORM_SAMPLE_HOLD);
-    break;
-
-  default:
-    break;
-  }
-   if (navlevel >= 4) {
-    LFOformstype[leLFO] = sublevels[3];
-    restartLFO(leLFO);
-    gobacktolfoparams();
-  }
-}
-
-void restartLFO(int leLFO) {
-  AudioNoInterrupts();
-  if (LFOsync[leLFO]) {
-    float syncher = 1.0 ;
-    if (millitickinterval) {
-      syncher = (1000.00/(millitickinterval+1));
-    }
-
-    LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), (LFOfreqs[leLFO]/127.0)*syncher, lesformes[LFOformstype[leLFO]]);
-  } else {
-    LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), (LFOfreqs[leLFO]/127.0)*2, lesformes[LFOformstype[leLFO]]);
-  }
-  if (LFOformstype[leLFO] == 7) {
-    LFOwaveforms1[leLFO]->arbitraryWaveform(arbitrary_waveforms[leLFO],1.0);
-  }
-
-  for (byte i = 0; i < liners_count; i++) {
-    if (FMmodulated[leLFO] == 1) {
-      //phaseModulation should be based on lfo level
-      FMwaveforms1[i + (leLFO * liners_count)]->frequencyModulation((LFOlevel[leLFO]/127.00)*10);
-    }
-    else if (FMmodulated[leLFO] == 2) {
-      FMwaveforms1[i + (leLFO * liners_count)]->phaseModulation((LFOlevel[leLFO]/127.00) * 360 - 180);
-    }
-  }
-
-  AudioInterrupts();
-}
-
-void displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int leLFO, typeof(WAVEFORM_SINE) wavetype) {
-
-  canvasBIG.drawBitmap(70, 20, img, 32, 32, SSD1306_WHITE);
-  canvastitle.setTextSize(1); // Draw 1X-scale text
-  canvastitle.setTextColor(SSD1306_WHITE);
-  canvastitle.setCursor(64, 8);
-  canvastitle.println(lelabelw);
-  // dodisplay();
-}
-
-void doLFObool(int leLFO) {
-  if (navlevel == 3) {
-    LFOsync[leLFO] = !LFOsync[leLFO];
-    restartLFO(leLFO);
-  }
-  display.setCursor(55, 0);
-  display.setTextSize(2);
-  if (LFOsync[leLFO]) {
-    display.print("Active");
-  } else {
-    display.print("Off");
-  }
-  display.display();
-  if (navlevel >= 4) {
-    returntonav(2, 2);
-  }
-}
-
-void gobacktolfoparams() { returntonav(2); }
-
-void doLFOparamdisplayval(int laval) {
-  canvastitle.setCursor(80, 0);
-  canvastitle.setTextSize(2);
-  canvastitle.print(laval);
-}
-
-void draw_lfo_val(float laval) {
-  canvastitle.setCursor(80, 0);
-  canvastitle.setTextSize(2);
-  canvastitle.print(laval);
-}
-
-void doLFOlevel(int leLFO) {
-  if (navlevel == 3) {
-    navrange = 127;
-    LFOlevel[leLFO] = sublevels[3];
-  } else {
-    sublevels[3] = LFOlevel[leLFO];
-  }
-  if (navlevel >= 4) {
-    gobacktolfoparams();
-  }
-  draw_lfo_val(LFOlevel[leLFO] / 127.0);
-}
-
-void doLFOoffset(int leLFO) {
-  if (navlevel == 3) {
-    navrange = 100;
-    LFOoffset[leLFO] = sublevels[3];
-    doLFOallcontrols(leLFO);
-  } else {
-    sublevels[3] = LFOoffset[leLFO];
-  }
-  if (navlevel >= 4) {
-    gobacktolfoparams();
-  }
-  draw_lfo_val(((50.0 - LFOoffset[leLFO]) / 50.0));
-}
-
-void doLFOphase(int leLFO) {
-  if (navlevel == 3) {
-    navrange = 100;
-    LFOphase[leLFO] = sublevels[3];
-    doLFOallcontrols(leLFO);
-    // restartLFO(leLFO);
-  } else {
-    sublevels[3] = LFOphase[leLFO];
-  }
-  if (navlevel >= 4) {
-    gobacktolfoparams();
-  }
-  doLFOparamdisplayval(LFOphase[leLFO]);
-}
-
-void doLFOfreqd(int leLFO) {
-  // set lfosine1 lfosinez[leLFO]->
-  if (navlevel == 3) {
-    navrange = 127;
-    LFOfreqs[leLFO] = sublevels[3];
-     doLFOallcontrols(leLFO);
-  } else {
-    sublevels[3] = LFOfreqs[leLFO];
-  }
-  if (navlevel >= 4) {
-    gobacktolfoparams();
-  }
-  doLFOparamdisplayval(LFOfreqs[leLFO]);
-}
-
-void dolistLFOparams() {
-  char LFOlabels[sizeofLFOlabels][12] = {"Type",  "Level",  "Sync",
-                                         "Freq",  "Offset", "Phase",
-                                         "Synth", "<-  ",   "  ->"};
-  display.clearDisplay();
-  int startx = 5;
-  int starty = 16;
-  char *textin = (char *)LFOlabels[sublevels[2]];
-
-  dm.clean_title_2();
-  canvastitle.println(textin);
-
-  canvasBIG.setTextSize(1);
-
-
-
-  for (int filer = 0; filer < sizeofLFOlabels - 1 - (sublevels[2]); filer++) {
-
-    canvasBIG.setCursor(startx, starty + ((filer)*10));
-    canvasBIG.println(LFOlabels[sublevels[2] + 1 + filer]);
-  }
-  for (int filer = 0; filer < sublevels[2]; filer++) {
-
-    canvasBIG.setCursor(
-        startx, (10 * (sizeofLFOlabels - sublevels[2]) + 6 + ((filer)*10)));
-    canvasBIG.println(LFOlabels[filer]);
-  }
-}
-
-void doLFOallcontrols(byte leLFO) {
-  restartLFO(leLFO);
-  LFOwaveforms1[leLFO]->phase(0.36 * LFOphase[leLFO]);
-  LFOwaveforms1[leLFO]->offset((float)(((50.0 - LFOoffset[leLFO]) / 50.0)));
-}
-
-void LFOlining() {
-  int leLFO = sublevels[1];
-  dolistLFOparams();
-  if (navlevel >= LFOmenuroot) {
-    navrange = sizeofLFOlabels - 1;
-    if (sublevels[2] == 0) {LFOrmType(leLFO);}
-    if (sublevels[2] == 1) {doLFOlevel(leLFO);}
-    if (sublevels[2] == 2) {doLFObool(leLFO);}
-    if (sublevels[2] == 3) {doLFOfreqd(leLFO);}
-    if (sublevels[2] == 4) {doLFOoffset(leLFO);}
-    if (sublevels[2] == 5) {doLFOphase(leLFO);}
-    if (sublevels[2] == 6) {
-      if (navlevel >= 3) {
-        // go to synth
-        sublevels[0] = 0;
-        sublevels[2] = sublevels[1];
-        wavelinepanel(sublevels[2]);
-      }
-    }
-    //previous <--
-    if (sublevels[2] == 7) {
-      if (navlevel >= 3) {
-        if (leLFO > 0) {
-          sublevels[1]--;
-        } else {
-          sublevels[1] = 2;
-        }
-        navlevel--;
-        dm.lemenuroot();
-      }
-    }
-    // next -->
-    if (sublevels[2] == 8) {
-      if (navlevel >= 3) {
-        if (leLFO < 2) {
-          sublevels[1]++;
-        } else {
-          sublevels[1] = 0;
-        }
-        navlevel--;
-        dm.lemenuroot();
-      }
-    }
-    LFOmenuBG(leLFO);
-    dodisplay();
-  }
-}
 
 class LFOMenuRouter : public SectionHolder {
     public:
@@ -305,30 +6,293 @@ class LFOMenuRouter : public SectionHolder {
                     this->relative_navlevel=1;
                     this->max_navlevel=5;
                     this->sublevels_address={1,0,0};
-                    //home method not really used yet
                     this->set_home(call_lf_show);
                     }
+
         void show() {
-            //(ka.*KnobAssigner::actions[0])();
-            (this->*LFOMenuRouter::_route_nav[navlevel-1])();
+          (this->*LFOMenuRouter::_nav_lfo[navlevel-1])();
         }
 
-        void route_navlevel_1(){
-            home();
-        }    
-        void route_navlevel_2(){
-            _lvl_2();
-
-            //LFOlining();
-        }
-        void route_navlevel_3(){
-            Serial.println("lfo3");        
-        }    
-        void route_navlevel_4(){
-            Serial.println("lfo4");
+        void LFOmenuBG() {
+          int leLFO=cclfoselector;
+          canvasBIG.setTextSize(1);
+          canvasBIG.setCursor(122, 58);
+          canvasBIG.print(leLFO + 1);
         }
 
-        void printLFObanner(int startx, int starty, int leLFO) {
+        void applyLFOrmicon(int lesinthy) {
+          // displaywaveformicon(sublevels[4],(char*)"SineWave",sinewave, lesynthi,
+          // WAVEFORM_SINE);
+          if (navlevel > 3) {
+            LFOformstype[lesinthy] = sublevels[3];
+
+            if (navlevel >= 4) {
+              returntonav(2, 9);
+            }
+          }
+        }
+
+        void LFOrmType() {
+          int leLFO=cclfoselector;
+          if (navlevel == 2){
+            sublevels[3] = LFOformstype[leLFO];
+          }
+          if (navlevel == 3) {
+            navrange = 8;
+          }
+
+          switch (sublevels[3]) {
+          case 0:
+            displayLFOrmimg(sublevels[3], (char *)"SineWave", sinewave, leLFO,
+                            WAVEFORM_SINE);
+            break;
+          case 1:
+            displayLFOrmimg(sublevels[3], (char *)"SawWave", sawtoothwave, leLFO,
+                            WAVEFORM_SAWTOOTH);
+            break;
+          case 2:
+            displayLFOrmimg(sublevels[3], (char *)"ReverseSaw", reversesawtoothwave,
+                            leLFO, WAVEFORM_SAWTOOTH_REVERSE);
+            break;
+          case 3:
+            displayLFOrmimg(sublevels[3], (char *)"Triangle", trianglewave, leLFO,
+                            WAVEFORM_TRIANGLE);
+            break;
+          case 4:
+            displayLFOrmimg(sublevels[3], (char *)"V-Triangle", variabletriangle, leLFO,
+                            WAVEFORM_TRIANGLE_VARIABLE);
+            break;
+          case 5:
+            displayLFOrmimg(sublevels[3], (char *)"SquareWave", squarewave, leLFO,
+                            WAVEFORM_SQUARE);
+            break;
+          case 6:
+            displayLFOrmimg(sublevels[3], (char *)"PulseWave", pulsewave, leLFO,
+                            WAVEFORM_PULSE);
+            break;
+          case 7:
+            displayLFOrmimg(sublevels[3], (char *)"Arbitrary", arbitrarywave, leLFO,
+                            WAVEFORM_ARBITRARY);
+            break;
+          case 8:
+            displayLFOrmimg(sublevels[3], (char *)"SampleHold", samplehold, leLFO,
+                            WAVEFORM_SAMPLE_HOLD);
+            break;
+
+          default:
+            break;
+          }
+          if (navlevel >= 4) {
+            LFOformstype[leLFO] = sublevels[3];
+            call_restart_lfo(leLFO);
+            gobacktolfoparams();
+          }
+        }
+
+
+
+        void displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int leLFO, typeof(WAVEFORM_SINE) wavetype) {
+
+          canvasBIG.drawBitmap(70, 20, img, 32, 32, SSD1306_WHITE);
+          canvastitle.setTextSize(1); // Draw 1X-scale text
+          canvastitle.setTextColor(SSD1306_WHITE);
+          canvastitle.setCursor(64, 8);
+          canvastitle.println(lelabelw);
+          // dodisplay();
+        }
+
+        void doLFObool() {
+          int leLFO=cclfoselector;
+          if (navlevel == 3) {
+            LFOsync[leLFO] = !LFOsync[leLFO];
+            restartLFO(leLFO);
+          }
+          display.setCursor(55, 0);
+          display.setTextSize(2);
+          if (LFOsync[leLFO]) {
+            display.print("Active");
+          } else {
+            display.print("Off");
+          }
+          display.display();
+          if (navlevel >= 4) {
+            returntonav(2, 2);
+          }
+        }
+
+        void gobacktolfoparams() { returntonav(2); }
+
+        void doLFOparamdisplayval(int laval) {
+          canvastitle.setCursor(80, 0);
+          canvastitle.setTextSize(2);
+          canvastitle.print(laval);
+        }
+
+        void draw_lfo_val(float laval) {
+          canvastitle.setCursor(80, 0);
+          canvastitle.setTextSize(2);
+          canvastitle.print(laval);
+        }
+
+        void doLFOlevel() {
+          int leLFO=cclfoselector;
+          if (navlevel == 3) {
+            navrange = 127;
+            LFOlevel[leLFO] = sublevels[3];
+          } else {
+            sublevels[3] = LFOlevel[leLFO];
+          }
+          if (navlevel >= 4) {
+            gobacktolfoparams();
+          }
+          draw_lfo_val(LFOlevel[leLFO] / 127.0);
+        }
+
+        void doLFOoffset() {
+          int leLFO=cclfoselector;
+          if (navlevel == 3) {
+            navrange = 100;
+            LFOoffset[leLFO] = sublevels[3];
+            doLFOallcontrols(leLFO);
+          } else {
+            sublevels[3] = LFOoffset[leLFO];
+          }
+          if (navlevel >= 4) {
+            gobacktolfoparams();
+          }
+          draw_lfo_val(((50.0 - LFOoffset[leLFO]) / 50.0));
+        }
+
+        void doLFOphase() {
+          int leLFO=cclfoselector;
+          if (navlevel == 3) {
+            navrange = 100;
+            LFOphase[leLFO] = sublevels[3];
+            doLFOallcontrols(leLFO);
+            // restartLFO(leLFO);
+          } else {
+            sublevels[3] = LFOphase[leLFO];
+          }
+          if (navlevel >= 4) {
+            gobacktolfoparams();
+          }
+          doLFOparamdisplayval(LFOphase[leLFO]);
+        }
+
+        void doLFOfreqd() {
+          int leLFO=cclfoselector;
+          // set lfosine1 lfosinez[leLFO]->
+          if (navlevel == 3) {
+            navrange = 127;
+            LFOfreqs[leLFO] = sublevels[3];
+            doLFOallcontrols(leLFO);
+          } else {
+            sublevels[3] = LFOfreqs[leLFO];
+          }
+          if (navlevel >= 4) {
+            gobacktolfoparams();
+          }
+          doLFOparamdisplayval(LFOfreqs[leLFO]);
+        }
+
+        void dolistLFOparams() {
+          char LFOlabels[sizeofLFOlabels][12] = {"Type",  "Level",  "Sync",
+                                                "Freq",  "Offset", "Phase",
+                                                "Synth", "<-  ",   "  ->"};
+          display.clearDisplay();
+          int startx = 5;
+          int starty = 16;
+          char *textin = (char *)LFOlabels[sublevels[2]];
+
+          dm.clean_title_2();
+          canvastitle.println(textin);
+
+          canvasBIG.setTextSize(1);
+
+
+
+          for (int filer = 0; filer < sizeofLFOlabels - 1 - (sublevels[2]); filer++) {
+
+            canvasBIG.setCursor(startx, starty + ((filer)*10));
+            canvasBIG.println(LFOlabels[sublevels[2] + 1 + filer]);
+          }
+          for (int filer = 0; filer < sublevels[2]; filer++) {
+
+            canvasBIG.setCursor(
+                startx, (10 * (sizeofLFOlabels - sublevels[2]) + 6 + ((filer)*10)));
+            canvasBIG.println(LFOlabels[filer]);
+          }
+        }
+
+        void doLFOallcontrols(byte leLFO) {
+          restartLFO(leLFO);
+          LFOwaveforms1[leLFO]->phase(0.36 * LFOphase[leLFO]);
+          LFOwaveforms1[leLFO]->offset((float)(((50.0 - LFOoffset[leLFO]) / 50.0)));
+        }
+        void go_to_synth(){
+          if (navlevel >= 3) {
+            sublevels[0] = 0;
+            sublevels[2] = sublevels[1];
+            sublevels[1] = 0;
+            //wavelinepanel(sublevels[2]);
+            returntonav(navlevel+2);
+          }
+        }
+       
+        void go_previous(){
+          
+          if (navlevel >= 3) {
+            cclfoselector = (cclfoselector-1)%3;
+            sublevels[1] = cclfoselector ;
+            returntonav(navlevel-1,sizeofLFOlabels-1,sublevels[2]);
+            }
+        }
+        void go_next(){
+          
+          if (navlevel >= 3) {
+            cclfoselector = (cclfoselector+1)%3;
+            sublevels[1] = cclfoselector ;
+            returntonav(navlevel-1,sizeofLFOlabels-1,sublevels[2]);
+            }
+        }
+        void restartLFO(int leLFO=cclfoselector) {
+          AudioNoInterrupts();
+          if (LFOsync[leLFO]) {
+            float syncher = 1.0 ;
+            if (millitickinterval) {
+              syncher = (1000.00/(millitickinterval+1));
+            }
+
+            LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), (LFOfreqs[leLFO]/127.0)*syncher, lesformes[LFOformstype[leLFO]]);
+          } else {
+            LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), (LFOfreqs[leLFO]/127.0)*2, lesformes[LFOformstype[leLFO]]);
+          }
+          if (LFOformstype[leLFO] == 7) {
+            LFOwaveforms1[leLFO]->arbitraryWaveform(arbitrary_waveforms[leLFO],1.0);
+          }
+
+          for (byte i = 0; i < liners_count; i++) {
+            if (FMmodulated[leLFO] == 1) {
+              //phaseModulation should be based on lfo level
+              FMwaveforms1[i + (leLFO * liners_count)]->frequencyModulation((LFOlevel[leLFO]/127.00)*10);
+            }
+            else if (FMmodulated[leLFO] == 2) {
+              FMwaveforms1[i + (leLFO * liners_count)]->phaseModulation((LFOlevel[leLFO]/127.00) * 360 - 180);
+            }
+          }
+
+          AudioInterrupts();
+        }
+        void LFOlining() {
+          navrange = 8;
+          int leLFO = sublevels[1]%3;
+          dolistLFOparams();
+          (this->*LFOMenuRouter::_route_nav[sublevels[2]])();
+          LFOmenuBG();
+          dodisplay();
+        }
+
+        void printLFObanner(int startx, int starty, int leLFO=cclfoselector) {
             display.fillRect(startx, starty, 64, 24, SSD1306_INVERSE);
             dm.printlabel((char*)"LFO ");
             display.setCursor(116, 0);
@@ -371,31 +335,26 @@ class LFOMenuRouter : public SectionHolder {
             break;
             }
         }
-
-        void attach_nav_lfo(uint8_t index, void (*cb)())
-        {
-            if (index < 5)
-                _nav_lfo[index] = cb;
-        }
-        void attach_lvl_2(void (*cb)())
-        {
-            _lvl_2 = cb;
-        }
+       
     private:
-        using Action = void (LFOMenuRouter::*)();
+        using lf = void (LFOMenuRouter::*)();
 
-        static constexpr Action _route_nav[5] = {
-            &LFOMenuRouter::route_navlevel_1,
-            &LFOMenuRouter::route_navlevel_2,
-            &LFOMenuRouter::route_navlevel_2,
-            &LFOMenuRouter::route_navlevel_2,
-            &LFOMenuRouter::route_navlevel_2
+        static constexpr lf _route_nav[9] = {
+            &LFOMenuRouter::LFOrmType,
+            &LFOMenuRouter::doLFOlevel,
+            &LFOMenuRouter::doLFObool,
+            &LFOMenuRouter::doLFOfreqd,
+            &LFOMenuRouter::doLFOoffset,
+            &LFOMenuRouter::doLFOphase,
+            &LFOMenuRouter::go_to_synth,
+            &LFOMenuRouter::go_previous,
+            &LFOMenuRouter::go_next
         };
+        //void (LFOMenuRouter::*_nav_lfo[7])() = {nullptr};
+        lf _nav_lfo[7] = {&LFOMenuRouter::lfo_zero, &LFOMenuRouter::LFOlining,
+                                                  &LFOMenuRouter::LFOlining,&LFOMenuRouter::LFOlining,
+                                                  &LFOMenuRouter::LFOlining,&LFOMenuRouter::LFOlining,&LFOMenuRouter::LFOlining};
 
-        //static constexpr void (*_route_nav[4])() = {route_navlevel_1,route_navlevel_2,route_navlevel_3,route_navlevel_4};
-        void (*_nav_lfo[3])() = {nullptr};
-
-        void (*_lvl_2)() = nullptr;
 };
 
 LFOMenuRouter _lf = LFOMenuRouter();

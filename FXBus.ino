@@ -1208,7 +1208,7 @@ void lfoonfilterreplug(byte lefilter) {
   unpluglfoonfilterz(lefilter);
   if (LFOonfilterz[lefilter] < synths_count) {
     LFOtoFilterz[((fxs_count * lefilter) + LFOonfilterz[lefilter])]->connect();
-    restartLFO(LFOonfilterz[lefilter]);
+    call_restart_lfo(LFOonfilterz[lefilter]);
   }
 
 }
