@@ -1,7 +1,4 @@
 
-byte filter_tmp_values[10] = {le303ffilterzVknobs[0],le303ffilterzVknobs[1],mixle303ffilterzVknobs[0],mixle303ffilterzVknobs[1],mixle303ffilterzVknobs[2],
-                                      le303filterzwet,cutoff_pulse,reson_pulse,preampleswaves,glidemode };
-
 void initialize303group() {
 
   for (int i = 0; i < liners_count; i++) {
@@ -176,6 +173,7 @@ class SynthMenuRouter : public SectionHolder {
             synth_nav_zero();
         }
         void route_navlevel_2(){
+          retroaction = sublevels[1] ;
             _nav_synth[sublevels[1]]();
         }
 
@@ -387,15 +385,12 @@ class SynthMenuRouter : public SectionHolder {
           display.display();
         }
 
-        static void wavelining(int startx, int starty, char *leprintlabel) {
+        static void wavelining() {
           if (navlevel >= 2) {
-            if (navlevel == 2) {
-              display.fillRect(startx, starty, 64, 24, SSD1306_INVERSE);
-              dm.printlabel(leprintlabel);
-              display.display();
-            }
+       
             if (navlevel >= 3) {
               if (navlevel == 3) {
+                retroaction = sublevels[2];
                 navrange = synth_params_count - 1;
                 wavelinemenuBG();
                 display.display();
@@ -422,6 +417,7 @@ class SynthMenuRouter : public SectionHolder {
                 }
               }
               if (navlevel >= 4) {
+                retroaction = sublevels[3];
                 wavelinepanel();
               }
             }
@@ -756,31 +752,29 @@ class SynthMenuRouter : public SectionHolder {
             canvasBIG.println(synthmenulabels[i]);
           }
         }
+        static void synths_switcher(){
+          String titled = "Waveline ";
+          ccsynthselector = sublevels[2]%synths_count;
+          String synth_num = ccsynthselector + 1 ;
+          navrange = synths_count-1;
+          String leprintlabel = titled + synth_num ;
+          wavelinesBG();
+          sublevels[3] = 0;
+          
+          display.fillRect(0+(ccsynthselector%2)*64, 16+(24*(ccsynthselector/2)), 64, 24, SSD1306_INVERSE);
+          dm.printlabel((char*)leprintlabel.c_str());
+          display.display();
 
+        }
         static void wavesline_selector(){
           if (navlevel == 2) {
-                navrange = synths_count-1;
-                wavelinesBG();
-                sublevels[3] = 0;
-                ccsynthselector = sublevels[2]%synths_count;
+                synths_switcher();
               }
-              switch (ccsynthselector) {
-                case 0:
-                  toprint = (char *)"Waveline 1";
-                  wavelining(0, 16, toprint );
-                  break;
-                case 1:
-                  toprint = (char *)"Waveline 2";
-                  wavelining(64, 16, toprint );
-                  break;
-                case 2:
-                  toprint = (char *)"Waveline 3";
-                  wavelining(0, 40, toprint );
-                  break;
-                default:
-                  break;
-              }
+
+                  wavelining();
+
         }
+        
 
         void synth_nav_zero() {
           if (navlevel == 1) {
@@ -789,8 +783,9 @@ class SynthMenuRouter : public SectionHolder {
             reinitsublevels(2);
             dolistsyntmenu();
             dodisplay();
+            return;
           }
-
+          retroaction = sublevels[1] ;
           if (sublevels[1] == 3 && navlevel > 1) {
             navrange = synths_count-1;
             placeholder();
@@ -921,38 +916,42 @@ class SynthMenuRouter : public SectionHolder {
         static void le303filterVpanelAction() {
           
           if (navlevel == 3) {
+            retroaction = sublevels[2];
             navrange = 127;
             if (!temp_buff_armed) {
-              //filter_tmp_values[] = {le303ffilterzVknobs[0],le303ffilterzVknobs[1],mixle303ffilterzVknobs[0],mixle303ffilterzVknobs[1],mixle303ffilterzVknobs[2],le303filterzwet,cutoff_pulse,reson_pulse,preampleswaves,glidemode }
+              Serial.println("");
+              Serial.print("storing res = ");
+              Serial.print(le303ffilterzVknobs[1]);
               set_filter_buff_temp();
               temp_buff_armed = 1 ;
             } 
-            filter_validated = 0 ;
+            
             // AudioNoInterrupts();
             (filters_pointers[sublevels[2]])();
             le303filtercontrols();
+            Serial.print(*filter_tmp_pointers[1]);
+            Serial.print(" ");
+            Serial.print(filter_tmp_values[1]);
+            
           }
           if (navlevel > 3) {
-            filter_validated = 1;
             temp_buff_armed = 0 ;
             returntonav(2,9,sublevels[2]);
           }
         }
 
         static void restore_from_temp() {
-          byte *filter_tmp_pointers[] = { &le303ffilterzVknobs[0], &le303ffilterzVknobs[1], &mixle303ffilterzVknobs[0], &mixle303ffilterzVknobs[1], &mixle303ffilterzVknobs[2],
-                                          &le303filterzwet, &cutoff_pulse, &reson_pulse, &preampleswaves, &glidemode };
           for (int i=0; i<10; i++) {
-            sublevels[3] = *filter_tmp_pointers[i];
-            *filter_tmp_pointers[i] = filter_tmp_values[i] ;
+            sublevels[3] = filter_tmp_values[i];
             (filters_pointers[i])();
+            le303filtercontrols();
+            *filter_tmp_pointers[i] = filter_tmp_values[i] ;
           }
-           le303filtercontrols();
+           temp_buff_armed = 0 ;
         }
 
         static void set_filter_buff_temp() {
-          byte *filter_tmp_pointers[] = { &le303ffilterzVknobs[0], &le303ffilterzVknobs[1], &mixle303ffilterzVknobs[0], &mixle303ffilterzVknobs[1], &mixle303ffilterzVknobs[2],
-                                          &le303filterzwet, &cutoff_pulse, &reson_pulse, &preampleswaves, &glidemode };
+
           for (int i=0; i<10; i++) {
             filter_tmp_values[i] = *filter_tmp_pointers[i] ;
           }
@@ -960,10 +959,11 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void le303filterVpanel() {
-          //if back from knob and ! filter_validated : revert from temp ( all or just the changed one ? -> knob validation updates temps )
+          
+          //if back from knob and !  : revert from temp ( all or just the changed one ? -> knob validation updates temps )
           // when set temp
           le303filterVpanelAction();
-          if (navlevel == 2 && temp_buff_armed && !filter_validated) {
+          if (navlevel == 2 && temp_buff_armed) {
             restore_from_temp();
           }
           int knobradius = 9;
@@ -1595,7 +1595,8 @@ class SynthMenuRouter : public SectionHolder {
 
         static constexpr void (*filters_pointers[10])() = {filter_knob_freq,filter_knob_res,filter_knob_low,filter_knob_band, filter_knob_high,
                                                 filter_knob_wet, filter_knob_pulse1, filter_knob_pulse2, filter_knob_preamp ,filter_knob_glide};
-
+        //static constexpr lf _synth_params[] = {
+        //}; 
         static constexpr sn _route_nav[7] = {
             &SynthMenuRouter::route_navlevel_1,
             &SynthMenuRouter::route_navlevel_2,
@@ -1607,7 +1608,7 @@ class SynthMenuRouter : public SectionHolder {
         };
         /*using lf = void (LFOMenuRouter::*)();
 
-        static constexpr lf _synth_params[9] = {
+       
             &LFOMenuRouter::synthrmType,
             &synthMenuRouter::doSynthlevel,
             &synthMenuRouter::dosynthbool,

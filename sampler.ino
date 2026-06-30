@@ -1,7 +1,4 @@
 
-const int FlashChipSelect = 6;
-int samplesSelected = 0;
-int recupsublevel;
 
 void setlefilenamed(int lefolder, int lefile, char *lefname) {
   int fnamesize = strlen((char *)lefname);

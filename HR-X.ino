@@ -28,7 +28,6 @@ byte resonancemode;
 byte paramse1;
 byte paramse2;
 bool externalticker;
-bool filter_validated = 0 ;
 bool temp_buff_armed = 0 ;
 int starttaptime;
 int numberoftaps;
@@ -371,7 +370,12 @@ GFXcanvas1 canvastitle(128, 16);
 #define SDCARD_MOSI_PIN 7
 #define SDCARD_SCK_PIN 14
 short lefakeselector;
+// SD reader on chipSelect 10
 const int chipSelect = 10;
+//flash player is in 6
+const int FlashChipSelect = 6;
+int samplesSelected = 0;
+
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
@@ -1026,6 +1030,11 @@ AudioAmplifier *Wavespreamp303[liners_count] = {&wavePAmp0, &wavePAmp1, &wavePAm
 
 AudioSynthWaveform *LFOwaveforms1[synths_count] = {&LFOrm1, &LFOrm2, &LFOrm3};
 
+byte *filter_tmp_pointers[] = { &le303ffilterzVknobs[0], &le303ffilterzVknobs[1], &mixle303ffilterzVknobs[0], &mixle303ffilterzVknobs[1], &mixle303ffilterzVknobs[2],
+                                          &le303filterzwet, &cutoff_pulse, &reson_pulse, &preampleswaves, &glidemode };
+
+byte filter_tmp_values[10] = {le303ffilterzVknobs[0],le303ffilterzVknobs[1],mixle303ffilterzVknobs[0],mixle303ffilterzVknobs[1],mixle303ffilterzVknobs[2],
+                                      le303filterzwet,cutoff_pulse,reson_pulse,preampleswaves,glidemode };
 
 class SequencerClocker : public AudioStream
 {

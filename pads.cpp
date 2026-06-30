@@ -50,10 +50,10 @@ Pads::Pads() {}
 void Pads::begin() { customKeypad.begin(); }
 void Pads::pads_to_note() { customKeypad.begin(); }
 bool Pads::get_back() {
-  if (back_pressed == true) {
+  if (back_pressed) {
     back_pressed = false;
     return true;
-  };
+  }
   return false;
 }
 
