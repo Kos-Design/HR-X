@@ -356,7 +356,7 @@ int lavelocity;
 int interpolated_ctrls = 0;
 int availableliner;
 int olderliner;
-
+byte mp3_ext ;
 byte fffnote;
 byte cellsizer = 3;
 byte celltall = 9;
@@ -773,6 +773,13 @@ int flangeoffset = FLANGE_DELAY_LENGTH / 4;
 int flangedepth = FLANGE_DELAY_LENGTH / 4;
 
 double flangefreq = 0.5;
+
+String mp3_name = "MP3/Addict.mp3";
+String mp3_dir = "MP3/";
+bool mp3_paused ;
+bool mp3_shuffle ;
+int file_index = 0 ;
+int next_mp3 = 0 ;
 
 #define GRANULAR_MEMORY_SIZE 12800
 // 12800 is for 290 ms at 44.1 kHz
@@ -1354,8 +1361,13 @@ class SectionHolder{
 };
 
 #include <play_sd_mp3.h>
+#include <play_sd_flac.h>
 
 AudioPlaySdMp3           playMp31; 
+AudioPlaySdFlac          playFlac1;
 
 AudioConnection          mp3toInMix1(playMp31, 0, InMixL, 2);
 AudioConnection          mp3toInMix2(playMp31, 1, InMixR, 2);
+
+AudioConnection          flactoInMix1(playFlac1, 0, InMixL, 3);
+AudioConnection          flactoInMix2(playFlac1, 1, InMixR, 3);

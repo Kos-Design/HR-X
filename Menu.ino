@@ -116,7 +116,7 @@ class KnobAssigner : public SectionHolder {
 
   private:
 
-    static constexpr void (*_actionable[3])() = { kb_home, assigner, set_it };
+    static constexpr void (*_actionable[3])() = { &kb_home, &assigner, &set_it };
 
 };
 

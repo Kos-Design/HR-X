@@ -177,10 +177,16 @@ class SynthMenuRouter : public SectionHolder {
             _nav_synth[sublevels[1]]();
         }
 
-
         static void displayoffsetwav() {
+          dm.clear_3();
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1; 
+            sublevels[4] = wave1offset[ccsynthselector];
+          }
           if (navlevel == 4) {
             navrange = 127;
+            retroaction = sublevels[3];
             wave1offset[ccsynthselector] = sublevels[4];
             for (int i = 0; i < liners_count; i++) {
               waveforms1[i + (ccsynthselector * liners_count)]->offset((float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
@@ -188,23 +194,29 @@ class SynthMenuRouter : public SectionHolder {
             }
           }
           if (navlevel >= 5) {
-            returntonav(3, 9);
+            returntonav(3,synth_params_count-1,sublevels[3]);
+            return;
           }
-          wavelinemenuBG();
+          display.setTextSize(1);
+          display.setCursor(80, 8);
+          display.print((float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
+          
           draw_synth_params();
-          dodisplay();
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.setTextSize(2);
-          canvastitle.setCursor(75, 0);
-          canvastitle.print((float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
           dodisplay();
         }
 
         static void displayfreqbars() {
           int score = wavesfreqs[ccsynthselector] ;
+          dm.clear_3();
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1; 
+            sublevels[4] = round(wavesfreqs[ccsynthselector]);
+          }
           // weird but usefull behavior to switch encoder resolution between 0 and 1
           if (navlevel >= 4) {
             if (navlevel == 4) {
+              retroaction = sublevels[3];
               navrange = 10;
               if (wavesfreqs[ccsynthselector] == 1) { demimalmode = !demimalmode;}
               else { if (wavesfreqs[ccsynthselector] <= 1) {demimalmode = 1; } }
@@ -214,49 +226,58 @@ class SynthMenuRouter : public SectionHolder {
             if (navlevel >= 5) {
               if (demimalmode) { wavesfreqs[ccsynthselector] = (sublevels[4]) / 10.0; }
               if (!demimalmode) { wavesfreqs[ccsynthselector] = sublevels[4]; }
-              returntonav(3, 9);
+              returntonav(3,synth_params_count-1,sublevels[3]);
             }
+            
           }
-          wavelinemenuBG();
-          draw_synth_params();
-          dodisplay();
+          
+          
           display.setTextSize(2);
           display.setCursor(65, 0);
           display.println(wavesfreqs[ccsynthselector]);
-          display.display();
+          draw_synth_params();
+          dodisplay();
         }
 
         static void displayphasebars() {
+          dm.clear_3();
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1; 
+            sublevels[4] = int(phaselevelsL[ccsynthselector]);
+          }
           if (navlevel >= 4) {
             if (navlevel == 4) {
               navrange = 360;
+              retroaction = sublevels[3];
               phaselevelsL[ccsynthselector] = int(sublevels[4]);
               setphaselevel();
             }
             if (navlevel >= 5) {
               setphaselevel();
-              returntonav(3, 9);
+              returntonav(3,synth_params_count-1,sublevels[3]);
             }
           }
-          wavelinemenuBG();
+          
           draw_synth_params();
-          dodisplay();
+          
           display.setCursor(80, 0);
           display.setTextSize(2);
           display.println(phaselevelsL[ccsynthselector]);
-          display.display();
+          dodisplay();
         }
 
         static void displayModulatedbool() {
           char modulation_labels[4][7] = {"Off", "Freq", "Phase", "Ampl"};
-          wavelinemenuBG();
+          
           draw_synth_params();
           dodisplay();
           display.setCursor(64, 0);
           display.setTextSize(2);
           display.println(modulation_labels[FMmodulated[ccsynthselector]]);
-
-          display.display();
+          draw_synth_params();
+          dodisplay();
+          
         }
 
         static void setfmtophase() {
@@ -274,157 +295,118 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void wavelineModulatedbool() {
+          dm.clear_3();
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1; 
+          }
           if (navlevel == 4) {
             navrange = 3;
+            retroaction = sublevels[3];
             FMmodulated[ccsynthselector] = sublevels[4];
           }
           if (navlevel > 4) {
             setwavetypefromlist();
-            returntonav(3);
+            returntonav(3,synth_params_count-1,sublevels[3]);
           }
           displayModulatedbool();
         }
 
         static void displaywaveformicon(){
-          const unsigned char* _img[12] = { sinewave, sawtoothwave, reversesawtoothwave, trianglewave, 
-                                        variabletriangle, squarewave, pulsewave,arbitrarywave,
-                                        samplehold,arbitrarywave,samplehold,moonwave};
-          String lelabelw[12] = {"SineWave","SawWave","ReverseSaw" ,"Triangle","V-Triangle","SquareWave",
-                              "PulseWave","Arbitrary","SampleHold", "Drum","String", "Wave OFF"};
-          wavelinemenuBG();
-          draw_synth_params();
-          dodisplay();
-          display.drawBitmap(74, 20, _img[sublevels[4]], 32, 32, SSD1306_WHITE);
-          display.setTextSize(1); // Draw 1X-scale text
-          display.setTextColor(SSD1306_WHITE);
-          display.setCursor(64, 0);
-          draw_synth_params();
-          dodisplay();
-          display.println(lelabelw[sublevels[4]]);
-          display.display();
+          dm.clear_3();
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1;
+            sublevels[4] = Waveformstyped[ccsynthselector];
+          }
           if (navlevel == 4) {
             navrange = 11;
             Waveformstyped[ccsynthselector] = sublevels[4];
+            retroaction = sublevels[3];
           }
-
           if (navlevel > 4) {
             setwavetypefromlist();
             if (Waveformstyped[ccsynthselector] == 11) {
               mixlevelsL[ccsynthselector] = 0.0;
               setwavemixlevel();
             }
-            returntonav(3, 7);
+            returntonav(3,synth_params_count-1,sublevels[3]);
+            return;
           }
+          const unsigned char *_img[12] = { sinewave, sawtoothwave, reversesawtoothwave, trianglewave, 
+                                        variabletriangle, squarewave, pulsewave,arbitrarywave,
+                                        samplehold,arbitrarywave,samplehold,moonwave};
+          String lelabelw[12] = {"SineWave","SawWave","ReverseSaw" ,"Triangle","V-Triangle","SquareWave",
+                              "PulseWave","Arbitrary","SampleHold", "Drum","String", "Wave OFF"};
+
+          display.drawBitmap(74, 20, _img[sublevels[4]], 32, 32, SSD1306_WHITE);
+          display.setTextSize(1);
+          display.setTextColor(SSD1306_WHITE);
+          display.setCursor(64, 0);
+          display.println(lelabelw[sublevels[4]]);
+          display.setCursor(120, 57);
+          display.print(ccsynthselector + 1);
+          draw_synth_params();
+          dodisplay();
         }
 
         static void displayLFOpanel() {
-          sublevels[0] = 1;
-          sublevels[1] = ccsynthselector;
-          sublevels[2] = 0;
-          returntonav(navlevel-2,sizeofLFOlabels - 1,0);
-        }
-
-        static void wavelinepanel() {
-          switch (sublevels[3]) {
-            case 0:
-              displaywaveformicon();
-              break;
-            case 1:
-              wavelineModulatedbool();
-              break;
-            case 2:
-              displayLFOpanel();
-              break;
-            case 3:
-              displayfreqbars();
-              break;
-            case 4:
-              displayoffsetwav();
-              break;
-            case 5:
-              displayphasebars();
-              break;
-            case 6:
-              ccsynthselector = (ccsynthselector - 1)%3;
-              if (sublevels[2] > 0) {
-                sublevels[2]--;
-              } else {
-                sublevels[2] = 2;
-              }
-              navlevel--;
-              dm.lemenuroot();
-              break;
-            case 7:
-              ccsynthselector = (ccsynthselector + 1)%3;
-              if (sublevels[2] < 2) {
-                sublevels[2]++;
-              } else {
-                sublevels[2] = 0;
-              }
-              navlevel--;
-              dm.lemenuroot();
-              break;
-            default:
-              break;
+          dm.clear_3();
+          if (navlevel == 3 ) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1; 
+          }
+          draw_synth_params();
+            dodisplay();
+          if (navlevel >= 4) {
+            sublevels[0] = 1;
+            sublevels[1] = ccsynthselector;
+            sublevels[2] = 0;
+            returntonav(navlevel-2,sizeofLFOlabels - 1,0);
           }
         }
 
-        static void wavelinemenuBG() {
-          display.clearDisplay();
-          // display.drawBitmap(35, 64-48+20, wavex, 104, 48, SSD1306_WHITE);
-          display.setTextSize(1); // Draw 2X-scale text
-          display.setCursor(120, 57);
-          display.print(ccsynthselector + 1);
-          display.setTextSize(1);
+        static void go_previous(){
+          dm.clear_3();
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1; 
+          }    
+
+          if (navlevel >= 4) {
+            ccsynthselector = (ccsynthselector-1)%3;
+            sublevels[2] = ccsynthselector ;
+            returntonav(navlevel-1,synth_params_count-1,sublevels[3]);
+            return;
+          }
+          draw_synth_params();
+          dodisplay();
+        }
+        static void go_next(){
+          dm.clear_3();
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1; 
+          }    
+          if (navlevel >= 4) {
+            ccsynthselector = (ccsynthselector+1)%3;
+            sublevels[2] = ccsynthselector ;
+            returntonav(navlevel-1,synth_params_count-1,sublevels[3]);
+          }
+          draw_synth_params();
+          dodisplay();
         }
 
         static void wavelinesBG() {
           display.clearDisplay();
           display.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
-
           display.display();
         }
-
+    
         static void wavelining() {
-          if (navlevel >= 2) {
-       
-            if (navlevel >= 3) {
-              if (navlevel == 3) {
-                retroaction = sublevels[2];
-                navrange = synth_params_count - 1;
-                wavelinemenuBG();
-                display.display();
-                draw_synth_params();
-                dodisplay();
-                if (sublevels[3] == 0) {
-                  sublevels[4] = Waveformstyped[ccsynthselector];
-                  wavelinepanel();
-                }
-                if (sublevels[3] == 1) {
-                  wavelinepanel();
-                }
-                if (sublevels[3] == 3) {
-                  sublevels[4] = round(wavesfreqs[ccsynthselector]);
-                  wavelinepanel();
-                }
-                if (sublevels[3] == 5) {
-                  sublevels[4] = int(phaselevelsL[ccsynthselector]);
-                  wavelinepanel();
-                }
-                if (sublevels[3] == 4) {
-                  sublevels[4] = wave1offset[ccsynthselector];
-                  wavelinepanel();
-                }
-              }
-              if (navlevel >= 4) {
-                retroaction = sublevels[3];
-                wavelinepanel();
-              }
-            }
-          }
+          _synth_params[sublevels[3]]();
         }
-
-
+        
         static void displayadsrgraph() {
           if (sublevels[2] == 2) {
             navleveloverwrite = 2;
@@ -713,7 +695,7 @@ class SynthMenuRouter : public SectionHolder {
           char wavelineslabels[synth_params_count][12] = {
               "Type", "Mod", "LFO", "Freq", "Offset", "Phase", "<-  ", "  ->"};
 
-          int startx = 5;
+          int startx = 2;
           int starty = 16;
           char *textin = (char *)wavelineslabels[sublevels[3]];
           canvastitle.fillScreen(SSD1306_BLACK);
@@ -730,10 +712,12 @@ class SynthMenuRouter : public SectionHolder {
             canvasBIG.setCursor(startx,(10 * (synth_params_count - sublevels[3]) + 6 + ((i)*10)));
             canvasBIG.println(wavelineslabels[i]);
           }
+          canvasBIG.setCursor(120, 57);
+          canvasBIG.print(ccsynthselector + 1);
         }
 
         static void dolistsyntmenu() {
-          char synthmenulabels[truesizeofsynthmenulabels][12] = {"Synths", "Mixer", "ADSR", "  ", "Filter"};
+          char synthmenulabels[truesizeofsynthmenulabels][12] = {"Synths", "Mixer", "ADSR", "MP3 Player", "Filter"};
           byte startx = 5;
           byte starty = 16;
           char *textin = (char *)synthmenulabels[sublevels[1]];
@@ -752,6 +736,7 @@ class SynthMenuRouter : public SectionHolder {
             canvasBIG.println(synthmenulabels[i]);
           }
         }
+
         static void synths_switcher(){
           String titled = "Waveline ";
           ccsynthselector = sublevels[2]%synths_count;
@@ -760,22 +745,15 @@ class SynthMenuRouter : public SectionHolder {
           String leprintlabel = titled + synth_num ;
           wavelinesBG();
           sublevels[3] = 0;
-          
           display.fillRect(0+(ccsynthselector%2)*64, 16+(24*(ccsynthselector/2)), 64, 24, SSD1306_INVERSE);
           dm.printlabel((char*)leprintlabel.c_str());
           display.display();
-
         }
+
         static void wavesline_selector(){
-          if (navlevel == 2) {
-                synths_switcher();
-              }
-
-                  wavelining();
-
+          _waveliners[navlevel-2]();
         }
         
-
         void synth_nav_zero() {
           if (navlevel == 1) {
             navrange = 4;
@@ -788,7 +766,7 @@ class SynthMenuRouter : public SectionHolder {
           retroaction = sublevels[1] ;
           if (sublevels[1] == 3 && navlevel > 1) {
             navrange = synths_count-1;
-            placeholder();
+            mp3_player_panel();
           }
           //adsr section
           if (sublevels[1] == 2) {
@@ -814,43 +792,175 @@ class SynthMenuRouter : public SectionHolder {
             le303filterVpanel();
           }
         }
-
-
-        void act_placeholder() {
-          if (navlevel == 3) {
-            navrange = 127;
-            if (sublevels[2] == 0) {
-              slope1 = sublevels[3];
-            }
-            if (sublevels[2] == 1) {
-              navrange = 127;
-              slope2 = sublevels[3];
-            }
+        static void mp3_player_play(){
+          if (!SD.exists((char*)mp3_name.c_str())) {
+            get_next_mp3();
           }
-          if (navlevel > 3) {
-            returntonav(2);
-          }
+          playFile((char*)mp3_name.c_str());
         }
 
-        void select_placeholder() {
+        static void mp3_player_stop(){
+          playMp31.stop();
+        }
+
+        static void mp3_player_pause(){
+          mp3_paused = playMp31.pause(!mp3_paused);
+        }
+
+        static void mp3_player_next(){
+          next_mp3++;
+          get_next_mp3();
+        }
+
+        static void mp3_player_previous(){
+          next_mp3--;
+          next_mp3--;
+          get_next_mp3();
+        }
+
+        static void mp3_player_shuffle(){
+          mp3_shuffle = !mp3_shuffle ;
+          //TODO
+          //each play next_mp3 is random % total ?
+        }
+
+        static void mp3_player_actions() {
           if (navlevel == 2) {
-            navrange = 1;
-            if (sublevels[2] == 0) {
-              sublevels[3] = slope1;
-              canvasBIG.setCursor(40, 16);
-              canvasBIG.print((char)9);
+            navrange = 8;
+          }
+          if (navlevel >= 3) {
+            switch (sublevels[2]) {
+              case 0:
+                //continous_play
+                mp3_player_play();
+              break;
+
+              case 1:
+                //previous_play
+                mp3_player_previous();
+              break;
+
+              case 2:
+                //pause_play
+                mp3_player_pause();
+              break;
+
+              case 3:
+                //one_play
+                mp3_player_play();
+              break;
+
+              case 4:
+                //next_play
+                mp3_player_next();
+              break;
+
+              case 5:
+                //shuffle_on
+                mp3_player_shuffle();
+              break;
+
+              case 6:
+                //loop_it();
+              break;
+
+              case 7:
+                //stop_it();
+                mp3_player_stop();
+              break;
+
             }
-            if (sublevels[2] == 1) {
-              sublevels[3] = slope2;
-              canvasBIG.setCursor(104, 16);
-              canvasBIG.print((char)9);
-            }
+            returntonav(2,8,sublevels[2]);
           }
         }
+        static void get_file_type(){
+          /*
+          int dot = mp3_name.lastIndexOf('.');
+          if (dot >= 0) {
+            String extension = mp3_name.substring(dot + 1);
+            
+          }
+          */
+          String filenamed = mp3_name ;
+          filenamed.toLowerCase();
+          if (filenamed.endsWith(".mp3"))
+              mp3_ext = 0 ;
+            if (filenamed.endsWith(".flac"))
+              mp3_ext = 1 ;
+        }
 
-        void placeholder() {
-          act_placeholder();
-          display.clearDisplay();
+        static void playFile(const char *mp3_file) {
+          get_file_type();
+          switch (mp3_ext){
+            case 0:
+              playFlac1.stop();
+              playMp31.play(mp3_file);
+            break;
+
+            case 1:
+              play_flac_file(mp3_file);
+            break;
+          }
+          
+          //while (playMp31.isPlaying()) {
+          //}
+        }
+
+        static void get_next_mp3() {
+
+          if (SD.exists("MP3") ) {
+            File susudir = SD.open("MP3");
+            while (file_index <= next_mp3) {
+              File subentry = susudir.openNextFile();
+              if (!subentry) {
+                file_index = 0 ;
+                next_mp3 = 0 ;
+                return;
+              }
+
+              if (!subentry.isDirectory()) {
+                file_index++;
+                mp3_name = mp3_dir + subentry.name();
+              }
+              subentry.close();
+            }
+            next_mp3++;
+            file_index = 0 ;
+          }
+          //Serial.println((char*)mp3_name.c_str());
+          
+        }
+
+        static void transport_selector() {
+          int startyp = 8;
+          int ecart = 14;
+          display.fillRect(ecart * (sublevels[navlevel])-3, startyp-2, ecart-1, startyp*1.5, SSD1306_INVERSE);
+          display.display();
+        }
+
+        static void play_flac_file(const char *flac_file) {
+          playMp31.stop();
+          playFlac1.play(flac_file);
+
+        }
+        
+        
+        static void display_mp3_title(){
+          canvasBIG.setCursor(0,40);
+          String titler = mp3_name;
+          titler.remove(0, 4);
+          //titler.remove(titler.length() - 4);
+          canvasBIG.print((char*)titler.c_str());
+        }
+
+        static void mp3_player_panel() {
+          dm.clear_3();
+          drawtransport();
+          mp3_player_actions();
+          dodisplay();
+          transport_selector();
+          display_mp3_title();
+          dodisplay();
           //placeholder
         }
 
@@ -1589,14 +1699,16 @@ class SynthMenuRouter : public SectionHolder {
           adsrlevels[2] = MadsrHold;
         }
 
-        static constexpr void (*_nav_synth[])() = {wavesline_selector,showmixerwaves, displayadsrgraph, nullptr,le303filterVpanel};
-        
-        static constexpr void (*modulation_pointers[4])() = {no_modulation,freq_modulation,phase_modulation,amplitude_modulation};
+        static constexpr void (*_nav_synth[])() = {&wavesline_selector,&showmixerwaves, &displayadsrgraph, &mp3_player_panel ,&le303filterVpanel};
+        static constexpr void (*_waveliners[6])() = {&synths_switcher,&wavelining, &wavelining, &wavelining,&wavelining, &wavelining};
+        static constexpr void (*modulation_pointers[4])() = {&no_modulation,&freq_modulation,&phase_modulation,&amplitude_modulation};
 
-        static constexpr void (*filters_pointers[10])() = {filter_knob_freq,filter_knob_res,filter_knob_low,filter_knob_band, filter_knob_high,
-                                                filter_knob_wet, filter_knob_pulse1, filter_knob_pulse2, filter_knob_preamp ,filter_knob_glide};
-        //static constexpr lf _synth_params[] = {
-        //}; 
+        static constexpr void (*filters_pointers[10])() = {&filter_knob_freq, &filter_knob_res, &filter_knob_low, &filter_knob_band, &filter_knob_high,
+                                                &filter_knob_wet, &filter_knob_pulse1, &filter_knob_pulse2, &filter_knob_preamp, &filter_knob_glide};
+
+        static constexpr void (*_synth_params[synth_params_count])() = {&displaywaveformicon,&wavelineModulatedbool,&displayLFOpanel,
+                                                      &displayfreqbars,&displayoffsetwav,&displayphasebars,&go_previous,&go_next};
+         
         static constexpr sn _route_nav[7] = {
             &SynthMenuRouter::route_navlevel_1,
             &SynthMenuRouter::route_navlevel_2,

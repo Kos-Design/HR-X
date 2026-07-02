@@ -290,6 +290,11 @@ void setupdefaultvalues() {
   // LineIn
   InMixL.gain(1,1.0);
   InMixR.gain(1, 1.0);
+  //mp3 player
+  InMixL.gain(2, 1.0);
+  InMixR.gain(2, 1.0);
+  InMixL.gain(3, 1.0);
+  InMixR.gain(3, 1.0);
   LineInPreAmpL.gain(1.0);
   LineInPreAmpR.gain(1.0);
 }

@@ -208,7 +208,6 @@ void recordVpanelAction() {
       }
     }
     if (slct == 2) {
-      listmp3s();
       recorderstop = !recorderstop;
       if (recorderstop) {
 
@@ -266,7 +265,7 @@ void recordVpanelSelector() {
 void recordVpanel() {
   recordVpanelAction();
   display.clearDisplay();
-dm.clear_buffs();
+  dm.clear_buffs();
   if (!recorderrecord) {
     canvasBIG.drawRoundRect(80, 16, 128 - 80, 20, 2, SSD1306_WHITE);
     canvasBIG.setTextColor(SSD1306_WHITE);
@@ -342,49 +341,6 @@ void playrecordsd_old() {
   }
 }
 
-void playFile(const char *filename)
-{
-  playMp31.play(filename);
-
-  //while (playMp31.isPlaying()) {
-  //}
-}
-
-
-//playFile("MP3/Gabriel.mp3");	
-String mp3_dir = "MP3/";
-String mp3_name = "Addict.mp3";
-String mp3_list[99] = {};
-byte lib_length = 0 ;
-byte mp3_index = 0 ;
-
-void listmp3s() {
-
-  if (SD.exists("MP3") && !lib_length) {
-    File susudir = SD.open("MP3");
-    while (lib_length<30) {
-      File subentry = susudir.openNextFile();
-      //if (!subentry) {
-      //  break;
-      //}
-
-      if (!subentry.isDirectory()) {
-        mp3_name = subentry.name() ;
-        //Serial.println((char*)subentry.name());
-        //Serial.println(mp3_dir+mp3_name);
-        mp3_list[lib_length] = mp3_name ;
-        lib_length++ ;
-        //setlefilenamed(ledir, sizeofsamplefolder[ledir], (char*)subentry.name());
-        //(sizeofsamplefolder[ledir])++;
-      }
-      subentry.close();
-    }
-  }
- mp3_index = (mp3_index + 1 ) % lib_length ;
- mp3_name = (mp3_dir+mp3_list[mp3_index]); 
- Serial.println((char*)mp3_name.c_str());
- playFile((char*)mp3_name.c_str());
-}
 void stopplayrecordsd() {
 
   //AudioNoInterrupts();
