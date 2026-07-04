@@ -45,7 +45,6 @@ void replug_notefreq_from_ampL(){
   Notespy_cable.connect();
 }
 
-
 void loadsynthdefaults() {
 
   AudioNoInterrupts();
@@ -98,41 +97,19 @@ void setupdefaultvalues() {
   ampR.gain(1);
   // ADSR & synths
   loadsynthdefaults();
-
   premixMaster.gain(0, 0.5);
   premixMaster.gain(1, 0.5);
 
   for (int i = 0; i < liners_count; i++) {
     for (int j = 0; j < synths_count; j++) {
-      Wavesmix[i]->gain(j, mixlevelsL[j]);
+      Wavesmix[i]->gain(j, mixlevelsL[j]/127.0);
     }
   }
   unplug_notefreq_from_ampL();
   for (int i = 0; i < fxs_count; i++) {
-    stopdelayline(i);
+    fx[i]->stopdelayline();
     delayCords[i]->disconnect();
   }
-
-  //for (int i = 0; i < 256; i++) {
-    //  arbitrary_waveforms[0][i] = dreamWave[i];
-   // }
-  //we begin these on fx asignement only
-  /*
-  chorus1.begin(chorusdelayline, CHORUS_DELAY_LENGTH, chorusvoices);
-  chorus2.begin(chorusdelayline2, CHORUS_DELAY_LENGTH, chorusvoices);
-  chorus3.begin(chorusdelayline3, CHORUS_DELAY_LENGTH, chorusvoices);
-
-  // FX
-  flange1.begin(flangedelay, FLANGE_DELAY_LENGTH, flangeoffset, flangedepth,
-                flangefreq);
-  flange2.begin(flangedelay2, FLANGE_DELAY_LENGTH, flangeoffset, flangedepth,
-                flangefreq);
-  flange3.begin(flangedelay3, FLANGE_DELAY_LENGTH, flangeoffset, flangedepth,
-                flangefreq);
-
-  */
-
-
   AudioNoInterrupts();
   for (int i = 0; i < fxs_count; i++) {
     delaypostmix[i]->gain(0, 1);
@@ -149,12 +126,7 @@ void setupdefaultvalues() {
       delaypremix[i * 2 + 1]->gain(j, 0);
     }
     AudioInterrupts();
-
   }
-
-  ////
-  // PlayFlash
-
   //mixed others wet
   MasterL1.gain(0, 0);
   MasterR1.gain(0, 0);
@@ -196,38 +168,6 @@ void setupdefaultvalues() {
     }
   }
 
-  /*
-   //Defaults for external midi keyboard
-  midiknobassigned[91]=2;
-
-  //play
-  midiknobassigned[85]= 36 ;
-  //stop
-  midiknobassigned[81]= 37 ;
-  //rec
-  midiknobassigned[84]= 39 ;
-
-  //Wet1
-  midiknobassigned[75]= 6 ;
-  //wet2
-  midiknobassigned[76]= 7;
-  //wet3
-  midiknobassigned[77]= 8 ;
-  //cueplay on Vbuttons
-  midiknobassigned[32]= 35 ;
-  //wet303
-  midiknobassigned[73]= 18;
-  //ccrecord
-  midiknobassigned[87]= 44;
-  //synthselect
-  midiknobassigned[15]= 45;
-  //fxmoduleselect
-  midiknobassigned[72]= 69;
-  midiknobassigned[67]= 100;
-  //BPM
-  midiknobassigned[20]= 15;
-  */
-
   // Volume
   midiknobassigned[11] = 1;
   midiknobassigned[12] = 2;
@@ -268,17 +208,6 @@ void setupdefaultvalues() {
   //granular fx toggle
   midiknobassigned[100] = 78;
 
-  //midiknobassigned[101] = ;
-
-  //midiknobassigned[101] = 108;
-  //midiknobassigned[111] = 109;
-
-  // stop
-  //midiknobassigned[110] = 37;
-  // play
-  //midiknobassigned[108] = 36;
-  // looper
-  //midiknobassigned[109] = 109;
   //note: WetMixMasterLs[0] is the dry channel
   for (int i = 0; i < synths_count; i++) {
     ccsynthselector = i;

@@ -356,7 +356,7 @@ int lavelocity;
 int interpolated_ctrls = 0;
 int availableliner;
 int olderliner;
-byte mp3_ext ;
+
 byte fffnote;
 byte cellsizer = 3;
 byte celltall = 9;
@@ -662,7 +662,7 @@ const char ControlList[allfxes][21] = {
     "Free", "Free", "Free", "Wfreq4", "Pan 4", "Phase4"
 };
 
-float WetMixMasters[4] = {0.0, 0.0, 0.0, 0.0};
+byte WetMixMasters[4] = {0, 0, 0, 0};
 
 bool patterninparse;
 
@@ -734,7 +734,7 @@ int sublevels[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 float wavesfreqs[synths_count] = {1.0, 1.0, 2.0};
 float panLs[synths_count] = {1, 1, 1};
 
-float mixlevelsL[synths_count] = {0.1, 0.0, 0.0};
+byte mixlevelsL[synths_count] = {13, 0, 0};
 // 0 master , 1synth, 2 sampler, 3 unused
 byte mixlevelsM[4] = {127, 127, 38, 127};
 
@@ -780,6 +780,8 @@ bool mp3_paused ;
 bool mp3_shuffle ;
 int file_index = 0 ;
 int next_mp3 = 0 ;
+byte mp3_ext ;
+bool mp3_continue;
 
 #define GRANULAR_MEMORY_SIZE 12800
 // 12800 is for 290 ms at 44.1 kHz
@@ -1037,11 +1039,17 @@ AudioAmplifier *Wavespreamp303[liners_count] = {&wavePAmp0, &wavePAmp1, &wavePAm
 
 AudioSynthWaveform *LFOwaveforms1[synths_count] = {&LFOrm1, &LFOrm2, &LFOrm3};
 
-byte *filter_tmp_pointers[] = { &le303ffilterzVknobs[0], &le303ffilterzVknobs[1], &mixle303ffilterzVknobs[0], &mixle303ffilterzVknobs[1], &mixle303ffilterzVknobs[2],
+byte *filter_tmp_pointers[10] = { &le303ffilterzVknobs[0], &le303ffilterzVknobs[1], &mixle303ffilterzVknobs[0], &mixle303ffilterzVknobs[1], &mixle303ffilterzVknobs[2],
                                           &le303filterzwet, &cutoff_pulse, &reson_pulse, &preampleswaves, &glidemode };
 
 byte filter_tmp_values[10] = {le303ffilterzVknobs[0],le303ffilterzVknobs[1],mixle303ffilterzVknobs[0],mixle303ffilterzVknobs[1],mixle303ffilterzVknobs[2],
                                       le303filterzwet,cutoff_pulse,reson_pulse,preampleswaves,glidemode };
+
+byte *wmixer_tmp_pointers[12] = { &mixlevelsM[0], &mixlevelsM[1], &mixlevelsM[2], &WetMixMasters[1], &WetMixMasters[2], &WetMixMasters[3],
+                                          &wetins[0], &wetins[1], &wetins[2], &mixlevelsL[0], &mixlevelsL[1], &mixlevelsL[2] };
+
+byte wmixer_tmp_values[12] = {mixlevelsM[0],mixlevelsM[1],mixlevelsM[2],WetMixMasters[1],WetMixMasters[2],WetMixMasters[3],
+                                wetins[0],wetins[1],wetins[2], mixlevelsL[0],mixlevelsL[1],mixlevelsL[2] };
 
 class SequencerClocker : public AudioStream
 {
@@ -1112,11 +1120,19 @@ public:
             _sampleAccumulator -= _samplesPerTick;
 
             tick96++;
-            if (!stop) {
-                if ((tick96 % 6) == 0 && _callback_6){
+
+             if ((tick96 % 3) == 0 && _callback_3){
+                    thirtySecond++;
+                    _callback_3();
+                }
+
+            if ((tick96 % 6) == 0 && _callback_6){
                     quarter++;
                     _callback_6();
                 }
+
+            if (!stop) {
+                
 
                 if ((tick96 % 48) == 0 && _callback_48){
                     eighth++;
@@ -1128,10 +1144,7 @@ public:
                     _callback_24();
                 }
 
-                if ((tick96 % 3) == 0 && _callback_3){
-                    thirtySecond++;
-                    _callback_3();
-                }
+               
             }
         }
     }

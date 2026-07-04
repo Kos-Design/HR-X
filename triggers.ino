@@ -253,8 +253,8 @@ void MaProgramchange(byte channel, byte data1) {
   int leprogchanged = (int)(data1);
   if (leprogchanged < presets_count) {
     presets_names_offset = leprogchanged ;
-    refresh_presets_names();
-    parsefile();
+    _ps.refresh_presets_names();
+    _ps.parsefile();
   }
 }
 
@@ -862,10 +862,10 @@ void cc_edgecases(byte control, byte value){
 
   if (sublevels[0] == 8 && navlevel == 2 && trace_waveform){
     if (control == y_axis_cc ) {
-       set_y_cursor_value(value);
+       call_set_y_cursor_value(value);
     }
     if (control == x_axis_cc ) {
-       set_x_cursor_value(value);
+       call_set_x_cursor_value(value);
     }
   }
 }

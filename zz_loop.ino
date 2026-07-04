@@ -1,10 +1,23 @@
+
+void control_me(){
+  if (!blocked) {
+      if (noteprint)
+        printlanote();    
+      if (MULTIPLEXED_PADS){
+        check_pads();
+        check_pots();
+      }
+      evalinputs();
+      evalrota();
+    }
+}
+
 void loop() {
   //wav_record_loop();
  // if (!stoptick) {
- // if (millis() % 2 == 0) {
-  if (millis() % 2 == 0) {
-    pseudo303();
-  }
+  //if (millis() % 2 == 0) {
+  //  pseudo303();
+  //}
   /*
   if (debug_cpu){
     print_memory_usage();
@@ -20,20 +33,6 @@ void loop() {
     continue_looper();
   }
 
-  if (!blocked) {
-    if (millis() % display_lag == 0) {
-      if (noteprint) {
-        printlanote();
-      }
-      evalinputs();
-      evalrota();
-    }
-    if ((millis() % (control_lag + 1) == 0) && MULTIPLEXED_PADS){
-      check_pads();
-    }
-    if ((millis() % control_lag == 0) && MULTIPLEXED_PADS) {
-      check_pots() ;
-    }
-  }
+  
   loopusbHub();
 }

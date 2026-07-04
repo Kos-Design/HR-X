@@ -47,30 +47,6 @@ String get_new_dir_name(String base_path_dir) {
   return new_path ;
 }
 
-void dosoundlist() {
-  if (!initdone) {
-    pseudoconsole((char *)"Files on Flash");
-  }
-  initializeFlashsamplesselected();
-  initializesamplesfoldersselectedlist();
-  rebuildflashsamplesnames();
-  clearsizeofsamplefolder();
-  sampledirsregistered = 0;
-  if (!initdone) {
-    pseudoconsole((char *)"Files on SD");
-  }
-  setupsamplefoldersregistered();
-  initializesamplefullpath();
-  initializesamplebase();
-  listSoundset();
-  for (int i = 1; i < sampledirsregistered; i++) {
-    pleasewait(i, sampledirsregistered);
-    voidsampledirpath();
-    makesoundsetfullpathfromchars(i);
-    listSoundsetsubdir(i);
-  }
-  // printthem();
-}
 
 void clearsizeofsamplefolder() {
   for (int i = 0; i < 99; i++) {
@@ -119,23 +95,6 @@ void listSoundset() {
   }
 }
 
-void listSoundsetsubdir(int ledir) {
-  if (SD.exists((char *)sampledirpath)) {
-    File susudir = SD.open((char *)sampledirpath);
-    while (true) {
-      File subentry = susudir.openNextFile();
-      if (!subentry) {
-        break;
-      }
-
-      if (!subentry.isDirectory()) {
-        setlefilenamed(ledir, sizeofsamplefolder[ledir], (char*)subentry.name());
-        (sizeofsamplefolder[ledir])++;
-      }
-      subentry.close();
-    }
-  }
-}
 
 void dosamplerfullpath(int lefolder, int lefile, char *lefilename) {
   // for (int i = 0 ; i< 999 ; i++ ) {

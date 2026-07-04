@@ -2,26 +2,26 @@
 void setupSD() {
 
   if (!(SD.begin(chipSelect))) {
-    errorsd("initialization SD failed!");
+    _sp.errorsd("initialization SD failed!");
     return;
   }
   
-  initializesamplesselectedlist();
+  _sp.initializesamplesselectedlist();
   pseudoconsole((char *)"Scanning Samples");
-  dosoundlist();
+  _sp.dosoundlist();
   pseudoconsole((char *)"Scanning Presets");
-  list_presets_files();
+  _ps.list_presets_files();
   pseudoconsole((char *)"Scanning Patterns");
   _pt.list_patterns_files();
   pseudoconsole((char *)"Scanning Waveforms");
-  list_wforms_files();
+  _wf.list_wforms_files();
   pseudoconsole((char *)"Scanning Songs");
-  list_songs_files();
+  _sg.list_songs_files();
 }
 
 void attach_menus(){
   void (*menus[])() = {
-    call_sn_show,call_lf_show,_ka.show,song_nav_zero,call_pt_show,
+    call_sn_show,call_lf_show,_ka.show,_sg.song_nav_zero,call_pt_show,
    call_st_show,call_fx_show,call_sp_show,call_wf_show,call_ps_show};
   for (int i=0;i<10;i++){
     dm.attach_nav_zero(i,menus[i]);
@@ -31,6 +31,15 @@ void attach_menus(){
 void call_restart_lfo(int lelfo) {
   _lf.restartLFO(lelfo%synths_count);
 };
+void call_allfxcontrolled(){
+  _fx.allfxcontrolled();
+}
+void call_set_y_cursor_value(int val){
+  _wf.set_y_cursor_value(val);
+}
+void call_set_x_cursor_value(int val){
+  _wf.set_x_cursor_value(val);
+}
 void call_setwavetypefromlist(){
   _sn.setwavetypefromlist();
 }
@@ -39,6 +48,12 @@ void call_setwavemixlevel(){
 }
 void call_sn_show(){
   _sn.show();
+}
+void call_dosoundlist(){
+  _sp.dosoundlist();
+}
+void call_loadSampledSound(){
+  _sp.loadSampledSound();
 }
 void call_synth_event_cells(){
   _pe.synth_event_cells();
@@ -95,17 +110,6 @@ void MyClass::lfo_zero() {}
 void MyClass::LFOlining() {}
 */
 
-
-
-void attach_menus_songs(){
-  // wavesline_selector,showmixerwaves, displayadsrgraph, empty,le303filterVpanel,
-  //void (*nav_songs_menu[])() = {"Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params","showSongShifterdisplays"};
-  void (*nav_songs_menu_tmp[])() = {call_songeditor,song_nav_one, song_nav_one, song_nav_one, song_nav_one,clear_song_popup,song_params_panel,showSongShifterdisplays};
-  for (int i=0;i<truesizeofSongmenulabels;i++){
-    _sg.attach_nav_songs_menu(i,nav_songs_menu_tmp[i]);
-  }
-}
-
 void call_songeditor(){
   _se.Songmodepanel();
 }
@@ -121,42 +125,7 @@ void attach_menus_settings(){
     _st.attach_settings_menus(i,settings_menus[i]);
   }
 }
-
-void attach_menus_fx(){
-  // wavesline_selector,showmixerwaves, displayadsrgraph, empty,le303filterVpanel,
-  //void (*nav_songs_menu[])() = {"Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params","showSongShifterdisplays"};
-  void (*nav_songs_menu_tmp[])() = {Songmodepanel,song_nav_one, song_nav_one, song_nav_one, song_nav_one,clear_song_popup,song_params_panel,showSongShifterdisplays};
-  for (int i=0;i<truesizeofSongmenulabels;i++){
-    _fx.attach_nav_songs_menu(i,nav_songs_menu_tmp[i]);
-  }
-}
 */
-void attach_menus_sampler(){
-  // wavesline_selector,showmixerwaves, displayadsrgraph, empty,le303filterVpanel,
-  //void (*nav_songs_menu[])() = {"Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params","showSongShifterdisplays"};
-  void (*nav_sampler_menu_tmp[sizeofsamplerlabels])() = {song_nav_one,song_nav_one, song_nav_one, song_nav_one, song_nav_one};
-  for (int i=0;i<sizeofsamplerlabels;i++){
-    _sp.attach_nav_sampler_menu(i,nav_sampler_menu_tmp[i]);
-  }
-}
-
-void attach_menus_waveforms(){
-  // wavesline_selector,showmixerwaves, displayadsrgraph, empty,le303filterVpanel,
-  //void (*nav_songs_menu[])() = {"Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params","showSongShifterdisplays"};
-  void (*nav_waveforms_menu_tmp[truesizeofwaveformsmenulabels])() = {waveforms_nav_one, waveforms_nav_one, waveforms_nav_one, waveforms_nav_one,WaveformEditer ,nullptr,nullptr,WaveformParams};
-  for (int i=0;i<truesizeofwaveformsmenulabels;i++){
-    _wf.attach_nav_waveforms_menu(i,nav_waveforms_menu_tmp[i]);
-  }
-}
-void attach_menus_presets(){
-  // wavesline_selector,showmixerwaves, displayadsrgraph, empty,le303filterVpanel,
-  //void (*nav_songs_menu[])() = {"Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params","showSongShifterdisplays"};
-  //"Save", "Load", "Copy", "Delete", "Edit", "-->", "<--","Params"};
-  void (*nav_songs_menu_tmp[truesizeofpresetmenulabels])() = {song_nav_one, song_nav_one, song_nav_one,clear_song_popup,song_params_panel};
-  for (int i=0;i<truesizeofpresetmenulabels;i++){
-    _ps.attach_presets_menu(i,nav_songs_menu_tmp[i]);
-  }
-}
 
 void setup() {
 
@@ -167,7 +136,7 @@ void setup() {
   unplugsynth();
   unplugfx();
   for (int i=0;i<synths_count;i++) {
-  unpluglfoonfilterz(i);
+  _fx.unpluglfoonfilterz(i);
   }
   delay(500);
   // metrodrum1.frequency(100);
@@ -184,7 +153,7 @@ void setup() {
   initializeconsolemsg();
   dm.setupscreen();
   pseudoconsole((char *)"initializing...");
-  initializepatternonsong();
+  _sg.initializepatternonsong();
   //delay(100);
   //Initialise the AutoVolumeLeveller
   //audioShield.autoVolumeControl(1, 1, 0, -6, 40, 20); // **BUG** with a max
@@ -215,7 +184,7 @@ void setup() {
   pseudoconsole((char *)"Loading Defaults");
   clocker.stopticker();
   setupdefaultvalues();
-  Doautoassign();
+  _sp.Doautoassign();
   pseudoconsole((char *)"All Done !");
   pseudoconsole((char *)"starting muxer");
   Muxer.start();
@@ -226,21 +195,21 @@ void setup() {
   audioShield.volume(1.0);
   set_in_source();
   clocker.attach_24(advance_tick);
+  clocker.attach_3(pseudo303);
+  clocker.attach_6(control_me);
   clocker.setBPM(120);
   clocker.setPPQN(96);
+  
   initdone = 1;
   pseudoconsole((char *)"Enjoy !");
   attach_menus();
   //attach_menus_synths();
   //attach_lfo_menus();
   //knobs not
-  attach_menus_songs();
   //done in class init
   //attach_menus_patterns();
   //settings not
-  attach_menus_sampler();
-  attach_menus_waveforms();
-  attach_menus_presets();
+
   
 }
 
@@ -276,17 +245,17 @@ void controlswitcher(int caser, int valu) {
       break;
     case 5:
       // WetMixMaster1
-      WetMixMasters[1] = smallfloat;
+      WetMixMasters[1] = round(smallfloat*127);
       wetmixmastercontrols();
       break;
     case 6:
       // WetMixMaster2
-      WetMixMasters[2] = smallfloat;
+      WetMixMasters[2] = round(smallfloat*127);
       wetmixmastercontrols();
       break;
     case 7:
       // WetMixMaster3
-      WetMixMasters[3] = smallfloat;
+      WetMixMasters[3] = round(smallfloat*127);
       wetmixmastercontrols();
       break;
     case 8:
@@ -425,13 +394,13 @@ void controlswitcher(int caser, int valu) {
 
       break;
     case 40:
-      pausedasong();
+      _se.pausedasong();
       break;
     case 41:
-      stopdasong();
+      _se.stopdasong();
       break;
     case 42:
-      playdasong();
+      _se.playdasong();
       break;
 
     case 43:
@@ -475,7 +444,7 @@ void controlswitcher(int caser, int valu) {
       break;
 
     case 47:
-      mixlevelsL[ccsynthselector] = smallfloat;
+      mixlevelsL[ccsynthselector] = smallfloat*127;
       break;
     case 48:
       // panLs[i-1]
@@ -586,27 +555,27 @@ void controlswitcher(int caser, int valu) {
       break;
     case 72:
       LFOonfilterz[ccfxlineselector] = round(smallfloat * 3.0);
-      filtercontrols(ccfxlineselector);
+      _fx.filtercontrols(ccfxlineselector);
       break;
     case 73:
       bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][0] = round(smallfloat * 127.0);
       bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] = (smallfloat * bqrange) + 101;
       if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
-        biquadcontrols(ccfxlineselector);
+        _fx.biquadcontrols(ccfxlineselector);
       }
       break;
     case 74:
       bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][1] = round(smallfloat * 127.0);
       bqslope[ccfxlineselector][bqstage[ccfxlineselector]] = smallfloat;
       if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
-        biquadcontrols(ccfxlineselector);
+        _fx.biquadcontrols(ccfxlineselector);
       }
       break;
     case 75:
       bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][2] = round(smallfloat * 127.0);
       bqgain[ccfxlineselector][bqstage[ccfxlineselector]] = smallfloat;
       if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
-        biquadcontrols(ccfxlineselector);
+        _fx.biquadcontrols(ccfxlineselector);
       }
       break;
     case 76:
@@ -617,23 +586,23 @@ void controlswitcher(int caser, int valu) {
     case 77:
       //granular speed ratio
       granularVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
-      granularcontrols(ccfxlineselector);
+      _fx.granularcontrols(ccfxlineselector);
       break;
 
     case 78:
 
       granular_shifting[ccfxlineselector] = !granular_shifting[ccfxlineselector];
-      granular_pitch_shift(ccfxlineselector);
+      _fx.granular_pitch_shift(ccfxlineselector);
       break;
 
     case 79:
       granular_freezing[ccfxlineselector] = !granular_freezing[ccfxlineselector];
-      granular_freeze(ccfxlineselector);
+      _fx.granular_freeze(ccfxlineselector);
       break;
 
     case 80:
       reverbVknobs[ccfxlineselector][0] = round(smallfloat * 127.0);
-      freeverbscontrl(ccfxlineselector);
+      _fx.freeverbscontrl(ccfxlineselector);
       break;
     case 81:
     //disabled with this reverb
@@ -642,63 +611,62 @@ void controlswitcher(int caser, int valu) {
       break;
     case 82:
       bitcrusherVknobs[ccfxlineselector][0] = round(smallfloat * 16.0);
-      bitcrusherctrl(ccfxlineselector);
+      _fx.bitcrusherctrl(ccfxlineselector);
       break;
     case 83:
       bitcrusherVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
-      bitcrusherctrl(ccfxlineselector);
+      _fx.bitcrusherctrl(ccfxlineselector);
       break;
     case 84:
       mixffilterzVknobs[ccfxlineselector][0] = round(smallfloat * 127.0);
-      filtercontrols(ccfxlineselector);
+      _fx.filtercontrols(ccfxlineselector);
       break;
     case 85:
       mixffilterzVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
-      filtercontrols(ccfxlineselector);
+      _fx.filtercontrols(ccfxlineselector);
       break;
     case 86:
       mixffilterzVknobs[ccfxlineselector][2] = round(smallfloat * 127.0);
-
-      filtercontrols(ccfxlineselector);
+      _fx.filtercontrols(ccfxlineselector);
       break;
     case 87:
       ffilterzVknobs[ccfxlineselector][0] = round(smallfloat * 127.0);
-      filtercontrols(ccfxlineselector);
+      _fx.filtercontrols(ccfxlineselector);
       break;
     case 88:
       ffilterzVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
-      filtercontrols(ccfxlineselector);
+      _fx.filtercontrols(ccfxlineselector);
       break;
     case 89:
       ffilterzVknobs[ccfxlineselector][2] = round(smallfloat * 127.0);
-      filtercontrols(ccfxlineselector);
+      _fx.filtercontrols(ccfxlineselector);
       break;
 
     case 90:
       flangerVknobs[ccfxlineselector][0] = round(smallfloat * 127.0);
-      flangercontrols(ccfxlineselector);
+      _fx.flangercontrols(ccfxlineselector);
       break;
     case 91:
       flangerVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
-      flangercontrols(ccfxlineselector);
+      _fx.flangercontrols(ccfxlineselector);
       break;
     case 92:
       flangerVknobs[ccfxlineselector][2] = round(smallfloat * 127.0);
-      flangercontrols(ccfxlineselector);
+      _fx.flangercontrols(ccfxlineselector);
       break;
     case 93:
       delayVknobs[ccfxlineselector][0] = round(smallfloat * 127.0);
-      restartdelayline(ccfxlineselector);
+      _fx.restartdelayline(ccfxlineselector);
       break;
 
     case 94:
       delayVknobs[ccfxlineselector][1] = round(smallfloat * 127.0);
-      restartdelayline(ccfxlineselector);
+      _fx.restartdelayline(ccfxlineselector);
       break;
 
     case 95:
       delayVknobs[ccfxlineselector][2] = round(smallfloat * 127.0);
-      restartdelayline(ccfxlineselector);
+      _fx.restartdelayline(ccfxlineselector);
       break;
 
     case 96:
@@ -706,7 +674,7 @@ void controlswitcher(int caser, int valu) {
       bqtype[ccfxlineselector][bqstage[ccfxlineselector]] =
           round(smallfloat * 5.0);
       if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
-        biquadcontrols(ccfxlineselector);
+        _fx.biquadcontrols(ccfxlineselector);
       }
       break;
 
@@ -792,8 +760,8 @@ void controlswitcher(int caser, int valu) {
       break;
     case 108:
       presets_names_offset = 0 ;
-      refresh_presets_names();
-      parsefile();
+      _ps.refresh_presets_names();
+      _ps.parsefile();
       break;
     case 109:
       //auto record 10sec

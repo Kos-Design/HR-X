@@ -71,7 +71,7 @@ void deleteRec() {
   if (SD.exists((char *)samplefullpath[lerecdiri][sublevels[navrecmenu + 1]])) {
     SD.remove((char *)samplefullpath[lerecdiri][sublevels[navrecmenu + 1]]);
   }
-  dosoundlist();
+  call_dosoundlist();
 }
 void copyRec() { pseudoconsole("why copy since we don't overwrite?"); }
 
@@ -513,11 +513,11 @@ void end_sample_in_place() {
     looper.close();
     queue1.clear();
     //AudioInterrupts();
-    dosoundlist();
+    call_dosoundlist();
     }
     just_pressed_rec = false ;
     if (autoassign) {
-      loadSampledSound();
+      call_loadSampledSound();
     }
 }
 

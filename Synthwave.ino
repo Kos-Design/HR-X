@@ -100,25 +100,12 @@ float fxslopedown2(byte curve, float laxval) {
 
 void wetmixmastercontrols() {
   for (byte i = 0; i < 4; i++) {
-    WetMixMasterL.gain(i, WetMixMasters[i]);
-    WetMixMasterR.gain(i, WetMixMasters[i]);
+    WetMixMasterL.gain(i, WetMixMasters[i]/127.0);
+    WetMixMasterR.gain(i, WetMixMasters[i]/127.0);
   }
 }
 
-void action_dry_mix(int linstru) {
 
-  if (navlevel == 2) {
-    sublevels[3] = wetins[linstru];
-  }
-  if (navlevel == 3) {
-    navrange = 127;
-    wetins[linstru] = sublevels[3];
-    set_dry_mix(linstru);
-  }
-  if (navlevel == 4) {
-    returntonav(2, 3);
-  }
-}
 
 void set_dry_mix(int lebus) {
 
@@ -165,13 +152,13 @@ class SynthMenuRouter : public SectionHolder {
         using sn = void (SynthMenuRouter::*)();
 
         void show() {
-                //(ka.*KnobAssigner::actions[0])();
-                (this->*SynthMenuRouter::_route_nav[navlevel-1])();
-            }
+            (this->*SynthMenuRouter::_route_nav[navlevel-1])();
+        }
 
         void route_navlevel_1(){
             synth_nav_zero();
         }
+
         void route_navlevel_2(){
           retroaction = sublevels[1] ;
             _nav_synth[sublevels[1]]();
@@ -327,7 +314,7 @@ class SynthMenuRouter : public SectionHolder {
           if (navlevel > 4) {
             setwavetypefromlist();
             if (Waveformstyped[ccsynthselector] == 11) {
-              mixlevelsL[ccsynthselector] = 0.0;
+              mixlevelsL[ccsynthselector] = 0;
               setwavemixlevel();
             }
             returntonav(3,synth_params_count-1,sublevels[3]);
@@ -521,13 +508,20 @@ class SynthMenuRouter : public SectionHolder {
 
         }
 
+        static void print_adsr_echo(String titre, int niveau){
+          canvastitle.setTextSize(1);
+          canvastitle.setCursor(0, 0);
+          canvastitle.fillScreen(SSD1306_BLACK);
+          canvastitle.println(titre);
+          canvastitle.setCursor(55, 0);
+          canvastitle.println(niveau);
+        }
+
         static void sliceA() {
           if (navlevel == navleveloverwrite + 1) {
             //stuck here until validation of cursor, try using returnto nav
             sublevels[navlevel + 1] = mappedattack;
-            vraipos = sublevels[navlevel + 1];
-            myEnc.write(4 * sublevels[navlevel + 1]);
-            navlevel = navlevel + 1;
+            returntonav(navlevel + 1, 5,sublevels[navlevel + 1]);
           }
 
           if (navlevel == navleveloverwrite + 2) {
@@ -540,25 +534,17 @@ class SynthMenuRouter : public SectionHolder {
             if (sublevels[1] == 2) {
               GlobalADSR();
             }
-            returntonav(navleveloverwrite, 5);
+            returntonav(navleveloverwrite, 5,sublevels[navleveloverwrite]);
 
           }
-          canvastitle.setTextSize(1);
-          canvastitle.setCursor(0, 0);
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.println((char *)"Attack ");
-          canvastitle.setCursor(55, 0);
-          canvastitle.setTextSize(1);
-          canvastitle.println(mappedattack);
+          print_adsr_echo("Attack ",mappedattack);
         }
 
         static void sliceDa() {
           if (navlevel == navleveloverwrite + 1) {
 
             sublevels[navlevel + 1] = MadsrAttackDelay;
-            vraipos = sublevels[navlevel + 1];
-            myEnc.write(4 * sublevels[navlevel + 1]);
-            navlevel = navlevel + 1;
+            returntonav(navlevel + 1, 5,sublevels[navlevel + 1]);
           }
           if (navlevel == navleveloverwrite + 2) {
             navrange = 100;
@@ -570,23 +556,15 @@ class SynthMenuRouter : public SectionHolder {
               GlobalADSR();
             }
 
-            returntonav(navleveloverwrite, 5);
+            returntonav(navleveloverwrite, 5,sublevels[navleveloverwrite]);
           }
-          canvastitle.setTextSize(1);
-          canvastitle.setCursor(0, 0);
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.println((char *)"Attack Delay ");
-          canvastitle.setCursor(55, 0);
-          canvastitle.println(MadsrAttackDelay);
-
+          print_adsr_echo("Attack Delay ",MadsrAttackDelay);
         }
 
         static void sliceH() {
           if (navlevel == navleveloverwrite + 1) {
             sublevels[navlevel + 1] = MadsrHold;
-            vraipos = sublevels[navlevel + 1];
-            myEnc.write(4 * sublevels[navlevel + 1]);
-            navlevel = navlevel + 1;
+            returntonav(navlevel + 1, 5,sublevels[navlevel + 1]);
           }
           if (navlevel == navleveloverwrite + 2) {
             navrange = 100;
@@ -597,24 +575,16 @@ class SynthMenuRouter : public SectionHolder {
               GlobalADSR();
             }
 
-            returntonav(navleveloverwrite, 5);
+            returntonav(navleveloverwrite, 5,sublevels[navleveloverwrite]);
           }
-          canvastitle.setTextSize(1);
-          canvastitle.setCursor(0, 0);
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.println((char *)"Hold ");
-          canvastitle.setCursor(55, 0);
-
-          canvastitle.println(MadsrHold);
+          print_adsr_echo("Hold ",MadsrHold);
         }
 
         static void sliceD() {
 
           if (navlevel == navleveloverwrite + 1) {
             sublevels[navlevel + 1] = mappeddecay;
-            vraipos = sublevels[navlevel + 1];
-            myEnc.write(4 * sublevels[navlevel + 1]);
-            navlevel = navlevel + 1;
+            returntonav(navlevel + 1, 5,sublevels[navlevel + 1]);
           }
           if (navlevel == navleveloverwrite + 2) {
             navrange = 512;
@@ -625,24 +595,17 @@ class SynthMenuRouter : public SectionHolder {
               GlobalADSR();
             }
 
-            returntonav(navleveloverwrite, 5);
+            returntonav(navleveloverwrite, 5,sublevels[navleveloverwrite]);
           }
 
-          canvastitle.setTextSize(1);
-          canvastitle.setCursor(0, 0);
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.println((char *)"Decay ");
-          canvastitle.setCursor(55, 0);
 
-          canvastitle.println(mappeddecay);
+          print_adsr_echo("Decay ",mappeddecay);
         }
 
         static void sliceS() {
           if (navlevel == navleveloverwrite + 1) {
             sublevels[navlevel + 1] = mappedsustain;
-            vraipos = sublevels[navlevel + 1];
-            myEnc.write(4 * sublevels[navlevel + 1]);
-            navlevel = navlevel + 1;
+            returntonav(navlevel + 1, 5,sublevels[navlevel + 1]);
           }
           if (navlevel == navleveloverwrite + 2) {
             navrange = 100;
@@ -653,23 +616,17 @@ class SynthMenuRouter : public SectionHolder {
               GlobalADSR();
             }
 
-            returntonav(navleveloverwrite, 5);
+            returntonav(navleveloverwrite, 5,sublevels[navleveloverwrite]);
           }
+          print_adsr_echo("Sustain ",mappedsustain);
 
-          canvastitle.setTextSize(1);
-          canvastitle.setCursor(0, 0);
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.println((char *)"Sustain ");
-          canvastitle.setCursor(55, 0);
-          canvastitle.println(mappedsustain);
         }
 
         static void sliceR() {
+          retroaction = navleveloverwrite ;
           if (navlevel == navleveloverwrite + 1) {
+            returntonav(navlevel + 1, 5,sublevels[navlevel + 1]);
             sublevels[navlevel + 1] = mappedrelease;
-            vraipos = sublevels[navlevel + 1];
-            myEnc.write(4 * sublevels[navlevel + 1]);
-            navlevel = navlevel + 1;
           }
           if (navlevel == navleveloverwrite + 2) {
             navrange = 1024;
@@ -680,15 +637,10 @@ class SynthMenuRouter : public SectionHolder {
               GlobalADSR();
             }
 
-            returntonav(navleveloverwrite, 5);
+            returntonav(navleveloverwrite, 5,sublevels[navleveloverwrite]);
           }
-
-          canvastitle.setTextSize(1);
-          canvastitle.setCursor(0, 0);
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.println((char *)"Release ");
-          canvastitle.setCursor(55, 0);
-          canvastitle.println(mappedrelease);
+          print_adsr_echo("Release ",mappedrelease);
+          
         }
 
         static void draw_synth_params() {
@@ -755,43 +707,14 @@ class SynthMenuRouter : public SectionHolder {
         }
         
         void synth_nav_zero() {
-          if (navlevel == 1) {
             navrange = 4;
             display.clearDisplay();
             reinitsublevels(2);
             dolistsyntmenu();
+            retroaction = sublevels[1] ;
             dodisplay();
-            return;
-          }
-          retroaction = sublevels[1] ;
-          if (sublevels[1] == 3 && navlevel > 1) {
-            navrange = synths_count-1;
-            mp3_player_panel();
-          }
-          //adsr section
-          if (sublevels[1] == 2) {
-            if (navlevel >= 2) {
-              if (navlevel == 2) {
-                navrange = 5;
-              }
-              navleveloverwrite = 2;
-              displayadsrgraph();
-            }
-          }
-          // waves menu
-          if (sublevels[1] == 0) {
-            if (navlevel >= 2) {
-            wavesline_selector();
-            }
-          }
-          // mixer
-          if (sublevels[1] == 1 && navlevel > 1) {
-            showmixerwaves();
-          }
-          if (sublevels[1] == 4 && navlevel > 1) {
-            le303filterVpanel();
-          }
         }
+
         static void mp3_player_play(){
           if (!SD.exists((char*)mp3_name.c_str())) {
             get_next_mp3();
@@ -801,6 +724,10 @@ class SynthMenuRouter : public SectionHolder {
 
         static void mp3_player_stop(){
           playMp31.stop();
+        }
+
+         static void mp3_player_continous(){
+          mp3_continue = !mp3_continue ;
         }
 
         static void mp3_player_pause(){
@@ -899,6 +826,7 @@ class SynthMenuRouter : public SectionHolder {
 
             case 1:
               play_flac_file(mp3_file);
+
             break;
           }
           
@@ -941,6 +869,7 @@ class SynthMenuRouter : public SectionHolder {
         static void play_flac_file(const char *flac_file) {
           playMp31.stop();
           playFlac1.play(flac_file);
+          //playFlac1.setPlaybackCompleteCallback(display_mp3_title);
 
         }
         
@@ -1029,19 +958,12 @@ class SynthMenuRouter : public SectionHolder {
             retroaction = sublevels[2];
             navrange = 127;
             if (!temp_buff_armed) {
-              Serial.println("");
-              Serial.print("storing res = ");
-              Serial.print(le303ffilterzVknobs[1]);
               set_filter_buff_temp();
               temp_buff_armed = 1 ;
             } 
-            
             // AudioNoInterrupts();
             (filters_pointers[sublevels[2]])();
             le303filtercontrols();
-            Serial.print(*filter_tmp_pointers[1]);
-            Serial.print(" ");
-            Serial.print(filter_tmp_values[1]);
             
           }
           if (navlevel > 3) {
@@ -1088,7 +1010,7 @@ class SynthMenuRouter : public SectionHolder {
           int wbarwidth2 = 8;
           int barsize;
           int startlex2 = 67;
-              dm.clean_title_1();
+          dm.clean_title_1();
           canvastitle.print("303 ");
           canvastitle.setCursor(22, 0);
 
@@ -1295,6 +1217,35 @@ class SynthMenuRouter : public SectionHolder {
 
         }
 
+        static void restore_wmixer_from_temp() {
+          for (int i=0; i<12; i++) {
+            sublevels[3] = wmixer_tmp_values[i];
+            //(filters_pointers[i])();
+            //le303filtercontrols();
+            if (i < 3) {
+              actionwmixerM(i);
+            }
+            if (i > 2 && i < 6) {
+              actionwet1mixer(i - 3);
+            }
+            if (i > 5 && i < 9) {
+              action_dry_mix(i - 6);
+            }
+            if (i > 8 && i < 12) {
+              actionwmixer(i - 9);
+            }
+            *wmixer_tmp_pointers[i] = wmixer_tmp_values[i] ;
+          }
+           temp_buff_armed = 0 ;
+        }
+
+        static void set_wmixer_buff_temp() {
+          Serial.println("buffing");
+          for (int i=0; i<12; i++) {
+            wmixer_tmp_values[i] = *wmixer_tmp_pointers[i] ;
+          }
+         
+        }
 
         static void showmixerwaves() {
           char masterfulllabels[12][12] = {
@@ -1303,6 +1254,11 @@ class SynthMenuRouter : public SectionHolder {
               "Waveline 1", "Waveline 2", "Waveline 3" };
           navrange = 11;
           byte slct = sublevels[2];
+
+          if (navlevel == 2 && temp_buff_armed) {
+            restore_wmixer_from_temp();
+          }
+
           if (slct < 3) {
             actionwmixerM(sublevels[2]);
           }
@@ -1357,7 +1313,7 @@ class SynthMenuRouter : public SectionHolder {
           }
 
           for (int i = 0; i < 3; i++) {
-            coeffangle = (6.2831 - (WetMixMasters[i + 1]) * 6.2831) + 3.1416;
+            coeffangle = (6.2831 - (WetMixMasters[i + 1]/127.0) * 6.2831) + 3.1416;
             centercirclex = knobradius + (xcentershifter * i) + 5 + (xcentershifter * 3);
             centercircley = 16 + knobradius;
             canvastitle.setCursor(centercirclex - 8, 8);
@@ -1373,7 +1329,7 @@ class SynthMenuRouter : public SectionHolder {
             centercirclex = knobradius + (xcentershifter * (slct - 3)) + 5 + (xcentershifter * 3);
             canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
             canvastitle.setCursor(95, 0);
-            canvastitle.print(WetMixMasters[slct - 3 + 1] * 100.0, 1);
+            canvastitle.print((WetMixMasters[slct - 3 + 1]/127.0) * 100.0, 1);
           }
 
           for (int i = 0; i < 3; i++) {
@@ -1397,7 +1353,7 @@ class SynthMenuRouter : public SectionHolder {
           }
 
           for (int i = 0; i < synths_count; i++) {
-            coeffangle = (6.2831 - (mixlevelsL[i]) * 6.2831) + 3.1416;
+            coeffangle = (6.2831 - (mixlevelsL[i]/127.0) * 6.2831) + 3.1416;
             centercirclex = knobradius + (xcentershifter * i) + 25 + (xcentershifter * 2);
             centercircley = yshifter + knobradius;
             canvasBIG.setCursor(centercirclex - 5, centercircley - (2 + knobradius * 2));
@@ -1413,7 +1369,7 @@ class SynthMenuRouter : public SectionHolder {
             centercirclex = knobradius + (xcentershifter * (slct - 9)) + 25 + (xcentershifter * 2);
             canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
             canvastitle.setCursor(95, 0);
-            canvastitle.print((mixlevelsL[slct - 9]) * 100.0, 1);
+            canvastitle.print((mixlevelsL[slct - 9]/127.0) * 100.0, 1);
           }
           dodisplay();
         }
@@ -1421,7 +1377,7 @@ class SynthMenuRouter : public SectionHolder {
         static void setwavemixlevel() {
         // AudioNoInterrupts();
           for (int j = 0; j < liners_count; j++) {
-            Wavesmix[j]->gain(ccsynthselector, mixlevelsL[ccsynthselector]);
+            Wavesmix[j]->gain(ccsynthselector, mixlevelsL[ccsynthselector]/127.0);
           }
         // AudioInterrupts();
         }
@@ -1429,33 +1385,65 @@ class SynthMenuRouter : public SectionHolder {
         static void actionwet1mixer(int linstru) {
 
           if (navlevel == 2) {
-            sublevels[3] = round(WetMixMasters[linstru + 1] * 127.0);
+            sublevels[3] = WetMixMasters[linstru + 1];
           }
           if (navlevel == 3) {
             navrange = 127;
+            retroaction = sublevels[2];
+            if (!temp_buff_armed) {
+              set_wmixer_buff_temp();
+              temp_buff_armed = 1 ;
+            } 
             // wetmain[lafxline] = sublevels[3];
-            WetMixMasters[linstru + 1] = sublevels[3] / 127.0;
+            WetMixMasters[linstru + 1] = sublevels[3] ;
             wetmixmastercontrols();
           }
           if (navlevel == 4) {
-            returntonav(2, 3);
+            temp_buff_armed = 0 ;
+            returntonav(2, 3, sublevels[2]);
           }
           //
         }
 
+        static void action_dry_mix(int linstru) {
+
+          if (navlevel == 2) {
+            sublevels[3] = wetins[linstru];
+          }
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = 127;
+            if (!temp_buff_armed) {
+            set_wmixer_buff_temp();
+            temp_buff_armed = 1 ;
+          } 
+            wetins[linstru] = sublevels[3];
+            set_dry_mix(linstru);
+          }
+          if (navlevel == 4) {
+            temp_buff_armed = 0 ;
+            returntonav(2, 3, sublevels[2]);
+          }
+        }
 
         static void actionwmixer(byte vknob) {
 
           if (navlevel == 2) {
-            sublevels[3] = round(mixlevelsL[vknob] * 127.0);
+            sublevels[3] = mixlevelsL[vknob];
           }
           if (navlevel == 3) {
             navrange = 127;
-            mixlevelsL[vknob] = sublevels[3] / 127.0;
+            retroaction = sublevels[2];
+            if (!temp_buff_armed) {
+              set_wmixer_buff_temp();
+              temp_buff_armed = 1 ;
+            } 
+            mixlevelsL[vknob] = sublevels[3];
             setwavemixlevel();
           }
           if (navlevel == 4) {
-            returntonav(2, 3);
+            temp_buff_armed = 0 ;
+            returntonav(2, 3, sublevels[2]);
           }
           //
         }
@@ -1463,20 +1451,25 @@ class SynthMenuRouter : public SectionHolder {
         static void actionwmixerM(int lebus) {
 
           if (navlevel == 2) {
-            sublevels[3] = round(mixlevelsM[lebus]);
+            sublevels[3] = mixlevelsM[lebus];
           }
           if (navlevel == 3) {
+            retroaction = sublevels[2];
+            if (!temp_buff_armed) {
+              set_wmixer_buff_temp();
+              temp_buff_armed = 1 ;
+            } 
             navrange = 127;
             mixlevelsM[lebus] = sublevels[3];
 
             setmastersmixlevel(lebus);
           }
           if (navlevel == 4) {
-            returntonav(2, 3);
+            temp_buff_armed = 0 ;
+            returntonav(2, 3, sublevels[2]);
           }
           //
         }
-
 
         static void plug_no_waves(){
           mixlevelsL[ccsynthselector] = 0;
@@ -1558,6 +1551,7 @@ class SynthMenuRouter : public SectionHolder {
             stringcords1[i + (ccsynthselector * liners_count)]->connect();
           }
         }
+
         static void plug_ampl_moded_strings(){
           for (int i = 0; i < liners_count; i++) {
             wavelinescords[i + (ccsynthselector * liners_count)]->disconnect();
@@ -1570,6 +1564,7 @@ class SynthMenuRouter : public SectionHolder {
             modulatecords1[i + (liners_count * ccsynthselector)]->connect();
           }
         }
+
         static void plug_drum_waves(){
           for (int i = 0; i < liners_count; i++) {
             wavelinescords[i + (ccsynthselector * liners_count)]->disconnect();
@@ -1582,6 +1577,7 @@ class SynthMenuRouter : public SectionHolder {
             drumcords1[i + (ccsynthselector * liners_count)]->connect();
           }
         }
+
         static void plug_ampl_moded_drums(){
           for (int i = 0; i < liners_count; i++) {
             wavelinescords[i + (ccsynthselector * liners_count)]->disconnect();
@@ -1653,7 +1649,6 @@ class SynthMenuRouter : public SectionHolder {
             call_restart_lfo(ccsynthselector);
         }
 
-      
         static void setwavetypefromlist() {
           AudioNoInterrupts();
           byte letype = Waveformstyped[ccsynthselector];
@@ -1676,7 +1671,6 @@ class SynthMenuRouter : public SectionHolder {
           }
           AudioInterrupts();
         }
-
 
         void setsynthfrequencyi(float tune, int voice, byte velocityz) {
           // AudioNoInterrupts();
@@ -1718,24 +1712,6 @@ class SynthMenuRouter : public SectionHolder {
             &SynthMenuRouter::route_navlevel_2,
             &SynthMenuRouter::route_navlevel_2
         };
-        /*using lf = void (LFOMenuRouter::*)();
-
-       
-            &LFOMenuRouter::synthrmType,
-            &synthMenuRouter::doSynthlevel,
-            &synthMenuRouter::dosynthbool,
-            &synthMenuRouter::dosynthfreqd,
-            &synthMenuRouter::dosynthoffset,
-            &LFOMenuRouter::doLFOphase,
-            &LFOMenuRouter::go_to_synth,
-            &LFOMenuRouter::go_previous,
-            &LFOMenuRouter::go_next
-        };
-        //void (LFOMenuRouter::*_nav_lfo[7])() = {nullptr};
-        lf _nav_lfo[7] = {&LFOMenuRouter::lfo_zero, &LFOMenuRouter::LFOlining,
-                                                  &LFOMenuRouter::LFOlining,&LFOMenuRouter::LFOlining,
-                                                  &LFOMenuRouter::LFOlining,&LFOMenuRouter::LFOlining,&LFOMenuRouter::LFOlining};*/
-
 };
 
 SynthMenuRouter _sn = SynthMenuRouter();
