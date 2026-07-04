@@ -34,6 +34,7 @@ void setmastersmixlevel(int lebus) {
   }
   //AudioInterrupts();
 }
+
 void ApplyADSR() {
   for (int i = 0; i < liners_count; i++) {
     enveloppesL[i]->delay(adsrlevels[0]);
@@ -56,10 +57,10 @@ void setle303filterpass(int linei) {
   les303passes[linei]->gain(1,le303filterzgainz[1]);
   les303passes[linei]->gain(2,le303filterzgainz[2]);
 }
+
 void le303filtercontrols() {
   for (int i = 0; i < liners_count; i++) {
     setle303filterpass(i);
-
   }
 }
 
@@ -143,25 +144,28 @@ void set_dry_mix(int lebus) {
 class SynthMenuRouter : public SectionHolder {
     public:
         SynthMenuRouter() {
+                    self = this;
                     this->home_navrange=truesizeofsynthmenulabels-1;
                     this->relative_navlevel=1;
                     this->max_navlevel=5;
                     this->sublevels_address={0,0,0};
                     }
 
-        using sn = void (SynthMenuRouter::*)();
+        int unit = (int)wavesfreqs[ccsynthselector] % 10;
+        int tenth     = ((int)(wavesfreqs[ccsynthselector] * 10)) % 10;
+        int hundredth = ((int)(wavesfreqs[ccsynthselector] * 100)) % 10;
 
-        void show() {
-            (this->*SynthMenuRouter::_route_nav[navlevel-1])();
+        static void show() {
+          _route_nav[navlevel-1]();
         }
 
-        void route_navlevel_1(){
-            synth_nav_zero();
+        static void route_navlevel_1(){
+          synth_nav_zero();
         }
 
-        void route_navlevel_2(){
-          retroaction = sublevels[1] ;
-            _nav_synth[sublevels[1]]();
+        static void route_navlevel_2(){
+          retroaction = sublevels[1];
+          _nav_synth[sublevels[1]]();
         }
 
         static void displayoffsetwav() {
@@ -192,38 +196,81 @@ class SynthMenuRouter : public SectionHolder {
           dodisplay();
         }
 
-        static void displayfreqbars() {
-          int score = wavesfreqs[ccsynthselector] ;
+        static void freqbars_panel_selector() { 
+          if (navlevel == 4) {
+            retroaction = sublevels[3];
+            switch (sublevels[4]){
+              case 0:
+                display.fillRect(62, 0, 16, 16, SSD1306_INVERSE);
+                self->unit = (int)wavesfreqs[ccsynthselector];
+                sublevels[5]=self->unit;
+              break;
+              case 1:
+                display.fillRect(88, 0, 12, 16, SSD1306_INVERSE);
+                self->tenth = ((int)(wavesfreqs[ccsynthselector]* 10)) % 10;
+                sublevels[5]=self->tenth;
+              break;
+              case 2:
+                display.fillRect(100, 0, 12, 16, SSD1306_INVERSE);
+                self->hundredth = ((int)(wavesfreqs[ccsynthselector] * 100)) % 10;
+                sublevels[5]=self->hundredth;
+              break;
+            }
+          display.display();
+          }
+        }
+        static void freqbars_panel_action() { 
+          
+          navrange = 9;
+          switch (sublevels[4]){
+            case 0:
+              self->unit = sublevels[5]; 
+            break;
+            case 1:
+              self->tenth = sublevels[5];
+              //Serial.println(self->hundredth);
+            break;
+            case 2:
+              self->hundredth = sublevels[5];
+              //Serial.println(self->hundredth);
+            break;
+          }
+
+          wavesfreqs[ccsynthselector] = (float)(self->unit + self->tenth * 0.1f + self->hundredth * 0.01f);
+        }
+
+        static void displayfreqbars(){
           dm.clear_3();
-          if (navlevel == 3) {
-            retroaction = sublevels[2];
-            navrange = synth_params_count - 1; 
-            sublevels[4] = round(wavesfreqs[ccsynthselector]);
-          }
-          // weird but usefull behavior to switch encoder resolution between 0 and 1
-          if (navlevel >= 4) {
-            if (navlevel == 4) {
-              retroaction = sublevels[3];
-              navrange = 10;
-              if (wavesfreqs[ccsynthselector] == 1) { demimalmode = !demimalmode;}
-              else { if (wavesfreqs[ccsynthselector] <= 1) {demimalmode = 1; } }
-              if (!demimalmode) {wavesfreqs[ccsynthselector] = sublevels[4]; }
-              if (demimalmode) {wavesfreqs[ccsynthselector] = (sublevels[4]) / 10.0; }
-            }
-            if (navlevel >= 5) {
-              if (demimalmode) { wavesfreqs[ccsynthselector] = (sublevels[4]) / 10.0; }
-              if (!demimalmode) { wavesfreqs[ccsynthselector] = sublevels[4]; }
-              returntonav(3,synth_params_count-1,sublevels[3]);
-            }
-            
-          }
-          
-          
           display.setTextSize(2);
           display.setCursor(65, 0);
           display.println(wavesfreqs[ccsynthselector]);
           draw_synth_params();
           dodisplay();
+        }
+
+        static void freqbars_panel() {
+          if (navlevel >= 4) {
+            retroaction = sublevels[3];
+            if (navlevel == 4) {
+              navrange = 2;
+              
+            }
+            if (navlevel == 5) {
+              retroaction = sublevels[4];
+              freqbars_panel_action();
+            }
+            if (navlevel >= 6) {
+              returntonav(4,9,sublevels[4]);
+            }
+            //dodisplay();
+          }
+          displayfreqbars();
+          freqbars_panel_selector();
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1; 
+            //sublevels[4] = round(wavesfreqs[ccsynthselector]);
+          }
         }
 
         static void displayphasebars() {
@@ -391,6 +438,7 @@ class SynthMenuRouter : public SectionHolder {
         }
     
         static void wavelining() {
+          retroaction = sublevels[3];
           _synth_params[sublevels[3]]();
         }
         
@@ -703,13 +751,15 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void wavesline_selector(){
+          retroaction = sublevels[navlevel-2] ;
           _waveliners[navlevel-2]();
         }
         
-        void synth_nav_zero() {
+        static void synth_nav_zero() {
             navrange = 4;
             display.clearDisplay();
-            reinitsublevels(2);
+            //if (!retroaction)
+            //  reinitsublevels(2);
             dolistsyntmenu();
             retroaction = sublevels[1] ;
             dodisplay();
@@ -1701,18 +1751,21 @@ class SynthMenuRouter : public SectionHolder {
                                                 &filter_knob_wet, &filter_knob_pulse1, &filter_knob_pulse2, &filter_knob_preamp, &filter_knob_glide};
 
         static constexpr void (*_synth_params[synth_params_count])() = {&displaywaveformicon,&wavelineModulatedbool,&displayLFOpanel,
-                                                      &displayfreqbars,&displayoffsetwav,&displayphasebars,&go_previous,&go_next};
+                                                      &freqbars_panel,&displayoffsetwav,&displayphasebars,&go_previous,&go_next};
          
-        static constexpr sn _route_nav[7] = {
-            &SynthMenuRouter::route_navlevel_1,
-            &SynthMenuRouter::route_navlevel_2,
-            &SynthMenuRouter::route_navlevel_2,
-            &SynthMenuRouter::route_navlevel_2,
-            &SynthMenuRouter::route_navlevel_2,
-            &SynthMenuRouter::route_navlevel_2,
-            &SynthMenuRouter::route_navlevel_2
+        static constexpr void (*_route_nav[7])() = {
+            &route_navlevel_1,
+            &route_navlevel_2,
+            &route_navlevel_2,
+            &route_navlevel_2,
+            &route_navlevel_2,
+            &route_navlevel_2,
+            &route_navlevel_2
         };
+
+  private:
+    static SynthMenuRouter* self;
 };
 
-SynthMenuRouter _sn = SynthMenuRouter();
-
+SynthMenuRouter* SynthMenuRouter::self = nullptr;
+EXTMEM SynthMenuRouter _sn;

@@ -2,7 +2,7 @@
 void control_me(){
   if (!blocked) {
       if (noteprint)
-        printlanote();    
+        _st.printlanote();    
       if (MULTIPLEXED_PADS){
         check_pads();
         check_pots();

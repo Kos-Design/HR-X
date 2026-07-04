@@ -5,6 +5,10 @@ void setupSD() {
     _sp.errorsd("initialization SD failed!");
     return;
   }
+  //thyfs.begin();
+  for (int i=0; i<10 ; i++) {
+    FlashSampler[i]->setFilesystem(thyfs);
+  }
   
   _sp.initializesamplesselectedlist();
   pseudoconsole((char *)"Scanning Samples");
@@ -21,7 +25,7 @@ void setupSD() {
 
 void attach_menus(){
   void (*menus[])() = {
-    call_sn_show,call_lf_show,_ka.show,_sg.song_nav_zero,call_pt_show,
+    call_sn_show,call_lf_show,_ka.show,_sg.show,call_pt_show,
    call_st_show,call_fx_show,call_sp_show,call_wf_show,call_ps_show};
   for (int i=0;i<10;i++){
     dm.attach_nav_zero(i,menus[i]);
@@ -61,9 +65,7 @@ void call_synth_event_cells(){
 void call_sampler_event_cells(){
   _pe.sampler_event_cells();
 }
-void call_song_home(){
-  _sg.song_home();
-}
+
 void call_wf_show(){
   _wf.show();
 }
@@ -193,7 +195,7 @@ void setup() {
   audioShield.inputSelect(AUDIO_INPUT_LINEIN);
   audioShield.enable();
   audioShield.volume(1.0);
-  set_in_source();
+  _st.set_in_source();
   clocker.attach_24(advance_tick);
   clocker.attach_3(pseudo303);
   clocker.attach_6(control_me);

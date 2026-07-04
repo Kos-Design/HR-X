@@ -504,4 +504,4 @@ class WaveformsMenuRouter : public SectionHolder {
 };
 
 WaveformsMenuRouter* WaveformsMenuRouter::self = nullptr;
-WaveformsMenuRouter _wf;
+EXTMEM WaveformsMenuRouter _wf;

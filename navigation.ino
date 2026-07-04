@@ -50,9 +50,7 @@ void evalinputs() {
     }
     sublevels[navlevel] = 0;
     if (retroaction) {
-      if (retroaction > navrange) {
-        retroaction = 0;
-      };
+ 
       sublevels[navlevel] = retroaction ;
       vraipos = retroaction;
       myEnc.write(retroaction * 4);

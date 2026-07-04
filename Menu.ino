@@ -20,11 +20,8 @@ class KnobAssigner : public SectionHolder {
                     this->relative_navlevel=1;
                     this->max_navlevel=3;
                     this->sublevels_address={2,0,0};
-                    //home method not really used yet
-                    this->set_home(this->kb_home);
                     }
-      //static int midiknobassigned[128];
-
+ 
       static void show() {
         _actionable[navlevel-1]();
       }
@@ -120,7 +117,7 @@ class KnobAssigner : public SectionHolder {
 
 };
 
-KnobAssigner _ka = KnobAssigner();
+EXTMEM KnobAssigner _ka = KnobAssigner();
 
 class SynthLiner {
   public:

@@ -70,7 +70,7 @@ class FxMenuRouter : public SectionHolder {
                       this->max_navlevel=5;
                       this->sublevels_address={6,0,0};
                       //home method not really used yet
-                      this->set_home(call_fx_mainpanel);
+                      //this->set_home(call_fx_mainpanel);
                       }
 
       static void show() {
@@ -1663,11 +1663,11 @@ class FxMenuRouter : public SectionHolder {
         }
       }
 
-      static constexpr void (*_nav_fx[sizeofsamplerlabels])() = {&fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one};
+      static constexpr void (*_nav_fx[5])() = {&fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one};
 
   private:
     static FxMenuRouter* self;
 };
 
 FxMenuRouter* FxMenuRouter::self = nullptr;
-FxMenuRouter _fx;
+EXTMEM FxMenuRouter _fx;

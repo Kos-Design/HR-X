@@ -38,7 +38,7 @@ const byte truesizeofwaveformsmenulabels = 8;
 const byte truesizeofpresetmenulabels = 5;
 const byte truesizeofsynthmenulabels = 5 ;
 const byte sizeofLFOlabels = 9;
-const byte numbofsettinglabels = 14;
+const byte numbofsettinglabels = 15;
 
 int millitickinterval = 115;
 //freeze, can't record wav
@@ -177,7 +177,7 @@ EXTMEM char sampledirpath[99] = {"SOUNDSET/"};
 String newloopedpath = "SOUNDSET/REC/LOOP00#L.RAW";
 String newRecpathL = "SOUNDSET/REC/RECZ00#L.RAW";
 String newRecpathR = "SOUNDSET/REC/RECZ00#R.RAW";
-int navlevelvbuttons = 1;
+int navlevelvbuttons = 2;
 const int numberofvbuttonslabels = 8;
 byte vbuttonsCC[numberofvbuttonslabels + 14 + 17];
 byte vPots[17] = {0};
@@ -687,7 +687,7 @@ byte flangerVknobs[fxs_count][3];
 byte delayVknobs[fxs_count][3];
 byte chorusVknobs[fxs_count];
 byte reverbVknobs[fxs_count][2];
-SerialFlashFile dummy_flash_file ;
+File dummy_flash_file ;
 File dummyier_file ;
 // char* filespath[] = {(char*)"/",};
 //tracks of the sequencer
@@ -1350,23 +1350,11 @@ typedef struct {byte value1; byte value3; byte value2;} MenuPager;
 class SectionHolder{
     public:
         SectionHolder() {}
-        
         byte relative_navlevel;
         //max absolute as it should be tested against the relative one
         byte max_navlevel = 5;
         MenuPager sublevels_address = {0,0,0};
         byte home_navrange ;
-
-        void home() {
-            if(_home){
-                this->_home();
-            }
-        }
-
-        void set_home(void (*cb)())
-        {
-            this->_home = cb;
-        }
 
     private:
 

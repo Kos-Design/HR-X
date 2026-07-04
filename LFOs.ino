@@ -6,7 +6,7 @@ class LFOMenuRouter : public SectionHolder {
                     this->relative_navlevel=1;
                     this->max_navlevel=5;
                     this->sublevels_address={1,0,0};
-                    this->set_home(call_lf_show);
+                    
                     }
 
         void show() {
@@ -285,7 +285,7 @@ class LFOMenuRouter : public SectionHolder {
         }
         void LFOlining() {
           navrange = 8;
-          int leLFO = sublevels[1]%3;
+          //int leLFO = sublevels[1]%3;
           dolistLFOparams();
           (this->*LFOMenuRouter::_route_nav[sublevels[2]])();
           LFOmenuBG();

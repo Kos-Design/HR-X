@@ -522,3 +522,29 @@ void end_sample_in_place() {
 }
 
 
+
+class RecorderMenuRouter : public SectionHolder {
+    public:
+        RecorderMenuRouter() {
+                    self = this;
+                    this->home_navrange=numbofsettinglabels - 1;
+                    this->relative_navlevel=2;
+                    this->max_navlevel=5;
+                    this->sublevels_address={5,0,0};
+                    //home method not really used yet
+                    //this->set_home(call_fx_mainpanel);
+                    }
+        static void show() {
+          if (navlevel == 1) {
+            //records_nav_zero();
+          }
+        }
+
+  private:
+    static RecorderMenuRouter* self;
+};
+
+RecorderMenuRouter* RecorderMenuRouter::self = nullptr;
+RecorderMenuRouter _rd;
+       
+        

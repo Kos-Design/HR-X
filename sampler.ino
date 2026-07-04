@@ -1,4 +1,5 @@
 
+
 class SamplerMenuRouter : public SectionHolder {
     public:
         SamplerMenuRouter() {
@@ -350,7 +351,7 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void copybacklaflashfile(int leflashfile) {
-          SerialFlashFile originflashfile = SerialFlash.open((const char *)Flashsamplename[leflashfile]);
+          File originflashfile = thyfs.open((const char *)Flashsamplename[leflashfile]);
           String new_name = newmkdirpath + "/" + (String)Flashsamplename[leflashfile];
           File mynewsample = SD.open(new_name.c_str(), FILE_WRITE);
           size_t n_size;
@@ -932,20 +933,21 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void RemoveAllfromFlash() {
+          /*
           unsigned long startMillis = millis();
           while (!Serial && (millis() - startMillis < 10000))
             ;
           delay(100);
 
-          if (!SerialFlash.begin(FlashChipSelect)) {
+          if (!thyfs.begin(FlashChipSelect)) {
             while (1) {
               pseudoconsole("no SPI Flash chip");
               delay(1000);
             }
           }
           unsigned char id[5];
-          SerialFlash.readID(id);
-          unsigned long size = SerialFlash.capacity(id);
+          //thyfs.readID(id);
+          unsigned long size = thyfs.capacity(id);
 
           if (size > 0) {
             Serial.print("Flash Memory has ");
@@ -959,11 +961,11 @@ class SamplerMenuRouter : public SectionHolder {
             Serial.print(seconds);
             Serial.println(" seconds.");
             Serial.println("  Yes, full chip erase is SLOW!");
-            SerialFlash.eraseAll();
+            thyfs.eraseAll();
             unsigned long dotMillis = millis();
             unsigned char dotcount = 0;
             //takes several hours, use pseudo console
-            while (SerialFlash.ready() == false) {
+            while (thyfs.ready() == false) {
               if (millis() - dotMillis > 1000) {
                 dotMillis = dotMillis + 1000;
                 Serial.print(".");
@@ -982,6 +984,8 @@ class SamplerMenuRouter : public SectionHolder {
             dm.lemenuroot();
             }
           }
+          */
+          dm.lemenuroot();
         }
 
         float eraseBytesPerSecond(const unsigned char *id) {
@@ -1001,8 +1005,8 @@ class SamplerMenuRouter : public SectionHolder {
           for (int j = 0; j < 999; j++) {
             pleasewait(j, 999);
             if (Flashsamplesselected[j] == 1) {
-              if (SerialFlash.exists((const char *)Flashsamplename[j])) {
-                SerialFlash.remove((const char *)Flashsamplename[j]);
+              if (thyfs.exists((const char *)Flashsamplename[j])) {
+                thyfs.remove((const char *)Flashsamplename[j]);
               }
             }
           }
@@ -1044,10 +1048,10 @@ class SamplerMenuRouter : public SectionHolder {
         static void loadSelectedSamples() {
           unsigned long lengthz;
           File currentsample;
-          SerialFlashFile currentFlashfile;
+          File currentFlashfile;
           addfolderstoselectionset();
           delay(100);
-          if (!SerialFlash.begin(FlashChipSelect)) {
+          if (!thyfs.begin(FlashChipSelect)) {
             errorsd("Unable to access SPI Flash chip");
           }
 
@@ -1060,8 +1064,8 @@ class SamplerMenuRouter : public SectionHolder {
                   break;
                 const char *currentflashname = currentsample.name();
                 lengthz = currentsample.size();
-                if (SerialFlash.exists(currentflashname)) {
-                  currentFlashfile = SerialFlash.open(currentflashname);
+                if (thyfs.exists(currentflashname)) {
+                  currentFlashfile = thyfs.open(currentflashname);
                   if (currentFlashfile &&
                       currentFlashfile.size() == currentsample.size()) {
                     if (self->comparer(currentsample, currentFlashfile)) {
@@ -1070,11 +1074,11 @@ class SamplerMenuRouter : public SectionHolder {
                       continue; // advance to next file
                     } 
                   } 
-                  SerialFlash.remove(currentflashname);
+                  thyfs.remove(currentflashname);
                 }
 
-                if (SerialFlash.create(currentflashname, lengthz)) {
-                  SerialFlashFile currentFlashfile = SerialFlash.open(currentflashname);
+                //if (thyfs.create(currentflashname, lengthz)) {
+                  File currentFlashfile = thyfs.open(currentflashname,FILE_WRITE);
                   if (currentFlashfile) {
                     unsigned long count = 0;
                     unsigned char dotcount = 9;
@@ -1091,7 +1095,7 @@ class SamplerMenuRouter : public SectionHolder {
                     currentFlashfile.close();
 
                   } 
-                } 
+                //} 
                 currentsample.close();
               }
             }
@@ -1107,24 +1111,24 @@ class SamplerMenuRouter : public SectionHolder {
         static void loadSampledSound() {
           unsigned long lengthz;
           File currentsample;
-          SerialFlashFile currentFlashfile;
+          File currentFlashfile;
           delay(1);
-          if (!SerialFlash.begin(FlashChipSelect)) {
+          if (!thyfs.begin(FlashChipSelect)) {
             pseudoconsole("Unable to access SPI Flash chip");
           }
           currentsample = SD.open(newloopedpath.c_str());
           const char *currentflashname = currentsample.name();
           lengthz = currentsample.size();
-          if (SerialFlash.exists(currentflashname)) {
-            currentFlashfile = SerialFlash.open(currentflashname);
+          if (thyfs.exists(currentflashname)) {
+            currentFlashfile = thyfs.open(currentflashname);
             if (currentFlashfile) {
-              SerialFlash.remove(currentflashname);
+              thyfs.remove(currentflashname);
               delay(1);
               }
             }
 
-          if (SerialFlash.create(currentflashname, lengthz)) {
-            SerialFlashFile currentFlashfile = SerialFlash.open(currentflashname);
+          //if (thyfs.create(currentflashname, lengthz)) {
+            currentFlashfile = thyfs.open(currentflashname,FILE_WRITE);
             if (currentFlashfile) {
               unsigned long count = 0;
               unsigned char dotcount = 9;
@@ -1140,7 +1144,7 @@ class SamplerMenuRouter : public SectionHolder {
               }
               currentFlashfile.close();
               }
-            }
+            //}
           currentsample.close();
           initializesamplesselectedlist();
           initializesamplesfoldersselectedlist();
@@ -1148,7 +1152,7 @@ class SamplerMenuRouter : public SectionHolder {
 
         }
 
-        bool comparemesFiles(typeof(myMidiFile) &file, SerialFlashFile &ffile) {
+        bool comparemesFiles(typeof(myMidiFile) &file, File &ffile) {
           file.seek(0);
           ffile.seek(0);
           unsigned long count = file.size();
@@ -1173,27 +1177,49 @@ class SamplerMenuRouter : public SectionHolder {
         static void listFlashfiles() {
           initializeFlashsamplename();
           initializeFlashsamplebase();
-          if (!SerialFlash.begin(FlashChipSelect)) {
+          if (!thyfs.begin(FlashChipSelect)) {
             errorsd("Unable to access SPI Flash chip");
           }
-          SerialFlash.opendir();
+
+          File rooter = thyfs.open("/");
+
+          while (true) {
+              File file = rooter.openNextFile();
+              if (!file) break;
+
+              Serial.print(file.name());
+              Serial.print("  ");
+              Serial.println(file.size());
+              //char flashenamex[13];
+            //uint32_t flashfilesize;
+           
+              addtoFlashsamplelist((char*)file.name());
+              file.close();
+          }
+
+          rooter.close();
+
+          /*
+
+          thyfs.opendir();
           while (1) {
             char flashenamex[13];
             uint32_t flashfilesize;
-            if (SerialFlash.readdir(flashenamex, sizeof(flashenamex), flashfilesize)) {
+            if (thyfs.readdir(flashenamex, sizeof(flashenamex), flashfilesize)) {
               addtoFlashsamplelist(flashenamex);
             } else {
               break; // no more files
             }
           }
+          */
         }
 
         //unused
         static void getavailablespace() {
           long laspace = 0;
-          SerialFlashFile lefile;
+          File lefile;
           for (int i = 0; i < numberofFlashfiles; i++) {
-            lefile = SerialFlash.open((char *)Flashsamplename[i]);
+            lefile = thyfs.open((char *)Flashsamplename[i]);
             if (lefile) {
               if (lefile.size() > 536900000) {
                 laspace += lefile.size() - 536900000;
@@ -1326,4 +1352,4 @@ class SamplerMenuRouter : public SectionHolder {
 };
 
 SamplerMenuRouter* SamplerMenuRouter::self = nullptr;
-SamplerMenuRouter _sp;
+EXTMEM SamplerMenuRouter _sp;

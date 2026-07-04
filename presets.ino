@@ -746,4 +746,4 @@ class PresetsMenuRouter : public SectionHolder {
 
 //
 PresetsMenuRouter* PresetsMenuRouter::self = nullptr;
-PresetsMenuRouter _ps;
+EXTMEM PresetsMenuRouter _ps;

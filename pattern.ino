@@ -2422,7 +2422,7 @@ class PatternsMenuRouter : public SectionHolder {
 
 };
 
-PatternsMenuRouter _pt = PatternsMenuRouter();
+EXTMEM PatternsMenuRouter _pt = PatternsMenuRouter();
 
 int clean_cursor(int pos){
   if (pos >= pbars ) {

@@ -321,70 +321,13 @@ class SongMenuRouter : public SectionHolder {
                     this->relative_navlevel=1;
                     this->max_navlevel=5;
                     this->sublevels_address={3,0,0};
-                    //home method not really used yet
-                    this->set_home(call_song_home);
                     }
 
-        static void route_navlevel_1(){
-            song_home();
-        }
-        static void route_navlevel_2(){
-            _lvl_2();
-        }
-        static void displaySongmenu() {
-          dm.clear_3();
-          if (navlevel == navSongmenu) {
-            song_nav_zero();
-          }
-
-          if ((sublevels[navSongmenu] == 0) && (navlevel > navSongmenu)) {
-            call_songeditor();
-          }
-          if ((sublevels[navSongmenu] == 7) && (navlevel > navSongmenu)) {
-            navrange = 32;
-            showSongShifterdisplays();
-            }
-
-          if (sublevels[navSongmenu] != 0) {
-
-            if (navlevel > navSongmenu + 1) {
-              song_nav_three();
-            }
-
-            if (navlevel > navSongmenu) {
-
-              if (sublevels[navSongmenu] >= 5) {
-                returntonav(navSongmenu, truesizeofSongmenulabels - 1);
-              }
-
-              if (sublevels[navSongmenu] == 1) {
-                navrange = songs_count;
-              } else {
-                navrange = max(songs_count - 1 , 0);
-              }
-
-              if (sublevels[navSongmenu] != 7) {
-                use_song_list();
-              }
-            }
-
-            // if (navlevel == navSongmenu ) {
-            // dolistSongdisplay();
-            // draw_song_list();
-
-            // }
-          }
-          dodisplay();
-        }
-
         static void show() {
-            _route_nav[navlevel-1]();
+          _route_nav[navlevel-1]();
         }
 
-        static void song_home(){
-            _lvl_2();
-        }
-        static void _lvl_2() {
+        static void route_navlevel() {
           _nav_song[sublevels[1]]();
         }
 
@@ -517,7 +460,7 @@ class SongMenuRouter : public SectionHolder {
           dodisplay();
 
         }
-
+        
         static void song_nav_three(){
           switch (sublevels[navSongmenu]) {
             //returntonav(navSongmenu, truesizeofSongmenulabels - 1);
@@ -674,7 +617,7 @@ class SongMenuRouter : public SectionHolder {
         }
 
         static void song_params_panel(){
-          byte tmp__;
+          //byte tmp__;
         }
 
         static void use_song_list(){
@@ -699,15 +642,15 @@ class SongMenuRouter : public SectionHolder {
           draw_song_list();
         }
 
-        static constexpr void (*_route_nav[5])() = {&route_navlevel_1, &route_navlevel_2,
-                                                &route_navlevel_2, &route_navlevel_2, &route_navlevel_2};
+        static constexpr void (*_route_nav[5])() = {&song_nav_zero, &route_navlevel,
+                                                &route_navlevel, &route_navlevel, &route_navlevel};
 
     private:
-
+      static constexpr void (*_song_actions[])() = {&call_songeditor,&writedasong,&parseSong,&copySong,&deleteSong,&initializepatternonsong,nullptr,&doSongShifter};
       static constexpr void (*_nav_song[truesizeofSongmenulabels])() = {&call_songeditor,&song_nav_one, &song_nav_one, &song_nav_one,
                                                       &song_nav_one, &clear_song_popup, &song_params_panel, &showSongShifterdisplays};
       static SongMenuRouter* self;
 };
 
 SongMenuRouter* SongMenuRouter::self = nullptr;
-SongMenuRouter _sg;
+EXTMEM SongMenuRouter _sg;

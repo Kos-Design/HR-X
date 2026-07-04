@@ -92,7 +92,7 @@ String lower_extension_case(String f_name){
 }
 
 bool test_flash_sample_name(String f_s_name){
-  return SerialFlash.exists(f_s_name.c_str());
+  return thyfs.exists(f_s_name.c_str());
 }
 
 void initiatesamplerline(byte lesampleliner, byte channel, byte data1,  byte data2) {
