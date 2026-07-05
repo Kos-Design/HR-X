@@ -68,8 +68,8 @@ void dolistofRecs() {
 void deleteRec() {
 
   byte lerecdiri = getrecdir();
-  if (SD.exists((char *)samplefullpath[lerecdiri][sublevels[navrecmenu + 1]])) {
-    SD.remove((char *)samplefullpath[lerecdiri][sublevels[navrecmenu + 1]]);
+  if (SD.exists((char *)(samplefullpath(lerecdiri,sublevels[navrecmenu + 1]).c_str()))) {
+    SD.remove((char *)(samplefullpath(lerecdiri,sublevels[navrecmenu + 1]).c_str()));
   }
   call_dosoundlist();
 }
@@ -77,7 +77,7 @@ void copyRec() { pseudoconsole("why copy since we don't overwrite?"); }
 
 void getthisRecname() {
   byte lerecdiri = getrecdir();
-  newRecpathL = (String)samplefullpath[lerecdiri][sublevels[navrecmenu + 1]];
+  newRecpathL = samplefullpath(lerecdiri,sublevels[navrecmenu + 1]);
 }
 
 void RecmenuAction() {

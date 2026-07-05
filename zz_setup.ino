@@ -115,9 +115,7 @@ void MyClass::LFOlining() {}
 void call_songeditor(){
   _se.Songmodepanel();
 }
-void call_fx_mainpanel(){
-  _fx.MainFxPanel();
-}
+
 /*
 void attach_menus_settings(){
   // wavesline_selector,showmixerwaves, displayadsrgraph, empty,le303filterVpanel,
@@ -197,8 +195,8 @@ void setup() {
   audioShield.volume(1.0);
   _st.set_in_source();
   clocker.attach_24(advance_tick);
-  clocker.attach_3(pseudo303);
-  clocker.attach_6(control_me);
+  //clocker.attach_3(fairly_often);
+  //clocker.attach_6();
   clocker.setBPM(120);
   clocker.setPPQN(96);
   

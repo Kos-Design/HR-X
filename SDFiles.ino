@@ -86,27 +86,33 @@ void listSoundset() {
     }
 
     if (soundentry.isDirectory()) {
+      
       addtofolderix((char *)soundentry.name(), sampledirsregistered);
-      addtofullsamplerfolderpath(sampledirsregistered,
-                                 (char *)soundentry.name());
+      //addtofullsamplerfolderpath(sampledirsregistered,(char *)soundentry.name());
       sampledirsregistered++;
     }
     soundentry.close();
   }
 }
 
-
-void dosamplerfullpath(int lefolder, int lefile, char *lefilename) {
-  // for (int i = 0 ; i< 999 ; i++ ) {
-  int stringsize = (strlen((char *)samplefullpath[lefolder][lefile])) +
-                   (strlen((char *)lefilename));
-  for (int j = 0; j < stringsize; j++) {
-    samplefullpath[lefolder][lefile][j + stringsize] = (char)(lefilename[j]);
-  }
-  // samplefullpath[lefolder][i][(strlen((char*)lepath)+9)]=(char*)"/"[0];
-  //}
+String samplefullpath(int lefolder, int lefile){
+  String based = samplebase[lefolder][lefile];
+  String folded = samplefoldersregistered[lefolder] ;
+  return "SOUNDSET/" + folded + "/" + based +".RAW";
 }
+/*
+struct FileEntry
+{
+    uint16_t parent;
+    char name[9];
+    bool isDir;
+};
+sd_content[999]
+*/
+  //samplefullpath[lefolder][lefile][j + stringsize] = (char)(lefilename[j]);
 
+
+/*
 void addtofullsamplerfolderpath(int lefolder, char *lepath) {
   for (int i = 0; i < 999; i++) {
     for (int j = 9; j < (int)strlen((char *)lepath) + 9; j++) {
@@ -136,10 +142,10 @@ void clearsamplefullpath(int lefolder, int lefile) {
     samplefullpath[lefolder][lefile][j] = (char)("SOUNDSET/"[j]);
   }
 }
-
+*/
 void initializesamplebase() {
   for (int i = 0; i < 99; i++) {
-    batchclearsamplefullpath(i);
+    batchclearsamplebase(i);
   }
 }
 

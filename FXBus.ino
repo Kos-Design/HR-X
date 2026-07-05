@@ -100,23 +100,23 @@ class FxMenuRouter : public SectionHolder {
         byte startx = 5;
         byte starty = 16;
         String textin;
-        if (fx[sublevels[1]]->plugged_fx_type != (mainmenufxlistsize - 1)) {
-          textin = (String)mainmenufxlist[fx[sublevels[1]]->plugged_fx_type];
+        if (fx[sublevels[1]%fxs_count]->plugged_fx_type != (mainmenufxlistsize - 1)) {
+          textin = (String)mainmenufxlist[fx[sublevels[1]%fxs_count]->plugged_fx_type];
         } else {
-          textin = (String)mainfxlineslist[sublevels[1]];
+          textin = (String)mainfxlineslist[sublevels[1]%fxs_count];
         }
         dm.clear_buffs_2_1();
         canvastitle.println(textin);
         for (int i = 0; i < fxs_count - 1 - sublevels[1]; i++) {
           canvasBIG.setCursor(startx, starty + ((i)*10));
-          if (fx[sublevels[1] + 1 + i]->plugged_fx_type != mainmenufxlistsize-1) {
-            canvasBIG.println((String)mainmenufxlist[fx[sublevels[1] + 1 + i]->plugged_fx_type]);
+          if (fx[sublevels[1]%fxs_count + 1 + i]->plugged_fx_type != mainmenufxlistsize-1) {
+            canvasBIG.println((String)mainmenufxlist[fx[sublevels[1]%fxs_count + 1 + i]->plugged_fx_type]);
           } else {
-            canvasBIG.println(mainfxlineslist[sublevels[1] + 1 + i]);
+            canvasBIG.println(mainfxlineslist[sublevels[1]%fxs_count + 1 + i]);
           }
         }
-        for (int i = 0; i < sublevels[1]; i++) {
-          canvasBIG.setCursor(startx, (10 * (fxs_count - sublevels[1]) + 6 + ((i)*10)));
+        for (int i = 0; i < sublevels[1]%fxs_count; i++) {
+          canvasBIG.setCursor(startx, (10 * (fxs_count - (sublevels[1]%fxs_count)) + 6 + ((i)*10)));
           if (fx[i]->plugged_fx_type != (mainmenufxlistsize - 1)) {
             canvasBIG.println((String)mainmenufxlist[fx[i]->plugged_fx_type]);
           } else {
@@ -1634,7 +1634,7 @@ class FxMenuRouter : public SectionHolder {
         display.clearDisplay();
         dolistmainfxlines();
         dodisplay();
-        sublevels[2] = fx[sublevels[1]]->plugged_fx_type ;
+        sublevels[2] = fx[sublevels[1]%fxs_count]->plugged_fx_type ;
       }
 
       static void fx_nav_one(){
@@ -1651,6 +1651,8 @@ class FxMenuRouter : public SectionHolder {
       }
 
       static void MainFxPanel() {
+        if (sublevels[navlevel] > navrange)
+          reinitsublevels(navlevel);
 
         if (navlevel == 1) {
           fx_nav_zero();

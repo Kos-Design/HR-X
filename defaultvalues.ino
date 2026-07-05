@@ -35,6 +35,33 @@ void initextmems() {
     }
     recorded_ccs[i] = 0 ;
   }
+
+    for (int i = 0; i < fxs_count; i++) {
+      for (int j = 0; j < bqstagesnum; j++) {
+          bqslope[i][j] = 0.0;
+          bqgain[i][j] = 0.0;
+          bqfreq[i][j] = 0.0;
+          bqtype[i][j] = 0.0;
+          bqVpot[i][j][0] = 0;
+          bqVpot[i][j][1] = 0;
+          bqVpot[i][j][2] = 0;
+      }
+    }
+    for (int i = 0; i < GRANULAR_MEMORY_SIZE; i++) {
+      granularMemory[i] = 0;
+      granularMemory2[i] = 0;
+      granularMemory3[i] = 0;
+    }
+    for (int i = 0; i < FLANGE_DELAY_LENGTH; i++) {
+      flangedelay[i] = 0;
+      flangedelay2[i] = 0;
+      flangedelay3[i] = 0;
+    }
+    for (int i = 0; i < CHORUS_DELAY_LENGTH; i++) {
+      chorusdelayline[i] = 0;
+      chorusdelayline2[i] = 0;
+      chorusdelayline3[i] = 0;
+    }
   // ignorethatcc[88] = true;
 }
 

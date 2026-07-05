@@ -283,15 +283,15 @@ class SamplerMenuRouter : public SectionHolder {
 
 
         static void setlefilenamed(int lefolder, int lefile, char *lefname) {
-          int fnamesize = strlen((char *)lefname);
-          int foldersize = strlen((char *)samplefoldersregistered[lefolder]);
+          int fnamesize = strlen((char *)lefname);         
+         // int foldersize = strlen((char *)samplefoldersregistered[lefolder]);
           for (int i = 0; i < fnamesize; i++) {
-            samplefullpath[lefolder][lefile][foldersize + 10 + i] = lefname[i];
+            //samplefullpath[lefolder][lefile][foldersize + 10 + i] = lefname[i];
             if (i < fnamesize - 4) {
               samplebase[lefolder][lefile][i] = lefname[i];
             }
           }
-          samplefullpath[lefolder][lefile][foldersize + 10 + fnamesize] = (char)'\0';
+          //samplefullpath[lefolder][lefile][foldersize + 10 + fnamesize] = (char)'\0';
           samplebase[lefolder][lefile][fnamesize - 4] = (char)'\0';
         }
 
@@ -310,7 +310,7 @@ class SamplerMenuRouter : public SectionHolder {
 
         static void playsamplepreview() {
           //AudioNoInterrupts();
-          String playable_file = (String)samplefullpath[sublevels[3]][sublevels[4]];
+          String playable_file = samplefullpath(sublevels[3],sublevels[4]);
           if (!test_flash_sample_name(playable_file)){
             playable_file = lower_extension_case(playable_file);
           }
@@ -342,12 +342,6 @@ class SamplerMenuRouter : public SectionHolder {
             return;
           }
           FlashRaw.play(playable_file.c_str());
-        }
-
-        static void initializenewmksamplefullpath() {
-          for (int i = 0; i < 32; i++) {
-            newmksamplefullpath[i] = (char)'\0';
-          }
         }
 
         static void copybacklaflashfile(int leflashfile) {
@@ -1059,7 +1053,7 @@ class SamplerMenuRouter : public SectionHolder {
             pleasewait(i, 99);
             for (int j = 0; j < 999; j++) {
               if (samplesselected[i][j] == 1) {
-                currentsample = SD.open((const char *)samplefullpath[i][j]);
+                currentsample = SD.open((const char *)(samplefullpath(i,j).c_str()));
                 if (!currentsample)
                   break;
                 const char *currentflashname = currentsample.name();
@@ -1187,13 +1181,14 @@ class SamplerMenuRouter : public SectionHolder {
               File file = rooter.openNextFile();
               if (!file) break;
 
-              Serial.print(file.name());
-              Serial.print("  ");
-              Serial.println(file.size());
+             // Serial.print(file.name());
+             // Serial.print("  ");
+            //  Serial.println(file.size());
               //char flashenamex[13];
             //uint32_t flashfilesize;
-           
+            if (!file.isDirectory()) {
               addtoFlashsamplelist((char*)file.name());
+            }
               file.close();
           }
 
@@ -1299,17 +1294,38 @@ class SamplerMenuRouter : public SectionHolder {
           canvasBIG.println((char *)Flashsamplebase[sublevels[4]]);
         }
 
+        
+
         static void listSoundsetsubdir(int ledir) {
+          //TODO format sd and remove this exception
+          if (strcmp(sampledirpath, "SOUNDSET/GLITCH/") == 0)
+            return;
           if (SD.exists((char *)sampledirpath)) {
             File susudir = SD.open((char *)sampledirpath);
+            // SOUNDSET/GLITCH/
+              //Serial.println(susudir.name());
             while (true) {
               File subentry = susudir.openNextFile();
               if (!subentry) {
                 break;
               }
-
+              char shorter_name[12];
+              String new_namer = subentry.name();
+              int fnamesize = strlen((char *)subentry.name());
+              if (fnamesize > 12) {
+                for (int i=fnamesize-11; i < fnamesize; i++) { 
+                  shorter_name[i-fnamesize+11] = new_namer[i];
+                }
+                shorter_name[11] = (char)'\0';
+                  //Serial.println(subentry.name());
+                String full_file = (String)sampledirpath + subentry.name();
+                String full_new_file = (String)sampledirpath + (String)shorter_name;
+                SD.rename(full_file.c_str(), full_new_file.c_str());
+                continue;
+              }
+              //String newly_named = renameIfTooLong((char*)subentry.name(),13);
               if (!subentry.isDirectory()) {
-                setlefilenamed(ledir, sizeofsamplefolder[ledir], (char*)subentry.name());
+                  setlefilenamed(ledir, sizeofsamplefolder[ledir], (char*)subentry.name());
                 (sizeofsamplefolder[ledir])++;
               }
               subentry.close();
@@ -1330,7 +1346,7 @@ class SamplerMenuRouter : public SectionHolder {
             pseudoconsole((char *)"Files on SD");
           }
           setupsamplefoldersregistered();
-          initializesamplefullpath();
+
           initializesamplebase();
           listSoundset();
           for (int i = 1; i < sampledirsregistered; i++) {

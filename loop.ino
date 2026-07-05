@@ -147,3 +147,8 @@ void printit() {
   Serial.println(sublevels[5]);
 
 }
+
+void fairly_often() {
+  control_me();
+  pseudo303();
+}

@@ -180,4 +180,4 @@ class SynthLiner {
 
 };
 
-SynthLiner* synth_lines[liners_count] = {nullptr};
+SynthLiner *synth_lines[liners_count] = {nullptr};

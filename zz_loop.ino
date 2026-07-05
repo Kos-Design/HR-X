@@ -15,9 +15,10 @@ void control_me(){
 void loop() {
   //wav_record_loop();
  // if (!stoptick) {
-  //if (millis() % 2 == 0) {
-  //  pseudo303();
-  //}
+  if (millis() % 3 == 0) {
+   fairly_often();
+   loopusbHub();
+  }
   /*
   if (debug_cpu){
     print_memory_usage();
@@ -34,5 +35,5 @@ void loop() {
   }
 
   
-  loopusbHub();
+  
 }
