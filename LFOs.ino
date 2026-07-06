@@ -241,15 +241,17 @@ class LFOMenuRouter : public SectionHolder {
         }
        
         static void go_previous(){
-          
           if (navlevel >= 3) {
-            cclfoselector = (cclfoselector-1)%3;
+            if (cclfoselector-1 < 0)
+              cclfoselector = 2 ;
+            else
+              cclfoselector = cclfoselector-1;
+            
             sublevels[1] = cclfoselector ;
             returntonav(navlevel-1,sizeofLFOlabels-1,sublevels[2]);
             }
         }
         static void go_next(){
-          
           if (navlevel >= 3) {
             cclfoselector = (cclfoselector+1)%3;
             sublevels[1] = cclfoselector ;

@@ -408,7 +408,11 @@ class SynthMenuRouter : public SectionHolder {
           }    
 
           if (navlevel >= 4) {
-            ccsynthselector = (ccsynthselector-1)%3;
+            if (ccsynthselector-1 < 0)
+              ccsynthselector = 2 ;
+            else
+              ccsynthselector = ccsynthselector-1;
+            
             sublevels[2] = ccsynthselector ;
             returntonav(navlevel-1,synth_params_count-1,sublevels[3]);
             return;

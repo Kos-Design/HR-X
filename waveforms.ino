@@ -4,12 +4,10 @@ class WaveformsMenuRouter : public SectionHolder {
        
         WaveformsMenuRouter() {
           self = this;
-          this->home_navrange=truesizeofwaveformsmenulabels-1;
+          this->home_navrange=wf_labels_count-1;
           this->relative_navlevel=1;
           this->max_navlevel=5;
           this->sublevels_address={8,0,0};
-          //home method not really used yet
-          //this->set_home(call_fx_mainpanel);
         }
 
         static const byte wfn_size = 6;
@@ -19,25 +17,9 @@ class WaveformsMenuRouter : public SectionHolder {
         byte wforms_names_offset = 0 ;
 
         static void show() {
-            _route_nav[navlevel-1]();
+          _route_nav[navlevel-1]();
         }
         
-        static void wf_home(){
-            dm.clear_buffs();
-            if (navlevel >= 2 && sublevels[1] == 7) {
-                WaveformParams();
-                return;
-            }
-            WaveformsmenuBG();
-            if (navlevel <= 1) {
-                navrange = truesizeofwaveformsmenulabels-1;
-                dolistwaveformsmenu();
-            } else if (navlevel > 1 && sublevels[1] != 4) {
-                dolistwaveformsmenu();
-            }
-            dodisplay();
-        }
-
         String get_wform_name(byte number) {
           char formatted_number[4] ;
           sprintf(formatted_number,"%02d",number);
@@ -86,21 +68,20 @@ class WaveformsMenuRouter : public SectionHolder {
 
         static void waveforms_nav_zero(){
           dm.clear_buffs();
-          navrange = truesizeofwaveformsmenulabels-1;
-          WaveformsmenuBG();
-          dolistwaveformsmenu();
+          navrange = wf_labels_count-1;
+          reinitsublevels(2);
+          dolistofwaveforms();
+          wforms_menu();
           dodisplay();
         }
 
         static void waveforms_nav_one(){
-          dm.clear_buffs();
-          if (sublevels[1] == 0) {
-              navrange = self->wforms_count;
-            } else {
-              navrange = max(self->wforms_count - 1, 0);
-            }
-          WaveformsmenuBG();
-          dolistwaveformsmenu();
+          //dm.clear_buffs();
+          navrange = max(self->wforms_count - 1, 0);
+          if (sublevels[1] == 0)
+            navrange = self->wforms_count;
+          dolistofwaveforms();
+          wforms_menu();
           dodisplay();
         }
 
@@ -142,58 +123,6 @@ class WaveformsMenuRouter : public SectionHolder {
           if (navlevel > 3 ){
             returntonav(2,2,sublevels[2]);
           }
-        }
-
-        static void WaveformsmenuBG() {
-          display.clearDisplay();
-          if (sublevels[1] < 4 )  {
-            reinitsublevels(2);
-            navrange = truesizeofwaveformsmenulabels-1;
-            if (sublevels[1] == 0 && navlevel > 1) {
-              navrange = self->wforms_count;
-            } else {
-              navrange = max(self->wforms_count - 1, 0);
-            }
-            dolistofwaveforms();
-          }
-          dodisplay();
-          /*
-          
-          if (navlevel >= 3 && sublevels[1] != 7) {
-            switch (sublevels[1]) {
-              case 0:
-                writewaveform();
-                break;
-              case 1:
-                readwaveform();
-                break;
-              case 2:
-                copywaveform();
-                break;
-              case 3:
-                deletewaveform();
-                break;
-              case 4:
-                WaveformEditer();
-                smooth_w_bounds();
-                break;
-              case 5:
-              //placeholder next
-                break;
-              case 6:
-              //placeholder prev
-                break;
-              // filtered in switch condition already
-             // case 7:
-              //params
-               // break;
-                //
-              default:
-                break;
-            }
-            returntonav(1,6,sublevels[1]);
-          }
-          */
         }
 
         void set_y_cursor_value(byte la_val){
@@ -278,29 +207,20 @@ class WaveformsMenuRouter : public SectionHolder {
         }
 
         static void set_array_at_cursor(int c_pos_w=w_cursor_x){
-          
           int w_graph_y = map(cw_change, 0, 127, -32768, 32767);
           arbitrary_waveforms[waveformIndex][c_pos_w] = w_graph_y;
           arbitrary_waveforms[waveformIndex][(c_pos_w-1)%256] = w_graph_y;
-          
-          Serial.println("");
-          Serial.print(c_pos_w);
-          Serial.print(" ");
-          Serial.print(w_graph_y);
-          Serial.print(" ");
-          Serial.print(arbitrary_waveforms[waveformIndex][c_pos_w]);
         }
 
         static void set_x_cursor_value(byte la_val){
           if (la_val > 0) {
             w_cursor_x = map(la_val, 0, 127, 0, 255);
-          //arbitrary_waveforms[waveformIndex][w_cursor_x] = map(cw_change, 0, 127, -32768, 32767);
-          sublevels[2]=w_cursor_x;
-          vraipos = w_cursor_x;
-          myEnc.write(vraipos * 4);
-          set_array_at_cursor();
-
-        }
+            //arbitrary_waveforms[waveformIndex][w_cursor_x] = map(cw_change, 0, 127, -32768, 32767);
+            sublevels[2]=w_cursor_x;
+            vraipos = w_cursor_x;
+            myEnc.write(vraipos * 4);
+            set_array_at_cursor();
+          }
         }
 
         static void draw_wave_graph(){
@@ -348,45 +268,48 @@ class WaveformsMenuRouter : public SectionHolder {
           //smooth_w_bounds();
         }
 
-        static void dolistwaveformsmenu() {
-          char waveformsmenulabels[truesizeofwaveformsmenulabels][12] = {
+        static void wforms_menu() {
+          canvastitle.setCursor(0,0);
+          char waveformsmenulabels[wf_labels_count][12] = {
               "Save", "Load", "Copy", "Delete", "Edit", "-->", "<--","Params"};
           byte startx = 5;
           byte starty = 16;
           char *textin = (char *)waveformsmenulabels[sublevels[1]];
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.setCursor(0, 0);
           canvastitle.setTextSize(2);
-          canvastitle.println(textin);
           canvasBIG.setTextSize(2);
-          canvasBIG.fillScreen(SSD1306_BLACK);
+          canvastitle.println(textin);
           canvasBIG.drawRoundRect(50,25,22,22,3,SSD1306_WHITE);
           canvasBIG.setCursor(56,29);
           canvasBIG.print(waveformIndex+1);
           canvasBIG.setTextSize(1);
-          for (int i = 0; i < truesizeofwaveformsmenulabels - 1 - (sublevels[1]); i++) {
+          for (int i = 0; i < wf_labels_count - 1 - (sublevels[1]); i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
             canvasBIG.println(waveformsmenulabels[sublevels[1] + 1 + i]);
           }
           for (int i = 0; i < sublevels[1]; i++) {
-            canvasBIG.setCursor(startx, (10 * (truesizeofwaveformsmenulabels - sublevels[1]) + 6 + ((i)*10)));
+            canvasBIG.setCursor(startx, (10 * (wf_labels_count - sublevels[1]) + 6 + ((i)*10)));
             canvasBIG.println(waveformsmenulabels[i]);
           }
         }
 
         static void go_previous(){
-          ccsynthselector = (ccsynthselector-1)%3;
-          waveformIndex = ccsynthselector ;
-          returntonav(1,truesizeofwaveformsmenulabels-1,sublevels[1]);
+          if (waveformIndex-1 < 0)
+            waveformIndex = 2 ;
+          else
+            waveformIndex = waveformIndex-1;
+      
+          returntonav(1,wf_labels_count-1,sublevels[1]);
         }
 
         static void go_next(){
-          ccsynthselector = (ccsynthselector+1)%3;
-          waveformIndex = ccsynthselector ;
-          returntonav(1,truesizeofwaveformsmenulabels-1,sublevels[1]);
+          waveformIndex = (waveformIndex+1)%3;
+          returntonav(1,wf_labels_count-1,sublevels[1]);
         }
 
         static void writewaveform() {
+          if (locked_fileing)
+            return;
+          locked_fileing = 1 ;
           File waveform_file ;
           if (sublevels[2] == self->wforms_count) {
             waveform_file = SD.open(get_new_file_name("WAVEFORM/WFORM-").c_str(), FILE_WRITE);
@@ -403,30 +326,26 @@ class WaveformsMenuRouter : public SectionHolder {
           }
           waveform_file.close();
           list_wforms_files();
+          locked_fileing = 0 ;
         }
 
         static void dolistofwaveforms() {
-          //check navrange
+          dm.clean_title_1_1();
           int startx = 80;
           int starty = 16;
           self->wforms_names_offset = sublevels[2] ;
           refresh_wforms_names();
-          canvastitle.fillScreen(SSD1306_BLACK);
           canvastitle.setCursor(startx, 0);
-          canvastitle.setTextSize(1);
-          if (sublevels[2] == self->wforms_count && sublevels[1] == 0) {
+          if (self->wforms_names_offset == self->wforms_count && sublevels[1] == 0) {
             canvastitle.print("New()");
           } else {
             canvastitle.print(self->wforms_names[0]);
           }
-          canvastitle.setTextSize(1);
-          canvasBIG.setTextSize(1);
-          canvasBIG.fillScreen(SSD1306_BLACK);
-
-          if (sublevels[2] == self->wforms_count) {
+          
+          if (self->wforms_names_offset == self->wforms_count) {
             //if cursor is on new(), the wfn_size-1 elements are displayed below.
             for (int i = 0; i < wfn_size-1; i++) {
-              canvasBIG.setCursor(startx, (10 * (self->wforms_count - sublevels[2])) + 16 + ((i)*10));
+              canvasBIG.setCursor(startx, (10 * (self->wforms_count - self->wforms_names_offset)) + 16 + ((i)*10));
               canvasBIG.println(self->wforms_names[i]);
             }
           } else {
@@ -450,9 +369,10 @@ class WaveformsMenuRouter : public SectionHolder {
           filer.write((byte *)arbitrary_waveforms[waveformIndex], sizeof(arbitrary_waveforms[waveformIndex]));
         }
 
-        static void readwaveform() { parsewaveformfile(sublevels[2]); }
-
         static void copywaveform() {
+          if (locked_fileing)
+            return;
+          locked_fileing = 1 ;
           File origin_file;
           File target_file;
           String waveform_path = self->get_current_waveform_path() ;
@@ -469,35 +389,63 @@ class WaveformsMenuRouter : public SectionHolder {
           origin_file.close();
           target_file.close();
           list_wforms_files();
+          locked_fileing = 0 ;
         }
 
         static void deletewaveform() {
+          if (locked_fileing)
+            return;
+          locked_fileing = 1 ;
           if (SD.exists(self->get_current_waveform_path().c_str())) {
             SD.remove(self->get_current_waveform_path().c_str());
           }
           list_wforms_files();
+          locked_fileing = 0 ;
         }
 
-        static void parsewaveformfile(int presetn) {
+        static void parsewaveformfile() {
+          if (locked_fileing)
+            return;
+          locked_fileing = 1 ;
           File target_waveform = SD.open(self->get_current_waveform_path().c_str(), FILE_READ);
           target_waveform.read((byte *)arbitrary_waveforms[waveformIndex], sizeof(arbitrary_waveforms[waveformIndex]));
           target_waveform.close();
+          locked_fileing = 0 ;
         }
-
-        static void route_navlevel(){
-            waveforms_nav_zero();
-        }    
         
         static void wforms_actions(){
-            _nav_wforms[sublevels[1]]();
+          _nav_wforms[sublevels[1]]();
             
         }
+        static void remove_wform(){
+          lv1_wrapper(self->deletewaveform);
+        }
 
-        static constexpr void (*_route_nav[7])() = {&route_navlevel, &wforms_actions, &wforms_actions,
+        static void duplicate_wform(){
+          lv1_wrapper(self->copywaveform);
+        }
+
+        static void load_wform(){
+          lv1_wrapper(self->parsewaveformfile);
+        }
+
+        static void save_wform(){
+          lv1_wrapper(self->writewaveform);         
+        } 
+
+        static void lv1_wrapper(void (*func)()) {
+          waveforms_nav_one();
+          if (navlevel >= 3) {
+            func();
+            returntonav(1, wf_labels_count - 1,sublevels[1]);
+          }
+        }
+
+        static constexpr void (*_route_nav[7])() = {&waveforms_nav_zero, &wforms_actions, &wforms_actions,
                                     &wforms_actions, &wforms_actions, &wforms_actions, &wforms_actions};
         
-        static constexpr void  (*_nav_wforms[truesizeofwaveformsmenulabels])() = {&waveforms_nav_one, &waveforms_nav_one, &waveforms_nav_one, 
-                                                                                  &waveforms_nav_one,&WaveformEditer ,&go_next,&go_previous,&WaveformParams};
+        static constexpr void  (*_nav_wforms[wf_labels_count])() = {&save_wform, &load_wform, &duplicate_wform,&remove_wform,
+                                                                    &WaveformEditer ,&go_next,&go_previous,&WaveformParams};
   
     private:
         static WaveformsMenuRouter* self;

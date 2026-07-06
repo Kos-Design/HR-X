@@ -13,7 +13,7 @@ int c_change;
 int cc_note_num;
 // adcHighPassFilterDisable();
 bool le_303_On ;
-
+bool locked_fileing = 0 ;
 int retroaction = 0;
 //#include <Metro.h>
 // int startccrecordpos;
@@ -34,8 +34,8 @@ int numberoftaps;
 int tapstime[5] = {0};
 float tapaverage;
 const byte truesizeofSongmenulabels = 8;
-const byte truesizeofwaveformsmenulabels = 8;
-const byte truesizeofpresetmenulabels = 5;
+const byte wf_labels_count = 8;
+const byte ps_labels_count = 5;
 const byte truesizeofsynthmenulabels = 5 ;
 const byte sizeofLFOlabels = 9;
 const byte numbofsettinglabels = 15;
@@ -164,7 +164,7 @@ String patterns_names[ptn_size];
 byte patterns_names_offset = 0 ;
 
 byte presets_indexes[99];
-byte presets_count = 0 ;
+
 const byte pst_size = 6;
 String presets_names[pst_size];
 byte presets_names_offset = 0 ;
@@ -1290,6 +1290,12 @@ class DisplayManager{
             clear_3();
             canvastitle.setCursor(0, 0);
             canvastitle.setTextSize(2);
+            canvasBIG.setTextSize(1);
+        }
+        void clean_title_1_1(){
+            clear_3();
+            canvastitle.setCursor(0, 0);
+            canvastitle.setTextSize(1);
             canvasBIG.setTextSize(1);
         }
         void clean_title_2_2(){

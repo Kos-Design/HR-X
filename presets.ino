@@ -3,21 +3,22 @@ class PresetsMenuRouter : public SectionHolder {
     public:
         PresetsMenuRouter() {
                     self = this;
-                    this->home_navrange=truesizeofpresetmenulabels-1;
+                    this->home_navrange=ps_labels_count-1;
                     this->relative_navlevel=1;
                     this->max_navlevel=5;
                     this->sublevels_address={9,0,0};
                     //home method not really used yet
                     //this->set_home(call_fx_mainpanel);
-                    }
+        }
+
+        byte presets_count = 0 ;
 
         static void route_navlevel(){
-          presets_nav_zero();
           _nav_presets[sublevels[1]]();
         }
             
         static void show() {
-            _route_nav[navlevel-1]();
+          _route_nav[navlevel-1]();
         }
 
         String get_preset_name(byte number) {
@@ -34,20 +35,20 @@ class PresetsMenuRouter : public SectionHolder {
           for (int i = 0 ; i < pst_size ; i++) {
             //empty spots are left at the end of the list if it is small, otherwise the names are looped
             presets_names[i] = " ";
-            if (presets_names_offset+i < presets_count ) {
+            if (presets_names_offset+i < self->presets_count ) {
               presets_names[i] = self->get_preset_name(presets_indexes[presets_names_offset+i]);
-            } else if (presets_count >= pst_size ){
-              presets_names[i] = self->get_preset_name(presets_indexes[((presets_names_offset+i)%presets_count)]);
+            } else if (self->presets_count >= pst_size ){
+              presets_names[i] = self->get_preset_name(presets_indexes[((presets_names_offset+i)%self->presets_count)]);
             }
           }
         }
 
         static void list_presets_files() {
-          presets_count = 0;
+          self->presets_count = 0;
           String presets_dir = "PRESETS/SYNTH/";
           if (SD.exists(presets_dir.c_str())) {
             File preset_filer = SD.open(presets_dir.c_str());
-            while (presets_count < 99) {
+            while (self->presets_count < 99) {
               File entry = preset_filer.openNextFile();
               if (!entry) {
                 break;
@@ -56,98 +57,58 @@ class PresetsMenuRouter : public SectionHolder {
                 char* named = (char*)entry.name();
                 named[strlen(named) - 4] = '\0';
                 //int is at 6 chars after prefix
-                presets_indexes[presets_count] = atoi(named+6);
-                presets_count++;
+                presets_indexes[self->presets_count] = atoi(named+6);
+                self->presets_count++;
               }
               entry.close();
             }
             preset_filer.close();
           }
         }
+
         static void presets_nav_zero(){
-          navrange = truesizeofpresetmenulabels-1;
+          navrange = ps_labels_count-1;
+          reinitsublevels(2);
           dm.clear_buffs();
-
-          presetmenuBG();
-          dolistpresetsmenu();
-          dodisplay();
-        }
-
-        static void presetmenuBG() {
-          display.clearDisplay();
-          if (navlevel == 1) {
-            reinitsublevels(2);
-            navrange = truesizeofpresetmenulabels-1;
-          }
-          
-          if (navlevel > 1) {
-            if (sublevels[1] == 0) {
-              navrange = presets_count;
-            } else {
-              // setnavrange();
-              navrange = max(presets_count - 1, 0);
-            }
-          }
           draw_presets_list();
+          presets_menu();
           dodisplay();
-
-          if (navlevel >= 3) {
-            
-            switch (sublevels[1]) {
-
-            case 0:
-              writepreset();
-              break;
-
-            case 1:
-
-              parsefile();
-              break;
-
-            case 2:
-              copypreset();
-              break;
-
-            case 3:
-              deletepreset();
-              break;
-
-            case 4:
-              break;
-
-            default:
-              break;
-            }
-            //returntonav(1,4,sublevels[1]);
-            returntonav(1,truesizeofpresetmenulabels-1,sublevels[1]);
-          }
         }
 
-        static void dolistpresetsmenu() {
-          char presetmenulabels[truesizeofpresetmenulabels][12] = {
+        static void presets_nav_one(){
+          navrange = max(self->presets_count - 1, 0);
+          if (sublevels[1] == 0)
+            navrange = self->presets_count;
+          draw_presets_list();
+          presets_menu();
+          dodisplay();
+        }
+
+        static void presets_menu() {
+          char presetmenulabels[ps_labels_count][12] = {
               "Save", "Load", "Copy", "Delete", "Params"};
           byte startx = 5;
           byte starty = 16;
           char *textin = (char *)presetmenulabels[sublevels[1]];
-          canvastitle.fillScreen(SSD1306_BLACK);
           canvastitle.setCursor(0, 0);
           canvastitle.setTextSize(2);
           canvastitle.println(textin);
-          canvasBIG.setTextSize(1);
-          canvasBIG.fillScreen(SSD1306_BLACK);
-          for (int i = 0; i < truesizeofpresetmenulabels - 1 - (sublevels[1]); i++) {
+          for (int i = 0; i < ps_labels_count - 1 - (sublevels[1]); i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
             canvasBIG.println(presetmenulabels[sublevels[1] + 1 + i]);
           }
           for (int i = 0; i < sublevels[1]; i++) {
-            canvasBIG.setCursor(startx, (10 * (truesizeofpresetmenulabels - sublevels[1]) + 6 + i*10));
+            canvasBIG.setCursor(startx, (10 * (ps_labels_count - sublevels[1]) + 6 + i*10));
             canvasBIG.println(presetmenulabels[i]);
           }
         }
 
         static void writepreset() {
+          if (locked_fileing)
+            return;
+          locked_fileing = 1 ;
           File preset_filer;
-          if (sublevels[2] == presets_count) {
+          if (sublevels[2] == self->presets_count) {
             String presets_base_path = "PRESETS" ;
             String presets_sub_path = "SYNTH" ;
 
@@ -174,27 +135,25 @@ class PresetsMenuRouter : public SectionHolder {
           }
           preset_filer.close();
           list_presets_files();
+          locked_fileing = 0 ;
         }
 
         static void draw_presets_list() {
+          dm.clean_title_1_1();
           int startx = 80;
           int starty = 16;
           presets_names_offset = sublevels[2];
           refresh_presets_names();
-          canvastitle.fillScreen(SSD1306_BLACK);
           canvastitle.setCursor(startx, 0);
-          canvastitle.setTextSize(1);
-          if (sublevels[2] == presets_count && sublevels[1] == 0) {
+          
+          if (sublevels[2] == self->presets_count && sublevels[1] == 0) {
             canvastitle.print("New()");
           } else {
             canvastitle.print(presets_names[0]);
           }
-          canvastitle.setTextSize(1);
-          canvasBIG.setTextSize(1);
-          canvasBIG.fillScreen(SSD1306_BLACK);
-          if (sublevels[2] == presets_count) {
+          if (sublevels[2] == self->presets_count) {
             for (int i = 0; i < pst_size-1; i++) {
-              canvasBIG.setCursor(startx, (10 * (presets_count - sublevels[2])) + 16 + i*10);
+              canvasBIG.setCursor(startx, (10 * (self->presets_count - sublevels[2])) + 16 + i*10);
               canvasBIG.println(presets_names[i]);
             }
           } else {
@@ -206,10 +165,10 @@ class PresetsMenuRouter : public SectionHolder {
         }
 
         static void setnavrange() {
-          if (presets_count < 2) {
+          if (self->presets_count < 2) {
             navrange = 2;
           } else {
-            navrange = max(presets_count - 1, 0);
+            navrange = max(self->presets_count - 1, 0);
           }
         }
 
@@ -355,7 +314,9 @@ class PresetsMenuRouter : public SectionHolder {
         }
 
         static void parsefile() {
-
+          if (locked_fileing)
+            return;
+          locked_fileing = 1 ;
           int tmp_fx ;
           byte tmp_mixlevelsM[4];
           byte tmp_mixlevelsL[synths_count];
@@ -710,9 +671,13 @@ class PresetsMenuRouter : public SectionHolder {
             setmastersmixlevel(i);
           }
           wetmixmastercontrols();
+          locked_fileing = 0 ;
         }
 
         static void copypreset() {
+          if (locked_fileing)
+            return;
+          locked_fileing = 1 ;
           File origin_file;
           File target_file;
           if (SD.exists(self->get_current_preset_path().c_str())) {
@@ -724,22 +689,55 @@ class PresetsMenuRouter : public SectionHolder {
               target_file.write(buf, n);
             }
           }
-
           origin_file.close();
           target_file.close();
           list_presets_files();
+          locked_fileing = 0 ;
         }
 
         static void deletepreset() {
+          if (locked_fileing)
+            return;
+          locked_fileing = 1 ;
           if (SD.exists(self->get_current_preset_path().c_str())) {
             SD.remove(self->get_current_preset_path().c_str());
           }
           list_presets_files();
+          locked_fileing = 1 ;
         }
-               
+
+        static void remove_preset(){
+          lv1_wrapper(self->deletepreset);
+        }
+
+        static void duplicate_preset(){
+          lv1_wrapper(self->copypreset);
+        }
+
+        static void load_preset(){
+          lv1_wrapper(self->parsefile);
+        }
+
+        static void save_preset(){
+          lv1_wrapper(self->writepreset);         
+        }
+
+        static void params_presets(){ 
+          //TODO: selection filter to load only some settings
+          returntonav(1, ps_labels_count - 1,sublevels[1]);
+        }
+        
+        static void lv1_wrapper(void (*func)()) {
+          presets_nav_one();
+          if (navlevel >= 3) {
+            func();
+            returntonav(1, ps_labels_count - 1,sublevels[1]);
+          }
+        }
+
         //arbitrary depth of 5, don't go further
         static constexpr void (*_route_nav[5])() = {&presets_nav_zero, &route_navlevel, &route_navlevel, &route_navlevel, &route_navlevel};
-        static constexpr void (*_nav_presets[truesizeofpresetmenulabels])() = {&writepreset,&parsefile,&copypreset,&deletepreset};
+        static constexpr void (*_nav_presets[ps_labels_count])() = {&save_preset,&load_preset,&duplicate_preset,&remove_preset,&params_presets};
   private:
     static PresetsMenuRouter* self;
 };

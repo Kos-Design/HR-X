@@ -1,7 +1,8 @@
 
 class POptionsRouter : public SectionHolder {
-    public:
+  public:
         POptionsRouter() {
+                    self = this;
                     this->home_navrange=3;
                     this->relative_navlevel=2;
                     this->max_navlevel=5;
@@ -10,7 +11,7 @@ class POptionsRouter : public SectionHolder {
                     //this->set_home(call_fx_mainpanel);
                     }
 
-        void clearlapattern() {
+        static void clearlapattern() {
           if (!targetNOsynth || songplaying) {
             clearsynthpatternline();
           }
@@ -23,7 +24,7 @@ class POptionsRouter : public SectionHolder {
           // cc as well
         }
 
-        void clearCCline() {
+        static void clearCCline() {
           for (int j = 0; j < pbars; j++) {
             for (int i = 0; i < 128; i++) {
 
@@ -32,7 +33,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void clearsynthpatternline() {
+        static void clearsynthpatternline() {
           for (int j = 0; j < pbars; j++) {
             for (int i = 0; i < liners_count; i++) {
 
@@ -46,7 +47,7 @@ class POptionsRouter : public SectionHolder {
             track_cells[0][j] = 0;
           }
         }
-        void merge_synth_partition_liners(){
+        static void merge_synth_partition_liners(){
           byte note_encoutered ;
           byte liner_encoutered[liners_count] = {0,0,0,0,0,0} ;
 
@@ -70,7 +71,7 @@ class POptionsRouter : public SectionHolder {
             }
           }
         }
-        void clearsamplerpatternline() {
+        static void clearsamplerpatternline() {
           for (int j = 0; j < pbars; j++) {
             for (int i = 0; i < nombreofSamplerliners; i++) {
 
@@ -84,7 +85,7 @@ class POptionsRouter : public SectionHolder {
             sampler_off_pat[j][1] = 0;
           }
         }
-        void optionspattern() {
+        static void optionspattern() {
           // size 4
           // char optionspatternlabels[sizeofoptionspattern][12] = {"Transpose","Shift",
           // "Clear", "Target" };
@@ -147,7 +148,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void dotranspose() {
+        static void dotranspose() {
           if (!targetNOsynth) {
             dotransposesynth();
           }
@@ -159,7 +160,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void doShifter() {
+        static void doShifter() {
           if (!targetNOsynth) {
             doShiftersynth();
           }
@@ -171,7 +172,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void dotransposesynth() {
+        static void dotransposesynth() {
           if (sublevels[3] - 7 > 0) {
             shiftnotes1down(abs(sublevels[3] - 7));
           }
@@ -181,7 +182,7 @@ class POptionsRouter : public SectionHolder {
           call_refresh_track();
         }
 
-        void dotransposeCC() {
+        static void dotransposeCC() {
           if (sublevels[3] - 7 > 0) {
             shiftnotesCCdown(abs(sublevels[3] - 7));
           }
@@ -190,7 +191,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void doShifterCC() {
+        static void doShifterCC() {
           if (sublevels[3] - 16 > 0) {
             shiftnotesCCleft(abs(sublevels[3] - 16));
           }
@@ -199,7 +200,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void shiftnotesCCup(int leshifter) {
+        static void shiftnotesCCup(int leshifter) {
           for (int shifts = 0; shifts < leshifter; shifts++) {
             for (int i = 0; i < 128; i++) {
               for (int j = 0; j < pbars; j++) {
@@ -214,7 +215,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void shiftnotesCCdown(int leshifter) {
+        static void shiftnotesCCdown(int leshifter) {
 
           for (int shifts = 0; shifts < leshifter; shifts++) {
             for (int i = 0; i < 128; i++) {
@@ -229,7 +230,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void shiftnotesCCright(int leshifter) {
+        static void shiftnotesCCright(int leshifter) {
           byte letempevent1;
           for (int shifts = 0; shifts < leshifter; shifts++) {
             for (int i = 0; i < 128; i++) {
@@ -251,7 +252,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void shiftnotesCCleft(int leshifter) {
+        static void shiftnotesCCleft(int leshifter) {
 
           byte letempevent1;
           for (int shifts = 0; shifts < leshifter; shifts++) {
@@ -274,7 +275,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void shiftnotes1up(int leshifter) {
+        static void shiftnotes1up(int leshifter) {
           for (int shifts = 0; shifts < leshifter; shifts++) {
             for (int i = 0; i < liners_count; i++) {
               for (int j = 0; j < pbars; j++) {
@@ -293,7 +294,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void shiftnotes1down(int leshifter) {
+        static void shiftnotes1down(int leshifter) {
           for (int shifts = 0; shifts < leshifter; shifts++) {
 
             for (int i = 0; i < liners_count; i++) {
@@ -312,7 +313,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void shiftnotes1right(int leshifter) {
+        static void shiftnotes1right(int leshifter) {
           byte letempevent1[2][3];
           for (int shifts = 0; shifts < leshifter; shifts++) {
             for (int i = 0; i < liners_count; i++) {
@@ -347,7 +348,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void shiftnotes1left(int leshifter) {
+        static void shiftnotes1left(int leshifter) {
 
           byte letempevent1[2][3];
           for (int shifts = 0; shifts < leshifter; shifts++) {
@@ -384,7 +385,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void dotransposesampler() {
+        static void dotransposesampler() {
           if (sublevels[3] - 7 > 0) {
             shiftnotes2down(abs(sublevels[3] - 7));
           }
@@ -395,7 +396,7 @@ class POptionsRouter : public SectionHolder {
           call_refreshevented2();
         }
 
-        void doShiftersampler() {
+        static void doShiftersampler() {
           if (sublevels[3] - 16 > 0) {
             shiftnotes2left(abs(sublevels[3] - 16));
           }
@@ -406,7 +407,7 @@ class POptionsRouter : public SectionHolder {
           call_refreshevented2();
         }
 
-        void shiftnotes2up(int leshifter) {
+        static void shiftnotes2up(int leshifter) {
 
           for (int shifts = 0; shifts < leshifter; shifts++) {
 
@@ -426,7 +427,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void shiftnotes2down(int leshifter) {
+        static void shiftnotes2down(int leshifter) {
           for (int shifts = 0; shifts < leshifter; shifts++) {
             for (int j = 0; j < pbars; j++) {
               if ((int)sampler_off_pat[j][1] > 1) {
@@ -442,7 +443,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void shiftnotes2right(int leshifter) {
+        static void shiftnotes2right(int leshifter) {
           byte letempevent2[2][3];
           for (int shifts = 0; shifts < leshifter; shifts++) {
 
@@ -495,7 +496,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void shiftnotes2left(int leshifter) {
+        static void shiftnotes2left(int leshifter) {
 
           byte letempevent2[2][3];
           for (int shifts = 0; shifts < leshifter; shifts++) {
@@ -543,7 +544,7 @@ class POptionsRouter : public SectionHolder {
           }
         }
 
-        void showtransposedisplays() {
+        static void showtransposedisplays() {
           dm.clean_title_2();
           canvastitle.print((char *)optionspatternlabels[sublevels[2]]);
 
@@ -562,7 +563,7 @@ class POptionsRouter : public SectionHolder {
           dodisplay();
         }
 
-        void doShiftersynth() {
+        static void doShiftersynth() {
           if (sublevels[3] - 16 > 0) {
             shiftnotes1left(abs(sublevels[3] - 16));
           }
@@ -573,7 +574,7 @@ class POptionsRouter : public SectionHolder {
           call_refresh_track();
         }
 
-        void showShifterdisplays() {
+        static void showShifterdisplays() {
           dm.clean_title_2();
           canvastitle.print((char *)optionspatternlabels[sublevels[2]]);
 
@@ -592,7 +593,7 @@ class POptionsRouter : public SectionHolder {
           dodisplay();
         }
 
-        void showlestargetdisplays() {
+        static void showlestargetdisplays() {
           dm.clean_title_2();
           canvastitle.print((char *)optionspatternlabels[sublevels[2]]);
 
@@ -657,7 +658,7 @@ class POptionsRouter : public SectionHolder {
           dodisplay();
         }
 
-        void optionspatterndisplays() {
+        static void optionspatterndisplays() {
           dm.clean_title_2();
           canvastitle.print((char *)optionspatternlabels[sublevels[2]]);
           if (sublevels[2] == 4) {
@@ -672,13 +673,18 @@ class POptionsRouter : public SectionHolder {
           dodisplay();
         }
 
+
+  private:
+    static POptionsRouter* self;
 };
 
-POptionsRouter _po = POptionsRouter();
+POptionsRouter* POptionsRouter::self = nullptr;
+EXTMEM POptionsRouter _po;
 
 class CCEditor : public SectionHolder {
-    public:
+  public:
         CCEditor() {
+                    self = this;
                     this->home_navrange=3;
                     this->relative_navlevel=2;
                     this->max_navlevel=5;
@@ -687,7 +693,7 @@ class CCEditor : public SectionHolder {
                     //this->set_home(call_fx_mainpanel);
                     }
 
-        void show() {
+        static void show() {
           Serial.println("shown");
           navrange = 127;
           showleditcc();
@@ -695,11 +701,11 @@ class CCEditor : public SectionHolder {
           dodisplay();
         }
 
-        void route_navlevel_1(){
+        static void route_navlevel_1(){
             //presets_nav_zero();
         }
 
-        void showleditcc() {
+        static void showleditcc() {
           int lavaluecc = 0;
           int lacellwidth = 128 / pbars;
           int lestartyc = 16;
@@ -758,7 +764,7 @@ class CCEditor : public SectionHolder {
           dodisplay();
         }
 
-        void headerccedit() {
+        static void headerccedit() {
           display.clearDisplay();
           canvastitle.fillScreen(SSD1306_BLACK);
           canvastitle.setCursor(0, 0);
@@ -778,12 +784,12 @@ class CCEditor : public SectionHolder {
           }
         }
 
-        void showvertlinecursor(int lavertpos) {
+        static void showvertlinecursor(int lavertpos) {
           display.drawLine(lavertpos * (128 / pbars), 16, lavertpos * (128 / pbars), 64,
                           SSD1306_WHITE);
         }
 
-        void editlaccactionpath() {
+        static void editlaccactionpath() {
           if (navlevel == 3) {
 
             navrange = pbars - 1;
@@ -805,13 +811,18 @@ class CCEditor : public SectionHolder {
             navrange = pbars - 1;
           }
         }
+
+  private:
+      static CCEditor* self;
 };
 
-CCEditor _ce = CCEditor();
+CCEditor* CCEditor::self = nullptr;
+EXTMEM CCEditor _ce;
 
 class PatEditRouter : public SectionHolder {
     public:
         PatEditRouter() {
+                    self = this;
                     this->home_navrange=3;
                     this->relative_navlevel=2;
                     this->max_navlevel=5;
@@ -820,7 +831,7 @@ class PatEditRouter : public SectionHolder {
                     //this->set_home(call_fx_mainpanel);
                     }
 
-        void homer(){
+        static void homer(){
           cellsizer = 8 * (16 / pbars);
           celltall = 8;
           startx = 0;
@@ -839,7 +850,7 @@ class PatEditRouter : public SectionHolder {
           dodisplay();
         }
 
-        void player_selector(){
+        static void player_selector(){
           cellsizer = 8 * (16 / pbars);
           celltall = 8;
           startx = 0;
@@ -850,11 +861,11 @@ class PatEditRouter : public SectionHolder {
           dodisplay();
         }
 
-        void show() {
-           (this->*PatEditRouter::_nav_home_route[navlevel-navlevelpatedit])();
+        static void show() {
+           _nav_home_route[navlevel-navlevelpatedit]();
         }
 
-        void doshownoteline_sampler() {
+        static void doshownoteline_sampler() {
           cellsizer = 4;
           celltall = 4;
           startx = 0;
@@ -893,7 +904,7 @@ class PatEditRouter : public SectionHolder {
 
         }
 
-        void doshownoteline() {
+        static void doshownoteline() {
           // some notes not showing check lenght note computation
           // -----------------------
           // only once, move elsewhere
@@ -944,7 +955,7 @@ class PatEditRouter : public SectionHolder {
           }
         }
         
-        void doshownoteline2() {
+        static void doshownoteline2() {
           cellsizer = 4;
           celltall = 4;
           startx = 0;
@@ -986,7 +997,7 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        void doshownoteline3() {
+        static void doshownoteline3() {
           cellsizer = 4;
           celltall = 4;
           startx = 0;
@@ -1028,7 +1039,7 @@ class PatEditRouter : public SectionHolder {
             }
           }
         }
-        void doshownoteline3_sampler() {
+        static void doshownoteline3_sampler() {
           cellsizer = 4;
           celltall = 4;
           startx = 0;
@@ -1065,7 +1076,7 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        void doshownoteline2_sampler() {
+        static void doshownoteline2_sampler() {
           cellsizer = 4;
           celltall = 4;
           startx = 0;
@@ -1107,7 +1118,7 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        void drawnoteRow() {
+        static void drawnoteRow() {
           // rows of audio sources : synth, sampler, others
           // listoffsetter
           // display.fillRect(startx, starty+sublevels[navlevelpatedit+2]*celltall,
@@ -1115,7 +1126,7 @@ class PatEditRouter : public SectionHolder {
           canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
         }
 
-        void drawPatternRow() {
+        static void drawPatternRow() {
           // rows of audio sources : synth, sampler, others
           canvasBIG.drawLine(startx, starty + sublevels[navlevelpatedit] * celltall + 3,
                             (128 - startx),
@@ -1123,26 +1134,26 @@ class PatEditRouter : public SectionHolder {
                             SSD1306_WHITE);
         }
 
-        void drawEventRow() {
+        static void drawEventRow() {
           // row of events (liners) on audio source (patternrow)
           canvasBIG.drawLine(
               0, starty + sublevels[navlevelpatedit + 1] * celltall + 3, 128,
               starty + sublevels[navlevelpatedit + 1] * celltall + 3, SSD1306_INVERSE);
         }
 
-        void drawsamplerEventRow() {
+        static void drawsamplerEventRow() {
           // row of events (liners) on audio source (patternrow)
           canvasBIG.drawLine(0,starty + (sublevels[navlevelpatedit + 1] - samplelinerspage) * celltall + 3, 128, starty + (sublevels[navlevelpatedit + 1] - samplelinerspage) * celltall + 3,
               SSD1306_INVERSE);
         }
 
-        void drawsynthEventRow() {
+        static void drawsynthEventRow() {
           // row of events (liners) on audio source (patternrow)
           canvasBIG.drawLine(0,starty + (sublevels[navlevelpatedit + 1] - synthlinerspage) * celltall + 3, 128, starty + (sublevels[navlevelpatedit + 1] - synthlinerspage) * celltall + 3,
               SSD1306_INVERSE);
         }
 
-        void showblocksofevent() {
+        static void showblocksofevent() {
           cellsizer = 4;
           celltall = 8;
           startx = 0;
@@ -1157,7 +1168,7 @@ class PatEditRouter : public SectionHolder {
             }
           }
         }
-        void showblocksofevent2_synth(){
+        static void showblocksofevent2_synth(){
           cellsizer = 4;
           celltall = 8;
           startx = 0;
@@ -1173,7 +1184,7 @@ class PatEditRouter : public SectionHolder {
             }
           }
         }
-        void showblocksofevent2() {
+        static void showblocksofevent2() {
           cellsizer = 4;
           celltall = 8;
           startx = 0;
@@ -1190,14 +1201,14 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        void clearevented0(int lapatline) {
+        static void clearevented0(int lapatline) {
 
           for (int j = 0; j < pbars; j++) {
             track_cells[lapatline][j] = false;
           }
         }
 
-        void refresh_track() {
+        static void refresh_track() {
           clearevented0(0);
           for (int linerrd = 0; linerrd < liners_count; linerrd++) {
 
@@ -1210,7 +1221,7 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        void refreshevented2() {
+        static void refreshevented2() {
           clearevented0(1);
           for (int linerrd = 0; linerrd < nombreofSamplerliners; linerrd++) {
 
@@ -1223,7 +1234,7 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        void dolistpatternlineblocks() {
+        static void dolistpatternlineblocks() {
           cellsizer = 4;
           celltall = 8;
           startx = 0;
@@ -1288,15 +1299,15 @@ class PatEditRouter : public SectionHolder {
           return startingnoteline;
         }
 
-        void sampler_event_cells() {
-          (this->*PatEditRouter::_route_nav_samplers[navlevel-navlevelpatedit-1])();
+        static void sampler_event_cells() {
+          _route_nav_samplers[navlevel-navlevelpatedit-1]();
         }
 
-        void synth_event_cells() {
-            (this->*PatEditRouter::_route_nav_synths[navlevel-navlevelpatedit-1])();
+        static void synth_event_cells() {
+            _route_nav_synths[navlevel-navlevelpatedit-1]();
         }
 
-        void terminatenotesinbetween() {
+        static void terminatenotesinbetween() {
           for (int i = sublevels[navlevelpatedit + 3] + 1;
               i < sublevels[navlevelpatedit + 4]; i++) {
             if (synth_partition[sublevels[navlevelpatedit + 1]][i][1] != 0) {
@@ -1308,10 +1319,10 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        void terminatenextnoteoff(byte liner, byte lanoteoff, byte fromi) {
+        static void terminatenextnoteoff(byte liner, byte lanoteoff, byte fromi) {
 
           for (int i = 0; i < pbars; i++) {
-            if (!offhasOnbutnototheroff(liner, lanoteoff, fromi)) {
+            if (!self->offhasOnbutnototheroff(liner, lanoteoff, fromi)) {
               synth_off_pat[liner][fromi][1] = 0;
             }
           }
@@ -1338,7 +1349,7 @@ class PatEditRouter : public SectionHolder {
           return 0;
         }
 
-        void duplicateevent1() {
+        static void duplicateevent1() {
           for (int j = 0; j < liners_count; j++) {
             for (int i = 0; i < pbars; i++) {
               temp_synth_partition[j][i][0] = synth_partition[j][i][0];
@@ -1347,7 +1358,7 @@ class PatEditRouter : public SectionHolder {
             }
           }
         }
-        void duplicateevent2() {
+        static void duplicateevent2() {
           for (int j = 0; j < nombreofSamplerliners; j++) {
             for (int i = 0; i < pbars; i++) {
               temp_sampler_partition[j][i][0] = sampler_partition[j][i][0];
@@ -1357,17 +1368,17 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        void drawCursorCol() {
+        static void drawCursorCol() {
           int xpos = (sublevels[navlevelpatedit + 3] * 4) + 1;
           display.drawLine(xpos, starty, xpos, 64 - (starty), SSD1306_INVERSE);
         }
 
-        void drawCursorCol2() {
+        static void drawCursorCol2() {
           int xpos = (sublevels[navlevelpatedit + 4] * 4) + 1;
           display.drawLine(xpos, starty, xpos, 64 - (starty), SSD1306_INVERSE);
         }
 
-        void duplicatelenghofnotestarray() {
+        static void duplicatelenghofnotestarray() {
           for (int j = 0; j < liners_count; j++) {
             for (int i = 0; i < pbars; i++) {
               templength0pbars[j][i] = length0pbars[j][i];
@@ -1375,7 +1386,7 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        void track_selector() {
+        static void track_selector() {
           // liners
 
           // drawguides();
@@ -1396,10 +1407,10 @@ class PatEditRouter : public SectionHolder {
           drawsynthEventRow();
           draw_all_velobars();
           dodisplay();
-          sublevels[navlevelpatedit + 2] = getstartingnoteline();
+          sublevels[navlevelpatedit + 2] = self->getstartingnoteline();
      
         }
-        void show_track_header(){
+        static void show_track_header(){
           String head_title[2]={"Synth","Flash"};
           canvastitle.setCursor(0, 0);
           canvastitle.setTextSize(1);
@@ -1408,7 +1419,7 @@ class PatEditRouter : public SectionHolder {
           canvastitle.print(sublevels[navlevelpatedit + 1] + 1);
         }
 
-        void track_selector_sampler() {
+        static void track_selector_sampler() {
 
           if (sublevels[navlevelpatedit + 1] > 3 && samplelinerspage < 16) {
             samplelinerspage = sublevels[navlevelpatedit + 1] - 3;
@@ -1423,10 +1434,10 @@ class PatEditRouter : public SectionHolder {
           drawsamplerEventRow();
           draw_all_sampler_velobars();
           dodisplay();
-          sublevels[navlevelpatedit + 2] = getstartingnoteline2();
+          sublevels[navlevelpatedit + 2] = self->getstartingnoteline2();
         }
 
-        void note_selector() {
+        static void note_selector() {
 
           // notes of said liner
           display.clearDisplay();
@@ -1438,11 +1449,11 @@ class PatEditRouter : public SectionHolder {
           dodisplay();
           sublevels[navlevelpatedit + 3] = tickposition;
           if (sublevels[navlevelpatedit+2] == 0 ){
-            sublevels[navlevelpatedit + 2] = getstartingnoteline();
+            sublevels[navlevelpatedit + 2] = self->getstartingnoteline();
           }
         }
 
-        void note_selector_sampler() {
+        static void note_selector_sampler() {
 
           // notes of said liner
           display.clearDisplay();
@@ -1455,7 +1466,7 @@ class PatEditRouter : public SectionHolder {
           sublevels[navlevelpatedit + 3] = tickposition;
         }
 
-        void start_cell() {
+        static void start_cell() {
           previousnavlevel = navlevel;
 
           //last level showing the noteline and its velocity
@@ -1475,7 +1486,7 @@ class PatEditRouter : public SectionHolder {
           retroaction = sublevels[navlevelpatedit + 2] ;
         }
 
-        void draw_velobars(byte lvl=sublevels[navlevelpatedit+1]){
+        static void draw_velobars(byte lvl=sublevels[navlevelpatedit+1]){
           int velobar ;
           for (int i = 0; i < pbars; i++) {
             velobar = map(synth_partition[lvl][i][2],0,127,0,16);
@@ -1483,13 +1494,13 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        void draw_all_velobars(){
+        static void draw_all_velobars(){
           for (int i = 0; i < liners_count; i++) {
             draw_velobars(i);
           }
         }
 
-        void draw_sampler_velobars(byte lvl=sublevels[navlevelpatedit+1]){
+        static void draw_sampler_velobars(byte lvl=sublevels[navlevelpatedit+1]){
           int velobar ;
           for (int i = 0; i < pbars; i++) {
             velobar = map(sampler_partition[lvl][i][2],0,127,0,16);
@@ -1497,13 +1508,13 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        void draw_all_sampler_velobars(){
+        static void draw_all_sampler_velobars(){
           for (int i = 0; i < nombreofSamplerliners; i++) {
             draw_sampler_velobars(i);
           }
         }
 
-        void start_cell_sampler() {
+        static void start_cell_sampler() {
           previousnavlevel = navlevel;
           display.clearDisplay();
           navrange = 31;
@@ -1520,7 +1531,7 @@ class PatEditRouter : public SectionHolder {
 
         }
 
-        void killnextnoteoff(byte liner, byte notee, byte fromi) {
+        static void killnextnoteoff(byte liner, byte notee, byte fromi) {
           for (int i = fromi + 1; i < pbars; i++) {
             if (synth_off_pat[liner][i][1] == notee) {
               synth_off_pat[liner][i][1] = 0;
@@ -1535,7 +1546,7 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        void set_sampler_at_pos(byte ch_, byte nt_, byte ve_){
+        static void set_sampler_at_pos(byte ch_, byte nt_, byte ve_){
           temp_sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][0] = ch_;
           temp_sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][1] = nt_;
           temp_sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = ve_;
@@ -1546,13 +1557,13 @@ class PatEditRouter : public SectionHolder {
           sampler_off_pat[sublevels[navlevelpatedit + 4]][1] = nt_;
         }
 
-        void set_cell_sampler() {
+        static void set_cell_sampler() {
           previousnavlevel = navlevel;
           refreshevented2();
           stretch_cell_velocity_sampler();
         }
 
-        void fourth_level_sampler(){
+        static void fourth_level_sampler(){
           if (previousnavlevel != navlevel) {
               initiatesamplerline(15, samplermidichannel,
                                   sublevels[navlevelpatedit + 2],
@@ -1563,7 +1574,7 @@ class PatEditRouter : public SectionHolder {
             stretch_cell_sampler();
         }
 
-        void fourth_level(){
+        static void fourth_level(){
           if (previousnavlevel != navlevel) {
 
               initiateasynthliner(sublevels[navlevelpatedit + 2],
@@ -1575,7 +1586,7 @@ class PatEditRouter : public SectionHolder {
             stretch_cell();
         }
 
-        void stretch_cell() {
+        static void stretch_cell() {
           // clickon liner /note / at tickpos
 
           byte decednote2 = synth_partition[sublevels[navlevelpatedit + 1]]
@@ -1617,7 +1628,7 @@ class PatEditRouter : public SectionHolder {
             dodisplay();
           }
         }
-        void set_cell() {
+        static void set_cell() {
           previousnavlevel = navlevel;
           set_synth_at_pos(synthmidichannel,sublevels[navlevelpatedit + 2],64);
           addinglenght = 0;
@@ -1637,7 +1648,7 @@ class PatEditRouter : public SectionHolder {
           //route_pattern_menu();
         }
 
-        void stretch_cell_sampler() {
+        static void stretch_cell_sampler() {
           navrange = 31;
           byte decednote2 = sampler_partition[sublevels[navlevelpatedit + 1]]
                                       [sublevels[navlevelpatedit + 3]][2];
@@ -1651,7 +1662,7 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        void stretch_cell_velocity() {
+        static void stretch_cell_velocity() {
             navrange = 127;
             temp_synth_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
             synth_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
@@ -1663,7 +1674,7 @@ class PatEditRouter : public SectionHolder {
             dodisplay();
         }
         
-        void set_synth_at_pos(byte ch_, byte nt_, byte ve_){
+        static void set_synth_at_pos(byte ch_, byte nt_, byte ve_){
           byte sub1 = sublevels[navlevelpatedit + 1];
           byte sub2 = sublevels[navlevelpatedit + 2];
           byte sub3 = sublevels[navlevelpatedit + 3];
@@ -1710,7 +1721,7 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        void set_cell_velocity() {
+        static void set_cell_velocity() {
           previousnavlevel = navlevel;
           byte sub1 = sublevels[navlevelpatedit + 1];
           
@@ -1735,7 +1746,7 @@ class PatEditRouter : public SectionHolder {
           //route_pattern_menu();
         }
 
-        void set_cell_velocity_sampler() {
+        static void set_cell_velocity_sampler() {
           previousnavlevel = navlevel;
 
           sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
@@ -1751,7 +1762,7 @@ class PatEditRouter : public SectionHolder {
           //route_pattern_menu();
         }
 
-        void stretch_cell_velocity_sampler() {
+        static void stretch_cell_velocity_sampler() {
 
             navrange = 127;
             temp_sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
@@ -1764,69 +1775,86 @@ class PatEditRouter : public SectionHolder {
             dodisplay();
         }
 
-        using Action = void (PatEditRouter::*)();
-        static constexpr Action _route_nav_synths[6] = {&PatEditRouter::track_selector, &PatEditRouter::note_selector,
-                          &PatEditRouter::start_cell, &PatEditRouter::fourth_level, &PatEditRouter::set_cell,
-                          &PatEditRouter::set_cell_velocity};
-        static constexpr Action _route_nav_samplers[6] = {&PatEditRouter::track_selector_sampler, &PatEditRouter::note_selector_sampler,
-                          &PatEditRouter::start_cell_sampler, &PatEditRouter::fourth_level_sampler, &PatEditRouter::set_cell_sampler,
-                        &PatEditRouter::set_cell_velocity_sampler};
+        static constexpr void (*_route_nav_synths[6])() = {&track_selector, &note_selector,
+                          &start_cell, &fourth_level, &set_cell,
+                          &set_cell_velocity};
+        static constexpr void (*_route_nav_samplers[6])() = {&track_selector_sampler, &note_selector_sampler,
+                          &start_cell_sampler, &fourth_level_sampler, &set_cell_sampler,
+                        &set_cell_velocity_sampler};
         //has to be of length 6 to reach last cell click
-        static constexpr Action _nav_home_route[7] = {&PatEditRouter::homer,&PatEditRouter::player_selector,&PatEditRouter::player_selector,
-                                                  &PatEditRouter::player_selector,&PatEditRouter::player_selector,&PatEditRouter::player_selector,
-                                                  &PatEditRouter::player_selector};
+        static constexpr void (*_nav_home_route[7])() = {&homer,&player_selector,&player_selector,
+                                                  &player_selector,&player_selector,&player_selector,
+                                                  &player_selector};
 
     private:
-        void (*_nav_peditors[2])() = {call_synth_event_cells,call_sampler_event_cells};
+      static constexpr void (*_nav_peditors[2])() = {&call_synth_event_cells,&call_sampler_event_cells};
+      static PatEditRouter* self;
 };
 
-PatEditRouter _pe = PatEditRouter();
+PatEditRouter* PatEditRouter::self = nullptr;
+EXTMEM PatEditRouter _pe;
 
 class PatternsMenuRouter : public SectionHolder {
-    public:
+  public:
         PatternsMenuRouter() {
+                    self = this;
                     this->home_navrange=sizeofpatternlistlabels-1;
                     this->relative_navlevel=1;
                     this->max_navlevel=5;
                     this->sublevels_address={4,0,0};
-                    //home method not really used yet
-                    //this->set_home(_pe.home);
-                    //attach_menus_patterns();
                     }
 
-        void route_navlevel_2(){
-            if (_nav_pattern[sublevels[1]]) {
-                (this->*PatternsMenuRouter::_nav_pattern[sublevels[1]])();
-            }
+        static void route_navlevel(){
+          _nav_pattern[sublevels[1]](); 
         }
 
-        void show() {
-            (this->*PatternsMenuRouter::_route_nav[navlevel-1])();
+        static void show() {
+          _route_nav[navlevel-1]();
         }
 
-        void pattern_nav_zero(){
-            // mode selection
-            navrange = sizeofpatternlistlabels - 1;
-            displaythelistofpatterns();
-            dolistPatternsmenu();
-            dodisplay();
+        static void pattern_nav_zero(){
+          // mode selection
+          navrange = sizeofpatternlistlabels - 1;
+          displaythelistofpatterns();
+          doPatternsmenu();
+          dodisplay();
         }
 
-        void pattern_nav_one(){
+        static void pattern_nav_one(){
+          navrange = patterns_count - 1;
+          if (sublevels[1] == 1) {
             navrange = patterns_count;
-            displaythelistofpatterns();
-            dolistPatternsmenu();
-            dodisplay();
+          }
+          displaythelistofpatterns();
+          doPatternsmenu();
+          dodisplay();
+        }
+        
+        static void remove_pattern(){
+          lv1_wrapper(self->deletepattern);
         }
 
-        void pattern_nav_two(){
-            navrange = max(patterns_count - 1, 0);
-            displaythelistofpatterns();
-            dolistPatternsmenu();
-            dodisplay();
+        static void duplicate_pattern(){
+          lv1_wrapper(self->copypattern);
         }
 
-        void addnoteoff2next(byte lanotee, byte lapos) {
+        static void load_pattern(){
+          lv1_wrapper(self->parsepattern);
+        }
+
+        static void save_pattern(){
+          lv1_wrapper(self->writelemidi);         
+        }
+
+        static void lv1_wrapper(void (*func)()) {
+          pattern_nav_one();
+          if (navlevel >= 3) {
+            func();
+            returntonav(1, sizeofpatternlistlabels - 1,sublevels[1]);
+          }
+        }
+
+        static void addnoteoff2next(byte lanotee, byte lapos) {
           if (lapos < pbars - 1) {
             sampler_off_pat[lapos + 1][0] = samplermidichannel;
             sampler_off_pat[lapos + 1][1] = lanotee;
@@ -1839,7 +1867,7 @@ class PatternsMenuRouter : public SectionHolder {
           }
         }
 
-        void set_ccs() {
+        static void set_ccs() {
           // has to be reinitialized first
           for (int i = 0; i < 32; i++) {
             recorded_ccs[i] = 0 ;
@@ -1860,7 +1888,10 @@ class PatternsMenuRouter : public SectionHolder {
           }
         }
 
-        void parsepattern() {
+        static void parsepattern() {
+          if (locked_fileing)
+            return;
+          locked_fileing = 1 ;
           refresh_patterns_names();
           // timescaller should be BPM dependant
           //    latimelineshifter = ((60000/19200)*pbars) ;
@@ -1870,7 +1901,7 @@ class PatternsMenuRouter : public SectionHolder {
           byte laccnote;
           byte parsedchannel;
           int letimescaler = 3125;
-          File lepatternfile = SD.open(get_current_pattern_path().c_str());
+          File lepatternfile = SD.open(self->get_current_pattern_path().c_str());
           if (lepatternfile) {
             for (int i = 0; i < pat_parser_size; i++) {
               received_pattern[i] = lepatternfile.read();
@@ -2131,9 +2162,13 @@ class PatternsMenuRouter : public SectionHolder {
             computelenghtmesureoffline();
             set_ccs();
           }
+          locked_fileing = 0 ;
         }
 
-        void list_patterns_files() {
+        static void list_patterns_files() {
+          if (locked_fileing)
+            return;
+          locked_fileing = 1 ;
           patterns_count = 0;
           String patterns_dir = "PATTERNS/";
           if (SD.exists(patterns_dir.c_str())) {
@@ -2154,6 +2189,7 @@ class PatternsMenuRouter : public SectionHolder {
             }
             pattern_filer.close();
           }
+          locked_fileing = 0 ;
         }
 
         String get_pattern_name(byte number) {
@@ -2162,38 +2198,33 @@ class PatternsMenuRouter : public SectionHolder {
           return "PATTERN" + (String)formatted_number ;
         }
 
-        void refresh_patterns_names() {
+        static void refresh_patterns_names() {
           for (int i = 0 ; i < ptn_size ; i++) {
             //empty spots are left at the end of the list if it is small, otherwise the names are looped
             patterns_names[i] = " ";
             if (patterns_names_offset+i < patterns_count ) {
-              patterns_names[i] = get_pattern_name_from_pt(patterns_indexes[patterns_names_offset+i]);
+              patterns_names[i] = self->get_pattern_name(patterns_indexes[patterns_names_offset+i]);
             } else if (patterns_count >= ptn_size ){
-              patterns_names[i] = get_pattern_name_from_pt(patterns_indexes[(patterns_names_offset+i)%patterns_count]);
+              patterns_names[i] = self->get_pattern_name(patterns_indexes[(patterns_names_offset+i)%patterns_count]);
             }
           }
         }
 
-        void displaythelistofpatterns() {
-          display.clearDisplay();
+        static void displaythelistofpatterns() {
+          dm.clean_title_1_1();
           patterns_names_offset = sublevels[2];
           refresh_patterns_names();
           int startx = 73;
           int starty = 16;
-          canvastitle.fillScreen(SSD1306_BLACK);
           canvastitle.setCursor(startx, 0);
-          canvastitle.setTextSize(1);
-          if (sublevels[2] == patterns_count && sublevels[1] == 1) {
+          if (patterns_names_offset == patterns_count && sublevels[1] == 1) {
             canvastitle.print("New()");
           } else {
             canvastitle.print(patterns_names[0].c_str());
           }
-          canvastitle.setTextSize(1);
-          canvasBIG.setTextSize(1);
-          canvasBIG.fillScreen(SSD1306_BLACK);
-          if (sublevels[2] == patterns_count) {
+          if (patterns_names_offset == patterns_count) {
             for (int i = 0; i < ptn_size-1; i++) {
-              canvasBIG.setCursor(startx, (10 * (patterns_count - sublevels[2])) + 16 + i*10);
+              canvasBIG.setCursor(startx, (10 * (patterns_count - patterns_names_offset)) + 16 + i*10);
               canvasBIG.println(patterns_names[i]);
             }
           } else {
@@ -2202,21 +2233,19 @@ class PatternsMenuRouter : public SectionHolder {
               canvasBIG.println(patterns_names[1 + i]);
             }
           }
-          dodisplay();
+          //dodisplay();
         }
 
-        void dolistPatternsmenu() {
+        static void doPatternsmenu() {
           char patternlistlabels[sizeofpatternlistlabels][12] = {
               "Edit", "Save", "Load", "Copy", "Delete", "Params", "Clear", "C-Edit"};
           byte startx = 5;
           byte starty = 16;
           char *textin = (char *)patternlistlabels[sublevels[1]];
-          canvastitle.fillScreen(SSD1306_BLACK);
           canvastitle.setCursor(0, 0);
           canvastitle.setTextSize(2);
           canvastitle.println(textin);
           canvasBIG.setTextSize(1);
-          canvasBIG.fillScreen(SSD1306_BLACK);
           for (int i = 0; i < sizeofpatternlistlabels - 1 - (sublevels[1]); i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
             canvasBIG.println(patternlistlabels[sublevels[1] + 1 + i]);
@@ -2227,15 +2256,19 @@ class PatternsMenuRouter : public SectionHolder {
           }
         }
 
-        void deletepattern() {
-          if (SD.exists(get_current_pattern_path().c_str())) {
-            SD.remove(get_current_pattern_path().c_str());
+        static void deletepattern() {
+          Serial.println("");
+          Serial.print(self->get_current_pattern_path());
+          Serial.print(" = ");
+          Serial.print(SD.exists(self->get_current_pattern_path().c_str()));
+          if (SD.exists(self->get_current_pattern_path().c_str())) {
+            SD.remove(self->get_current_pattern_path().c_str());
           }
           list_patterns_files();
         }
 
-        void copypattern() {
-          File originpatternfile = SD.open(get_current_pattern_path().c_str());
+        static void copypattern() {
+          File originpatternfile = SD.open(self->get_current_pattern_path().c_str());
           File mypatterntxtFile = SD.open(get_new_file_name("PATTERNS/PATTERN").c_str(), FILE_WRITE);
           size_t n;
           uint8_t buf[64];
@@ -2249,7 +2282,7 @@ class PatternsMenuRouter : public SectionHolder {
           list_patterns_files();
         }
 
-        void midifileliner(File &pat_filer,int liner, int ticker) {
+        static void midifileliner(File &pat_filer,int liner, int ticker) {
 
           pat_filer.print(latimeline);
           pat_filer.print(" On ch=");
@@ -2264,7 +2297,7 @@ class PatternsMenuRouter : public SectionHolder {
           pat_filer.print("\n");
         }
 
-        void midifilelinerSampler(File &pat_filer,int liner, int ticker) {
+        static void midifilelinerSampler(File &pat_filer,int liner, int ticker) {
 
           pat_filer.print(latimeline);
           pat_filer.print(" On ch=");
@@ -2279,7 +2312,7 @@ class PatternsMenuRouter : public SectionHolder {
           pat_filer.print("\n");
         }
 
-        void midifilelinerOff(File &pat_filer, int liner, int ticker) {
+        static void midifilelinerOff(File &pat_filer, int liner, int ticker) {
           pat_filer.print(latimeline);
           pat_filer.print(" Off ch=");
           int leintc = (int)synth_off_pat[liner][ticker][0];
@@ -2293,7 +2326,7 @@ class PatternsMenuRouter : public SectionHolder {
           pat_filer.print("\n");
         }
 
-        void midifileCC(File &pat_filer,int lecc, int ticker) {
+        static void midifileCC(File &pat_filer,int lecc, int ticker) {
           pat_filer.print(latimeline);
           pat_filer.print(" Par ch=");
           int leintc = (int)synthmidichannel;
@@ -2307,7 +2340,7 @@ class PatternsMenuRouter : public SectionHolder {
           pat_filer.print("\n");
         }
 
-        void write_midi_info(File &pat_filer) {
+        static void write_midi_info(File &pat_filer) {
           latimeline = 0;
           // latimelineshifter = ((60000/19200)*pbars) ;
           // (60.0/BPMs)*1000)*pbars) = 1 bar millis 92 original
@@ -2347,19 +2380,23 @@ class PatternsMenuRouter : public SectionHolder {
         }
 
         String get_current_pattern_path(){
+          //patterns_names array is rearranged on the fly with active in first pos
           return "PATTERNS/" + patterns_names[0] + ".TXT";
         }
 
-        void writelemidi() {
+        static void writelemidi() {
+          if (locked_fileing)
+            return;
+          locked_fileing = 1 ;
           refresh_patterns_names();
           File pat_filer ;
           if (patterns_names_offset == patterns_count) {
             pat_filer = SD.open(get_new_file_name("PATTERNS/PATTERN").c_str(), FILE_WRITE);
           } else {
-            if (SD.exists(get_current_pattern_path().c_str())) {
-              SD.remove(get_current_pattern_path().c_str());
+            if (SD.exists(self->get_current_pattern_path().c_str())) {
+              SD.remove(self->get_current_pattern_path().c_str());
             }
-            pat_filer = SD.open(get_current_pattern_path().c_str(), FILE_WRITE);
+            pat_filer = SD.open(self->get_current_pattern_path().c_str(), FILE_WRITE);
           }
           if (pat_filer) {
             write_midi_info(pat_filer);
@@ -2367,11 +2404,10 @@ class PatternsMenuRouter : public SectionHolder {
           }
           pat_filer.close();
           list_patterns_files();
+          locked_fileing = 0;
         }
 
-        void dosavepattern() { canvastitle.fillScreen(SSD1306_BLACK); }
-
-        void arpegiate() {
+        static void arpegiate() {
           for (int i = 0; i < nombreofarpeglines; i++) {
             calledarpegenote[i][0] = 0;
             for (int j = 0; j < liners_count; j++) {
@@ -2397,32 +2433,34 @@ class PatternsMenuRouter : public SectionHolder {
           }
         }
 
-        void call_draw_sequencer(){
+        static void call_draw_sequencer(){
           _pe.show();
         }
 
-        void call_options(){
+        static void call_options(){
           _po.optionspattern();
         }
 
-        void call_edit_ccs(){
+        static void call_edit_ccs(){
           _ce.show();
         }
-        void call_clearpattern(){
+
+        static void call_clearpattern(){
            _po.clearlapattern();
         }
 
-        using Action = void (PatternsMenuRouter::*)();
-        static constexpr Action _route_nav[7] = {&PatternsMenuRouter::pattern_nav_zero, &PatternsMenuRouter::route_navlevel_2,
-                        &PatternsMenuRouter::route_navlevel_2, &PatternsMenuRouter::route_navlevel_2, &PatternsMenuRouter::route_navlevel_2,
-                         &PatternsMenuRouter::route_navlevel_2, &PatternsMenuRouter::route_navlevel_2};
-        static constexpr Action _nav_pattern[sizeofpatternlistlabels] = {&PatternsMenuRouter::call_draw_sequencer,&PatternsMenuRouter::pattern_nav_one,
-                                  &PatternsMenuRouter::pattern_nav_one, &PatternsMenuRouter::pattern_nav_one,
-                                  &PatternsMenuRouter::pattern_nav_one,&PatternsMenuRouter::call_options,&PatternsMenuRouter::call_clearpattern,&PatternsMenuRouter::call_edit_ccs};
-
+        static constexpr void (*_route_nav[7])() = {&pattern_nav_zero, &route_navlevel,
+                        &route_navlevel, &route_navlevel, &route_navlevel,
+                         &route_navlevel, &route_navlevel};
+        static constexpr void (*_nav_pattern[sizeofpatternlistlabels])() = {&call_draw_sequencer,&save_pattern,
+                                  &load_pattern, &duplicate_pattern,&remove_pattern,
+                                  &call_options,&call_clearpattern,&call_edit_ccs};
+  private:
+      static PatternsMenuRouter* self;
 };
 
-EXTMEM PatternsMenuRouter _pt = PatternsMenuRouter();
+PatternsMenuRouter* PatternsMenuRouter::self = nullptr;
+EXTMEM PatternsMenuRouter _pt;
 
 int clean_cursor(int pos){
   if (pos >= pbars ) {

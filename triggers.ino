@@ -251,7 +251,7 @@ void MaProgramchange(byte channel, byte data1) {
     debugmidi((char *)"ProgramChange", (int)(channel), (int)(data1));
   }
   int leprogchanged = (int)(data1);
-  if (leprogchanged < presets_count) {
+  if (leprogchanged < _ps.presets_count) {
     presets_names_offset = leprogchanged ;
     _ps.refresh_presets_names();
     _ps.parsefile();

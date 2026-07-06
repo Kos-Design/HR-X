@@ -73,11 +73,12 @@ void deleteRec() {
   }
   call_dosoundlist();
 }
-void copyRec() { pseudoconsole("why copy since we don't overwrite?"); }
+void copyRec() { pseudoconsole("why copy since we don't overwrite?"); dodisplay(); }
 
 void getthisRecname() {
   byte lerecdiri = getrecdir();
   newRecpathL = samplefullpath(lerecdiri,sublevels[navrecmenu + 1]);
+  newloopedpath = newRecpathL ;
 }
 
 void RecmenuAction() {
@@ -342,13 +343,10 @@ void playrecordsd_old() {
 }
 
 void stopplayrecordsd() {
-
   //AudioNoInterrupts();
   playRawL.stop();
   playRawR.stop();
   //AudioInterrupts();
-  //playFile("MP3/Gabriel.mp3");
-  
 }
 
 void start_sample_in_place() {
@@ -359,10 +357,8 @@ void start_sample_in_place() {
       SD.mkdir(recfolder.c_str());
     }
     tocker = millis();
-    newloopedpath = get_new_rec_file_name("SOUNDSET/REC/LOOP");
-    if (SD.exists(newloopedpath.c_str())) {
-      SD.remove(newloopedpath.c_str());
-    }
+    newloopedpath = get_new_file_name("SOUNDSET/REC/LOOP","#L.RAW");
+
     looper = SD.open(newloopedpath.c_str(), FILE_WRITE);
     if (looper) {
       //AudioNoInterrupts();

@@ -696,8 +696,9 @@ void controlswitcher(int caser, int valu) {
 
     case 100:
       //to save in a new pattern
+      // TODO reenable
       patterns_names_offset = patterns_count ;
-      _pt.writelemidi();
+      //_pt.writelemidi();
       break;
 
     case 101:
@@ -753,10 +754,7 @@ void controlswitcher(int caser, int valu) {
 
       break;
     case 107:
-      // type2
-      _po.clearlapattern();
-      patterns_names_offset = 0 ;
-      call_parsepattern();
+      //free
       break;
     case 108:
       presets_names_offset = 0 ;
