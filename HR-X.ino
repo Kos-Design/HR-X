@@ -763,23 +763,27 @@ bool initdone;
 byte FMmodulated[synths_count] = {0,0,0};
 #include "/home/kosmin/HR-X/includes/cablages.ino"
 
-#define FLANGE_DELAY_LENGTH (4 * AUDIO_BLOCK_SAMPLES)
-#define CHORUS_DELAY_LENGTH (8 * AUDIO_BLOCK_SAMPLES)
+#define FLANGE_DELAY_LENGTH (6 * AUDIO_BLOCK_SAMPLES)
+#define CHORUS_DELAY_LENGTH (16 * AUDIO_BLOCK_SAMPLES)
 EXTMEM short chorusdelayline[CHORUS_DELAY_LENGTH];
 EXTMEM short chorusdelayline2[CHORUS_DELAY_LENGTH];
 EXTMEM short chorusdelayline3[CHORUS_DELAY_LENGTH];
+
+short *chorusdelaylines[3] = {chorusdelayline,chorusdelayline2,chorusdelayline3};
 // short chorusdelayline4[CHORUS_DELAY_LENGTH];
-int chorusvoices = 4;
+int chorusvoices[3] = {2,2,2};
 
 EXTMEM short flangedelay[FLANGE_DELAY_LENGTH];
 EXTMEM short flangedelay2[FLANGE_DELAY_LENGTH];
 EXTMEM short flangedelay3[FLANGE_DELAY_LENGTH];
+
+short *flangedelays[3] = {flangedelay,flangedelay2,flangedelay3};
 // short flangedelay4[FLANGE_DELAY_LENGTH];
 
 int flangeoffset = FLANGE_DELAY_LENGTH / 4;
 int flangedepth = FLANGE_DELAY_LENGTH / 4;
 
-double flangefreq = 0.5;
+double flangefreq[3] = {0.5,0.5,0.5};
 
 String mp3_name = "MP3/Addict.mp3";
 String mp3_dir = "MP3/";
@@ -795,6 +799,8 @@ bool mp3_continue;
 EXTMEM int16_t granularMemory[GRANULAR_MEMORY_SIZE];
 EXTMEM int16_t granularMemory2[GRANULAR_MEMORY_SIZE];
 EXTMEM int16_t granularMemory3[GRANULAR_MEMORY_SIZE];
+
+int16_t *granularMemories[3] = {granularMemory,granularMemory2,granularMemory3};
 
 EXTMEM AudioConnection delayCord1(feedbackdelay1, delay1);
 EXTMEM AudioConnection delayCord2(feedbackdelay2, delay2);
@@ -1058,131 +1064,130 @@ byte *wmixer_tmp_pointers[12] = { &mixlevelsM[0], &mixlevelsM[1], &mixlevelsM[2]
 byte wmixer_tmp_values[12] = {mixlevelsM[0],mixlevelsM[1],mixlevelsM[2],WetMixMasters[1],WetMixMasters[2],WetMixMasters[3],
                                 wetins[0],wetins[1],wetins[2], mixlevelsL[0],mixlevelsL[1],mixlevelsL[2] };
 
-class SequencerClocker : public AudioStream
-{
-public:
-    SequencerClocker() : AudioStream(0, nullptr) {}
-    bool stop = 1 ;
-    void setBPM(float bpm)
-    {
-        _bpm = bpm;
-        calculatePPQN();
-    }
+class SequencerClocker : public AudioStream {
+    public:
+        SequencerClocker() : AudioStream(0, nullptr) {}
+        bool stop = 1 ;
+        void setBPM(float bpm)
+        {
+            _bpm = bpm;
+            calculatePPQN();
+        }
 
-    void setPPQN(uint8_t ppqn) {
-        _PPQN = ppqn;
-        calculatePPQN();
-    }
+        void setPPQN(uint8_t ppqn) {
+            _PPQN = ppqn;
+            calculatePPQN();
+        }
 
-    void attach_24(void (*cb)())
-    {
-        _callback_24 = cb;
-    }
+        void attach_24(void (*cb)())
+        {
+            _callback_24 = cb;
+        }
 
-    void attach_6(void (*cb)())
-    {
-        _callback_6 = cb;
-    }
+        void attach_6(void (*cb)())
+        {
+            _callback_6 = cb;
+        }
 
-    void attach_48(void (*cb)())
-    {
-        _callback_48 = cb;
-    }
+        void attach_48(void (*cb)())
+        {
+            _callback_48 = cb;
+        }
 
-    void attach_3(void (*cb)())
-    {
-        _callback_3 = cb;
-    }
+        void attach_3(void (*cb)())
+        {
+            _callback_3 = cb;
+        }
 
-    void stopticker() {
-        stoptick = 1;
-        recordCC = 0;
-        overdubmidi = 0;
-        this->stop = 1;
-        // if (patrecord) {
-        // computelenghtmesureoffline();
-        patternOn = 0;
-        patrecord = 0;
-        // tickposition = 0 ;
-    }
+        void stopticker() {
+            stoptick = 1;
+            recordCC = 0;
+            overdubmidi = 0;
+            this->stop = 1;
+            // if (patrecord) {
+            // computelenghtmesureoffline();
+            patternOn = 0;
+            patrecord = 0;
+            // tickposition = 0 ;
+        }
 
-    void startticker() {
-        //TODO: reimplement external midi clock use
-        //if (!externalticker) {
-        // metro0.reset();
-        //MsTimer2::set(millitickinterval, advance_tick);
-        //MsTimer2::start();
+        void startticker() {
+            //TODO: reimplement external midi clock use
+            //if (!externalticker) {
+            // metro0.reset();
+            //MsTimer2::set(millitickinterval, advance_tick);
+            //MsTimer2::start();
 
-        //}
-        stoptick = 0;
-        this->stop = 0;
-        patternOn = 1;
-    }
+            //}
+            stoptick = 0;
+            this->stop = 0;
+            patternOn = 1;
+        }
 
-    virtual void update() override {
-        if (_samplesPerTick <= 0.0)
-        return;
-        _sampleAccumulator += AUDIO_BLOCK_SAMPLES;
-        while (_sampleAccumulator >= _samplesPerTick) {
-            _sampleAccumulator -= _samplesPerTick;
+        virtual void update() override {
+            if (_samplesPerTick <= 0.0)
+            return;
+            _sampleAccumulator += AUDIO_BLOCK_SAMPLES;
+            while (_sampleAccumulator >= _samplesPerTick) {
+                _sampleAccumulator -= _samplesPerTick;
 
-            tick96++;
+                tick96++;
 
-             if ((tick96 % 3) == 0 && _callback_3){
-                    thirtySecond++;
-                    _callback_3();
-                }
+                if ((tick96 % 3) == 0 && _callback_3){
+                        thirtySecond++;
+                        _callback_3();
+                    }
 
-            if ((tick96 % 6) == 0 && _callback_6){
-                    quarter++;
-                    _callback_6();
-                }
+                if ((tick96 % 6) == 0 && _callback_6){
+                        quarter++;
+                        _callback_6();
+                    }
 
-            if (!stop) {
+                if (!stop) {
+                    
+
+                    if ((tick96 % 48) == 0 && _callback_48){
+                        eighth++;
+                        _callback_48();
+                    }
+
+                    if ((tick96 % 24) == 0 && _callback_24){
+                        sixteenth++;
+                        _callback_24();
+                    }
+
                 
-
-                if ((tick96 % 48) == 0 && _callback_48){
-                    eighth++;
-                    _callback_48();
                 }
-
-                if ((tick96 % 24) == 0 && _callback_24){
-                    sixteenth++;
-                    _callback_24();
-                }
-
-               
             }
         }
-    }
 
-private:
+    private:
 
 
-    void calculatePPQN() {
-        if (_PPQN == 0 || _bpm <= 0.0f)
-        return;
-        _samplesPerTick =
-            AUDIO_SAMPLE_RATE_EXACT *
-            60.0 /
-            (_bpm * _PPQN);
-    }
+        void calculatePPQN() {
+            if (_PPQN == 0 || _bpm <= 0.0f)
+            return;
+            _samplesPerTick =
+                AUDIO_SAMPLE_RATE_EXACT *
+                60.0 /
+                (_bpm * _PPQN);
+        }
 
-    volatile uint32_t tick96 = 0;
-    volatile uint32_t quarter = 0;
-    volatile uint32_t eighth = 0;
-    volatile uint32_t sixteenth = 0;
-    volatile uint32_t thirtySecond = 0;
+        volatile uint32_t tick96 = 0;
+        volatile uint32_t quarter = 0;
+        volatile uint32_t eighth = 0;
+        volatile uint32_t sixteenth = 0;
+        volatile uint32_t thirtySecond = 0;
 
-    float  _bpm = 120.0f;
-    uint8_t _divisionsPerQuarter = 4;
-    uint8_t _PPQN = 96 ;
-    double _samplesPerTick = 0;
-    double _sampleAccumulator = 0;
-    void (*_callback_24)() = nullptr;
-    void (*_callback_3)() = nullptr;
-    void (*_callback_48)() = nullptr;
-    void (*_callback_6)() = nullptr;
+        float  _bpm = 120.0f;
+        uint8_t _divisionsPerQuarter = 4;
+        uint8_t _PPQN = 96 ;
+        double _samplesPerTick = 0;
+        double _sampleAccumulator = 0;
+        void (*_callback_24)() = nullptr;
+        void (*_callback_3)() = nullptr;
+        void (*_callback_48)() = nullptr;
+        void (*_callback_6)() = nullptr;
 };
 
 SequencerClocker clocker;

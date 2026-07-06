@@ -30,6 +30,13 @@ class FxBus {
       if (selected_fx_type == 8) {
         delayCords[f_index]->connect();
       }
+      if (selected_fx_type == 4) {
+        flange[f_index]->begin(flangedelays[f_index],FLANGE_DELAY_LENGTH,flangeoffset,flangedepth,flangefreq[f_index]);
+        flange[f_index]->voices(FLANGE_DELAY_PASSTHRU,0,0);
+      }
+      if (selected_fx_type == 5) {
+        chorus[f_index]->begin(chorusdelaylines[f_index],CHORUS_DELAY_LENGTH,chorusvoices[f_index]) ;
+      }
       premixesMto_index = (selected_fx_type * fxs_count) + (f_index);
       fxcording_index = (selected_fx_type*fxs_count*2*3) + (f_index*fxs_count*2) + (2*f_index);
       premixesMto[premixesMto_index]->connect();
@@ -218,6 +225,7 @@ class FxMenuRouter : public SectionHolder {
         }
         AudioInterrupts();
       }
+      
       static void delayfeedback(byte lefilter, float lesmallfloat) {
         // delay feedback
         if (smallfloat <= 0.1) {
@@ -263,7 +271,6 @@ class FxMenuRouter : public SectionHolder {
         }
       }
       
-
       static void changebiquadfreqvalue(byte lebiquad, int valub) {
         // valub range 1024
         bqfreq[lebiquad][bqstage[lebiquad]] = valub * 3;
@@ -305,9 +312,9 @@ class FxMenuRouter : public SectionHolder {
             round((flangerVknobs[lefilter][0] / 127.0) * FLANGE_DELAY_LENGTH / 4);
         flangedepth =
             round((flangerVknobs[lefilter][1] / 127.0) * FLANGE_DELAY_LENGTH / 4);
-        flangefreq = (double)(flangerVknobs[lefilter][2] / 127.0) * 2;
+        flangefreq[lefilter] = (double)(flangerVknobs[lefilter][2] / 127.0) * 2;
         // AudioNoInterrupts();
-        flange[lefilter]->voices(flangeoffset, flangedepth, flangefreq);
+        flange[lefilter]->voices(flangeoffset, flangedepth, flangefreq[lefilter]);
         // AudioInterrupts();
       }
       static void flangerVpanelAction(byte lefilter) {
@@ -465,7 +472,8 @@ class FxMenuRouter : public SectionHolder {
       }
 
       static void choruscontrols(byte lefilter) {
-        chorus[lefilter]->voices(round((chorusVknobs[lefilter] / 127.0) * 8));
+        chorusvoices[lefilter] = round((chorusVknobs[lefilter] / 127.0) * 8) ;
+        chorus[lefilter]->voices(chorusvoices[lefilter]);
       }
 
       static void chorusVpanelAction(byte lefilter) {
@@ -575,7 +583,7 @@ class FxMenuRouter : public SectionHolder {
         float legrainleng = 1.0 * map(granularVknobs[lefilter][0],0,127,1,maxgrain) ;
         if (granular_shifting[lefilter]) {
           if (!granular_freezing[lefilter]) {
-            granular[lefilter]->begin(granularMemory, GRANULAR_MEMORY_SIZE);
+            granular[lefilter]->begin(granularMemories[lefilter], GRANULAR_MEMORY_SIZE);
           }
           granularcontrols(lefilter);
           granular[lefilter]->beginPitchShift(legrainleng);
@@ -594,7 +602,7 @@ class FxMenuRouter : public SectionHolder {
         float legrainleng = 0.75*map(granularVknobs[lefilter][0],0,127,1,maxgrain) ;
         if (granular_freezing[lefilter]) {
           if (!granular_shifting[lefilter]) {
-            granular[lefilter]->begin(granularMemory, GRANULAR_MEMORY_SIZE);
+            granular[lefilter]->begin(granularMemories[lefilter], GRANULAR_MEMORY_SIZE);
           }
           granularcontrols(lefilter);
           granular[lefilter]->beginFreeze(legrainleng);

@@ -377,6 +377,8 @@ class SongMenuRouter : public SectionHolder {
         }
 
         static void writedasong() {
+          song_nav_one();
+          if (navlevel >= navSongmenu + 2) {
           File song_filer ;
           if (sublevels[navSongmenu + 1] == songs_count) {
             song_filer = SD.open(get_new_file_name("SONGS/SONG#").c_str(), FILE_WRITE);
@@ -388,7 +390,9 @@ class SongMenuRouter : public SectionHolder {
           }
           writeSong(song_filer);
           song_filer.close();
-
+          list_songs_files();
+          returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
+          }
         }
 
         static void insert_int_in_song_file(File &song_filer,int leint, char *leparam) {
@@ -411,27 +415,32 @@ class SongMenuRouter : public SectionHolder {
             insert_int_in_song_file(song_filer,patternonsong[i], (char*)"songpat");
           }
         }
-
-        static void parseSong() {
+        static void parseSong(){
           File song_filer = SD.open(self->get_current_song_path().c_str());
-          if (song_filer) {
-            //increse parsingbuffersize if more settings are added
-            for (int i = 0; i < parsingbuffersize; i++) {
-              receivedbitinchar[i] = song_filer.read();
+            if (song_filer) {
+              //increse parsingbuffersize if more settings are added
+              for (int i = 0; i < parsingbuffersize; i++) {
+                receivedbitinchar[i] = song_filer.read();
+              }
             }
-          }
-          Parser parser((byte *)receivedbitinchar, parsinglength);
-          parser.Read_String('#');
-          parser.Skip(1);
-          numberofpatonsong = parser.Read_Int16();
-          for (int i = 0; i < 99; i++) {
+            Parser parser((byte *)receivedbitinchar, parsinglength);
             parser.Read_String('#');
             parser.Skip(1);
-            patternonsong[i] = parser.Read_Int16();
+            numberofpatonsong = parser.Read_Int16();
+            for (int i = 0; i < 99; i++) {
+              parser.Read_String('#');
+              parser.Skip(1);
+              patternonsong[i] = parser.Read_Int16();
+            }
+            parser.Reset();
+            song_filer.close();
+        }
+        static void load_song() {
+          song_nav_one();
+          if (navlevel >= navSongmenu + 2) {
+            parseSong();
+            returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
           }
-          parser.Reset();
-          song_filer.close();
-
         }
 
         static void song_nav_zero(){
@@ -440,74 +449,20 @@ class SongMenuRouter : public SectionHolder {
           navrange = truesizeofSongmenulabels - 1;
           use_song_list();
           dodisplay();
-
         }
 
         static void song_nav_one(){
           dm.clear_3();
-          reinitsublevels(navSongmenu + 1);
-          navrange = songs_count;
-          use_song_list();
-          dodisplay();
-
-        }
-
-        static void song_nav_two(){
-          dm.clear_3();
-          reinitsublevels(navSongmenu + 1);
-          navrange = max(songs_count - 1 , 0);
-          use_song_list();
-          dodisplay();
-
-        }
-        
-        static void song_nav_three(){
-          switch (sublevels[navSongmenu]) {
-            //returntonav(navSongmenu, truesizeofSongmenulabels - 1);
-            case 0:
-              call_songeditor();
-              // into edit already ;
-              break;
-            case 1:
-              writedasong();
-              returntonav(navSongmenu, truesizeofSongmenulabels - 1);
-              // save();
-              break;
-            case 2:
-
-              parseSong();
-              returntonav(navSongmenu, truesizeofSongmenulabels - 1);
-              break;
-            case 3:
-              copySong();
-              returntonav(navSongmenu, truesizeofSongmenulabels - 1);
-              break;
-
-            case 4:
-              deleteSong();
-              returntonav(navSongmenu, truesizeofSongmenulabels - 1);
-              break;
-
-            case 5:
-              initializepatternonsong();
-
-              break;
-            case 6:
-
-              break;
-            case 7:
-              doSongShifter();
-
-              break;
-
-            default:
-              break;
+          navrange = songs_count-1;
+          if (sublevels[navSongmenu] == 1 ){
+            navrange = songs_count;
           }
-          returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
+          use_song_list();
+          dodisplay();
+
         }
 
         static void initializepatternonsong() {
-
           for (int j = 0; j < 99; j++) {
             patternonsong[j] = 0;
           }
@@ -542,8 +497,23 @@ class SongMenuRouter : public SectionHolder {
         }
 
         static void clear_song_popup(){
+          dm.clear_3();
           char messageconfirm[32] = "Delete Song ?";
           doConfirmpanel((char *)messageconfirm);
+          if (navlevel >= navSongmenu + 2) {
+            if (sublevels[navSongmenu+1] == 1) {
+              initializepatternonsong();
+            }
+            returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
+          }
+        }
+
+        static void duplicate_song(){
+          song_nav_one();
+          if (navlevel >= navSongmenu + 2) {
+            copySong();
+            returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
+          }
         }
 
         static void copySong() {
@@ -562,6 +532,14 @@ class SongMenuRouter : public SectionHolder {
           target_file.close();
         }
 
+        static void remove_song(){
+          song_nav_one();
+          if (navlevel >= navSongmenu + 2) {
+            deleteSong();
+            list_songs_files();
+            returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
+          }
+        }
         static void deleteSong() {
           if (SD.exists(self->get_current_song_path().c_str())) {
             SD.remove(self->get_current_song_path().c_str());
@@ -599,11 +577,11 @@ class SongMenuRouter : public SectionHolder {
 
         static void showSongShifterdisplays() {
           navrange = 32;
-          dm.clean_title_2();
+          dm.clean_title_1();
           canvastitle.print("Shift Song");
           int latransposition;
-          latransposition = 16 - sublevels[2];
-          sublevels[3] = sublevels[2];
+          latransposition = 16 - sublevels[navSongmenu + 1];
+          sublevels[navSongmenu + 2] = sublevels[navSongmenu + 1];
           canvasBIG.setCursor(0, 16);
           canvasBIG.setTextSize(2);
           if (latransposition > 0) {
@@ -616,8 +594,39 @@ class SongMenuRouter : public SectionHolder {
           dodisplay();
         }
 
+        static void shift_song(){
+           showSongShifterdisplays();
+          if (navlevel >= navSongmenu + 2) {
+            doSongShifter();
+            returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
+          }
+        }
+
+        static void show_some_params(){
+          navrange = 32;
+          dm.clean_title_1();
+          canvastitle.print("Params");
+          //int latransposition;
+          //latransposition = 16 - sublevels[navSongmenu + 1];
+          //sublevels[navSongmenu + 2] = sublevels[navSongmenu + 1];
+          canvasBIG.setCursor(0, 16);
+          canvasBIG.setTextSize(1);
+          canvasBIG.setCursor(8, 16);
+          canvasBIG.print("block controls");
+          canvasBIG.setCursor(8, 16+10);
+          canvasBIG.print("Bpms");
+          canvasBIG.setCursor(8, 16+20);
+          canvasBIG.print("quantize");
+          canvasBIG.setCursor(8, 16+30);
+          canvasBIG.print("external clock");
+          dodisplay();
+        }
+
         static void song_params_panel(){
-          //byte tmp__;
+            show_some_params();
+          if (navlevel >= navSongmenu + 2) {
+            returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
+          }
         }
 
         static void use_song_list(){
@@ -646,9 +655,9 @@ class SongMenuRouter : public SectionHolder {
                                                 &route_navlevel, &route_navlevel, &route_navlevel};
 
     private:
-      static constexpr void (*_song_actions[])() = {&call_songeditor,&writedasong,&parseSong,&copySong,&deleteSong,&initializepatternonsong,nullptr,&doSongShifter};
-      static constexpr void (*_nav_song[truesizeofSongmenulabels])() = {&call_songeditor,&song_nav_one, &song_nav_one, &song_nav_one,
-                                                      &song_nav_one, &clear_song_popup, &song_params_panel, &showSongShifterdisplays};
+
+      static constexpr void (*_nav_song[truesizeofSongmenulabels])() = {&call_songeditor,&writedasong, &load_song, &duplicate_song,
+                                                      &remove_song, &clear_song_popup, &song_params_panel, &shift_song};
       static SongMenuRouter* self;
 };
 
