@@ -83,6 +83,7 @@ void listSoundset() {
     }
     soundentry.close();
   }
+  sounddir.close();
 }
 
 String samplefullpath(int lefolder, int lefile){

@@ -34,12 +34,13 @@ int numberoftaps;
 int tapstime[5] = {0};
 float tapaverage;
 const byte truesizeofSongmenulabels = 8;
-const byte wf_labels_count = 8;
+
 const byte ps_labels_count = 5;
 const byte truesizeofsynthmenulabels = 5 ;
 const byte sizeofLFOlabels = 9;
 const byte numbofsettinglabels = 15;
-
+//doesn't seem to affect arbitrary waveforms... :(
+float arbitrary_maxF[3] = { 172.0, 172.0, 172.0} ;
 int millitickinterval = 115;
 //freeze, can't record wav
 //#include <MsTimer2.h>
@@ -630,7 +631,7 @@ const char ControlList[allfxes][21] = {
     "None", "Volume","SynthLevel", "SDLvl", "FlashLevel", "Fx1Level",
     "Fx2Level", "Fx3Level", "SamplerDry","SynthDry",
     // 10
-    "AuxDry", "CtoffSlope","ResoSlope","Free", "Free", "Free",
+    "AuxDry", "CtoffSlope","ResoSlope","Freq_arb_wf", "Free", "Free",
     "CtoffTime", "ResoTime", "FilterLevel ", "Free",
     // 20
     "CutOff", "Resonance", "OctRange", "glidemode", "FilterIn", "free",
@@ -657,8 +658,8 @@ const char ControlList[allfxes][21] = {
     "flanger[i][0]", "flanger[i][1]", "flanger[i][2]","DelayFreq[i][0]", "DelayMult[i][1]", "DelayFeed[i][2]",
     "bqtype[i][bq]", "In level", "Free", "Free","BPM",
     // 100
-    "Pat. Save", "Pat. Load", "Record Raw", "Play Recorded", "Stop Play&Rec", "Free", "Free",
-    "free","Load Pat0", "preset 0", "Loop recorder",
+    "disabled", "Pat. Load", "Record Raw", "Play Recorded", "Stop Play&Rec", "Free", "Free",
+    "free","Load Pat0", "preset 0", "Free",
     // 110
     "Sp.Track 1", "Sp.Track 2", "Sp.Track 3", "Sp.Track 4", "Sp.Track 5",
     "Sp.Track 6", "Sp.Track 7", "Sp.Track 8", "Sp.Track 9", "Sp.Track 10",

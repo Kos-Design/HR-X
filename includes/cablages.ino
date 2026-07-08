@@ -329,7 +329,6 @@ AudioMixer4 *delayprefeed[fxs_count] = {&premixmixx1, &premixmixx2, &premixmixx3
 
 //AudioAmplifier *faders[liners_count] = {&fade0, &fade1, &fade2, &fade3, &fade4, &fade5};
 
-//AudioSynthWaveformSine *lfosinez[fxs_count] = {&lfosine1, &lfosine2, &lfosine3};
 
 AudioMixer4 *les303passes[liners_count] = {&mix303L1, &mix303L2, &mix303L3, &mix303L4, &mix303L5, &mix303L6};
 

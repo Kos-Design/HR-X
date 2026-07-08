@@ -29,7 +29,7 @@ class SamplerMenuRouter : public SectionHolder {
             if (sublevels[1] == 3) {
                 display.clearDisplay();
 
-                displayRecmenu();
+                _rd.show();
             }
             if (sublevels[1] == 4) {
                 // display.clearDisplay();
@@ -61,8 +61,7 @@ class SamplerMenuRouter : public SectionHolder {
                 break;
                 case 3:
                 // assign samples menu
-                navrange = 3;
-                displayRecmenu();
+                _rd.show();
                 break;
                 case 4:
                 // assign samples menu
@@ -1181,11 +1180,6 @@ class SamplerMenuRouter : public SectionHolder {
               File file = rooter.openNextFile();
               if (!file) break;
 
-             // Serial.print(file.name());
-             // Serial.print("  ");
-            //  Serial.println(file.size());
-              //char flashenamex[13];
-            //uint32_t flashfilesize;
             if (!file.isDirectory()) {
               addtoFlashsamplelist((char*)file.name());
             }
@@ -1193,20 +1187,6 @@ class SamplerMenuRouter : public SectionHolder {
           }
 
           rooter.close();
-
-          /*
-
-          thyfs.opendir();
-          while (1) {
-            char flashenamex[13];
-            uint32_t flashfilesize;
-            if (thyfs.readdir(flashenamex, sizeof(flashenamex), flashfilesize)) {
-              addtoFlashsamplelist(flashenamex);
-            } else {
-              break; // no more files
-            }
-          }
-          */
         }
 
         //unused
@@ -1236,7 +1216,7 @@ class SamplerMenuRouter : public SectionHolder {
             dodisplay();
           }
           if (navlevel == 4) {
-            // to astatic void the weird last one <--- probably an overflow
+            // to avoid the weird last one <--- probably an overflow
             navrange = numberofFlashfiles - 1;
             listsamplesassigner2();
             dodisplay();
@@ -1260,14 +1240,12 @@ class SamplerMenuRouter : public SectionHolder {
 
           canvasBIG.fillScreen(SSD1306_BLACK);
           if (Sampleassigned[sublevels[3]] != 0) {
-
             canvasBIG.setTextSize(2);
             canvasBIG.setCursor(85, 16);
             canvasBIG.println(Sampleassigned[sublevels[3]]);
             canvasBIG.setCursor(0, 40);
             canvasBIG.println((char *)Flashsamplebase[Sampleassigned[sublevels[3]]]);
           }
-          //}
         }
 
         static void samplesetter() { Sampleassigned[sublevels[3]] = sublevels[4]; }
@@ -1297,9 +1275,6 @@ class SamplerMenuRouter : public SectionHolder {
         
 
         static void listSoundsetsubdir(int ledir) {
-          //TODO format sd and remove this exception
-          if (strcmp(sampledirpath, "SOUNDSET/GLITCH/") == 0)
-            return;
           if (SD.exists((char *)sampledirpath)) {
             File susudir = SD.open((char *)sampledirpath);
             // SOUNDSET/GLITCH/
@@ -1330,6 +1305,7 @@ class SamplerMenuRouter : public SectionHolder {
               }
               subentry.close();
             }
+            susudir.close();
           }
         }
 
@@ -1358,8 +1334,8 @@ class SamplerMenuRouter : public SectionHolder {
           // printthem();
         }
 
-        static constexpr void (*_route_nav[5])() = {&sampler_nav_zero, &sampler_nav_one, &sampler_nav_two, 
-                                                    &sampler_nav_two, &sampler_nav_two};
+        static constexpr void (*_route_nav[7])() = {&sampler_nav_zero, &sampler_nav_one, &sampler_nav_two, 
+                                                    &sampler_nav_two, &sampler_nav_two,&sampler_nav_two, &sampler_nav_two};
         
     private:
         

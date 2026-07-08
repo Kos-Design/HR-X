@@ -908,6 +908,7 @@ class SynthMenuRouter : public SectionHolder {
             }
             next_mp3++;
             file_index = 0 ;
+            susudir.close();
           }
           //Serial.println((char*)mp3_name.c_str());
           
@@ -1550,7 +1551,7 @@ class SynthMenuRouter : public SectionHolder {
             drumcords1[i + (liners_count * ccsynthselector)]->disconnect();
             wavelinescords[i + (liners_count * ccsynthselector)]->connect();
             if (Waveformstyped[ccsynthselector] == 7) {
-              waveforms1[i + (liners_count * ccsynthselector)]->arbitraryWaveform(arbitrary_waveforms[ccsynthselector],1.0);
+              waveforms1[i + (liners_count * ccsynthselector)]->arbitraryWaveform(arbitrary_waveforms[ccsynthselector],arbitrary_maxF[ccsynthselector]);
             }
             waveforms1[i + (liners_count * ccsynthselector)]->begin(lesformes[Waveformstyped[ccsynthselector]]);
           }
@@ -1567,8 +1568,7 @@ class SynthMenuRouter : public SectionHolder {
             MDwavecords1[i + (liners_count * ccsynthselector)]->disconnect();
             FMwavecords1[i + (liners_count * ccsynthselector)]->connect();
             if (Waveformstyped[ccsynthselector] == 7) {
-              //waveforms1[i + (liners_count * ccsynthselector)]->arbitraryWaveform(arbitrary_waveforms[ccsynthselector],1.0);
-              FMwaveforms1[i + (liners_count * ccsynthselector)]->arbitraryWaveform(arbitrary_waveforms[ccsynthselector],1.0);
+              FMwaveforms1[i + (liners_count * ccsynthselector)]->arbitraryWaveform(arbitrary_waveforms[ccsynthselector],arbitrary_maxF[ccsynthselector]);
             }
             FMwaveforms1[i + (liners_count * ccsynthselector)]->begin(lesformes[Waveformstyped[ccsynthselector]]);
           }
@@ -1586,7 +1586,7 @@ class SynthMenuRouter : public SectionHolder {
             MDwavecords1[i + (liners_count * ccsynthselector)]->connect();
             modulatecords1[i + (liners_count * ccsynthselector)]->connect();
             if (Waveformstyped[ccsynthselector] == 7) {
-              waveforms1[i + (liners_count * ccsynthselector)]->arbitraryWaveform(arbitrary_waveforms[ccsynthselector],1.0);
+              waveforms1[i + (liners_count * ccsynthselector)]->arbitraryWaveform(arbitrary_waveforms[ccsynthselector],arbitrary_maxF[ccsynthselector]);
             }
             waveforms1[i + (liners_count * ccsynthselector)]->begin(lesformes[Waveformstyped[ccsynthselector]]);
           }

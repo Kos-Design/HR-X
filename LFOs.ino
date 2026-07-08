@@ -182,7 +182,6 @@ class LFOMenuRouter : public SectionHolder {
 
         static void doLFOfreqd() {
           int leLFO=cclfoselector;
-          // set lfosine1 lfosinez[leLFO]->
           if (navlevel == 3) {
             navrange = 127;
             LFOfreqs[leLFO] = sublevels[3];
@@ -271,7 +270,7 @@ class LFOMenuRouter : public SectionHolder {
             LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), (LFOfreqs[leLFO]/127.0)*2, lesformes[LFOformstype[leLFO]]);
           }
           if (LFOformstype[leLFO] == 7) {
-            LFOwaveforms1[leLFO]->arbitraryWaveform(arbitrary_waveforms[leLFO],1.0);
+            LFOwaveforms1[leLFO]->arbitraryWaveform(arbitrary_waveforms[leLFO],arbitrary_maxF[leLFO]);
           }
 
           for (byte i = 0; i < liners_count; i++) {

@@ -282,7 +282,7 @@ void controlswitcher(int caser, int valu) {
       slope2 = smallfloat * 127;
       break;
     case 13:
-      //FREE
+      arbitrary_maxF[ccsynthselector] = smallfloat * 172.0 ;
       break;
     case 14:
       //free
@@ -378,7 +378,7 @@ void controlswitcher(int caser, int valu) {
       clocker.stopticker();
       if (recorderrecord) {
         recorderrecord = 0;
-        stopRecordingL();
+        stopRecording();
       }
       break;
     case 38:
@@ -727,7 +727,7 @@ void controlswitcher(int caser, int valu) {
       recorderstop = 0;
       if (recorderrecord) {
         recorderrecord = 0;
-        stopRecordingL();
+        stopRecording();
       }
       playrecordsd();
       break;
@@ -740,8 +740,7 @@ void controlswitcher(int caser, int valu) {
       }
       if (recorderrecord) {
         recorderrecord = 0;
-        stopRecordingL();
-        stopRecordingR();
+        stopRecording();
       }
       break;
 
@@ -762,8 +761,7 @@ void controlswitcher(int caser, int valu) {
       _ps.parsefile();
       break;
     case 109:
-      //auto record 10sec
-      start_sample_in_place();
+      //free
       break;
     case 110:
     //velocity levels for samplerlines
