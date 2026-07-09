@@ -15,7 +15,7 @@ class SettingsMenuRouter : public SectionHolder {
     public:
         SettingsMenuRouter() {
                     self = this;
-                    this->home_navrange=numbofsettinglabels - 1;
+                    this->home_navrange=settings_labels_count - 1;
                     this->relative_navlevel=2;
                     this->max_navlevel=5;
                     this->sublevels_address={5,0,0};
@@ -97,7 +97,7 @@ class SettingsMenuRouter : public SectionHolder {
           reinitsublevels(2);
           debugmidion = 0;
           noteprint = 0;
-          navrange = numbofsettinglabels - 1;
+          navrange = settings_labels_count - 1;
           makesettingslist();
           dodisplay();
         }
@@ -482,7 +482,7 @@ class SettingsMenuRouter : public SectionHolder {
                                       "Sus2",  "Sus4",  "None"};
           char midichlist[17][4] = {"All", "1",  "2",  "3",  "4",  "5",  "6",  "7", "8",
                                     "9",   "10", "11", "12", "13", "14", "15", "16"};
-          char displaysettingslabels[numbofsettinglabels][18] = {"Echo Midi",
+          char displaysettingslabels[settings_labels_count][18] = {"Echo Midi",
                                                                 "Freeze midi CC",
                                                                 "Synth midi ch",
                                                                 "Sampler midi ch",
@@ -496,7 +496,8 @@ class SettingsMenuRouter : public SectionHolder {
                                                                 "OnBoard Knobs",
                                                                 "Audio Source",
                                                                 "Midi Out",
-                                                                "Virtual Knobs"};
+                                                                "Virtual Knobs",
+                                                                "Knobs Setter"};
           display.clearDisplay();
           canvasBIG.fillScreen(SSD1306_BLACK);
           int startx = 0;
@@ -592,7 +593,7 @@ class SettingsMenuRouter : public SectionHolder {
             // canvasBIG.setTextSize(1);
           }
 
-          for (int filer = 0; filer < numbofsettinglabels - 1 - (sublevels[1]);
+          for (int filer = 0; filer < settings_labels_count - 1 - (sublevels[1]);
               filer++) {
 
             canvasBIG.setCursor(startx, starty + ((filer)*10));
@@ -601,7 +602,7 @@ class SettingsMenuRouter : public SectionHolder {
           for (int filer = 0; filer < sublevels[1]; filer++) {
 
             canvasBIG.setCursor(
-                startx, (10 * (numbofsettinglabels - sublevels[1]) + 6 + ((filer)*10)));
+                startx, (10 * (settings_labels_count - sublevels[1]) + 6 + ((filer)*10)));
             canvasBIG.println(displaysettingslabels[filer]);
           }
         }
@@ -611,7 +612,7 @@ class SettingsMenuRouter : public SectionHolder {
           canvasBIG.setTextSize(1);
           canvastitle.setTextSize(1);
           _settings_menu[sublevels[1]]();
-          if (sublevels[1] != 8 && sublevels[1] != 14 && sublevels[1] != 11 ) {
+          if (sublevels[1] != 8 && sublevels[1] != 15 && sublevels[1] != 14 && sublevels[1] != 11 ) {
             makesettingslist();
             dodisplay();
           }
@@ -787,11 +788,11 @@ class SettingsMenuRouter : public SectionHolder {
         returntonav(1,13,13);
       }
 
-      static constexpr void (*_settings_menu[numbofsettinglabels])() = {&toggle_echo_midi,&toggle_freeze_midi,&set_synth_midi_ch,&set_sampler_midi_ch,&toggle_digital_analog,
+      static constexpr void (*_settings_menu[settings_labels_count])() = {&toggle_echo_midi,&toggle_freeze_midi,&set_synth_midi_ch,&set_sampler_midi_ch,&toggle_digital_analog,
                                                                         &set_tap_note,&set_bpms_interval,&set_chord_mode,&arpegiatorVpanel,&toggle_ext_clock,&toggle_note_spy,
-                                                                        &OnBoardVpanel,&set_audio_source,&toggle_midi_out,&Vbuttonspanel};
+                                                                        &OnBoardVpanel,&set_audio_source,&toggle_midi_out,&Vbuttonspanel,&_ka.show};
 
-      //static constexpr void (*_nav_fx[sizeofsamplerlabels])() = {&fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one};
+      //static constexpr void (*_nav_fx[sampler_labels_count])() = {&fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one};
 
   private:
     static SettingsMenuRouter* self;

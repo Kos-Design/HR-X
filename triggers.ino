@@ -860,7 +860,7 @@ void moncontrollercc(byte channel, byte control, byte value) {
 
 void cc_edgecases(byte control, byte value){
   if (sublevels[0] == 2 && navlevel == 2){
-    learn_midi(control);
+    _ka.learn_midi(control);
   }
 
   if (sublevels[0] == 8 && navlevel == 2 && trace_waveform){

@@ -25,7 +25,7 @@ void setupSD() {
 
 void attach_menus(){
   void (*menus[])() = {
-    call_sn_show,call_lf_show,_ka.show,_sg.show,call_pt_show,
+    call_sn_show,call_lf_show,_rd.show,_sg.show,call_pt_show,
    call_st_show,call_fx_show,call_sp_show,call_wf_show,call_ps_show};
   for (int i=0;i<10;i++){
     dm.attach_nav_zero(i,menus[i]);
@@ -121,7 +121,7 @@ void attach_menus_settings(){
   // wavesline_selector,showmixerwaves, displayadsrgraph, empty,le303filterVpanel,
   //void (*nav_songs_menu[])() = {"Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params","showSongShifterdisplays"};
   void (*settings_menus[])() = {Songmodepanel,song_nav_one, song_nav_one, song_nav_one, song_nav_one,clear_song_popup,song_params_panel,showSongShifterdisplays};
-  for (int i=0;i<numbofsettinglabels;i++){
+  for (int i=0;i<settings_labels_count;i++){
     _st.attach_settings_menus(i,settings_menus[i]);
   }
 }
@@ -378,7 +378,7 @@ void controlswitcher(int caser, int valu) {
       clocker.stopticker();
       if (recorderrecord) {
         recorderrecord = 0;
-        stopRecording();
+        _rd.stopRecording();
       }
       break;
     case 38:
@@ -719,7 +719,7 @@ void controlswitcher(int caser, int valu) {
       if (recorderplay) {
         recorderplay = 0;
       }
-      startRecording();
+      _rd.startRecording();
       break;
     case 103:
       // play recorder
@@ -727,9 +727,9 @@ void controlswitcher(int caser, int valu) {
       recorderstop = 0;
       if (recorderrecord) {
         recorderrecord = 0;
-        stopRecording();
+        _rd.stopRecording();
       }
-      playrecordsd();
+      _rd.playrecordsd();
       break;
     case 104:
      
@@ -740,7 +740,7 @@ void controlswitcher(int caser, int valu) {
       }
       if (recorderrecord) {
         recorderrecord = 0;
-        stopRecording();
+        _rd.stopRecording();
       }
       break;
 

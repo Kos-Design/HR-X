@@ -81,7 +81,7 @@ void check_pads() {
     }
     //inside Set Knobs level 2: learn midi
     else if (sublevels[0] == 2 && navlevel == 2 && cc_note_num <= 0){
-      learn_midi((byte)pot_assignements[11 + paddered]);
+      _ka.learn_midi((byte)pot_assignements[11 + paddered]);
     }
     //inside waveform tracer
     else if ((sublevels[0] == 8) && (sublevels[1] == 4) && (navlevel == 2)) {

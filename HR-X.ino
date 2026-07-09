@@ -38,7 +38,7 @@ const byte truesizeofSongmenulabels = 8;
 const byte ps_labels_count = 5;
 const byte truesizeofsynthmenulabels = 5 ;
 const byte sizeofLFOlabels = 9;
-const byte numbofsettinglabels = 15;
+const byte settings_labels_count = 16;
 //doesn't seem to affect arbitrary waveforms... :(
 float arbitrary_maxF[3] = { 172.0, 172.0, 172.0} ;
 int millitickinterval = 115;
@@ -81,7 +81,7 @@ byte samplelinerspage;
 byte synthlinerspage;
 // LP BP HP 127
 byte mixle303ffilterzVknobs[3];
-byte navrecmenu = 2;
+byte navrecmenu = 1;
 int laCCduration;
 int letempipolate;
 float interpolcoeff;
@@ -243,7 +243,7 @@ String newmkdirpath = "SOUNDSET/MABANK01" ;
 #include <string.h>
 const int liners_count = 6;
 const int nombreofSamplerliners = 16;
-const int sizeofsamplerlabels = 5;
+const int sampler_labels_count = 4;
 const byte synths_count = 3;
 const int patternlines = 2;
 bool tb303[liners_count];
@@ -1238,7 +1238,7 @@ class DisplayManager{
         }
 
         void displaymenu() {
-            char menus_lbl[10][11] = {"WaveSynth", "LFOs", "Set Knobs", "Song", "Pattern", "Settings",
+            char menus_lbl[10][11] = {"WaveSynth", "LFOs", "Wav Editor", "Song", "Pattern", "Settings",
                         "MainFX", "Sampler", "Waveformer", "Presets"};
             if (navlevel == 0) {
                 previousnavlevel = 0;

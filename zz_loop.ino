@@ -31,7 +31,7 @@ void loop() {
     }
   }
   if ( rec_looping ) {
-    continue_looper();
+    _rd.continue_looper();
   }
 
   

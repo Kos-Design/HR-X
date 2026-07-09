@@ -5,25 +5,26 @@ void reinitsublevels(byte fromlei) {
   }
 }
 
-void learn_midi(byte captured){
-  //used to unassign previousely set cc but lets keep it, duplicates are fine
-  //midiknobassigned[find_assigned_knob(sublevels[1])] = 0;
-  sublevels[2] = captured ;
-  midiknobassigned[sublevels[2]] = sublevels[1];
-  returntonav(1,allfxes-1,sublevels[1]);
-}
 
 class KnobAssigner : public SectionHolder {
   public:
       KnobAssigner() {
+                    self = this;
                     this->home_navrange=allfxes-1;
-                    this->relative_navlevel=1;
+                    this->relative_navlevel=2;
                     this->max_navlevel=3;
                     this->sublevels_address={2,0,0};
                     }
  
       static void show() {
-        _actionable[navlevel-1]();
+        _actionable[navlevel-self->relative_navlevel]();
+      }
+      static void learn_midi(byte captured){
+        //used to unassign previousely set cc but lets keep it, duplicates are fine
+        //midiknobassigned[find_assigned_knob(sublevels[1])] = 0;
+        sublevels[self->relative_navlevel+1] = captured ;
+        midiknobassigned[sublevels[self->relative_navlevel+1]] = sublevels[self->relative_navlevel];
+        returntonav(self->relative_navlevel,allfxes-1,sublevels[self->relative_navlevel]);
       }
 
       static int find_assigned_knob(int k){
@@ -39,13 +40,13 @@ class KnobAssigner : public SectionHolder {
         navrange = allfxes-1;
         dm.clear_3();
         canvastitle.setCursor(0, 0);
-        if (sublevels[1] != 0) {
+        if (sublevels[self->relative_navlevel] != 0) {
           canvastitle.setTextSize(2);
-          canvastitle.println(ControlList[sublevels[1]]);
+          canvastitle.println(ControlList[sublevels[self->relative_navlevel]]);
           canvasBIG.setTextSize(2);
           canvasBIG.setCursor(0, 40);
-          sublevels[2] = find_assigned_knob(sublevels[1]) ;
-          if (sublevels[2] != 0) {
+          sublevels[self->relative_navlevel+1] = find_assigned_knob(sublevels[self->relative_navlevel]) ;
+          if (sublevels[self->relative_navlevel+1] != 0) {
             canvasBIG.print("Midi");
             canvasBIG.setTextSize(1);
             canvasBIG.setCursor(50, 47);
@@ -56,7 +57,7 @@ class KnobAssigner : public SectionHolder {
             canvasBIG.setTextSize(2);
             canvasBIG.setCursor(85, 40);
 
-            canvasBIG.print(sublevels[2]);
+            canvasBIG.print(sublevels[self->relative_navlevel+1]);
           } else {
             //canvasBIG.setTextSize(1);
             canvasBIG.println("Unassigned");
@@ -74,18 +75,13 @@ class KnobAssigner : public SectionHolder {
 
       static void assigner(){
         navrange = 127;
-        if (sublevels[1] == 0 ) {
-          returntonav(1);
+        if (sublevels[self->relative_navlevel] == 0 ) {
+          returntonav(self->relative_navlevel,allfxes-1,sublevels[self->relative_navlevel]);
         } else {
-          display.clearDisplay();
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvasBIG.fillScreen(SSD1306_BLACK);
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(2);
-          canvastitle.println(ControlList[sublevels[1]]);
-          canvasBIG.setTextSize(2);
+          dm.clean_title_2_2();
+          canvastitle.println(ControlList[sublevels[self->relative_navlevel]]);
           canvasBIG.setCursor(0, 40);
-          if (sublevels[2] != 0) {
+          if (sublevels[self->relative_navlevel+1] != 0) {
             canvasBIG.print("Midi");
             canvasBIG.setTextSize(1);
             canvasBIG.setCursor(50, 47);
@@ -95,7 +91,7 @@ class KnobAssigner : public SectionHolder {
             canvasBIG.print(":");
             canvasBIG.setTextSize(2);
             canvasBIG.setCursor(85, 40);
-            canvasBIG.print(sublevels[2]);
+            canvasBIG.print(sublevels[self->relative_navlevel+1]);
           } else {
             //canvasBIG.setTextSize(1);
             canvasBIG.println("Unassigned");
@@ -105,19 +101,20 @@ class KnobAssigner : public SectionHolder {
       }
 
       static void set_it(){
-        midiknobassigned[find_assigned_knob(sublevels[1])] = 0;
-        midiknobassigned[sublevels[2]] = sublevels[1];
-        returntonav(1,allfxes-1,sublevels[1]);
+        midiknobassigned[find_assigned_knob(sublevels[self->relative_navlevel])] = 0;
+        midiknobassigned[sublevels[self->relative_navlevel+1]] = sublevels[self->relative_navlevel];
+        returntonav(self->relative_navlevel,allfxes-1,sublevels[self->relative_navlevel]);
       }
 
 
   private:
 
     static constexpr void (*_actionable[3])() = { &kb_home, &assigner, &set_it };
-
+    static KnobAssigner* self;
 };
 
-EXTMEM KnobAssigner _ka = KnobAssigner();
+KnobAssigner* KnobAssigner::self = nullptr;
+EXTMEM KnobAssigner _ka;
 
 class SynthLiner {
   public:

@@ -4,7 +4,7 @@ class SamplerMenuRouter : public SectionHolder {
     public:
         SamplerMenuRouter() {
           self = this ;
-                    this->home_navrange=sizeofsamplerlabels-1;
+                    this->home_navrange=sampler_labels_count-1;
                     this->relative_navlevel=1;
                     this->max_navlevel=5;
                     this->sublevels_address={7,0,0};
@@ -26,12 +26,8 @@ class SamplerMenuRouter : public SectionHolder {
 
                 Assingexplorer();
             }
-            if (sublevels[1] == 3) {
-                display.clearDisplay();
 
-                _rd.show();
-            }
-            if (sublevels[1] == 4) {
+            if (sublevels[1] == 3) {
                 // display.clearDisplay();
 
                 smixerVpanel();
@@ -59,11 +55,8 @@ class SamplerMenuRouter : public SectionHolder {
                 navrange = 4 - 1;
                 dolistAssignSampleMenu();
                 break;
+                
                 case 3:
-                // assign samples menu
-                _rd.show();
-                break;
-                case 4:
                 // assign samples menu
                 // navrange = 16;
                 smixerVpanel();
@@ -77,7 +70,7 @@ class SamplerMenuRouter : public SectionHolder {
 
         static void sampler_nav_zero(){
             reinitsublevels(2);
-            navrange = 4;
+            navrange = sampler_labels_count - 1;
             cellsizer = 4;
             celltall = 8;
             startx = 0;
@@ -102,7 +95,6 @@ class SamplerMenuRouter : public SectionHolder {
             sublevels[3] = smixervknobs[sublevels[2]];
           }
           if (navlevel > 3) {
-
             returntonav(2);
           }
         }
@@ -258,8 +250,7 @@ class SamplerMenuRouter : public SectionHolder {
 
         static void dolistsamplermenu() {
             
-            char samplerlabels[sizeofsamplerlabels][12] = {"Load", "Delete", "Assign",
-                                                            "Recorder", "Mixer"};
+            char samplerlabels[sampler_labels_count][12] = {"Load", "Delete", "Assign", "Mixer"};
             int startx = 5;
             int starty = 16;
             char *textin = (char *)samplerlabels[sublevels[1]];
@@ -269,12 +260,12 @@ class SamplerMenuRouter : public SectionHolder {
             canvastitle.println(textin);
             canvasBIG.setTextSize(1);
             canvasBIG.fillScreen(SSD1306_BLACK);
-            for (int i = 0; i < sizeofsamplerlabels - 1 - (sublevels[1]); i++) {
+            for (int i = 0; i < sampler_labels_count - 1 - (sublevels[1]); i++) {
                 canvasBIG.setCursor(startx, starty + ((i)*10));
                 canvasBIG.println(samplerlabels[sublevels[1] + 1 + i]);
             }
             for (int i = 0; i < sublevels[1]; i++) {
-                canvasBIG.setCursor(startx, (10 * (sizeofsamplerlabels - sublevels[1]) + 6 + ((i)*10)));
+                canvasBIG.setCursor(startx, (10 * (sampler_labels_count - sublevels[1]) + 6 + ((i)*10)));
                 canvasBIG.println(samplerlabels[i]);
             }
         }
@@ -1339,7 +1330,7 @@ class SamplerMenuRouter : public SectionHolder {
         
     private:
         
-        static constexpr void (*_nav_sampler[sizeofsamplerlabels])() = {&sampler_nav_one, &sampler_nav_one, &sampler_nav_one, &sampler_nav_one, &sampler_nav_one};
+        static constexpr void (*_nav_sampler[sampler_labels_count])() = {&sampler_nav_one, &sampler_nav_one, &sampler_nav_one, &sampler_nav_one};
         static SamplerMenuRouter* self;
 };
 
