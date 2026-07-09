@@ -1382,12 +1382,21 @@ class SectionHolder{
 
 #include <play_sd_mp3.h>
 #include <play_sd_flac.h>
+#include "play_partial_sd_raw.h"
 
 AudioPlaySdMp3           playMp31; 
 AudioPlaySdFlac          playFlac1;
 
-AudioConnection          mp3toInMix1(playMp31, 0, InMixL, 2);
-AudioConnection          mp3toInMix2(playMp31, 1, InMixR, 2);
+AudioPlayPartialSdRaw PartialPlayerMono;
+AudioMixer4 sd_mixerL ;
+AudioMixer4 sd_mixerR ;
 
-AudioConnection          flactoInMix1(playFlac1, 0, InMixL, 3);
-AudioConnection          flactoInMix2(playFlac1, 1, InMixR, 3);
+AudioConnection          sd_mix_itL(sd_mixerL, 0, InMixL , 2);
+AudioConnection          sd_mix_itR(sd_mixerR, 0, InMixR , 2);
+AudioConnection          sd_mix_partialL(PartialPlayerMono, 0, sd_mixerL, 0);
+AudioConnection          sd_mix_partialR(PartialPlayerMono, 0, sd_mixerR, 0);
+AudioConnection          sd_mix_mp3L(playMp31, 0, sd_mixerL, 1);
+AudioConnection          sd_mix_mp3R(playMp31, 1, sd_mixerR, 1);
+AudioConnection          sd_mix_flacL(playFlac1, 0, sd_mixerL, 2);
+AudioConnection          sd_mix_flacR(playFlac1, 1, sd_mixerR, 1);
+

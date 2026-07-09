@@ -98,8 +98,11 @@ bool test_flash_sample_name(String f_s_name){
 void initiatesamplerline(byte lesampleliner, byte channel, byte data1,  byte data2) {
   //const char *tobeplayed = (const char *)Flashsamplename[Sampleassigned[(int)(data1)]];
   String playable_file = (String)Flashsamplename[Sampleassigned[(int)(data1)]];
-  if (lesampleliner == 17) {
-    playrecordsd();
+  //Serial.println(data1);
+  if ((int)data1 == 72) {
+
+    //playrecordsd();
+    PartialPlayerMono.play(newloopedpath.c_str());
 
   } else {
     if (!test_flash_sample_name(playable_file)){

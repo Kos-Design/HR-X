@@ -1,6 +1,6 @@
 
 void reinitsublevels(byte fromlei) {
-  for (byte i = fromlei; i < 7; i++) {
+  for (byte i = fromlei; i < 9; i++) {
     sublevels[i] = 0;
   }
 }

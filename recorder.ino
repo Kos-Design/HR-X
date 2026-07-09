@@ -18,75 +18,7 @@ byte getrecdir() {
   return sampledirsregistered;
 }
 
-void trim_it(float start_pos = 0.0f, float end_pos = 1.0f) {
-  if (locked_fileing)
-  return;
-  locked_fileing = 1 ;
-    File in = SD.open(newloopedpath.c_str(), FILE_READ);
-    if (!in)
-        return;
 
-    File out = SD.open(get_new_file_name("SOUNDSET/REC/LOOP","#L.RAW").c_str(), FILE_WRITE);
-    if (!out)
-    {
-        in.close();
-        return;
-    }
-
-    uint32_t fileSize = in.size();
-
-    // Clamp arguments
-    start_pos = constrain(start_pos, 0.0f, 1.0f);
-    end_pos   = constrain(end_pos,   0.0f, 1.0f);
-
-    if (start_pos >= end_pos)
-    {
-        in.close();
-        out.close();
-        return;
-    }
-
-    // Convert percentages to byte offsets
-    uint32_t startByte = (uint32_t)(start_pos * fileSize);
-    uint32_t endByte   = (uint32_t)(end_pos   * fileSize);
-
-    // Align to 16-bit sample boundaries
-    startByte &= ~1;
-    endByte   &= ~1;
-
-    // Safety
-    if (endByte > fileSize)
-        endByte = fileSize;
-
-    if (startByte >= endByte)
-    {
-        in.close();
-        out.close();
-        return;
-    }
-
-    in.seek(startByte);
-
-    uint32_t remaining = endByte - startByte;
-    uint8_t buffer[4096];
-
-    while (remaining)
-    {
-        uint32_t chunk = min((uint32_t)sizeof(buffer), remaining);
-
-        int bytesRead = in.read(buffer, chunk);
-        if (bytesRead <= 0)
-            break;
-
-        out.write(buffer, bytesRead);
-        remaining -= bytesRead;
-    }
-
-    out.close();
-    in.close();
-    Serial.println("Trimmed");
-    locked_fileing = 0 ; 
-}
 
 void recordVpanelAction() {
   if (navlevel == navrec + 1) {
@@ -268,7 +200,7 @@ void startRecording() {
     return;
   locked_fileing = 1 ;
   if (!just_pressed_rec){
-    just_pressed_rec = true ;;
+    just_pressed_rec = true ;
     check_rec_folder_path();
     tocker = millis();
     newloopedpath = get_new_file_name("SOUNDSET/REC/LOOP","#L.RAW");
@@ -385,6 +317,8 @@ class RecorderMenuRouter : public SectionHolder {
           byte lerecdiri = getrecdir();
           newRecpathL = samplefullpath(lerecdiri,sublevels[navrecmenu + 1]);
           newloopedpath = newRecpathL ;
+          //not the same file if stereo
+          //newRecpathR = newRecpathL ;
         }
 
         static void dolistofRecs() {
@@ -467,6 +401,7 @@ class RecorderMenuRouter : public SectionHolder {
           rec_nav_one();
           if (navlevel >= self->relative_navlevel + 2) {
             func();
+            scheddule_wave_rebuild(true);
             returntonav(self->relative_navlevel, self->home_navrange,sublevels[self->relative_navlevel]);
           }
           dodisplay();
@@ -482,6 +417,7 @@ class RecorderMenuRouter : public SectionHolder {
 
         static void load_record(){
           lv1_wrapper(self->getthisRecname);
+          
         }
 
         static void drawWaveform(
@@ -536,7 +472,7 @@ class RecorderMenuRouter : public SectionHolder {
         static void select_cursor() {
           display.clearDisplay();
           dodisplay();
-          int cursor_coords[][4] = {{0,0,18,8},{22,0,27,8},{52,0,9,8},{64,0,9,8},{76,0,9,8},{88,0,14,8},{106,0,14,8},{0,8,128,48},
+          int cursor_coords[][4] = {{0,0,18,8},{22,0,9,8},{38,0,9,8},{52,0,9,8},{64,0,9,8},{76,0,9,8},{88,0,14,8},{106,0,14,8},{0,8,128,48},
                                     {23,56,14,8},{40,56,21,8},{64,56,20,8},{88,56,27,8}};
           display.fillRect(cursor_coords[sublevels[self->relative_navlevel+1]][0], 
                             cursor_coords[sublevels[self->relative_navlevel+1]][1],
@@ -551,7 +487,7 @@ class RecorderMenuRouter : public SectionHolder {
         static void draw_editor_zones(){
           dm.clean_title_1_1();
           canvastitle.print("Slt");
-          canvastitle.print(" Zoom");
+          canvastitle.print(" -  +");
           //canvastitle.print(" Play");
           canvastitle.print(" A");//amplify
           canvastitle.print(" R");//reverse
@@ -575,14 +511,332 @@ class RecorderMenuRouter : public SectionHolder {
          
         }
 
+        static void zoomRange(float subStart,float subEnd) {
+          float zone_width = self->end_zone - self->start_zone;
+          self->end_zone = self->start_zone + subEnd * zone_width;
+          self->start_zone = self->start_zone + subStart * zone_width;
+        }
+        
+        static void reverseSection(float startPos, float endPos) {
+          if (locked_fileing)
+          return;
+          locked_fileing = 1 ;
+            const uint16_t sampleSize = 2;      // 16-bit RAW
+            const uint32_t blockSamples = 512;  // 1024-byte buffer
+            uint8_t buffer[blockSamples * sampleSize];
+
+            File src = SD.open(newloopedpath.c_str(), FILE_READ);
+            if (!src) return;
+            
+            String new_file = get_new_file_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+            File dst = SD.open(new_file.c_str(), FILE_WRITE);
+            if (!dst) {
+                src.close();
+                return;
+            }
+
+            uint32_t fileSize = src.size();
+
+            // Clamp
+            if (startPos < 0.0f) startPos = 0.0f;
+            if (endPos > 1.0f) endPos = 1.0f;
+            if (startPos > endPos) {
+                float t = startPos;
+                startPos = endPos;
+                endPos = t;
+            }
+
+            uint32_t startByte = (uint32_t)(fileSize * startPos);
+            uint32_t endByte   = (uint32_t)(fileSize * endPos);
+
+            // Align to sample boundaries
+            startByte = (startByte / sampleSize) * sampleSize;
+            endByte   = (endByte / sampleSize) * sampleSize;
+
+            src.seek(0);
+
+            uint32_t remaining = startByte;
+
+            while (remaining) {
+                uint32_t n = min((uint32_t)sizeof(buffer), remaining);
+                src.read(buffer, n);
+                dst.write(buffer, n);
+                remaining -= n;
+            }
+
+            int32_t pos = endByte;
+
+            while (pos > (int32_t)startByte) {
+
+                uint32_t chunk = min((uint32_t)(pos - startByte),
+                                    (uint32_t)sizeof(buffer));
+
+                // Keep sample alignment
+                chunk = (chunk / sampleSize) * sampleSize;
+
+                pos -= chunk;
+
+                src.seek(pos);
+                src.read(buffer, chunk);
+
+                // Reverse samples inside buffer
+                for (uint32_t i = 0; i < chunk; i += sampleSize) {
+
+                    uint32_t srcIndex = chunk - sampleSize - i;
+
+                    dst.write(buffer + srcIndex, sampleSize);
+                }
+            }
+
+            src.seek(endByte);
+
+            while (true) {
+                int n = src.read(buffer, sizeof(buffer));
+                if (n <= 0) break;
+                dst.write(buffer, n);
+            }
+
+            src.close();
+            dst.close();
+
+            newloopedpath = new_file ;
+            locked_fileing = 0 ;
+
+        }
+
+        static void trimSection(float start_pos = 0.0f, float end_pos = 1.0f) {
+          if (locked_fileing)
+          return;
+          locked_fileing = 1 ;
+            File in = SD.open(newloopedpath.c_str(), FILE_READ);
+            if (!in)
+                return;
+
+            String new_file = get_new_file_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+            File out = SD.open(new_file.c_str(), FILE_WRITE);
+            if (!out)
+            {
+                in.close();
+                return;
+            }
+
+            uint32_t fileSize = in.size();
+
+            // Clamp arguments
+            start_pos = constrain(start_pos, 0.0f, 1.0f);
+            end_pos   = constrain(end_pos,   0.0f, 1.0f);
+
+            if (start_pos >= end_pos)
+            {
+                in.close();
+                out.close();
+                return;
+            }
+
+            // Convert percentages to byte offsets
+            uint32_t startByte = (uint32_t)(start_pos * fileSize);
+            uint32_t endByte   = (uint32_t)(end_pos   * fileSize);
+
+            // Align to 16-bit sample boundaries
+            startByte &= ~1;
+            endByte   &= ~1;
+
+            // Safety
+            if (endByte > fileSize)
+                endByte = fileSize;
+
+            if (startByte >= endByte)
+            {
+                in.close();
+                out.close();
+                return;
+            }
+
+            in.seek(startByte);
+
+            uint32_t remaining = endByte - startByte;
+            uint8_t buffer[4096];
+
+            while (remaining)
+            {
+                uint32_t chunk = min((uint32_t)sizeof(buffer), remaining);
+
+                int bytesRead = in.read(buffer, chunk);
+                if (bytesRead <= 0)
+                    break;
+
+                out.write(buffer, bytesRead);
+                remaining -= bytesRead;
+            }
+
+            out.close();
+            in.close();
+            Serial.println("Trimmed");
+            locked_fileing = 0 ; 
+            newloopedpath = new_file ;
+        }
+   
+        static void normalizeSection(float startPos, float endPos) {
+          if (locked_fileing)
+          return;
+          locked_fileing = 1 ;
+            const uint16_t sampleSize = 2;      // 16-bit mono
+            const uint32_t bufferSamples = 512;
+            int16_t buffer[bufferSamples];
+
+            File src = SD.open(newloopedpath.c_str(), FILE_READ);
+            if (!src) return;
+            
+            String new_file = get_new_file_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+            File dst = SD.open(new_file.c_str(), FILE_WRITE);
+
+            uint32_t fileSize = src.size();
+
+            // Clamp
+            if (startPos < 0.0f) startPos = 0.0f;
+            if (endPos > 1.0f) endPos = 1.0f;
+
+            if (startPos > endPos)
+            {
+                float t = startPos;
+                startPos = endPos;
+                endPos = t;
+            }
+
+            uint32_t startByte = (uint32_t)(fileSize * startPos);
+            uint32_t endByte   = (uint32_t)(fileSize * endPos);
+
+            startByte = (startByte / sampleSize) * sampleSize;
+            endByte   = (endByte / sampleSize) * sampleSize;
+
+            //----------------------------------------------------
+            // PASS 1 : Find peak
+            //----------------------------------------------------
+
+            int16_t peak = 0;
+
+            src.seek(startByte);
+
+            uint32_t remaining = endByte - startByte;
+
+            while (remaining)
+            {
+                uint32_t bytes = min((uint32_t)sizeof(buffer), remaining);
+
+                src.read((uint8_t *)buffer, bytes);
+
+                int samples = bytes / sampleSize;
+
+                for (int i = 0; i < samples; i++)
+                {
+                    int32_t v = buffer[i];
+
+                    if (v < 0)
+                        v = -v;
+
+                    if (v > peak)
+                        peak = v;
+                }
+
+                remaining -= bytes;
+            }
+
+            if (peak == 0)
+                return;
+
+            float gain = (32767.0f * 0.99f) / peak;
+
+            //----------------------------------------------------
+            // Copy beginning unchanged
+            //----------------------------------------------------
+
+            src.seek(0);
+
+            remaining = startByte;
+
+            while (remaining)
+            {
+                uint32_t bytes = min((uint32_t)sizeof(buffer), remaining);
+
+                src.read((uint8_t *)buffer, bytes);
+                dst.write((uint8_t *)buffer, bytes);
+
+                remaining -= bytes;
+            }
+
+            //----------------------------------------------------
+            // PASS 2 : Normalize selected region
+            //----------------------------------------------------
+
+            src.seek(startByte);
+
+            remaining = endByte - startByte;
+
+            while (remaining)
+            {
+                uint32_t bytes = min((uint32_t)sizeof(buffer), remaining);
+
+                src.read((uint8_t *)buffer, bytes);
+
+                int samples = bytes / sampleSize;
+
+                for (int i = 0; i < samples; i++)
+                {
+                    int32_t s = (int32_t)(buffer[i] * gain);
+
+                    if (s > 32767)
+                        s = 32767;
+                    else if (s < -32768)
+                        s = -32768;
+
+                    buffer[i] = (int16_t)s;
+                }
+
+                dst.write((uint8_t *)buffer, bytes);
+
+                remaining -= bytes;
+            }
+
+            //----------------------------------------------------
+            // Copy end unchanged
+            //----------------------------------------------------
+
+            while (true)
+            {
+                int bytes = src.read((uint8_t *)buffer, sizeof(buffer));
+
+                if (bytes <= 0)
+                    break;
+
+                dst.write((uint8_t *)buffer, bytes);
+            }
+            newloopedpath = new_file ;
+            locked_fileing = 0 ;
+        }
+
+        static void playSection (){
+          PartialPlayerMono.play(newloopedpath.c_str(),self->start_zone,self->end_zone);
+          returntonav(self->relative_navlevel + 1,11,sublevels[self->relative_navlevel + 1]);
+        }
+
+        static void scheddule_wave_rebuild(bool noreturn = 0){
+          self->end_zone = 1.0;
+          self->start_zone = 0.0 ;
+          self->wave_buffed = 0 ;
+          reinitsublevels(self->relative_navlevel + 2); 
+          if (!noreturn)
+            returntonav(self->relative_navlevel + 1,11,sublevels[self->relative_navlevel + 1]);
+          locked_fileing = 0 ; 
+        }
+
         static void edit_record(){
-          navrange = 11 ;
+          navrange = 12 ;
            if (navlevel == self->relative_navlevel+1) {
             
             if (!self->wave_buffed) {
               draw_editor_zones();
               self->wave_buffed = 1 ; 
-              drawWaveform(0.4,0.5);
+              drawWaveform(self->start_zone,self->end_zone);
               dodisplay();
             }
             select_cursor();
@@ -590,28 +844,76 @@ class RecorderMenuRouter : public SectionHolder {
           // select command, zoom command, play
           // write : trim in, out, current zoom | amplify | reverse, filter(?)
           if (navlevel == self->relative_navlevel + 2) {
-            self->wave_selected = 0;
-            navrange = 127 ;
-            display.clearDisplay();
-            display.drawFastVLine(sublevels[self->relative_navlevel +2], 8, 48, SSD1306_INVERSE);
-            dodisplay();
-            //returntonav(self->relative_navlevel + 1, self->home_navrange,0);
-          }
+            //TODO make undo / redo system via temp sd fileè
+            //dezoom
+            if (sublevels[self->relative_navlevel + 1] == 1){
+              scheddule_wave_rebuild();
+            }
+            
+            //zoom in
+            if (sublevels[self->relative_navlevel + 1] == 2){
+              zoomRange((sublevels[self->relative_navlevel + 2] / 127.0 ),((sublevels[self->relative_navlevel + 2] + sublevels[self->relative_navlevel + 3] ) / 127.0 ));
+              self->wave_buffed = 0 ;
+              reinitsublevels(self->relative_navlevel + 2);
+              reinitsublevels(self->relative_navlevel + 3); 
+              returntonav(self->relative_navlevel + 1,11,sublevels[self->relative_navlevel + 1]);
+            }
 
+            //select
+            if (sublevels[self->relative_navlevel + 1] == 0){
+              self->wave_selected = 0;
+              navrange = 127 ;
+              display.clearDisplay();
+              display.drawFastVLine(sublevels[self->relative_navlevel +2], 8, 48, SSD1306_INVERSE);
+              dodisplay();
+            }
+            
+            //normalize
+            if (sublevels[self->relative_navlevel + 1] == 3){
+              normalizeSection(self->start_zone,self->end_zone);
+              scheddule_wave_rebuild();
+              
+            }
+
+            //reverse
+            if (sublevels[self->relative_navlevel + 1] == 4){
+              reverseSection(self->start_zone,self->end_zone);
+              scheddule_wave_rebuild();
+            }
+
+            //trim
+            if (sublevels[self->relative_navlevel + 1] == 12){
+              trimSection(self->start_zone,self->end_zone);
+              scheddule_wave_rebuild();
+            }
+
+            //playSection
+            if (sublevels[self->relative_navlevel + 1] == 8){
+              playSection();
+              returntonav(self->relative_navlevel + 1,11,sublevels[self->relative_navlevel + 1]);
+            }
+
+          }
+          //select end
           if (navlevel == self->relative_navlevel + 3) {
-            navrange = 127 - sublevels[self->relative_navlevel +2] ;
-            display.clearDisplay();
-            dodisplay();
-            display.fillRect(sublevels[self->relative_navlevel +2], 8, 
-                              sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
-            display.display();
+            if (sublevels[self->relative_navlevel + 1] == 0){
+              navrange = 127 - sublevels[self->relative_navlevel +2] ;
+              display.clearDisplay();
+              dodisplay();
+              display.fillRect(sublevels[self->relative_navlevel +2], 8, 
+                                sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
+              display.display();
             //returntonav(self->relative_navlevel + 1, self->home_navrange,0);
+            }
           }
           if (navlevel > self->relative_navlevel +3) {
-              returntonav(self->relative_navlevel + 1);
+              returntonav(self->relative_navlevel + 1,11,sublevels[self->relative_navlevel + 1]);
               self->wave_selected = 1;
               }
-        } 
+        }
+        float previous_offset = 0.0f ;
+        float start_zone = 0.0f ;
+        float end_zone = 1.0f ; 
         bool wave_buffed = 0 ;
         bool wave_selected = 0 ;
         static constexpr void (*_route_nav[9])() = {&rec_nav_zero, &records_actions, &records_actions,

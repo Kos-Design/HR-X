@@ -5,17 +5,17 @@ String make_full_rec_file_name(byte number,String base_path_dir,String suffix="#
   return(String)(base_path_dir + (String)formatted_number + suffix);
 }
 
-String make_full_file_name(byte number,String base_path_dir) {
+String make_full_file_name(byte number,String base_path_dir,String ext=".TXT") {
   char formatted_number[4] ;
   sprintf(formatted_number,"%02d",number);
-  return(String)(base_path_dir + (String)formatted_number + ".TXT");
+  return(String)(base_path_dir + (String)formatted_number + ext);
 }
 
 String get_new_file_name(String base_path_dir, String ext=".TXT") {
   byte file_number = 0 ;
   String new_path = base_path_dir + "00" + ext;
   while (SD.exists(new_path.c_str())) {
-    new_path = make_full_file_name(file_number,base_path_dir);
+    new_path = make_full_file_name(file_number,base_path_dir,ext);
     file_number++;
   }
   return new_path ;
