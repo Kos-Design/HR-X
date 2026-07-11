@@ -35,12 +35,12 @@ class POptionsRouter : public SectionHolder {
 
         static void clearsynthpatternline() {
           for (int j = 0; j < pbars; j++) {
-            for (int i = 0; i < liners_count; i++) {
+            for (int i = 0; i < synth_liners_count; i++) {
 
               synth_partition[i][j][1] = 0;
               synth_partition[i][j][2] = 0;
               synth_partition[i][j][0] = 0;
-              length1notes1[i][j] = 0;
+            
               synth_off_pat[i][j][0] = 0;
               synth_off_pat[i][j][1] = 0;
             }
@@ -49,11 +49,11 @@ class POptionsRouter : public SectionHolder {
         }
         static void merge_synth_partition_liners(){
           byte note_encoutered ;
-          byte liner_encoutered[liners_count] = {0,0,0,0,0,0} ;
+          byte liner_encoutered[synth_liners_count] = {0,0,0,0,0,0} ;
 
           for (int j=0;j<pbars;j++){
             note_encoutered = 0 ;
-            for (int i=0;i<liners_count;i++){
+            for (int i=0;i<synth_liners_count;i++){
               if(synth_partition[i][j][1]!=0 && synth_partition[i][j][2]!=0){
                 liner_encoutered[note_encoutered] = i ;
                 note_encoutered++;
@@ -73,12 +73,11 @@ class POptionsRouter : public SectionHolder {
         }
         static void clearsamplerpatternline() {
           for (int j = 0; j < pbars; j++) {
-            for (int i = 0; i < nombreofSamplerliners; i++) {
+            for (int i = 0; i < flash_liners_count; i++) {
 
               sampler_partition[i][j][1] = 0;
               sampler_partition[i][j][2] = 0;
               sampler_partition[i][j][0] = 0;
-              //      length2notes1[i][j]= 0;
             }
             track_cells[1][j] = 0;
             sampler_off_pat[j][0] = 0;
@@ -179,7 +178,7 @@ class POptionsRouter : public SectionHolder {
           if (sublevels[3] - 7 < 0) {
             shiftnotes1up(abs(sublevels[3] - 7));
           }
-          call_refresh_track();
+          call_refresh_synth_track();
         }
 
         static void dotransposeCC() {
@@ -277,7 +276,7 @@ class POptionsRouter : public SectionHolder {
 
         static void shiftnotes1up(int leshifter) {
           for (int shifts = 0; shifts < leshifter; shifts++) {
-            for (int i = 0; i < liners_count; i++) {
+            for (int i = 0; i < synth_liners_count; i++) {
               for (int j = 0; j < pbars; j++) {
                 if (((int)synth_partition[i][j][1] < 127) &&
                     ((int)synth_partition[i][j][1] > 2)) {
@@ -297,7 +296,7 @@ class POptionsRouter : public SectionHolder {
         static void shiftnotes1down(int leshifter) {
           for (int shifts = 0; shifts < leshifter; shifts++) {
 
-            for (int i = 0; i < liners_count; i++) {
+            for (int i = 0; i < synth_liners_count; i++) {
               for (int j = 0; j < pbars; j++) {
 
                 if ((int)synth_partition[i][j][1] > 1) {
@@ -316,7 +315,7 @@ class POptionsRouter : public SectionHolder {
         static void shiftnotes1right(int leshifter) {
           byte letempevent1[2][3];
           for (int shifts = 0; shifts < leshifter; shifts++) {
-            for (int i = 0; i < liners_count; i++) {
+            for (int i = 0; i < synth_liners_count; i++) {
               for (int j = pbars - 1; j >= 0; j--) {
 
                 if (j == pbars - 1) {
@@ -353,7 +352,7 @@ class POptionsRouter : public SectionHolder {
           byte letempevent1[2][3];
           for (int shifts = 0; shifts < leshifter; shifts++) {
 
-            for (int i = 0; i < liners_count; i++) {
+            for (int i = 0; i < synth_liners_count; i++) {
               for (int j = 0; j < pbars; j++) {
 
                 if (j == 0) {
@@ -393,7 +392,7 @@ class POptionsRouter : public SectionHolder {
 
             shiftnotes2up(abs(sublevels[3] - 7));
           }
-          call_refreshevented2();
+          call_refresh_flash_track();
         }
 
         static void doShiftersampler() {
@@ -404,7 +403,7 @@ class POptionsRouter : public SectionHolder {
 
             shiftnotes2right(abs(sublevels[3] - 16));
           }
-          call_refreshevented2();
+          call_refresh_flash_track();
         }
 
         static void shiftnotes2up(int leshifter) {
@@ -416,7 +415,7 @@ class POptionsRouter : public SectionHolder {
                   ((int)sampler_off_pat[j][1] > 2)) {
                 sampler_off_pat[j][1]++;
               }
-              for (int i = 0; i < nombreofSamplerliners; i++) {
+              for (int i = 0; i < flash_liners_count; i++) {
                 if (((int)sampler_partition[i][j][1] < 127) &&
                     ((int)sampler_partition[i][j][1] > 2)) {
 
@@ -433,7 +432,7 @@ class POptionsRouter : public SectionHolder {
               if ((int)sampler_off_pat[j][1] > 1) {
                 sampler_off_pat[j][1]--;
               }
-              for (int i = 0; i < nombreofSamplerliners; i++) {
+              for (int i = 0; i < flash_liners_count; i++) {
                 if ((int)sampler_partition[i][j][1] > 1) {
 
                   sampler_partition[i][j][1]--;
@@ -470,7 +469,7 @@ class POptionsRouter : public SectionHolder {
                   sampler_off_pat[j][k] = letempevent2[1][k];
                 }
               }
-              for (int i = 0; i < nombreofSamplerliners; i++) {
+              for (int i = 0; i < flash_liners_count; i++) {
                 if (j == pbars - 1) {
 
                   for (int k = 0; k < 3; k++) {
@@ -520,7 +519,7 @@ class POptionsRouter : public SectionHolder {
                   sampler_off_pat[j][k] = letempevent2[1][k];
                 }
               }
-              for (int i = 0; i < nombreofSamplerliners; i++) {
+              for (int i = 0; i < flash_liners_count; i++) {
                 if (j == 0) {
 
                   for (int k = 0; k < 3; k++) {
@@ -571,7 +570,7 @@ class POptionsRouter : public SectionHolder {
 
             shiftnotes1right(abs(sublevels[3] - 16));
           }
-          call_refresh_track();
+          call_refresh_synth_track();
         }
 
         static void showShifterdisplays() {
@@ -865,44 +864,7 @@ class PatEditRouter : public SectionHolder {
            _nav_home_route[navlevel-navlevelpatedit]();
         }
 
-        static void doshownoteline_sampler() {
-          cellsizer = 4;
-          celltall = 4;
-          startx = 0;
-          starty = 16;
-          int lenghtofthenote = 4;
-          int decnote;
-          int listoffsetter;
-          int linern = sublevels[navlevelpatedit + 1];
-          startingnoteline = sublevels[navlevelpatedit + 2];
-          byte note0;
-          canvasBIG.setCursor(0, 0);
-          canvasBIG.print("Note = ");
-          canvasBIG.print(sublevels[navlevelpatedit + 2]);
-          canvasBIG.print(" Pos = ");
-          canvasBIG.print(sublevels[navlevelpatedit + 3]);
-          for (int notelines = startingnoteline; notelines > startingnoteline - 12;
-              notelines--) {
-            for (int i = 0; i < pbars; i++) {
-
-              note0 = sampler_partition[linern][i][1];
-              decnote = (int)note0;
-
-              if (decnote == notelines && note0 != 0) {
-                if (lenghtofthenote < 4) {
-                  lenghtofthenote = 4;
-                }
-                listoffsetter = starty + (4 * (startingnoteline - notelines));
-                canvasBIG.fillRect(startx + cellsizer * i, listoffsetter,
-                                  lenghtofthenote, celltall, SSD1306_WHITE);
-                canvasBIG.drawLine(startx + cellsizer * i, listoffsetter,
-                                  startx + cellsizer * i, listoffsetter + celltall,
-                                  SSD1306_BLACK);
-              }
-            }
-          }
-
-        }
+        
 
         static void doshownoteline() {
           // some notes not showing check lenght note computation
@@ -954,7 +916,7 @@ class PatEditRouter : public SectionHolder {
             }
           }
         }
-        
+
         static void doshownoteline2() {
           cellsizer = 4;
           celltall = 4;
@@ -1011,7 +973,7 @@ class PatEditRouter : public SectionHolder {
           canvasBIG.setCursor(0, 0);
           canvasBIG.print("Note:");
           canvasBIG.print(sublevels[navlevelpatedit + 2]);
-          
+
           canvasBIG.print(" Vel:");
           canvasBIG.print(sublevels[navlevelpatedit + 5]);
           byte note0;
@@ -1039,41 +1001,56 @@ class PatEditRouter : public SectionHolder {
             }
           }
         }
-        static void doshownoteline3_sampler() {
-          cellsizer = 4;
-          celltall = 4;
-          startx = 0;
-          starty = 16;
-          int decnote;
-          int listoffsetter;
-          // int linersizehold ;
-          int linern = sublevels[navlevelpatedit + 1];
-          startingnoteline = sublevels[navlevelpatedit + 2];
-          canvasBIG.setCursor(0, 0);
-          canvasBIG.print("Note:");
-          canvasBIG.print(sublevels[navlevelpatedit + 2]);
-          
-          canvasBIG.print(" Vel:");
-          canvasBIG.print(sublevels[navlevelpatedit + 5]);
-          byte note0;
-          for (int notelines = startingnoteline; notelines > startingnoteline - 12;
-              notelines--) {
-            for (int i = 0; i < pbars; i++) {
+       
+        static void doshownoteline_sampler() {
+            // some notes not showing check lenght note computation
+            // -----------------------
+            // only once, move elsewhere
+            // int displayedstart = 60 ;
+            // navrange = 128-1 ;
+            cellsizer = 4;
+            celltall = 4;
+            startx = 0;
+            starty = 16;
+            int lenghtofthenote = 4;
+            int decnote;
+            // int linersizehold ;
+            int linern = sublevels[navlevelpatedit + 1];
 
-              note0 = temp_sampler_partition[linern][i][1];
+            startingnoteline = sublevels[navlevelpatedit + 2];
+            // if selector pos > displayedstart + 12
+            // display 12 notes range
+            // blocks pos y = truenote
+            byte note0;
+            canvasBIG.setCursor(0, 0);
+            canvasBIG.print("Note:");
+            canvasBIG.print(sublevels[navlevelpatedit + 2]);
+            canvasBIG.print(" Pos:");
+            canvasBIG.print(sublevels[navlevelpatedit + 3]);
+            for (int notelines = startingnoteline; notelines > startingnoteline - 12;
+                notelines--) {
+              for (int i = 0; i < pbars; i++) {
 
-              decnote = (int)note0;
-              if (decnote == notelines && note0 != 0) {
+                note0 = sampler_partition[linern][i][1];
+                decnote = (int)note0;
 
-                listoffsetter = starty + (4 * (startingnoteline - notelines));
-                canvasBIG.fillRect(startx + cellsizer * i, listoffsetter,
-                                  4, celltall, SSD1306_WHITE);
-                canvasBIG.drawLine(startx + cellsizer * i, listoffsetter,
-                                  startx + cellsizer * i, listoffsetter + celltall,
-                                  SSD1306_BLACK);
+                if (decnote == notelines && note0 != 0) {
+
+                  lenghtofthenote = length2pbars[linern][i];
+
+                  if (lenghtofthenote < 4) {
+                    lenghtofthenote = 4;
+                  }
+                  int listoffsetter = starty + (4 * (startingnoteline - notelines));
+
+                  canvasBIG.fillRect(startx + cellsizer * i, listoffsetter,
+                                    lenghtofthenote, celltall, SSD1306_WHITE);
+                  canvasBIG.drawLine(startx + cellsizer * i, listoffsetter,
+                                    startx + cellsizer * i, listoffsetter + celltall,
+                                    SSD1306_BLACK);
+                }
               }
             }
-          }
         }
 
         static void doshownoteline2_sampler() {
@@ -1088,9 +1065,9 @@ class PatEditRouter : public SectionHolder {
           int linern = sublevels[navlevelpatedit + 1];
           startingnoteline = sublevels[navlevelpatedit + 2];
           canvasBIG.setCursor(0, 0);
-          canvasBIG.print("Note = ");
+          canvasBIG.print("Note:");
           canvasBIG.print(sublevels[navlevelpatedit + 2]);
-          canvasBIG.print(" Pos = ");
+          canvasBIG.print(" Pos:");
           canvasBIG.print(sublevels[navlevelpatedit + 4]);
           byte note0;
           for (int notelines = startingnoteline; notelines > startingnoteline - 12;
@@ -1102,7 +1079,7 @@ class PatEditRouter : public SectionHolder {
               decnote = (int)note0;
               if (decnote == notelines && note0 != 0) {
 
-                // lenghtofthenote = templength2pbars[linern][i];
+                lenghtofthenote = templength2pbars[linern][i];
 
                 if (lenghtofthenote < 4) {
                   lenghtofthenote = 4;
@@ -1118,12 +1095,47 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        static void drawnoteRow() {
-          // rows of audio sources : synth, sampler, others
-          // listoffsetter
-          // display.fillRect(startx, starty+sublevels[navlevelpatedit+2]*celltall,
-          // (128-startx), celltall, SSD1306_WHITE);
-          canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
+        static void doshownoteline3_sampler() {
+          cellsizer = 4;
+          celltall = 4;
+          startx = 0;
+          starty = 16;
+          int lenghtofthenote = 4;
+          int decnote;
+          int listoffsetter;
+          // int linersizehold ;
+          int linern = sublevels[navlevelpatedit + 1];
+          startingnoteline = sublevels[navlevelpatedit + 2];
+          canvasBIG.setCursor(0, 0);
+          canvasBIG.print("Note:");
+          canvasBIG.print(sublevels[navlevelpatedit + 2]);
+
+          canvasBIG.print(" Vel:");
+          canvasBIG.print(sublevels[navlevelpatedit + 5]);
+          byte note0;
+          for (int notelines = startingnoteline; notelines > startingnoteline - 12;
+              notelines--) {
+            for (int i = 0; i < pbars; i++) {
+
+              note0 = temp_sampler_partition[linern][i][1];
+
+              decnote = (int)note0;
+              if (decnote == notelines && note0 != 0) {
+
+                lenghtofthenote = templength2pbars[linern][i];
+
+                if (lenghtofthenote < 4) {
+                  lenghtofthenote = 4;
+                }
+                listoffsetter = starty + (4 * (startingnoteline - notelines));
+                canvasBIG.fillRect(startx + cellsizer * i, listoffsetter,
+                                  lenghtofthenote, celltall, SSD1306_WHITE);
+                canvasBIG.drawLine(startx + cellsizer * i, listoffsetter,
+                                  startx + cellsizer * i, listoffsetter + celltall,
+                                  SSD1306_BLACK);
+              }
+            }
+          }
         }
 
         static void drawPatternRow() {
@@ -1158,7 +1170,7 @@ class PatEditRouter : public SectionHolder {
           celltall = 8;
           startx = 0;
           starty = 0;
-          for (int liner = 0; liner < liners_count; liner++) {
+          for (int liner = 0; liner < synth_liners_count; liner++) {
             for (int i = 0; i < pbars; i++) {
               if (synth_partition[liner][i][1] != 0) {
                 canvasBIG.fillRect(startx + cellsizer * i + 1,
@@ -1208,9 +1220,9 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        static void refresh_track() {
+        static void refresh_synth_track() {
           clearevented0(0);
-          for (int linerrd = 0; linerrd < liners_count; linerrd++) {
+          for (int linerrd = 0; linerrd < synth_liners_count; linerrd++) {
 
             for (int i = 0; i < pbars; i++) {
 
@@ -1221,9 +1233,9 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        static void refreshevented2() {
+        static void refresh_flash_track() {
           clearevented0(1);
-          for (int linerrd = 0; linerrd < nombreofSamplerliners; linerrd++) {
+          for (int linerrd = 0; linerrd < flash_liners_count; linerrd++) {
 
             for (int i = 0; i < pbars; i++) {
 
@@ -1251,12 +1263,12 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        int getstartingnoteline() {
+        int synth_start_note() {
           byte min_note = 127 ;
           int averagenoteevent = 0;
           int nombrofnoteonliner = 0;
           // sublevels[navlevelpatedit+2] = 60 ;
-          for (int ni = 0; ni < liners_count; ni++) {
+          for (int ni = 0; ni < synth_liners_count; ni++) {
             int decednote = synth_partition[sublevels[navlevelpatedit + 1]][ni][1];
             if (decednote != 0) {
               Serial.println("finote");
@@ -1278,11 +1290,11 @@ class PatEditRouter : public SectionHolder {
 
         }
 
-        int getstartingnoteline2() {
+        int flash_start_note() {
           int averagenoteevent = 0;
           int nombrofnoteonliner = 0;
           // sublevels[navlevelpatedit+2] = 60 ;
-          for (int ni = 0; ni < nombreofSamplerliners; ni++) {
+          for (int ni = 0; ni < flash_liners_count; ni++) {
             int decednote = sampler_partition[sublevels[navlevelpatedit + 1]][ni][1];
             if (decednote != 0) {
               averagenoteevent = averagenoteevent + decednote;
@@ -1307,7 +1319,7 @@ class PatEditRouter : public SectionHolder {
             _route_nav_synths[navlevel-navlevelpatedit-1]();
         }
 
-        static void terminatenotesinbetween() {
+        static void terminatenotesinbetween_synth() {
           for (int i = sublevels[navlevelpatedit + 3] + 1;
               i < sublevels[navlevelpatedit + 4]; i++) {
             if (synth_partition[sublevels[navlevelpatedit + 1]][i][1] != 0) {
@@ -1319,21 +1331,21 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        static void terminatenextnoteoff(byte liner, byte lanoteoff, byte fromi) {
-
-          for (int i = 0; i < pbars; i++) {
-            if (!self->offhasOnbutnototheroff(liner, lanoteoff, fromi)) {
-              synth_off_pat[liner][fromi][1] = 0;
+        static void terminatenotesinbetween_sampler() {
+          for (int i = sublevels[navlevelpatedit + 3] + 1;
+              i < sublevels[navlevelpatedit + 4]; i++) {
+            if (sampler_partition[sublevels[navlevelpatedit + 1]][i][1] != 0) {
+              sampler_partition[sublevels[navlevelpatedit + 1]][i][1] = 0;
+            }
+            if (sampler_off_pat[i][1] != 0) {
+              sampler_off_pat[i][1] = 0;
             }
           }
         }
 
-        bool offhasOnbutnototheroff(byte liner, byte lanoteoff, byte fromi) {
-          // for (int j = 0 ; j < liners_count ; j++ ) {
+        bool offhasOnbutnototheroff_synth(byte liner, byte lanoteoff, byte fromi) {
+          // for (int j = 0 ; j < synth_liners_count ; j++ ) {
           for (int i = fromi - 1; i >= 0; i--) {
-            if (synth_off_pat[liner][i][1] == lanoteoff) {
-              terminatenextnoteoff(liner, lanoteoff, i);
-            }
             if (synth_partition[liner][i][1] == lanoteoff) {
               return 1;
             }
@@ -1349,8 +1361,27 @@ class PatEditRouter : public SectionHolder {
           return 0;
         }
 
+        bool offhasOnbutnototheroff_sampler(byte liner, byte lanoteoff, byte fromi) {
+          // for (int j = 0 ; j < synth_liners_count ; j++ ) {
+          for (int i = fromi - 1; i >= 0; i--) {
+            
+            if (sampler_partition[liner][i][1] == lanoteoff) {
+              return 1;
+            }
+          }
+          for (int i = pbars - 1; i >= fromi; i--) {
+            if (sampler_off_pat[i][1] == lanoteoff && i > fromi) {
+              return 0;
+            }
+            if (sampler_partition[liner][i][1] == lanoteoff) {
+              return 1;
+            }
+          }
+          return 0;
+        }
+
         static void duplicateevent1() {
-          for (int j = 0; j < liners_count; j++) {
+          for (int j = 0; j < synth_liners_count; j++) {
             for (int i = 0; i < pbars; i++) {
               temp_synth_partition[j][i][0] = synth_partition[j][i][0];
               temp_synth_partition[j][i][2] = synth_partition[j][i][2];
@@ -1359,7 +1390,7 @@ class PatEditRouter : public SectionHolder {
           }
         }
         static void duplicateevent2() {
-          for (int j = 0; j < nombreofSamplerliners; j++) {
+          for (int j = 0; j < flash_liners_count; j++) {
             for (int i = 0; i < pbars; i++) {
               temp_sampler_partition[j][i][0] = sampler_partition[j][i][0];
               temp_sampler_partition[j][i][2] = sampler_partition[j][i][2];
@@ -1379,27 +1410,47 @@ class PatEditRouter : public SectionHolder {
         }
 
         static void duplicatelenghofnotestarray() {
-          for (int j = 0; j < liners_count; j++) {
+          for (int j = 0; j < synth_liners_count; j++) {
             for (int i = 0; i < pbars; i++) {
               templength0pbars[j][i] = length0pbars[j][i];
             }
           }
         }
 
-        static void track_selector() {
-          // liners
+        static void duplicatelenghofnotestarray2() {
+          for (int j = 0; j < flash_liners_count; j++) {
+            for (int i = 0; i < pbars; i++) {
+              templength2pbars[j][i] = length2pbars[j][i];
+            }
+          }
+        }
 
-          // drawguides();
-          // if ( sublevels[navlevelpatedit] == 0 ) {
-          
-          if (sublevels[navlevelpatedit + 1] > 3 && synthlinerspage < liners_count) {
+        static void track_selector_sampler() {
+          if (sublevels[navlevelpatedit + 1] > 3 && samplelinerspage < flash_liners_count) {
+            samplelinerspage = sublevels[navlevelpatedit + 1] - 3;
+          } else {
+            samplelinerspage = 0;
+          }
+          display.clearDisplay();
+          show_track_header();
+          navrange = flash_liners_count - 1;
+          showblocksofevent2();
+          // samplelinerspage
+          drawsamplerEventRow();
+          draw_all_sampler_velobars();
+          dodisplay();
+          sublevels[navlevelpatedit + 2] = self->flash_start_note();
+        }
+
+        static void track_selector_synth() {
+          if (sublevels[navlevelpatedit + 1] > 3 && synthlinerspage < synth_liners_count) {
             synthlinerspage = sublevels[navlevelpatedit + 1] - 3;
           } else {
             synthlinerspage = 0;
           }
-          
+
           display.clearDisplay();
-          navrange = liners_count - 1;
+          navrange = synth_liners_count - 1;
           show_track_header();
           //showblocksofevent();
           //drawEventRow();
@@ -1407,9 +1458,10 @@ class PatEditRouter : public SectionHolder {
           drawsynthEventRow();
           draw_all_velobars();
           dodisplay();
-          sublevels[navlevelpatedit + 2] = self->getstartingnoteline();
-     
+          sublevels[navlevelpatedit + 2] = self->synth_start_note();
+
         }
+
         static void show_track_header(){
           String head_title[2]={"Synth","Flash"};
           canvastitle.setCursor(0, 0);
@@ -1419,37 +1471,21 @@ class PatEditRouter : public SectionHolder {
           canvastitle.print(sublevels[navlevelpatedit + 1] + 1);
         }
 
-        static void track_selector_sampler() {
 
-          if (sublevels[navlevelpatedit + 1] > 3 && samplelinerspage < 16) {
-            samplelinerspage = sublevels[navlevelpatedit + 1] - 3;
-          } else {
-            samplelinerspage = 0;
-          }
-          display.clearDisplay();
-          show_track_header();
-          navrange = nombreofSamplerliners - 1;
-          showblocksofevent2();
-          // samplelinerspage
-          drawsamplerEventRow();
-          draw_all_sampler_velobars();
-          dodisplay();
-          sublevels[navlevelpatedit + 2] = self->getstartingnoteline2();
-        }
 
-        static void note_selector() {
+        static void note_selector_synth() {
 
           // notes of said liner
           display.clearDisplay();
           navrange = 127;
           // some notes not showing checl lenght note computation
           doshownoteline();
-          drawnoteRow();
-          draw_velobars();
+          canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
+          draw_synth_velobars();
           dodisplay();
           sublevels[navlevelpatedit + 3] = tickposition;
           if (sublevels[navlevelpatedit+2] == 0 ){
-            sublevels[navlevelpatedit + 2] = self->getstartingnoteline();
+            sublevels[navlevelpatedit + 2] = self->synth_start_note();
           }
         }
 
@@ -1460,15 +1496,37 @@ class PatEditRouter : public SectionHolder {
           navrange = 127;
           // some notes not showing checl lenght note computation
           doshownoteline_sampler();
-          drawnoteRow();
+          canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
           draw_sampler_velobars();
           dodisplay();
           sublevels[navlevelpatedit + 3] = tickposition;
+          if (sublevels[navlevelpatedit+2] == 0 ){
+            sublevels[navlevelpatedit + 2] = self->flash_start_note();
+          }
         }
 
-        static void start_cell() {
+        static void start_cell_sampler() {
           previousnavlevel = navlevel;
+          display.clearDisplay();
+          navrange = 31;
+          canvasBIG.fillRect(0, 32,127,64-32, SSD1306_BLACK);
+          sublevels[navlevelpatedit + 4] = sublevels[navlevelpatedit + 3];
+          duplicatelenghofnotestarray2();
+          duplicateevent2();
+          display.clearDisplay();
+          doshownoteline_sampler();
+          canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
+          drawCursorCol();
+          draw_sampler_velobars();
 
+          dodisplay();
+          //sublevels[navlevelpatedit + 4] = sublevels[navlevelpatedit + 3];
+          retroaction = sublevels[navlevelpatedit + 2] ;
+
+        }
+
+        static void start_cell_synth() {
+          previousnavlevel = navlevel;
           //last level showing the noteline and its velocity
           display.clearDisplay();
           navrange = 31;
@@ -1476,17 +1534,17 @@ class PatEditRouter : public SectionHolder {
           sublevels[navlevelpatedit + 4] = sublevels[navlevelpatedit + 3];
           duplicatelenghofnotestarray();
           duplicateevent1();
-
+          //why
           display.clearDisplay();
           doshownoteline();
-          drawnoteRow();
+          canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
           drawCursorCol();
-          draw_velobars();
+          draw_synth_velobars();
           dodisplay();
           retroaction = sublevels[navlevelpatedit + 2] ;
         }
 
-        static void draw_velobars(byte lvl=sublevels[navlevelpatedit+1]){
+        static void draw_synth_velobars(byte lvl=sublevels[navlevelpatedit+1]){
           int velobar ;
           for (int i = 0; i < pbars; i++) {
             velobar = map(synth_partition[lvl][i][2],0,127,0,16);
@@ -1495,8 +1553,8 @@ class PatEditRouter : public SectionHolder {
         }
 
         static void draw_all_velobars(){
-          for (int i = 0; i < liners_count; i++) {
-            draw_velobars(i);
+          for (int i = 0; i < synth_liners_count; i++) {
+            draw_synth_velobars(i);
           }
         }
 
@@ -1509,29 +1567,12 @@ class PatEditRouter : public SectionHolder {
         }
 
         static void draw_all_sampler_velobars(){
-          for (int i = 0; i < nombreofSamplerliners; i++) {
+          for (int i = 0; i < flash_liners_count; i++) {
             draw_sampler_velobars(i);
           }
         }
 
-        static void start_cell_sampler() {
-          previousnavlevel = navlevel;
-          display.clearDisplay();
-          navrange = 31;
-          doshownoteline_sampler();
-          drawnoteRow();
-          drawCursorCol();
-          draw_sampler_velobars();
-
-          dodisplay();
-          sublevels[navlevelpatedit + 4] = sublevels[navlevelpatedit + 3];
-
-          duplicateevent2();
-          retroaction = sublevels[navlevelpatedit + 2] ;
-
-        }
-
-        static void killnextnoteoff(byte liner, byte notee, byte fromi) {
+        static void killnextnoteoff_synth(byte liner, byte notee, byte fromi) {
           for (int i = fromi + 1; i < pbars; i++) {
             if (synth_off_pat[liner][i][1] == notee) {
               synth_off_pat[liner][i][1] = 0;
@@ -1546,47 +1587,79 @@ class PatEditRouter : public SectionHolder {
           }
         }
 
-        static void set_sampler_at_pos(byte ch_, byte nt_, byte ve_){
+        static void killnextnoteoff_sampler(byte liner, byte notee, byte fromi) {
+          for (int i = fromi + 1; i < pbars; i++) {
+            if (sampler_off_pat[i][1] == notee) {
+              sampler_off_pat[i][1] = 0;
+              return;
+            }
+          }
+          for (int i = 0; i < fromi; i++) {
+            if (sampler_off_pat[i][1] == notee) {
+              sampler_off_pat[i][1] = 0;
+              return;
+            }
+          }
+        }
+
+        static void nogood_set_sampler_at_pos(byte ch_, byte nt_, byte ve_){
+          byte sub1 = sublevels[navlevelpatedit + 1];
+          //byte sub2 = sublevels[navlevelpatedit + 2];
+          byte sub3 = sublevels[navlevelpatedit + 3];
+          byte sub4 = sublevels[navlevelpatedit + 4];
           temp_sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][0] = ch_;
           temp_sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][1] = nt_;
           temp_sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = ve_;
           sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][0] = ch_;
           sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][1] = nt_;
           sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = ve_;
-          sampler_off_pat[sublevels[navlevelpatedit + 4]][0] = ch_;
-          sampler_off_pat[sublevels[navlevelpatedit + 4]][1] = nt_;
+
+          byte laOffpos;
+          length2pbars[sub1][sub3] = (sub4 - sub3) * 4;
+          if (length2pbars[sub1][sub3] < 0) {
+            length2pbars[sub1][sub3] = 4;
+          }
+          laOffpos = sub3 + (length2pbars[sub1][sub3] / 4);
+          if (laOffpos == sub3) {
+            laOffpos += 1;
+          }
+          if (laOffpos > pbars) {
+            laOffpos = laOffpos - pbars;
+          }
+          sampler_off_pat[laOffpos][0] = ch_;
+          sampler_off_pat[laOffpos][1] = nt_;
         }
 
         static void set_cell_sampler() {
           previousnavlevel = navlevel;
-          refreshevented2();
+          set_sampler_at_pos(samplermidichannel,sublevels[navlevelpatedit + 2],64);
+          addinglenght = 0;
+          refresh_flash_track();
           stretch_cell_velocity_sampler();
         }
 
         static void fourth_level_sampler(){
           if (previousnavlevel != navlevel) {
-              initiatesamplerline(15, samplermidichannel,
-                                  sublevels[navlevelpatedit + 2],
-                                  byte(mixlevelsM[2] * 127));
+              initiateasamplerliner(sublevels[navlevelpatedit + 2], byte(mixlevelsM[2] * 127));
+              shutlineroff(samplermidichannel,sublevels[navlevelpatedit + 2]);                    
               previousnavlevel = navlevel;
             }
 
             stretch_cell_sampler();
         }
 
-        static void fourth_level(){
+        static void fourth_level_synth(){
           if (previousnavlevel != navlevel) {
 
-              initiateasynthliner(sublevels[navlevelpatedit + 2],
-                                  byte(mixlevelsM[1] * 127));
+              initiateasynthliner(sublevels[navlevelpatedit + 2], byte(mixlevelsM[1] * 127));
               //delay(300);
-              shutlineroff(sublevels[navlevelpatedit + 2]);
+              shutlineroff(synthmidichannel,sublevels[navlevelpatedit + 2]);
               previousnavlevel = navlevel;
             }
-            stretch_cell();
+            stretch_cell_synth();
         }
 
-        static void stretch_cell() {
+        static void stretch_cell_synth() {
           // clickon liner /note / at tickpos
 
           byte decednote2 = synth_partition[sublevels[navlevelpatedit + 1]]
@@ -1594,10 +1667,10 @@ class PatEditRouter : public SectionHolder {
           if (decednote2) {
             //delete previous key if present
             //set_synth_at_pos();
-            refresh_track();
+            refresh_synth_track();
             //drawCursorCol2();
-            draw_velobars();
-            //sublevels[navlevel+1] = decednote2 ; 
+            draw_synth_velobars();
+            //sublevels[navlevel+1] = decednote2 ;
             //length0pbars[sub1][sub3]
             sublevels[navlevelpatedit + 4] = (length0pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]/4)+sublevels[navlevelpatedit + 3] ;
             returntonav(navlevel+1,127,decednote2);
@@ -1618,37 +1691,39 @@ class PatEditRouter : public SectionHolder {
 
             if (templength0pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]] < 0) {
               templength0pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]] = 4;}
-            refresh_track();
+            refresh_synth_track();
             display.clearDisplay();
             sublevels[navlevelpatedit + 5] = temp_synth_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2];
             doshownoteline2();
-            drawnoteRow();
+            canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
             drawCursorCol2();
-            draw_velobars();
+            draw_synth_velobars();
             dodisplay();
           }
         }
-        static void set_cell() {
+
+        static void set_cell_synth() {
           previousnavlevel = navlevel;
           set_synth_at_pos(synthmidichannel,sublevels[navlevelpatedit + 2],64);
           addinglenght = 0;
-          refresh_track();
+          refresh_synth_track();
           //
           //sublevels[navlevelpatedit + 3] = sublevels[navlevelpatedit + 4] ;
           //doshownoteline2();
-          //drawnoteRow();
+          //canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
           //drawCursorCol2();
-          //draw_velobars();
+          //draw_synth_velobars();
           //dodisplay();
           stretch_cell_velocity();
           //returntonav(navlevelpatedit + 3,31,sublevels[navlevelpatedit + 4]);
           //show();
-          // computelenghtmesureoffline();
+          // computelenghtmesureoffline_synth();
           //call_pt_show();
           //route_pattern_menu();
         }
 
         static void stretch_cell_sampler() {
+          /*
           navrange = 31;
           byte decednote2 = sampler_partition[sublevels[navlevelpatedit + 1]]
                                       [sublevels[navlevelpatedit + 3]][2];
@@ -1656,9 +1731,48 @@ class PatEditRouter : public SectionHolder {
             returntonav(navlevel+1,navrange,decednote2);
           } else {
             set_sampler_at_pos(samplermidichannel,sublevels[navlevelpatedit + 2],64);
-            
-            refreshevented2();
+
+            refresh_flash_track();
             returntonav(navlevel+1,127,64);
+          }
+          */
+          byte decednote2 = sampler_partition[sublevels[navlevelpatedit + 1]]
+                                        [sublevels[navlevelpatedit + 3]][2];
+          if (decednote2) {
+            //delete previous key if present
+            //set_synth_at_pos();
+            refresh_flash_track();
+            //drawCursorCol2();
+            draw_sampler_velobars();
+            //sublevels[navlevel+1] = decednote2 ;
+            //length0pbars[sub1][sub3]
+            sublevels[navlevelpatedit + 4] = (length2pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]/4)+sublevels[navlevelpatedit + 3] ;
+            returntonav(navlevel+1,127,decednote2);
+
+          } else {
+            addinglenght = 1;
+            temp_sampler_partition[sublevels[navlevelpatedit + 1]]
+                            [sublevels[navlevelpatedit + 3]][0] = samplermidichannel;
+            temp_sampler_partition[sublevels[navlevelpatedit + 1]]
+                            [sublevels[navlevelpatedit + 3]][1] =
+                                (byte)sublevels[navlevelpatedit + 2];
+            temp_sampler_partition[sublevels[navlevelpatedit + 1]]
+                            [sublevels[navlevelpatedit + 3]][2] = (byte)64;
+
+            navrange = 31;
+            templength2pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]] =
+                                (sublevels[navlevelpatedit + 4] - sublevels[navlevelpatedit + 3]) * 4;
+
+            if (templength2pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]] < 0) {
+              templength2pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]] = 4;}
+            refresh_flash_track();
+            display.clearDisplay();
+            sublevels[navlevelpatedit + 5] = temp_sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2];
+            doshownoteline2_sampler();
+            canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
+            drawCursorCol2();
+            draw_sampler_velobars();
+            dodisplay();
           }
         }
 
@@ -1666,17 +1780,17 @@ class PatEditRouter : public SectionHolder {
             navrange = 127;
             temp_synth_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
             synth_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
-            refresh_track();
+            refresh_synth_track();
             display.clearDisplay();
             doshownoteline3();
-            drawnoteRow();
-            draw_velobars();
+            canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
+            draw_synth_velobars();
             dodisplay();
         }
-        
+
         static void set_synth_at_pos(byte ch_, byte nt_, byte ve_){
           byte sub1 = sublevels[navlevelpatedit + 1];
-          byte sub2 = sublevels[navlevelpatedit + 2];
+          //byte sub2 = sublevels[navlevelpatedit + 2];
           byte sub3 = sublevels[navlevelpatedit + 3];
           byte sub4 = sublevels[navlevelpatedit + 4];
           synth_partition[sub1][sub3][0] = ch_;
@@ -1691,7 +1805,7 @@ class PatEditRouter : public SectionHolder {
           synth_partition[sub1][sub3][1] = sub2;
           synth_partition[sub1][sub3][2] = ve_;
             */
-            
+
           length0pbars[sub1][sub3] = (sub4 - sub3) * 4;
           if (length0pbars[sub1][sub3] < 0) {
             length0pbars[sub1][sub3] = 4;
@@ -1705,43 +1819,117 @@ class PatEditRouter : public SectionHolder {
           }
           synth_off_pat[sub1][laOffpos][0] = ch_;
           synth_off_pat[sub1][laOffpos][1] = nt_;
-          terminatenotesinbetween();
+          terminatenotesinbetween_synth();
           // not sure (for orphans but why would there be any?)
-          terminateOffz(sub1);
-          // just in case
-          terminatenextnoteoff(sub1, sub2, laOffpos);
+          terminateOffz_synth(sub1);
+       
 
           //off
           if (!ve_){
-            killnextnoteoff(sub1,synth_partition[sub1][sub3][1],sub3);
-          
+            killnextnoteoff_synth(sub1,synth_partition[sub1][sub3][1],sub3);
+
             synth_partition[sub1][sub3][0] = 0;
             synth_partition[sub1][sub3][1] = 0;
             synth_partition[sub1][sub3][2] = 0;
+          }
+        }
+        static void terminateOffz_synth(int linei) {
+          for (int i = 0; i < pbars; i++) {
+            if (synth_off_pat[linei][i][1] != 0) {
+              if (self->terminateorphanseventsOff_synth(linei, synth_off_pat[linei][i][1])) {
+                clearsaniloop = 0;
+                synth_off_pat[linei][i][0] = 0;
+                synth_off_pat[linei][i][1] = 0;
+              }
+            }
+          }
+        }
+
+
+        bool terminateorphanseventsOff_synth(int linei, byte lanotef) {
+          for (int i = 0; i < pbars; i++) {
+            if (synth_partition[linei][i][1] == lanotef) {
+              // at least someone is using it somewhere
+              return 0;
+            }
+          }
+          return 1;
+        }
+
+        bool terminateorphanseventsOff_sampler(int linei, byte lanotef) {
+          for (int i = 0; i < pbars; i++) {
+            if (sampler_partition[linei][i][1] == lanotef) {
+              // at least someone is using it somewhere
+              return 0;
+            }
+          }
+          return 1;
+        }
+        static void terminateOffz_sampler(int linei) {
+          for (int i = 0; i < pbars; i++) {
+            if (sampler_off_pat[i][1] != 0) {
+              if (self->terminateorphanseventsOff_sampler(linei, sampler_off_pat[i][1])) {
+                clearsaniloop = 0;
+                sampler_off_pat[i][0] = 0;
+                sampler_off_pat[i][1] = 0;
+              }
+            }
+          }
+        }
+        static void set_sampler_at_pos(byte ch_, byte nt_, byte ve_){
+          byte sub1 = sublevels[navlevelpatedit + 1];
+          //byte sub2 = sublevels[navlevelpatedit + 2];
+          byte sub3 = sublevels[navlevelpatedit + 3];
+          byte sub4 = sublevels[navlevelpatedit + 4];
+          sampler_partition[sub1][sub3][0] = ch_;
+          sampler_partition[sub1][sub3][1] = nt_;
+          sampler_partition[sub1][sub3][2] = ve_;
+          byte laOffpos;
+          length2pbars[sub1][sub3] = (sub4 - sub3) * 4;
+          if (length2pbars[sub1][sub3] < 0) {
+            length2pbars[sub1][sub3] = 4;
+          }
+          laOffpos = sub3 + (length2pbars[sub1][sub3] / 4);
+          if (laOffpos == sub3) {
+            laOffpos += 1;
+          }
+          if (laOffpos > pbars) {
+            laOffpos = laOffpos - pbars;
+          }
+          sampler_off_pat[laOffpos][0] = ch_;
+          sampler_off_pat[laOffpos][1] = nt_;
+          terminatenotesinbetween_sampler();
+          // not sure (for orphans but why would there be any?)
+          terminateOffz_sampler(sub1);
+          if (!ve_){
+            killnextnoteoff_sampler(sub1,sampler_partition[sub1][sub3][1],sub3);
+            sampler_partition[sub1][sub3][0] = 0;
+            sampler_partition[sub1][sub3][1] = 0;
+            sampler_partition[sub1][sub3][2] = 0;
           }
         }
 
         static void set_cell_velocity() {
           previousnavlevel = navlevel;
           byte sub1 = sublevels[navlevelpatedit + 1];
-          
+
           byte sub3 = sublevels[navlevelpatedit + 3];
           byte sub5 = sublevels[navlevelpatedit + 5];
-          
+
           Serial.println(sub5);
           synth_partition[sub1][sub3][2] = sub5;
-      
+
           addinglenght = 0;
 
           if (!(sublevels[navlevelpatedit + 5])){
             set_synth_at_pos(0,0,0);
           }
-          refresh_track();
+          refresh_synth_track();
           sublevels[navlevelpatedit + 3] = sublevels[navlevelpatedit + 4] ;
 
           returntonav(navlevelpatedit + 3,31,sublevels[navlevelpatedit + 4]);
           //show();
-          // computelenghtmesureoffline();
+          // computelenghtmesureoffline_synth();
           //call_pt_show();
           //route_pattern_menu();
         }
@@ -1753,11 +1941,11 @@ class PatEditRouter : public SectionHolder {
           if (!(sublevels[navlevelpatedit + 5])){
             set_sampler_at_pos(0,0,0);
           }
-          refreshevented2();
+          refresh_flash_track();
           sublevels[navlevelpatedit + 3] = sublevels[navlevelpatedit + 4] ;
           returntonav(navlevelpatedit + 3,31,sublevels[navlevelpatedit + 4]);
           //show();
-          // computelenghtmesureoffline();
+          // computelenghtmesureoffline_synth();
           //call_pt_show();
           //route_pattern_menu();
         }
@@ -1767,16 +1955,16 @@ class PatEditRouter : public SectionHolder {
             navrange = 127;
             temp_sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
             sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
-            refreshevented2();
+            refresh_flash_track();
             display.clearDisplay();
             doshownoteline3_sampler();
-            drawnoteRow();
+            canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
             draw_sampler_velobars();
             dodisplay();
         }
 
-        static constexpr void (*_route_nav_synths[6])() = {&track_selector, &note_selector,
-                          &start_cell, &fourth_level, &set_cell,
+        static constexpr void (*_route_nav_synths[6])() = {&track_selector_synth, &note_selector_synth,
+                          &start_cell_synth, &fourth_level_synth, &set_cell_synth,
                           &set_cell_velocity};
         static constexpr void (*_route_nav_samplers[6])() = {&track_selector_sampler, &note_selector_sampler,
                           &start_cell_sampler, &fourth_level_sampler, &set_cell_sampler,
@@ -1805,7 +1993,7 @@ class PatternsMenuRouter : public SectionHolder {
                     }
 
         static void route_navlevel(){
-          _nav_pattern[sublevels[1]](); 
+          _nav_pattern[sublevels[1]]();
         }
 
         static void show() {
@@ -1829,7 +2017,7 @@ class PatternsMenuRouter : public SectionHolder {
           doPatternsmenu();
           dodisplay();
         }
-        
+
         static void remove_pattern(){
           lv1_wrapper(self->deletepattern);
         }
@@ -1843,7 +2031,7 @@ class PatternsMenuRouter : public SectionHolder {
         }
 
         static void save_pattern(){
-          lv1_wrapper(self->writelemidi);         
+          lv1_wrapper(self->writelemidi);
         }
 
         static void lv1_wrapper(void (*func)()) {
@@ -1956,7 +2144,7 @@ class PatternsMenuRouter : public SectionHolder {
                 }
                 if (letempspattern == previousTp) {
                   lenint++;
-                  if ((lenint > liners_count + nombreofSamplerliners - 1) ||
+                  if ((lenint > synth_liners_count + flash_liners_count - 1) ||
                       (leparsed[0] == (char)'O' && leparsed[1] == (char)'n') ||
                       (leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
                     // parserp.SkipUntil(parserp.IsNewLine);
@@ -2034,7 +2222,7 @@ class PatternsMenuRouter : public SectionHolder {
                 }
                 if (letempspattern == previousTp) {
                   lenint++;
-                  if ((lenint > liners_count + nombreofSamplerliners - 1) ||
+                  if ((lenint > synth_liners_count + flash_liners_count - 1) ||
                       (leparsed[0] == (char)'O' && leparsed[1] == (char)'f') ||
                       (leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
                     // parserp.SkipUntil(parserp.IsNewLine);
@@ -2119,7 +2307,7 @@ class PatternsMenuRouter : public SectionHolder {
 
                 if (letempspattern == previousTp) {
                   lenint++;
-                  if ((lenint > liners_count - 1) ||
+                  if ((lenint > synth_liners_count - 1) ||
                       (leparsed[0] == (char)'O' && leparsed[1] == (char)'f') ||
                       (leparsed[0] == (char)'O' && leparsed[1] == (char)'n')) {
                     leparsed[1] = (char)'z';
@@ -2157,9 +2345,10 @@ class PatternsMenuRouter : public SectionHolder {
             lenint = 0;
 
             lepatternfile.close();
-            call_refresh_track();
+            call_refresh_synth_track();
 
-            computelenghtmesureoffline();
+            computelenghtmesureoffline_synth();
+            computelenghtmesureoffline_sampler();
             set_ccs();
           }
           locked_fileing = 0 ;
@@ -2350,17 +2539,17 @@ class PatternsMenuRouter : public SectionHolder {
           for (int t = 0; t < pbars; t++) {
 
             latimeline = (3125 * t);
-            for (int j = 0; j < liners_count; j++) {
+            for (int j = 0; j < synth_liners_count; j++) {
               if (synth_off_pat[j][t][1] != 0) {
                 midifilelinerOff(pat_filer,j, t);
               }
             }
-            for (int j = 0; j < liners_count; j++) {
+            for (int j = 0; j < synth_liners_count; j++) {
               if (synth_partition[j][t][1] != 0) {
                 midifileliner(pat_filer,j, t);
               }
             }
-            for (int j = 0; j < nombreofSamplerliners; j++) {
+            for (int j = 0; j < flash_liners_count; j++) {
               if (sampler_partition[j][t][1] != 0) {
                 midifilelinerSampler(pat_filer,j, t);
               }
@@ -2407,12 +2596,12 @@ class PatternsMenuRouter : public SectionHolder {
           locked_fileing = 0;
         }
 
-        static void arpegiate() {
+        static void arpegiate_synth() {
           for (int i = 0; i < nombreofarpeglines; i++) {
             calledarpegenote[i][0] = 0;
-            for (int j = 0; j < liners_count; j++) {
+            for (int j = 0; j < synth_liners_count; j++) {
               if (arpegnoteoffin[i][j] == 1) {
-                shutlineroff(playingarpegiator[i][j]);
+                shutlineroff(synthmidichannel,playingarpegiator[i][j]);
                 arpegnoteoffin[i][j] = 0;
                 playingarpegiator[i][j] = 0;
               }
@@ -2484,7 +2673,7 @@ void advance_tick(){
 void tick() {
 
   if (arpegiatorOn) {
-      _pt.arpegiate();
+      _pt.arpegiate_synth();
   }
   if (patternOn) {
     _se.use_pattern();

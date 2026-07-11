@@ -1,17 +1,23 @@
 
 
 void init_synth_liners(){
-  for (int i = 0; i < liners_count; i++) {
+  for (int i = 0; i < synth_liners_count; i++) {
     synth_lines[i] = new SynthLiner(i);
   }
 }
 
-byte get_free_liner(byte note) {
-  for (byte i = 0; i < liners_count; i++) {
+void init_flash_liners(){
+  for (int i = 0; i < flash_liners_count; i++) {
+    flash_lines[i] = new FlashLiner(i);
+  }
+}
+
+byte get_free_synth(byte note) {
+  for (byte i = 0; i < synth_liners_count; i++) {
     if (!synth_lines[i]->activated) {
       if (patrecord) {
         //merge liner tracks after recording instead
-        if (i + offsetliner < liners_count) {
+        if (i + offsetliner < synth_liners_count) {
           return i + offsetliner;
         }
       } else {
@@ -19,7 +25,7 @@ byte get_free_liner(byte note) {
       }
     }
   }
-  return liners_count;
+  return synth_liners_count;
 }
 
 bool linerhasevents(byte liner) {
@@ -33,7 +39,7 @@ bool linerhasevents(byte liner) {
 
 void getlinerwithoutevents() {
   offsetliner = 0;
-  for (int i = 0; i < liners_count; i++) {
+  for (int i = 0; i < synth_liners_count; i++) {
     if (linerhasevents(i)) {
       offsetliner = i + 1;
     } else {
@@ -46,17 +52,17 @@ void setfreqWavelines(float tune, int liner, byte velocityz) {
   // AudioNoInterrupts();
   //TODO adsrlevels correspondance
   for (int i = 0; i < synths_count; i++) {
-    waveforms1[liner + (i * liners_count)]->amplitude(velocityz / 127.0);
-    waveforms1[liner + (i * liners_count)]->frequency(tune * wavesfreqs[i]);
-    waveforms1[liner + (i * liners_count)]->offset((float)(((64.0 - wave1offset[i]) / 64.0)));
-    waveforms1[liner + (i * liners_count)]->phase(phaselevelsL[i]);
-    FMwaveforms1[liner + (i * liners_count)]->frequency(tune * wavesfreqs[i]);
-    FMwaveforms1[liner + (i * liners_count)]->amplitude(velocityz / 127.0);
-    FMwaveforms1[liner + (i * liners_count)]->offset((float)(((64.0 - wave1offset[i]) / 64.0)));
-    drums1[liner + (i * liners_count)]->length(adsrlevels[1] + adsrlevels[2] + adsrlevels[3]);
-    drums1[liner + (i * liners_count)]->frequency(tune * wavesfreqs[i]);
-    drums1[liner + (i * liners_count)]->noteOn();
-    strings1[liner + (i * liners_count)]->noteOn(tune * wavesfreqs[i],(velocityz / 127.0));
+    waveforms1[liner + (i * synth_liners_count)]->amplitude(velocityz / 127.0);
+    waveforms1[liner + (i * synth_liners_count)]->frequency(tune * wavesfreqs[i]);
+    waveforms1[liner + (i * synth_liners_count)]->offset((float)(((64.0 - wave1offset[i]) / 64.0)));
+    waveforms1[liner + (i * synth_liners_count)]->phase(phaselevelsL[i]);
+    FMwaveforms1[liner + (i * synth_liners_count)]->frequency(tune * wavesfreqs[i]);
+    FMwaveforms1[liner + (i * synth_liners_count)]->amplitude(velocityz / 127.0);
+    FMwaveforms1[liner + (i * synth_liners_count)]->offset((float)(((64.0 - wave1offset[i]) / 64.0)));
+    drums1[liner + (i * synth_liners_count)]->length(adsrlevels[1] + adsrlevels[2] + adsrlevels[3]);
+    drums1[liner + (i * synth_liners_count)]->frequency(tune * wavesfreqs[i]);
+    drums1[liner + (i * synth_liners_count)]->noteOn();
+    strings1[liner + (i * synth_liners_count)]->noteOn(tune * wavesfreqs[i],(velocityz / 127.0));
   }
 }
 
@@ -74,68 +80,6 @@ void setchordnotesOff(byte absolutenote, byte lachord) {
   }
 }
 
-byte getNewavailablesampler() {
-  for (int i = 0; i < 16; i++) {
-    if (!FlashSampler[i]->isPlaying()) {
-      return i;
-    }
-  }
-  FlashSampler1.stop();
-  return 0;
-}
-
-String lower_extension_case(String f_name){
-  char named[50];  // Ensure the array is large enough
-  strcpy(named, f_name.c_str());
-  named[strlen(named) - 4] = '\0';
-  return (String)named + ".raw";
-}
-
-bool test_flash_sample_name(String f_s_name){
-  return thyfs.exists(f_s_name.c_str());
-}
-
-void initiatesamplerline(byte lesampleliner, byte channel, byte data1,  byte data2) {
-  //const char *tobeplayed = (const char *)Flashsamplename[Sampleassigned[(int)(data1)]];
-  String playable_file = (String)Flashsamplename[Sampleassigned[(int)(data1)]];
-  //Serial.println(data1);
-  if ((int)data1 == 72) {
-
-    //playrecordsd();
-    PartialPlayerMono.play(newloopedpath.c_str());
-
-  } else {
-    if (!test_flash_sample_name(playable_file)){
-      playable_file = lower_extension_case(playable_file);
-    }
-    if (FlashSampler[lesampleliner]->isPlaying()) {
-      FlashSampler[lesampleliner]->stop();
-    }
-    if (!digitalplay) {
-      Flashmixer[int(lesampleliner / 4)]->gain(lesampleliner - 4 * int(lesampleliner / 4),(smixervknobs[lesampleliner] / 127.0) * (data2 / 127.0));
-    } else {
-      Flashmixer[int(lesampleliner / 4)]->gain(lesampleliner - 4 * int(lesampleliner / 4),(smixervknobs[lesampleliner] / 127.0));
-    }
-    FlashSampler[lesampleliner]->play(playable_file.c_str());
-  }
-}
-
-void playFlashsample(byte channel, byte data1, byte data2) {
-  byte lesampleliner = 17 ;
-  if (data1 == SD_Player_note) {
-    Serial.println("Sdeed") ;
-    //playSdWav1
-
-  } else {
-    lesampleliner = getNewavailablesampler();
-  }
-  if (patrecord) {
-    recordmidinotes2(lesampleliner, channel, data1, data2);
-  }
-  initiatesamplerline(lesampleliner, samplermidichannel, data1, data2);
-  // if no liners are available stoping player 1 to make room
-}
-
 void MaNoteOn(byte channel, byte data1, byte data2) {
   byte larpegeline;
   int lachordon;
@@ -147,8 +91,7 @@ void MaNoteOn(byte channel, byte data1, byte data2) {
   if (debugmidion) {
     debugmidi((char *)"NoteOn", (int)(channel), (int)(data1), (int)(data2));
   }
-  // printnoteon(channel, data1, data2);
-  if ((channel == synthmidichannel) or (synthmidichannel == -1)) {
+  if ((channel == synthmidichannel) or (synthmidichannel == 0)) {
     if (!arpegiatorOn) {
       if (!chordson) {
         initiateasynthliner(data1, data2);
@@ -162,25 +105,28 @@ void MaNoteOn(byte channel, byte data1, byte data2) {
       }
     } else {
       larpegeline = incrementarpegiatingNote(data1);
-      if (larpegeline < liners_count) {
+      if (larpegeline < synth_liners_count) {
+        //should not stop tick during arpegio
         stoptick = 0;
-        // arpegiatethis();
-        // initialize arpeg
-         //metro0.reset();
-        arpegiatethis(data1, data2, larpegeline);
+        synth_arpegiator_ticker(data1, data2, larpegeline);
       }
     }
-    // arpegiator On
-
-    // enable ticker during notepress
-    // if at least one ticker is on keep tick
-    // start arpeges based on that note
-    // keep track and/or a way to noteoff
   }
 
-  if (Sampleassigned[(int)(data1)] != 0 && ((channel == (byte)samplermidichannel) or (samplermidichannel == -1))) {
-    playFlashsample((byte)samplermidichannel, data1, data2);
+  if ((channel == samplermidichannel) or (samplermidichannel == 0)) {
+    //printnoteon(channel, data1, data2);
+    if (!chordson) {
+      initiateasamplerliner(data1, data2);
+    } else {
+      // if chords
+      setchordnotes(data1, lasetchord);
+      for (int i = 0; i < 3; i++) {
+        lachordon = chordnotes[i] + ((int(data1 / 12)) * 12);
+        initiateasamplerliner(lachordon, data2);
+      }
+    }
   }
+
   if (SendMidiOut) {
     // TODO: send midi during sound trigger to use arpegiators (+ note offs if
     // arpegiator doesn't already send Off notes ?)
@@ -188,11 +134,12 @@ void MaNoteOn(byte channel, byte data1, byte data2) {
     MidiUSB.flush();
   }
 }
+
 void allarpegeoffs() {
-  for (int i = 0; i < liners_count; i++) {
+  for (int i = 0; i < synth_liners_count; i++) {
     calledarpegenote[i][0] = 0;
     calledarpegenote[i][1] = 0;
-    for (int j = 0; j < liners_count; j++) {
+    for (int j = 0; j < synth_liners_count; j++) {
       playingarpegiator[i][j] = 0;
       arpegnoteoffin[i][j] = 0;
     }
@@ -202,17 +149,17 @@ void allarpegeoffs() {
 }
 
 byte incrementarpegiatingNote(byte lanote) {
-  for (int i = 0; i < liners_count; i++) {
+  for (int i = 0; i < synth_liners_count; i++) {
     if (arpegiatingNote[i] == 0) {
       arpegiatingNote[i] = lanote;
       return i;
     }
   }
-  return liners_count;
+  return synth_liners_count;
 }
 
 bool decrementarpegiatingNote() {
-  for (int i = 0; i < liners_count; i++) {
+  for (int i = 0; i < synth_liners_count; i++) {
     if (arpegiatingNote[i] != 0) {
       arpegiatingNote[i] = 0;
       return 1;
@@ -222,9 +169,9 @@ bool decrementarpegiatingNote() {
 }
 
 void initiatearpegesynthliner(byte larpegeline, byte data1, byte data2) {
-  byte free_line = get_free_liner(data1);
-  if (free_line < liners_count) {
-    for (int i = 0; i < liners_count; i++) {
+  byte free_line = get_free_synth(data1);
+  if (free_line < synth_liners_count) {
+    for (int i = 0; i < synth_liners_count; i++) {
       if (data1 == calledarpegenote[i][0]) {
         arpegnoteoffin[i][free_line] = arpeglengh + 1;
         playingarpegiator[i][free_line] = data1;
@@ -239,13 +186,42 @@ void initiatearpegesynthliner(byte larpegeline, byte data1, byte data2) {
   }
 }
 
+byte get_free_sampler(byte note) {
+  for (byte i = 0; i < flash_liners_count; i++) {
+
+    if (!flash_lines[i]->activated) {
+      if (patrecord) {
+        //merge liner tracks after recording instead
+        if (i + offsetliner < flash_liners_count) {
+          return i + offsetliner;
+        }
+      } else {
+        return i;
+      }
+    }
+    
+  }
+  return 0;
+}
+
 void initiateasynthliner(byte data1, byte data2) {
-  byte free_line = get_free_liner(data1);
-  if (free_line < liners_count) {
+  byte free_line = get_free_synth(data1);
+  if (free_line < synth_liners_count) {
     if (patrecord) {
       recordmidinotes(free_line, synthmidichannel, data1, data2);
     }
     synth_lines[free_line]->liner_on(data1, data2);
+  }
+}
+
+void initiateasamplerliner(byte data1, byte data2) {
+  byte free_line = get_free_sampler(data1);
+  Serial.println(free_line);
+  if (free_line < flash_liners_count) {
+    if (patrecord) {
+      recordmidinotes(free_line, samplermidichannel, data1, data2);
+    }
+    flash_lines[free_line]->liner_on(data1, data2);
   }
 }
 
@@ -261,23 +237,31 @@ void MaProgramchange(byte channel, byte data1) {
   }
 }
 
-byte is_using_note(byte data1) {
-  for (int i = 0; i < liners_count; i++) {
+void synth_used_this_note(byte data1) {
+  for (int i = 0; i < synth_liners_count; i++) {
     if (data1 == synth_lines[i]->note) {
-      return (byte)i;
+      synth_lines[i]->liner_off();
+      if (patrecord) 
+        record_synth_notesOff(i, synthmidichannel, data1, 0);
     }
   }
-  return liners_count;
 }
 
-void shutlineroff(byte data1) {
-  byte active_line = is_using_note(data1);
-  if ((active_line < liners_count)) {
-    if (patrecord) {
-      recordmidinotesOff(active_line, synthmidichannel, data1, 0);
+void flash_used_this_note(byte data1) {
+  for (int i = 0; i < flash_liners_count; i++) {
+    if (data1 == flash_lines[i]->note) {
+      flash_lines[i]->liner_off();
     }
-    synth_lines[active_line]->liner_off();
   }
+}
+
+void shutlineroff(byte chan,byte data1) {
+
+    if ((chan == synthmidichannel) or ( synthmidichannel == 0)) 
+      synth_used_this_note(data1);
+      
+    if ((chan == samplermidichannel) or ( samplermidichannel == 0)) 
+      flash_used_this_note(data1);
 }
 
 void decrementgamme(byte larpegeline) {
@@ -385,10 +369,10 @@ void tickarpege(byte larpegeline) {
   }
 }
 
-void arpegiatethis(byte data1, byte data2, byte larpegeline) {
-  // for (int i = 0 ; i < liners_count ; i++ ) {
+void synth_arpegiator_ticker(byte data1, byte data2, byte larpegeline) {
+  // for (int i = 0 ; i < synth_liners_count ; i++ ) {
   // if (arpegiatingNote[larpegeline] == data1 ) {
-  // for (int i = 0 ; i < liners_count ; i++ ) {
+  // for (int i = 0 ; i < synth_liners_count ; i++ ) {
   calledarpegenote[larpegeline][1] = data2;
   calledarpegenote[larpegeline][0] = 0;
   // }
@@ -502,12 +486,12 @@ void MaNoteOff(byte channel, byte data1, byte data2) {
   }
   if (!arpegiatorOn) {
     if (!chordson) {
-      shutlineroff(data1);
+      shutlineroff(channel,data1);
     } else {
       setchordnotesOff(data1, lasetchord);
       for (int i = 0; i < 3; i++) {
         lachordnote = chordnotesoff[i] + ((int(data1 / 12)) * 12);
-        shutlineroff(lachordnote);
+        shutlineroff(channel,lachordnote);
       }
     }
   } else {
@@ -521,7 +505,7 @@ void MaNoteOff(byte channel, byte data1, byte data2) {
 }
 
 bool testarpege(byte lanote) {
-  for (int i = 0; i < liners_count; i++) {
+  for (int i = 0; i < synth_liners_count; i++) {
     if (arpegiatingNote[i] == lanote) {
       arpegiatingNote[i] = 0;
       return 1;
@@ -531,7 +515,7 @@ bool testarpege(byte lanote) {
 }
 
 bool retestarpege() {
-  for (int i = 0; i < liners_count; i++) {
+  for (int i = 0; i < synth_liners_count; i++) {
     if (arpegiatingNote[i] != 0) {
       return 1;
     }
@@ -540,7 +524,7 @@ bool retestarpege() {
 }
 
 bool isalreadysamenoteinpat(byte lenote) {
-  for (int i = 0; i < liners_count; i++) {
+  for (int i = 0; i < synth_liners_count; i++) {
     if (lenote == synth_partition[i][tickposition][1]) {
       return 1;
     }
@@ -567,21 +551,21 @@ void recordmidinotes(int liner, byte channel, byte lenote, byte velocity) {
 
 bool isalreadysameoffinpat(byte lanotee, byte modeselect) {
   if (modeselect == 0) {
-    for (int i = 0; i < liners_count; i++) {
+    for (int i = 0; i < synth_liners_count; i++) {
       if (lanotee == synth_off_pat[i][tickposition + 1][1]) {
         return 1;
       }
     }
   }
   if (modeselect == 1) {
-    for (int i = 0; i < liners_count; i++) {
+    for (int i = 0; i < synth_liners_count; i++) {
       if (lanotee == synth_off_pat[i][0][1]) {
         return 1;
       }
     }
   }
   if (modeselect == 2) {
-    for (int i = 0; i < liners_count; i++) {
+    for (int i = 0; i < synth_liners_count; i++) {
       if (lanotee == synth_off_pat[i][tickposition][1]) {
         return 1;
       }
@@ -590,7 +574,7 @@ bool isalreadysameoffinpat(byte lanotee, byte modeselect) {
   return 0;
 }
 
-void recordmidinotesOff(int liner, byte channel, byte lenote, byte velocity) {
+void record_synth_notesOff(int liner, byte channel, byte lenote, byte velocity) {
   int pos = tick_for_that(tickposition);
   if (synth_start_tpos[liner] != pos) {
     synth_off_pat[liner][pos][1] = lenote;
@@ -611,7 +595,7 @@ void recordmidinotesOff(int liner, byte channel, byte lenote, byte velocity) {
 }
 
 bool isalreadysameSamplerinpat(byte lenote,int tick) {
-  for (int i = 0; i < nombreofSamplerliners; i++) {
+  for (int i = 0; i < flash_liners_count; i++) {
     if (lenote == sampler_partition[i][tick][1]) {
       return 1;
     }
@@ -648,16 +632,6 @@ void recordCCmidinotes(byte channel, byte lanote, byte leccval) {
   cc_partition[lanote][pos] = leccval;
 }
 
-bool terminateorphanseventsOff(int linei, byte lanotef) {
-  for (int i = 0; i < pbars; i++) {
-    if (synth_partition[linei][i][1] == lanotef) {
-      // at least someone is using it somewhere
-      return 0;
-    }
-  }
-  return 1;
-}
-
 bool testforaNoteOninbetween(int linei, int lapos0, int lapos2, byte lanotef) {
   for (int i = lapos0; i < lapos2; i++) {
     if (synth_partition[linei][i][1] == lanotef) {
@@ -677,79 +651,18 @@ int anothernOffisonafter(int linei, byte lanotee, int lapos) {
   return pbars;
 }
 
-void clearbouncedoffsafters(int linei, byte lanotef, int lapos) {
-  int laposoftheNofafter = anothernOffisonafter(linei, lanotef, lapos);
-  // howmany nofs before a non
-  if ((laposoftheNofafter < pbars) && (laposoftheNofafter != 0)) {
-    bool resultNoteOninbetween =
-        testforaNoteOninbetween(linei, lapos, laposoftheNofafter, lanotef);
-    if (resultNoteOninbetween) {
-      if ((!checkifnonbefore(linei, lanotef, lapos)) && lapos != 0) {
-        clearsaniloop = 0;
-        // cleardoublon
-        synth_off_pat[linei][lapos][0] = (byte)0;
-        synth_off_pat[linei][lapos][1] = (byte)0;
-      }
-      if ((lapos == 0) && ((synth_off_pat[linei][pbars - 1][1] == lanotef) && synth_partition[linei][pbars - 1][1] != lanotef)) {
-        // check before if no other On note if none found terminate that off
-        clearsaniloop = 0;
-        synth_off_pat[linei][0][0] = (byte)0;
-        synth_off_pat[linei][0][1] = (byte)0;
-      }
-    }
-    if (!resultNoteOninbetween) {
-      clearsaniloop = 0;
-      // cleardoublon
-      synth_off_pat[linei][laposoftheNofafter][0] = (byte)0;
-      synth_off_pat[linei][laposoftheNofafter][1] = (byte)0;
-    }
-  }
-  // if no Nof are next check is done
-
-  // check after if another off of the same note
-  // check after if a Non of the same note
-
-  // check before if another note on is on before this one pos
-}
-
-bool checkifnonbefore(int linei, byte lanotee, int lapos) {
-  for (int i = lapos - 1; i >= 0; i--) {
-    if (synth_partition[linei][i][1] == lanotee) {
-      return 1;
-    }
-  }
-  return 0;
-}
-
-void terminateOffz(int linei) {
-  for (int i = 0; i < pbars; i++) {
-    if (synth_off_pat[linei][i][1] != 0) {
-      if (terminateorphanseventsOff(linei, synth_off_pat[linei][i][1])) {
-        clearsaniloop = 0;
-        synth_off_pat[linei][i][0] = 0;
-        synth_off_pat[linei][i][1] = 0;
-      }
-    }
-  }
-}
-
-void clearlesnofbounces(int linei, int fromi) {
-  for (int i = fromi; i < pbars; i++) {
-    if (synth_off_pat[linei][i][1] != 0) {
-      clearbouncedoffsafters(linei, synth_off_pat[linei][i][1], i);
-      // not checking before as we are doing it from 0
-    }
-  }
-}
-
-void sanitizeoffline(int linei) {
-  terminateOffz(linei);
-  clearlesnofbounces(linei, 0);
-}
-
-int getnextposofevent1Off(int linei, byte lanote, int fromi) {
+int getnextposofevent1Off_synth(int linei, byte lanote, int fromi) {
   for (int i = fromi + 1; i < pbars; i++) {
     if (synth_off_pat[linei][i][1] == lanote) {
+      return i;
+    }
+  }
+  return (fromi + 1);
+}
+
+int getnextposofevent1Off_sampler(int linei, byte lanote, int fromi) {
+  for (int i = fromi + 1; i < pbars; i++) {
+    if (sampler_off_pat[i][1] == lanote) {
       return i;
     }
   }
@@ -759,9 +672,9 @@ int getnextposofevent1Off(int linei, byte lanote, int fromi) {
 void tweakfreqlive(int liner, float tune) {
   //AudioNoInterrupts();
   for (int j = 0; j < synths_count; j++) {
-    waveforms1[liner + (j * liners_count)]->frequency(tune * wavesfreqs[j]);
-    FMwaveforms1[liner + (j * liners_count)]->frequency(tune * wavesfreqs[j]);
-    drums1[liner + (j * liners_count)]->frequency(tune * wavesfreqs[j]);
+    waveforms1[liner + (j * synth_liners_count)]->frequency(tune * wavesfreqs[j]);
+    FMwaveforms1[liner + (j * synth_liners_count)]->frequency(tune * wavesfreqs[j]);
+    drums1[liner + (j * synth_liners_count)]->frequency(tune * wavesfreqs[j]);
   }
   //AudioInterrupts();
 }
@@ -800,11 +713,11 @@ void startglidenoteChords(byte liner, byte data1) {
   leglideposition[liner] = millis();
 }
 
-void computelenghtmesureoffline() {
-  for (int linei = 0; linei < liners_count; linei++) {
+void computelenghtmesureoffline_synth() {
+  for (int linei = 0; linei < synth_liners_count; linei++) {
     for (int i = 0; i < pbars; i++) {
       if (synth_partition[linei][i][1] != 0) {
-        int laposof = getnextposofevent1Off(linei, synth_partition[linei][i][1], i);
+        int laposof = getnextposofevent1Off_synth(linei, synth_partition[linei][i][1], i);
         if (laposof < pbars - 1) {
           length0pbars[linei][i] = (laposof - i) * 4;
           templength0pbars[linei][i] = (laposof - i) * 4;
@@ -812,14 +725,30 @@ void computelenghtmesureoffline() {
           length0pbars[linei][i] = (pbars - i) * 4;
           templength0pbars[linei][i] = (pbars - i) * 4;
         }
-        length1notes1[linei][i] = round((length0pbars[linei][i] / 4.0) * millitickinterval);
+      }
+    }
+  }
+}
+
+void computelenghtmesureoffline_sampler() {
+  for (int linei = 0; linei < flash_liners_count; linei++) {
+    for (int i = 0; i < pbars; i++) {
+      if (sampler_partition[linei][i][1] != 0) {
+        int laposof = getnextposofevent1Off_sampler(linei, sampler_partition[linei][i][1], i);
+        if (laposof < pbars - 1) {
+          length2pbars[linei][i] = (laposof - i) * 4;
+          templength2pbars[linei][i] = (laposof - i) * 4;
+        } else {
+          length2pbars[linei][i] = (pbars - i) * 4;
+          templength2pbars[linei][i] = (pbars - i) * 4;
+        }
       }
     }
   }
 }
 
 void closeallenvelopes() {
-  for (int i = 0; i < liners_count; i++) {
+  for (int i = 0; i < synth_liners_count; i++) {
     synth_lines[i]->liner_off();
     /*
     enveloppesL[i]->noteOff();

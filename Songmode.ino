@@ -20,7 +20,7 @@ byte songs_names_offset = 0 ;
 class SongEditorRouter : public SectionHolder {
     public:
         SongEditorRouter() {
-                    this->home_navrange=truesizeofSongmenulabels-1;
+                    this->home_navrange=sg_labels_count-1;
                     this->relative_navlevel=1;
                     this->max_navlevel=5;
                     this->sublevels_address={3,0,0};
@@ -47,15 +47,22 @@ class SongEditorRouter : public SectionHolder {
 
         void use_pattern(){
           light_cc_change();
-          for (int i = 0; i < liners_count; i++) {
-            if ((synth_off_pat[i][tickposition][1] != 0 && synth_off_pat[i][tickposition][0] == synthmidichannel)) {
+          for (int i = 0; i < synth_liners_count; i++) {
+            if (synth_off_pat[i][tickposition][1] != 0) {
               synth_lines[i]->liner_off();
             }
-            // if ( i < liners_count ) {
+            // if ( i < synth_liners_count ) {
             if (synth_partition[i][tickposition][1] != 0) {
               play_synth_line(i);
             }
-
+            
+          }
+          if (sampler_off_pat[tickposition][1] != 0) {
+            shutlineroff(samplermidichannel,sampler_off_pat[tickposition][1]);
+              //flash_lines[i]->liner_off();
+            }
+          for (int i = 0; i < flash_liners_count; i++) {
+            
             if (sampler_partition[i][tickposition][1] != 0) {
               play_sampler_line(i);
             }
@@ -209,10 +216,10 @@ class SongEditorRouter : public SectionHolder {
             if (Sampleassigned[sampler_partition[linei][tickposition][1]] != 0 &&
                 ((samplermidichannel == 0) ||
                 ((byte)samplermidichannel == sampler_partition[linei][tickposition][0]))) {
-              initiatesamplerline(nombreofSamplerliners - 1 - linei,
-                                  (byte)samplermidichannel,
-                                  sampler_partition[linei][tickposition][1],
-                                  sampler_partition[linei][tickposition][2]);
+                  //flash liner = flash_liners_count - 1 - linei
+                  initiateasamplerliner(sampler_partition[linei][tickposition][1], sampler_partition[linei][tickposition][2]);
+            
+
               // MaNoteOn( (byte)samplermidichannel,
               // sampler_partition[linei][tickposition][1],
               // sampler_partition[linei][tickposition][2]) ;
@@ -317,7 +324,7 @@ class SongMenuRouter : public SectionHolder {
     public:
         SongMenuRouter() {
           self = this;
-                    this->home_navrange=truesizeofSongmenulabels-1;
+                    this->home_navrange=sg_labels_count-1;
                     this->relative_navlevel=1;
                     this->max_navlevel=5;
                     this->sublevels_address={3,0,0};
@@ -391,7 +398,7 @@ class SongMenuRouter : public SectionHolder {
           writeSong(song_filer);
           song_filer.close();
           list_songs_files();
-          returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
+          returntonav(navSongmenu, sg_labels_count - 1,sublevels[navSongmenu]);
           }
         }
 
@@ -439,14 +446,14 @@ class SongMenuRouter : public SectionHolder {
           song_nav_one();
           if (navlevel >= navSongmenu + 2) {
             parseSong();
-            returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
+            returntonav(navSongmenu, sg_labels_count - 1,sublevels[navSongmenu]);
           }
         }
 
         static void song_nav_zero(){
           dm.clear_3();
           reinitsublevels(navSongmenu + 1);
-          navrange = truesizeofSongmenulabels - 1;
+          navrange = sg_labels_count - 1;
           use_song_list();
           dodisplay();
         }
@@ -504,7 +511,7 @@ class SongMenuRouter : public SectionHolder {
             if (sublevels[navSongmenu+1] == 1) {
               initializepatternonsong();
             }
-            returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
+            returntonav(navSongmenu, sg_labels_count - 1,sublevels[navSongmenu]);
           }
         }
 
@@ -512,7 +519,7 @@ class SongMenuRouter : public SectionHolder {
           song_nav_one();
           if (navlevel >= navSongmenu + 2) {
             copySong();
-            returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
+            returntonav(navSongmenu, sg_labels_count - 1,sublevels[navSongmenu]);
           }
         }
 
@@ -537,7 +544,7 @@ class SongMenuRouter : public SectionHolder {
           if (navlevel >= navSongmenu + 2) {
             deleteSong();
             list_songs_files();
-            returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
+            returntonav(navSongmenu, sg_labels_count - 1,sublevels[navSongmenu]);
           }
         }
         static void deleteSong() {
@@ -598,7 +605,7 @@ class SongMenuRouter : public SectionHolder {
            showSongShifterdisplays();
           if (navlevel >= navSongmenu + 2) {
             doSongShifter();
-            returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
+            returntonav(navSongmenu, sg_labels_count - 1,sublevels[navSongmenu]);
           }
         }
 
@@ -625,12 +632,12 @@ class SongMenuRouter : public SectionHolder {
         static void song_params_panel(){
             show_some_params();
           if (navlevel >= navSongmenu + 2) {
-            returntonav(navSongmenu, truesizeofSongmenulabels - 1,sublevels[navSongmenu]);
+            returntonav(navSongmenu, sg_labels_count - 1,sublevels[navSongmenu]);
           }
         }
 
         static void use_song_list(){
-          char Songmenulabels[truesizeofSongmenulabels][12] = {
+          char Songmenulabels[sg_labels_count][12] = {
               "Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params", "Shift"};
           byte startx = 5;
           byte starty = 16;
@@ -640,12 +647,12 @@ class SongMenuRouter : public SectionHolder {
           canvastitle.println(textin);
           canvasBIG.setTextSize(1);
           // canvasBIG.fillScreen(SSD1306_BLACK);
-          for (int i = 0; i < truesizeofSongmenulabels - 1 - (sublevels[navSongmenu]); i++) {
+          for (int i = 0; i < sg_labels_count - 1 - (sublevels[navSongmenu]); i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
             canvasBIG.println(Songmenulabels[sublevels[navSongmenu] + 1 + i]);
           }
           for (int i = 0; i < sublevels[navSongmenu]; i++) {
-            canvasBIG.setCursor(startx, (10 * (truesizeofSongmenulabels - sublevels[navSongmenu]) + 6 + ((i)*10)));
+            canvasBIG.setCursor(startx, (10 * (sg_labels_count - sublevels[navSongmenu]) + 6 + ((i)*10)));
             canvasBIG.println(Songmenulabels[i]);
           }
           draw_song_list();
@@ -656,7 +663,7 @@ class SongMenuRouter : public SectionHolder {
 
     private:
 
-      static constexpr void (*_nav_song[truesizeofSongmenulabels])() = {&call_songeditor,&writedasong, &load_song, &duplicate_song,
+      static constexpr void (*_nav_song[sg_labels_count])() = {&call_songeditor,&writedasong, &load_song, &duplicate_song,
                                                       &remove_song, &clear_song_popup, &song_params_panel, &shift_song};
       static SongMenuRouter* self;
 };

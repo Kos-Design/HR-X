@@ -240,7 +240,7 @@ class SettingsMenuRouter : public SectionHolder {
         }
         
         static void stopallnotes() {
-          for (int i = 0; i < liners_count; i++) {
+          for (int i = 0; i < synth_liners_count; i++) {
             // stoplengthmesure(i);
             if (synth_lines[i]->note != 0) {
               MaNoteOff(synthmidichannel, synth_lines[i]->note, 0);
@@ -263,10 +263,10 @@ class SettingsMenuRouter : public SectionHolder {
                 //metro0.reset();
               } else {
                 arpegiatorOn = 0;
-                for (int i = 0; i < liners_count; i++) {
+                for (int i = 0; i < synth_liners_count; i++) {
                   calledarpegenote[i][0] = 0;
                   calledarpegenote[i][1] = 0;
-                  for (int j = 0; j < liners_count; j++) {
+                  for (int j = 0; j < synth_liners_count; j++) {
                     playingarpegiator[i][j] = 0;
                     arpegnoteoffin[i][j] = 0;
                   }

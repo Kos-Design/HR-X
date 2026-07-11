@@ -273,13 +273,13 @@ class LFOMenuRouter : public SectionHolder {
             LFOwaveforms1[leLFO]->arbitraryWaveform(arbitrary_waveforms[leLFO],arbitrary_maxF[leLFO]);
           }
 
-          for (byte i = 0; i < liners_count; i++) {
+          for (byte i = 0; i < synth_liners_count; i++) {
             if (FMmodulated[leLFO] == 1) {
               //phaseModulation should be based on lfo level
-              FMwaveforms1[i + (leLFO * liners_count)]->frequencyModulation((LFOlevel[leLFO]/127.00)*10);
+              FMwaveforms1[i + (leLFO * synth_liners_count)]->frequencyModulation((LFOlevel[leLFO]/127.00)*10);
             }
             else if (FMmodulated[leLFO] == 2) {
-              FMwaveforms1[i + (leLFO * liners_count)]->phaseModulation((LFOlevel[leLFO]/127.00) * 360 - 180);
+              FMwaveforms1[i + (leLFO * synth_liners_count)]->phaseModulation((LFOlevel[leLFO]/127.00) * 360 - 180);
             }
           }
 

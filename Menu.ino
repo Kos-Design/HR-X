@@ -5,7 +5,6 @@ void reinitsublevels(byte fromlei) {
   }
 }
 
-
 class KnobAssigner : public SectionHolder {
   public:
       KnobAssigner() {
@@ -113,6 +112,7 @@ class KnobAssigner : public SectionHolder {
     static KnobAssigner* self;
 };
 
+
 KnobAssigner* KnobAssigner::self = nullptr;
 EXTMEM KnobAssigner _ka;
 
@@ -123,8 +123,7 @@ class SynthLiner {
     byte note = 0 ;
     byte velocity = 0 ;
 
-    SynthLiner(byte line_index = 0 ) : l_index(line_index) {
-    }
+    SynthLiner(byte line_index = 0 ) : l_index(line_index) { self = this; }
 
     void liner_on(byte data1, byte data2) {
       if (activated||data1==note) {
@@ -174,7 +173,57 @@ class SynthLiner {
         note = 0 ;
       }
     //}
+    static SynthLiner* self;
+};
+SynthLiner* SynthLiner::self = nullptr;
 
+SynthLiner *synth_lines[synth_liners_count] = {nullptr};
+
+
+class FlashLiner {
+  public:
+    FlashLiner(byte line_index = 0 ) : l_index(line_index) {  }
+    
+    byte l_index = 0 ;
+    bool activated = 0 ;
+    byte note = 0 ;
+    byte velocity = 0 ;
+
+    String playable_file = "";
+  
+    void liner_on(byte data1, byte data2) {
+      
+      if (activated||data1==note) {
+        liner_off();
+      }
+      if (FlashSampler[l_index]->isPlaying()) {
+        FlashSampler[l_index]->stop();
+      }
+      if (!digitalplay) {
+        Flashmixer[int(l_index / 4)]->gain(l_index - 4 * int(l_index / 4),(smixervknobs[l_index] / 127.0) * (data2 / 127.0));
+      } else {
+        Flashmixer[int(l_index / 4)]->gain(l_index - 4 * int(l_index / 4),(smixervknobs[l_index] / 127.0));
+      }
+      playable_file = (String)Flashsamplename[Sampleassigned[(int)(data1)]];
+      if (!test_flash_sample_name(playable_file)){
+        playable_file = lower_extension_case(playable_file);
+      }
+      FlashSampler[l_index]->play(playable_file.c_str());
+      Serial.println(playable_file);
+      activated=true;
+      note=data1;
+      velocity=data2;
+
+    }
+
+    void liner_off() {
+      FlashSampler[l_index]->stop();
+      activated = false;
+      note = 0 ;
+      velocity = 0 ;
+    }
 };
 
-SynthLiner *synth_lines[liners_count] = {nullptr};
+
+FlashLiner *flash_lines[flash_liners_count] = {nullptr};
+

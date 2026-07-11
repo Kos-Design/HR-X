@@ -63,6 +63,17 @@ void makesoundsetfullpathfromchars(int eldir) {
   sampledirpath[lelast + 1] = (char)'\0';
 }
 
+String lower_extension_case(String f_name){
+  char named[50];  // Ensure the array is large enough
+  strcpy(named, f_name.c_str());
+  named[strlen(named) - 4] = '\0';
+  return (String)named + ".raw";
+}
+
+bool test_flash_sample_name(String f_s_name){
+  return thyfs.exists(f_s_name.c_str());
+}
+
 void listSoundset() {
 
   File sounddir = SD.open("SOUNDSET/");

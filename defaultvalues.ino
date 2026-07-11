@@ -1,7 +1,8 @@
 void initextmems() {
-  for (int i = 0; i < nombreofSamplerliners; i++) {
+  for (int i = 0; i < flash_liners_count; i++) {
     for (int j = 0; j < pbars; j++) {
-
+      length2pbars[i][j] = 0;
+      templength2pbars[i][j] = 0;
       for (int k = 0; k < 3; k++) {
         sampler_off_pat[j][k] = 0;
         sampler_partition[i][j][k] = 0;
@@ -9,11 +10,10 @@ void initextmems() {
       }
     }
   }
-  for (int i = 0; i < liners_count; i++) {
+  for (int i = 0; i < synth_liners_count; i++) {
     for (int j = 0; j < pbars; j++) {
       length0pbars[i][j] = 0;
       templength0pbars[i][j] = 0;
-      length1notes1[i][j] = 0;
       for (int k = 0; k < 3; k++) {
         synth_off_pat[i][j][k] = 0;
         synth_partition[i][j][k] = 0;
@@ -82,7 +82,7 @@ void loadsynthdefaults() {
   adsrlevels[4] = float(mappedsustain / 100);
   adsrlevels[5] = mappedrelease;
 
-  for (int i = 0; i < liners_count; i++) {
+  for (int i = 0; i < synth_liners_count; i++) {
     enveloppesL[i]->delay(adsrlevels[0]);
     enveloppesL[i]->attack(adsrlevels[1]);
     // enveloppesL[i]->hold(adsrlevels[2]);
@@ -127,7 +127,7 @@ void setupdefaultvalues() {
   premixMaster.gain(0, 0.5);
   premixMaster.gain(1, 0.5);
 
-  for (int i = 0; i < liners_count; i++) {
+  for (int i = 0; i < synth_liners_count; i++) {
     for (int j = 0; j < synths_count; j++) {
       Wavesmix[i]->gain(j, mixlevelsL[j]/127.0);
     }

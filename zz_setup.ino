@@ -101,11 +101,11 @@ void call_set_bpms(){
 void call_parsepattern(){
   _pt.parsepattern();
 }
-void call_refresh_track(){
-  _pe.refresh_track();
+void call_refresh_synth_track(){
+  _pe.refresh_synth_track();
 }
-void call_refreshevented2(){
-  _pe.refreshevented2();
+void call_refresh_flash_track(){
+  _pe.refresh_flash_track();
 }
 /*
 void MyClass::lfo_zero() {}
@@ -142,6 +142,8 @@ void setup() {
   // metrodrum1.frequency(100);
   // metrodrum1.length(50);
   init_synth_liners();
+  init_flash_liners();
+
   init_fxes();
   // metrodrum1.pitchMod(0.9);
   AudioInterrupts();
@@ -195,6 +197,7 @@ void setup() {
   audioShield.volume(1.0);
   _st.set_in_source();
   clocker.attach_24(advance_tick);
+  clocker.attach_96(once_in_a_while);
   //clocker.attach_3(fairly_often);
   //clocker.attach_6();
   clocker.setBPM(120);
@@ -388,6 +391,8 @@ void controlswitcher(int caser, int valu) {
 
       break;
     case 39:
+    //record only on synth liners for now
+    //use recordmidinotes2
       getlinerwithoutevents();
       patrecord = 1;
       clocker.startticker();
@@ -463,10 +468,10 @@ void controlswitcher(int caser, int valu) {
       break;
     case 51:
       wave1offset[ccsynthselector] = round(smallfloat * 127.0);
-      for (int i = 0; i < liners_count; i++) {
-        waveforms1[i + (ccsynthselector * liners_count)]->offset(
+      for (int i = 0; i < synth_liners_count; i++) {
+        waveforms1[i + (ccsynthselector * synth_liners_count)]->offset(
             (float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
-        FMwaveforms1[i + (ccsynthselector * liners_count)]->offset(
+        FMwaveforms1[i + (ccsynthselector * synth_liners_count)]->offset(
             (float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
       }
 

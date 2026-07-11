@@ -23,6 +23,7 @@ const byte sizeofnoCCrecord = 11;
 byte noCCrecord[sizeofnoCCrecord] = {3,35,36,37, 38,39,40,41,42,44, 1};
 byte slope1 = 10;
 byte slope2 = 10;
+bool mp3_looped = 0 ;
 byte cutoffmode;
 byte resonancemode;
 byte paramse1;
@@ -33,7 +34,7 @@ int starttaptime;
 int numberoftaps;
 int tapstime[5] = {0};
 float tapaverage;
-const byte truesizeofSongmenulabels = 8;
+const byte sg_labels_count = 8;
 
 const byte ps_labels_count = 5;
 const byte truesizeofsynthmenulabels = 5 ;
@@ -241,27 +242,21 @@ String newmkdirpath = "SOUNDSET/MABANK01" ;
 #include <Bounce.h>
 #include <Encoder.h>
 #include <string.h>
-const int liners_count = 6;
-const int nombreofSamplerliners = 16;
+const int synth_liners_count = 6;
+const int flash_liners_count = 16;
 const int sampler_labels_count = 4;
 const byte synths_count = 3;
 const int patternlines = 2;
-bool tb303[liners_count];
-long le303start[liners_count];
+bool tb303[synth_liners_count];
+long le303start[synth_liners_count];
 
-EXTMEM unsigned long pulsers[liners_count][2]= { {0,120}, {0,120}, {0,120},{0,120}, {0,120}, {0,120}};
-
-byte bufferLoop[512];
-// used in recording
-EXTMEM byte bufferL[512];
-EXTMEM byte bufferR[512];
-
+EXTMEM unsigned long pulsers[synth_liners_count][2]= { {0,120}, {0,120}, {0,120},{0,120}, {0,120}, {0,120}};
 
 int samplermidichannel = 8;
-byte synthmidichannel = 16;
+//0 is All, channel indexes are thus offset +1
+byte synthmidichannel = 0;
 bool blocked = false ;
 byte navrec = 3;
-// various hard to pass params
 int tickposition;
 bool stoptick = true;
 
@@ -280,37 +275,37 @@ byte arpeggridC;
 
 byte arpeggridS;
 bool stoptickernextcycle;
-// unsigned long millisSincenLinerOn[liners_count];
-// unsigned long currentnotelength[liners_count];
+// unsigned long millisSincenLinerOn[synth_liners_count];
+// unsigned long currentnotelength[synth_liners_count];
 bool patrecord;
-byte arpegiatingNote[liners_count];
+byte arpegiatingNote[synth_liners_count];
 // note , veloc
-const int nombreofarpeglines = liners_count;
+const int nombreofarpeglines = synth_liners_count;
 bool tripletdirection[nombreofarpeglines];
-byte playingarpegiator[nombreofarpeglines][liners_count];
+byte playingarpegiator[nombreofarpeglines][synth_liners_count];
 byte calledarpegenote[nombreofarpeglines][2];
 byte tickgamme[nombreofarpeglines];
 byte ticktriplet[nombreofarpeglines];
-byte arpegnoteoffin[nombreofarpeglines][liners_count] = {1};
+byte arpegnoteoffin[nombreofarpeglines][synth_liners_count] = {1};
 byte arpegnotestick[nombreofarpeglines];
 byte arpegemptyticks[nombreofarpeglines];
 bool digitalplay = 0;
-bool lefadout[liners_count];
+bool lefadout[synth_liners_count];
 bool targetNOsampler;
 bool targetNOsynth;
 bool targetNOcc;
 
 byte glidemode = 0;
 byte note_before;
-bool dogliding[liners_count];
+bool dogliding[synth_liners_count];
 int freq_difference;
-long unsigned int leglideposition[liners_count];
+long unsigned int leglideposition[synth_liners_count];
 int note_difference;
 float glidefactor;
 int time_of_last_note = 0 ;
-byte lapreviousnotewCmode[liners_count];
-int leglidershiftCmode[liners_count];
-int note_differenceCmode[liners_count];
+byte lapreviousnotewCmode[synth_liners_count];
+int leglidershiftCmode[synth_liners_count];
+int note_differenceCmode[synth_liners_count];
 
 byte ccsynthselector = 0;
 byte cclfoselector = 0 ;
@@ -333,21 +328,23 @@ int navlevelpatedit = 2;
 
 bool track_cells[patternlines][pbars] = {0};
 
-EXTMEM byte synth_partition[liners_count][pbars][3];
-EXTMEM byte temp_synth_partition[liners_count][pbars][3];
-EXTMEM byte synth_off_pat[liners_count][pbars][3];
+EXTMEM byte synth_partition[synth_liners_count][pbars][3];
+EXTMEM byte temp_synth_partition[synth_liners_count][pbars][3];
+EXTMEM byte synth_off_pat[synth_liners_count][pbars][3];
 
-EXTMEM int length0pbars[liners_count][pbars];
-EXTMEM int templength0pbars[liners_count][pbars];
-EXTMEM int length1notes1[liners_count][pbars];
-byte synth_start_tpos[liners_count];
+EXTMEM int length0pbars[synth_liners_count][pbars];
+EXTMEM int templength0pbars[synth_liners_count][pbars];
 
-EXTMEM byte sampler_partition[nombreofSamplerliners][pbars][3];
-EXTMEM byte temp_sampler_partition[nombreofSamplerliners][pbars][3];
-// EXTMEM unsigned long length2notes1[nombreofSamplerliners][pbars];
-// EXTMEM unsigned int length2pbars[nombreofSamplerliners][pbars];
-// EXTMEM unsigned int templength2pbars[nombreofSamplerliners][pbars];
-EXTMEM byte sampler_off_pat[pbars][3];
+byte synth_start_tpos[synth_liners_count];
+
+EXTMEM byte sampler_partition[flash_liners_count][pbars][3];
+EXTMEM byte temp_sampler_partition[flash_liners_count][pbars][3];
+//new
+
+EXTMEM int length2pbars[flash_liners_count][pbars];
+EXTMEM int templength2pbars[flash_liners_count][pbars];
+
+byte sampler_off_pat[pbars][3];
 bool just_pressed_rec = false ;
 int howmanyactiveccnow;
 int tickerlasttick;
@@ -749,7 +746,7 @@ byte mixlevelsM[4] = {127, 127, 38, 127};
 unsigned int Waveformstyped[synths_count] = {1, 11, 11};
 byte samplesnotesOn[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-AudioEffectEnvelope *enveloppesL[liners_count] = {&envelopeL0, &envelopeL1, &envelopeL2,
+AudioEffectEnvelope *enveloppesL[synth_liners_count] = {&envelopeL0, &envelopeL1, &envelopeL2,
                                                      &envelopeL3, &envelopeL4, &envelopeL5};
 
 // modulator for 303 mode
@@ -978,67 +975,67 @@ EXTMEM AudioConnection MDstringCord22(string3L6, 0, modulate3L6, 0);
 
 AudioConnection *delayCords[3] = {&delayCord1, &delayCord2, &delayCord3};
 
-AudioConnection *stringcords1[liners_count*synths_count] = {
+AudioConnection *stringcords1[synth_liners_count*synths_count] = {
     &stringCord01, &stringCord02, &stringCord03, &stringCord04, &stringCord05, &stringCord06,
     &stringCord09, &stringCord10, &stringCord11, &stringCord12, &stringCord13, &stringCord14,
     &stringCord17, &stringCord18, &stringCord19, &stringCord20, &stringCord21, &stringCord22};
 
-AudioConnection *drumcords1[liners_count*synths_count] = {
+AudioConnection *drumcords1[synth_liners_count*synths_count] = {
     &drumCord01, &drumCord02, &drumCord03, &drumCord04, &drumCord05, &drumCord06,
     &drumCord09, &drumCord10, &drumCord11, &drumCord12, &drumCord13, &drumCord14,
     &drumCord17, &drumCord18, &drumCord19, &drumCord20, &drumCord21, &drumCord22};
 
-AudioConnection *modulatecords1[liners_count*synths_count] = {
+AudioConnection *modulatecords1[synth_liners_count*synths_count] = {
     &modulateCord01, &modulateCord02, &modulateCord03, &modulateCord04, &modulateCord05, &modulateCord06,
     &modulateCord09, &modulateCord10, &modulateCord11, &modulateCord12, &modulateCord13, &modulateCord14,
     &modulateCord17, &modulateCord18, &modulateCord19, &modulateCord20, &modulateCord21, &modulateCord22};
 
-AudioConnection *MDdrumcords1[liners_count*synths_count] = {
+AudioConnection *MDdrumcords1[synth_liners_count*synths_count] = {
     &MDdrumCord01, &MDdrumCord02, &MDdrumCord03, &MDdrumCord04, &MDdrumCord05, &MDdrumCord06,
     &MDdrumCord09, &MDdrumCord10, &MDdrumCord11, &MDdrumCord12, &MDdrumCord13, &MDdrumCord14,
     &MDdrumCord17, &MDdrumCord18, &MDdrumCord19, &MDdrumCord20, &MDdrumCord21, &MDdrumCord22};
 
-AudioConnection *MDwavecords1[liners_count*synths_count] = {
+AudioConnection *MDwavecords1[synth_liners_count*synths_count] = {
     &MDwaveCord01, &MDwaveCord02, &MDwaveCord03, &MDwaveCord04, &MDwaveCord05, &MDwaveCord06,
     &MDwaveCord09, &MDwaveCord10, &MDwaveCord11, &MDwaveCord12, &MDwaveCord13, &MDwaveCord14,
     &MDwaveCord17, &MDwaveCord18, &MDwaveCord19, &MDwaveCord20, &MDwaveCord21, &MDwaveCord22};
 
-AudioConnection *MDstringcords1[liners_count*synths_count] = {
+AudioConnection *MDstringcords1[synth_liners_count*synths_count] = {
     &MDstringCord01, &MDstringCord02, &MDstringCord03, &MDstringCord04, &MDstringCord05, &MDstringCord06,
     &MDstringCord09, &MDstringCord10, &MDstringCord11, &MDstringCord12, &MDstringCord13, &MDstringCord14,
     &MDstringCord17, &MDstringCord18, &MDstringCord19, &MDstringCord20, &MDstringCord21, &MDstringCord22};
 
-AudioConnection *FMwavecords1[liners_count*synths_count] = {
+AudioConnection *FMwavecords1[synth_liners_count*synths_count] = {
     &FMWaveCord01, &FMWaveCord02, &FMWaveCord03, &FMWaveCord04, &FMWaveCord05, &FMWaveCord06,
     &FMWaveCord09, &FMWaveCord10, &FMWaveCord11, &FMWaveCord12, &FMWaveCord13, &FMWaveCord14,
     &FMWaveCord17, &FMWaveCord18, &FMWaveCord19, &FMWaveCord20, &FMWaveCord21, &FMWaveCord22};
 
-AudioConnection *wavelinescords[liners_count*synths_count] = {
+AudioConnection *wavelinescords[synth_liners_count*synths_count] = {
     &wavelinecord24, &wavelinecord22, &wavelinecord23, &wavelinecord21, &wavelinecord19, &wavelinecord20,
     &wavelinecord47, &wavelinecord45, &wavelinecord39, &wavelinecord41, &wavelinecord33, &wavelinecord35,
     &wavelinecord44, &wavelinecord43, &wavelinecord37, &wavelinecord42, &wavelinecord34, &wavelinecord36};
 
-AudioSynthWaveform *waveforms1[liners_count*synths_count] = {
+AudioSynthWaveform *waveforms1[synth_liners_count*synths_count] = {
     &waveform1L1, &waveform1L2, &waveform1L3, &waveform1L4, &waveform1L5, &waveform1L6,
     &waveform2L1, &waveform2L2, &waveform2L3, &waveform2L4, &waveform2L5, &waveform2L6,
     &waveform3L1, &waveform3L2, &waveform3L3, &waveform3L4, &waveform3L5, &waveform3L6};
 
-AudioSynthWaveformModulated *FMwaveforms1[liners_count*synths_count] = {
+AudioSynthWaveformModulated *FMwaveforms1[synth_liners_count*synths_count] = {
     &FMWaveform1L1, &FMWaveform1L2, &FMWaveform1L3, &FMWaveform1L4, &FMWaveform1L5, &FMWaveform1L6,
     &FMWaveform2L1, &FMWaveform2L2, &FMWaveform2L3, &FMWaveform2L4, &FMWaveform2L5, &FMWaveform2L6,
     &FMWaveform3L1, &FMWaveform3L2, &FMWaveform3L3, &FMWaveform3L4, &FMWaveform3L5, &FMWaveform3L6};
 
-AudioSynthSimpleDrum *drums1[liners_count*synths_count] = {
+AudioSynthSimpleDrum *drums1[synth_liners_count*synths_count] = {
     &drum1L1, &drum1L2, &drum1L3, &drum1L4, &drum1L5, &drum1L6,
     &drum2L1, &drum2L2, &drum2L3, &drum2L4, &drum2L5, &drum2L6,
     &drum3L1, &drum3L2, &drum3L3, &drum3L4, &drum3L5, &drum3L6};
 
-AudioSynthKarplusStrong *strings1[liners_count*synths_count] = {
+AudioSynthKarplusStrong *strings1[synth_liners_count*synths_count] = {
     &string1L1, &string1L2, &string1L3, &string1L4, &string1L5, &string1L6,
     &string2L1, &string2L2, &string2L3, &string2L4,&string2L5, &string2L6,
     &string3L1, &string3L2, &string3L3, &string3L4, &string3L5, &string3L6};
 
-AudioMixer4 *Wavesmix[liners_count] = {&WavesL1, &WavesL2, &WavesL3, &WavesL4, &WavesL5, &WavesL6};
+AudioMixer4 *Wavesmix[synth_liners_count] = {&WavesL1, &WavesL2, &WavesL3, &WavesL4, &WavesL5, &WavesL6};
 
 AudioPlaySerialflashRaw *FlashSampler[16] = {
     &FlashSampler1,  &FlashSampler2,  &FlashSampler3,  &FlashSampler4,
@@ -1048,7 +1045,7 @@ AudioPlaySerialflashRaw *FlashSampler[16] = {
 
 AudioMixer4 *Flashmixer[4] = {&flashmix1, &flashmix2, &flashmix3, &flashmix4};
 
-AudioAmplifier *Wavespreamp303[liners_count] = {&wavePAmp0, &wavePAmp1, &wavePAmp2,
+AudioAmplifier *Wavespreamp303[synth_liners_count] = {&wavePAmp0, &wavePAmp1, &wavePAmp2,
                                      &wavePAmp3, &wavePAmp4, &wavePAmp5};
 
 AudioSynthWaveform *LFOwaveforms1[synths_count] = {&LFOrm1, &LFOrm2, &LFOrm3};
@@ -1090,9 +1087,9 @@ class SequencerClocker : public AudioStream {
             _callback_6 = cb;
         }
 
-        void attach_48(void (*cb)())
+        void attach_96(void (*cb)())
         {
-            _callback_48 = cb;
+            _callback_96 = cb;
         }
 
         void attach_3(void (*cb)())
@@ -1106,7 +1103,7 @@ class SequencerClocker : public AudioStream {
             overdubmidi = 0;
             this->stop = 1;
             // if (patrecord) {
-            // computelenghtmesureoffline();
+            // computelenghtmesureoffline_synth();
             patternOn = 0;
             patrecord = 0;
             // tickposition = 0 ;
@@ -1143,14 +1140,14 @@ class SequencerClocker : public AudioStream {
                         quarter++;
                         _callback_6();
                     }
-
+                if ((tick96 % 96) == 0 && _callback_96){
+                        eighth++;
+                        _callback_96();
+                    }
                 if (!stop) {
                     
 
-                    if ((tick96 % 48) == 0 && _callback_48){
-                        eighth++;
-                        _callback_48();
-                    }
+                    
 
                     if ((tick96 % 24) == 0 && _callback_24){
                         sixteenth++;
@@ -1187,7 +1184,7 @@ class SequencerClocker : public AudioStream {
         double _sampleAccumulator = 0;
         void (*_callback_24)() = nullptr;
         void (*_callback_3)() = nullptr;
-        void (*_callback_48)() = nullptr;
+        void (*_callback_96)() = nullptr;
         void (*_callback_6)() = nullptr;
 };
 
@@ -1398,5 +1395,5 @@ AudioConnection          sd_mix_partialR(PartialPlayerMono, 0, sd_mixerR, 0);
 AudioConnection          sd_mix_mp3L(playMp31, 0, sd_mixerL, 1);
 AudioConnection          sd_mix_mp3R(playMp31, 1, sd_mixerR, 1);
 AudioConnection          sd_mix_flacL(playFlac1, 0, sd_mixerL, 2);
-AudioConnection          sd_mix_flacR(playFlac1, 1, sd_mixerR, 1);
+AudioConnection          sd_mix_flacR(playFlac1, 1, sd_mixerR, 2);
 

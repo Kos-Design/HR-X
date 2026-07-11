@@ -8,8 +8,8 @@ void allpasslevels() {
 }
 
 void pseudo303() {
-  float glidefactorCmode[liners_count];
-  for (int i = 0; i < liners_count; i++) {
+  float glidefactorCmode[synth_liners_count];
+  for (int i = 0; i < synth_liners_count; i++) {
     if (glidemode > 0 && dogliding[i]) {
       glidefactorCmode[i] =  (millis() - leglideposition[i]) /  (glidemode * millitickinterval * 1.0);
       //notefrequency = (glidefactorCmode[i]) * leglidershiftCmode[i] + notestofreq[lapreviousnotewCmode[i]][1];
@@ -80,7 +80,7 @@ void check_pads() {
       call_st_onboardPanel();
     }
     //inside Set Knobs level 2: learn midi
-    else if (sublevels[0] == 2 && navlevel == 2 && cc_note_num <= 0){
+    else if (sublevels[0] == 5 && sublevels[1] == 15 && navlevel == _ka.relative_navlevel +1 && cc_note_num <= 0){
       _ka.learn_midi((byte)pot_assignements[11 + paddered]);
     }
     //inside waveform tracer
@@ -151,4 +151,17 @@ void printit() {
 void fairly_often() {
   control_me();
   pseudo303();
+}
+
+void once_in_a_while(){
+  if (mp3_continue){
+    refresh_mp3_player();
+  }
+}
+
+void refresh_mp3_player(){
+  if (!playFlac1.isPlaying() && !playMp31.isPlaying()) {  
+    _sn.mp3_player_next();
+    _sn.mp3_player_play();
+  }
 }
