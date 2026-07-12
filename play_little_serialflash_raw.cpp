@@ -1,5 +1,6 @@
 /* Audio Library for Teensy 3.X
  * Copyright (c) 2014, Paul Stoffregen, paul@pjrc.com
+ * Modified to use SerialFlash instead of SD library by Wyatt Olson <wyatt@digitalcave.ca>
  *
  * Development of this audio library was funded by PJRC.COM, LLC by sales of
  * Teensy and Audio Adaptor boards.  Please support PJRC's efforts to develop
@@ -25,70 +26,62 @@
  */
 
 #include <Arduino.h>
-#include "play_partial_sd_raw.h"
+#include "play_little_serialflash_raw.h"
 #include "spi_interrupt.h"
 
+void AudioPlayLittleSerialflashRaw::setFilesystem(LittleFS_SPIFlash &fs)
+{
+    this->filesystem = &fs;
+}
 
-void AudioPlayPartialSdRaw::begin(void){
+void AudioPlayLittleSerialflashRaw::begin(void)
+{
 	playing = false;
 	file_offset = 0;
 	file_size = 0;
 }
 
-bool AudioPlayPartialSdRaw::play(const char *filename,float start, float end){
+
+bool AudioPlayLittleSerialflashRaw::play(const char *filename)
+{
 	stop();
-#if defined(HAS_KINETIS_SDHC)
-	if (!(SIM_SCGC3 & SIM_SCGC3_SDHC)) AudioStartUsingSPI();
-#else
 	AudioStartUsingSPI();
-#endif
-	__disable_irq();
-	rawfile = SD.open(filename);
-	__enable_irq();
-	if (!rawfile) {
-		//Serial.println("unable to open file");
-		#if defined(HAS_KINETIS_SDHC)
-			if (!(SIM_SCGC3 & SIM_SCGC3_SDHC)) AudioStopUsingSPI();
-		#else
-			AudioStopUsingSPI();
-		#endif
+	if (!this->filesystem) {
+		AudioStopUsingSPI();
 		return false;
 	}
 
+	rawfile = this->filesystem->open(filename);
+
+	//rawfile = thyfs.open(filename);
+	if (!rawfile) {
+		//Serial.println("unable to open file");
+		AudioStopUsingSPI();
+		return false;
+	}
 	file_size = rawfile.size();
-
-	startPos = constrain(start, 0.0f, 1.0f);
-	endPos   = constrain(end, startPos, 1.0f);
-
-	startByte = ((uint32_t)(startPos * file_size)) & ~1;
-	endByte   = ((uint32_t)(endPos * file_size)) & ~1;
-
-	rawfile.seek(startByte);
-	currentByte = startByte;
-
-
 	file_offset = 0;
+	//Serial.println("able to open file");
 	playing = true;
 	return true;
 }
 
-void AudioPlayPartialSdRaw::stop(void){
+void AudioPlayLittleSerialflashRaw::stop(void)
+{
 	__disable_irq();
 	if (playing) {
 		playing = false;
 		__enable_irq();
 		rawfile.close();
-		#if defined(HAS_KINETIS_SDHC)
-			if (!(SIM_SCGC3 & SIM_SCGC3_SDHC)) AudioStopUsingSPI();
-		#else
-			AudioStopUsingSPI();
-		#endif
+		AudioStopUsingSPI();
 	} else {
 		__enable_irq();
 	}
 }
 
-void AudioPlayPartialSdRaw::update(void){
+
+void AudioPlayLittleSerialflashRaw::update(void)
+{
 	unsigned int i, n;
 	audio_block_t *block;
 
@@ -101,20 +94,7 @@ void AudioPlayPartialSdRaw::update(void){
 
 	if (rawfile.available()) {
 		// we can read more data from the file...
-		uint32_t remaining = endByte - currentByte;
-
-		if (remaining == 0)
-		{
-			stop();
-			return;
-		}
-
-		uint32_t bytesToRead = min(remaining,
-								(uint32_t)(AUDIO_BLOCK_SAMPLES * 2));
-
-		n = rawfile.read(block->data, bytesToRead);
-
-		currentByte += n;
+		n = rawfile.read(block->data, AUDIO_BLOCK_SAMPLES*2);
 		file_offset += n;
 		for (i=n/2; i < AUDIO_BLOCK_SAMPLES; i++) {
 			block->data[i] = 0;
@@ -122,24 +102,23 @@ void AudioPlayPartialSdRaw::update(void){
 		transmit(block);
 	} else {
 		rawfile.close();
-		#if defined(HAS_KINETIS_SDHC)
-			if (!(SIM_SCGC3 & SIM_SCGC3_SDHC)) AudioStopUsingSPI();
-		#else
-			AudioStopUsingSPI();
-		#endif
+		AudioStopUsingSPI();
 		playing = false;
+		//Serial.println("Finished playing sample");		//TODO
 	}
 	release(block);
 }
 
 #define B2M (uint32_t)((double)4294967296000.0 / AUDIO_SAMPLE_RATE_EXACT / 2.0) // 97352592
 
-uint32_t AudioPlayPartialSdRaw::positionMillis(void)
+uint32_t AudioPlayLittleSerialflashRaw::positionMillis(void)
 {
 	return ((uint64_t)file_offset * B2M) >> 32;
 }
 
-uint32_t AudioPlayPartialSdRaw::lengthMillis(void)
+uint32_t AudioPlayLittleSerialflashRaw::lengthMillis(void)
 {
 	return ((uint64_t)file_size * B2M) >> 32;
 }
+
+

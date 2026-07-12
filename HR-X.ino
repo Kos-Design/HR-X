@@ -79,7 +79,7 @@ byte le303ffilterzVknobs[3];
 
 byte songpage = 0;
 byte samplelinerspage;
-byte synthlinerspage;
+
 // LP BP HP 127
 byte mixle303ffilterzVknobs[3];
 byte navrecmenu = 1;
@@ -329,20 +329,18 @@ int navlevelpatedit = 2;
 bool track_cells[patternlines][pbars] = {0};
 
 EXTMEM byte synth_partition[synth_liners_count][pbars][3];
-EXTMEM byte temp_synth_partition[synth_liners_count][pbars][3];
+EXTMEM byte temp_synth_partition[pbars][3];
 EXTMEM byte synth_off_pat[synth_liners_count][pbars][3];
 
-EXTMEM int length0pbars[synth_liners_count][pbars];
-EXTMEM int templength0pbars[synth_liners_count][pbars];
+EXTMEM int synth_notes_length[synth_liners_count][pbars];
 
 byte synth_start_tpos[synth_liners_count];
 
 EXTMEM byte sampler_partition[flash_liners_count][pbars][3];
-EXTMEM byte temp_sampler_partition[flash_liners_count][pbars][3];
+EXTMEM byte temp_sampler_partition[pbars][3];
 //new
 
-EXTMEM int length2pbars[flash_liners_count][pbars];
-EXTMEM int templength2pbars[flash_liners_count][pbars];
+EXTMEM int flash_notes_length[flash_liners_count][pbars];
 
 byte sampler_off_pat[pbars][3];
 bool just_pressed_rec = false ;
@@ -1037,7 +1035,7 @@ AudioSynthKarplusStrong *strings1[synth_liners_count*synths_count] = {
 
 AudioMixer4 *Wavesmix[synth_liners_count] = {&WavesL1, &WavesL2, &WavesL3, &WavesL4, &WavesL5, &WavesL6};
 
-AudioPlaySerialflashRaw *FlashSampler[16] = {
+AudioPlayLittleSerialflashRaw *FlashSampler[16] = {
     &FlashSampler1,  &FlashSampler2,  &FlashSampler3,  &FlashSampler4,
     &FlashSampler5,  &FlashSampler6,  &FlashSampler7,  &FlashSampler8,
     &FlashSampler9,  &FlashSampler10, &FlashSampler11, &FlashSampler12,

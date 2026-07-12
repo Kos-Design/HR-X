@@ -91,6 +91,7 @@ void MaNoteOn(byte channel, byte data1, byte data2) {
   if (debugmidion) {
     debugmidi((char *)"NoteOn", (int)(channel), (int)(data1), (int)(data2));
   }
+  //printnoteon(channel,data1,data2);
   if ((channel == synthmidichannel) or (synthmidichannel == 0)) {
     if (!arpegiatorOn) {
       if (!chordson) {
@@ -210,13 +211,13 @@ void initiateasynthliner(byte data1, byte data2) {
     if (patrecord) {
       recordmidinotes(free_line, synthmidichannel, data1, data2);
     }
+    //printnoteon(0,data1,data2);
     synth_lines[free_line]->liner_on(data1, data2);
   }
 }
 
 void initiateasamplerliner(byte data1, byte data2) {
   byte free_line = get_free_sampler(data1);
-  Serial.println(free_line);
   if (free_line < flash_liners_count) {
     if (patrecord) {
       recordmidinotes(free_line, samplermidichannel, data1, data2);
@@ -719,11 +720,9 @@ void computelenghtmesureoffline_synth() {
       if (synth_partition[linei][i][1] != 0) {
         int laposof = getnextposofevent1Off_synth(linei, synth_partition[linei][i][1], i);
         if (laposof < pbars - 1) {
-          length0pbars[linei][i] = (laposof - i) * 4;
-          templength0pbars[linei][i] = (laposof - i) * 4;
+          synth_notes_length[linei][i] = (laposof - i) * 4;
         } else {
-          length0pbars[linei][i] = (pbars - i) * 4;
-          templength0pbars[linei][i] = (pbars - i) * 4;
+          synth_notes_length[linei][i] = (pbars - i) * 4;
         }
       }
     }
@@ -736,11 +735,9 @@ void computelenghtmesureoffline_sampler() {
       if (sampler_partition[linei][i][1] != 0) {
         int laposof = getnextposofevent1Off_sampler(linei, sampler_partition[linei][i][1], i);
         if (laposof < pbars - 1) {
-          length2pbars[linei][i] = (laposof - i) * 4;
-          templength2pbars[linei][i] = (laposof - i) * 4;
+          flash_notes_length[linei][i] = (laposof - i) * 4;
         } else {
-          length2pbars[linei][i] = (pbars - i) * 4;
-          templength2pbars[linei][i] = (pbars - i) * 4;
+          flash_notes_length[linei][i] = (pbars - i) * 4;
         }
       }
     }

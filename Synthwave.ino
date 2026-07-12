@@ -447,19 +447,14 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void displayadsrgraph() {
+          navrange = 5 ;
           if (sublevels[2] == 2) {
             navleveloverwrite = 2;
           }
           if (sublevels[1] == 0) {
             navleveloverwrite = 4;
           }
-
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(1);
-
-          canvasBIG.setTextSize(1);
-          canvasBIG.fillScreen(SSD1306_BLACK);
+          dm.clean_title_1_1();
           canvasBIG.drawLine(2, 61, 2, 18, SSD1306_WHITE);
           canvasBIG.drawLine(2, 61, 125, 61, SSD1306_WHITE);
           canvasBIG.drawLine(125, 59, 127, 61, SSD1306_WHITE);
@@ -1319,7 +1314,7 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void set_wmixer_buff_temp() {
-          Serial.println("buffing");
+          //Serial.println("buffing");
           for (int i=0; i<12; i++) {
             wmixer_tmp_values[i] = *wmixer_tmp_pointers[i] ;
           }

@@ -10,7 +10,7 @@ class WaveformsMenuRouter : public SectionHolder {
           this->sublevels_address={8,0,0};
         }
         const byte wf_labels_count = 8;
-        static const byte wfn_size = 6;
+        static const byte wfn_size = 6; //displayables lines
         String wforms_names[wfn_size];
         byte wforms_indexes[99];
         byte wforms_count = 0 ;
@@ -90,7 +90,6 @@ class WaveformsMenuRouter : public SectionHolder {
           navrange = 2 ;
           if (navlevel == 3 ){
             navrange = 127;
-            Serial.println("sel");
             *valz[sublevels[2]]=sublevels[3];
           }
           

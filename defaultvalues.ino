@@ -1,23 +1,23 @@
 void initextmems() {
   for (int i = 0; i < flash_liners_count; i++) {
     for (int j = 0; j < pbars; j++) {
-      length2pbars[i][j] = 0;
-      templength2pbars[i][j] = 0;
+      flash_notes_length[i][j] = 0;
       for (int k = 0; k < 3; k++) {
         sampler_off_pat[j][k] = 0;
         sampler_partition[i][j][k] = 0;
-        temp_sampler_partition[i][j][k] = 0;
+        //thats ok we only do it once... 5 more times than necessary but you can never be sure...
+        temp_sampler_partition[j][k] = 0;
       }
     }
   }
   for (int i = 0; i < synth_liners_count; i++) {
     for (int j = 0; j < pbars; j++) {
-      length0pbars[i][j] = 0;
-      templength0pbars[i][j] = 0;
+      synth_notes_length[i][j] = 0;
       for (int k = 0; k < 3; k++) {
         synth_off_pat[i][j][k] = 0;
         synth_partition[i][j][k] = 0;
-        temp_synth_partition[i][j][k] = 0;
+        //thats ok we only do it twice... 5 more times than necessary but you can never be sure...
+        temp_synth_partition[j][k] = 0;
       }
     }
   }
@@ -25,7 +25,6 @@ void initextmems() {
     leccinterpolated[i] = 0;
     for (int j = 0; j < pbars; j++) {
       cc_partition[i][j] = 127;
-
     }
   }
   for (int i = 0; i < 32; i++) {

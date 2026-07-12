@@ -59,12 +59,6 @@ void call_dosoundlist(){
 void call_loadSampledSound(){
   _sp.loadSampledSound();
 }
-void call_synth_event_cells(){
-  _pe.synth_event_cells();
-}
-void call_sampler_event_cells(){
-  _pe.sampler_event_cells();
-}
 
 void call_wf_show(){
   _wf.show();
@@ -101,9 +95,7 @@ void call_set_bpms(){
 void call_parsepattern(){
   _pt.parsepattern();
 }
-void call_refresh_synth_track(){
-  _pe.refresh_synth_track();
-}
+
 void call_refresh_flash_track(){
   _pe.refresh_flash_track();
 }

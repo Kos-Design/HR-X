@@ -53,7 +53,7 @@ void loopusbHub() {
 }
 
 void Mytickmidi() {
-  Serial.println("ext click");
+  //Serial.println("ext click");
   advance_tick();
 }
 

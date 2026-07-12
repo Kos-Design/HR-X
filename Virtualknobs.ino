@@ -256,7 +256,6 @@ void actionvbuttons() {
         }
       }
       if (navlevel >= navlevelvbuttons + 2) {
-        Serial.println("Setted pot");
         vPots[sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14] =
             sublevels[navlevelvbuttons + 1];
         sublevels[navlevelvbuttons + 2] = sublevels[navlevelvbuttons];

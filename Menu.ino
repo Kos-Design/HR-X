@@ -209,7 +209,6 @@ class FlashLiner {
         playable_file = lower_extension_case(playable_file);
       }
       FlashSampler[l_index]->play(playable_file.c_str());
-      Serial.println(playable_file);
       activated=true;
       note=data1;
       velocity=data2;

@@ -1,4 +1,763 @@
 
+
+
+class CCEditor : public SectionHolder {
+  public:
+        CCEditor() {
+                    self = this;
+                    this->home_navrange=3;
+                    this->relative_navlevel=2;
+                    this->max_navlevel=5;
+                    this->sublevels_address={4,0,0};
+                    //home method not really used yet
+                    //this->set_home(call_fx_mainpanel);
+                    }
+
+        static void show() {
+          navrange = 127;
+          showleditcc();
+          editlaccactionpath();
+          dodisplay();
+        }
+
+        static void route_navlevel_1(){
+            //presets_nav_zero();
+        }
+
+        static void showleditcc() {
+          int lavaluecc = 0;
+          int lacellwidth = 128 / pbars;
+          int lestartyc = 16;
+          float lacellratio = (62 - lestartyc) / 127.0;
+          int lacellx = 0;
+          int lacelly = 0;
+          int lalinex1 = 0;
+          int lalinex2 = 0;
+          int laliney1 = 0;
+          int laliney2 = 0;
+          display.clearDisplay();
+          canvasBIG.fillScreen(SSD1306_BLACK);
+
+          if (navlevel == 2) {
+            canvastitle.fillScreen(SSD1306_BLACK);
+            canvastitle.setCursor(0, 0);
+            if (midiknobassigned[sublevels[2]] == 0) {
+              canvastitle.setTextSize(2);
+              canvastitle.print("Edit CC");
+              if (sublevels[2] < 100) {
+                canvastitle.print(" ");
+              }
+              if (sublevels[2] < 10) {
+                canvastitle.print(" ");
+              }
+              canvastitle.print(sublevels[2]);
+            } else {
+              canvastitle.setTextSize(1);
+              canvastitle.print("CC");
+              canvastitle.print(sublevels[2]);
+              canvastitle.print(" ");
+              canvastitle.print((char *)ControlList[midiknobassigned[sublevels[2]]]);
+            }
+          }
+          canvasBIG.drawRect(0, 16, 128, 64, SSD1306_WHITE);
+
+          for (int j = 0; j < pbars; j++) {
+
+            lavaluecc = (int)cc_partition[sublevels[2]][j];
+            lacellx = 1 + j * lacellwidth;
+            lacelly = 63 - lacellratio * lavaluecc;
+            lalinex1 = lacellx;
+            laliney1 = lacelly;
+            if (lavaluecc < 128) {
+              canvasBIG.fillRect(lacellx, lacelly, 3, 3, SSD1306_WHITE);
+              if (j > 0) {
+                if ((int)cc_partition[sublevels[2]][j - 1] < 128) {
+                  canvasBIG.drawLine(lalinex2, laliney2, lalinex1, laliney1,
+                                    SSD1306_WHITE);
+                }
+              }
+            }
+            lalinex2 = lalinex1;
+            laliney2 = laliney1;
+          }
+          dodisplay();
+        }
+
+        static void headerccedit() {
+          display.clearDisplay();
+          canvastitle.fillScreen(SSD1306_BLACK);
+          canvastitle.setCursor(0, 0);
+          canvastitle.setTextSize(1);
+          canvastitle.print("Edit CC ");
+          canvastitle.print(sublevels[2]);
+          canvastitle.setCursor(0, 8);
+          canvastitle.print("Pos: ");
+          canvastitle.print(sublevels[3]);
+          canvastitle.setCursor(90, 0);
+          canvastitle.setTextSize(2);
+          if (cc_partition[sublevels[2]][sublevels[3]] < 128) {
+            canvastitle.print(cc_partition[sublevels[2]][sublevels[3]]);
+          }
+          if (cc_partition[sublevels[2]][sublevels[3]] >= 128) {
+            canvastitle.print("Off");
+          }
+        }
+
+        static void showvertlinecursor(int lavertpos) {
+          display.drawLine(lavertpos * (128 / pbars), 16, lavertpos * (128 / pbars), 64,
+                          SSD1306_WHITE);
+        }
+
+        static void editlaccactionpath() {
+          if (navlevel == 3) {
+
+            navrange = pbars - 1;
+
+            sublevels[4] = (int)cc_partition[sublevels[2]][sublevels[3]];
+            headerccedit();
+            showvertlinecursor(sublevels[3]);
+          }
+          if (navlevel == 4) {
+
+            navrange = 127;
+            cc_partition[sublevels[2]][sublevels[3]] = (byte)sublevels[4];
+            headerccedit();
+          }
+          if (navlevel > 4) {
+            navlevel = 3;
+            vraipos = sublevels[3];
+            myEnc.write(vraipos * 4);
+            navrange = pbars - 1;
+          }
+        }
+
+  private:
+      static CCEditor* self;
+};
+
+CCEditor* CCEditor::self = nullptr;
+EXTMEM CCEditor _ce;
+
+class PatEditRouter : public SectionHolder {
+    public:
+        PatEditRouter() {
+                    self = this;
+                    this->home_navrange=3;
+                    this->relative_navlevel=2;
+                    this->max_navlevel=5;
+                    this->sublevels_address={4,7,0};
+                    
+                    //home method not really used yet
+                    //this->set_home(call_fx_mainpanel);
+                    }
+        bool visible_tracks[6][32];
+        byte (*_on_part)[3] = nullptr;
+        byte (*_off_part)[3] = nullptr;
+        byte (*_temp_part)[3] = nullptr;
+        int *_length_part = nullptr;
+        byte liners_count = 1 ;
+        byte liners_page = 0;
+        byte track_type = 0;
+        byte local_line = 0;
+
+        static void homer(){
+          cellsizer = 8 * (16 / pbars);
+          celltall = 8;
+          startx = 0;
+          starty = 16;
+          navrange = patternlines - 1;
+          dm.clear_3();
+          drawPatternRow();
+          dolistpatternlineblocks();
+          display.setCursor(0, 0);
+          if (sublevels[navlevelpatedit] == 0) {
+            display.print("Synth");
+          }
+          if (sublevels[navlevelpatedit] == 1) {
+            display.print("Sampler");
+          }
+          dodisplay();
+        }
+
+        static void set_editor_to_synth(byte liner = self->local_line){
+          self->_on_part = synth_partition[liner] ;
+          self->_off_part =  synth_off_pat[liner] ;
+          self->_temp_part = temp_synth_partition;
+          self->liners_count = synth_liners_count;
+          self->_length_part = synth_notes_length[liner] ;
+        }
+
+        static void set_editor_to_sampler(byte liner = self->local_line){
+         self->_on_part = sampler_partition[liner] ;
+          self->_off_part = sampler_off_pat;
+          self->_temp_part = temp_sampler_partition;
+          self->liners_count = flash_liners_count;
+          self->_length_part = flash_notes_length[liner] ;
+        }
+        static void cells_wrapper(void (*func)()) {
+          
+          //if (navlevel >= 3) {
+            func();
+            //returntonav(1, self->wf_labels_count - 1,sublevels[1]);
+          //}
+        }
+
+        static void player_selector(){
+          self->track_type = sublevels[navlevelpatedit];
+          if (navlevel == navlevelpatedit + 1)
+            set_editor_type[self->track_type](0);
+          cellsizer = 8 * (16 / pbars);
+          celltall = 8;
+          startx = 0;
+          starty = 16;
+          navrange = self->liners_count;
+          dm.clear_3();
+          cell_events[navlevel-navlevelpatedit-1]();
+          dodisplay();
+        }
+        //make wrapper for levels
+
+        static void show() {
+
+           _nav_home_route[navlevel-navlevelpatedit]();
+        }
+
+        static void doshownoteline() {
+          byte note_width = 4;
+          byte note_height = 4;
+          byte left_spacer = 0;
+          byte top_spacer = 16;
+          int ncell_x_length = 4;
+          byte note_slct = sublevels[navlevelpatedit + 2];
+          int ncell_y;
+          canvasBIG.setCursor(0, 0);
+          canvasBIG.print("Note:");
+          canvasBIG.print(sublevels[navlevelpatedit + 2]);
+          canvasBIG.print(" Pos:");
+          canvasBIG.print(sublevels[navlevelpatedit + 3]);
+          for (int notelines = note_slct; notelines > note_slct - 12; notelines--) {
+            for (int i = 0; i < pbars; i++) {
+
+              if ((bool)self->_temp_part[i][1] && (int)self->_temp_part[i][1] == notelines) {
+
+                ncell_x_length = max(self->_length_part[i],4);
+                ncell_y = top_spacer + (4 * (note_slct - notelines));
+
+                canvasBIG.fillRect(left_spacer + note_width * i, ncell_y,
+                                  ncell_x_length, note_height, SSD1306_WHITE);
+                canvasBIG.drawLine(left_spacer + note_width * i, ncell_y,
+                                  left_spacer + note_width * i, ncell_y + note_height,
+                                  SSD1306_BLACK);
+              }
+            }
+          }
+        }
+
+        static void drawPatternRow() {
+          // rows of audio sources : synth, sampler, others
+          canvasBIG.drawLine(startx, starty + sublevels[navlevelpatedit] * celltall + 3,
+                            (128 - startx),
+                            starty + sublevels[navlevelpatedit] * celltall + 3,
+                            SSD1306_WHITE);
+        }
+
+        static void drawEventRow() {
+          // row of events (liners) on audio source (patternrow)
+          canvasBIG.drawLine(
+              0, starty + sublevels[navlevelpatedit + 1] * celltall + 3, 128,
+              starty + sublevels[navlevelpatedit + 1] * celltall + 3, SSD1306_INVERSE);
+        }
+
+        static void drawsamplerEventRow() {
+          // row of events (liners) on audio source (patternrow)
+          canvasBIG.drawLine(0,starty + (sublevels[navlevelpatedit + 1] - samplelinerspage) * celltall + 3, 128, starty + (sublevels[navlevelpatedit + 1] - samplelinerspage) * celltall + 3,
+              SSD1306_INVERSE);
+        }
+
+        static void showblocksofevent() {
+          cellsizer = 4;
+          celltall = 8;
+          startx = 0;
+          starty = 0;
+          for (int liner = 0; liner < synth_liners_count; liner++) {
+            for (int i = 0; i < pbars; i++) {
+              if (synth_partition[liner][i][1] != 0) {
+                canvasBIG.fillRect(startx + cellsizer * i + 1,
+                                  starty + (celltall * liner) + 1, cellsizer - 2,
+                                  celltall - 2, SSD1306_INVERSE);
+              }
+            }
+          }
+        }
+
+        static void reshift_tracks_display() {
+          //6 is max visible lines of 8px in 48px
+          for (int i = 0 ; i < 6 ; i++) {
+            set_editor_type[self->track_type]((i + sublevels[navlevelpatedit+1])%self->liners_count);
+            for (int j = 0 ; j < pbars ; j++) {
+              self->visible_tracks[i][j] = (bool)(self->_on_part[j][2]);
+            }
+          }
+        }
+        // TODO: replace these global generics
+        static void show_lines_events(){
+          for (int i = 0 ; i < 6 ; i++) {
+             for (int j = 0 ; j < pbars ; j++) {
+                canvasBIG.fillRect( 4 * j, 16+(8*i), 4*((int)self->visible_tracks[i][j]), 8*((int)self->visible_tracks[i][j]), SSD1306_WHITE);  
+            }
+          }
+          canvasBIG.drawFastHLine(0, 16 + 5, 128, SSD1306_INVERSE);
+        }
+
+        static void clearevented0(int lapatline) {
+
+          for (int j = 0; j < pbars; j++) {
+            track_cells[lapatline][j] = false;
+          }
+        }
+
+        static void refresh_synth_track() {
+          clearevented0(0);
+          for (int linerrd = 0; linerrd < synth_liners_count; linerrd++) {
+
+            for (int i = 0; i < pbars; i++) {
+
+              if (synth_partition[linerrd][i][1] != 0) {
+                track_cells[0][i] = true;
+              }
+            }
+          }
+        }
+
+        static void refresh_flash_track() {
+          clearevented0(1);
+          for (int linerrd = 0; linerrd < flash_liners_count; linerrd++) {
+
+            for (int i = 0; i < pbars; i++) {
+
+              if (sampler_partition[linerrd][i][1] != 0) {
+                track_cells[1][i] = true;
+              }
+            }
+          }
+        }
+
+        static void dolistpatternlineblocks() {
+          cellsizer = 4;
+          celltall = 8;
+          startx = 0;
+          starty = 16;
+
+          for (int lapatline = 0; lapatline < patternlines; lapatline++) {
+            for (int i = 0; i < pbars; i++) {
+              if (track_cells[lapatline][i]) {
+                canvasBIG.fillRect(startx + cellsizer * i + 1,
+                                  starty + (8 * lapatline) + 1, cellsizer - 2,
+                                  celltall - 2, SSD1306_INVERSE);
+              }
+            }
+          }
+        }
+
+        int grid_start_note() {
+          /*
+          byte min_note = 127 ;
+          int averagenoteevent = 0;
+          int nombrofnoteonliner = 0;
+          //TODO: get the most visible notes range to set starting note val
+          */
+          return 45;
+        }
+
+        static void terminatenotesinbetween() {
+          for (int i = sublevels[navlevelpatedit + 3] + 1;
+              i < sublevels[navlevelpatedit + 4]; i++) {
+            if (self->_on_part[i][1] != 0) {
+              self->_on_part[i][1] = 0;
+            }
+            if (synth_off_pat[sublevels[navlevelpatedit + 1]][i][1] != 0) {
+              synth_off_pat[sublevels[navlevelpatedit + 1]][i][1] = 0;
+            }
+          }
+        }
+
+        static void sync_temp() {
+          for (int i = 0; i < pbars; i++) {
+            self->_temp_part[i][0] = self->_on_part[i][0];
+            self->_temp_part[i][2] = self->_on_part[i][2];
+            self->_temp_part[i][1] = self->_on_part[i][1];
+          }
+        }
+       
+        static void drawCursorCol() {
+          int xpos = (sublevels[navlevel] * 4) + 1;
+          display.drawLine(xpos, starty, xpos, 64 - (starty), SSD1306_INVERSE);
+        }
+
+        static void track_selector() {
+          reshift_tracks_display();
+          navrange = self->liners_count - 1;
+          self->local_line = sublevels[navlevelpatedit+1];
+          set_editor_type[self->track_type](self->local_line);
+          show_track_header();
+          show_lines_events();
+          dodisplay();
+          sublevels[navlevelpatedit + 2] = self->grid_start_note();
+        }
+
+        static void show_track_header(){
+          display.clearDisplay();
+          String head_title[2]={"Synth","Flash"};
+          canvastitle.setCursor(0, 0);
+          canvastitle.setTextSize(1);
+          canvastitle.print(head_title[self->track_type]);
+          canvastitle.print(" Track ");
+          canvastitle.print(self->local_line + 1);
+        }
+
+        static void note_selector() {
+          display.clearDisplay();
+          navrange = 127;
+          sync_temp();
+          doshownoteline();
+          //canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
+          draw_velobars();
+          dodisplay();
+          sublevels[navlevelpatedit + 3] = tickposition;
+          if (sublevels[navlevelpatedit+2] == 0 ){
+            sublevels[navlevelpatedit + 2] = self->grid_start_note();
+          }
+        }
+
+        static void start_cell_setter() {
+          previousnavlevel = navlevel;
+          //last level showing the noteline and its velocity
+          display.clearDisplay();
+          navrange = 31;
+          canvasBIG.fillRect(0, 32,127,64-32, SSD1306_BLACK);
+          sublevels[navlevelpatedit + 4] = sublevels[navlevelpatedit + 3];
+          sync_temp();
+          doshownoteline();
+          canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_WHITE);
+          drawCursorCol();
+          draw_velobars();
+          dodisplay();
+          retroaction = sublevels[navlevelpatedit + 2] ;
+        }
+
+        static void draw_velobars(){
+          int velobar ;
+          for (int i = 0; i < pbars; i++) {
+            velobar = map(self->_temp_part[i][2],0,127,0,16);
+            canvasBIG.fillRect((i*(128/32)), 64-velobar,4 ,velobar, SSD1306_WHITE);
+          }
+        }
+
+        static void stretch_cell_length() {
+          // clickon liner /note / at tickpos
+
+          byte decednote2 = self->_on_part[sublevels[navlevelpatedit + 3]][2];
+          if (decednote2) {
+            //delete previous key if present
+            set_cell_at_pos(0,0,0);
+            returntonav(navlevel-1,127,decednote2);
+          } else {
+            addinglenght = 1;
+            self->_temp_part[sublevels[navlevelpatedit + 3]][0] = ((int[2]){synthmidichannel,samplermidichannel})[self->track_type];
+            self->_temp_part[sublevels[navlevelpatedit + 3]][1] = (byte)sublevels[navlevelpatedit + 2];
+            self->_temp_part[sublevels[navlevelpatedit + 3]][2] = (byte)64;
+
+            navrange = 31;
+            self->_length_part[sublevels[navlevelpatedit + 3]] = max( (sublevels[navlevelpatedit + 4] - sublevels[navlevelpatedit + 3]) * 4,4);
+            _refresher[self->track_type]();
+            display.clearDisplay();
+            sublevels[navlevelpatedit + 5] = self->_temp_part[sublevels[navlevelpatedit + 3]][2];
+            //doshownoteline2();
+            doshownoteline();
+            canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
+            drawCursorCol();
+            draw_velobars();
+            dodisplay();
+          }
+        }
+
+        static void stretch_cell_velocity() {
+            navrange = 127;
+            addinglenght = 0;
+            self->_temp_part[sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
+            display.clearDisplay();
+            doshownoteline();
+            canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
+            draw_velobars();
+            dodisplay();
+        }
+
+        static void sanitize_synth_partition(){
+         
+            bool offUsed[synth_liners_count][pbars] = {false};
+
+            for (int line = 0; line < synth_liners_count; line++)
+            {
+                for (int onStep = 0; onStep < pbars; onStep++)
+                {
+                    // Skip empty Note On
+                    if (synth_partition[line][onStep][2] == 0)
+                        continue;
+
+                    uint8_t note = synth_partition[line][onStep][1];
+                    int latestStep = (onStep + (pbars-1)) & (pbars-1);
+
+                    for (int i = 1; i < pbars; i++)
+                    {
+                        int s = (onStep + i) & (pbars-1);
+
+                        if (synth_partition[line][s][2] &&
+                            synth_partition[line][s][1] == note)
+                        {
+                            latestStep = (s + (pbars-1)) & (pbars-1);
+                            break;
+                        }
+                    }
+                    int foundLine = -1;
+                    int foundStep = -1;
+                    bool found = false;
+
+                    int s = (onStep + 1) & (pbars-1);
+
+                    while (!found)
+                    {
+                        for (int l = 0; l < synth_liners_count; l++)
+                        {
+                            if (offUsed[l][s])
+                                continue;
+
+                            if (synth_off_pat[l][s][1] == note)
+                            {
+                                found = true;
+                                foundLine = l;
+                                foundStep = s;
+                                break;
+                            }
+                        }
+
+                        if (found || s == latestStep)
+                            break;
+
+                        s = (s + 1) & (pbars-1);
+                    }
+                    int targetStep = latestStep;
+                    while (targetStep != onStep)
+                    {
+                        if (synth_off_pat[line][targetStep][1] == 0 ||
+                            (found && targetStep == foundStep && line == foundLine))
+                            break;
+
+                        targetStep = (targetStep + (pbars-1)) & (pbars-1);
+                    }
+                    if (found)
+                    {
+                        if (foundLine != line || foundStep != targetStep)
+                        {
+                            synth_off_pat[foundLine][foundStep][0] = 0;
+                            synth_off_pat[foundLine][foundStep][1] = 0;
+                          
+
+                            synth_off_pat[line][targetStep][0] = synth_partition[line][onStep][0];
+                            synth_off_pat[line][targetStep][1] = note;
+                      
+                        }
+
+                        offUsed[line][targetStep] = true;
+                    }
+                    else
+                    {
+                        synth_off_pat[line][targetStep][0] = synth_partition[line][onStep][0];
+                        synth_off_pat[line][targetStep][1] = note;
+                        offUsed[line][targetStep] = true;
+                    }
+                }
+            }
+            for (int line = 0; line < synth_liners_count; line++)
+            {
+                for (int step = 0; step < pbars; step++)
+                {
+                    if (!offUsed[line][step])
+                    {
+                        synth_off_pat[line][step][0] = 0;
+                        synth_off_pat[line][step][1] = 0;
+                    }
+                }
+            }
+        }
+
+        static void sanitize_sampler_partition(){
+         
+            bool offUsed[flash_liners_count][pbars] = {false};
+
+            for (int line = 0; line < flash_liners_count; line++)
+            {
+                for (int onStep = 0; onStep < pbars; onStep++)
+                {
+                    // Skip empty Note On
+                    if (sampler_partition[line][onStep][2] == 0)
+                        continue;
+
+                    uint8_t note = sampler_partition[line][onStep][1];
+                    int latestStep = (onStep + (pbars-1)) & (pbars-1);
+
+                    for (int i = 1; i < pbars; i++)
+                    {
+                        int s = (onStep + i) & (pbars-1);
+
+                        if (sampler_partition[line][s][2] &&
+                            sampler_partition[line][s][1] == note)
+                        {
+                            latestStep = (s + (pbars-1)) & (pbars-1);
+                            break;
+                        }
+                    }
+                    int foundLine = -1;
+                    int foundStep = -1;
+                    bool found = false;
+
+                    int s = (onStep + 1) & (pbars-1);
+
+                    while (!found)
+                    {
+                        for (int l = 0; l < flash_liners_count; l++)
+                        {
+                            if (offUsed[l][s])
+                                continue;
+
+                            if (sampler_off_pat[s][1] == note)
+                            {
+                                found = true;
+                                foundLine = l;
+                                foundStep = s;
+                                break;
+                            }
+                        }
+
+                        if (found || s == latestStep)
+                            break;
+
+                        s = (s + 1) & (pbars-1);
+                    }
+                    int targetStep = latestStep;
+                    while (targetStep != onStep)
+                    {
+                        if (sampler_off_pat[targetStep][1] == 0 ||
+                            (found && targetStep == foundStep && line == foundLine))
+                            break;
+
+                        targetStep = (targetStep + (pbars-1)) & (pbars-1);
+                    }
+                    if (found)
+                    {
+                        if (foundLine != line || foundStep != targetStep)
+                        {
+                            sampler_off_pat[foundStep][0] = 0;
+                            sampler_off_pat[foundStep][1] = 0;
+                          
+
+                            sampler_off_pat[targetStep][0] = sampler_partition[line][onStep][0];
+                            sampler_off_pat[targetStep][1] = note;
+                      
+                        }
+
+                        offUsed[line][targetStep] = true;
+                    }
+                    else
+                    {
+                        sampler_off_pat[targetStep][0] = sampler_partition[line][onStep][0];
+                        sampler_off_pat[targetStep][1] = note;
+                        offUsed[line][targetStep] = true;
+                    }
+                }
+            }
+            for (int line = 0; line < flash_liners_count; line++)
+            {
+                for (int step = 0; step < pbars; step++)
+                {
+                    if (!offUsed[line][step])
+                    {
+                        sampler_off_pat[step][0] = 0;
+                        sampler_off_pat[step][1] = 0;
+                    }
+                }
+            }
+        }
+
+        static void set_cell_at_pos(byte ch_, byte nt_, byte ve_){
+          byte sub3 = sublevels[navlevelpatedit + 3];
+          byte sub4 = sublevels[navlevelpatedit + 4];
+          self->_on_part[sub3][0] = ch_;
+          self->_on_part[sub3][1] = nt_;
+          self->_on_part[sub3][2] = ve_;
+          byte laOffpos;
+          self->_length_part[sub3] = max((sub4 - sub3) * 4,4);
+          
+          laOffpos = sub3 + (self->_length_part[sub3] / 4);
+          if (laOffpos == sub3) {
+            laOffpos += 1;
+          }
+          if (laOffpos > pbars) {
+            laOffpos = laOffpos - pbars;
+          }
+          self->_off_part[laOffpos][0] = ch_;
+          self->_off_part[laOffpos][1] = nt_;
+          terminatenotesinbetween();
+          //off
+          if (!ve_){
+
+            self->_on_part[sub3][0] = 0;
+            self->_on_part[sub3][1] = 0;
+            self->_on_part[sub3][2] = 0;
+            self->_length_part[sub3] = 0 ;
+          }
+          _sanitizer[self->track_type]();
+        }
+        //bonus elswhere
+        //if play pattern save played notes & notes off them all on Stop
+
+        static void set_cell_velocity() {
+          previousnavlevel = navlevel;
+          byte sub3 = sublevels[navlevelpatedit + 3];
+          byte sub4 = sublevels[navlevelpatedit + 4] ;
+          set_cell_at_pos(((int[2]){synthmidichannel,samplermidichannel})[self->track_type],sublevels[navlevelpatedit + 2],self->_temp_part[sub3][2]);
+          if (!self->_temp_part[sub3][2]){
+            set_cell_at_pos(0,0,0);
+          }
+          _refresher[self->track_type]();
+          returntonav(navlevelpatedit + 3,31,sub4);
+        }
+
+        static void refresh_patterns(){
+          _refresher[self->track_type]();
+          _sanitizer[self->track_type]();
+          computelenghtmesureoffline_synth();
+          computelenghtmesureoffline_sampler();
+        }
+
+        static constexpr void (*cell_events[6])() = {&track_selector, &note_selector,
+                                                    &start_cell_setter, &stretch_cell_length,
+                                                    &stretch_cell_velocity, &set_cell_velocity};
+        
+        //has to be of length 6 to reach last cell click
+        static constexpr void (*_nav_home_route[7])() = {&homer,&player_selector,&player_selector,
+                                                  &player_selector,&player_selector,&player_selector,
+                                                  &player_selector};
+
+    private:
+      static constexpr void (*_refresher[2])() = {&refresh_synth_track, &refresh_flash_track};
+      static constexpr void (*set_editor_type[2])(byte) = {&set_editor_to_synth, &set_editor_to_sampler};
+      static constexpr void (*_sanitizer[2])() = {&sanitize_synth_partition,&sanitize_sampler_partition};
+      static PatEditRouter* self;
+};
+
+PatEditRouter* PatEditRouter::self = nullptr;
+EXTMEM PatEditRouter _pe;
+
 class POptionsRouter : public SectionHolder {
   public:
         POptionsRouter() {
@@ -178,7 +937,7 @@ class POptionsRouter : public SectionHolder {
           if (sublevels[3] - 7 < 0) {
             shiftnotes1up(abs(sublevels[3] - 7));
           }
-          call_refresh_synth_track();
+          _pe.refresh_synth_track();
         }
 
         static void dotransposeCC() {
@@ -570,7 +1329,7 @@ class POptionsRouter : public SectionHolder {
 
             shiftnotes1right(abs(sublevels[3] - 16));
           }
-          call_refresh_synth_track();
+          _pe.refresh_synth_track();
         }
 
         static void showShifterdisplays() {
@@ -680,1308 +1439,6 @@ class POptionsRouter : public SectionHolder {
 POptionsRouter* POptionsRouter::self = nullptr;
 EXTMEM POptionsRouter _po;
 
-class CCEditor : public SectionHolder {
-  public:
-        CCEditor() {
-                    self = this;
-                    this->home_navrange=3;
-                    this->relative_navlevel=2;
-                    this->max_navlevel=5;
-                    this->sublevels_address={4,0,0};
-                    //home method not really used yet
-                    //this->set_home(call_fx_mainpanel);
-                    }
-
-        static void show() {
-          Serial.println("shown");
-          navrange = 127;
-          showleditcc();
-          editlaccactionpath();
-          dodisplay();
-        }
-
-        static void route_navlevel_1(){
-            //presets_nav_zero();
-        }
-
-        static void showleditcc() {
-          int lavaluecc = 0;
-          int lacellwidth = 128 / pbars;
-          int lestartyc = 16;
-          float lacellratio = (62 - lestartyc) / 127.0;
-          int lacellx = 0;
-          int lacelly = 0;
-          int lalinex1 = 0;
-          int lalinex2 = 0;
-          int laliney1 = 0;
-          int laliney2 = 0;
-          display.clearDisplay();
-          canvasBIG.fillScreen(SSD1306_BLACK);
-
-          if (navlevel == 2) {
-            canvastitle.fillScreen(SSD1306_BLACK);
-            canvastitle.setCursor(0, 0);
-            if (midiknobassigned[sublevels[2]] == 0) {
-              canvastitle.setTextSize(2);
-              canvastitle.print("Edit CC");
-              if (sublevels[2] < 100) {
-                canvastitle.print(" ");
-              }
-              if (sublevels[2] < 10) {
-                canvastitle.print(" ");
-              }
-              canvastitle.print(sublevels[2]);
-            } else {
-              canvastitle.setTextSize(1);
-              canvastitle.print("CC");
-              canvastitle.print(sublevels[2]);
-              canvastitle.print(" ");
-              canvastitle.print((char *)ControlList[midiknobassigned[sublevels[2]]]);
-            }
-          }
-          canvasBIG.drawRect(0, 16, 128, 64, SSD1306_WHITE);
-
-          for (int j = 0; j < pbars; j++) {
-
-            lavaluecc = (int)cc_partition[sublevels[2]][j];
-            lacellx = 1 + j * lacellwidth;
-            lacelly = 63 - lacellratio * lavaluecc;
-            lalinex1 = lacellx;
-            laliney1 = lacelly;
-            if (lavaluecc < 128) {
-              canvasBIG.fillRect(lacellx, lacelly, 3, 3, SSD1306_WHITE);
-              if (j > 0) {
-                if ((int)cc_partition[sublevels[2]][j - 1] < 128) {
-                  canvasBIG.drawLine(lalinex2, laliney2, lalinex1, laliney1,
-                                    SSD1306_WHITE);
-                }
-              }
-            }
-            lalinex2 = lalinex1;
-            laliney2 = laliney1;
-          }
-          dodisplay();
-        }
-
-        static void headerccedit() {
-          display.clearDisplay();
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(1);
-          canvastitle.print("Edit CC ");
-          canvastitle.print(sublevels[2]);
-          canvastitle.setCursor(0, 8);
-          canvastitle.print("Pos: ");
-          canvastitle.print(sublevels[3]);
-          canvastitle.setCursor(90, 0);
-          canvastitle.setTextSize(2);
-          if (cc_partition[sublevels[2]][sublevels[3]] < 128) {
-            canvastitle.print(cc_partition[sublevels[2]][sublevels[3]]);
-          }
-          if (cc_partition[sublevels[2]][sublevels[3]] >= 128) {
-            canvastitle.print("Off");
-          }
-        }
-
-        static void showvertlinecursor(int lavertpos) {
-          display.drawLine(lavertpos * (128 / pbars), 16, lavertpos * (128 / pbars), 64,
-                          SSD1306_WHITE);
-        }
-
-        static void editlaccactionpath() {
-          if (navlevel == 3) {
-
-            navrange = pbars - 1;
-
-            sublevels[4] = (int)cc_partition[sublevels[2]][sublevels[3]];
-            headerccedit();
-            showvertlinecursor(sublevels[3]);
-          }
-          if (navlevel == 4) {
-
-            navrange = 127;
-            cc_partition[sublevels[2]][sublevels[3]] = (byte)sublevels[4];
-            headerccedit();
-          }
-          if (navlevel > 4) {
-            navlevel = 3;
-            vraipos = sublevels[3];
-            myEnc.write(vraipos * 4);
-            navrange = pbars - 1;
-          }
-        }
-
-  private:
-      static CCEditor* self;
-};
-
-CCEditor* CCEditor::self = nullptr;
-EXTMEM CCEditor _ce;
-
-class PatEditRouter : public SectionHolder {
-    public:
-        PatEditRouter() {
-                    self = this;
-                    this->home_navrange=3;
-                    this->relative_navlevel=2;
-                    this->max_navlevel=5;
-                    this->sublevels_address={4,7,0};
-                    //home method not really used yet
-                    //this->set_home(call_fx_mainpanel);
-                    }
-
-        static void homer(){
-          cellsizer = 8 * (16 / pbars);
-          celltall = 8;
-          startx = 0;
-          starty = 16;
-          navrange = patternlines - 1;
-          dm.clear_3();
-          drawPatternRow();
-          dolistpatternlineblocks();
-          display.setCursor(0, 0);
-          if (sublevels[navlevelpatedit] == 0) {
-            display.print("Synth");
-          }
-          if (sublevels[navlevelpatedit] == 1) {
-            display.print("Sampler");
-          }
-          dodisplay();
-        }
-
-        static void player_selector(){
-          cellsizer = 8 * (16 / pbars);
-          celltall = 8;
-          startx = 0;
-          starty = 16;
-          navrange = patternlines - 1;
-          dm.clear_3();
-          _nav_peditors[sublevels[navlevelpatedit]]();
-          dodisplay();
-        }
-
-        static void show() {
-           _nav_home_route[navlevel-navlevelpatedit]();
-        }
-
-        
-
-        static void doshownoteline() {
-          // some notes not showing check lenght note computation
-          // -----------------------
-          // only once, move elsewhere
-          // int displayedstart = 60 ;
-          // navrange = 128-1 ;
-          cellsizer = 4;
-          celltall = 4;
-          startx = 0;
-          starty = 16;
-          int lenghtofthenote = 4;
-          int decnote;
-          // int linersizehold ;
-          int linern = sublevels[navlevelpatedit + 1];
-
-          startingnoteline = sublevels[navlevelpatedit + 2];
-          // if selector pos > displayedstart + 12
-          // display 12 notes range
-          // blocks pos y = truenote
-          byte note0;
-          canvasBIG.setCursor(0, 0);
-          canvasBIG.print("Note:");
-          canvasBIG.print(sublevels[navlevelpatedit + 2]);
-          canvasBIG.print(" Pos:");
-          canvasBIG.print(sublevels[navlevelpatedit + 3]);
-          for (int notelines = startingnoteline; notelines > startingnoteline - 12;
-              notelines--) {
-            for (int i = 0; i < pbars; i++) {
-
-              note0 = synth_partition[linern][i][1];
-              decnote = (int)note0;
-
-              if (decnote == notelines && note0 != 0) {
-
-                lenghtofthenote = length0pbars[linern][i];
-
-                if (lenghtofthenote < 4) {
-                  lenghtofthenote = 4;
-                }
-                int listoffsetter = starty + (4 * (startingnoteline - notelines));
-
-                canvasBIG.fillRect(startx + cellsizer * i, listoffsetter,
-                                  lenghtofthenote, celltall, SSD1306_WHITE);
-                canvasBIG.drawLine(startx + cellsizer * i, listoffsetter,
-                                  startx + cellsizer * i, listoffsetter + celltall,
-                                  SSD1306_BLACK);
-              }
-            }
-          }
-        }
-
-        static void doshownoteline2() {
-          cellsizer = 4;
-          celltall = 4;
-          startx = 0;
-          starty = 16;
-          int lenghtofthenote = 4;
-          int decnote;
-          int listoffsetter;
-          // int linersizehold ;
-          int linern = sublevels[navlevelpatedit + 1];
-          startingnoteline = sublevels[navlevelpatedit + 2];
-          canvasBIG.setCursor(0, 0);
-          canvasBIG.print("Note:");
-          canvasBIG.print(sublevels[navlevelpatedit + 2]);
-          canvasBIG.print(" Pos:");
-          canvasBIG.print(sublevels[navlevelpatedit + 4]);
-          byte note0;
-          for (int notelines = startingnoteline; notelines > startingnoteline - 12;
-              notelines--) {
-            for (int i = 0; i < pbars; i++) {
-
-              note0 = temp_synth_partition[linern][i][1];
-
-              decnote = (int)note0;
-              if (decnote == notelines && note0 != 0) {
-
-                lenghtofthenote = templength0pbars[linern][i];
-
-                if (lenghtofthenote < 4) {
-                  lenghtofthenote = 4;
-                }
-                listoffsetter = starty + (4 * (startingnoteline - notelines));
-                canvasBIG.fillRect(startx + cellsizer * i, listoffsetter,
-                                  lenghtofthenote, celltall, SSD1306_WHITE);
-                canvasBIG.drawLine(startx + cellsizer * i, listoffsetter,
-                                  startx + cellsizer * i, listoffsetter + celltall,
-                                  SSD1306_BLACK);
-              }
-            }
-          }
-        }
-
-        static void doshownoteline3() {
-          cellsizer = 4;
-          celltall = 4;
-          startx = 0;
-          starty = 16;
-          int lenghtofthenote = 4;
-          int decnote;
-          int listoffsetter;
-          // int linersizehold ;
-          int linern = sublevels[navlevelpatedit + 1];
-          startingnoteline = sublevels[navlevelpatedit + 2];
-          canvasBIG.setCursor(0, 0);
-          canvasBIG.print("Note:");
-          canvasBIG.print(sublevels[navlevelpatedit + 2]);
-
-          canvasBIG.print(" Vel:");
-          canvasBIG.print(sublevels[navlevelpatedit + 5]);
-          byte note0;
-          for (int notelines = startingnoteline; notelines > startingnoteline - 12;
-              notelines--) {
-            for (int i = 0; i < pbars; i++) {
-
-              note0 = temp_synth_partition[linern][i][1];
-
-              decnote = (int)note0;
-              if (decnote == notelines && note0 != 0) {
-
-                lenghtofthenote = templength0pbars[linern][i];
-
-                if (lenghtofthenote < 4) {
-                  lenghtofthenote = 4;
-                }
-                listoffsetter = starty + (4 * (startingnoteline - notelines));
-                canvasBIG.fillRect(startx + cellsizer * i, listoffsetter,
-                                  lenghtofthenote, celltall, SSD1306_WHITE);
-                canvasBIG.drawLine(startx + cellsizer * i, listoffsetter,
-                                  startx + cellsizer * i, listoffsetter + celltall,
-                                  SSD1306_BLACK);
-              }
-            }
-          }
-        }
-       
-        static void doshownoteline_sampler() {
-            // some notes not showing check lenght note computation
-            // -----------------------
-            // only once, move elsewhere
-            // int displayedstart = 60 ;
-            // navrange = 128-1 ;
-            cellsizer = 4;
-            celltall = 4;
-            startx = 0;
-            starty = 16;
-            int lenghtofthenote = 4;
-            int decnote;
-            // int linersizehold ;
-            int linern = sublevels[navlevelpatedit + 1];
-
-            startingnoteline = sublevels[navlevelpatedit + 2];
-            // if selector pos > displayedstart + 12
-            // display 12 notes range
-            // blocks pos y = truenote
-            byte note0;
-            canvasBIG.setCursor(0, 0);
-            canvasBIG.print("Note:");
-            canvasBIG.print(sublevels[navlevelpatedit + 2]);
-            canvasBIG.print(" Pos:");
-            canvasBIG.print(sublevels[navlevelpatedit + 3]);
-            for (int notelines = startingnoteline; notelines > startingnoteline - 12;
-                notelines--) {
-              for (int i = 0; i < pbars; i++) {
-
-                note0 = sampler_partition[linern][i][1];
-                decnote = (int)note0;
-
-                if (decnote == notelines && note0 != 0) {
-
-                  lenghtofthenote = length2pbars[linern][i];
-
-                  if (lenghtofthenote < 4) {
-                    lenghtofthenote = 4;
-                  }
-                  int listoffsetter = starty + (4 * (startingnoteline - notelines));
-
-                  canvasBIG.fillRect(startx + cellsizer * i, listoffsetter,
-                                    lenghtofthenote, celltall, SSD1306_WHITE);
-                  canvasBIG.drawLine(startx + cellsizer * i, listoffsetter,
-                                    startx + cellsizer * i, listoffsetter + celltall,
-                                    SSD1306_BLACK);
-                }
-              }
-            }
-        }
-
-        static void doshownoteline2_sampler() {
-          cellsizer = 4;
-          celltall = 4;
-          startx = 0;
-          starty = 16;
-          int lenghtofthenote = 4;
-          int decnote;
-          int listoffsetter;
-          // int linersizehold ;
-          int linern = sublevels[navlevelpatedit + 1];
-          startingnoteline = sublevels[navlevelpatedit + 2];
-          canvasBIG.setCursor(0, 0);
-          canvasBIG.print("Note:");
-          canvasBIG.print(sublevels[navlevelpatedit + 2]);
-          canvasBIG.print(" Pos:");
-          canvasBIG.print(sublevels[navlevelpatedit + 4]);
-          byte note0;
-          for (int notelines = startingnoteline; notelines > startingnoteline - 12;
-              notelines--) {
-            for (int i = 0; i < pbars; i++) {
-
-              note0 = temp_sampler_partition[linern][i][1];
-
-              decnote = (int)note0;
-              if (decnote == notelines && note0 != 0) {
-
-                lenghtofthenote = templength2pbars[linern][i];
-
-                if (lenghtofthenote < 4) {
-                  lenghtofthenote = 4;
-                }
-                listoffsetter = starty + (4 * (startingnoteline - notelines));
-                canvasBIG.fillRect(startx + cellsizer * i, listoffsetter,
-                                  lenghtofthenote, celltall, SSD1306_WHITE);
-                canvasBIG.drawLine(startx + cellsizer * i, listoffsetter,
-                                  startx + cellsizer * i, listoffsetter + celltall,
-                                  SSD1306_BLACK);
-              }
-            }
-          }
-        }
-
-        static void doshownoteline3_sampler() {
-          cellsizer = 4;
-          celltall = 4;
-          startx = 0;
-          starty = 16;
-          int lenghtofthenote = 4;
-          int decnote;
-          int listoffsetter;
-          // int linersizehold ;
-          int linern = sublevels[navlevelpatedit + 1];
-          startingnoteline = sublevels[navlevelpatedit + 2];
-          canvasBIG.setCursor(0, 0);
-          canvasBIG.print("Note:");
-          canvasBIG.print(sublevels[navlevelpatedit + 2]);
-
-          canvasBIG.print(" Vel:");
-          canvasBIG.print(sublevels[navlevelpatedit + 5]);
-          byte note0;
-          for (int notelines = startingnoteline; notelines > startingnoteline - 12;
-              notelines--) {
-            for (int i = 0; i < pbars; i++) {
-
-              note0 = temp_sampler_partition[linern][i][1];
-
-              decnote = (int)note0;
-              if (decnote == notelines && note0 != 0) {
-
-                lenghtofthenote = templength2pbars[linern][i];
-
-                if (lenghtofthenote < 4) {
-                  lenghtofthenote = 4;
-                }
-                listoffsetter = starty + (4 * (startingnoteline - notelines));
-                canvasBIG.fillRect(startx + cellsizer * i, listoffsetter,
-                                  lenghtofthenote, celltall, SSD1306_WHITE);
-                canvasBIG.drawLine(startx + cellsizer * i, listoffsetter,
-                                  startx + cellsizer * i, listoffsetter + celltall,
-                                  SSD1306_BLACK);
-              }
-            }
-          }
-        }
-
-        static void drawPatternRow() {
-          // rows of audio sources : synth, sampler, others
-          canvasBIG.drawLine(startx, starty + sublevels[navlevelpatedit] * celltall + 3,
-                            (128 - startx),
-                            starty + sublevels[navlevelpatedit] * celltall + 3,
-                            SSD1306_WHITE);
-        }
-
-        static void drawEventRow() {
-          // row of events (liners) on audio source (patternrow)
-          canvasBIG.drawLine(
-              0, starty + sublevels[navlevelpatedit + 1] * celltall + 3, 128,
-              starty + sublevels[navlevelpatedit + 1] * celltall + 3, SSD1306_INVERSE);
-        }
-
-        static void drawsamplerEventRow() {
-          // row of events (liners) on audio source (patternrow)
-          canvasBIG.drawLine(0,starty + (sublevels[navlevelpatedit + 1] - samplelinerspage) * celltall + 3, 128, starty + (sublevels[navlevelpatedit + 1] - samplelinerspage) * celltall + 3,
-              SSD1306_INVERSE);
-        }
-
-        static void drawsynthEventRow() {
-          // row of events (liners) on audio source (patternrow)
-          canvasBIG.drawLine(0,starty + (sublevels[navlevelpatedit + 1] - synthlinerspage) * celltall + 3, 128, starty + (sublevels[navlevelpatedit + 1] - synthlinerspage) * celltall + 3,
-              SSD1306_INVERSE);
-        }
-
-        static void showblocksofevent() {
-          cellsizer = 4;
-          celltall = 8;
-          startx = 0;
-          starty = 0;
-          for (int liner = 0; liner < synth_liners_count; liner++) {
-            for (int i = 0; i < pbars; i++) {
-              if (synth_partition[liner][i][1] != 0) {
-                canvasBIG.fillRect(startx + cellsizer * i + 1,
-                                  starty + (celltall * liner) + 1, cellsizer - 2,
-                                  celltall - 2, SSD1306_INVERSE);
-              }
-            }
-          }
-        }
-        static void showblocksofevent2_synth(){
-          cellsizer = 4;
-          celltall = 8;
-          startx = 0;
-          starty = 16;
-          for (int liner = 0 + synthlinerspage; liner < 6;
-              liner++) {
-            for (int i = 0; i < pbars; i++) {
-              if (synth_partition[liner][i][1] != 0) {
-                canvasBIG.fillRect(startx + cellsizer * i + 1,
-                                  starty + (celltall * (liner - synthlinerspage)) + 1,
-                                  cellsizer - 2, celltall - 2, SSD1306_INVERSE);
-              }
-            }
-          }
-        }
-        static void showblocksofevent2() {
-          cellsizer = 4;
-          celltall = 8;
-          startx = 0;
-          starty = 16;
-          for (int liner = 0 + samplelinerspage; liner < 6 + samplelinerspage;
-              liner++) {
-            for (int i = 0; i < pbars; i++) {
-              if (sampler_partition[liner][i][1] != 0) {
-                canvasBIG.fillRect(startx + cellsizer * i + 1,
-                                  starty + (celltall * (liner - samplelinerspage)) + 1,
-                                  cellsizer - 2, celltall - 2, SSD1306_INVERSE);
-              }
-            }
-          }
-        }
-
-        static void clearevented0(int lapatline) {
-
-          for (int j = 0; j < pbars; j++) {
-            track_cells[lapatline][j] = false;
-          }
-        }
-
-        static void refresh_synth_track() {
-          clearevented0(0);
-          for (int linerrd = 0; linerrd < synth_liners_count; linerrd++) {
-
-            for (int i = 0; i < pbars; i++) {
-
-              if (synth_partition[linerrd][i][1] != 0) {
-                track_cells[0][i] = true;
-              }
-            }
-          }
-        }
-
-        static void refresh_flash_track() {
-          clearevented0(1);
-          for (int linerrd = 0; linerrd < flash_liners_count; linerrd++) {
-
-            for (int i = 0; i < pbars; i++) {
-
-              if (sampler_partition[linerrd][i][1] != 0) {
-                track_cells[1][i] = true;
-              }
-            }
-          }
-        }
-
-        static void dolistpatternlineblocks() {
-          cellsizer = 4;
-          celltall = 8;
-          startx = 0;
-          starty = 16;
-
-          for (int lapatline = 0; lapatline < patternlines; lapatline++) {
-            for (int i = 0; i < pbars; i++) {
-              if (track_cells[lapatline][i]) {
-                canvasBIG.fillRect(startx + cellsizer * i + 1,
-                                  starty + (8 * lapatline) + 1, cellsizer - 2,
-                                  celltall - 2, SSD1306_INVERSE);
-              }
-            }
-          }
-        }
-
-        int synth_start_note() {
-          byte min_note = 127 ;
-          int averagenoteevent = 0;
-          int nombrofnoteonliner = 0;
-          // sublevels[navlevelpatedit+2] = 60 ;
-          for (int ni = 0; ni < synth_liners_count; ni++) {
-            int decednote = synth_partition[sublevels[navlevelpatedit + 1]][ni][1];
-            if (decednote != 0) {
-              Serial.println("finote");
-              if ( decednote < min_note ) {
-                min_note = decednote ;
-              }
-              averagenoteevent = averagenoteevent + decednote;
-              nombrofnoteonliner++;
-            }
-          }
-          if (nombrofnoteonliner != 0 ) {
-            return min_note;
-            //round(averagenoteevent / nombrofnoteonliner) + 6;
-
-            // display
-          }
-          return 70;
-
-
-        }
-
-        int flash_start_note() {
-          int averagenoteevent = 0;
-          int nombrofnoteonliner = 0;
-          // sublevels[navlevelpatedit+2] = 60 ;
-          for (int ni = 0; ni < flash_liners_count; ni++) {
-            int decednote = sampler_partition[sublevels[navlevelpatedit + 1]][ni][1];
-            if (decednote != 0) {
-              averagenoteevent = averagenoteevent + decednote;
-              nombrofnoteonliner++;
-            }
-          }
-          if (nombrofnoteonliner != 0) {
-            startingnoteline = round(averagenoteevent / nombrofnoteonliner) + 6;
-
-            // display
-          } else {
-            startingnoteline = 70;
-          }
-          return startingnoteline;
-        }
-
-        static void sampler_event_cells() {
-          _route_nav_samplers[navlevel-navlevelpatedit-1]();
-        }
-
-        static void synth_event_cells() {
-            _route_nav_synths[navlevel-navlevelpatedit-1]();
-        }
-
-        static void terminatenotesinbetween_synth() {
-          for (int i = sublevels[navlevelpatedit + 3] + 1;
-              i < sublevels[navlevelpatedit + 4]; i++) {
-            if (synth_partition[sublevels[navlevelpatedit + 1]][i][1] != 0) {
-              synth_partition[sublevels[navlevelpatedit + 1]][i][1] = 0;
-            }
-            if (synth_off_pat[sublevels[navlevelpatedit + 1]][i][1] != 0) {
-              synth_off_pat[sublevels[navlevelpatedit + 1]][i][1] = 0;
-            }
-          }
-        }
-
-        static void terminatenotesinbetween_sampler() {
-          for (int i = sublevels[navlevelpatedit + 3] + 1;
-              i < sublevels[navlevelpatedit + 4]; i++) {
-            if (sampler_partition[sublevels[navlevelpatedit + 1]][i][1] != 0) {
-              sampler_partition[sublevels[navlevelpatedit + 1]][i][1] = 0;
-            }
-            if (sampler_off_pat[i][1] != 0) {
-              sampler_off_pat[i][1] = 0;
-            }
-          }
-        }
-
-        bool offhasOnbutnototheroff_synth(byte liner, byte lanoteoff, byte fromi) {
-          // for (int j = 0 ; j < synth_liners_count ; j++ ) {
-          for (int i = fromi - 1; i >= 0; i--) {
-            if (synth_partition[liner][i][1] == lanoteoff) {
-              return 1;
-            }
-          }
-          for (int i = pbars - 1; i >= fromi; i--) {
-            if (synth_off_pat[liner][i][1] == lanoteoff && i > fromi) {
-              return 0;
-            }
-            if (synth_partition[liner][i][1] == lanoteoff) {
-              return 1;
-            }
-          }
-          return 0;
-        }
-
-        bool offhasOnbutnototheroff_sampler(byte liner, byte lanoteoff, byte fromi) {
-          // for (int j = 0 ; j < synth_liners_count ; j++ ) {
-          for (int i = fromi - 1; i >= 0; i--) {
-            
-            if (sampler_partition[liner][i][1] == lanoteoff) {
-              return 1;
-            }
-          }
-          for (int i = pbars - 1; i >= fromi; i--) {
-            if (sampler_off_pat[i][1] == lanoteoff && i > fromi) {
-              return 0;
-            }
-            if (sampler_partition[liner][i][1] == lanoteoff) {
-              return 1;
-            }
-          }
-          return 0;
-        }
-
-        static void duplicateevent1() {
-          for (int j = 0; j < synth_liners_count; j++) {
-            for (int i = 0; i < pbars; i++) {
-              temp_synth_partition[j][i][0] = synth_partition[j][i][0];
-              temp_synth_partition[j][i][2] = synth_partition[j][i][2];
-              temp_synth_partition[j][i][1] = synth_partition[j][i][1];
-            }
-          }
-        }
-        static void duplicateevent2() {
-          for (int j = 0; j < flash_liners_count; j++) {
-            for (int i = 0; i < pbars; i++) {
-              temp_sampler_partition[j][i][0] = sampler_partition[j][i][0];
-              temp_sampler_partition[j][i][2] = sampler_partition[j][i][2];
-              temp_sampler_partition[j][i][1] = sampler_partition[j][i][1];
-            }
-          }
-        }
-
-        static void drawCursorCol() {
-          int xpos = (sublevels[navlevelpatedit + 3] * 4) + 1;
-          display.drawLine(xpos, starty, xpos, 64 - (starty), SSD1306_INVERSE);
-        }
-
-        static void drawCursorCol2() {
-          int xpos = (sublevels[navlevelpatedit + 4] * 4) + 1;
-          display.drawLine(xpos, starty, xpos, 64 - (starty), SSD1306_INVERSE);
-        }
-
-        static void duplicatelenghofnotestarray() {
-          for (int j = 0; j < synth_liners_count; j++) {
-            for (int i = 0; i < pbars; i++) {
-              templength0pbars[j][i] = length0pbars[j][i];
-            }
-          }
-        }
-
-        static void duplicatelenghofnotestarray2() {
-          for (int j = 0; j < flash_liners_count; j++) {
-            for (int i = 0; i < pbars; i++) {
-              templength2pbars[j][i] = length2pbars[j][i];
-            }
-          }
-        }
-
-        static void track_selector_sampler() {
-          if (sublevels[navlevelpatedit + 1] > 3 && samplelinerspage < flash_liners_count) {
-            samplelinerspage = sublevels[navlevelpatedit + 1] - 3;
-          } else {
-            samplelinerspage = 0;
-          }
-          display.clearDisplay();
-          show_track_header();
-          navrange = flash_liners_count - 1;
-          showblocksofevent2();
-          // samplelinerspage
-          drawsamplerEventRow();
-          draw_all_sampler_velobars();
-          dodisplay();
-          sublevels[navlevelpatedit + 2] = self->flash_start_note();
-        }
-
-        static void track_selector_synth() {
-          if (sublevels[navlevelpatedit + 1] > 3 && synthlinerspage < synth_liners_count) {
-            synthlinerspage = sublevels[navlevelpatedit + 1] - 3;
-          } else {
-            synthlinerspage = 0;
-          }
-
-          display.clearDisplay();
-          navrange = synth_liners_count - 1;
-          show_track_header();
-          //showblocksofevent();
-          //drawEventRow();
-          showblocksofevent2_synth();
-          drawsynthEventRow();
-          draw_all_velobars();
-          dodisplay();
-          sublevels[navlevelpatedit + 2] = self->synth_start_note();
-
-        }
-
-        static void show_track_header(){
-          String head_title[2]={"Synth","Flash"};
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(1);
-          canvastitle.print(head_title[sublevels[navlevelpatedit]]);
-          canvastitle.print(" Track ");
-          canvastitle.print(sublevels[navlevelpatedit + 1] + 1);
-        }
-
-
-
-        static void note_selector_synth() {
-
-          // notes of said liner
-          display.clearDisplay();
-          navrange = 127;
-          // some notes not showing checl lenght note computation
-          doshownoteline();
-          canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
-          draw_synth_velobars();
-          dodisplay();
-          sublevels[navlevelpatedit + 3] = tickposition;
-          if (sublevels[navlevelpatedit+2] == 0 ){
-            sublevels[navlevelpatedit + 2] = self->synth_start_note();
-          }
-        }
-
-        static void note_selector_sampler() {
-
-          // notes of said liner
-          display.clearDisplay();
-          navrange = 127;
-          // some notes not showing checl lenght note computation
-          doshownoteline_sampler();
-          canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
-          draw_sampler_velobars();
-          dodisplay();
-          sublevels[navlevelpatedit + 3] = tickposition;
-          if (sublevels[navlevelpatedit+2] == 0 ){
-            sublevels[navlevelpatedit + 2] = self->flash_start_note();
-          }
-        }
-
-        static void start_cell_sampler() {
-          previousnavlevel = navlevel;
-          display.clearDisplay();
-          navrange = 31;
-          canvasBIG.fillRect(0, 32,127,64-32, SSD1306_BLACK);
-          sublevels[navlevelpatedit + 4] = sublevels[navlevelpatedit + 3];
-          duplicatelenghofnotestarray2();
-          duplicateevent2();
-          display.clearDisplay();
-          doshownoteline_sampler();
-          canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
-          drawCursorCol();
-          draw_sampler_velobars();
-
-          dodisplay();
-          //sublevels[navlevelpatedit + 4] = sublevels[navlevelpatedit + 3];
-          retroaction = sublevels[navlevelpatedit + 2] ;
-
-        }
-
-        static void start_cell_synth() {
-          previousnavlevel = navlevel;
-          //last level showing the noteline and its velocity
-          display.clearDisplay();
-          navrange = 31;
-          canvasBIG.fillRect(0, 32,127,64-32, SSD1306_BLACK);
-          sublevels[navlevelpatedit + 4] = sublevels[navlevelpatedit + 3];
-          duplicatelenghofnotestarray();
-          duplicateevent1();
-          //why
-          display.clearDisplay();
-          doshownoteline();
-          canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
-          drawCursorCol();
-          draw_synth_velobars();
-          dodisplay();
-          retroaction = sublevels[navlevelpatedit + 2] ;
-        }
-
-        static void draw_synth_velobars(byte lvl=sublevels[navlevelpatedit+1]){
-          int velobar ;
-          for (int i = 0; i < pbars; i++) {
-            velobar = map(synth_partition[lvl][i][2],0,127,0,16);
-            canvasBIG.fillRect((i*(128/32)), 64-velobar,4 ,velobar, SSD1306_WHITE);
-          }
-        }
-
-        static void draw_all_velobars(){
-          for (int i = 0; i < synth_liners_count; i++) {
-            draw_synth_velobars(i);
-          }
-        }
-
-        static void draw_sampler_velobars(byte lvl=sublevels[navlevelpatedit+1]){
-          int velobar ;
-          for (int i = 0; i < pbars; i++) {
-            velobar = map(sampler_partition[lvl][i][2],0,127,0,16);
-            canvasBIG.fillRect((i*(128/32)), 64-velobar,4 ,velobar, SSD1306_WHITE);
-          }
-        }
-
-        static void draw_all_sampler_velobars(){
-          for (int i = 0; i < flash_liners_count; i++) {
-            draw_sampler_velobars(i);
-          }
-        }
-
-        static void killnextnoteoff_synth(byte liner, byte notee, byte fromi) {
-          for (int i = fromi + 1; i < pbars; i++) {
-            if (synth_off_pat[liner][i][1] == notee) {
-              synth_off_pat[liner][i][1] = 0;
-              return;
-            }
-          }
-          for (int i = 0; i < fromi; i++) {
-            if (synth_off_pat[liner][i][1] == notee) {
-              synth_off_pat[liner][i][1] = 0;
-              return;
-            }
-          }
-        }
-
-        static void killnextnoteoff_sampler(byte liner, byte notee, byte fromi) {
-          for (int i = fromi + 1; i < pbars; i++) {
-            if (sampler_off_pat[i][1] == notee) {
-              sampler_off_pat[i][1] = 0;
-              return;
-            }
-          }
-          for (int i = 0; i < fromi; i++) {
-            if (sampler_off_pat[i][1] == notee) {
-              sampler_off_pat[i][1] = 0;
-              return;
-            }
-          }
-        }
-
-        static void nogood_set_sampler_at_pos(byte ch_, byte nt_, byte ve_){
-          byte sub1 = sublevels[navlevelpatedit + 1];
-          //byte sub2 = sublevels[navlevelpatedit + 2];
-          byte sub3 = sublevels[navlevelpatedit + 3];
-          byte sub4 = sublevels[navlevelpatedit + 4];
-          temp_sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][0] = ch_;
-          temp_sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][1] = nt_;
-          temp_sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = ve_;
-          sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][0] = ch_;
-          sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][1] = nt_;
-          sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = ve_;
-
-          byte laOffpos;
-          length2pbars[sub1][sub3] = (sub4 - sub3) * 4;
-          if (length2pbars[sub1][sub3] < 0) {
-            length2pbars[sub1][sub3] = 4;
-          }
-          laOffpos = sub3 + (length2pbars[sub1][sub3] / 4);
-          if (laOffpos == sub3) {
-            laOffpos += 1;
-          }
-          if (laOffpos > pbars) {
-            laOffpos = laOffpos - pbars;
-          }
-          sampler_off_pat[laOffpos][0] = ch_;
-          sampler_off_pat[laOffpos][1] = nt_;
-        }
-
-        static void set_cell_sampler() {
-          previousnavlevel = navlevel;
-          set_sampler_at_pos(samplermidichannel,sublevels[navlevelpatedit + 2],64);
-          addinglenght = 0;
-          refresh_flash_track();
-          stretch_cell_velocity_sampler();
-        }
-
-        static void fourth_level_sampler(){
-          if (previousnavlevel != navlevel) {
-              initiateasamplerliner(sublevels[navlevelpatedit + 2], byte(mixlevelsM[2] * 127));
-              shutlineroff(samplermidichannel,sublevels[navlevelpatedit + 2]);                    
-              previousnavlevel = navlevel;
-            }
-
-            stretch_cell_sampler();
-        }
-
-        static void fourth_level_synth(){
-          if (previousnavlevel != navlevel) {
-
-              initiateasynthliner(sublevels[navlevelpatedit + 2], byte(mixlevelsM[1] * 127));
-              //delay(300);
-              shutlineroff(synthmidichannel,sublevels[navlevelpatedit + 2]);
-              previousnavlevel = navlevel;
-            }
-            stretch_cell_synth();
-        }
-
-        static void stretch_cell_synth() {
-          // clickon liner /note / at tickpos
-
-          byte decednote2 = synth_partition[sublevels[navlevelpatedit + 1]]
-                                        [sublevels[navlevelpatedit + 3]][2];
-          if (decednote2) {
-            //delete previous key if present
-            //set_synth_at_pos();
-            refresh_synth_track();
-            //drawCursorCol2();
-            draw_synth_velobars();
-            //sublevels[navlevel+1] = decednote2 ;
-            //length0pbars[sub1][sub3]
-            sublevels[navlevelpatedit + 4] = (length0pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]/4)+sublevels[navlevelpatedit + 3] ;
-            returntonav(navlevel+1,127,decednote2);
-
-          } else {
-            addinglenght = 1;
-            temp_synth_partition[sublevels[navlevelpatedit + 1]]
-                            [sublevels[navlevelpatedit + 3]][0] = synthmidichannel;
-            temp_synth_partition[sublevels[navlevelpatedit + 1]]
-                            [sublevels[navlevelpatedit + 3]][1] =
-                                (byte)sublevels[navlevelpatedit + 2];
-            temp_synth_partition[sublevels[navlevelpatedit + 1]]
-                            [sublevels[navlevelpatedit + 3]][2] = (byte)64;
-
-            navrange = 31;
-            templength0pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]] =
-                                (sublevels[navlevelpatedit + 4] - sublevels[navlevelpatedit + 3]) * 4;
-
-            if (templength0pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]] < 0) {
-              templength0pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]] = 4;}
-            refresh_synth_track();
-            display.clearDisplay();
-            sublevels[navlevelpatedit + 5] = temp_synth_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2];
-            doshownoteline2();
-            canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
-            drawCursorCol2();
-            draw_synth_velobars();
-            dodisplay();
-          }
-        }
-
-        static void set_cell_synth() {
-          previousnavlevel = navlevel;
-          set_synth_at_pos(synthmidichannel,sublevels[navlevelpatedit + 2],64);
-          addinglenght = 0;
-          refresh_synth_track();
-          //
-          //sublevels[navlevelpatedit + 3] = sublevels[navlevelpatedit + 4] ;
-          //doshownoteline2();
-          //canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
-          //drawCursorCol2();
-          //draw_synth_velobars();
-          //dodisplay();
-          stretch_cell_velocity();
-          //returntonav(navlevelpatedit + 3,31,sublevels[navlevelpatedit + 4]);
-          //show();
-          // computelenghtmesureoffline_synth();
-          //call_pt_show();
-          //route_pattern_menu();
-        }
-
-        static void stretch_cell_sampler() {
-          /*
-          navrange = 31;
-          byte decednote2 = sampler_partition[sublevels[navlevelpatedit + 1]]
-                                      [sublevels[navlevelpatedit + 3]][2];
-          if (decednote2) {
-            returntonav(navlevel+1,navrange,decednote2);
-          } else {
-            set_sampler_at_pos(samplermidichannel,sublevels[navlevelpatedit + 2],64);
-
-            refresh_flash_track();
-            returntonav(navlevel+1,127,64);
-          }
-          */
-          byte decednote2 = sampler_partition[sublevels[navlevelpatedit + 1]]
-                                        [sublevels[navlevelpatedit + 3]][2];
-          if (decednote2) {
-            //delete previous key if present
-            //set_synth_at_pos();
-            refresh_flash_track();
-            //drawCursorCol2();
-            draw_sampler_velobars();
-            //sublevels[navlevel+1] = decednote2 ;
-            //length0pbars[sub1][sub3]
-            sublevels[navlevelpatedit + 4] = (length2pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]]/4)+sublevels[navlevelpatedit + 3] ;
-            returntonav(navlevel+1,127,decednote2);
-
-          } else {
-            addinglenght = 1;
-            temp_sampler_partition[sublevels[navlevelpatedit + 1]]
-                            [sublevels[navlevelpatedit + 3]][0] = samplermidichannel;
-            temp_sampler_partition[sublevels[navlevelpatedit + 1]]
-                            [sublevels[navlevelpatedit + 3]][1] =
-                                (byte)sublevels[navlevelpatedit + 2];
-            temp_sampler_partition[sublevels[navlevelpatedit + 1]]
-                            [sublevels[navlevelpatedit + 3]][2] = (byte)64;
-
-            navrange = 31;
-            templength2pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]] =
-                                (sublevels[navlevelpatedit + 4] - sublevels[navlevelpatedit + 3]) * 4;
-
-            if (templength2pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]] < 0) {
-              templength2pbars[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]] = 4;}
-            refresh_flash_track();
-            display.clearDisplay();
-            sublevels[navlevelpatedit + 5] = temp_sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2];
-            doshownoteline2_sampler();
-            canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
-            drawCursorCol2();
-            draw_sampler_velobars();
-            dodisplay();
-          }
-        }
-
-        static void stretch_cell_velocity() {
-            navrange = 127;
-            temp_synth_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
-            synth_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
-            refresh_synth_track();
-            display.clearDisplay();
-            doshownoteline3();
-            canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
-            draw_synth_velobars();
-            dodisplay();
-        }
-
-        static void set_synth_at_pos(byte ch_, byte nt_, byte ve_){
-          byte sub1 = sublevels[navlevelpatedit + 1];
-          //byte sub2 = sublevels[navlevelpatedit + 2];
-          byte sub3 = sublevels[navlevelpatedit + 3];
-          byte sub4 = sublevels[navlevelpatedit + 4];
-          synth_partition[sub1][sub3][0] = ch_;
-          synth_partition[sub1][sub3][1] = nt_;
-          synth_partition[sub1][sub3][2] = ve_;
-          //synth_off_pat[sub1][sub4][0] = ch_;
-          //synth_off_pat[sub1][sub4][1] = nt_;
-
-          byte laOffpos;
-          /*
-          synth_partition[sub1][sub3][0] = synthmidichannel;
-          synth_partition[sub1][sub3][1] = sub2;
-          synth_partition[sub1][sub3][2] = ve_;
-            */
-
-          length0pbars[sub1][sub3] = (sub4 - sub3) * 4;
-          if (length0pbars[sub1][sub3] < 0) {
-            length0pbars[sub1][sub3] = 4;
-          }
-          laOffpos = sub3 + (length0pbars[sub1][sub3] / 4);
-          if (laOffpos == sub3) {
-            laOffpos += 1;
-          }
-          if (laOffpos > pbars) {
-            laOffpos = laOffpos - pbars;
-          }
-          synth_off_pat[sub1][laOffpos][0] = ch_;
-          synth_off_pat[sub1][laOffpos][1] = nt_;
-          terminatenotesinbetween_synth();
-          // not sure (for orphans but why would there be any?)
-          terminateOffz_synth(sub1);
-       
-
-          //off
-          if (!ve_){
-            killnextnoteoff_synth(sub1,synth_partition[sub1][sub3][1],sub3);
-
-            synth_partition[sub1][sub3][0] = 0;
-            synth_partition[sub1][sub3][1] = 0;
-            synth_partition[sub1][sub3][2] = 0;
-          }
-        }
-        static void terminateOffz_synth(int linei) {
-          for (int i = 0; i < pbars; i++) {
-            if (synth_off_pat[linei][i][1] != 0) {
-              if (self->terminateorphanseventsOff_synth(linei, synth_off_pat[linei][i][1])) {
-                clearsaniloop = 0;
-                synth_off_pat[linei][i][0] = 0;
-                synth_off_pat[linei][i][1] = 0;
-              }
-            }
-          }
-        }
-
-
-        bool terminateorphanseventsOff_synth(int linei, byte lanotef) {
-          for (int i = 0; i < pbars; i++) {
-            if (synth_partition[linei][i][1] == lanotef) {
-              // at least someone is using it somewhere
-              return 0;
-            }
-          }
-          return 1;
-        }
-
-        bool terminateorphanseventsOff_sampler(int linei, byte lanotef) {
-          for (int i = 0; i < pbars; i++) {
-            if (sampler_partition[linei][i][1] == lanotef) {
-              // at least someone is using it somewhere
-              return 0;
-            }
-          }
-          return 1;
-        }
-        static void terminateOffz_sampler(int linei) {
-          for (int i = 0; i < pbars; i++) {
-            if (sampler_off_pat[i][1] != 0) {
-              if (self->terminateorphanseventsOff_sampler(linei, sampler_off_pat[i][1])) {
-                clearsaniloop = 0;
-                sampler_off_pat[i][0] = 0;
-                sampler_off_pat[i][1] = 0;
-              }
-            }
-          }
-        }
-        static void set_sampler_at_pos(byte ch_, byte nt_, byte ve_){
-          byte sub1 = sublevels[navlevelpatedit + 1];
-          //byte sub2 = sublevels[navlevelpatedit + 2];
-          byte sub3 = sublevels[navlevelpatedit + 3];
-          byte sub4 = sublevels[navlevelpatedit + 4];
-          sampler_partition[sub1][sub3][0] = ch_;
-          sampler_partition[sub1][sub3][1] = nt_;
-          sampler_partition[sub1][sub3][2] = ve_;
-          byte laOffpos;
-          length2pbars[sub1][sub3] = (sub4 - sub3) * 4;
-          if (length2pbars[sub1][sub3] < 0) {
-            length2pbars[sub1][sub3] = 4;
-          }
-          laOffpos = sub3 + (length2pbars[sub1][sub3] / 4);
-          if (laOffpos == sub3) {
-            laOffpos += 1;
-          }
-          if (laOffpos > pbars) {
-            laOffpos = laOffpos - pbars;
-          }
-          sampler_off_pat[laOffpos][0] = ch_;
-          sampler_off_pat[laOffpos][1] = nt_;
-          terminatenotesinbetween_sampler();
-          // not sure (for orphans but why would there be any?)
-          terminateOffz_sampler(sub1);
-          if (!ve_){
-            killnextnoteoff_sampler(sub1,sampler_partition[sub1][sub3][1],sub3);
-            sampler_partition[sub1][sub3][0] = 0;
-            sampler_partition[sub1][sub3][1] = 0;
-            sampler_partition[sub1][sub3][2] = 0;
-          }
-        }
-
-        static void set_cell_velocity() {
-          previousnavlevel = navlevel;
-          byte sub1 = sublevels[navlevelpatedit + 1];
-
-          byte sub3 = sublevels[navlevelpatedit + 3];
-          byte sub5 = sublevels[navlevelpatedit + 5];
-
-          Serial.println(sub5);
-          synth_partition[sub1][sub3][2] = sub5;
-
-          addinglenght = 0;
-
-          if (!(sublevels[navlevelpatedit + 5])){
-            set_synth_at_pos(0,0,0);
-          }
-          refresh_synth_track();
-          sublevels[navlevelpatedit + 3] = sublevels[navlevelpatedit + 4] ;
-
-          returntonav(navlevelpatedit + 3,31,sublevels[navlevelpatedit + 4]);
-          //show();
-          // computelenghtmesureoffline_synth();
-          //call_pt_show();
-          //route_pattern_menu();
-        }
-
-        static void set_cell_velocity_sampler() {
-          previousnavlevel = navlevel;
-
-          sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
-          if (!(sublevels[navlevelpatedit + 5])){
-            set_sampler_at_pos(0,0,0);
-          }
-          refresh_flash_track();
-          sublevels[navlevelpatedit + 3] = sublevels[navlevelpatedit + 4] ;
-          returntonav(navlevelpatedit + 3,31,sublevels[navlevelpatedit + 4]);
-          //show();
-          // computelenghtmesureoffline_synth();
-          //call_pt_show();
-          //route_pattern_menu();
-        }
-
-        static void stretch_cell_velocity_sampler() {
-
-            navrange = 127;
-            temp_sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
-            sampler_partition[sublevels[navlevelpatedit + 1]][sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
-            refresh_flash_track();
-            display.clearDisplay();
-            doshownoteline3_sampler();
-            canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
-            draw_sampler_velobars();
-            dodisplay();
-        }
-
-        static constexpr void (*_route_nav_synths[6])() = {&track_selector_synth, &note_selector_synth,
-                          &start_cell_synth, &fourth_level_synth, &set_cell_synth,
-                          &set_cell_velocity};
-        static constexpr void (*_route_nav_samplers[6])() = {&track_selector_sampler, &note_selector_sampler,
-                          &start_cell_sampler, &fourth_level_sampler, &set_cell_sampler,
-                        &set_cell_velocity_sampler};
-        //has to be of length 6 to reach last cell click
-        static constexpr void (*_nav_home_route[7])() = {&homer,&player_selector,&player_selector,
-                                                  &player_selector,&player_selector,&player_selector,
-                                                  &player_selector};
-
-    private:
-      static constexpr void (*_nav_peditors[2])() = {&call_synth_event_cells,&call_sampler_event_cells};
-      static PatEditRouter* self;
-};
-
-PatEditRouter* PatEditRouter::self = nullptr;
-EXTMEM PatEditRouter _pe;
-
 class PatternsMenuRouter : public SectionHolder {
   public:
         PatternsMenuRouter() {
@@ -2057,13 +1514,13 @@ class PatternsMenuRouter : public SectionHolder {
 
         static void set_ccs() {
           // has to be reinitialized first
-          for (int i = 0; i < 32; i++) {
+          for (int i = 0; i < pbars; i++) {
             recorded_ccs[i] = 0 ;
           }
           for (int i = 0; i < pbars; i++) {
             for (int j = 0; j < 128; j++) {
               if (cc_partition[j][i] != 127){
-                for (int k = 0; k < 32; k++) {
+                for (int k = 0; k < pbars; k++) {
                     if (recorded_ccs[k] == 0 || recorded_ccs[k] == j){
                       recorded_ccs[k] = j ;
                       pots_controllers[k][i][0] = j;
@@ -2164,7 +1621,8 @@ class PatternsMenuRouter : public SectionHolder {
                 parserp.JumpTo(Parser::IsDigit);
 
                 parsedchannel = parserp.Read_Int32();
-                if (parsedchannel == 0 || parsedchannel == samplermidichannel) {
+                // not sure why I was using parsedchannel == 0 || 
+                if (parsedchannel == samplermidichannel) {
                   leparsed[1] = (char)'z';
                   leparsed[0] = (char)'z';
                   break;
@@ -2240,9 +1698,10 @@ class PatternsMenuRouter : public SectionHolder {
                 parserp.JumpTo(Parser::IsDigit);
 
                 parsedchannel = parserp.Read_Int32();
-                if (parsedchannel == 0) {
-                  break;
-                }
+                //
+                //if (parsedchannel == 0) {
+                //  break;
+                //}
                 if (parsedchannel == synthmidichannel) {
                   synth_partition[lenint][letempspattern][0] = parsedchannel;
                   parserp.JumpTo(Parser::IsDigit);
@@ -2345,10 +1804,7 @@ class PatternsMenuRouter : public SectionHolder {
             lenint = 0;
 
             lepatternfile.close();
-            call_refresh_synth_track();
-
-            computelenghtmesureoffline_synth();
-            computelenghtmesureoffline_sampler();
+            _pe.refresh_patterns();
             set_ccs();
           }
           locked_fileing = 0 ;

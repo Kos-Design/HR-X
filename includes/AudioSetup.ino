@@ -4,6 +4,8 @@
 #include <LittleFS.h>
 //#include <SerialFlash.h>
 #include <Wire.h>
+#include "../play_little_serialflash_raw.h"
+
 //#include "../octave_down.h"
 
 LittleFS_SPIFlash thyfs;
@@ -120,23 +122,23 @@ EXTMEM AudioEffectEnvelope      envelopeL1;     //xy=1595.8833312988281,817
 EXTMEM AudioAmplifier           fade5;          //xy=1687.5500106811523,1406.0001640319824
 EXTMEM AudioAmplifier           wavePAmp5;      //xy=1702.5500106811523,1372.0001640319824
 EXTMEM AudioAmplifier           fade0;          //xy=1725.8833312988281,753
-EXTMEM AudioPlaySerialflashRaw  FlashSampler1;  //xy=1731.8833312988281,20
-EXTMEM AudioPlaySerialflashRaw  FlashSampler2;  //xy=1731.8833312988281,60
-EXTMEM AudioPlaySerialflashRaw  FlashSampler5;  //xy=1732.8833312988281,182
-EXTMEM AudioPlaySerialflashRaw  FlashSampler6;  //xy=1732.8833312988281,217
-EXTMEM AudioPlaySerialflashRaw  FlashSampler4;  //xy=1733.8833312988281,130
-EXTMEM AudioPlaySerialflashRaw  FlashSampler9;  //xy=1733.8833312988281,339
-EXTMEM AudioPlaySerialflashRaw  FlashSampler3;  //xy=1734.8833312988281,93
-EXTMEM AudioPlaySerialflashRaw  FlashSampler10; //xy=1733.8833312988281,374
-EXTMEM AudioPlaySerialflashRaw  FlashSampler8;  //xy=1734.8833312988281,287
-EXTMEM AudioPlaySerialflashRaw  FlashSampler7;  //xy=1735.8833312988281,250
-EXTMEM AudioPlaySerialflashRaw  FlashSampler12; //xy=1735.8833312988281,444
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler1;  //xy=1731.8833312988281,20
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler2;  //xy=1731.8833312988281,60
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler5;  //xy=1732.8833312988281,182
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler6;  //xy=1732.8833312988281,217
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler4;  //xy=1733.8833312988281,130
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler9;  //xy=1733.8833312988281,339
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler3;  //xy=1734.8833312988281,93
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler10; //xy=1733.8833312988281,374
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler8;  //xy=1734.8833312988281,287
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler7;  //xy=1735.8833312988281,250
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler12; //xy=1735.8833312988281,444
 EXTMEM AudioAmplifier           wavePAmp0;      //xy=1734.8833312988281,710
-EXTMEM AudioPlaySerialflashRaw  FlashSampler13; //xy=1735.8833312988281,495
-EXTMEM AudioPlaySerialflashRaw  FlashSampler14; //xy=1735.8833312988281,530
-EXTMEM AudioPlaySerialflashRaw  FlashSampler11; //xy=1736.8833312988281,407
-EXTMEM AudioPlaySerialflashRaw  FlashSampler16; //xy=1737.8833312988281,600
-EXTMEM AudioPlaySerialflashRaw  FlashSampler15; //xy=1738.8833312988281,563
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler13; //xy=1735.8833312988281,495
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler14; //xy=1735.8833312988281,530
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler11; //xy=1736.8833312988281,407
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler16; //xy=1737.8833312988281,600
+EXTMEM AudioPlayLittleSerialflashRaw  FlashSampler15; //xy=1738.8833312988281,563
 EXTMEM AudioAmplifier           fade2;          //xy=1737.8833312988281,1000
 EXTMEM AudioAmplifier           fade1;          //xy=1741.8833312988281,875
 EXTMEM AudioAmplifier           wavePAmp1;      //xy=1744.8833312988281,836
@@ -172,7 +174,7 @@ EXTMEM AudioMixer4              mixerWet303L4;  //xy=2235.883331298828,1057
 EXTMEM AudioMixer4              mixerWet303L5;  //xy=2300.883331298828,1238
 EXTMEM AudioMixer4              InMixL;         //xy=2342.88330078125,485.0000305175781
 EXTMEM AudioMixer4              InMixR;         //xy=2346.88330078125,593
-EXTMEM AudioPlaySerialflashRaw  FlashRaw;       //xy=2350.8831787109375,178
+EXTMEM AudioPlayLittleSerialflashRaw  FlashRaw;       //xy=2350.8831787109375,178
 EXTMEM AudioMixer4              mixerWL1to4;    //xy=2418.883331298828,923
 EXTMEM AudioPlaySdRaw           playRawL;       //xy=2424.8831787109375,424
 EXTMEM AudioPlaySdRaw           playRawR;       //xy=2455.8831787109375,745
