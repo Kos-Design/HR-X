@@ -105,7 +105,7 @@ class LFOMenuRouter : public SectionHolder {
         static void doLFObool() {
           int leLFO=cclfoselector;
           if (navlevel == 3) {
-            LFOsync[leLFO] = !LFOsync[leLFO];
+            toggle_that(LFOsync[leLFO]);
             restartLFO(leLFO);
           }
           display.setCursor(55, 0);

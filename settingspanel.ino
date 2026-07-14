@@ -676,6 +676,7 @@ class SettingsMenuRouter : public SectionHolder {
             dodisplay();
           }
         }
+
       //TODO: unused, maybe fit into a menu somewhere
       static void metronomer() {
         if ((tickposition == 0) || (tickposition == 16)) {
@@ -693,11 +694,11 @@ class SettingsMenuRouter : public SectionHolder {
       }
 
       static void toggle_echo_midi(){
-        debugmidion = 1;
+        toggle_that(debugmidion);
       }
 
       static void toggle_freeze_midi(){
-        freezemidicc = !freezemidicc;
+        toggle_that(freezemidicc);
         returntonav(1,13,1);
       }
 
@@ -718,7 +719,7 @@ class SettingsMenuRouter : public SectionHolder {
       }
       
       static void toggle_digital_analog(){
-        digitalplay = !digitalplay;
+        toggle_that(digitalplay);
         returntonav(1,13,4);
       }
       
@@ -757,12 +758,13 @@ class SettingsMenuRouter : public SectionHolder {
       }
 
       static void toggle_ext_clock(){
-        externalticker = !externalticker;
+        //externalticker = !externalticker;
+        toggle_that(externalticker);
         returntonav(1,13,9);
       }
 
       static void toggle_note_spy(){
-        noteprint = !noteprint;
+        toggle_that(noteprint);
         if (noteprint) {
           replug_notefreq_from_ampL();
           notefreq1.begin(.15);
@@ -784,10 +786,10 @@ class SettingsMenuRouter : public SectionHolder {
       }
 
       static void toggle_midi_out(){
-        SendMidiOut = !SendMidiOut;
+        toggle_that(SendMidiOut);
         returntonav(1,13,13);
       }
-
+     
       static constexpr void (*_settings_menu[settings_labels_count])() = {&toggle_echo_midi,&toggle_freeze_midi,&set_synth_midi_ch,&set_sampler_midi_ch,&toggle_digital_analog,
                                                                         &set_tap_note,&set_bpms_interval,&set_chord_mode,&arpegiatorVpanel,&toggle_ext_clock,&toggle_note_spy,
                                                                         &OnBoardVpanel,&set_audio_source,&toggle_midi_out,&Vbuttonspanel,&_ka.show};

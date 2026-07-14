@@ -198,16 +198,6 @@ void setupdefaultvalues() {
   midiknobassigned[11] = 1;
   midiknobassigned[12] = 2;
   //midiknobassigned[13] = 3;
-
-  midiknobassigned[14] = 93;
-  midiknobassigned[15] = 94;
-  midiknobassigned[16] = 95;
-
-  //phase
-  midiknobassigned[17] = 76;
-  midiknobassigned[18] = 77;
-  midiknobassigned[19] = 81;
-
   // FX Wet
   midiknobassigned[20] = 5;
   midiknobassigned[21] = 6;
@@ -227,16 +217,25 @@ void setupdefaultvalues() {
   pot_assignements[all_buttonns-19] = 110 ;
   pot_assignements[all_buttonns-10] = 108 ;
   pot_assignements[all_buttonns-9] = 107 ;
-  midiknobassigned[111] = 109 ;
+  //midiknobassigned[111] = 109 ;
   //98 debugcpu
   pot_assignements[all_buttonns-5] = 106 ;
   //midiknobassigned[106] = 98;
   //granular fx toggle
-  midiknobassigned[100] = 78;
+  //midiknobassigned[100] = 78;
+    //phase
+  //midiknobassigned[17] = 76;
+  //midiknobassigned[18] = 77;
+  //midiknobassigned[19] = 81;
+
+ // midiknobassigned[14] = 93;
+ // midiknobassigned[15] = 94;
+ // midiknobassigned[16] = 95;
+
 
   //note: WetMixMasterLs[0] is the dry channel
   for (int i = 0; i < synths_count; i++) {
-    ccsynthselector = i;
+    oscillator = i;
     call_setwavetypefromlist();
   }
   // USB Line in

@@ -56,7 +56,7 @@ class CCEditor : public SectionHolder {
               canvastitle.print("CC");
               canvastitle.print(sublevels[2]);
               canvastitle.print(" ");
-              canvastitle.print((char *)ControlList[midiknobassigned[sublevels[2]]]);
+              canvastitle.print((char *)ctl[midiknobassigned[sublevels[2]]].name);
             }
           }
           canvasBIG.drawRect(0, 16, 128, 64, SSD1306_WHITE);
@@ -161,22 +161,15 @@ class PatEditRouter : public SectionHolder {
         byte local_line = 0;
 
         static void homer(){
-          cellsizer = 8 * (16 / pbars);
-          celltall = 8;
-          startx = 0;
-          starty = 16;
           navrange = patternlines - 1;
-          dm.clear_3();
+          self->track_type = sublevels[navlevelpatedit];
+          
           drawPatternRow();
           dolistpatternlineblocks();
           display.setCursor(0, 0);
-          if (sublevels[navlevelpatedit] == 0) {
-            display.print("Synth");
-          }
-          if (sublevels[navlevelpatedit] == 1) {
-            display.print("Sampler");
-          }
-          dodisplay();
+          String _t_type[patternlines] = {"Synth","Sampler"};
+          display.print(_t_type[self->track_type]);
+         
         }
 
         static void set_editor_to_synth(byte liner = self->local_line){
@@ -194,32 +187,11 @@ class PatEditRouter : public SectionHolder {
           self->liners_count = flash_liners_count;
           self->_length_part = flash_notes_length[liner] ;
         }
-        static void cells_wrapper(void (*func)()) {
-          
-          //if (navlevel >= 3) {
-            func();
-            //returntonav(1, self->wf_labels_count - 1,sublevels[1]);
-          //}
-        }
-
-        static void player_selector(){
-          self->track_type = sublevels[navlevelpatedit];
-          if (navlevel == navlevelpatedit + 1)
-            set_editor_type[self->track_type](0);
-          cellsizer = 8 * (16 / pbars);
-          celltall = 8;
-          startx = 0;
-          starty = 16;
-          navrange = self->liners_count;
-          dm.clear_3();
-          cell_events[navlevel-navlevelpatedit-1]();
-          dodisplay();
-        }
-        //make wrapper for levels
 
         static void show() {
-
-           _nav_home_route[navlevel-navlevelpatedit]();
+          dm.clear_3();
+          cell_events[navlevel-navlevelpatedit]();
+          dodisplay();
         }
 
         static void doshownoteline() {
@@ -255,39 +227,7 @@ class PatEditRouter : public SectionHolder {
 
         static void drawPatternRow() {
           // rows of audio sources : synth, sampler, others
-          canvasBIG.drawLine(startx, starty + sublevels[navlevelpatedit] * celltall + 3,
-                            (128 - startx),
-                            starty + sublevels[navlevelpatedit] * celltall + 3,
-                            SSD1306_WHITE);
-        }
-
-        static void drawEventRow() {
-          // row of events (liners) on audio source (patternrow)
-          canvasBIG.drawLine(
-              0, starty + sublevels[navlevelpatedit + 1] * celltall + 3, 128,
-              starty + sublevels[navlevelpatedit + 1] * celltall + 3, SSD1306_INVERSE);
-        }
-
-        static void drawsamplerEventRow() {
-          // row of events (liners) on audio source (patternrow)
-          canvasBIG.drawLine(0,starty + (sublevels[navlevelpatedit + 1] - samplelinerspage) * celltall + 3, 128, starty + (sublevels[navlevelpatedit + 1] - samplelinerspage) * celltall + 3,
-              SSD1306_INVERSE);
-        }
-
-        static void showblocksofevent() {
-          cellsizer = 4;
-          celltall = 8;
-          startx = 0;
-          starty = 0;
-          for (int liner = 0; liner < synth_liners_count; liner++) {
-            for (int i = 0; i < pbars; i++) {
-              if (synth_partition[liner][i][1] != 0) {
-                canvasBIG.fillRect(startx + cellsizer * i + 1,
-                                  starty + (celltall * liner) + 1, cellsizer - 2,
-                                  celltall - 2, SSD1306_INVERSE);
-              }
-            }
-          }
+          canvasBIG.drawFastHLine(0, 16 + sublevels[navlevelpatedit] * 8 + 3, 128, SSD1306_WHITE);
         }
 
         static void reshift_tracks_display() {
@@ -299,7 +239,7 @@ class PatEditRouter : public SectionHolder {
             }
           }
         }
-        // TODO: replace these global generics
+        
         static void show_lines_events(){
           for (int i = 0 ; i < 6 ; i++) {
              for (int j = 0 ; j < pbars ; j++) {
@@ -319,9 +259,7 @@ class PatEditRouter : public SectionHolder {
         static void refresh_synth_track() {
           clearevented0(0);
           for (int linerrd = 0; linerrd < synth_liners_count; linerrd++) {
-
             for (int i = 0; i < pbars; i++) {
-
               if (synth_partition[linerrd][i][1] != 0) {
                 track_cells[0][i] = true;
               }
@@ -343,17 +281,10 @@ class PatEditRouter : public SectionHolder {
         }
 
         static void dolistpatternlineblocks() {
-          cellsizer = 4;
-          celltall = 8;
-          startx = 0;
-          starty = 16;
-
           for (int lapatline = 0; lapatline < patternlines; lapatline++) {
             for (int i = 0; i < pbars; i++) {
               if (track_cells[lapatline][i]) {
-                canvasBIG.fillRect(startx + cellsizer * i + 1,
-                                  starty + (8 * lapatline) + 1, cellsizer - 2,
-                                  celltall - 2, SSD1306_INVERSE);
+                canvasBIG.fillRect( 4*i + 1,16 + (8*lapatline) + 1, 2,6, SSD1306_INVERSE);
               }
             }
           }
@@ -370,14 +301,12 @@ class PatEditRouter : public SectionHolder {
         }
 
         static void terminatenotesinbetween() {
-          for (int i = sublevels[navlevelpatedit + 3] + 1;
-              i < sublevels[navlevelpatedit + 4]; i++) {
-            if (self->_on_part[i][1] != 0) {
-              self->_on_part[i][1] = 0;
-            }
-            if (synth_off_pat[sublevels[navlevelpatedit + 1]][i][1] != 0) {
-              synth_off_pat[sublevels[navlevelpatedit + 1]][i][1] = 0;
-            }
+          for (int i = min(sublevels[navlevelpatedit + 3] + 1,pbars-1); i < sublevels[navlevelpatedit + 4]; i++) {
+            self->_on_part[i][0] = 0;
+            self->_on_part[i][1] = 0;
+            self->_on_part[i][2] = 0;
+            self->_off_part[i][1] = 0;
+            self->_off_part[i][0] = 0;
           }
         }
 
@@ -390,8 +319,8 @@ class PatEditRouter : public SectionHolder {
         }
        
         static void drawCursorCol() {
-          int xpos = (sublevels[navlevel] * 4) + 1;
-          display.drawLine(xpos, starty, xpos, 64 - (starty), SSD1306_INVERSE);
+          int xpos = (sublevels[navlevel] * 4);
+          display.drawLine(xpos, 0, xpos, 64-16, SSD1306_INVERSE);
         }
 
         static void track_selector() {
@@ -438,7 +367,7 @@ class PatEditRouter : public SectionHolder {
           sublevels[navlevelpatedit + 4] = sublevels[navlevelpatedit + 3];
           sync_temp();
           doshownoteline();
-          canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_WHITE);
+          canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_WHITE);
           drawCursorCol();
           draw_velobars();
           dodisplay();
@@ -454,13 +383,11 @@ class PatEditRouter : public SectionHolder {
         }
 
         static void stretch_cell_length() {
-          // clickon liner /note / at tickpos
-
-          byte decednote2 = self->_on_part[sublevels[navlevelpatedit + 3]][2];
-          if (decednote2) {
+          byte note_we_found = self->_on_part[sublevels[navlevelpatedit + 3]][2];
+          if (note_we_found) {
             //delete previous key if present
             set_cell_at_pos(0,0,0);
-            returntonav(navlevel-1,127,decednote2);
+            returntonav(navlevel-1,127,note_we_found);
           } else {
             addinglenght = 1;
             self->_temp_part[sublevels[navlevelpatedit + 3]][0] = ((int[2]){synthmidichannel,samplermidichannel})[self->track_type];
@@ -474,7 +401,7 @@ class PatEditRouter : public SectionHolder {
             sublevels[navlevelpatedit + 5] = self->_temp_part[sublevels[navlevelpatedit + 3]][2];
             //doshownoteline2();
             doshownoteline();
-            canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
+            canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_INVERSE);
             drawCursorCol();
             draw_velobars();
             dodisplay();
@@ -482,210 +409,164 @@ class PatEditRouter : public SectionHolder {
         }
 
         static void stretch_cell_velocity() {
-            navrange = 127;
-            addinglenght = 0;
-            self->_temp_part[sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
-            display.clearDisplay();
-            doshownoteline();
-            canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
-            draw_velobars();
-            dodisplay();
+          navrange = 127;
+          addinglenght = 0;
+          self->_temp_part[sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
+          display.clearDisplay();
+          doshownoteline();
+          canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_INVERSE);
+          draw_velobars();
+          dodisplay();
         }
 
         static void sanitize_synth_partition(){
-         
-            bool offUsed[synth_liners_count][pbars] = {false};
-
-            for (int line = 0; line < synth_liners_count; line++)
-            {
-                for (int onStep = 0; onStep < pbars; onStep++)
-                {
-                    // Skip empty Note On
-                    if (synth_partition[line][onStep][2] == 0)
-                        continue;
-
-                    uint8_t note = synth_partition[line][onStep][1];
-                    int latestStep = (onStep + (pbars-1)) & (pbars-1);
-
-                    for (int i = 1; i < pbars; i++)
-                    {
-                        int s = (onStep + i) & (pbars-1);
-
-                        if (synth_partition[line][s][2] &&
-                            synth_partition[line][s][1] == note)
-                        {
-                            latestStep = (s + (pbars-1)) & (pbars-1);
-                            break;
-                        }
-                    }
-                    int foundLine = -1;
-                    int foundStep = -1;
-                    bool found = false;
-
-                    int s = (onStep + 1) & (pbars-1);
-
-                    while (!found)
-                    {
-                        for (int l = 0; l < synth_liners_count; l++)
-                        {
-                            if (offUsed[l][s])
-                                continue;
-
-                            if (synth_off_pat[l][s][1] == note)
-                            {
-                                found = true;
-                                foundLine = l;
-                                foundStep = s;
-                                break;
-                            }
-                        }
-
-                        if (found || s == latestStep)
-                            break;
-
-                        s = (s + 1) & (pbars-1);
-                    }
-                    int targetStep = latestStep;
-                    while (targetStep != onStep)
-                    {
-                        if (synth_off_pat[line][targetStep][1] == 0 ||
-                            (found && targetStep == foundStep && line == foundLine))
-                            break;
-
-                        targetStep = (targetStep + (pbars-1)) & (pbars-1);
-                    }
-                    if (found)
-                    {
-                        if (foundLine != line || foundStep != targetStep)
-                        {
-                            synth_off_pat[foundLine][foundStep][0] = 0;
-                            synth_off_pat[foundLine][foundStep][1] = 0;
-                          
-
-                            synth_off_pat[line][targetStep][0] = synth_partition[line][onStep][0];
-                            synth_off_pat[line][targetStep][1] = note;
-                      
-                        }
-
-                        offUsed[line][targetStep] = true;
-                    }
-                    else
-                    {
-                        synth_off_pat[line][targetStep][0] = synth_partition[line][onStep][0];
-                        synth_off_pat[line][targetStep][1] = note;
-                        offUsed[line][targetStep] = true;
-                    }
+          bool offUsed[synth_liners_count][pbars] = {false};
+          for (int line = 0; line < synth_liners_count; line++){
+            for (int onStep = 0; onStep < pbars; onStep++){
+              // Skip empty Note On
+              if (synth_partition[line][onStep][2] == 0)
+                  continue;
+              uint8_t note = synth_partition[line][onStep][1];
+              int latestStep = (onStep + (pbars-1)) & (pbars-1);
+              for (int i = 1; i < pbars; i++){
+                int s = (onStep + i) & (pbars-1);
+                if (synth_partition[line][s][2] && synth_partition[line][s][1] == note) {
+                  latestStep = (s + (pbars-1)) & (pbars-1);
+                  break;
                 }
-            }
-            for (int line = 0; line < synth_liners_count; line++)
-            {
-                for (int step = 0; step < pbars; step++)
-                {
-                    if (!offUsed[line][step])
-                    {
-                        synth_off_pat[line][step][0] = 0;
-                        synth_off_pat[line][step][1] = 0;
-                    }
+              }
+              int foundLine = -1;
+              int foundStep = -1;
+              bool found = false;
+              int s = (onStep + 1) & (pbars-1);
+              while (!found) {
+                for (int l = 0; l < synth_liners_count; l++) {
+                  if (offUsed[l][s])
+                    continue;
+
+                  if (synth_off_pat[l][s][1] == note){
+                    found = true;
+                    foundLine = l;
+                    foundStep = s;
+                    break;
+                  }
                 }
+
+                if (found || s == latestStep)
+                    break;
+                s = (s + 1) & (pbars-1);
+              }
+              int targetStep = latestStep;
+              while (targetStep != onStep) {
+                if (synth_off_pat[line][targetStep][1] == 0 ||
+                  (found && targetStep == foundStep && line == foundLine))
+                  break;
+
+                targetStep = (targetStep + (pbars-1)) & (pbars-1);
+              }
+              if (found){
+                if (foundLine != line || foundStep != targetStep){
+                  synth_off_pat[foundLine][foundStep][0] = 0;
+                  synth_off_pat[foundLine][foundStep][1] = 0;
+                  synth_off_pat[line][targetStep][0] = synth_partition[line][onStep][0];
+                  synth_off_pat[line][targetStep][1] = note;
+                }
+
+                offUsed[line][targetStep] = true;
+              }
+              else {
+                synth_off_pat[line][targetStep][0] = synth_partition[line][onStep][0];
+                synth_off_pat[line][targetStep][1] = note;
+                offUsed[line][targetStep] = true;
+              }
             }
+          }
+          for (int line = 0; line < synth_liners_count; line++) {
+            for (int step = 0; step < pbars; step++) {
+              if (!offUsed[line][step]) {
+                synth_off_pat[line][step][0] = 0;
+                synth_off_pat[line][step][1] = 0;
+              }
+            }
+          }
         }
 
         static void sanitize_sampler_partition(){
          
-            bool offUsed[flash_liners_count][pbars] = {false};
+          bool offUsed[flash_liners_count][pbars] = {false};
 
-            for (int line = 0; line < flash_liners_count; line++)
-            {
-                for (int onStep = 0; onStep < pbars; onStep++)
-                {
-                    // Skip empty Note On
-                    if (sampler_partition[line][onStep][2] == 0)
-                        continue;
+          for (int line = 0; line < flash_liners_count; line++) {
+            for (int onStep = 0; onStep < pbars; onStep++){
+              // Skip empty Note On
+              if (sampler_partition[line][onStep][2] == 0)
+                  continue;
 
-                    uint8_t note = sampler_partition[line][onStep][1];
-                    int latestStep = (onStep + (pbars-1)) & (pbars-1);
+              uint8_t note = sampler_partition[line][onStep][1];
+              int latestStep = (onStep + (pbars-1)) & (pbars-1);
 
-                    for (int i = 1; i < pbars; i++)
-                    {
-                        int s = (onStep + i) & (pbars-1);
-
-                        if (sampler_partition[line][s][2] &&
-                            sampler_partition[line][s][1] == note)
-                        {
-                            latestStep = (s + (pbars-1)) & (pbars-1);
-                            break;
-                        }
-                    }
-                    int foundLine = -1;
-                    int foundStep = -1;
-                    bool found = false;
-
-                    int s = (onStep + 1) & (pbars-1);
-
-                    while (!found)
-                    {
-                        for (int l = 0; l < flash_liners_count; l++)
-                        {
-                            if (offUsed[l][s])
-                                continue;
-
-                            if (sampler_off_pat[s][1] == note)
-                            {
-                                found = true;
-                                foundLine = l;
-                                foundStep = s;
-                                break;
-                            }
-                        }
-
-                        if (found || s == latestStep)
-                            break;
-
-                        s = (s + 1) & (pbars-1);
-                    }
-                    int targetStep = latestStep;
-                    while (targetStep != onStep)
-                    {
-                        if (sampler_off_pat[targetStep][1] == 0 ||
-                            (found && targetStep == foundStep && line == foundLine))
-                            break;
-
-                        targetStep = (targetStep + (pbars-1)) & (pbars-1);
-                    }
-                    if (found)
-                    {
-                        if (foundLine != line || foundStep != targetStep)
-                        {
-                            sampler_off_pat[foundStep][0] = 0;
-                            sampler_off_pat[foundStep][1] = 0;
-                          
-
-                            sampler_off_pat[targetStep][0] = sampler_partition[line][onStep][0];
-                            sampler_off_pat[targetStep][1] = note;
-                      
-                        }
-
-                        offUsed[line][targetStep] = true;
-                    }
-                    else
-                    {
-                        sampler_off_pat[targetStep][0] = sampler_partition[line][onStep][0];
-                        sampler_off_pat[targetStep][1] = note;
-                        offUsed[line][targetStep] = true;
-                    }
+              for (int i = 1; i < pbars; i++){
+                int s = (onStep + i) & (pbars-1);
+                if (sampler_partition[line][s][2] && sampler_partition[line][s][1] == note) {
+                  latestStep = (s + (pbars-1)) & (pbars-1);
+                  break;
                 }
-            }
-            for (int line = 0; line < flash_liners_count; line++)
-            {
-                for (int step = 0; step < pbars; step++)
-                {
-                    if (!offUsed[line][step])
-                    {
-                        sampler_off_pat[step][0] = 0;
-                        sampler_off_pat[step][1] = 0;
-                    }
+              }
+              int foundLine = -1;
+              int foundStep = -1;
+              bool found = false;
+
+              int s = (onStep + 1) & (pbars-1);
+
+              while (!found) {
+                for (int l = 0; l < flash_liners_count; l++) {
+                  if (offUsed[l][s])
+                    continue;
+
+                  if (sampler_off_pat[s][1] == note){
+                    found = true;
+                    foundLine = l;
+                    foundStep = s;
+                    break;
+                  }
                 }
+
+                if (found || s == latestStep)
+                    break;
+                s = (s + 1) & (pbars-1);
+              }
+
+              int targetStep = latestStep;
+              while (targetStep != onStep){
+                if (sampler_off_pat[targetStep][1] == 0 ||
+                    (found && targetStep == foundStep && line == foundLine))
+                    break;
+
+                targetStep = (targetStep + (pbars-1)) & (pbars-1);
+              }
+              if (found){
+                if (foundLine != line || foundStep != targetStep) {
+                  sampler_off_pat[foundStep][0] = 0;
+                  sampler_off_pat[foundStep][1] = 0;
+                  sampler_off_pat[targetStep][0] = sampler_partition[line][onStep][0];
+                  sampler_off_pat[targetStep][1] = note;
+                }
+                offUsed[line][targetStep] = true;
+              }
+              else {
+                sampler_off_pat[targetStep][0] = sampler_partition[line][onStep][0];
+                sampler_off_pat[targetStep][1] = note;
+                offUsed[line][targetStep] = true;
+              }
             }
+          }
+          for (int line = 0; line < flash_liners_count; line++) {
+            for (int step = 0; step < pbars; step++) {
+              if (!offUsed[line][step]) {
+                sampler_off_pat[step][0] = 0;
+                sampler_off_pat[step][1] = 0;
+              }
+            }
+          }
         }
 
         static void set_cell_at_pos(byte ch_, byte nt_, byte ve_){
@@ -697,15 +578,10 @@ class PatEditRouter : public SectionHolder {
           byte laOffpos;
           self->_length_part[sub3] = max((sub4 - sub3) * 4,4);
           
-          laOffpos = sub3 + (self->_length_part[sub3] / 4);
-          if (laOffpos == sub3) {
-            laOffpos += 1;
-          }
-          if (laOffpos > pbars) {
-            laOffpos = laOffpos - pbars;
-          }
+          laOffpos = (sub3 + (self->_length_part[sub3] / 4))%pbars;
           self->_off_part[laOffpos][0] = ch_;
           self->_off_part[laOffpos][1] = nt_;
+          self->_off_part[laOffpos][2] = 0;
           terminatenotesinbetween();
           //off
           if (!ve_){
@@ -739,15 +615,9 @@ class PatEditRouter : public SectionHolder {
           computelenghtmesureoffline_sampler();
         }
 
-        static constexpr void (*cell_events[6])() = {&track_selector, &note_selector,
+        static constexpr void (*cell_events[7])() = {&homer,&track_selector, &note_selector,
                                                     &start_cell_setter, &stretch_cell_length,
-                                                    &stretch_cell_velocity, &set_cell_velocity};
-        
-        //has to be of length 6 to reach last cell click
-        static constexpr void (*_nav_home_route[7])() = {&homer,&player_selector,&player_selector,
-                                                  &player_selector,&player_selector,&player_selector,
-                                                  &player_selector};
-
+                                                    &stretch_cell_velocity, &set_cell_velocity};  
     private:
       static constexpr void (*_refresher[2])() = {&refresh_synth_track, &refresh_flash_track};
       static constexpr void (*set_editor_type[2])(byte) = {&set_editor_to_synth, &set_editor_to_sampler};
@@ -845,6 +715,7 @@ class POptionsRouter : public SectionHolder {
         }
         static void optionspattern() {
           // size 4
+          //TARGETS !!!
           // char optionspatternlabels[sizeofoptionspattern][12] = {"Transpose","Shift",
           // "Clear", "Target" };
           if (navlevel == 2) {
@@ -863,7 +734,7 @@ class POptionsRouter : public SectionHolder {
 
             if (sublevels[2] == 4) {
               // navrange = 14 ;
-              interpolOn = !interpolOn;
+              toggle_that(interpolOn);
               returntonav(2, sizeofoptionspattern - 1);
             }
             if (sublevels[2] == 5) {

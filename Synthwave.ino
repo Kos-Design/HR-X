@@ -106,8 +106,6 @@ void wetmixmastercontrols() {
   }
 }
 
-
-
 void set_dry_mix(int lebus) {
 
   switch (lebus) {
@@ -151,9 +149,9 @@ class SynthMenuRouter : public SectionHolder {
                     this->sublevels_address={0,0,0};
                     }
 
-        int unit = (int)wavesfreqs[ccsynthselector] % 10;
-        int tenth     = ((int)(wavesfreqs[ccsynthselector] * 10)) % 10;
-        int hundredth = ((int)(wavesfreqs[ccsynthselector] * 100)) % 10;
+        int unit = (int)wavesfreqs[oscillator] % 10;
+        int tenth     = ((int)(wavesfreqs[oscillator] * 10)) % 10;
+        int hundredth = ((int)(wavesfreqs[oscillator] * 100)) % 10;
 
         static void show() {
           _route_nav[navlevel-1]();
@@ -173,15 +171,15 @@ class SynthMenuRouter : public SectionHolder {
           if (navlevel == 3) {
             retroaction = sublevels[2];
             navrange = synth_params_count - 1;
-            sublevels[4] = wave1offset[ccsynthselector];
+            sublevels[4] = wave1offset[oscillator];
           }
           if (navlevel == 4) {
             navrange = 127;
             retroaction = sublevels[3];
-            wave1offset[ccsynthselector] = sublevels[4];
+            wave1offset[oscillator] = sublevels[4];
             for (int i = 0; i < synth_liners_count; i++) {
-              waveforms1[i + (ccsynthselector * synth_liners_count)]->offset((float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
-              FMwaveforms1[i + (ccsynthselector * synth_liners_count)]->offset((float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
+              waveforms1[i + (oscillator * synth_liners_count)]->offset((float)(((64.0 - wave1offset[oscillator]) / 64.0)));
+              FMwaveforms1[i + (oscillator * synth_liners_count)]->offset((float)(((64.0 - wave1offset[oscillator]) / 64.0)));
             }
           }
           if (navlevel >= 5) {
@@ -190,7 +188,7 @@ class SynthMenuRouter : public SectionHolder {
           }
           display.setTextSize(1);
           display.setCursor(80, 8);
-          display.print((float)(((64.0 - wave1offset[ccsynthselector]) / 64.0)));
+          display.print((float)(((64.0 - wave1offset[oscillator]) / 64.0)));
 
           draw_synth_params();
           dodisplay();
@@ -202,17 +200,17 @@ class SynthMenuRouter : public SectionHolder {
             switch (sublevels[4]){
               case 0:
                 display.fillRect(62, 0, 16, 16, SSD1306_INVERSE);
-                self->unit = (int)wavesfreqs[ccsynthselector];
+                self->unit = (int)wavesfreqs[oscillator];
                 sublevels[5]=self->unit;
               break;
               case 1:
                 display.fillRect(88, 0, 12, 16, SSD1306_INVERSE);
-                self->tenth = ((int)(wavesfreqs[ccsynthselector]* 10)) % 10;
+                self->tenth = ((int)(wavesfreqs[oscillator]* 10)) % 10;
                 sublevels[5]=self->tenth;
               break;
               case 2:
                 display.fillRect(100, 0, 12, 16, SSD1306_INVERSE);
-                self->hundredth = ((int)(wavesfreqs[ccsynthselector] * 100)) % 10;
+                self->hundredth = ((int)(wavesfreqs[oscillator] * 100)) % 10;
                 sublevels[5]=self->hundredth;
               break;
             }
@@ -236,14 +234,14 @@ class SynthMenuRouter : public SectionHolder {
             break;
           }
 
-          wavesfreqs[ccsynthselector] = (float)(self->unit + self->tenth * 0.1f + self->hundredth * 0.01f);
+          wavesfreqs[oscillator] = (float)(self->unit + self->tenth * 0.1f + self->hundredth * 0.01f);
         }
 
         static void displayfreqbars(){
           dm.clear_3();
           display.setTextSize(2);
           display.setCursor(65, 0);
-          display.println(wavesfreqs[ccsynthselector]);
+          display.println(wavesfreqs[oscillator]);
           draw_synth_params();
           dodisplay();
         }
@@ -269,7 +267,7 @@ class SynthMenuRouter : public SectionHolder {
           if (navlevel == 3) {
             retroaction = sublevels[2];
             navrange = synth_params_count - 1;
-            //sublevels[4] = round(wavesfreqs[ccsynthselector]);
+            //sublevels[4] = round(wavesfreqs[oscillator]);
           }
         }
 
@@ -278,13 +276,13 @@ class SynthMenuRouter : public SectionHolder {
           if (navlevel == 3) {
             retroaction = sublevels[2];
             navrange = synth_params_count - 1;
-            sublevels[4] = int(phaselevelsL[ccsynthselector]);
+            sublevels[4] = int(phaselevelsL[oscillator]);
           }
           if (navlevel >= 4) {
             if (navlevel == 4) {
               navrange = 360;
               retroaction = sublevels[3];
-              phaselevelsL[ccsynthselector] = int(sublevels[4]);
+              phaselevelsL[oscillator] = int(sublevels[4]);
               setphaselevel();
             }
             if (navlevel >= 5) {
@@ -297,7 +295,7 @@ class SynthMenuRouter : public SectionHolder {
 
           display.setCursor(80, 0);
           display.setTextSize(2);
-          display.println(phaselevelsL[ccsynthselector]);
+          display.println(phaselevelsL[oscillator]);
           dodisplay();
         }
 
@@ -308,7 +306,7 @@ class SynthMenuRouter : public SectionHolder {
           dodisplay();
           display.setCursor(64, 0);
           display.setTextSize(2);
-          display.println(modulation_labels[FMmodulated[ccsynthselector]]);
+          display.println(modulation_labels[FMmodulated[oscillator]]);
           draw_synth_params();
           dodisplay();
 
@@ -317,14 +315,14 @@ class SynthMenuRouter : public SectionHolder {
         static void setfmtophase() {
           for (byte i = 0; i < synth_liners_count; i++) {
             //phaseModulation should be based on lfo level
-            FMwaveforms1[i + (ccsynthselector * synth_liners_count)]->phaseModulation(180);
+            FMwaveforms1[i + (oscillator * synth_liners_count)]->phaseModulation(180);
           }
         }
 
         static void setfmtofreq() {
           for (byte i = 0; i < synth_liners_count; i++) {
             //phaseModulation should be based on lfo level
-            FMwaveforms1[i + (ccsynthselector * synth_liners_count)]->frequencyModulation(10);
+            FMwaveforms1[i + (oscillator * synth_liners_count)]->frequencyModulation(10);
           }
         }
 
@@ -337,7 +335,7 @@ class SynthMenuRouter : public SectionHolder {
           if (navlevel == 4) {
             navrange = 3;
             retroaction = sublevels[3];
-            FMmodulated[ccsynthselector] = sublevels[4];
+            FMmodulated[oscillator] = sublevels[4];
           }
           if (navlevel > 4) {
             setwavetypefromlist();
@@ -351,17 +349,17 @@ class SynthMenuRouter : public SectionHolder {
           if (navlevel == 3) {
             retroaction = sublevels[2];
             navrange = synth_params_count - 1;
-            sublevels[4] = Waveformstyped[ccsynthselector];
+            sublevels[4] = Waveformstyped[oscillator];
           }
           if (navlevel == 4) {
             navrange = 11;
-            Waveformstyped[ccsynthselector] = sublevels[4];
+            Waveformstyped[oscillator] = sublevels[4];
             retroaction = sublevels[3];
           }
           if (navlevel > 4) {
             setwavetypefromlist();
-            if (Waveformstyped[ccsynthselector] == 11) {
-              mixlevelsL[ccsynthselector] = 0;
+            if (Waveformstyped[oscillator] == 11) {
+              mixlevelsL[oscillator] = 0;
               setwavemixlevel();
             }
             returntonav(3,synth_params_count-1,sublevels[3]);
@@ -379,7 +377,7 @@ class SynthMenuRouter : public SectionHolder {
           display.setCursor(64, 0);
           display.println(lelabelw[sublevels[4]]);
           display.setCursor(120, 57);
-          display.print(ccsynthselector + 1);
+          display.print(oscillator + 1);
           draw_synth_params();
           dodisplay();
         }
@@ -394,7 +392,7 @@ class SynthMenuRouter : public SectionHolder {
             dodisplay();
           if (navlevel >= 4) {
             sublevels[0] = 1;
-            sublevels[1] = ccsynthselector;
+            sublevels[1] = oscillator;
             sublevels[2] = 0;
             returntonav(navlevel-2,sizeofLFOlabels - 1,0);
           }
@@ -408,12 +406,12 @@ class SynthMenuRouter : public SectionHolder {
           }
 
           if (navlevel >= 4) {
-            if (ccsynthselector-1 < 0)
-              ccsynthselector = 2 ;
+            if (oscillator-1 < 0)
+              oscillator = 2 ;
             else
-              ccsynthselector = ccsynthselector-1;
+              oscillator = oscillator-1;
 
-            sublevels[2] = ccsynthselector ;
+            sublevels[2] = oscillator ;
             returntonav(navlevel-1,synth_params_count-1,sublevels[3]);
             return;
           }
@@ -427,8 +425,8 @@ class SynthMenuRouter : public SectionHolder {
             navrange = synth_params_count - 1;
           }
           if (navlevel >= 4) {
-            ccsynthselector = (ccsynthselector+1)%3;
-            sublevels[2] = ccsynthselector ;
+            oscillator = (oscillator+1)%3;
+            sublevels[2] = oscillator ;
             returntonav(navlevel-1,synth_params_count-1,sublevels[3]);
           }
           draw_synth_params();
@@ -712,7 +710,7 @@ class SynthMenuRouter : public SectionHolder {
             canvasBIG.println(wavelineslabels[i]);
           }
           canvasBIG.setCursor(120, 57);
-          canvasBIG.print(ccsynthselector + 1);
+          canvasBIG.print(oscillator + 1);
         }
 
         static void dolistsyntmenu() {
@@ -738,13 +736,13 @@ class SynthMenuRouter : public SectionHolder {
 
         static void synths_switcher(){
           String titled = "Waveline ";
-          ccsynthselector = sublevels[2]%synths_count;
-          String synth_num = ccsynthselector + 1 ;
+          oscillator = sublevels[2]%synths_count;
+          String synth_num = oscillator + 1 ;
           navrange = synths_count-1;
           String leprintlabel = titled + synth_num ;
           wavelinesBG();
           sublevels[3] = 0;
-          display.fillRect(0+(ccsynthselector%2)*64, 16+(24*(ccsynthselector/2)), 64, 24, SSD1306_INVERSE);
+          display.fillRect(0+(oscillator%2)*64, 16+(24*(oscillator/2)), 64, 24, SSD1306_INVERSE);
           dm.printlabel((char*)leprintlabel.c_str());
           display.display();
         }
@@ -934,9 +932,14 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void transport_selector() {
+          String _legend[] = {"Play All","Previous","Pause","Play file","Next","Shuffle","Loop","Stop"," "};
           int startyp = 8;
           int ecart = 14;
           display.fillRect(ecart * (sublevels[navlevel])-3, startyp-2, ecart-1, startyp*1.5, SSD1306_INVERSE);
+          display.setCursor(0,20);
+          display.setTextSize(1);
+          display.setTextColor(SSD1306_INVERSE);
+          display.print(_legend[sublevels[2]]);
           display.display();
         }
 
@@ -1048,10 +1051,10 @@ class SynthMenuRouter : public SectionHolder {
 
         static void restore_from_temp() {
           for (int i=0; i<10; i++) {
-            sublevels[3] = filter_tmp_values[i];
+            sublevels[3] = self->filter_tmp_values[i];
             (filters_pointers[i])();
             le303filtercontrols();
-            *filter_tmp_pointers[i] = filter_tmp_values[i] ;
+            *self->filter_tmp_pointers[i] = self->filter_tmp_values[i] ;
           }
            temp_buff_armed = 0 ;
         }
@@ -1059,7 +1062,7 @@ class SynthMenuRouter : public SectionHolder {
         static void set_filter_buff_temp() {
 
           for (int i=0; i<10; i++) {
-            filter_tmp_values[i] = *filter_tmp_pointers[i] ;
+            self->filter_tmp_values[i] = *self->filter_tmp_pointers[i] ;
           }
 
         }
@@ -1293,7 +1296,7 @@ class SynthMenuRouter : public SectionHolder {
 
         static void restore_wmixer_from_temp() {
           for (int i=0; i<12; i++) {
-            sublevels[3] = wmixer_tmp_values[i];
+            sublevels[3] = self->wmixer_tmp_values[i];
             //(filters_pointers[i])();
             //le303filtercontrols();
             if (i < 3) {
@@ -1308,7 +1311,7 @@ class SynthMenuRouter : public SectionHolder {
             if (i > 8 && i < 12) {
               actionwmixer(i - 9);
             }
-            *wmixer_tmp_pointers[i] = wmixer_tmp_values[i] ;
+            *self->wmixer_tmp_pointers[i] = self->wmixer_tmp_values[i] ;
           }
            temp_buff_armed = 0 ;
         }
@@ -1316,7 +1319,7 @@ class SynthMenuRouter : public SectionHolder {
         static void set_wmixer_buff_temp() {
           //Serial.println("buffing");
           for (int i=0; i<12; i++) {
-            wmixer_tmp_values[i] = *wmixer_tmp_pointers[i] ;
+            self->wmixer_tmp_values[i] = *self->wmixer_tmp_pointers[i] ;
           }
 
         }
@@ -1451,7 +1454,7 @@ class SynthMenuRouter : public SectionHolder {
         static void setwavemixlevel() {
         // AudioNoInterrupts();
           for (int j = 0; j < synth_liners_count; j++) {
-            Wavesmix[j]->gain(ccsynthselector, mixlevelsL[ccsynthselector]/127.0);
+            Wavesmix[j]->gain(oscillator, mixlevelsL[oscillator]/127.0);
           }
         // AudioInterrupts();
         }
@@ -1546,127 +1549,127 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void plug_no_waves(){
-          mixlevelsL[ccsynthselector] = 0;
+          mixlevelsL[oscillator] = 0;
           for (int i = 0; i < synth_liners_count; i++) {
-            wavelinescords[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            stringcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            drumcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            FMwavecords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDdrumcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDwavecords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDstringcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            modulatecords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
+            wavelinescords[i + (synth_liners_count * oscillator)]->disconnect();
+            stringcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            drumcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            FMwavecords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDdrumcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDwavecords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDstringcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            modulatecords1[i + (synth_liners_count * oscillator)]->disconnect();
           }
         }
 
         static void plug_waves(){
           for (int i = 0; i < synth_liners_count; i++) {
-            FMwavecords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            stringcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            modulatecords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDdrumcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDstringcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDwavecords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            drumcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            wavelinescords[i + (synth_liners_count * ccsynthselector)]->connect();
-            if (Waveformstyped[ccsynthselector] == 7) {
-              waveforms1[i + (synth_liners_count * ccsynthselector)]->arbitraryWaveform(arbitrary_waveforms[ccsynthselector],arbitrary_maxF[ccsynthselector]);
+            FMwavecords1[i + (synth_liners_count * oscillator)]->disconnect();
+            stringcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            modulatecords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDdrumcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDstringcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDwavecords1[i + (synth_liners_count * oscillator)]->disconnect();
+            drumcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            wavelinescords[i + (synth_liners_count * oscillator)]->connect();
+            if (Waveformstyped[oscillator] == 7) {
+              waveforms1[i + (synth_liners_count * oscillator)]->arbitraryWaveform(arbitrary_waveforms[oscillator],arbitrary_maxF[oscillator]);
             }
-            waveforms1[i + (synth_liners_count * ccsynthselector)]->begin(lesformes[Waveformstyped[ccsynthselector]]);
+            waveforms1[i + (synth_liners_count * oscillator)]->begin(lesformes[Waveformstyped[oscillator]]);
           }
         }
 
         static void plug_moded_waves(){
           for (int i = 0; i < synth_liners_count; i++) {
-            wavelinescords[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            modulatecords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDdrumcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDstringcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            stringcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            drumcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDwavecords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            FMwavecords1[i + (synth_liners_count * ccsynthselector)]->connect();
-            if (Waveformstyped[ccsynthselector] == 7) {
-              FMwaveforms1[i + (synth_liners_count * ccsynthselector)]->arbitraryWaveform(arbitrary_waveforms[ccsynthselector],arbitrary_maxF[ccsynthselector]);
+            wavelinescords[i + (synth_liners_count * oscillator)]->disconnect();
+            modulatecords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDdrumcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDstringcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            stringcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            drumcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDwavecords1[i + (synth_liners_count * oscillator)]->disconnect();
+            FMwavecords1[i + (synth_liners_count * oscillator)]->connect();
+            if (Waveformstyped[oscillator] == 7) {
+              FMwaveforms1[i + (synth_liners_count * oscillator)]->arbitraryWaveform(arbitrary_waveforms[oscillator],arbitrary_maxF[oscillator]);
             }
-            FMwaveforms1[i + (synth_liners_count * ccsynthselector)]->begin(lesformes[Waveformstyped[ccsynthselector]]);
+            FMwaveforms1[i + (synth_liners_count * oscillator)]->begin(lesformes[Waveformstyped[oscillator]]);
           }
-          call_restart_lfo(ccsynthselector);
+          call_restart_lfo(oscillator);
         }
 
         static void plug_ampl_moded_waves(){
           for (int i = 0; i < synth_liners_count; i++) {
-            wavelinescords[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDdrumcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDstringcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            stringcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            drumcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            FMwavecords1[i + (ccsynthselector * synth_liners_count)]->disconnect();
-            MDwavecords1[i + (synth_liners_count * ccsynthselector)]->connect();
-            modulatecords1[i + (synth_liners_count * ccsynthselector)]->connect();
-            if (Waveformstyped[ccsynthselector] == 7) {
-              waveforms1[i + (synth_liners_count * ccsynthselector)]->arbitraryWaveform(arbitrary_waveforms[ccsynthselector],arbitrary_maxF[ccsynthselector]);
+            wavelinescords[i + (synth_liners_count * oscillator)]->disconnect();
+            MDdrumcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDstringcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            stringcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            drumcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            FMwavecords1[i + (oscillator * synth_liners_count)]->disconnect();
+            MDwavecords1[i + (synth_liners_count * oscillator)]->connect();
+            modulatecords1[i + (synth_liners_count * oscillator)]->connect();
+            if (Waveformstyped[oscillator] == 7) {
+              waveforms1[i + (synth_liners_count * oscillator)]->arbitraryWaveform(arbitrary_waveforms[oscillator],arbitrary_maxF[oscillator]);
             }
-            waveforms1[i + (synth_liners_count * ccsynthselector)]->begin(lesformes[Waveformstyped[ccsynthselector]]);
+            waveforms1[i + (synth_liners_count * oscillator)]->begin(lesformes[Waveformstyped[oscillator]]);
           }
-          call_restart_lfo(ccsynthselector);
+          call_restart_lfo(oscillator);
         }
 
         static void plug_strings_waves(){
           for (int i = 0; i < synth_liners_count; i++) {
-            wavelinescords[i + (ccsynthselector * synth_liners_count)]->disconnect();
-            drumcords1[i + (ccsynthselector * synth_liners_count)]->disconnect();
-            FMwavecords1[i + (ccsynthselector * synth_liners_count)]->disconnect();
-            modulatecords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDwavecords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDdrumcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDstringcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            stringcords1[i + (ccsynthselector * synth_liners_count)]->connect();
+            wavelinescords[i + (oscillator * synth_liners_count)]->disconnect();
+            drumcords1[i + (oscillator * synth_liners_count)]->disconnect();
+            FMwavecords1[i + (oscillator * synth_liners_count)]->disconnect();
+            modulatecords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDwavecords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDdrumcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDstringcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            stringcords1[i + (oscillator * synth_liners_count)]->connect();
           }
         }
 
         static void plug_ampl_moded_strings(){
           for (int i = 0; i < synth_liners_count; i++) {
-            wavelinescords[i + (ccsynthselector * synth_liners_count)]->disconnect();
-            drumcords1[i + (ccsynthselector * synth_liners_count)]->disconnect();
-            FMwavecords1[i + (ccsynthselector * synth_liners_count)]->disconnect();
-            stringcords1[i + (ccsynthselector * synth_liners_count)]->disconnect();
-            MDwavecords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDdrumcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDstringcords1[i + (synth_liners_count * ccsynthselector)]->connect();
-            modulatecords1[i + (synth_liners_count * ccsynthselector)]->connect();
+            wavelinescords[i + (oscillator * synth_liners_count)]->disconnect();
+            drumcords1[i + (oscillator * synth_liners_count)]->disconnect();
+            FMwavecords1[i + (oscillator * synth_liners_count)]->disconnect();
+            stringcords1[i + (oscillator * synth_liners_count)]->disconnect();
+            MDwavecords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDdrumcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDstringcords1[i + (synth_liners_count * oscillator)]->connect();
+            modulatecords1[i + (synth_liners_count * oscillator)]->connect();
           }
         }
 
         static void plug_drum_waves(){
           for (int i = 0; i < synth_liners_count; i++) {
-            wavelinescords[i + (ccsynthselector * synth_liners_count)]->disconnect();
-            stringcords1[i + (ccsynthselector * synth_liners_count)]->disconnect();
-            FMwavecords1[i + (ccsynthselector * synth_liners_count)]->disconnect();
-            modulatecords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDwavecords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDdrumcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDstringcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            drumcords1[i + (ccsynthselector * synth_liners_count)]->connect();
+            wavelinescords[i + (oscillator * synth_liners_count)]->disconnect();
+            stringcords1[i + (oscillator * synth_liners_count)]->disconnect();
+            FMwavecords1[i + (oscillator * synth_liners_count)]->disconnect();
+            modulatecords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDwavecords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDdrumcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDstringcords1[i + (synth_liners_count * oscillator)]->disconnect();
+            drumcords1[i + (oscillator * synth_liners_count)]->connect();
           }
         }
 
         static void plug_ampl_moded_drums(){
           for (int i = 0; i < synth_liners_count; i++) {
-            wavelinescords[i + (ccsynthselector * synth_liners_count)]->disconnect();
-            stringcords1[i + (ccsynthselector * synth_liners_count)]->disconnect();
-            FMwavecords1[i + (ccsynthselector * synth_liners_count)]->disconnect();
-            drumcords1[i + (ccsynthselector * synth_liners_count)]->disconnect();
-            MDwavecords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
-            MDstringcords1[i + (synth_liners_count * ccsynthselector)]->disconnect();
+            wavelinescords[i + (oscillator * synth_liners_count)]->disconnect();
+            stringcords1[i + (oscillator * synth_liners_count)]->disconnect();
+            FMwavecords1[i + (oscillator * synth_liners_count)]->disconnect();
+            drumcords1[i + (oscillator * synth_liners_count)]->disconnect();
+            MDwavecords1[i + (synth_liners_count * oscillator)]->disconnect();
+            MDstringcords1[i + (synth_liners_count * oscillator)]->disconnect();
             //TODO: apply to other types too
-            modulatecords1[i + (synth_liners_count * ccsynthselector)]->connect();
-            MDdrumcords1[i + (synth_liners_count * ccsynthselector)]->connect();
+            modulatecords1[i + (synth_liners_count * oscillator)]->connect();
+            MDdrumcords1[i + (synth_liners_count * oscillator)]->connect();
           }
         }
 
         static void no_modulation(){
-              byte letype = Waveformstyped[ccsynthselector];
+              byte letype = Waveformstyped[oscillator];
               if (letype < 9) {
                 plug_waves();
               }
@@ -1679,7 +1682,7 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void freq_modulation(){
-          byte letype = Waveformstyped[ccsynthselector];
+          byte letype = Waveformstyped[oscillator];
           if (letype < 9) {
             plug_moded_waves();
           }
@@ -1693,7 +1696,7 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void phase_modulation(){
-          byte letype = Waveformstyped[ccsynthselector];
+          byte letype = Waveformstyped[oscillator];
           if (letype < 9) {
               plug_moded_waves();
             }
@@ -1707,7 +1710,7 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void amplitude_modulation(){
-          byte letype = Waveformstyped[ccsynthselector];
+          byte letype = Waveformstyped[oscillator];
           if (letype < 9) {
               plug_ampl_moded_waves();
             }
@@ -1719,12 +1722,12 @@ class SynthMenuRouter : public SectionHolder {
               // amplitude modulated string
               plug_ampl_moded_strings();
             }
-            call_restart_lfo(ccsynthselector);
+            call_restart_lfo(oscillator);
         }
 
         static void setwavetypefromlist() {
           AudioNoInterrupts();
-          byte letype = Waveformstyped[ccsynthselector];
+          byte letype = Waveformstyped[oscillator];
           if (letype == 11) {
             // synth line off
             plug_no_waves();
@@ -1732,7 +1735,7 @@ class SynthMenuRouter : public SectionHolder {
             setwavemixlevel();
             return;
           }
-          (modulation_pointers[FMmodulated[ccsynthselector]] )();
+          (modulation_pointers[FMmodulated[oscillator]] )();
           AudioInterrupts();
           setwavemixlevel();
         }
@@ -1740,7 +1743,7 @@ class SynthMenuRouter : public SectionHolder {
         static void setphaselevel() {
           AudioNoInterrupts();
           for (int i = 0; i < synth_liners_count; i++) {
-            waveforms1[i + (synth_liners_count * ccsynthselector)]->phase(phaselevelsL[ccsynthselector]);
+            waveforms1[i + (synth_liners_count * oscillator)]->phase(phaselevelsL[oscillator]);
           }
           AudioInterrupts();
         }
@@ -1785,6 +1788,18 @@ class SynthMenuRouter : public SectionHolder {
             &route_navlevel_2,
             &route_navlevel_2
         };
+
+        byte *filter_tmp_pointers[10] = { &le303ffilterzVknobs[0], &le303ffilterzVknobs[1], &mixle303ffilterzVknobs[0], &mixle303ffilterzVknobs[1], &mixle303ffilterzVknobs[2],
+                                                  &le303filterzwet, &cutoff_pulse, &reson_pulse, &preampleswaves, &glidemode };
+
+        byte filter_tmp_values[10] = {le303ffilterzVknobs[0],le303ffilterzVknobs[1],mixle303ffilterzVknobs[0],mixle303ffilterzVknobs[1],mixle303ffilterzVknobs[2],
+                                              le303filterzwet,cutoff_pulse,reson_pulse,preampleswaves,glidemode };
+
+        byte *wmixer_tmp_pointers[12] = { &mixlevelsM[0], &mixlevelsM[1], &mixlevelsM[2], &WetMixMasters[1], &WetMixMasters[2], &WetMixMasters[3],
+                                                  &wetins[0], &wetins[1], &wetins[2], &mixlevelsL[0], &mixlevelsL[1], &mixlevelsL[2] };
+
+        byte wmixer_tmp_values[12] = {mixlevelsM[0],mixlevelsM[1],mixlevelsM[2],WetMixMasters[1],WetMixMasters[2],WetMixMasters[3],
+                                        wetins[0],wetins[1],wetins[2], mixlevelsL[0],mixlevelsL[1],mixlevelsL[2] };
 
   private:
     static SynthMenuRouter* self;

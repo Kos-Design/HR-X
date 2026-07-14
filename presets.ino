@@ -658,7 +658,7 @@ class PresetsMenuRouter : public SectionHolder {
           set_dry_mix(1);
 
           for (int i = 0; i < synths_count; i++) {
-            ccsynthselector = i ;
+            oscillator = i ;
             call_setwavemixlevel();
             call_setwavetypefromlist();
             mixlevelsL[i] = tmp_mixlevelsL[i];

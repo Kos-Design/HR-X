@@ -471,6 +471,8 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void select_cursor() {
+          String _legend[] = {"Select","Zoom Out","Zoom In","Normalize","Reverse","Pitch","Fade In","Fade Out","Preview","Del before","Del after","Del zone","Keep zone"," "," "};
+
           display.clearDisplay();
           dodisplay();
           int cursor_coords[][4] = {{0,0,18,8},{22,0,9,8},{38,0,9,8},{52,0,9,8},{64,0,9,8},{76,0,9,8},{88,0,14,8},{106,0,14,8},{0,8,128,48},
@@ -480,9 +482,15 @@ class RecorderMenuRouter : public SectionHolder {
                             cursor_coords[sublevels[self->relative_navlevel+1]][2],
                             cursor_coords[sublevels[self->relative_navlevel+1]][3],
                             SSD1306_INVERSE);
+
            if (self->wave_selected) {
             redraw_selection_box();
           } 
+          //display.fillRect(80,16, 38, 10, SSD1306_INVERSE);
+          display.setTextSize(1);
+          display.setTextColor(SSD1306_INVERSE);
+          display.setCursor(68,12);
+          display.print(_legend[sublevels[self->relative_navlevel +1]]);
           display.display();
         }
 
@@ -503,7 +511,6 @@ class RecorderMenuRouter : public SectionHolder {
           canvasBIG.print(" Out");// trim from begining to end of zone
           canvasBIG.print(" Del");// remove selected zone
           canvasBIG.print(" Trim");// keep only selected zone
-
           
         }
 

@@ -101,10 +101,11 @@ float BPMs = (60000.0 / millitickinterval) / 4.0;
 const int pbars = 32;
 
 float BPM = 130.0;
+/*
 unsigned long MICROSECONDS_PER_MINUTE = 60000000;
 unsigned long MICROSECONDS_PER_BEAT = MICROSECONDS_PER_MINUTE / BPM;
 unsigned long MICROSECONDS_PER_MIDI_CLOCK = MICROSECONDS_PER_BEAT / 4; // MIDI clock ticks 24 times per beat
-
+*/
 // not sure if used
 unsigned long latimeline;
 // unsigned long latimelineshifter = ((60000/19200)*pbars) ;
@@ -241,7 +242,7 @@ String newmkdirpath = "SOUNDSET/MABANK01" ;
 
 #include <Bounce.h>
 #include <Encoder.h>
-#include <string.h>
+//#include <string.h>
 const int synth_liners_count = 6;
 const int flash_liners_count = 16;
 const int sampler_labels_count = 4;
@@ -307,7 +308,7 @@ byte lapreviousnotewCmode[synth_liners_count];
 int leglidershiftCmode[synth_liners_count];
 int note_differenceCmode[synth_liners_count];
 
-byte ccsynthselector = 0;
+byte oscillator = 0;
 byte cclfoselector = 0 ;
 byte ccfxlineselector = 0;
 
@@ -361,13 +362,9 @@ int availableliner;
 int olderliner;
 
 byte fffnote;
-byte cellsizer = 3;
-byte celltall = 9;
-byte startx = 8;
-byte starty = 18;
 
-GFXcanvas1 canvasBIG(128, 64);
-GFXcanvas1 canvastitle(128, 16);
+EXTMEM GFXcanvas1 canvasBIG(128, 64);
+EXTMEM GFXcanvas1 canvastitle(128, 16);
 // SD on audio board
 #define SDCARD_CS_PIN 10
 #define SDCARD_MOSI_PIN 7
@@ -394,10 +391,6 @@ int samplesSelected = 0;
 
 #define LOGO_HEIGHT 32
 #define LOGO_WIDTH 64
-// File lesfiles[999];
-// EXTMEM char lesfileslist[999][99];
-// EXTMEM char lesfolderslist[99][99];
-// File lesfolders[99];
 File myMidiFile;
 int filecount;
 int keepcount;
@@ -430,7 +423,7 @@ const int lesformes[9] PROGMEM = {
 
 byte waveformIndex = 0 ;
 
-int16_t arbitrary_waveforms[synths_count][256] ;
+EXTMEM int16_t arbitrary_waveforms[synths_count][256] ;
 
 byte lavalue;
 
@@ -619,53 +612,52 @@ char mainmenufxlist[mainmenufxlistsize][12] = {
       "Multiply", "Reverb", "Granular", "BitCrusher", "Flanger",
       "Chorus",   "Biquad", "Filter",   "Delay",      "None"};
 
-// TODO
-//const char ControlList[allfxes][23] PROGMEM = {
-const char ControlList[allfxes][21] = {
-    // 0
-    "None", "Volume","SynthLevel", "SDLvl", "FlashLevel", "Fx1Level",
-    "Fx2Level", "Fx3Level", "SamplerDry","SynthDry",
-    // 10
-    "AuxDry", "CtoffSlope","ResoSlope","Freq_arb_wf", "Free", "Free",
-    "CtoffTime", "ResoTime", "FilterLevel ", "Free",
-    // 20
-    "CutOff", "Resonance", "OctRange", "glidemode", "FilterIn", "free",
-    "free", "arpegiatortype", "arpegmode", "arpegstartoffset",
-    // 30
-    "arpegnumofnotes", "arpeggridC", "arpeggridS", "arpeglengh", "digitalplay",
-    "CuePlay", "Start", "Stop", "Metronome", "Capture",
-    // 40
-    "pausedasong", "stopdasong", "playdasong", "Chords", "RecordCC",
-    "Synthselector", "wavesfreqs", "mixlevelsL", "panLs", "FMmodulated",
-    // 50
-    "Waveformstyped", "wave1offset", "phaselevelsL", "LFOlevel", "LFOtype",
-    "LFOfreqs", "LFOphase", "LFOoffset", "LFOsync", "Attack Delay",
-    /// 60
-    "Attack", "Hold", "Decay", "Sustain", "free", "Release",
-    "303ffilterz[0]", "303fgainz[1]", "303fgainz[2]", "FXselector",
-    // 70
-    "chorusVknobs[i]", "bqstage[i]", "LFOonfilterz[i]", "bqVpot[i][j][0]", "bqVpot[i][j][1]", "bqVpot[i][j][2]",
-    "grlrGrain", "grlrRatio", "gShift-T", "gFreeze-T",
-    // 80
-    "reverbVknobs[i][0]", "reverbVknobs[i][1]", "bitcrush[i][0]",  "bitcrush[i][1]", "mixVknobs[i][0]",
-    "mix[i][1]", "mix[i][2]", "fltrVknob[i][0]", "fltrVknob[i][1]", "fltrVknob[i][2]",
-    // 90
-    "flanger[i][0]", "flanger[i][1]", "flanger[i][2]","DelayFreq[i][0]", "DelayMult[i][1]", "DelayFeed[i][2]",
-    "bqtype[i][bq]", "In level", "Free", "Free","BPM",
-    // 100
-    "disabled", "Pat. Load", "Record Raw", "Play Recorded", "Stop Play&Rec", "Free", "Free",
-    "free","Load Pat0", "preset 0", "Free",
-    // 110
-    "Sp.Track 1", "Sp.Track 2", "Sp.Track 3", "Sp.Track 4", "Sp.Track 5",
-    "Sp.Track 6", "Sp.Track 7", "Sp.Track 8", "Sp.Track 9", "Sp.Track 10",
-    // 120
-    "Sp.Track 11", "Sp.Track 12", "Sp.Track 13", "Sp.Track 14", "Sp.Track 15",
-    "Sp.Track 16", "Free", "Free", "Free", "Free", "Free",
-    // 130
-    "Free", "Free", "Free", "Wfreq4", "Pan 4", "Phase4"
+byte WetMixMasters[4] = {0, 0, 0, 0};
+
+struct CcCalls {
+    const char *name;
+    void (*tweaker)(byte);
 };
 
-byte WetMixMasters[4] = {0, 0, 0, 0};
+const CcCalls ctl[] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel",&SynthVolume_ctl},{"SDLevel",&SDPlayerVolume_ctl},{"FlashLevel",&FlashVolume_ctl},
+                      {"FX1 Wet",&Wet1Volume_ctl},{"FX2 Wet",&Wet2Volume_ctl},{"FX3 Wet",&Wet3Volume_ctl},{"Dry Sampler",&DrySampler_ctl},{"Dry Synth",&DrySynth_ctl},
+                      //10 ok
+                      {"Dry Audio In",&DryAudioIn_ctl},{"CutOff slp.",&Slope1_ctl},{"Reso slp.",&Slope2_ctl},{"Reso Tweak",&ResoTweak_ctl},{"Filter303 Oct.",&Filter303Octave_ctl},
+                      {"CutOff Tweak",&CutOffTweak_ctl},{"CutOff Pulse",&CutOffPulse_ctl},{"Reso Pulse",&ResoPulse_ctl},{"Filter303 Lvl.",&Filter303_ctl},{"Filter303 Glide",&Filter303Glide_ctl},
+                      //20 ok
+                      {"Filter303 PreAmp",&FilterPreAmp_ctl},{"Synth Index",&SynthIndex_ctl},{"Syth X Lvl.",&SynthXLevel_ctl},{"Synth X Freq",&SynthXFreq_ctl},{"Chords type",&SetChords_ctl},
+                      {"Pans Levels",&PansLevels_ctl},{"Metronome Level",&MetroDrumLevel_ctl},{"Play Song",&PlaySong_Trigger_ctl},{"Stop Song",&StopSong_Trigger_ctl},{"Pause Song",&PauseSong_Trigger_ctl},
+                      //30 ok
+                      {"Record Midi",&RecordPattern_Trigger_ctl},{"Record CC Events",&RecordCCPatern_Trigger_ctl},{"Stop Ticking",&StopTicking_Trigger_ctl},{"Start Ticking",&StartTicking_Trigger_ctl},{"Restart Ticker",&TickFromStart_Trigger_ctl},
+                      {"Arpegio Type",&ArpegioType_ctl},{"Arpegio Mode",&ArpegioMode_ctl},{"Arp. Notes Count",&ArpegioNotesCount_ctl},{"Arpegio Offset",&ArpegioStartOffset_ctl},{"Arpegio Grid C.",&ArpegioGridC_ctl},
+                      //40 ok
+                      {"Arpegio Grid S",&ArpegioGridS_ctl},{"Arpegio Length",&ArpegioLength_ctl},{"SX Modulation type",&SynthXModulationType_ctl},{"Synth X Type",&SynthXtype_ctl},{"Synth X Offset",&SynthXOffset_ctl},
+                      {"Synth X Phase",&SynthXPhase_ctl},{"Analog Toggle",&AnalogTouch_Toggle_ctl},{"LFO X Level",&LFOXLevel_ctl},{"LFO X Type",&LFOXType_ctl},{"LFO X Freq",&LFOXFreq_ctl},
+                      //50 ok
+                      {"LFO X Phase",&LFOXPhase_ctl},{"LFO X Offset",&LFOXOffset_ctl},{"LFO X Sync",&LFOXLSync_Toggle_ctl},{"ADSR Atk. Delay",&AdsrAtckDelay_ctl},{"ADSR Attack",&AdsrAttack_ctl},
+                      {"ADSR Hold",&AdsrHold_ctl},{"ADSR Decay",&AdsrDecay_ctl},{"ADSR Sustain",&AdsrSustain_ctl},{"ADSR Release",&AdsrRelease_ctl},{"Filter303 Knob1",&Filter303_Knob1_ctl},
+                      //60 ok
+                      {"Filter303 Knob2",&Filter303_Knob2_ctl},{"Filter303 Knob3",&Filter303_Knob3_ctl},{"FX Bus select",&FXBusSelector_ctl},{"Chorus Voices",&ChorusVoices_ctl},{"BiQuad Stage",&BiQuadStage_ctl},
+                      {"BiQuad Freq.",&BiQuadFreq_ctl},{"BiQuad Slope",&BiQuadSlope_ctl},{"BiQuad Gain",&BiQuadGain_ctl},{"BQuad Type",&BiQuadType_ctl},{"Lfo on Ffilter",&LFOonFilter_ctl},
+                      //70 ok
+                      {"Ffilter CutOff",&FFilter_Cutoff_Knob1_ctl},{"Ffilter Resonance",&FFilter_Reso_Knob2_ctl},{"Ffilter Octave",&FFilter_Oct_Knob3_ctl},{"Ffilter LowPass",&FFilter_LowPass_Knob4_ctl},{"Ffilter BandPass",&FFilter_BandPass_Knob5_ctl},
+                      {"Ffilter HighPass",&FFilter_HighPass_Knob6_ctl},{"Granular Grains",&GranularGrains_Knob1_ctl},{"Granular Speed",&GranularSpeed_Knob2_ctl},{"Granular Freeze",&GranularFreeze_Toggle_ctl},{"Granular Shift",&GranularShifting_Toggle_ctl},
+                      //90 ok
+                      {"Reverb Size",&ReverbSize_ctl},{"BitCrusher Samples",&BitCrusherSamples_ctl},{"BitCrusher Bits",&BitCrusherBits_ctl},{"Flanger Offset",&FlangerOffset_Knob1_ctl},{"Flanger Depth",&FlangerDepth_Knob2_ctl},
+                      {"Flanger Delay",&FlangerDelay_Knob3_ctl},{"Delay Time sel.",&DelayTimeSelection_Knob1_ctl},{"Delay Multiplier",&DelayTimeMultiplier_Knob2_ctl},{"Delay Feedback",&DelayFeedback_Knob3_ctl},{"Audio In Volume",&AudioInVolume_ctl},
+                      //100ok
+                      {"Debug CPU",&DebugCPU_Toggle_ctl},{"Set BPMs",&SetBPMs_ctl},{"Save New Pattern",&SaveToNewPattern_Trigger_ctl},{"Load First Pattern",&LoadFirstPattern_Trigger_ctl},{"Record Audio",&RecordAudio_Trigger_ctl},
+                      {"Play Record",&PlayLoadedAudio_Trigger_ctl},{"Stop Recording",&StopRecording_Trigger_ctl},{"Load First Preset",&LoadFirstPreset_Toggle_ctl},{"Arb[] MaxF",&ArbitraryMaxF_ctl},{"Merge Patterns",&MergeSynthPatterns_Trigger_ctl},
+                      //120 ok
+                      {"Flash Line1 Level",&FlashLineVolume_Knob1_ctl},{"Flash Line2 Level",&FlashLineVolume_Knob2_ctl},{"Flash Line3 Level",&FlashLineVolume_Knob3_ctl},{"Flash Line4 Level",&FlashLineVolume_Knob4_ctl},{"Flash Line5 Level",&FlashLineVolume_Knob5_ctl},
+                      {"Flash Line6 Level",&FlashLineVolume_Knob6_ctl},{"Flash Line7 Level",&FlashLineVolume_Knob7_ctl},{"Flash Line8 Level",&FlashLineVolume_Knob8_ctl},{"Flash Line9 Level",&FlashLineVolume_Knob9_ctl},{"Flash Line10 Level",&FlashLineVolume_Knob10_ctl},
+                      //130 ok
+                      {"Flash Line11 Level",&FlashLineVolume_Knob11_ctl},{"Flash Line12 Level",&FlashLineVolume_Knob12_ctl},{"Flash Line13 Level",&FlashLineVolume_Knob13_ctl},{"Flash Line14 Level",&FlashLineVolume_Knob14_ctl},{"Flash Line15 Level",&FlashLineVolume_Knob15_ctl},
+                      {"Flash Line16 Level",&FlashLineVolume_Knob16_ctl}
+                    
+                      };
+
+constexpr uint16_t CtlCount = sizeof(ctl) / sizeof(ctl[0]);
 
 bool patterninparse;
 
@@ -680,9 +672,6 @@ const byte sizeofoptionspattern = 6;
 const char optionspatternlabels[sizeofoptionspattern][12] PROGMEM = {
     "Transpose", "Shift", "Clear", "Target", "Smooth CC","Merge Pat"};
 const byte sizeofpatternlistlabels = 8;
-
-const char *monthName[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                       "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 bool debug_cpu = false;
 byte bitcrusherVknobs[fxs_count][2];
 byte granularVknobs[fxs_count][2];
@@ -792,11 +781,11 @@ bool mp3_continue;
 
 #define GRANULAR_MEMORY_SIZE 12800
 // 12800 is for 290 ms at 44.1 kHz
-EXTMEM int16_t granularMemory[GRANULAR_MEMORY_SIZE];
-EXTMEM int16_t granularMemory2[GRANULAR_MEMORY_SIZE];
-EXTMEM int16_t granularMemory3[GRANULAR_MEMORY_SIZE];
+EXTMEM short granularMemory[GRANULAR_MEMORY_SIZE];
+EXTMEM short granularMemory2[GRANULAR_MEMORY_SIZE];
+EXTMEM short granularMemory3[GRANULAR_MEMORY_SIZE];
 
-int16_t *granularMemories[3] = {granularMemory,granularMemory2,granularMemory3};
+short *granularMemories[3] = {granularMemory,granularMemory2,granularMemory3};
 
 EXTMEM AudioConnection delayCord1(feedbackdelay1, delay1);
 EXTMEM AudioConnection delayCord2(feedbackdelay2, delay2);
@@ -1048,18 +1037,6 @@ AudioAmplifier *Wavespreamp303[synth_liners_count] = {&wavePAmp0, &wavePAmp1, &w
 
 AudioSynthWaveform *LFOwaveforms1[synths_count] = {&LFOrm1, &LFOrm2, &LFOrm3};
 
-byte *filter_tmp_pointers[10] = { &le303ffilterzVknobs[0], &le303ffilterzVknobs[1], &mixle303ffilterzVknobs[0], &mixle303ffilterzVknobs[1], &mixle303ffilterzVknobs[2],
-                                          &le303filterzwet, &cutoff_pulse, &reson_pulse, &preampleswaves, &glidemode };
-
-byte filter_tmp_values[10] = {le303ffilterzVknobs[0],le303ffilterzVknobs[1],mixle303ffilterzVknobs[0],mixle303ffilterzVknobs[1],mixle303ffilterzVknobs[2],
-                                      le303filterzwet,cutoff_pulse,reson_pulse,preampleswaves,glidemode };
-
-byte *wmixer_tmp_pointers[12] = { &mixlevelsM[0], &mixlevelsM[1], &mixlevelsM[2], &WetMixMasters[1], &WetMixMasters[2], &WetMixMasters[3],
-                                          &wetins[0], &wetins[1], &wetins[2], &mixlevelsL[0], &mixlevelsL[1], &mixlevelsL[2] };
-
-byte wmixer_tmp_values[12] = {mixlevelsM[0],mixlevelsM[1],mixlevelsM[2],WetMixMasters[1],WetMixMasters[2],WetMixMasters[3],
-                                wetins[0],wetins[1],wetins[2], mixlevelsL[0],mixlevelsL[1],mixlevelsL[2] };
-
 class SequencerClocker : public AudioStream {
     public:
         SequencerClocker() : AudioStream(0, nullptr) {}
@@ -1186,7 +1163,7 @@ class SequencerClocker : public AudioStream {
         void (*_callback_6)() = nullptr;
 };
 
-SequencerClocker clocker;
+EXTMEM SequencerClocker clocker;
 
 class ClockSink : public AudioStream {
     public:
@@ -1198,9 +1175,9 @@ class ClockSink : public AudioStream {
     audio_block_t *inputQueueArray[1];
 };
 
-ClockSink sink;
+EXTMEM ClockSink sink;
 
-AudioConnection patchCord_sinker(clocker, 0, sink, 0);
+EXTMEM AudioConnection patchCord_sinker(clocker, 0, sink, 0);
 
 //these 3 last classes may be overkill but I wanted to try having a clock synched with audio samples
 //maybe I was not using IntervalTimer the right way
@@ -1382,16 +1359,16 @@ class SectionHolder{
 AudioPlaySdMp3           playMp31; 
 AudioPlaySdFlac          playFlac1;
 
-AudioPlayPartialSdRaw PartialPlayerMono;
-AudioMixer4 sd_mixerL ;
-AudioMixer4 sd_mixerR ;
+EXTMEM AudioPlayPartialSdRaw PartialPlayerMono;
+EXTMEM AudioMixer4 sd_mixerL ;
+EXTMEM AudioMixer4 sd_mixerR ;
 
-AudioConnection          sd_mix_itL(sd_mixerL, 0, InMixL , 2);
-AudioConnection          sd_mix_itR(sd_mixerR, 0, InMixR , 2);
-AudioConnection          sd_mix_partialL(PartialPlayerMono, 0, sd_mixerL, 0);
-AudioConnection          sd_mix_partialR(PartialPlayerMono, 0, sd_mixerR, 0);
-AudioConnection          sd_mix_mp3L(playMp31, 0, sd_mixerL, 1);
-AudioConnection          sd_mix_mp3R(playMp31, 1, sd_mixerR, 1);
-AudioConnection          sd_mix_flacL(playFlac1, 0, sd_mixerL, 2);
-AudioConnection          sd_mix_flacR(playFlac1, 1, sd_mixerR, 2);
+EXTMEM AudioConnection          sd_mix_itL(sd_mixerL, 0, InMixL , 2);
+EXTMEM AudioConnection          sd_mix_itR(sd_mixerR, 0, InMixR , 2);
+EXTMEM AudioConnection          sd_mix_partialL(PartialPlayerMono, 0, sd_mixerL, 0);
+EXTMEM AudioConnection          sd_mix_partialR(PartialPlayerMono, 0, sd_mixerR, 0);
+EXTMEM AudioConnection          sd_mix_mp3L(playMp31, 0, sd_mixerL, 1);
+EXTMEM AudioConnection          sd_mix_mp3R(playMp31, 1, sd_mixerR, 1);
+EXTMEM AudioConnection          sd_mix_flacL(playFlac1, 0, sd_mixerL, 2);
+EXTMEM AudioConnection          sd_mix_flacR(playFlac1, 1, sd_mixerR, 2);
 

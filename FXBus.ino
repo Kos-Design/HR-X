@@ -634,12 +634,12 @@ class FxMenuRouter : public SectionHolder {
           }
           // res
           if (slct == 2) {
-            granular_freezing[lefilter] = !granular_freezing[lefilter];
+            toggle_that(granular_freezing[lefilter]);
             granular_freeze(lefilter);
             returntonav(3);
           }
           if (slct == 3) {
-            granular_shifting[lefilter] = !granular_shifting[lefilter];
+            toggle_that(granular_shifting[lefilter]);
             granular_pitch_shift(lefilter);
             returntonav(3);
           }

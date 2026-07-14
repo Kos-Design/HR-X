@@ -770,15 +770,14 @@ bool check_glide_status(byte this_note){
 }
 
 void moncontrollercc(byte channel, byte control, byte value) {
-  if (value < 127) {
+  if (value < 128) {
     if (midiknobassigned[control] != 0 && !freezemidicc) {
       if (SendMidiOut) {
         uint8_t statusByte = static_cast<uint8_t>(0xB0 | channel);
         MidiUSB.sendMIDI({0x0B, statusByte, control, value});
         MidiUSB.flush();
       }
-
-      controlswitcher(midiknobassigned[control], round((value / 127.0) * 1024.0));
+      ctl[midiknobassigned[control]].tweaker(value);
       // AudioInterrupts();
     }
   }

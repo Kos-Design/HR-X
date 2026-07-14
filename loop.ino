@@ -86,7 +86,7 @@ void check_pads() {
     //inside waveform tracer
     else if ((sublevels[0] == 8) && (sublevels[1] == 4) && (navlevel == 2)) {
       if (cc_note_num == trace_wave_cc) {
-        trace_waveform = !trace_waveform;
+        toggle_that(trace_waveform);
       }
     } else {
       if (cc_note_num <= 0) {MaControlChange(but_channel[11 + paddered],(byte)pot_assignements[11 + paddered], 64);

@@ -1,6 +1,6 @@
 void printassignedmidi(int lemidiassknob) {
   canvasBIG.setCursor(0, 0);
-  canvasBIG.print((char *)ControlList[lemidiassknob]);
+  canvasBIG.print((char *)ctl[lemidiassknob].name);
 }
 void doposkselector() {
   char vbuttonslabels[numberofvbuttonslabels][12] = {

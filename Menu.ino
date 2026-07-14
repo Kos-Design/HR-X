@@ -41,7 +41,7 @@ class KnobAssigner : public SectionHolder {
         canvastitle.setCursor(0, 0);
         if (sublevels[self->relative_navlevel] != 0) {
           canvastitle.setTextSize(2);
-          canvastitle.println(ControlList[sublevels[self->relative_navlevel]]);
+          canvastitle.println(ctl[sublevels[self->relative_navlevel]].name);
           canvasBIG.setTextSize(2);
           canvasBIG.setCursor(0, 40);
           sublevels[self->relative_navlevel+1] = find_assigned_knob(sublevels[self->relative_navlevel]) ;
@@ -78,7 +78,7 @@ class KnobAssigner : public SectionHolder {
           returntonav(self->relative_navlevel,allfxes-1,sublevels[self->relative_navlevel]);
         } else {
           dm.clean_title_2_2();
-          canvastitle.println(ControlList[sublevels[self->relative_navlevel]]);
+          canvastitle.println(ctl[sublevels[self->relative_navlevel]].name);
           canvasBIG.setCursor(0, 40);
           if (sublevels[self->relative_navlevel+1] != 0) {
             canvasBIG.print("Midi");

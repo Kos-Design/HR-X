@@ -71,10 +71,6 @@ class SamplerMenuRouter : public SectionHolder {
         static void sampler_nav_zero(){
             reinitsublevels(2);
             navrange = sampler_labels_count - 1;
-            cellsizer = 4;
-            celltall = 8;
-            startx = 0;
-            starty = 17;
             display.clearDisplay();
             dolistsamplermenu();
             dodisplay();
