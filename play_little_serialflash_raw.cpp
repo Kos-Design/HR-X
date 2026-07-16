@@ -28,11 +28,7 @@
 #include <Arduino.h>
 #include "play_little_serialflash_raw.h"
 #include "spi_interrupt.h"
-
-void AudioPlayLittleSerialflashRaw::setFilesystem(LittleFS_SPIFlash &fs)
-{
-    this->filesystem = &fs;
-}
+extern LittleFS_SPIFlash thyfs ;
 
 void AudioPlayLittleSerialflashRaw::begin(void)
 {
@@ -46,12 +42,13 @@ bool AudioPlayLittleSerialflashRaw::play(const char *filename)
 {
 	stop();
 	AudioStartUsingSPI();
-	if (!this->filesystem) {
+	/*
+	if (!thyfs.begin()) {
 		AudioStopUsingSPI();
 		return false;
 	}
-
-	rawfile = this->filesystem->open(filename);
+*/	//if (rawfile) rawfile.close();
+	rawfile = thyfs.open(filename);
 
 	//rawfile = thyfs.open(filename);
 	if (!rawfile) {

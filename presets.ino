@@ -72,7 +72,7 @@ class PresetsMenuRouter : public SectionHolder {
           dm.clear_buffs();
           draw_presets_list();
           presets_menu();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void presets_nav_one(){
@@ -81,7 +81,7 @@ class PresetsMenuRouter : public SectionHolder {
             navrange = self->presets_count;
           draw_presets_list();
           presets_menu();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void presets_menu() {
@@ -223,8 +223,8 @@ class PresetsMenuRouter : public SectionHolder {
             insert_int(preset_filer,WetMixMasters[i], (char*)"wetmixes");
             insert_int(preset_filer,mixlevelsM[i], (char*)"mixlevelsM");
           }
-          for (int i = 0; i < synths_count; i++) {
-            //TODO:wetmix & mixers out of synths_count loop ,still iter to 4
+          for (int i = 0; i < OSCS_COUNT; i++) {
+            //TODO:wetmix & mixers out of OSCS_COUNT loop ,still iter to 4
             insert_int(preset_filer,mixlevelsL[i], (char*)"mixlevelsL");
             insert_float(preset_filer,wavesfreqs[i], (char*)"wavefreq");
             insert_float(preset_filer,panLs[i], (char*)"panL");
@@ -319,7 +319,7 @@ class PresetsMenuRouter : public SectionHolder {
           locked_fileing = 1 ;
           int tmp_fx ;
           byte tmp_mixlevelsM[4];
-          byte tmp_mixlevelsL[synths_count];
+          byte tmp_mixlevelsL[OSCS_COUNT];
           byte tmp_WetMixMasters[4];
           File preset_filer = SD.open(self->get_current_preset_path().c_str());
           if (preset_filer) {
@@ -489,7 +489,7 @@ class PresetsMenuRouter : public SectionHolder {
             tmp_mixlevelsM[i] = mixlevelsM[i];
           }
 
-          for (int i = 0; i < synths_count; i++) {
+          for (int i = 0; i < OSCS_COUNT; i++) {
             parser.Read_String('#');
             parser.Skip(1);
             mixlevelsL[i] = parser.Read_Int16();
@@ -647,17 +647,17 @@ class PresetsMenuRouter : public SectionHolder {
           parser.Reset();
           preset_filer.close();
           call_set_bpms();
-          setlepulse1();
-          setlepulse2();
-          ApplyADSR();
+          _fl.setlepulse1();
+          _fl.setlepulse2();
+          _ad.ApplyADSR();
           call_allfxcontrolled();
-          le303filterzWet();
-          Wavespreamp303controls();
-          le303filtercontrols();
-          set_dry_mix(0);
-          set_dry_mix(1);
+          _fl.le303filterzWet();
+          _fl.Wavespreamp303controls();
+          _fl.le303filtercontrols();
+          _mx.set_dry_mix(0);
+          _mx.set_dry_mix(1);
 
-          for (int i = 0; i < synths_count; i++) {
+          for (int i = 0; i < OSCS_COUNT; i++) {
             oscillator = i ;
             call_setwavemixlevel();
             call_setwavetypefromlist();
@@ -667,10 +667,10 @@ class PresetsMenuRouter : public SectionHolder {
           for (int i = 0; i < 4; i++) {
             WetMixMasters[i] = tmp_WetMixMasters[i];
             mixlevelsM[i] = tmp_mixlevelsM[i];
-            //setmastersmixlevel ignores 4th iteration (3)
-            setmastersmixlevel(i);
+            //_mx.setmastersmixlevel ignores 4th iteration (3)
+            _mx.setmastersmixlevel(i);
           }
-          wetmixmastercontrols();
+          _mx.wetmixmastercontrols();
           locked_fileing = 0 ;
         }
 

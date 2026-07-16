@@ -5,11 +5,11 @@ void setupSD() {
     _sp.errorsd("initialization SD failed!");
     return;
   }
-  //thyfs.begin();
-  for (int i=0; i<10 ; i++) {
-    FlashSampler[i]->setFilesystem(thyfs);
-  }
-  
+
+  //for (int i=0; i<10 ; i++) {
+      //FlashSampler[i]->enableInterpolation(true);
+    //FlashSampler[i]->setFilesystem(thyfs);
+  //}
   _sp.initializesamplesselectedlist();
   pseudoconsole((char *)"Scanning Samples");
   _sp.dosoundlist();
@@ -23,20 +23,26 @@ void setupSD() {
   _sg.list_songs_files();
 }
 
-void attach_menus(){
-  void (*menus[])() = {
-    call_sn_show,call_lf_show,_rd.show,_sg.show,call_pt_show,
-   call_st_show,call_fx_show,call_sp_show,call_wf_show,call_ps_show};
-  for (int i=0;i<10;i++){
-    dm.attach_nav_zero(i,menus[i]);
-  }
+void call_sn_show(){
+  _sn.show();
 }
-//this feels so dumb
+void call_ad_show(){
+  _ad.show();
+}
+void call_fl_show(){
+  _fl.show();
+}
+void call_mx_show(){
+  _mx.show();
+}
 void call_restart_lfo(int lelfo) {
-  _lf.restartLFO(lelfo%synths_count);
+  _lf.restartLFO(lelfo%OSCS_COUNT);
 };
 void call_allfxcontrolled(){
   _fx.allfxcontrolled();
+}
+void call_rd_show(){
+  _rd.show();
 }
 void call_set_y_cursor_value(int val){
   _wf.set_y_cursor_value(val);
@@ -48,10 +54,7 @@ void call_setwavetypefromlist(){
   _sn.setwavetypefromlist();
 }
 void call_setwavemixlevel(){
-  _sn.setwavemixlevel();
-}
-void call_sn_show(){
-  _sn.show();
+  _mx.setwavemixlevel();
 }
 void call_dosoundlist(){
   _sp.dosoundlist();
@@ -59,7 +62,6 @@ void call_dosoundlist(){
 void call_loadSampledSound(){
   _sp.loadSampledSound();
 }
-
 void call_wf_show(){
   _wf.show();
 }
@@ -75,11 +77,13 @@ void call_fx_show(){
 void call_st_show(){
   _st.show();
 }
+void call_sg_show(){
+  _sg.show();
+}
 void call_pt_show(){
   _pt.show();
 }
 void call_lf_show(){
-  //TODO: chack why I had to call it that way since I populate some pointers unlike static _ka.show
   _lf.show();
 }
 
@@ -99,25 +103,10 @@ void call_parsepattern(){
 void call_refresh_flash_track(){
   _pe.refresh_flash_track();
 }
-/*
-void MyClass::lfo_zero() {}
-void MyClass::LFOlining() {}
-*/
 
 void call_songeditor(){
   _se.Songmodepanel();
 }
-
-/*
-void attach_menus_settings(){
-  // wavesline_selector,showmixerwaves, displayadsrgraph, empty,le303filterVpanel,
-  //void (*nav_songs_menu[])() = {"Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params","showSongShifterdisplays"};
-  void (*settings_menus[])() = {Songmodepanel,song_nav_one, song_nav_one, song_nav_one, song_nav_one,clear_song_popup,song_params_panel,showSongShifterdisplays};
-  for (int i=0;i<settings_labels_count;i++){
-    _st.attach_settings_menus(i,settings_menus[i]);
-  }
-}
-*/
 
 void setup() {
 
@@ -127,7 +116,7 @@ void setup() {
   AudioNoInterrupts();
   unplugsynth();
   unplugfx();
-  for (int i=0;i<synths_count;i++) {
+  for (int i=0;i<OSCS_COUNT;i++) {
   _fx.unpluglfoonfilterz(i);
   }
   delay(500);
@@ -194,30 +183,20 @@ void setup() {
   //clocker.attach_6();
   clocker.setBPM(120);
   clocker.setPPQN(96);
-  
   initdone = 1;
   pseudoconsole((char *)"Enjoy !");
-  attach_menus();
-  //attach_menus_synths();
-  //attach_lfo_menus();
-  //knobs not
-  //done in class init
-  //attach_menus_patterns();
-  //settings not
-
-  
 }
 
 void Volume_ctl(byte cc_value){
   // audioShield.volume(smallfloat);
   mixlevelsM[0] = cc_value;
-  setmastersmixlevel(0);
+  _mx.setmastersmixlevel(0);
 }
 
 void SynthVolume_ctl(byte cc_value){
   // main synth level
   mixlevelsM[1] = cc_value;
-  setmastersmixlevel(1);
+  _mx.setmastersmixlevel(1);
 }
 
 void SDPlayerVolume_ctl(byte cc_value){
@@ -229,43 +208,43 @@ void SDPlayerVolume_ctl(byte cc_value){
 void FlashVolume_ctl(byte cc_value){
   // flash
   mixlevelsM[2] = cc_value;
-  setmastersmixlevel(2);
+  _mx.setmastersmixlevel(2);
 }
 
 void Wet1Volume_ctl(byte cc_value){
   // WetMixMaster1
   WetMixMasters[1] = cc_value;
-  wetmixmastercontrols();
+  _mx.wetmixmastercontrols();
 }
 
 void Wet2Volume_ctl(byte cc_value){
   // WetMixMaster2
   WetMixMasters[2] = cc_value;
-  wetmixmastercontrols();
+  _mx.wetmixmastercontrols();
 }
 
 void Wet3Volume_ctl(byte cc_value){
   // WetMixMaster3
   WetMixMasters[3] = cc_value;
-  wetmixmastercontrols();
+  _mx.wetmixmastercontrols();
 }
 
 void DrySampler_ctl(byte cc_value){
   /// sampler wetness
   wetins[1] = cc_value;
-  set_dry_mix(1);
+  _mx.set_dry_mix(1);
 }
 
 void DrySynth_ctl(byte cc_value){
   /// synth wetness
   wetins[0] = cc_value;
-  set_dry_mix(0);
+  _mx.set_dry_mix(0);
 }
 
 void DryAudioIn_ctl(byte cc_value){
   /// audio In wetness
   wetins[2] = cc_value;
-  set_dry_mix(2);
+  _mx.set_dry_mix(2);
 }
 
 void Slope1_ctl(byte cc_value){
@@ -293,7 +272,7 @@ void ResoPulse_ctl(byte cc_value){
 
 void Filter303_ctl(byte cc_value){
   le303filterzwet = round((cc_value / 127.0) * 100.0);
-  le303filterzWet();
+  _fl.le303filterzWet();
 }
 
 void CutOffTweak_ctl(byte cc_value){
@@ -303,7 +282,7 @@ void CutOffTweak_ctl(byte cc_value){
   le303filterzfreq = round(_smallfloat * 14000);
   le303filterzrange = le303filterzfreq;
   cutoff_pulse = 16 + _smallfloat * 16.0;
-  setlepulse1();
+  _fl.setlepulse1();
 }
 
 void ResoTweak_ctl(byte cc_value){
@@ -444,7 +423,7 @@ void SynthXLevel_ctl(byte cc_value){
 void PansLevels_ctl(byte cc_value){
   // panLs[i-1]
   panLs[oscillator] = (cc_value / 127.0);
-  _sn.setwavemixlevel();
+  _mx.setwavemixlevel();
 }
 
 void MetroDrumLevel_ctl(byte cc_value){
@@ -464,10 +443,10 @@ void SynthXtype_ctl(byte cc_value){
 
 void SynthXOffset_ctl(byte cc_value){
   wave1offset[oscillator] = cc_value;
-  for (int i = 0; i < synth_liners_count; i++) {
-    waveforms1[i + (oscillator * synth_liners_count)]->offset(
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    waveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->offset(
         (float)(((64.0 - wave1offset[oscillator]) / 64.0)));
-    FMwaveforms1[i + (oscillator * synth_liners_count)]->offset(
+    FMwaveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->offset(
         (float)(((64.0 - wave1offset[oscillator]) / 64.0)));
   }
 }
@@ -532,7 +511,7 @@ void AdsrRelease_ctl(byte cc_value){
 void Filter303_Knob1_ctl(byte cc_value){
   mixle303ffilterzVknobs[0] = cc_value;
   le303filterzgainz[0] = (cc_value / 127.0);
-  le303filtercontrols();
+  _fl.le303filtercontrols();
   // le303filterzgainz[0]
   //  mixle303ffilterzVknobs[0]
 }
@@ -540,13 +519,13 @@ void Filter303_Knob1_ctl(byte cc_value){
 void Filter303_Knob2_ctl(byte cc_value){
   mixle303ffilterzVknobs[1] = cc_value;
   le303filterzgainz[1] = (cc_value / 127.0);
-  le303filtercontrols();
+  _fl.le303filtercontrols();
 }
 
 void Filter303_Knob3_ctl(byte cc_value){
   mixle303ffilterzVknobs[2] = cc_value;
   le303filterzgainz[2] = (cc_value / 127.0);
-  le303filtercontrols();
+  _fl.le303filtercontrols();
 }
      
 void FXBusSelector_ctl(byte cc_value){
@@ -657,7 +636,7 @@ void FFilter_LowPass_Knob4_ctl(byte cc_value){
 
 void FFilter_BandPass_Knob5_ctl(byte cc_value){
  ffilterzVknobs[ccfxlineselector][1] = cc_value;
-      _fx.filtercontrols(ccfxlineselector);
+  _fx.filtercontrols(ccfxlineselector);
 }
 
 void FFilter_HighPass_Knob6_ctl(byte cc_value){

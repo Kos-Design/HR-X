@@ -46,11 +46,11 @@ class SongEditorRouter : public SectionHolder {
 
         void use_pattern(){
           light_cc_change();
-          for (int i = 0; i < synth_liners_count; i++) {
+          for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
             if (synth_off_pat[i][tickposition][1] != 0) {
               synth_lines[i]->liner_off();
             }
-            // if ( i < synth_liners_count ) {
+            // if ( i < SYNTH_LINERS_COUNT ) {
             if (synth_partition[i][tickposition][1] != 0) {
               play_synth_line(i);
             }
@@ -298,12 +298,12 @@ class SongEditorRouter : public SectionHolder {
 
           showpatonSongGrid();
           showsongnavarrows();
-          dodisplay();
+          dm.dodisplay();
           songgridposselector();
           if (songplaying) {
             showplayheadprogress();
           }
-          dodisplay();
+          dm.dodisplay();
         }
 };
 
@@ -444,7 +444,7 @@ class SongMenuRouter : public SectionHolder {
           reinitsublevels(navSongmenu + 1);
           navrange = sg_labels_count - 1;
           use_song_list();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void song_nav_one(){
@@ -454,7 +454,7 @@ class SongMenuRouter : public SectionHolder {
             navrange = songs_count;
           }
           use_song_list();
-          dodisplay();
+          dm.dodisplay();
 
         }
 
@@ -587,7 +587,7 @@ class SongMenuRouter : public SectionHolder {
             canvasBIG.setCursor(8, 16);
           }
           canvasBIG.print(latransposition);
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void shift_song(){
@@ -615,7 +615,7 @@ class SongMenuRouter : public SectionHolder {
           canvasBIG.print("quantize");
           canvasBIG.setCursor(8, 16+30);
           canvasBIG.print("external clock");
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void song_params_panel(){
@@ -658,4 +658,4 @@ class SongMenuRouter : public SectionHolder {
 };
 
 SongMenuRouter* SongMenuRouter::self = nullptr;
-EXTMEM SongMenuRouter _sg;
+SongMenuRouter _sg;

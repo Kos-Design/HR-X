@@ -72,7 +72,7 @@ class WaveformsMenuRouter : public SectionHolder {
           reinitsublevels(2);
           dolistofwaveforms();
           wforms_menu();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void waveforms_nav_one(){
@@ -82,7 +82,7 @@ class WaveformsMenuRouter : public SectionHolder {
             navrange = self->wforms_count;
           dolistofwaveforms();
           wforms_menu();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void WaveformParams(){
@@ -263,7 +263,7 @@ class WaveformsMenuRouter : public SectionHolder {
           canvasBIG.drawCircle(sublevels[2]/2, w_cursor_y, 2, SSD1306_WHITE);
           draw_wave_graph();
           //canvastitle.print(arbitrary_waveforms[waveformIndex][sublevels[2]]);
-          dodisplay();
+          dm.dodisplay();
           //smooth_w_bounds();
         }
 
@@ -451,4 +451,4 @@ class WaveformsMenuRouter : public SectionHolder {
 };
 
 WaveformsMenuRouter* WaveformsMenuRouter::self = nullptr;
-EXTMEM WaveformsMenuRouter _wf;
+WaveformsMenuRouter _wf;

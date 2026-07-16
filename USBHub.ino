@@ -113,5 +113,5 @@ void debugmidi(char *typemsg = (char *)"midi ", byte channel = 0,
   canvastitle.print(", v:");
   canvastitle.print(mvelocity);
 
-  dodisplay();
+  dm.dodisplay();
 }

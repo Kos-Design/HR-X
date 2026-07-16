@@ -9,7 +9,7 @@ class KnobAssigner : public SectionHolder {
   public:
       KnobAssigner() {
                     self = this;
-                    this->home_navrange=allfxes-1;
+                    this->home_navrange=CtlCount-1;
                     this->relative_navlevel=2;
                     this->max_navlevel=3;
                     this->sublevels_address={2,0,0};
@@ -23,7 +23,7 @@ class KnobAssigner : public SectionHolder {
         //midiknobassigned[find_assigned_knob(sublevels[1])] = 0;
         sublevels[self->relative_navlevel+1] = captured ;
         midiknobassigned[sublevels[self->relative_navlevel+1]] = sublevels[self->relative_navlevel];
-        returntonav(self->relative_navlevel,allfxes-1,sublevels[self->relative_navlevel]);
+        returntonav(self->relative_navlevel,CtlCount-1,sublevels[self->relative_navlevel]);
       }
 
       static int find_assigned_knob(int k){
@@ -36,7 +36,7 @@ class KnobAssigner : public SectionHolder {
       }
 
       static void kb_home(){
-        navrange = allfxes-1;
+        navrange = CtlCount-1;
         dm.clear_3();
         canvastitle.setCursor(0, 0);
         if (sublevels[self->relative_navlevel] != 0) {
@@ -68,14 +68,14 @@ class KnobAssigner : public SectionHolder {
           canvasBIG.setCursor(0, 28);
           canvasBIG.println("Control");
         }
-        dodisplay();
+        dm.dodisplay();
 
       }
 
       static void assigner(){
         navrange = 127;
         if (sublevels[self->relative_navlevel] == 0 ) {
-          returntonav(self->relative_navlevel,allfxes-1,sublevels[self->relative_navlevel]);
+          returntonav(self->relative_navlevel,CtlCount-1,sublevels[self->relative_navlevel]);
         } else {
           dm.clean_title_2_2();
           canvastitle.println(ctl[sublevels[self->relative_navlevel]].name);
@@ -96,13 +96,13 @@ class KnobAssigner : public SectionHolder {
             canvasBIG.println("Unassigned");
           }
         }
-        dodisplay();
+        dm.dodisplay();
       }
 
       static void set_it(){
         midiknobassigned[find_assigned_knob(sublevels[self->relative_navlevel])] = 0;
         midiknobassigned[sublevels[self->relative_navlevel+1]] = sublevels[self->relative_navlevel];
-        returntonav(self->relative_navlevel,allfxes-1,sublevels[self->relative_navlevel]);
+        returntonav(self->relative_navlevel,CtlCount-1,sublevels[self->relative_navlevel]);
       }
 
 
@@ -177,7 +177,7 @@ class SynthLiner {
 };
 SynthLiner* SynthLiner::self = nullptr;
 
-SynthLiner *synth_lines[synth_liners_count] = {nullptr};
+SynthLiner *synth_lines[SYNTH_LINERS_COUNT] = {nullptr};
 
 
 class FlashLiner {
@@ -190,10 +190,13 @@ class FlashLiner {
     byte velocity = 0 ;
 
     String playable_file = "";
-  
+
     void liner_on(byte data1, byte data2) {
       
-      if (activated||data1==note) {
+      if (activated)
+        return;
+        //liner_off();
+      if (data1==note) {
         liner_off();
       }
       if (FlashSampler[l_index]->isPlaying()) {
@@ -208,7 +211,10 @@ class FlashLiner {
       if (!test_flash_sample_name(playable_file)){
         playable_file = lower_extension_case(playable_file);
       }
+
       FlashSampler[l_index]->play(playable_file.c_str());
+      
+      //playRaw(playable_file.c_str());
       activated=true;
       note=data1;
       velocity=data2;

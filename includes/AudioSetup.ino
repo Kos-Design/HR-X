@@ -5,10 +5,12 @@
 //#include <SerialFlash.h>
 #include <Wire.h>
 #include "../play_little_serialflash_raw.h"
+//littlefs in seriallittle
+//#include <LittleFS.h> // from Paul as well
 
-//#include "../octave_down.h"
 
 LittleFS_SPIFlash thyfs;
+
 // GUItool: begin automatically generated code
 EXTMEM AudioSynthWaveform       LFOrm2;         //xy=156.88333129882812,1057.9999694824219
 EXTMEM AudioEffectMultiply      multiply2;      //xy=160.88333129882812,1018

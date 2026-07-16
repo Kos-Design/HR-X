@@ -277,7 +277,7 @@ class RecorderMenuRouter : public SectionHolder {
 
           recordVpanelSelector();
 
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void playrecordsd() {
@@ -373,7 +373,7 @@ class RecorderMenuRouter : public SectionHolder {
           dm.clean_title_2_1();
           display.setCursor(0,0);
           display.print("Placeholder");
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void rec_nav_zero(){
@@ -381,7 +381,7 @@ class RecorderMenuRouter : public SectionHolder {
           navrange = self->home_navrange;
           recorder_menu();
           dolistofRecs();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void rec_nav_one(){
@@ -405,7 +405,7 @@ class RecorderMenuRouter : public SectionHolder {
             scheddule_wave_rebuild(true);
             returntonav(self->relative_navlevel, self->home_navrange,sublevels[self->relative_navlevel]);
           }
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void records_actions(){
@@ -474,7 +474,7 @@ class RecorderMenuRouter : public SectionHolder {
           String _legend[] = {"Select","Zoom Out","Zoom In","Normalize","Reverse","Pitch","Fade In","Fade Out","Preview","Del before","Del after","Del zone","Keep zone"," "," "};
 
           display.clearDisplay();
-          dodisplay();
+          dm.dodisplay();
           int cursor_coords[][4] = {{0,0,18,8},{22,0,9,8},{38,0,9,8},{52,0,9,8},{64,0,9,8},{76,0,9,8},{88,0,14,8},{106,0,14,8},{0,8,128,48},
                                     {23,56,14,8},{40,56,21,8},{64,56,20,8},{88,56,27,8}};
           display.fillRect(cursor_coords[sublevels[self->relative_navlevel+1]][0], 
@@ -1228,7 +1228,7 @@ class RecorderMenuRouter : public SectionHolder {
               draw_editor_zones();
               self->wave_buffed = 1 ; 
               drawWaveform(self->start_zone,self->end_zone);
-              dodisplay();
+              dm.dodisplay();
             }
             select_cursor();
            }
@@ -1254,7 +1254,7 @@ class RecorderMenuRouter : public SectionHolder {
               navrange = 127 ;
               display.clearDisplay();
               display.drawFastVLine(sublevels[self->relative_navlevel +2], 8, 48, SSD1306_INVERSE);
-              dodisplay();
+              dm.dodisplay();
             }
             
             //normalize
@@ -1317,7 +1317,7 @@ class RecorderMenuRouter : public SectionHolder {
             if (sublevels[self->relative_navlevel + 1] == 0){
               navrange = 127 - sublevels[self->relative_navlevel +2] ;
               display.clearDisplay();
-              dodisplay();
+              dm.dodisplay();
               display.fillRect(sublevels[self->relative_navlevel +2], 8, 
                                 sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
               display.display();

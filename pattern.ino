@@ -17,7 +17,7 @@ class CCEditor : public SectionHolder {
           navrange = 127;
           showleditcc();
           editlaccactionpath();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void route_navlevel_1(){
@@ -80,7 +80,7 @@ class CCEditor : public SectionHolder {
             lalinex2 = lalinex1;
             laliney2 = laliney1;
           }
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void headerccedit() {
@@ -176,7 +176,7 @@ class PatEditRouter : public SectionHolder {
           self->_on_part = synth_partition[liner] ;
           self->_off_part =  synth_off_pat[liner] ;
           self->_temp_part = temp_synth_partition;
-          self->liners_count = synth_liners_count;
+          self->liners_count = SYNTH_LINERS_COUNT;
           self->_length_part = synth_notes_length[liner] ;
         }
 
@@ -191,7 +191,7 @@ class PatEditRouter : public SectionHolder {
         static void show() {
           dm.clear_3();
           cell_events[navlevel-navlevelpatedit]();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void doshownoteline() {
@@ -258,7 +258,7 @@ class PatEditRouter : public SectionHolder {
 
         static void refresh_synth_track() {
           clearevented0(0);
-          for (int linerrd = 0; linerrd < synth_liners_count; linerrd++) {
+          for (int linerrd = 0; linerrd < SYNTH_LINERS_COUNT; linerrd++) {
             for (int i = 0; i < pbars; i++) {
               if (synth_partition[linerrd][i][1] != 0) {
                 track_cells[0][i] = true;
@@ -330,7 +330,7 @@ class PatEditRouter : public SectionHolder {
           set_editor_type[self->track_type](self->local_line);
           show_track_header();
           show_lines_events();
-          dodisplay();
+          dm.dodisplay();
           sublevels[navlevelpatedit + 2] = self->grid_start_note();
         }
 
@@ -351,7 +351,7 @@ class PatEditRouter : public SectionHolder {
           doshownoteline();
           //canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
           draw_velobars();
-          dodisplay();
+          dm.dodisplay();
           sublevels[navlevelpatedit + 3] = tickposition;
           if (sublevels[navlevelpatedit+2] == 0 ){
             sublevels[navlevelpatedit + 2] = self->grid_start_note();
@@ -370,7 +370,7 @@ class PatEditRouter : public SectionHolder {
           canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_WHITE);
           drawCursorCol();
           draw_velobars();
-          dodisplay();
+          dm.dodisplay();
           retroaction = sublevels[navlevelpatedit + 2] ;
         }
 
@@ -404,7 +404,7 @@ class PatEditRouter : public SectionHolder {
             canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_INVERSE);
             drawCursorCol();
             draw_velobars();
-            dodisplay();
+            dm.dodisplay();
           }
         }
 
@@ -416,12 +416,12 @@ class PatEditRouter : public SectionHolder {
           doshownoteline();
           canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_INVERSE);
           draw_velobars();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void sanitize_synth_partition(){
-          bool offUsed[synth_liners_count][pbars] = {false};
-          for (int line = 0; line < synth_liners_count; line++){
+          bool offUsed[SYNTH_LINERS_COUNT][pbars] = {false};
+          for (int line = 0; line < SYNTH_LINERS_COUNT; line++){
             for (int onStep = 0; onStep < pbars; onStep++){
               // Skip empty Note On
               if (synth_partition[line][onStep][2] == 0)
@@ -440,7 +440,7 @@ class PatEditRouter : public SectionHolder {
               bool found = false;
               int s = (onStep + 1) & (pbars-1);
               while (!found) {
-                for (int l = 0; l < synth_liners_count; l++) {
+                for (int l = 0; l < SYNTH_LINERS_COUNT; l++) {
                   if (offUsed[l][s])
                     continue;
 
@@ -481,7 +481,7 @@ class PatEditRouter : public SectionHolder {
               }
             }
           }
-          for (int line = 0; line < synth_liners_count; line++) {
+          for (int line = 0; line < SYNTH_LINERS_COUNT; line++) {
             for (int step = 0; step < pbars; step++) {
               if (!offUsed[line][step]) {
                 synth_off_pat[line][step][0] = 0;
@@ -664,7 +664,7 @@ class POptionsRouter : public SectionHolder {
 
         static void clearsynthpatternline() {
           for (int j = 0; j < pbars; j++) {
-            for (int i = 0; i < synth_liners_count; i++) {
+            for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
 
               synth_partition[i][j][1] = 0;
               synth_partition[i][j][2] = 0;
@@ -678,11 +678,11 @@ class POptionsRouter : public SectionHolder {
         }
         static void merge_synth_partition_liners(){
           byte note_encoutered ;
-          byte liner_encoutered[synth_liners_count] = {0,0,0,0,0,0} ;
+          byte liner_encoutered[SYNTH_LINERS_COUNT] = {0,0,0,0,0,0} ;
 
           for (int j=0;j<pbars;j++){
             note_encoutered = 0 ;
-            for (int i=0;i<synth_liners_count;i++){
+            for (int i=0;i<SYNTH_LINERS_COUNT;i++){
               if(synth_partition[i][j][1]!=0 && synth_partition[i][j][2]!=0){
                 liner_encoutered[note_encoutered] = i ;
                 note_encoutered++;
@@ -906,7 +906,7 @@ class POptionsRouter : public SectionHolder {
 
         static void shiftnotes1up(int leshifter) {
           for (int shifts = 0; shifts < leshifter; shifts++) {
-            for (int i = 0; i < synth_liners_count; i++) {
+            for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
               for (int j = 0; j < pbars; j++) {
                 if (((int)synth_partition[i][j][1] < 127) &&
                     ((int)synth_partition[i][j][1] > 2)) {
@@ -926,7 +926,7 @@ class POptionsRouter : public SectionHolder {
         static void shiftnotes1down(int leshifter) {
           for (int shifts = 0; shifts < leshifter; shifts++) {
 
-            for (int i = 0; i < synth_liners_count; i++) {
+            for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
               for (int j = 0; j < pbars; j++) {
 
                 if ((int)synth_partition[i][j][1] > 1) {
@@ -945,7 +945,7 @@ class POptionsRouter : public SectionHolder {
         static void shiftnotes1right(int leshifter) {
           byte letempevent1[2][3];
           for (int shifts = 0; shifts < leshifter; shifts++) {
-            for (int i = 0; i < synth_liners_count; i++) {
+            for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
               for (int j = pbars - 1; j >= 0; j--) {
 
                 if (j == pbars - 1) {
@@ -982,7 +982,7 @@ class POptionsRouter : public SectionHolder {
           byte letempevent1[2][3];
           for (int shifts = 0; shifts < leshifter; shifts++) {
 
-            for (int i = 0; i < synth_liners_count; i++) {
+            for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
               for (int j = 0; j < pbars; j++) {
 
                 if (j == 0) {
@@ -1189,7 +1189,7 @@ class POptionsRouter : public SectionHolder {
             canvasBIG.setCursor(8, 16);
           }
           canvasBIG.print(latransposition);
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void doShiftersynth() {
@@ -1219,7 +1219,7 @@ class POptionsRouter : public SectionHolder {
             canvasBIG.setCursor(8, 16);
           }
           canvasBIG.print(latransposition);
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void showlestargetdisplays() {
@@ -1284,7 +1284,7 @@ class POptionsRouter : public SectionHolder {
           }
 
           // canvasBIG.print(latransposition);
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void optionspatterndisplays() {
@@ -1299,7 +1299,7 @@ class POptionsRouter : public SectionHolder {
               canvasBIG.print("Off");
             }
           }
-          dodisplay();
+          dm.dodisplay();
         }
 
 
@@ -1333,7 +1333,7 @@ class PatternsMenuRouter : public SectionHolder {
           navrange = sizeofpatternlistlabels - 1;
           displaythelistofpatterns();
           doPatternsmenu();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void pattern_nav_one(){
@@ -1343,7 +1343,7 @@ class PatternsMenuRouter : public SectionHolder {
           }
           displaythelistofpatterns();
           doPatternsmenu();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void remove_pattern(){
@@ -1472,7 +1472,7 @@ class PatternsMenuRouter : public SectionHolder {
                 }
                 if (letempspattern == previousTp) {
                   lenint++;
-                  if ((lenint > synth_liners_count + flash_liners_count - 1) ||
+                  if ((lenint > SYNTH_LINERS_COUNT + flash_liners_count - 1) ||
                       (leparsed[0] == (char)'O' && leparsed[1] == (char)'n') ||
                       (leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
                     // parserp.SkipUntil(parserp.IsNewLine);
@@ -1551,7 +1551,7 @@ class PatternsMenuRouter : public SectionHolder {
                 }
                 if (letempspattern == previousTp) {
                   lenint++;
-                  if ((lenint > synth_liners_count + flash_liners_count - 1) ||
+                  if ((lenint > SYNTH_LINERS_COUNT + flash_liners_count - 1) ||
                       (leparsed[0] == (char)'O' && leparsed[1] == (char)'f') ||
                       (leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
                     // parserp.SkipUntil(parserp.IsNewLine);
@@ -1637,7 +1637,7 @@ class PatternsMenuRouter : public SectionHolder {
 
                 if (letempspattern == previousTp) {
                   lenint++;
-                  if ((lenint > synth_liners_count - 1) ||
+                  if ((lenint > SYNTH_LINERS_COUNT - 1) ||
                       (leparsed[0] == (char)'O' && leparsed[1] == (char)'f') ||
                       (leparsed[0] == (char)'O' && leparsed[1] == (char)'n')) {
                     leparsed[1] = (char)'z';
@@ -1749,7 +1749,7 @@ class PatternsMenuRouter : public SectionHolder {
               canvasBIG.println(patterns_names[1 + i]);
             }
           }
-          //dodisplay();
+          //dm.dodisplay();
         }
 
         static void doPatternsmenu() {
@@ -1866,12 +1866,12 @@ class PatternsMenuRouter : public SectionHolder {
           for (int t = 0; t < pbars; t++) {
 
             latimeline = (3125 * t);
-            for (int j = 0; j < synth_liners_count; j++) {
+            for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
               if (synth_off_pat[j][t][1] != 0) {
                 midifilelinerOff(pat_filer,j, t);
               }
             }
-            for (int j = 0; j < synth_liners_count; j++) {
+            for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
               if (synth_partition[j][t][1] != 0) {
                 midifileliner(pat_filer,j, t);
               }
@@ -1926,7 +1926,7 @@ class PatternsMenuRouter : public SectionHolder {
         static void arpegiate_synth() {
           for (int i = 0; i < nombreofarpeglines; i++) {
             calledarpegenote[i][0] = 0;
-            for (int j = 0; j < synth_liners_count; j++) {
+            for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
               if (arpegnoteoffin[i][j] == 1) {
                 shutlineroff(synthmidichannel,playingarpegiator[i][j]);
                 arpegnoteoffin[i][j] = 0;
@@ -1976,7 +1976,7 @@ class PatternsMenuRouter : public SectionHolder {
 };
 
 PatternsMenuRouter* PatternsMenuRouter::self = nullptr;
-EXTMEM PatternsMenuRouter _pt;
+PatternsMenuRouter _pt;
 
 int clean_cursor(int pos){
   if (pos >= pbars ) {

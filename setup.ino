@@ -2,7 +2,7 @@
 void unplugsynth() {
 
   // unplugfx();
-  for (int i = 0; i < synth_liners_count*synths_count; i++) {
+  for (int i = 0; i < SYNTH_LINERS_COUNT*OSCS_COUNT; i++) {
 
     FMwavecords1[i]->disconnect();
     modulatecords1[i]->disconnect();

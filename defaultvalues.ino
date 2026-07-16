@@ -10,7 +10,7 @@ void initextmems() {
       }
     }
   }
-  for (int i = 0; i < synth_liners_count; i++) {
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
     for (int j = 0; j < pbars; j++) {
       synth_notes_length[i][j] = 0;
       for (int k = 0; k < 3; k++) {
@@ -75,13 +75,13 @@ void loadsynthdefaults() {
 
   AudioNoInterrupts();
 
-  adsrlevels[0] = MadsrAttackDelay;
-  adsrlevels[1] = mappedattack;
-  adsrlevels[3] = mappeddecay;
-  adsrlevels[4] = float(mappedsustain / 100);
-  adsrlevels[5] = mappedrelease;
+  adsrlevels[0] = _ad.MadsrAttackDelay;
+  adsrlevels[1] = _ad.mappedattack;
+  adsrlevels[3] = _ad.mappeddecay;
+  adsrlevels[4] = float( _ad.mappedsustain / 100);
+  adsrlevels[5] = _ad.mappedrelease;
 
-  for (int i = 0; i < synth_liners_count; i++) {
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
     enveloppesL[i]->delay(adsrlevels[0]);
     enveloppesL[i]->attack(adsrlevels[1]);
     // enveloppesL[i]->hold(adsrlevels[2]);
@@ -113,12 +113,12 @@ void loadsynthdefaults() {
   mixerWL5to8.gain(2, 0.0);
   mixerWL5to8.gain(3, 0.0);
 
-  le303filtercontrols();
+  _fl.le303filtercontrols();
   AudioInterrupts();
 }
 
 void setupdefaultvalues() {
-  initialize303group();
+  _fl.initialize303group();
   ampL.gain(1);
   ampR.gain(1);
   // ADSR & synths
@@ -126,8 +126,8 @@ void setupdefaultvalues() {
   premixMaster.gain(0, 0.5);
   premixMaster.gain(1, 0.5);
 
-  for (int i = 0; i < synth_liners_count; i++) {
-    for (int j = 0; j < synths_count; j++) {
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    for (int j = 0; j < OSCS_COUNT; j++) {
       Wavesmix[i]->gain(j, mixlevelsL[j]/127.0);
     }
   }
@@ -144,7 +144,7 @@ void setupdefaultvalues() {
     delayfeedbackmix[i]->gain(1, 0);
     delayprefeed[i]->gain(0, 1);
     delayprefeed[i]->gain(1, 1);
-    //for loop of 4 for convenience, not related to synths_count
+    //for loop of 4 for convenience, not related to OSCS_COUNT
     for (int j = 0; j < 4; j++) {
       lesdelays[i]->disable(2 * j);
       lesdelays[i]->disable(2 * j + 1);
@@ -183,7 +183,7 @@ void setupdefaultvalues() {
 
   //needed to level fxBus & wetins
   for (int i = 0; i < 3; i++) {
-    set_dry_mix(i);
+    _mx.set_dry_mix(i);
   }
 
   for (int i = 0; i < all_buttonns; i++) {
@@ -202,14 +202,14 @@ void setupdefaultvalues() {
   midiknobassigned[20] = 5;
   midiknobassigned[21] = 6;
   //audio In level
-  midiknobassigned[22] = 97;
+  //midiknobassigned[22] = 97;
 
   // ccfxlineselector crossfader
-  midiknobassigned[10] = 69;
+  //midiknobassigned[10] = 69;
 
   // 303 pulse
-  midiknobassigned[23] = 20;
-  midiknobassigned[24] = 21;
+  //midiknobassigned[23] = 20;
+  //midiknobassigned[24] = 21;
 
   pot_assignements[all_buttonns-4] = 100 ;
   pot_assignements[all_buttonns-13] = 101 ;
@@ -234,7 +234,7 @@ void setupdefaultvalues() {
 
 
   //note: WetMixMasterLs[0] is the dry channel
-  for (int i = 0; i < synths_count; i++) {
+  for (int i = 0; i < OSCS_COUNT; i++) {
     oscillator = i;
     call_setwavetypefromlist();
   }

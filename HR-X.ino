@@ -2,6 +2,8 @@
 const int display_lag = 10 ;
 const int control_lag = 10 ;
 
+#include "MenuClasses.h"
+//#include <TeensyVariablePlayback.h>
 
 //#if MULTIPLEXED_PADS
 #include "muxer.h"
@@ -29,7 +31,6 @@ byte resonancemode;
 byte paramse1;
 byte paramse2;
 bool externalticker;
-bool temp_buff_armed = 0 ;
 int starttaptime;
 int numberoftaps;
 int tapstime[5] = {0};
@@ -37,7 +38,6 @@ float tapaverage;
 const byte sg_labels_count = 8;
 
 const byte ps_labels_count = 5;
-const byte truesizeofsynthmenulabels = 5 ;
 const byte sizeofLFOlabels = 9;
 const byte settings_labels_count = 16;
 //doesn't seem to affect arbitrary waveforms... :(
@@ -195,8 +195,8 @@ const byte ssnamsize = 26;
 /*
 struct FileEntry
 {
-    uint16_t parent;      
-    char name[9];      
+    uint16_t parent;
+    char name[9];
     bool isDir;
 };
 FileEntry sd_content[999] = {};
@@ -243,15 +243,14 @@ String newmkdirpath = "SOUNDSET/MABANK01" ;
 #include <Bounce.h>
 #include <Encoder.h>
 //#include <string.h>
-const int synth_liners_count = 6;
 const int flash_liners_count = 16;
 const int sampler_labels_count = 4;
-const byte synths_count = 3;
-const int patternlines = 2;
-bool tb303[synth_liners_count];
-long le303start[synth_liners_count];
 
-EXTMEM unsigned long pulsers[synth_liners_count][2]= { {0,120}, {0,120}, {0,120},{0,120}, {0,120}, {0,120}};
+const int patternlines = 2;
+bool tb303[SYNTH_LINERS_COUNT];
+long le303start[SYNTH_LINERS_COUNT];
+
+EXTMEM unsigned long pulsers[SYNTH_LINERS_COUNT][2]= { {0,120}, {0,120}, {0,120},{0,120}, {0,120}, {0,120}};
 
 int samplermidichannel = 8;
 //0 is All, channel indexes are thus offset +1
@@ -276,37 +275,37 @@ byte arpeggridC;
 
 byte arpeggridS;
 bool stoptickernextcycle;
-// unsigned long millisSincenLinerOn[synth_liners_count];
-// unsigned long currentnotelength[synth_liners_count];
+// unsigned long millisSincenLinerOn[SYNTH_LINERS_COUNT];
+// unsigned long currentnotelength[SYNTH_LINERS_COUNT];
 bool patrecord;
-byte arpegiatingNote[synth_liners_count];
+byte arpegiatingNote[SYNTH_LINERS_COUNT];
 // note , veloc
-const int nombreofarpeglines = synth_liners_count;
+const int nombreofarpeglines = SYNTH_LINERS_COUNT;
 bool tripletdirection[nombreofarpeglines];
-byte playingarpegiator[nombreofarpeglines][synth_liners_count];
+byte playingarpegiator[nombreofarpeglines][SYNTH_LINERS_COUNT];
 byte calledarpegenote[nombreofarpeglines][2];
 byte tickgamme[nombreofarpeglines];
 byte ticktriplet[nombreofarpeglines];
-byte arpegnoteoffin[nombreofarpeglines][synth_liners_count] = {1};
+byte arpegnoteoffin[nombreofarpeglines][SYNTH_LINERS_COUNT] = {1};
 byte arpegnotestick[nombreofarpeglines];
 byte arpegemptyticks[nombreofarpeglines];
 bool digitalplay = 0;
-bool lefadout[synth_liners_count];
+bool lefadout[SYNTH_LINERS_COUNT];
 bool targetNOsampler;
 bool targetNOsynth;
 bool targetNOcc;
 
 byte glidemode = 0;
 byte note_before;
-bool dogliding[synth_liners_count];
+bool dogliding[SYNTH_LINERS_COUNT];
 int freq_difference;
-long unsigned int leglideposition[synth_liners_count];
+long unsigned int leglideposition[SYNTH_LINERS_COUNT];
 int note_difference;
 float glidefactor;
 int time_of_last_note = 0 ;
-byte lapreviousnotewCmode[synth_liners_count];
-int leglidershiftCmode[synth_liners_count];
-int note_differenceCmode[synth_liners_count];
+byte lapreviousnotewCmode[SYNTH_LINERS_COUNT];
+int leglidershiftCmode[SYNTH_LINERS_COUNT];
+int note_differenceCmode[SYNTH_LINERS_COUNT];
 
 byte oscillator = 0;
 byte cclfoselector = 0 ;
@@ -326,16 +325,17 @@ EXTMEM char receivedbitinchar[parsingbuffersize];
 bool debugmidion = 0;
 bool freezemidicc = 0;
 int navlevelpatedit = 2;
+bool temp_buff_armed = 0 ;
 
 bool track_cells[patternlines][pbars] = {0};
 
-EXTMEM byte synth_partition[synth_liners_count][pbars][3];
+EXTMEM byte synth_partition[SYNTH_LINERS_COUNT][pbars][3];
 EXTMEM byte temp_synth_partition[pbars][3];
-EXTMEM byte synth_off_pat[synth_liners_count][pbars][3];
+EXTMEM byte synth_off_pat[SYNTH_LINERS_COUNT][pbars][3];
 
-EXTMEM int synth_notes_length[synth_liners_count][pbars];
+EXTMEM int synth_notes_length[SYNTH_LINERS_COUNT][pbars];
 
-byte synth_start_tpos[synth_liners_count];
+byte synth_start_tpos[SYNTH_LINERS_COUNT];
 
 EXTMEM byte sampler_partition[flash_liners_count][pbars][3];
 EXTMEM byte temp_sampler_partition[pbars][3];
@@ -385,8 +385,7 @@ int samplesSelected = 0;
 // On an arduino MEGA 2560: 20(SDA), 21(SCL)
 // On an arduino LEONARDO:   2(SDA),  3(SCL), ...
 #define OLED_RESET -1 // Reset pin # (or -1 if sharing Arduino reset pin)
-#define SCREEN_ADDRESS                                                         \
-  0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
 // Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire2, OLED_RESET);
 
 #define LOGO_HEIGHT 32
@@ -423,7 +422,7 @@ const int lesformes[9] PROGMEM = {
 
 byte waveformIndex = 0 ;
 
-EXTMEM int16_t arbitrary_waveforms[synths_count][256] ;
+EXTMEM int16_t arbitrary_waveforms[OSCS_COUNT][256] ;
 
 byte lavalue;
 
@@ -577,33 +576,26 @@ byte lasetchord = 6;
 
 const byte synth_params_count = 8;
 
-int phaselevelsL[synths_count] = {0, 0, 0};
+int phaselevelsL[OSCS_COUNT] = {0, 0, 0};
 
-int LFOphase[synths_count] = {0,0,0};
+int LFOphase[OSCS_COUNT] = {0,0,0};
 
 
 byte LFOmenuroot = 2;
 //50 is center 0 for -1  +1 range
-int LFOoffset[synths_count] = {50,50,50};
-byte LFOformstype[synths_count] = {0, 0, 0};
-byte LFOfreqs[synths_count] = {100,100,100};
-byte LFOlevel[synths_count] = {0,0,0};
-bool LFOsync[synths_count] = {0,0,0};
+int LFOoffset[OSCS_COUNT] = {50,50,50};
+byte LFOformstype[OSCS_COUNT] = {0, 0, 0};
+byte LFOfreqs[OSCS_COUNT] = {100,100,100};
+byte LFOlevel[OSCS_COUNT] = {0,0,0};
+bool LFOsync[OSCS_COUNT] = {0,0,0};
 //64 is center 0 for -1  +1 range
-byte wave1offset[synths_count] = {64,64,64};
+byte wave1offset[OSCS_COUNT] = {64,64,64};
 
 // File originefile ;
 int adsrlevels[6] = {0, 5, 0, 50, 100, 60};
-int mappedattack = 5;
-int mappeddecay = 50;
-int mappedrelease = 60;
-int mappedsustain = 100; // divide by 100 to float
-int MadsrAttackDelay = 0;
-int MadsrHold = 0;
-int navleveloverwrite = 2;
-int knobiprev[synths_count] = {0, 0, 0};
 
-const int allfxes = 146;
+int navleveloverwrite = 2;
+int knobiprev[OSCS_COUNT] = {0, 0, 0};
 
 #include "pads.h"
 Pads Pads;
@@ -654,7 +646,7 @@ const CcCalls ctl[] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel"
                       //130 ok
                       {"Flash Line11 Level",&FlashLineVolume_Knob11_ctl},{"Flash Line12 Level",&FlashLineVolume_Knob12_ctl},{"Flash Line13 Level",&FlashLineVolume_Knob13_ctl},{"Flash Line14 Level",&FlashLineVolume_Knob14_ctl},{"Flash Line15 Level",&FlashLineVolume_Knob15_ctl},
                       {"Flash Line16 Level",&FlashLineVolume_Knob16_ctl}
-                    
+
                       };
 
 constexpr uint16_t CtlCount = sizeof(ctl) / sizeof(ctl[0]);
@@ -669,7 +661,7 @@ short letempspattern;
 short linerpat;
 int previousTp;
 const byte sizeofoptionspattern = 6;
-const char optionspatternlabels[sizeofoptionspattern][12] PROGMEM = {
+const char optionspatternlabels[sizeofoptionspattern][12] = {
     "Transpose", "Shift", "Clear", "Target", "Smooth CC","Merge Pat"};
 const byte sizeofpatternlistlabels = 8;
 bool debug_cpu = false;
@@ -723,17 +715,17 @@ int midiknobassigned[128];
 int sublevels[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 // make it float
 
-float wavesfreqs[synths_count] = {1.0, 1.0, 2.0};
-float panLs[synths_count] = {1, 1, 1};
+float wavesfreqs[OSCS_COUNT] = {1.0, 1.0, 2.0};
+float panLs[OSCS_COUNT] = {1, 1, 1};
 
-byte mixlevelsL[synths_count] = {13, 0, 0};
+byte mixlevelsL[OSCS_COUNT] = {13, 0, 0};
 // 0 master , 1synth, 2 sampler, 3 unused
 byte mixlevelsM[4] = {127, 127, 38, 127};
 
-unsigned int Waveformstyped[synths_count] = {1, 11, 11};
+unsigned int Waveformstyped[OSCS_COUNT] = {1, 11, 11};
 byte samplesnotesOn[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-AudioEffectEnvelope *enveloppesL[synth_liners_count] = {&envelopeL0, &envelopeL1, &envelopeL2,
+AudioEffectEnvelope *enveloppesL[SYNTH_LINERS_COUNT] = {&envelopeL0, &envelopeL1, &envelopeL2,
                                                      &envelopeL3, &envelopeL4, &envelopeL5};
 
 // modulator for 303 mode
@@ -745,7 +737,7 @@ Adafruit_SSD1306 display(128, 64, &Wire2, -1);
 char *toprint = (char *)"Cosmix";
 
 bool initdone;
-byte FMmodulated[synths_count] = {0,0,0};
+byte FMmodulated[OSCS_COUNT] = {0,0,0};
 #include "/home/kosmin/HR-X/includes/cablages.ino"
 
 #define FLANGE_DELAY_LENGTH (6 * AUDIO_BLOCK_SAMPLES)
@@ -962,67 +954,67 @@ EXTMEM AudioConnection MDstringCord22(string3L6, 0, modulate3L6, 0);
 
 AudioConnection *delayCords[3] = {&delayCord1, &delayCord2, &delayCord3};
 
-AudioConnection *stringcords1[synth_liners_count*synths_count] = {
+AudioConnection *stringcords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
     &stringCord01, &stringCord02, &stringCord03, &stringCord04, &stringCord05, &stringCord06,
     &stringCord09, &stringCord10, &stringCord11, &stringCord12, &stringCord13, &stringCord14,
     &stringCord17, &stringCord18, &stringCord19, &stringCord20, &stringCord21, &stringCord22};
 
-AudioConnection *drumcords1[synth_liners_count*synths_count] = {
+AudioConnection *drumcords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
     &drumCord01, &drumCord02, &drumCord03, &drumCord04, &drumCord05, &drumCord06,
     &drumCord09, &drumCord10, &drumCord11, &drumCord12, &drumCord13, &drumCord14,
     &drumCord17, &drumCord18, &drumCord19, &drumCord20, &drumCord21, &drumCord22};
 
-AudioConnection *modulatecords1[synth_liners_count*synths_count] = {
+AudioConnection *modulatecords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
     &modulateCord01, &modulateCord02, &modulateCord03, &modulateCord04, &modulateCord05, &modulateCord06,
     &modulateCord09, &modulateCord10, &modulateCord11, &modulateCord12, &modulateCord13, &modulateCord14,
     &modulateCord17, &modulateCord18, &modulateCord19, &modulateCord20, &modulateCord21, &modulateCord22};
 
-AudioConnection *MDdrumcords1[synth_liners_count*synths_count] = {
+AudioConnection *MDdrumcords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
     &MDdrumCord01, &MDdrumCord02, &MDdrumCord03, &MDdrumCord04, &MDdrumCord05, &MDdrumCord06,
     &MDdrumCord09, &MDdrumCord10, &MDdrumCord11, &MDdrumCord12, &MDdrumCord13, &MDdrumCord14,
     &MDdrumCord17, &MDdrumCord18, &MDdrumCord19, &MDdrumCord20, &MDdrumCord21, &MDdrumCord22};
 
-AudioConnection *MDwavecords1[synth_liners_count*synths_count] = {
+AudioConnection *MDwavecords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
     &MDwaveCord01, &MDwaveCord02, &MDwaveCord03, &MDwaveCord04, &MDwaveCord05, &MDwaveCord06,
     &MDwaveCord09, &MDwaveCord10, &MDwaveCord11, &MDwaveCord12, &MDwaveCord13, &MDwaveCord14,
     &MDwaveCord17, &MDwaveCord18, &MDwaveCord19, &MDwaveCord20, &MDwaveCord21, &MDwaveCord22};
 
-AudioConnection *MDstringcords1[synth_liners_count*synths_count] = {
+AudioConnection *MDstringcords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
     &MDstringCord01, &MDstringCord02, &MDstringCord03, &MDstringCord04, &MDstringCord05, &MDstringCord06,
     &MDstringCord09, &MDstringCord10, &MDstringCord11, &MDstringCord12, &MDstringCord13, &MDstringCord14,
     &MDstringCord17, &MDstringCord18, &MDstringCord19, &MDstringCord20, &MDstringCord21, &MDstringCord22};
 
-AudioConnection *FMwavecords1[synth_liners_count*synths_count] = {
+AudioConnection *FMwavecords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
     &FMWaveCord01, &FMWaveCord02, &FMWaveCord03, &FMWaveCord04, &FMWaveCord05, &FMWaveCord06,
     &FMWaveCord09, &FMWaveCord10, &FMWaveCord11, &FMWaveCord12, &FMWaveCord13, &FMWaveCord14,
     &FMWaveCord17, &FMWaveCord18, &FMWaveCord19, &FMWaveCord20, &FMWaveCord21, &FMWaveCord22};
 
-AudioConnection *wavelinescords[synth_liners_count*synths_count] = {
+AudioConnection *wavelinescords[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
     &wavelinecord24, &wavelinecord22, &wavelinecord23, &wavelinecord21, &wavelinecord19, &wavelinecord20,
     &wavelinecord47, &wavelinecord45, &wavelinecord39, &wavelinecord41, &wavelinecord33, &wavelinecord35,
     &wavelinecord44, &wavelinecord43, &wavelinecord37, &wavelinecord42, &wavelinecord34, &wavelinecord36};
 
-AudioSynthWaveform *waveforms1[synth_liners_count*synths_count] = {
+AudioSynthWaveform *waveforms1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
     &waveform1L1, &waveform1L2, &waveform1L3, &waveform1L4, &waveform1L5, &waveform1L6,
     &waveform2L1, &waveform2L2, &waveform2L3, &waveform2L4, &waveform2L5, &waveform2L6,
     &waveform3L1, &waveform3L2, &waveform3L3, &waveform3L4, &waveform3L5, &waveform3L6};
 
-AudioSynthWaveformModulated *FMwaveforms1[synth_liners_count*synths_count] = {
+AudioSynthWaveformModulated *FMwaveforms1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
     &FMWaveform1L1, &FMWaveform1L2, &FMWaveform1L3, &FMWaveform1L4, &FMWaveform1L5, &FMWaveform1L6,
     &FMWaveform2L1, &FMWaveform2L2, &FMWaveform2L3, &FMWaveform2L4, &FMWaveform2L5, &FMWaveform2L6,
     &FMWaveform3L1, &FMWaveform3L2, &FMWaveform3L3, &FMWaveform3L4, &FMWaveform3L5, &FMWaveform3L6};
 
-AudioSynthSimpleDrum *drums1[synth_liners_count*synths_count] = {
+AudioSynthSimpleDrum *drums1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
     &drum1L1, &drum1L2, &drum1L3, &drum1L4, &drum1L5, &drum1L6,
     &drum2L1, &drum2L2, &drum2L3, &drum2L4, &drum2L5, &drum2L6,
     &drum3L1, &drum3L2, &drum3L3, &drum3L4, &drum3L5, &drum3L6};
 
-AudioSynthKarplusStrong *strings1[synth_liners_count*synths_count] = {
+AudioSynthKarplusStrong *strings1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
     &string1L1, &string1L2, &string1L3, &string1L4, &string1L5, &string1L6,
     &string2L1, &string2L2, &string2L3, &string2L4,&string2L5, &string2L6,
     &string3L1, &string3L2, &string3L3, &string3L4, &string3L5, &string3L6};
 
-AudioMixer4 *Wavesmix[synth_liners_count] = {&WavesL1, &WavesL2, &WavesL3, &WavesL4, &WavesL5, &WavesL6};
+AudioMixer4 *Wavesmix[SYNTH_LINERS_COUNT] = {&WavesL1, &WavesL2, &WavesL3, &WavesL4, &WavesL5, &WavesL6};
 
 AudioPlayLittleSerialflashRaw *FlashSampler[16] = {
     &FlashSampler1,  &FlashSampler2,  &FlashSampler3,  &FlashSampler4,
@@ -1032,10 +1024,10 @@ AudioPlayLittleSerialflashRaw *FlashSampler[16] = {
 
 AudioMixer4 *Flashmixer[4] = {&flashmix1, &flashmix2, &flashmix3, &flashmix4};
 
-AudioAmplifier *Wavespreamp303[synth_liners_count] = {&wavePAmp0, &wavePAmp1, &wavePAmp2,
+AudioAmplifier *Wavespreamp303[SYNTH_LINERS_COUNT] = {&wavePAmp0, &wavePAmp1, &wavePAmp2,
                                      &wavePAmp3, &wavePAmp4, &wavePAmp5};
 
-AudioSynthWaveform *LFOwaveforms1[synths_count] = {&LFOrm1, &LFOrm2, &LFOrm3};
+AudioSynthWaveform *LFOwaveforms1[OSCS_COUNT] = {&LFOrm1, &LFOrm2, &LFOrm3};
 
 class SequencerClocker : public AudioStream {
     public:
@@ -1115,27 +1107,21 @@ class SequencerClocker : public AudioStream {
                         quarter++;
                         _callback_6();
                     }
-                if ((tick96 % 96) == 0 && _callback_96){
+                if ((tick96 % (96*4)) == 0 && _callback_96){
                         eighth++;
                         _callback_96();
                     }
                 if (!stop) {
-                    
-
-                    
 
                     if ((tick96 % 24) == 0 && _callback_24){
                         sixteenth++;
                         _callback_24();
                     }
-
-                
                 }
             }
         }
 
     private:
-
 
         void calculatePPQN() {
             if (_PPQN == 0 || _bpm <= 0.0f)
@@ -1179,184 +1165,27 @@ EXTMEM ClockSink sink;
 
 EXTMEM AudioConnection patchCord_sinker(clocker, 0, sink, 0);
 
-//these 3 last classes may be overkill but I wanted to try having a clock synched with audio samples
-//maybe I was not using IntervalTimer the right way
+extern DisplayManager dm;
 
-class DisplayManager{
-    public:
-        DisplayManager() {}
+EXTMEM GlobalMixer _mx;
 
-        bool ILI_128x64 = true;
-
-        void display_home()
-        {
-            if (ILI_128x64) {
-                Serial.println("ILI_128x64 detected");
-            }
-        }
-        void setupscreen(){
-            if (ILI_128x64) {
-                _setupscreen_ILI();
-            }
-        }
-
-        void displayleBGimg(const unsigned char *img) {_displayleBGimg(img);}
-
-        void printlabel(char *toprint) {
-            display.setTextSize(2);
-            display.setTextColor(SSD1306_WHITE);
-            display.setCursor(0, 0);
-            display.println(toprint);
-        }
-
-        void displaymenu() {
-            char menus_lbl[10][11] = {"WaveSynth", "LFOs", "Wav Editor", "Song", "Pattern", "Settings",
-                        "MainFX", "Sampler", "Waveformer", "Presets"};
-            if (navlevel == 0) {
-                previousnavlevel = 0;
-                navrange = 9;
-                displayleBGimg(menuBG);
-            }
-            display.drawRoundRect(5 + (sublevels[0]%5)*24, 17+((sublevels[0]/5)*24), 21, 21, 3, SSD1306_WHITE);
-            printlabel(menus_lbl[sublevels[0]]);
-            display.display();
-        }
-
-        void attach_nav_zero(uint8_t index, void (*cb)())
-        {
-            if (index < 10)
-                _nav_zero[index] = cb;
-        }
-        void clear_buffs(){
-            canvasBIG.fillScreen(SSD1306_BLACK);
-            canvastitle.fillScreen(SSD1306_BLACK);
-        }
-        void clear_buffs_1_1(){
-            clear_buffs();
-            canvastitle.setCursor(0, 0);
-            canvastitle.setTextSize(1);
-            canvasBIG.setTextSize(1);
-        }
-        void clear_buffs_2_1(){
-            clear_buffs();
-            canvastitle.setCursor(0, 0);
-            canvastitle.setTextSize(2);
-            canvasBIG.setTextSize(1);
-        }
-        void clear_buffs_2_2(){
-            clear_buffs();
-            canvastitle.setCursor(0, 0);
-            canvastitle.setTextSize(2);
-            canvasBIG.setTextSize(2);
-        }
-        void clear_3(){
-            clear_buffs();
-            display.clearDisplay();
-        }
-
-        void clean_title_2(){
-            clear_3();
-            canvastitle.setCursor(0, 0);
-            canvastitle.setTextSize(2);
-        }
-        void clean_title_2_1(){
-            clear_3();
-            canvastitle.setCursor(0, 0);
-            canvastitle.setTextSize(2);
-            canvasBIG.setTextSize(1);
-        }
-        void clean_title_1_1(){
-            clear_3();
-            canvastitle.setCursor(0, 0);
-            canvastitle.setTextSize(1);
-            canvasBIG.setTextSize(1);
-        }
-        void clean_title_2_2(){
-            clear_3();
-            canvastitle.setCursor(0, 0);
-            canvastitle.setTextSize(2);
-            canvasBIG.setTextSize(2);
-        }
-        void clean_title_1(){
-            clear_3();
-            canvastitle.setCursor(0, 0);
-            canvastitle.setTextSize(1);
-        }
-        
-        void lemenuroot() {
-            if (navlevel == 0) {
-                displaymenu();
-            }
-            if (navlevel > 0) {
-                _nav_zero[sublevels[0]]();
-            }
-        }
-
-        //10 menu entries
-        void (*_nav_zero[10])() = {nullptr};
-        void (*_nav_one[10])() = {nullptr};
-        void (**_nav[2])() = {_nav_zero,_nav_one};
-
-    private:
-
-        void _displayleBGimg(const unsigned char *img) {
-            display.clearDisplay();
-            display.drawBitmap(0, 0, img, 128, 64, SSD1306_WHITE);
-        }
-
-        void _setupscreen_ILI() {
-
-            if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-                Serial.println(F("Screen SSD1306 allocation failed"));
-                return;
-            }
-            display.display();
-            display.setCursor(0, 0);
-            display.setTextSize(1.5);
-            display.setTextColor(SSD1306_WHITE);
-            display.clearDisplay();
-        }
-        
-};
-
-EXTMEM DisplayManager dm = DisplayManager();
+//EXTMEM DisplayManager dm = DisplayManager();
 
 void returntonav(byte lelevel, byte lanavrange = navrange,byte t_vraipos = vraipos) {
+    //never returntonav home
   navlevel = lelevel;
   vraipos = t_vraipos;
   myEnc.write(vraipos * 4);
   navrange = lanavrange;
-  dm.lemenuroot();
+  if (navlevel)
+    dm.show();
 }
-
-//typedef struct {const char *key; int value;} MenuPagerer;
-
-typedef struct {byte value1; byte value3; byte value2;} MenuPager;
-
-// refresh display --> find context
-// context [pages lvl1] -> x10 pointers list of page drawers methods
-// --> or sub contextes
-// pages list
-
-class SectionHolder{
-    public:
-        SectionHolder() {}
-        byte relative_navlevel;
-        //max absolute as it should be tested against the relative one
-        byte max_navlevel = 5;
-        MenuPager sublevels_address = {0,0,0};
-        byte home_navrange ;
-
-    private:
-
-        void (*_home)() = nullptr;
-};
 
 #include <play_sd_mp3.h>
 #include <play_sd_flac.h>
 #include "play_partial_sd_raw.h"
 
-AudioPlaySdMp3           playMp31; 
+AudioPlaySdMp3           playMp31;
 AudioPlaySdFlac          playFlac1;
 
 EXTMEM AudioPlayPartialSdRaw PartialPlayerMono;
@@ -1371,4 +1200,20 @@ EXTMEM AudioConnection          sd_mix_mp3L(playMp31, 0, sd_mixerL, 1);
 EXTMEM AudioConnection          sd_mix_mp3R(playMp31, 1, sd_mixerR, 1);
 EXTMEM AudioConnection          sd_mix_flacL(playFlac1, 0, sd_mixerL, 2);
 EXTMEM AudioConnection          sd_mix_flacR(playFlac1, 1, sd_mixerR, 2);
+
+
+//#include <TeensyVariablePlayback.h>
+//#include "flashloader_LittleFs.h"
+//newerdigate::audiosample *sampled;
+
+//newerdigate::flashloader loader;
+    
+//AudioPlaySdResmp         playSdRawVariable;     //xy=324,457
+
+//AudioPlayLittleSerialflashRaw      rraw_a1;        // PLUG IT SOMEWHERE
+
+//EXTMEM AudioConnection          sd_mix_rraw_a1L(rraw_a1, 0, sd_mixerL, 3);
+//EXTMEM AudioConnection          sd_mix_rraw_a1R(rraw_a1, 0, sd_mixerR, 3);
+
+//created using linux command xxd -i kick.raw (44100Hz little-endian 16-bit/sample )
 

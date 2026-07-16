@@ -8,8 +8,8 @@ void allpasslevels() {
 }
 
 void pseudo303() {
-  float glidefactorCmode[synth_liners_count];
-  for (int i = 0; i < synth_liners_count; i++) {
+  float glidefactorCmode[SYNTH_LINERS_COUNT];
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
     if (glidemode > 0 && dogliding[i]) {
       glidefactorCmode[i] =  (millis() - leglideposition[i]) /  (glidemode * millitickinterval * 1.0);
       //notefrequency = (glidefactorCmode[i]) * leglidershiftCmode[i] + notestofreq[lapreviousnotewCmode[i]][1];
@@ -22,7 +22,7 @@ void pseudo303() {
     if (tb303[i] == 1) {
       ladiff1 = ( (millis()-pulsers[i][0]) / (1.0*pulsers[i][1]));
       ladiff2 = ladiff1 ;
-      letbfreq = le303filterzrange + 50 - (le303filterzrange * (fxslopedown2(slope1, ladiff1)));
+      letbfreq = le303filterzrange + 50 - (le303filterzrange * (_fl.fxslopedown2(slope1, ladiff1)));
       if (millis()-pulsers[i][0]>pulsers[i][1]){
         tb303[i] = 0;
         letbfreq = 50 ;
@@ -31,7 +31,7 @@ void pseudo303() {
       les303filterz[i]->frequency(letbfreq);
 
       if (ladiff2 <= 1) {
-        les303filterz[i]->resonance(0.1 + (le303filterzreso) * (fxslopedown2(slope2, ladiff2)));
+        les303filterz[i]->resonance(0.1 + (le303filterzreso) * (_fl.fxslopedown2(slope2, ladiff2)));
       }
     }
   }
@@ -48,7 +48,8 @@ void check_pads() {
       if (paddered == 17) {
 
         synth_partition[sublevels[2]][sublevels[5]][2] = (int)((Muxer.get_raw(6)/1024.0)*127);
-        dm.lemenuroot();
+        if (navlevel)
+          dm.show();
       }
     }
     //inside sample assigner
@@ -79,10 +80,12 @@ void check_pads() {
       }
       call_st_onboardPanel();
     }
+    /*
     //inside Set Knobs level 2: learn midi
-    else if (sublevels[0] == 5 && sublevels[1] == 15 && navlevel == _ka.relative_navlevel +1 && cc_note_num <= 0){
+    else if (sublevels[0] == 5 && sublevels[1] == 15 && navlevel == _ka.relative_navlevel +1 && cc_note_num >= 0){
       _ka.learn_midi((byte)pot_assignements[11 + paddered]);
     }
+    */
     //inside waveform tracer
     else if ((sublevels[0] == 8) && (sublevels[1] == 4) && (navlevel == 2)) {
       if (cc_note_num == trace_wave_cc) {
@@ -157,6 +160,7 @@ void once_in_a_while(){
   if (mp3_continue){
     refresh_mp3_player();
   }
+  turn_off_the_lines();
 }
 
 void refresh_mp3_player(){

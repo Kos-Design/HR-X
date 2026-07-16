@@ -64,7 +64,7 @@ class SamplerMenuRouter : public SectionHolder {
                 default:
                 break;
             }
-            dodisplay();
+            dm.dodisplay();
             //display.display();
         }
 
@@ -73,7 +73,7 @@ class SamplerMenuRouter : public SectionHolder {
             navrange = sampler_labels_count - 1;
             display.clearDisplay();
             dolistsamplermenu();
-            dodisplay();
+            dm.dodisplay();
             display.display();
         }
 
@@ -241,7 +241,7 @@ class SamplerMenuRouter : public SectionHolder {
             canvastitle.setCursor(95, 0);
             canvastitle.print((smixervknobs[slct] / 127.0) * 100.0, 1);
           }
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void dolistsamplermenu() {
@@ -308,6 +308,7 @@ class SamplerMenuRouter : public SectionHolder {
           //AudioInterrupts();
         }
 
+        // TODO CRITICAL
         static void playflashsamplepreview() {
           String playable_file = (String)Flashsamplename[sublevels[3]];
           if (!test_flash_sample_name(playable_file)){
@@ -316,8 +317,9 @@ class SamplerMenuRouter : public SectionHolder {
           if (!test_flash_sample_name(playable_file)){
             return;
           }
-          FlashRaw.play(playable_file.c_str());
+          //FlashRaw.playRaw(playable_file.c_str());
         }
+        //TODO WILL PROBABLY FAIL
         static void playflashsamplepreviews4() {
           //AudioNoInterrupts();
           String playable_file = (String)Flashsamplename[sublevels[4]];
@@ -327,7 +329,7 @@ class SamplerMenuRouter : public SectionHolder {
           if (!test_flash_sample_name(playable_file)){
             return;
           }
-          FlashRaw.play(playable_file.c_str());
+          //FlashRaw.playRaw(playable_file.c_str());
         }
 
         static void copybacklaflashfile(int leflashfile) {
@@ -560,15 +562,15 @@ class SamplerMenuRouter : public SectionHolder {
 
         static void showsamplerfolderList() {
           drawSamplerFoldersList();
-          dodisplay();
+          dm.dodisplay();
         }
         static void showsamplerfilesList() {
           drawsamplerfilesList();
-          dodisplay();
+          dm.dodisplay();
         }
         static void showFlashSamplesList() {
           drawFlashSamplesList();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void drawtickboxflashBIG(int lestartx, int lestarty, int lasizex, int lasizey,
@@ -913,6 +915,8 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void RemoveAllfromFlash() {
+          thyfs.quickFormat();
+          returntonav(2,3,sublevels[2]);
           /*
           unsigned long startMillis = millis();
           while (!Serial && (millis() - startMillis < 10000))
@@ -961,11 +965,10 @@ class SamplerMenuRouter : public SectionHolder {
             Serial.print("  actual wait: ");
             Serial.print(elapsed / 1000ul);
             Serial.println(" seconds.");
-            dm.lemenuroot();
+         
             }
           }
           */
-          dm.lemenuroot();
         }
 
         float eraseBytesPerSecond(const unsigned char *id) {
@@ -1200,13 +1203,13 @@ class SamplerMenuRouter : public SectionHolder {
           if (navlevel == 3) {
             navrange = 127;
             listsamplesassigner();
-            dodisplay();
+            dm.dodisplay();
           }
           if (navlevel == 4) {
             // to avoid the weird last one <--- probably an overflow
             navrange = numberofFlashfiles - 1;
             listsamplesassigner2();
-            dodisplay();
+            dm.dodisplay();
           }
           if (navlevel >= 5) {
 
@@ -1331,4 +1334,4 @@ class SamplerMenuRouter : public SectionHolder {
 };
 
 SamplerMenuRouter* SamplerMenuRouter::self = nullptr;
-EXTMEM SamplerMenuRouter _sp;
+SamplerMenuRouter _sp;

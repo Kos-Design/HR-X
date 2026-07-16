@@ -198,7 +198,7 @@ void Vbuttonspanel() {
   actionvbuttons();
   displayonscreenbuttons();
   doposkselector();
-  dodisplay();
+  dm.dodisplay();
 }
 
 void actionvbuttons() {

@@ -26,7 +26,11 @@ void evalrota() {
   if (vraipos != oldvraipos) {
     oldvraipos = vraipos;
     sublevels[navlevel] = vraipos;
-    dm.lemenuroot();
+    if (!navlevel) {
+      dm.displaymenu();
+      return;
+    }
+    dm.show();
 
     printit();
   }
@@ -48,22 +52,25 @@ void evalinputs() {
     if (navlevel > 0) {
       navlevel--;
     }
+    if (!navlevel) {
+      dm.displaymenu();
+      return;
+    }
     sublevels[navlevel] = 0;
     if (retroaction) {
- 
       sublevels[navlevel] = retroaction ;
       vraipos = retroaction;
       myEnc.write(retroaction * 4);
       retroaction = 0;
     }
-
-    dm.lemenuroot();
+    dm.show();
+    return;
   }
   if (clicked.fallingEdge()) {
     navlevel++;
     vraipos = sublevels[navlevel];
     myEnc.write(sublevels[navlevel] * 4);
-    dm.lemenuroot();
-    printit();
+    dm.show();
+    //printit();
   }
 }

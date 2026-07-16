@@ -354,7 +354,7 @@ class FxMenuRouter : public SectionHolder {
 
       static void set_wet_mix_at_sub4(byte i){
         WetMixMasters[i + 1] = sublevels[4] ;
-        wetmixmastercontrols();
+        _mx.wetmixmastercontrols();
       }
 
       static void flangerVpanelSelector(byte lefilter) {
@@ -468,7 +468,7 @@ class FxMenuRouter : public SectionHolder {
         canvasBIG.setCursor(startlex2 - 6, 0);
         canvasBIG.print("Wet:");
         flangerVpanelSelector(lefilter);
-        dodisplay();
+        dm.dodisplay();
       }
 
       static void choruscontrols(byte lefilter) {
@@ -573,7 +573,7 @@ class FxMenuRouter : public SectionHolder {
 
         chorusVpanelSelector(lefilter);
 
-        dodisplay();
+        dm.dodisplay();
       }
 
       static void granular_pitch_shift(byte lefilter){
@@ -779,7 +779,7 @@ class FxMenuRouter : public SectionHolder {
         canvasBIG.setCursor(startlex2 - 6, 0);
         canvasBIG.print("Wet:");
         granularVpanelSelector(lefilter);
-        dodisplay();
+        dm.dodisplay();
       }
 
       static void bitcrusherctrl(byte lefilter) {
@@ -900,7 +900,7 @@ class FxMenuRouter : public SectionHolder {
         canvasBIG.setCursor(startlex2 - 6, 0);
         canvasBIG.print("Wet:");
         bitcrusherVpanelSelector(lefilter);
-        dodisplay();
+        dm.dodisplay();
       }
 
       static void freeverbscontrl(byte lefilter) {
@@ -1022,7 +1022,7 @@ class FxMenuRouter : public SectionHolder {
         canvasBIG.setCursor(startlex2 - 6, 0);
         canvasBIG.print("Wet:");
         reverbVpanelSelector(lefilter);
-        dodisplay();
+        dm.dodisplay();
       }
 
       static void delayVpanelAction(byte lefilter) {
@@ -1050,7 +1050,7 @@ class FxMenuRouter : public SectionHolder {
           if (slct == 3) {
             navrange = 127;
             WetMixMasters[lefilter + 1] = sublevels[4] ;
-            wetmixmastercontrols();
+            _mx.wetmixmastercontrols();
           }
         }
         if (navlevel > 4) {
@@ -1164,7 +1164,7 @@ class FxMenuRouter : public SectionHolder {
         canvasBIG.print("Wet:");
         delayVpanelSelector(lefilter);
 
-        dodisplay();
+        dm.dodisplay();
       }
 
       static void filterVpanelAction(byte lefilter) {
@@ -1205,9 +1205,9 @@ class FxMenuRouter : public SectionHolder {
           }
           if (slct == 6) {
             //navrange is 3 + 1 for none
-            navrange = synths_count;
+            navrange = OSCS_COUNT;
             filter_lfo_option = sublevels[4];
-            if (filter_lfo_option < synths_count) {
+            if (filter_lfo_option < OSCS_COUNT) {
               LFOonfilterz[lefilter] = filter_lfo_option;
             }
           }
@@ -1224,7 +1224,7 @@ class FxMenuRouter : public SectionHolder {
 
       static void lfoonfilterreplug(byte lefilter) {
         unpluglfoonfilterz(lefilter);
-        if (LFOonfilterz[lefilter] < synths_count) {
+        if (LFOonfilterz[lefilter] < OSCS_COUNT) {
           LFOtoFilterz[((fxs_count * lefilter) + LFOonfilterz[lefilter])]->connect();
           call_restart_lfo(LFOonfilterz[lefilter]);
         }
@@ -1249,7 +1249,7 @@ class FxMenuRouter : public SectionHolder {
         filterzgainz[lefilter][1] = (mixffilterzVknobs[lefilter][1]) / 127.0;
         filterzgainz[lefilter][2] = (mixffilterzVknobs[lefilter][2]) / 127.0;
         unpluglfoonfilterz(lefilter);
-        if (sublevels[4] < synths_count) {
+        if (sublevels[4] < OSCS_COUNT) {
           lfoonfilterreplug(lefilter);
         }
         for (int i = 0; i < 3; i++) {
@@ -1358,7 +1358,7 @@ class FxMenuRouter : public SectionHolder {
         canvasBIG.setCursor(startlex2 - 6, 0);
         canvasBIG.print("Wet:");
         filterVpanelSelector(lefilter);
-        dodisplay();
+        dm.dodisplay();
       }
 
       static void filterVpanelSelector(byte lefilter) {
@@ -1540,7 +1540,7 @@ class FxMenuRouter : public SectionHolder {
         canvasBIG.setCursor(startlex2 - 6, 0);
         canvasBIG.print("Wet:");
         biquadVpanelSelector(lebiquad);
-        dodisplay();
+        dm.dodisplay();
       }
 
       static void biquadVpanelSelector(byte lebiquad) {
@@ -1641,7 +1641,7 @@ class FxMenuRouter : public SectionHolder {
         navrange = self->home_navrange;
         display.clearDisplay();
         dolistmainfxlines();
-        dodisplay();
+        dm.dodisplay();
         sublevels[2] = fx[sublevels[1]%fxs_count]->plugged_fx_type ;
       }
 
@@ -1650,7 +1650,7 @@ class FxMenuRouter : public SectionHolder {
         display.clearDisplay();
         navrange = 9;
         dolistMainFxPanel();
-        dodisplay();
+        dm.dodisplay();
       }
 
       static void fx_nav_two(){

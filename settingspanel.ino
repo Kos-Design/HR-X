@@ -99,7 +99,7 @@ class SettingsMenuRouter : public SectionHolder {
           noteprint = 0;
           navrange = settings_labels_count - 1;
           makesettingslist();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void OnBoardVpanelAction() {
@@ -229,7 +229,7 @@ class SettingsMenuRouter : public SectionHolder {
           canvasBIG.drawRoundRect(18, 53, 30, 4, 2, SSD1306_WHITE);
 
           OnBoardVpanelSelector();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void setbpms() {
@@ -240,7 +240,7 @@ class SettingsMenuRouter : public SectionHolder {
         }
         
         static void stopallnotes() {
-          for (int i = 0; i < synth_liners_count; i++) {
+          for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
             // stoplengthmesure(i);
             if (synth_lines[i]->note != 0) {
               MaNoteOff(synthmidichannel, synth_lines[i]->note, 0);
@@ -263,10 +263,10 @@ class SettingsMenuRouter : public SectionHolder {
                 //metro0.reset();
               } else {
                 arpegiatorOn = 0;
-                for (int i = 0; i < synth_liners_count; i++) {
+                for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
                   calledarpegenote[i][0] = 0;
                   calledarpegenote[i][1] = 0;
-                  for (int j = 0; j < synth_liners_count; j++) {
+                  for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
                     playingarpegiator[i][j] = 0;
                     arpegnoteoffin[i][j] = 0;
                   }
@@ -431,7 +431,7 @@ class SettingsMenuRouter : public SectionHolder {
           }
 
           arpegiatorVpanelSelector();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void dotapaverage() {
@@ -614,7 +614,7 @@ class SettingsMenuRouter : public SectionHolder {
           _settings_menu[sublevels[1]]();
           if (sublevels[1] != 8 && sublevels[1] != 15 && sublevels[1] != 14 && sublevels[1] != 11 ) {
             makesettingslist();
-            dodisplay();
+            dm.dodisplay();
           }
           
         }
@@ -673,7 +673,7 @@ class SettingsMenuRouter : public SectionHolder {
             canvasBIG.print(probz * 100.0);
             canvasBIG.print("% ");
 
-            dodisplay();
+            dm.dodisplay();
           }
         }
 

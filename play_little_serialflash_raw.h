@@ -41,14 +41,12 @@ public:
 	void begin(void);
 	bool play(const char *filename);
 	void stop(void);
-	void setFilesystem(LittleFS_SPIFlash &fs);
 	bool isPlaying(void) { return playing; }
 	uint32_t positionMillis(void);
 	uint32_t lengthMillis(void);
 	virtual void update(void);
 private:
 	File rawfile;
-	LittleFS_SPIFlash *filesystem = nullptr;
 	uint32_t file_size;
 	volatile uint32_t file_offset;
 	volatile bool playing;

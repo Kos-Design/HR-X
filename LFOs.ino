@@ -99,7 +99,7 @@ class LFOMenuRouter : public SectionHolder {
           canvastitle.setTextColor(SSD1306_WHITE);
           canvastitle.setCursor(64, 8);
           canvastitle.println(lelabelw);
-          // dodisplay();
+          // dm.dodisplay();
         }
 
         static void doLFObool() {
@@ -273,13 +273,13 @@ class LFOMenuRouter : public SectionHolder {
             LFOwaveforms1[leLFO]->arbitraryWaveform(arbitrary_waveforms[leLFO],arbitrary_maxF[leLFO]);
           }
 
-          for (byte i = 0; i < synth_liners_count; i++) {
+          for (byte i = 0; i < SYNTH_LINERS_COUNT; i++) {
             if (FMmodulated[leLFO] == 1) {
               //phaseModulation should be based on lfo level
-              FMwaveforms1[i + (leLFO * synth_liners_count)]->frequencyModulation((LFOlevel[leLFO]/127.00)*10);
+              FMwaveforms1[i + (leLFO * SYNTH_LINERS_COUNT)]->frequencyModulation((LFOlevel[leLFO]/127.00)*10);
             }
             else if (FMmodulated[leLFO] == 2) {
-              FMwaveforms1[i + (leLFO * synth_liners_count)]->phaseModulation((LFOlevel[leLFO]/127.00) * 360 - 180);
+              FMwaveforms1[i + (leLFO * SYNTH_LINERS_COUNT)]->phaseModulation((LFOlevel[leLFO]/127.00) * 360 - 180);
             }
           }
 
@@ -291,7 +291,7 @@ class LFOMenuRouter : public SectionHolder {
           dolistLFOparams();
           _route_nav[sublevels[2]]();
           LFOmenuBG();
-          dodisplay();
+          dm.dodisplay();
         }
 
         static void printLFObanner(int startx, int starty, int leLFO=cclfoselector) {
@@ -310,7 +310,7 @@ class LFOMenuRouter : public SectionHolder {
         }
 
         static void lfo_zero(){
-            navrange = synths_count-1;
+            navrange = OSCS_COUNT-1;
             //TODO:remove maybe
             reinitsublevels(2);
 

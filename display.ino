@@ -1,9 +1,5 @@
 
-void dodisplay() {
-  display.drawBitmap(0, 0, canvasBIG.getBuffer(), 128, 64, SSD1306_WHITE);
-  display.drawBitmap(0, 0, canvastitle.getBuffer(), 128, 16, SSD1306_WHITE);
-  display.display();
-}
+
 
         
 void doConfirmpanel(char *letitlemsg) {
@@ -20,7 +16,7 @@ void doConfirmpanel(char *letitlemsg) {
   canvasBIG.print("NO         YES");
   canvasBIG.drawRect(14 + sublevels[navlevel] * 66, 23,
                     23 + sublevels[navlevel] * 6, 17, SSD1306_WHITE);
-  dodisplay();
+  dm.dodisplay();
   display.display();
 }
 
