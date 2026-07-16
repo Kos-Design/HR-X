@@ -212,16 +212,18 @@ byte get_free_sampler(byte note) {
 
 
 void turn_off_the_lines() {
-  Serial.println("");
+  //Serial.println("");
   for (byte i = 0; i < flash_liners_count; i++) {
     if (flash_lines[i]->activated ) { 
       flash_lines[i]->liner_off();
     }
+    /*
     Serial.print(" ");
     Serial.print(i);
     Serial.print(": ");
 
     Serial.print(FlashSampler[i]->isPlaying());
+    */
   }
 }
 

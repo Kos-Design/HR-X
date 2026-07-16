@@ -180,7 +180,7 @@ void setup() {
   clocker.attach_24(advance_tick);
   clocker.attach_96(once_in_a_while);
   //clocker.attach_3(fairly_often);
-  //clocker.attach_6();
+  clocker.attach_16(at_a_paced_rate);
   clocker.setBPM(120);
   clocker.setPPQN(96);
   initdone = 1;
@@ -250,6 +250,9 @@ void DryAudioIn_ctl(byte cc_value){
 void Slope1_ctl(byte cc_value){
   // 303 cutoff pulse length
   slope1 = cc_value;
+  for (int i=0; i<18; i++){
+    _fl.sloped[i] = _fl.fxsloper[i]*(slope1/127.0) + _fl.slopelinear[i]*(1-(slope1/127.0)) ;
+  }
 }
 
 void Slope2_ctl(byte cc_value){
@@ -262,14 +265,6 @@ void ArbitraryMaxF_ctl(byte cc_value){
  arbitrary_maxF[oscillator] = (cc_value / 127.0) * 172.0 ;
 }
 
-void CutOffPulse_ctl(byte cc_value){
-  cutoff_pulse = round((cc_value / 127.0) * 32.0);
-}
-
-void ResoPulse_ctl(byte cc_value){
-  reson_pulse = round((cc_value / 127.0) * 32.0);
-}
-
 void Filter303_ctl(byte cc_value){
   le303filterzwet = round((cc_value / 127.0) * 100.0);
   _fl.le303filterzWet();
@@ -280,9 +275,6 @@ void CutOffTweak_ctl(byte cc_value){
   float _smallfloat = (cc_value / 127.0);
   le303ffilterzVknobs[0] = cc_value;
   le303filterzfreq = round(_smallfloat * 14000);
-  le303filterzrange = le303filterzfreq;
-  cutoff_pulse = 16 + _smallfloat * 16.0;
-  _fl.setlepulse1();
 }
 
 void ResoTweak_ctl(byte cc_value){

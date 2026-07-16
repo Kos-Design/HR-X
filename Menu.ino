@@ -5,6 +5,33 @@ void reinitsublevels(byte fromlei) {
   }
 }
 
+class SynthLiner;
+
+class ActiveLinesRegister {
+    public:
+        ActiveLinesRegister() { }
+        int synth_lines_active = 0 ;
+
+        void add_active_synth(SynthLiner *snth){
+          active_synths[synth_lines_active] = snth ;
+          synth_lines_active++;
+        }
+
+        void remove_inactive_synth(SynthLiner *snth){
+          
+          for (uint8_t i = 0; i < synth_lines_active; i++) {
+            if (active_synths[i] == snth) {
+                active_synths[i] = active_synths[synth_lines_active - 1];
+                synth_lines_active--;
+                return;
+            }
+          }
+        }
+
+        SynthLiner *active_synths[SYNTH_LINERS_COUNT];
+};
+
+ActiveLinesRegister _rg;
 class KnobAssigner : public SectionHolder {
   public:
       KnobAssigner() {
@@ -122,7 +149,8 @@ class SynthLiner {
     bool activated = 0 ;
     byte note = 0 ;
     byte velocity = 0 ;
-
+    byte sloper_step = 0;
+    bool f303 = 0 ;
     SynthLiner(byte line_index = 0 ) : l_index(line_index) { self = this; }
 
     void liner_on(byte data1, byte data2) {
@@ -134,10 +162,10 @@ class SynthLiner {
       velocity=data2;
       //to avoid bounces and midi panik !
       if (!enveloppesL[l_index]->isActive()){
-        if (!tb303[l_index]) {
-          pulsers[l_index][0]=millis();
-          tb303[l_index] = 1;
-        }
+        //if (!f303) {
+          //pulsers[l_index][0]=millis();
+          f303 = 1;
+        //}
         enveloppesL[l_index]->hold(millitickinterval - adsrlevels[3]);
         //enveloppesR[liner]->hold(500);
         if (check_glide_status(note)){
@@ -156,6 +184,7 @@ class SynthLiner {
           setfreqWavelines(notefrequency, l_index, velocity);
         }
         enveloppesL[l_index]->noteOn();
+        _rg.add_active_synth(this);
       } else {
         liner_off();
       }
@@ -166,10 +195,11 @@ class SynthLiner {
       //if (enveloppesL[l_index]->isActive()) {
         enveloppesL[l_index]->hold(0);
         enveloppesL[l_index]->noteOff();
-        if (tb303[l_index]) {
-          tb303[l_index] = 0;
-        }
+        f303 = 0;
+        
         activated = false;
+        _rg.remove_inactive_synth(this);
+
         note = 0 ;
       }
     //}
@@ -231,4 +261,5 @@ class FlashLiner {
 
 
 FlashLiner *flash_lines[flash_liners_count] = {nullptr};
+
 

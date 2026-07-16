@@ -1,42 +1,6 @@
 
 int pad_result;
 
-void allpasslevels() {
-  mix303L1.gain(0, 1);
-  mix303L1.gain(1, 0);
-  mix303L1.gain(2, 0);
-}
-
-void pseudo303() {
-  float glidefactorCmode[SYNTH_LINERS_COUNT];
-  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-    if (glidemode > 0 && dogliding[i]) {
-      glidefactorCmode[i] =  (millis() - leglideposition[i]) /  (glidemode * millitickinterval * 1.0);
-      //notefrequency = (glidefactorCmode[i]) * leglidershiftCmode[i] + notestofreq[lapreviousnotewCmode[i]][1];
-      notefrequency = glidefactorCmode[i] * freq_difference + notestofreq[note_before][1];
-      tweakfreqlive(i, notefrequency);
-      if ((int)(millis() - leglideposition[i]) > glidemode * millitickinterval ) {
-        stopglidenoteChords(i);
-      }
-    }
-    if (tb303[i] == 1) {
-      ladiff1 = ( (millis()-pulsers[i][0]) / (1.0*pulsers[i][1]));
-      ladiff2 = ladiff1 ;
-      letbfreq = le303filterzrange + 50 - (le303filterzrange * (_fl.fxslopedown2(slope1, ladiff1)));
-      if (millis()-pulsers[i][0]>pulsers[i][1]){
-        tb303[i] = 0;
-        letbfreq = 50 ;
-        ladiff2 = 0 ;
-      }
-      les303filterz[i]->frequency(letbfreq);
-
-      if (ladiff2 <= 1) {
-        les303filterz[i]->resonance(0.1 + (le303filterzreso) * (_fl.fxslopedown2(slope2, ladiff2)));
-      }
-    }
-  }
-}
-
 void check_pads() {
     PadResult pad_result = Pads.padloop();
   int paddered = arranged_buttons[pad_result.pad_result[0]][pad_result.pad_result[1]];
@@ -153,7 +117,11 @@ void printit() {
 
 void fairly_often() {
   control_me();
-  pseudo303();
+  //pseudo303();
+}
+
+void at_a_paced_rate() {
+  _fl.pseudo303();
 }
 
 void once_in_a_while(){

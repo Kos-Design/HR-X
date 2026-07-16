@@ -295,7 +295,7 @@ class AdsrMenuRouter : public SectionHolder {
 AdsrMenuRouter* AdsrMenuRouter::self = nullptr;
 EXTMEM AdsrMenuRouter _ad;
 
-
+//TODO make lookup table fixed vals for slopes and fades instead of function computation
 class Filter303MenuRouter : public SectionHolder {
   public:
     Filter303MenuRouter() {
@@ -340,22 +340,47 @@ class Filter303MenuRouter : public SectionHolder {
       les303wet[i]->gain(1, (1 - (le303filterzwet / 100.0)));
     }
   }
-
-  static void setlepulse1() {
-    le303pulsewidth = (cutoff_pulse / 32.0) * 2 * millitickinterval;
-    if (le303pulsewidth < 50) {
-      le303pulsewidth = 50;
-    }
-    for (int i = 0; i < SYNTH_LINERS_COUNT ; i++) {
-      //blink303[i]->setDuration(le303pulsewidth);
-      pulsers[i][1]=le303pulsewidth;
-    }
+  
+  static void allpasslevels() {
+  mix303L1.gain(0, 1);
+  mix303L1.gain(1, 0);
+  mix303L1.gain(2, 0);
   }
+  float slopelinear[18] = {0.85,0.858334,0.866668,0.875,0.883336,0.89167,0.900004,0.908338,0.916672,0.925006,0.93334,0.941674,0.95,0.958342,0.966676,0.97501,0.983344,0.991678};
 
-  static void setlepulse2() {
-    le303pulsewidth2 = (reson_pulse / 32.0) * 2 * millitickinterval + 50;
-    if (le303pulsewidth2 < 50) {
-      le303pulsewidth2 = 50;
+  float fxsloper[18] = {0.85,0.88,0.91,0.92,0.93,0.95,0.95,0.96,0.97,0.97,0.98,0.98,0.99,0.99,1.00,1.00,1.00,1.00};
+
+  int lardiff;
+  float sloped[18];
+
+  static void pseudo303() {
+    float glidefactorCmode[SYNTH_LINERS_COUNT];
+    //sould only go through -> activated lines
+    for (int i = 0; i < _rg.synth_lines_active; i++) {
+      if (glidemode > 0 && dogliding[i]) {
+        glidefactorCmode[i] =  (millis() - leglideposition[i]) /  (glidemode * millitickinterval * 1.0);
+        //notefrequency = (glidefactorCmode[i]) * leglidershiftCmode[i] + notestofreq[lapreviousnotewCmode[i]][1];
+        notefrequency = glidefactorCmode[i] * freq_difference + notestofreq[note_before][1];
+        tweakfreqlive(i, notefrequency);
+        if ((int)(millis() - leglideposition[i]) > glidemode * millitickinterval ) {
+          stopglidenoteChords(i);
+        }
+      }
+      
+      if (_rg.active_synths[i]->f303) {
+        Serial.println(self->sloped[_rg.active_synths[i]->sloper_step%18]);
+
+        letbfreq = le303filterzfreq + 50 - (le303filterzfreq * self->sloped[_rg.active_synths[i]->sloper_step]);
+        if (_rg.active_synths[i]->sloper_step > 18) {
+          _rg.active_synths[i]->f303 = 0;
+          letbfreq = 50 ;
+          ladiff1 = 0 ;
+          _rg.active_synths[i]->sloper_step = 0 ;
+        }
+        les303filterz[_rg.active_synths[i]->l_index]->frequency(letbfreq);
+        les303filterz[_rg.active_synths[i]->l_index]->resonance(0.1 + (le303filterzreso) * self->sloped[_rg.active_synths[i]->sloper_step]);
+        _rg.active_synths[i]->sloper_step++;
+      }
     }
   }
 
@@ -367,7 +392,6 @@ class Filter303MenuRouter : public SectionHolder {
       navrange = 127;
       le303ffilterzVknobs[0] = sublevels[3];
       le303filterzfreq = round((le303ffilterzVknobs[0] / 127.0) * 10000);
-      le303filterzrange = le303filterzfreq;
     }
 
     static void filter_knob_res(){
@@ -398,20 +422,6 @@ class Filter303MenuRouter : public SectionHolder {
       le303filterzWet();
     }
 
-    static void filter_knob_pulse1(){
-      navrange = 32;
-      cutoff_pulse = sublevels[3];
-      setlepulse1();
-      // le303filterzwet = (mixle303ffilterzVknobs[2])/127.0 ;
-    }
-
-    static void filter_knob_pulse2(){
-      navrange = 32;
-      reson_pulse = sublevels[3];
-      setlepulse2();
-      // le303filterzwet = (mixle303ffilterzVknobs[2])/127.0 ;
-    }
-
     static void filter_knob_preamp(){
       preampleswaves = sublevels[3];
       Wavespreamp303controls();
@@ -439,7 +449,7 @@ class Filter303MenuRouter : public SectionHolder {
       }
       if (navlevel > 3) {
         temp_buff_armed = 0 ;
-        returntonav(2,9,sublevels[2]);
+        returntonav(2,7,sublevels[2]);
       }
     }
     static void le303filterVpanel() {
@@ -556,15 +566,7 @@ class Filter303MenuRouter : public SectionHolder {
       canvasBIG.setCursor(startlex2, 0);
       canvasBIG.print("Wet");
 
-      barsize = round(((le303pulsewidth / millitickinterval) * (totbartall - 4)));
-
-      canvasBIG.setCursor(0, 16);
-      canvasBIG.print("Xfq ");
-      canvasBIG.print(cutoff_pulse);
-
-      canvasBIG.setCursor(40, 16);
-      canvasBIG.print("Xres ");
-      canvasBIG.print(reson_pulse);
+      barsize = round((0.5 * (totbartall - 4)));
 
       canvastitle.setCursor(94, 8);
       canvastitle.print("S:");
@@ -598,7 +600,7 @@ class Filter303MenuRouter : public SectionHolder {
       int wbarwidth = 9;
       int wbarwidth2 = 8;
       if (navlevel == 2) {
-        navrange = 9;
+        navrange = 7;
       }
       int slct = sublevels[2];
       // fq
@@ -645,23 +647,14 @@ class Filter303MenuRouter : public SectionHolder {
         canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
                           wbarwidth2 - 4, SSD1306_WHITE);
       }
+      
       if (slct == 6) {
-        sublevels[3] = cutoff_pulse;
-        canvasBIG.setCursor(21, 16);
-        canvasBIG.print((char)9);
-      }
-      if (slct == 7) {
-        sublevels[3] = reson_pulse;
-        canvasBIG.setCursor(62, 18);
-        canvasBIG.print((char)9);
-      }
-      if (slct == 8) {
         sublevels[3] = preampleswaves;
         canvasBIG.setCursor(34, 0);
         canvasBIG.print((char)9);
       }
 
-      if (slct == 9) {
+      if (slct == 7) {
         sublevels[3] = glidemode;
         canvasBIG.setCursor(100, 8);
         canvasBIG.print((char)9);
@@ -669,7 +662,7 @@ class Filter303MenuRouter : public SectionHolder {
 
     }
     static void restore_from_temp() {
-      for (int i=0; i<10; i++) {
+      for (int i=0; i<8; i++) {
         sublevels[3] = self->filter_tmp_values[i];
         (filters_pointers[i])();
         le303filtercontrols();
@@ -680,7 +673,7 @@ class Filter303MenuRouter : public SectionHolder {
 
     static void set_filter_buff_temp() {
 
-      for (int i=0; i<10; i++) {
+      for (int i=0; i<8; i++) {
         self->filter_tmp_values[i] = *self->filter_tmp_pointers[i] ;
       }
 
@@ -691,18 +684,18 @@ class Filter303MenuRouter : public SectionHolder {
     }
 
   private:
-    static constexpr void (*filters_pointers[10])() = {&filter_knob_freq, &filter_knob_res, &filter_knob_low, &filter_knob_band, &filter_knob_high,
-                                            &filter_knob_wet, &filter_knob_pulse1, &filter_knob_pulse2, &filter_knob_preamp, &filter_knob_glide};
-                    byte *filter_tmp_pointers[10] = { &le303ffilterzVknobs[0], &le303ffilterzVknobs[1], &mixle303ffilterzVknobs[0], &mixle303ffilterzVknobs[1], &mixle303ffilterzVknobs[2],
-                                              &le303filterzwet, &cutoff_pulse, &reson_pulse, &preampleswaves, &glidemode };
+    static constexpr void (*filters_pointers[8])() = {&filter_knob_freq, &filter_knob_res, &filter_knob_low, &filter_knob_band, &filter_knob_high,
+                                            &filter_knob_wet, &filter_knob_preamp, &filter_knob_glide};
+                    byte *filter_tmp_pointers[8] = { &le303ffilterzVknobs[0], &le303ffilterzVknobs[1], &mixle303ffilterzVknobs[0], &mixle303ffilterzVknobs[1], &mixle303ffilterzVknobs[2],
+                                              &le303filterzwet, &preampleswaves, &glidemode };
 
-                    byte filter_tmp_values[10] = {le303ffilterzVknobs[0],le303ffilterzVknobs[1],mixle303ffilterzVknobs[0],mixle303ffilterzVknobs[1],mixle303ffilterzVknobs[2],
-                                          le303filterzwet,cutoff_pulse,reson_pulse,preampleswaves,glidemode };
+                    byte filter_tmp_values[8] = {le303ffilterzVknobs[0],le303ffilterzVknobs[1],mixle303ffilterzVknobs[0],mixle303ffilterzVknobs[1],mixle303ffilterzVknobs[2],
+                                          le303filterzwet,preampleswaves,glidemode };
     static Filter303MenuRouter* self;
 };
 
 Filter303MenuRouter* Filter303MenuRouter::self = nullptr;
-EXTMEM Filter303MenuRouter _fl;
+Filter303MenuRouter _fl;
 
 class SynthMenuRouter : public SectionHolder {
     public:
@@ -1532,3 +1525,4 @@ class SynthMenuRouter : public SectionHolder {
 
 SynthMenuRouter* SynthMenuRouter::self = nullptr;
 EXTMEM SynthMenuRouter _sn;
+

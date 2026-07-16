@@ -177,8 +177,9 @@ class PresetsMenuRouter : public SectionHolder {
           insert_int(preset_filer,slope1, (char*)"slope1");
           insert_int(preset_filer,slope2, (char*)"slope2");
           insert_int(preset_filer,millitickinterval, (char*)"milli");
-          insert_int(preset_filer,cutoff_pulse, (char*)"pulse1");
-          insert_int(preset_filer,reson_pulse, (char*)"pulse2");
+          //remove
+          insert_int(preset_filer,0, (char*)"pulse1");
+          insert_int(preset_filer,0, (char*)"pulse2");
 
           for (int i = 0; i < 3; i++) {
             insert_int(preset_filer,le303ffilterzVknobs[i], (char*)"f303vknobs");
@@ -187,7 +188,8 @@ class PresetsMenuRouter : public SectionHolder {
           }
 
           insert_int(preset_filer,le303filterzwet, (char*)"le303filterzwet");
-          insert_int(preset_filer,le303filterzrange, (char*)"le303range");
+          //remove next presets update
+          insert_int(preset_filer,0, (char*)"le303range");
           insert_float(preset_filer,le303filterzfreq, (char*)"le303freq");
           insert_float(preset_filer,le303filterzreso, (char*)"le303reso");
 
@@ -347,11 +349,11 @@ class PresetsMenuRouter : public SectionHolder {
 
           parser.Read_String('#');
           parser.Skip(1);
-          cutoff_pulse = parser.Read_Int16();
+          int unuseded = parser.Read_Int16();
 
           parser.Read_String('#');
           parser.Skip(1);
-          reson_pulse = parser.Read_Int16();
+          int delme = parser.Read_Int16();
 
           for (int i = 0; i < 3; i++) {
             parser.Read_String('#');
@@ -373,7 +375,7 @@ class PresetsMenuRouter : public SectionHolder {
 
           parser.Read_String('#');
           parser.Skip(1);
-          le303filterzrange = parser.Read_Int16();
+          int remove_me = parser.Read_Int16();
 
           parser.Read_String('#');
           parser.Skip(1);
@@ -647,8 +649,6 @@ class PresetsMenuRouter : public SectionHolder {
           parser.Reset();
           preset_filer.close();
           call_set_bpms();
-          _fl.setlepulse1();
-          _fl.setlepulse2();
           _ad.ApplyADSR();
           call_allfxcontrolled();
           _fl.le303filterzWet();

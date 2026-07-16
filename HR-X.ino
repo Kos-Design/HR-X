@@ -1,27 +1,18 @@
 #define MULTIPLEXED_PADS 1
 const int display_lag = 10 ;
 const int control_lag = 10 ;
-
 #include "MenuClasses.h"
-//#include <TeensyVariablePlayback.h>
-
-//#if MULTIPLEXED_PADS
 #include "muxer.h"
 Muxer Muxer;
-//#endif
-
 byte itr = 0;
 int c_change;
 int cc_note_num;
-// adcHighPassFilterDisable();
 bool le_303_On ;
 bool locked_fileing = 0 ;
 int retroaction = 0;
-//#include <Metro.h>
-// int startccrecordpos;
-// int stopccrecordpos;
 const byte sizeofnoCCrecord = 11;
 // functions that have system or various controls that are ignored for some ops
+//outdated since refactor of ctl[]
 byte noCCrecord[sizeofnoCCrecord] = {3,35,36,37, 38,39,40,41,42,44, 1};
 byte slope1 = 10;
 byte slope2 = 10;
@@ -43,29 +34,12 @@ const byte settings_labels_count = 16;
 //doesn't seem to affect arbitrary waveforms... :(
 float arbitrary_maxF[3] = { 172.0, 172.0, 172.0} ;
 int millitickinterval = 115;
-//freeze, can't record wav
-//#include <MsTimer2.h>
 bool avoid_fx_bounce = false;
-//not precise
-//Metro metro0 = Metro(millitickinterval);
-//Metro metro303 = Metro(25);
-//#include <IntervalTimer.h>
-//freezes can't record
-//IntervalTimer metro1;
-//IntervalTimer metro3;
-//float interval_ms = (60000.0 /4.0) / 130.0;  // Calculate the interval in milliseconds
 float interval_ms = millitickinterval ;
-// IntervalTimer playNoteTimer;
-// Metro metrobuttons = Metro(20);
-
 byte smixervknobs[16] = {127, 127, 127, 127, 127, 127, 127, 127,
                          127, 127, 127, 127, 127, 127, 127, 127};
 int lehalfbeat;
 
-byte cutoff_pulse = 8;
-byte reson_pulse = 8;
-int le303pulsewidth =(int)((cutoff_pulse / 32.0) * 2 * millitickinterval + 50);
-int le303pulsewidth2 =(int)((reson_pulse / 32.0) * 2 * millitickinterval + 50);
 byte offsetliner;
 byte x_axis_cc = 17 ;
 byte y_axis_cc = 18 ;
@@ -95,7 +69,6 @@ float le303filterzfreq = 10000;
 float le303filterzreso = 0.7;
 float le303filterzoctv = 0.25;
 bool clearsaniloop;
-int le303filterzrange = 10000;
 // float targetBPM = 120.0 ;
 float BPMs = (60000.0 / millitickinterval) / 4.0;
 const int pbars = 32;
@@ -106,11 +79,9 @@ unsigned long MICROSECONDS_PER_MINUTE = 60000000;
 unsigned long MICROSECONDS_PER_BEAT = MICROSECONDS_PER_MINUTE / BPM;
 unsigned long MICROSECONDS_PER_MIDI_CLOCK = MICROSECONDS_PER_BEAT / 4; // MIDI clock ticks 24 times per beat
 */
-// not sure if used
 unsigned long latimeline;
 // unsigned long latimelineshifter = ((60000/19200)*pbars) ;
 bool SendMidiOut;
-// unsigned long tickerf = millis();  ;
 #include <MIDIUSB.h>
 char arranged_buttons[6][6] = {{1,  5,  9,  13, 32,  23,},
                                {2,  6,  10, 14, 33,  24,},
@@ -145,8 +116,6 @@ byte but_velocity[all_buttonns] = {
 
 const int mainmenufxlistsize = 10;
 char consolemsg[10][32];
-//add to preset
-
 int waits = 0;
 char pleasewaitarray[10][32];
 const int fxs_count = 3;
@@ -174,12 +143,7 @@ byte presets_names_offset = 0 ;
 
 bool demimalmode;
 bool addinglenght;
-EXTMEM char sampledirpath[99] = {"SOUNDSET/"};
 
-
-String newloopedpath = "SOUNDSET/REC/LOOP00#L.RAW";
-String newRecpathL = "SOUNDSET/REC/RECZ00#L.RAW";
-String newRecpathR = "SOUNDSET/REC/RECZ00#R.RAW";
 int navlevelvbuttons = 2;
 const int numberofvbuttonslabels = 8;
 byte vbuttonsCC[numberofvbuttonslabels + 14 + 17];
@@ -192,19 +156,8 @@ byte preampleswaves = 64;
 int entry_num = 0 ;
 const byte szsset = 99;
 const byte ssnamsize = 26;
-/*
-struct FileEntry
-{
-    uint16_t parent;
-    char name[9];
-    bool isDir;
-};
-FileEntry sd_content[999] = {};
-*/
 EXTMEM char samplefoldersregistered[szsset][ssnamsize];
-//EXTMEM char samplefullpath[99][999][38];
 EXTMEM char samplebase[99][999][9];
-// EXTMEM char lefilenamed[99][999][13];
 EXTMEM int sizeofsamplefolder[99];
 int sampledirsregistered = 0;
 EXTMEM bool samplesselected[99][999];
@@ -233,7 +186,10 @@ int numberofFlashsamplesselected = 0;
 int numberofFlashfiles = 0;
 int Sampleassigned[128];
 String newmkdirpath = "SOUNDSET/MABANK01" ;
-
+EXTMEM char sampledirpath[99] = {"SOUNDSET/"};
+String newloopedpath = "SOUNDSET/REC/LOOP00#L.RAW";
+String newRecpathL = "SOUNDSET/REC/RECZ00#L.RAW";
+String newRecpathR = "SOUNDSET/REC/RECZ00#R.RAW";
 #include "/home/kosmin/HR-X/includes/images.ino"
 #include "/home/kosmin/HR-X/includes/notestofrequency_442.ino"
 #include "ParserLib.h"
@@ -242,7 +198,6 @@ String newmkdirpath = "SOUNDSET/MABANK01" ;
 
 #include <Bounce.h>
 #include <Encoder.h>
-//#include <string.h>
 const int flash_liners_count = 16;
 const int sampler_labels_count = 4;
 
@@ -250,7 +205,7 @@ const int patternlines = 2;
 bool tb303[SYNTH_LINERS_COUNT];
 long le303start[SYNTH_LINERS_COUNT];
 
-EXTMEM unsigned long pulsers[SYNTH_LINERS_COUNT][2]= { {0,120}, {0,120}, {0,120},{0,120}, {0,120}, {0,120}};
+//EXTMEM unsigned long pulsers[SYNTH_LINERS_COUNT][2]= { {0,120}, {0,120}, {0,120},{0,120}, {0,120}, {0,120}};
 
 int samplermidichannel = 8;
 //0 is All, channel indexes are thus offset +1
@@ -266,8 +221,6 @@ const byte arpeges_types = 8 ;
 byte arpegiatortype = 8;
 
 byte arpeglengh = 0;
-
-// bool gammedirection[nombreofarpeglines] ;
 byte arpegmode = 4;
 byte arpegnumofnotes = 7;
 byte arpegstartoffset = 0;
@@ -275,11 +228,8 @@ byte arpeggridC;
 
 byte arpeggridS;
 bool stoptickernextcycle;
-// unsigned long millisSincenLinerOn[SYNTH_LINERS_COUNT];
-// unsigned long currentnotelength[SYNTH_LINERS_COUNT];
 bool patrecord;
 byte arpegiatingNote[SYNTH_LINERS_COUNT];
-// note , veloc
 const int nombreofarpeglines = SYNTH_LINERS_COUNT;
 bool tripletdirection[nombreofarpeglines];
 byte playingarpegiator[nombreofarpeglines][SYNTH_LINERS_COUNT];
@@ -320,8 +270,6 @@ int parsinglength = parsingbuffersize;
 const int pat_parser_size = 32000;
 
 EXTMEM char receivedbitinchar[parsingbuffersize];
-
-// = 89.6 ( 1.02678 ) 92 original
 bool debugmidion = 0;
 bool freezemidicc = 0;
 int navlevelpatedit = 2;
@@ -332,17 +280,11 @@ bool track_cells[patternlines][pbars] = {0};
 EXTMEM byte synth_partition[SYNTH_LINERS_COUNT][pbars][3];
 EXTMEM byte temp_synth_partition[pbars][3];
 EXTMEM byte synth_off_pat[SYNTH_LINERS_COUNT][pbars][3];
-
 EXTMEM int synth_notes_length[SYNTH_LINERS_COUNT][pbars];
-
 byte synth_start_tpos[SYNTH_LINERS_COUNT];
-
 EXTMEM byte sampler_partition[flash_liners_count][pbars][3];
 EXTMEM byte temp_sampler_partition[pbars][3];
-//new
-
 EXTMEM int flash_notes_length[flash_liners_count][pbars];
-
 byte sampler_off_pat[pbars][3];
 bool just_pressed_rec = false ;
 int howmanyactiveccnow;
@@ -353,6 +295,7 @@ EXTMEM byte cc_partition[128][pbars];
 byte activateinterpolatecc[8];
 bool recordCC;
 //TODO reduce size
+// make class to store list and size of just the ignorable or visible CCs?
 bool ignorethatcc[128];
 bool ccoverdub;
 bool recpaterninit;
@@ -365,12 +308,12 @@ byte fffnote;
 
 EXTMEM GFXcanvas1 canvasBIG(128, 64);
 EXTMEM GFXcanvas1 canvastitle(128, 16);
-// SD on audio board
+
 #define SDCARD_CS_PIN 10
 #define SDCARD_MOSI_PIN 7
 #define SDCARD_SCK_PIN 14
 short lefakeselector;
-// SD reader on chipSelect 10
+// SD on audio board reader on chipSelect 10
 const int chipSelect = 10;
 //flash player is in 6
 const int FlashChipSelect = 6;
@@ -378,14 +321,9 @@ int samplesSelected = 0;
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
-
-// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
-// The pins for I2C are defined by the Wire-library.
-// On an arduino UNO:       A4(SDA), A5(SCL)
-// On an arduino MEGA 2560: 20(SDA), 21(SCL)
-// On an arduino LEONARDO:   2(SDA),  3(SCL), ...
 #define OLED_RESET -1 // Reset pin # (or -1 if sharing Arduino reset pin)
 ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+// I, however, use 0x3C maybe because of wire2...
 // Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire2, OLED_RESET);
 
 #define LOGO_HEIGHT 32
@@ -615,7 +553,7 @@ const CcCalls ctl[] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel"
                       {"FX1 Wet",&Wet1Volume_ctl},{"FX2 Wet",&Wet2Volume_ctl},{"FX3 Wet",&Wet3Volume_ctl},{"Dry Sampler",&DrySampler_ctl},{"Dry Synth",&DrySynth_ctl},
                       //10 ok
                       {"Dry Audio In",&DryAudioIn_ctl},{"CutOff slp.",&Slope1_ctl},{"Reso slp.",&Slope2_ctl},{"Reso Tweak",&ResoTweak_ctl},{"Filter303 Oct.",&Filter303Octave_ctl},
-                      {"CutOff Tweak",&CutOffTweak_ctl},{"CutOff Pulse",&CutOffPulse_ctl},{"Reso Pulse",&ResoPulse_ctl},{"Filter303 Lvl.",&Filter303_ctl},{"Filter303 Glide",&Filter303Glide_ctl},
+                      {"CutOff Tweak",&CutOffTweak_ctl},{"Free",nullptr},{"free",nullptr},{"Filter303 Lvl.",&Filter303_ctl},{"Filter303 Glide",&Filter303Glide_ctl},
                       //20 ok
                       {"Filter303 PreAmp",&FilterPreAmp_ctl},{"Synth Index",&SynthIndex_ctl},{"Syth X Lvl.",&SynthXLevel_ctl},{"Synth X Freq",&SynthXFreq_ctl},{"Chords type",&SetChords_ctl},
                       {"Pans Levels",&PansLevels_ctl},{"Metronome Level",&MetroDrumLevel_ctl},{"Play Song",&PlaySong_Trigger_ctl},{"Stop Song",&StopSong_Trigger_ctl},{"Pause Song",&PauseSong_Trigger_ctl},
@@ -1049,9 +987,9 @@ class SequencerClocker : public AudioStream {
             _callback_24 = cb;
         }
 
-        void attach_6(void (*cb)())
+        void attach_16(void (*cb)())
         {
-            _callback_6 = cb;
+            _callback_16 = cb;
         }
 
         void attach_96(void (*cb)())
@@ -1098,14 +1036,14 @@ class SequencerClocker : public AudioStream {
 
                 tick96++;
 
-                if ((tick96 % 3) == 0 && _callback_3){
+                if ((tick96 % (3)) == 0 && _callback_3){
                         thirtySecond++;
                         _callback_3();
                     }
 
-                if ((tick96 % 6) == 0 && _callback_6){
+                if ((tick96 % (2)) == 0 && _callback_16){
                         quarter++;
-                        _callback_6();
+                        _callback_16();
                     }
                 if ((tick96 % (96*4)) == 0 && _callback_96){
                         eighth++;
@@ -1146,7 +1084,7 @@ class SequencerClocker : public AudioStream {
         void (*_callback_24)() = nullptr;
         void (*_callback_3)() = nullptr;
         void (*_callback_96)() = nullptr;
-        void (*_callback_6)() = nullptr;
+        void (*_callback_16)() = nullptr;
 };
 
 EXTMEM SequencerClocker clocker;
@@ -1200,20 +1138,4 @@ EXTMEM AudioConnection          sd_mix_mp3L(playMp31, 0, sd_mixerL, 1);
 EXTMEM AudioConnection          sd_mix_mp3R(playMp31, 1, sd_mixerR, 1);
 EXTMEM AudioConnection          sd_mix_flacL(playFlac1, 0, sd_mixerL, 2);
 EXTMEM AudioConnection          sd_mix_flacR(playFlac1, 1, sd_mixerR, 2);
-
-
-//#include <TeensyVariablePlayback.h>
-//#include "flashloader_LittleFs.h"
-//newerdigate::audiosample *sampled;
-
-//newerdigate::flashloader loader;
-    
-//AudioPlaySdResmp         playSdRawVariable;     //xy=324,457
-
-//AudioPlayLittleSerialflashRaw      rraw_a1;        // PLUG IT SOMEWHERE
-
-//EXTMEM AudioConnection          sd_mix_rraw_a1L(rraw_a1, 0, sd_mixerL, 3);
-//EXTMEM AudioConnection          sd_mix_rraw_a1R(rraw_a1, 0, sd_mixerR, 3);
-
-//created using linux command xxd -i kick.raw (44100Hz little-endian 16-bit/sample )
 
