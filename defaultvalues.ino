@@ -113,12 +113,12 @@ void loadsynthdefaults() {
   mixerWL5to8.gain(2, 0.0);
   mixerWL5to8.gain(3, 0.0);
 
-  _fl.le303filtercontrols();
+  _ft.le303filtercontrols();
   AudioInterrupts();
 }
 
 void setupdefaultvalues() {
-  _fl.initialize303group();
+  _ft.initialize303group();
   ampL.gain(1);
   ampR.gain(1);
   // ADSR & synths

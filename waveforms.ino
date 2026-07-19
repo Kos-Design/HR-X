@@ -4,12 +4,15 @@ class WaveformsMenuRouter : public SectionHolder {
        
         WaveformsMenuRouter() {
           self = this;
-          this->home_navrange=self->wf_labels_count-1;
-          this->relative_navlevel=1;
-          this->max_navlevel=5;
-          this->sublevels_address={8,0,0};
+          self->home_navrange=self->wf_labels_count-1;
+          self->catalog = new FilesLister("WAVEFORM/","WFORM-",".TXT",wforms_menu,self->home_navrange);
+          self->relative_navlevel=1;
+          self->max_navlevel=5;
+          self->sublevels_address={8,0,0};
         }
-        const byte wf_labels_count = 8;
+
+        FilesLister *catalog;
+        static const byte wf_labels_count = 8;
         static const byte wfn_size = 6; //displayables lines
         String wforms_names[wfn_size];
         byte wforms_indexes[99];
@@ -20,69 +23,8 @@ class WaveformsMenuRouter : public SectionHolder {
           _route_nav[navlevel-1]();
         }
         
-        String get_wform_name(byte number) {
-          char formatted_number[4] ;
-          sprintf(formatted_number,"%02d",number);
-          return "WFORM-" + (String)formatted_number ;
-        }
-
-        String get_current_waveform_path(){
-          return "WAVEFORM/" + wforms_names[0] + ".TXT";
-        }
-
-        static void refresh_wforms_names() {
-          for (int i = 0 ; i < wfn_size ; i++) {
-            //empty spots are left at the end of the list if it is small, otherwise the names are looped
-            self->wforms_names[i] = " ";
-            if (self->wforms_names_offset+i < self->wforms_count ) {
-              self->wforms_names[i] = self->get_wform_name(self->wforms_indexes[self->wforms_names_offset+i]);
-            } else if (self->wforms_count >= wfn_size ){
-              self->wforms_names[i] = self->get_wform_name(self->wforms_indexes[((self->wforms_names_offset+i)%self->wforms_count) ]);
-            }
-          }
-        }
-
-        static void list_wforms_files() {
-          self->wforms_count = 0;
-          String wforms_dir = "WAVEFORM/";
-          if (SD.exists(wforms_dir.c_str())) {
-            File wform_filer = SD.open(wforms_dir.c_str());
-            while (self->wforms_count < 99) {
-              File entry = wform_filer.openNextFile();
-              if (!entry) {
-                break;
-              }
-              if (!entry.isDirectory()) {
-                char* named = (char*)entry.name();
-                named[strlen(named) - 4] = '\0';
-                //int is at 6 chars after prefix
-                self->wforms_indexes[self->wforms_count] = atoi(named+6);
-                self->wforms_count++;
-              }
-              entry.close();
-            }
-            wform_filer.close();
-          }
-          //refresh_wforms_names();
-        }
-
         static void waveforms_nav_zero(){
-          dm.clear_buffs();
-          navrange = self->home_navrange;
-          reinitsublevels(2);
-          dolistofwaveforms();
-          wforms_menu();
-          dm.dodisplay();
-        }
-
-        static void waveforms_nav_one(){
-          //dm.clear_buffs();
-          navrange = max(self->wforms_count - 1, 0);
-          if (sublevels[1] == 0)
-            navrange = self->wforms_count;
-          dolistofwaveforms();
-          wforms_menu();
-          dm.dodisplay();
+          self->catalog->nav_zero();
         }
 
         static void WaveformParams(){
@@ -269,7 +211,7 @@ class WaveformsMenuRouter : public SectionHolder {
 
         static void wforms_menu() {
           canvastitle.setCursor(0,0);
-          char waveformsmenulabels[self->wf_labels_count][12] = {
+          char waveformsmenulabels[wf_labels_count][12] = {
               "Save", "Load", "Copy", "Delete", "Edit", "-->", "<--","Params"};
           byte startx = 5;
           byte starty = 16;
@@ -281,12 +223,12 @@ class WaveformsMenuRouter : public SectionHolder {
           canvasBIG.setCursor(56,29);
           canvasBIG.print(waveformIndex+1);
           canvasBIG.setTextSize(1);
-          for (int i = 0; i < self->wf_labels_count - 1 - (sublevels[1]); i++) {
+          for (int i = 0; i < wf_labels_count - 1 - (sublevels[1]); i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
             canvasBIG.println(waveformsmenulabels[sublevels[1] + 1 + i]);
           }
           for (int i = 0; i < sublevels[1]; i++) {
-            canvasBIG.setCursor(startx, (10 * (self->wf_labels_count - sublevels[1]) + 6 + ((i)*10)));
+            canvasBIG.setCursor(startx, (10 * (wf_labels_count - sublevels[1]) + 6 + ((i)*10)));
             canvasBIG.println(waveformsmenulabels[i]);
           }
         }
@@ -297,12 +239,12 @@ class WaveformsMenuRouter : public SectionHolder {
           else
             waveformIndex = waveformIndex-1;
       
-          returntonav(1,self->wf_labels_count-1,sublevels[1]);
+          returntonav(1,wf_labels_count-1,sublevels[1]);
         }
 
         static void go_next(){
           waveformIndex = (waveformIndex+1)%3;
-          returntonav(1,self->wf_labels_count-1,sublevels[1]);
+          returntonav(1,wf_labels_count-1,sublevels[1]);
         }
 
         static void writewaveform() {
@@ -310,10 +252,10 @@ class WaveformsMenuRouter : public SectionHolder {
             return;
           locked_fileing = 1 ;
           File waveform_file ;
-          if (sublevels[2] == self->wforms_count) {
-            waveform_file = SD.open(get_new_file_name("WAVEFORM/WFORM-").c_str(), FILE_WRITE);
+          if (self->catalog->new_file_mode) {
+            waveform_file = SD.open(self->catalog->get_new_file_name().c_str(), FILE_WRITE);
           } else {
-            String selected_waveform = self->get_current_waveform_path();
+            String selected_waveform = self->catalog->get_current_file_path(0);
             if (SD.exists(selected_waveform.c_str())) {
               SD.remove(selected_waveform.c_str());
             }
@@ -324,44 +266,8 @@ class WaveformsMenuRouter : public SectionHolder {
             waveform_file.close();
           }
           waveform_file.close();
-          list_wforms_files();
+          self->catalog->list_files();
           locked_fileing = 0 ;
-        }
-
-        static void dolistofwaveforms() {
-          dm.clean_title_1_1();
-          int startx = 80;
-          int starty = 16;
-          self->wforms_names_offset = sublevels[2] ;
-          refresh_wforms_names();
-          canvastitle.setCursor(startx, 0);
-          if (self->wforms_names_offset == self->wforms_count && sublevels[1] == 0) {
-            canvastitle.print("New()");
-          } else {
-            canvastitle.print(self->wforms_names[0]);
-          }
-          
-          if (self->wforms_names_offset == self->wforms_count) {
-            //if cursor is on new(), the wfn_size-1 elements are displayed below.
-            for (int i = 0; i < wfn_size-1; i++) {
-              canvasBIG.setCursor(startx, (10 * (self->wforms_count - self->wforms_names_offset)) + 16 + ((i)*10));
-              canvasBIG.println(self->wforms_names[i]);
-            }
-          } else {
-            //rest of indexes after title (refresh_wforms_names handles list population)
-            for (int i = 0; i < wfn_size - 1 ; i++) {
-              canvasBIG.setCursor(startx, starty + i*10);
-              canvasBIG.println(self->wforms_names[1 + i]);
-            }
-          }
-        }
-
-        static void setwaveformsnavrange() {
-          if (self->wforms_count < 2) {
-            navrange = 2;
-          } else {
-            navrange = max(self->wforms_count - 1, 0);
-          }
         }
 
         static void writewaveforms(File &filer) {
@@ -374,9 +280,9 @@ class WaveformsMenuRouter : public SectionHolder {
           locked_fileing = 1 ;
           File origin_file;
           File target_file;
-          String waveform_path = self->get_current_waveform_path() ;
+          String waveform_path = self->catalog->get_current_file_path(0) ;
           if (SD.exists(waveform_path.c_str())) {
-            target_file = SD.open(get_new_file_name("WAVEFORM/WFORM-").c_str(), FILE_WRITE);
+            target_file = SD.open(self->catalog->get_new_file_name().c_str(), FILE_WRITE);
             origin_file = SD.open(waveform_path.c_str(), FILE_READ);
             size_t n_size;
             uint8_t buf[64];
@@ -387,7 +293,8 @@ class WaveformsMenuRouter : public SectionHolder {
 
           origin_file.close();
           target_file.close();
-          list_wforms_files();
+          self->catalog->list_files();
+          
           locked_fileing = 0 ;
         }
 
@@ -395,10 +302,10 @@ class WaveformsMenuRouter : public SectionHolder {
           if (locked_fileing)
             return;
           locked_fileing = 1 ;
-          if (SD.exists(self->get_current_waveform_path().c_str())) {
-            SD.remove(self->get_current_waveform_path().c_str());
+          if (SD.exists(self->catalog->get_current_file_path(0).c_str())) {
+            SD.remove(self->catalog->get_current_file_path(0).c_str());
           }
-          list_wforms_files();
+          self->catalog->list_files();
           locked_fileing = 0 ;
         }
 
@@ -406,7 +313,7 @@ class WaveformsMenuRouter : public SectionHolder {
           if (locked_fileing)
             return;
           locked_fileing = 1 ;
-          File target_waveform = SD.open(self->get_current_waveform_path().c_str(), FILE_READ);
+          File target_waveform = SD.open(self->catalog->get_current_file_path(0).c_str(), FILE_READ);
           target_waveform.read((byte *)arbitrary_waveforms[waveformIndex], sizeof(arbitrary_waveforms[waveformIndex]));
           target_waveform.close();
           locked_fileing = 0 ;
@@ -433,7 +340,7 @@ class WaveformsMenuRouter : public SectionHolder {
         } 
 
         static void lv1_wrapper(void (*func)()) {
-          waveforms_nav_one();
+          self->catalog->nav_one(0,1);
           if (navlevel >= 3) {
             func();
             returntonav(1, self->wf_labels_count - 1,sublevels[1]);

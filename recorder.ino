@@ -52,7 +52,7 @@ class RecorderMenuRouter : public SectionHolder {
             just_pressed_rec = true ;
             check_rec_folder_path();
             tocker = millis();
-            newloopedpath = get_new_file_name("SOUNDSET/REC/LOOP","#L.RAW");
+            newloopedpath = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW");
             looper = SD.open(newloopedpath.c_str(), FILE_WRITE);
             if (looper) {
               //AudioNoInterrupts();
@@ -556,7 +556,7 @@ class RecorderMenuRouter : public SectionHolder {
             File src = SD.open(newloopedpath.c_str(), FILE_READ);
             if (!src) return;
             
-            String new_file = get_new_file_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+            String new_file = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW") ;
             File dst = SD.open(new_file.c_str(), FILE_WRITE);
             if (!dst) {
                 src.close();
@@ -641,7 +641,7 @@ class RecorderMenuRouter : public SectionHolder {
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           
-          String new_file = get_new_file_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+          String new_file = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW") ;
           File dst = SD.open(new_file.c_str(), FILE_WRITE);
           const uint32_t BUFFER_SAMPLES = 1024;
           int16_t buffer[BUFFER_SAMPLES];
@@ -747,7 +747,7 @@ class RecorderMenuRouter : public SectionHolder {
             if (!in)
                 return;
 
-            String new_file = get_new_file_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+            String new_file = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW") ;
             File out = SD.open(new_file.c_str(), FILE_WRITE);
             if (!out)
             {
@@ -821,7 +821,7 @@ class RecorderMenuRouter : public SectionHolder {
             File src = SD.open(newloopedpath.c_str(), FILE_READ);
             if (!src) return;
             
-            String new_file = get_new_file_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+            String new_file = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW") ;
             File dst = SD.open(new_file.c_str(), FILE_WRITE);
 
             uint32_t fileSize = src.size();
@@ -973,7 +973,7 @@ class RecorderMenuRouter : public SectionHolder {
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           
-          String new_file = get_new_file_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+          String new_file = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW") ;
           File dst = SD.open(new_file.c_str(), FILE_WRITE);
           //const uint16_t sampleSize = 2;
           const uint32_t BUFFER_SAMPLES = 1024;
@@ -1060,7 +1060,7 @@ class RecorderMenuRouter : public SectionHolder {
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           
-          String new_file = get_new_file_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+          String new_file = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW") ;
           File dst = SD.open(new_file.c_str(), FILE_WRITE);
 
           //const uint16_t sampleSize = 2;
@@ -1147,7 +1147,7 @@ class RecorderMenuRouter : public SectionHolder {
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           
-          String new_file = get_new_file_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+          String new_file = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW") ;
           File dst = SD.open(new_file.c_str(), FILE_WRITE);
           const uint32_t BUFFER_SIZE = 2048;
           uint8_t buffer[BUFFER_SIZE];

@@ -14,13 +14,13 @@ void setupSD() {
   pseudoconsole((char *)"Scanning Samples");
   _sp.dosoundlist();
   pseudoconsole((char *)"Scanning Presets");
-  _ps.list_presets_files();
+  _ps.catalog->list_files();
   pseudoconsole((char *)"Scanning Patterns");
-  _pt.list_patterns_files();
+  _pt.catalog->list_files();
   pseudoconsole((char *)"Scanning Waveforms");
-  _wf.list_wforms_files();
+  _wf.catalog->list_files();
   pseudoconsole((char *)"Scanning Songs");
-  _sg.list_songs_files();
+  _sg.catalog->list_files();
 }
 
 void call_sn_show(){
@@ -30,7 +30,7 @@ void call_ad_show(){
   _ad.show();
 }
 void call_fl_show(){
-  _fl.show();
+  _ft.show();
 }
 void call_mx_show(){
   _mx.show();
@@ -43,6 +43,9 @@ void call_allfxcontrolled(){
 }
 void call_rd_show(){
   _rd.show();
+}
+void call_set_pt_offset(int valz){
+  _pt.catalog->displayable_offset = valz ;
 }
 void call_set_y_cursor_value(int val){
   _wf.set_y_cursor_value(val);
@@ -88,7 +91,7 @@ void call_lf_show(){
 }
 
 String get_pattern_name_from_pt(int p_index) {
-  return _pt.get_pattern_name(p_index);
+  return _pt.catalog->get_file_name(_pt.catalog->files_indexed[p_index]);
 }
 void call_st_onboardPanel(){
   _st.OnBoardVpanel();
@@ -251,7 +254,7 @@ void Slope1_ctl(byte cc_value){
   // 303 cutoff pulse length
   slope1 = cc_value;
   for (int i=0; i<18; i++){
-    _fl.sloped[i] = _fl.fxsloper[i]*(slope1/127.0) + _fl.slopelinear[i]*(1-(slope1/127.0)) ;
+    _ft.sloped[i] = _ft.fxsloper[i]*(slope1/127.0) + _ft.slopelinear[i]*(1-(slope1/127.0)) ;
   }
 }
 
@@ -267,7 +270,7 @@ void ArbitraryMaxF_ctl(byte cc_value){
 
 void Filter303_ctl(byte cc_value){
   le303filterzwet = round((cc_value / 127.0) * 100.0);
-  _fl.le303filterzWet();
+  _ft.le303filterzWet();
 }
 
 void CutOffTweak_ctl(byte cc_value){
@@ -503,7 +506,7 @@ void AdsrRelease_ctl(byte cc_value){
 void Filter303_Knob1_ctl(byte cc_value){
   mixle303ffilterzVknobs[0] = cc_value;
   le303filterzgainz[0] = (cc_value / 127.0);
-  _fl.le303filtercontrols();
+  _ft.le303filtercontrols();
   // le303filterzgainz[0]
   //  mixle303ffilterzVknobs[0]
 }
@@ -511,13 +514,13 @@ void Filter303_Knob1_ctl(byte cc_value){
 void Filter303_Knob2_ctl(byte cc_value){
   mixle303ffilterzVknobs[1] = cc_value;
   le303filterzgainz[1] = (cc_value / 127.0);
-  _fl.le303filtercontrols();
+  _ft.le303filtercontrols();
 }
 
 void Filter303_Knob3_ctl(byte cc_value){
   mixle303ffilterzVknobs[2] = cc_value;
   le303filterzgainz[2] = (cc_value / 127.0);
-  _fl.le303filtercontrols();
+  _ft.le303filtercontrols();
 }
      
 void FXBusSelector_ctl(byte cc_value){
@@ -685,14 +688,14 @@ void SetBPMs_ctl(byte cc_value){
 void SaveToNewPattern_Trigger_ctl(byte cc_value){
   //to save in a new pattern
   // TODO reenable
-  patterns_names_offset = patterns_count ;
+  _pt.catalog->displayable_offset = _pt.catalog->files_counter ;
   //_pt.writelemidi();
 }
 
 void LoadFirstPattern_Trigger_ctl(byte cc_value){
   _po.clearlapattern();
   //loads 1st pattern, increment patterns_names_offset for a different one
-  patterns_names_offset = 0 ;
+  _pt.catalog->displayable_offset = 0 ;
   call_parsepattern();
 }
 
@@ -732,8 +735,8 @@ void StopRecording_Trigger_ctl(byte cc_value){
 }
 
 void LoadFirstPreset_Toggle_ctl(byte cc_value){
-  presets_names_offset = 0 ;
-  _ps.refresh_presets_names();
+  _ps.catalog->displayable_offset = 0 ;
+  _ps.catalog->refresh_files_names();
   _ps.parsefile();
 }
 

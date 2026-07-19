@@ -11,6 +11,35 @@ bool le_303_On ;
 bool locked_fileing = 0 ;
 int retroaction = 0;
 const byte sizeofnoCCrecord = 11;
+
+constexpr uint8_t SCREEN_ADDRESS = 0x3C;
+constexpr uint8_t OSCS_COUNT = 3;
+constexpr uint8_t SN_MENU_LABELS_COUNT = 5 ;
+constexpr int SYNTH_LINERS_COUNT = 6 ;
+const int available_track_types = 2;
+const int pbars = 32;
+const int flash_liners_count = 16;
+const int sampler_labels_count = 4;
+bool track_cells[available_track_types][pbars] = {0};
+
+EXTMEM byte synth_partition[SYNTH_LINERS_COUNT][pbars][3];
+EXTMEM byte temp_synth_partition[pbars][3];
+EXTMEM byte synth_off_pat[SYNTH_LINERS_COUNT][pbars][3];
+EXTMEM int synth_notes_length[SYNTH_LINERS_COUNT][pbars];
+byte synth_start_tpos[SYNTH_LINERS_COUNT];
+EXTMEM byte sampler_partition[flash_liners_count][pbars][3];
+EXTMEM byte temp_sampler_partition[pbars][3];
+EXTMEM int flash_notes_length[flash_liners_count][pbars];
+byte sampler_off_pat[pbars][3];
+bool patternOn;
+bool stoptick = true;
+bool recordCC;
+bool patrecord;
+int midiknobassigned[128];
+EXTMEM byte cc_partition[128][pbars];
+
+
+
 // functions that have system or various controls that are ignored for some ops
 //outdated since refactor of ctl[]
 byte noCCrecord[sizeofnoCCrecord] = {3,35,36,37, 38,39,40,41,42,44, 1};
@@ -62,7 +91,6 @@ int letempipolate;
 float interpolcoeff;
 byte settointerpolate[128];
 EXTMEM byte leccinterpolated[128];
-bool interpolOn = 1;
 float le303filterzgainz[3] = {1.0, 0, 0};
 byte le303filterzwet;
 float le303filterzfreq = 10000;
@@ -71,7 +99,6 @@ float le303filterzoctv = 0.25;
 bool clearsaniloop;
 // float targetBPM = 120.0 ;
 float BPMs = (60000.0 / millitickinterval) / 4.0;
-const int pbars = 32;
 
 float BPM = 130.0;
 /*
@@ -79,7 +106,6 @@ unsigned long MICROSECONDS_PER_MINUTE = 60000000;
 unsigned long MICROSECONDS_PER_BEAT = MICROSECONDS_PER_MINUTE / BPM;
 unsigned long MICROSECONDS_PER_MIDI_CLOCK = MICROSECONDS_PER_BEAT / 4; // MIDI clock ticks 24 times per beat
 */
-unsigned long latimeline;
 // unsigned long latimelineshifter = ((60000/19200)*pbars) ;
 bool SendMidiOut;
 #include <MIDIUSB.h>
@@ -102,7 +128,6 @@ bool recorderstop;
 bool recorderrecord;
 bool recorderplay;
 bool started_patrecord ;
-bool patternOn;
 bool trace_waveform = false;
 byte but_channel[all_buttonns] = {
     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 16, 16, 16, 16, 16,
@@ -126,20 +151,15 @@ const int sizeopremixWtoM = 9 * fxs_count;
 const int sizeofxcords = 9 * fxs_count * 2 * 3;
 
 float interpot;
-bool overdubmidi;
 bool noteprint = 0;
 
-byte patterns_indexes[99];
 byte patterns_count = 0 ;
 const byte ptn_size = 6;
-String patterns_names[ptn_size];
-byte patterns_names_offset = 0 ;
 
-byte presets_indexes[99];
 
 const byte pst_size = 6;
-String presets_names[pst_size];
-byte presets_names_offset = 0 ;
+
+
 
 bool demimalmode;
 bool addinglenght;
@@ -198,10 +218,8 @@ String newRecpathR = "SOUNDSET/REC/RECZ00#R.RAW";
 
 #include <Bounce.h>
 #include <Encoder.h>
-const int flash_liners_count = 16;
-const int sampler_labels_count = 4;
 
-const int patternlines = 2;
+
 bool tb303[SYNTH_LINERS_COUNT];
 long le303start[SYNTH_LINERS_COUNT];
 
@@ -213,7 +231,6 @@ byte synthmidichannel = 0;
 bool blocked = false ;
 byte navrec = 3;
 int tickposition;
-bool stoptick = true;
 
 bool arpegiatorOn = 0;
 // 8 is off
@@ -228,22 +245,18 @@ byte arpeggridC;
 
 byte arpeggridS;
 bool stoptickernextcycle;
-bool patrecord;
 byte arpegiatingNote[SYNTH_LINERS_COUNT];
-const int nombreofarpeglines = SYNTH_LINERS_COUNT;
-bool tripletdirection[nombreofarpeglines];
-byte playingarpegiator[nombreofarpeglines][SYNTH_LINERS_COUNT];
-byte calledarpegenote[nombreofarpeglines][2];
-byte tickgamme[nombreofarpeglines];
-byte ticktriplet[nombreofarpeglines];
-byte arpegnoteoffin[nombreofarpeglines][SYNTH_LINERS_COUNT] = {1};
-byte arpegnotestick[nombreofarpeglines];
-byte arpegemptyticks[nombreofarpeglines];
+bool tripletdirection[SYNTH_LINERS_COUNT];
+byte playingarpegiator[SYNTH_LINERS_COUNT][SYNTH_LINERS_COUNT];
+byte calledarpegenote[SYNTH_LINERS_COUNT][2];
+byte tickgamme[SYNTH_LINERS_COUNT];
+byte ticktriplet[SYNTH_LINERS_COUNT];
+byte arpegnoteoffin[SYNTH_LINERS_COUNT][SYNTH_LINERS_COUNT] = {1};
+byte arpegnotestick[SYNTH_LINERS_COUNT];
+byte arpegemptyticks[SYNTH_LINERS_COUNT];
 bool digitalplay = 0;
 bool lefadout[SYNTH_LINERS_COUNT];
-bool targetNOsampler;
-bool targetNOsynth;
-bool targetNOcc;
+
 
 byte glidemode = 0;
 byte note_before;
@@ -272,28 +285,15 @@ const int pat_parser_size = 32000;
 EXTMEM char receivedbitinchar[parsingbuffersize];
 bool debugmidion = 0;
 bool freezemidicc = 0;
-int navlevelpatedit = 2;
 bool temp_buff_armed = 0 ;
 
-bool track_cells[patternlines][pbars] = {0};
 
-EXTMEM byte synth_partition[SYNTH_LINERS_COUNT][pbars][3];
-EXTMEM byte temp_synth_partition[pbars][3];
-EXTMEM byte synth_off_pat[SYNTH_LINERS_COUNT][pbars][3];
-EXTMEM int synth_notes_length[SYNTH_LINERS_COUNT][pbars];
-byte synth_start_tpos[SYNTH_LINERS_COUNT];
-EXTMEM byte sampler_partition[flash_liners_count][pbars][3];
-EXTMEM byte temp_sampler_partition[pbars][3];
-EXTMEM int flash_notes_length[flash_liners_count][pbars];
-byte sampler_off_pat[pbars][3];
 bool just_pressed_rec = false ;
 int howmanyactiveccnow;
 int tickerlasttick;
 byte recorded_ccs[32] ;
 byte pots_controllers[32][32][2];
-EXTMEM byte cc_partition[128][pbars];
 byte activateinterpolatecc[8];
-bool recordCC;
 //TODO reduce size
 // make class to store list and size of just the ignorable or visible CCs?
 bool ignorethatcc[128];
@@ -544,10 +544,7 @@ char mainmenufxlist[mainmenufxlistsize][12] = {
 
 byte WetMixMasters[4] = {0, 0, 0, 0};
 
-struct CcCalls {
-    const char *name;
-    void (*tweaker)(byte);
-};
+
 
 const CcCalls ctl[] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel",&SynthVolume_ctl},{"SDLevel",&SDPlayerVolume_ctl},{"FlashLevel",&FlashVolume_ctl},
                       {"FX1 Wet",&Wet1Volume_ctl},{"FX2 Wet",&Wet2Volume_ctl},{"FX3 Wet",&Wet3Volume_ctl},{"Dry Sampler",&DrySampler_ctl},{"Dry Synth",&DrySynth_ctl},
@@ -593,15 +590,9 @@ bool patterninparse;
 
 bool granular_shifting[fxs_count] = {0,0,0};
 bool granular_freezing[fxs_count] = {0,0,0};
-char leparsed[3];
 short lecaractere;
-short letempspattern;
 short linerpat;
-int previousTp;
-const byte sizeofoptionspattern = 6;
-const char optionspatternlabels[sizeofoptionspattern][12] = {
-    "Transpose", "Shift", "Clear", "Target", "Smooth CC","Merge Pat"};
-const byte sizeofpatternlistlabels = 8;
+
 bool debug_cpu = false;
 byte bitcrusherVknobs[fxs_count][2];
 byte granularVknobs[fxs_count][2];
@@ -648,7 +639,6 @@ char lastpathlisted[50];
 
 int midiknobs[128];
 // int midiknobiprev[128] ;
-int midiknobassigned[128];
 
 int sublevels[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 // make it float
@@ -966,128 +956,8 @@ AudioAmplifier *Wavespreamp303[SYNTH_LINERS_COUNT] = {&wavePAmp0, &wavePAmp1, &w
                                      &wavePAmp3, &wavePAmp4, &wavePAmp5};
 
 AudioSynthWaveform *LFOwaveforms1[OSCS_COUNT] = {&LFOrm1, &LFOrm2, &LFOrm3};
-
-class SequencerClocker : public AudioStream {
-    public:
-        SequencerClocker() : AudioStream(0, nullptr) {}
-        bool stop = 1 ;
-        void setBPM(float bpm)
-        {
-            _bpm = bpm;
-            calculatePPQN();
-        }
-
-        void setPPQN(uint8_t ppqn) {
-            _PPQN = ppqn;
-            calculatePPQN();
-        }
-
-        void attach_24(void (*cb)())
-        {
-            _callback_24 = cb;
-        }
-
-        void attach_16(void (*cb)())
-        {
-            _callback_16 = cb;
-        }
-
-        void attach_96(void (*cb)())
-        {
-            _callback_96 = cb;
-        }
-
-        void attach_3(void (*cb)())
-        {
-            _callback_3 = cb;
-        }
-
-        void stopticker() {
-            stoptick = 1;
-            recordCC = 0;
-            overdubmidi = 0;
-            this->stop = 1;
-            // if (patrecord) {
-            // computelenghtmesureoffline_synth();
-            patternOn = 0;
-            patrecord = 0;
-            // tickposition = 0 ;
-        }
-
-        void startticker() {
-            //TODO: reimplement external midi clock use
-            //if (!externalticker) {
-            // metro0.reset();
-            //MsTimer2::set(millitickinterval, advance_tick);
-            //MsTimer2::start();
-
-            //}
-            stoptick = 0;
-            this->stop = 0;
-            patternOn = 1;
-        }
-
-        virtual void update() override {
-            if (_samplesPerTick <= 0.0)
-            return;
-            _sampleAccumulator += AUDIO_BLOCK_SAMPLES;
-            while (_sampleAccumulator >= _samplesPerTick) {
-                _sampleAccumulator -= _samplesPerTick;
-
-                tick96++;
-
-                if ((tick96 % (3)) == 0 && _callback_3){
-                        thirtySecond++;
-                        _callback_3();
-                    }
-
-                if ((tick96 % (2)) == 0 && _callback_16){
-                        quarter++;
-                        _callback_16();
-                    }
-                if ((tick96 % (96*4)) == 0 && _callback_96){
-                        eighth++;
-                        _callback_96();
-                    }
-                if (!stop) {
-
-                    if ((tick96 % 24) == 0 && _callback_24){
-                        sixteenth++;
-                        _callback_24();
-                    }
-                }
-            }
-        }
-
-    private:
-
-        void calculatePPQN() {
-            if (_PPQN == 0 || _bpm <= 0.0f)
-            return;
-            _samplesPerTick =
-                AUDIO_SAMPLE_RATE_EXACT *
-                60.0 /
-                (_bpm * _PPQN);
-        }
-
-        volatile uint32_t tick96 = 0;
-        volatile uint32_t quarter = 0;
-        volatile uint32_t eighth = 0;
-        volatile uint32_t sixteenth = 0;
-        volatile uint32_t thirtySecond = 0;
-
-        float  _bpm = 120.0f;
-        uint8_t _divisionsPerQuarter = 4;
-        uint8_t _PPQN = 96 ;
-        double _samplesPerTick = 0;
-        double _sampleAccumulator = 0;
-        void (*_callback_24)() = nullptr;
-        void (*_callback_3)() = nullptr;
-        void (*_callback_96)() = nullptr;
-        void (*_callback_16)() = nullptr;
-};
-
-EXTMEM SequencerClocker clocker;
+//
+SequencerClocker clocker;
 
 class ClockSink : public AudioStream {
     public:
@@ -1103,8 +973,7 @@ EXTMEM ClockSink sink;
 
 EXTMEM AudioConnection patchCord_sinker(clocker, 0, sink, 0);
 
-extern DisplayManager dm;
-
+DisplayManager dm = DisplayManager();
 EXTMEM GlobalMixer _mx;
 
 //EXTMEM DisplayManager dm = DisplayManager();
@@ -1139,3 +1008,163 @@ EXTMEM AudioConnection          sd_mix_mp3R(playMp31, 1, sd_mixerR, 1);
 EXTMEM AudioConnection          sd_mix_flacL(playFlac1, 0, sd_mixerL, 2);
 EXTMEM AudioConnection          sd_mix_flacR(playFlac1, 1, sd_mixerR, 2);
 
+#include "FilesLister.h"
+
+/*
+class FilesLister{
+    static const byte max_displayables = 6; //displayables lines
+    public:
+        FilesLister(const char *main_folder, const char *base_filename, const char *file_extension, void (*menu_labels_method)(), byte navranger) : 
+            folder_dir(main_folder), basenamer(base_filename), extension(file_extension), home(menu_labels_method), home_navrange(navranger), base_char_count(strlen(basenamer)) {}
+
+        const char *folder_dir;
+        const char *basenamer;
+        const char *extension;
+        void (*home)();
+        byte home_navrange;
+        size_t base_char_count;
+        int left_margin = 80;
+        int top_margin = 16;
+        int v_spacer = 10 ;
+        //only lists files with 00.ext suffix as it extracts the basename to only deal with their respective numbers.
+        // can't work on normal files not following this naming format yet.
+        byte files_counter = 0 ;
+        byte displayable_offset = 0 ;
+        String files_displayable[max_displayables];
+        //stores files suffixes numbers only
+        byte files_indexed[99];
+        bool new_file_mode = 0;
+        //the files list should be responding to shifting in navlevel r_nav and display in r_nav-1(navlevel of the menu instancer)
+        byte r_nav = 2;
+        
+        String get_file_name(byte number) {
+            char formatted_number[4] ;
+            sprintf(formatted_number,"%02d",number);
+            return this->basenamer + (String)formatted_number ;
+        }
+
+        String get_current_file_path(byte f_index=0){
+            return this->folder_dir + this->files_displayable[f_index] + this->extension;
+        }
+
+        String make_full_file_name(byte number) {
+            char formatted_number[4] ;
+            sprintf(formatted_number,"%02d",number);
+            return(String)((String)this->folder_dir+(String)this->basenamer + (String)formatted_number + this->extension);
+        }
+
+        String get_new_file_name() {
+            byte file_number = this->files_counter ;
+            String new_path = make_full_file_name(file_number);
+            while (SD.exists(new_path.c_str())) {
+                file_number++;
+                new_path = make_full_file_name(file_number);
+            }
+            return new_path ;
+        }
+        
+        void nav_zero(){
+            dm.clear_buffs();
+            navrange = this->home_navrange;
+            reinitsublevels(this->r_nav);
+            this->display_files_list();
+            this->home();
+            dm.dodisplay();
+        }
+
+        void nav_one(byte save_lbl_idx=0,byte lbl_navlevel=1){
+            this->new_file_mode = false;
+            navrange = max(this->files_counter - 1, 0);
+            if (sublevels[lbl_navlevel] == save_lbl_idx) {
+                navrange = this->files_counter;
+                this->new_file_mode = true;
+            }
+            this->display_files_list();
+            this->home();
+            dm.dodisplay();
+        }
+
+        void refresh_files_names() {
+            for (int i = 0 ; i < max_displayables ; i++) {
+                //empty spots are left at the end of the list if it is small, otherwise the names are looped
+                //maybe looped list is better actually...
+                this->files_displayable[i] = " ";
+                if (this->displayable_offset+i < this->files_counter ) {
+                    this->files_displayable[i] = this->get_file_name(this->files_indexed[this->displayable_offset+i]);
+                } else if (this->files_counter >= max_displayables ){
+                    this->files_displayable[i] = this->get_file_name(this->files_indexed[((this->displayable_offset+i)%this->files_counter) ]);
+                }
+
+            }
+        }
+
+         void display_files_list() {
+          dm.clean_title_1_1();
+
+          this->displayable_offset = sublevels[this->r_nav] ;
+          //% this->files_counter  ;
+          refresh_files_names();
+          canvastitle.setCursor(left_margin, 0);
+          //activate new_file_mode from instancer file actions selector
+          if (this->displayable_offset == this->files_counter && this->new_file_mode) {
+            canvastitle.print("New()");
+          } else {
+            canvastitle.print(this->files_displayable[0]);
+          }
+          
+          if (this->displayable_offset == this->files_counter) {
+            //if cursor is on new(), the size-1 elements are displayed below.
+            for (int i = 0; i < max_displayables-1; i++) {
+              canvasBIG.setCursor(left_margin, (v_spacer * (this->files_counter - this->displayable_offset)) + top_margin + ((i)*v_spacer));
+              canvasBIG.println(this->files_displayable[i]);
+            }
+          } else {
+            //rest of indexes after title (refresh_names handles list population)
+            for (int i = 0; i < max_displayables - 1 ; i++) {
+              canvasBIG.setCursor(left_margin, top_margin + i*v_spacer);
+              canvasBIG.println(this->files_displayable[1 + i]);
+            }
+          }
+        }
+
+         void list_files() {
+            //no lock fileing on read as it is used during locked ops, should be fine
+            this->files_counter = 0;
+            if (SD.exists(this->folder_dir)) {
+            File opened_dir = SD.open(this->folder_dir);
+            while (this->files_counter < 99) {
+                File entry = opened_dir.openNextFile();
+                if (!entry) {
+                    break;
+                }
+                if (!entry.isDirectory()) {
+                    char* named = (char*)entry.name();                    
+                    //maybe get ext in a separate list for mixed files type <- but that shouldn't be happening
+                    //perhaps for .wav and .raw but best to sort them on pc before transfer to SD
+                    named[strlen(named) - 4] = '\0';
+                    //int is at X chars after prefix
+                    bool good_base = (bool)(strncmp((char*)entry.name(), this->basenamer, this->base_char_count) == 0) ;
+                    if (strlen((char*)entry.name()) != this->base_char_count+2 || !good_base ){
+                        Serial.println(" ");
+                        Serial.print(strlen((char*)entry.name()));
+                        Serial.print("<-- badly named !!! or is it ? we got a base name length of ");
+                        Serial.println(this->base_char_count+2);
+                        continue;
+                    }
+                    //keep only last 2 digits assuming a basename of 8 chars
+                    this->files_indexed[this->files_counter] = atoi(named+this->base_char_count);
+                    this->files_counter++;
+                }
+                entry.close();
+            }
+            opened_dir.close();
+            }
+            refresh_files_names();
+
+        }
+        // static constexpr void (*_nav_fx[5])() = {&fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one};
+
+   
+};
+
+*/

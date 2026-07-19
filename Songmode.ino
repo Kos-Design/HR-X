@@ -4,7 +4,10 @@ int songselectorY;
 int patternonsong[99];
 int songplayhead = 0;
 byte numberofpatonsong;
+class PatternsMenuRouter;
+//extern SongMenuRouter* self;
 
+extern PatternsMenuRouter _pt;
 bool songplaying;
 
 const byte navSongmenu = 1;
@@ -19,7 +22,7 @@ byte songs_names_offset = 0 ;
 class SongEditorRouter : public SectionHolder {
     public:
         SongEditorRouter() {
-                    this->home_navrange=sg_labels_count-1;
+                    this->home_navrange=8 + 16;
                     this->relative_navlevel=1;
                     this->max_navlevel=5;
                     this->sublevels_address={3,0,0};
@@ -93,7 +96,7 @@ class SongEditorRouter : public SectionHolder {
         void loadsongpattern() {
 
           if (patternonsong[songplayhead] > 0) {
-            patterns_names_offset = patternonsong[songplayhead] - 1 ;
+            call_set_pt_offset(patternonsong[songplayhead] - 1 );
             call_parsepattern();
           } else {
             stopdasong();
@@ -142,7 +145,7 @@ class SongEditorRouter : public SectionHolder {
           canvastitle.setTextSize(1);
           if (navlevel == songedit) {
             if (lasongcell > 0) {
-              canvastitle.print(get_pattern_name_from_pt(patterns_indexes[lasongcell - 1]));
+              canvastitle.print(get_pattern_name_from_pt(lasongcell - 1));
             } else {
               canvastitle.print("Empty");
             }
@@ -177,7 +180,7 @@ class SongEditorRouter : public SectionHolder {
           canvastitle.setTextSize(1);
 
           if (sublevels[songedit + 1] > 0) {
-            canvastitle.print(get_pattern_name_from_pt(patterns_indexes[sublevels[songedit + 1] - 1]));
+            canvastitle.print(get_pattern_name_from_pt(sublevels[songedit + 1] - 1));
 
           } else {
             canvastitle.print("Empty");
@@ -313,11 +316,14 @@ class SongMenuRouter : public SectionHolder {
     public:
         SongMenuRouter() {
           self = this;
-                    this->home_navrange=sg_labels_count-1;
-                    this->relative_navlevel=1;
-                    this->max_navlevel=5;
-                    this->sublevels_address={3,0,0};
-                    }
+          self->home_navrange=sg_labels_count-1;
+          self->catalog = new FilesLister("SONGS/","SONG#",".TXT",draw_song_menu,self->home_navrange);
+          self->relative_navlevel=1;
+          self->max_navlevel=5;
+          self->sublevels_address={3,0,0};
+        }
+
+        FilesLister *catalog;
 
         static void show() {
           _route_nav[navlevel-1]();
@@ -327,68 +333,35 @@ class SongMenuRouter : public SectionHolder {
           _nav_song[sublevels[1]]();
         }
 
-        String get_song_name(byte number) {
-          char formatted_number[4] ;
-          sprintf(formatted_number,"%02d",number);
-          return "SONG#" + (String)formatted_number ;
-        }
-
-        String get_current_song_path(){
-          return "SONGS/" + songs_names[0] + ".TXT";
-        }
-
-        static void refresh_songs_names() {
-          for (int i = 0 ; i < sng_size ; i++) {
-            //empty spots are left at the end of the list if it is small, otherwise the names are looped
-            songs_names[i] = " ";
-            if (songs_names_offset+i < songs_count ) {
-              songs_names[i] = self->get_song_name(songs_indexes[songs_names_offset+i]);
-            } else if (songs_count >= sng_size ){
-              songs_names[i] = self->get_song_name(songs_indexes[((songs_names_offset+i)%songs_count)]);
-            }
+        static void lv1_wrapper(void (*func)()) {
+          self->catalog->nav_one(1,1);
+          if (navlevel >= 3) {
+            func();
+            returntonav(1, self->home_navrange,sublevels[1]);
           }
         }
-
-        static void list_songs_files() {
-          songs_count = 0;
-          String songs_dir = "SONGS/";
-          if (SD.exists(songs_dir.c_str())) {
-            File song_filer = SD.open(songs_dir.c_str());
-            while (songs_count < 99) {
-              File entry = song_filer.openNextFile();
-              if (!entry) {
-                break;
-              }
-              if (!entry.isDirectory()) {
-                char* named = (char*)entry.name();
-                named[strlen(named) - 4] = '\0';
-                //int is at 5 chars after prefix
-                songs_indexes[songs_count] = atoi(named+5);
-                songs_count++;
-              }
-              entry.close();
-            }
-            song_filer.close();
-          }
+        
+        static void save_song(){
+          lv1_wrapper(self->writedasong);
         }
 
         static void writedasong() {
-          song_nav_one();
-          if (navlevel >= navSongmenu + 2) {
+          if (locked_fileing)
+            return;
+          locked_fileing = 1 ;
           File song_filer ;
-          if (sublevels[navSongmenu + 1] == songs_count) {
-            song_filer = SD.open(get_new_file_name("SONGS/SONG#").c_str(), FILE_WRITE);
+          if (self->catalog->new_file_mode) {
+            song_filer = SD.open(self->catalog->get_new_file_name().c_str(), FILE_WRITE);
           } else {
-            if (SD.exists(self->get_current_song_path().c_str())) {
-              SD.remove(self->get_current_song_path().c_str());
+            if (SD.exists(self->catalog->get_current_file_path(0).c_str())) {
+              SD.remove(self->catalog->get_current_file_path(0).c_str());
             }
-            song_filer = SD.open(self->get_current_song_path().c_str(), FILE_WRITE);
+            song_filer = SD.open(self->catalog->get_current_file_path(0).c_str(), FILE_WRITE);
           }
           writeSong(song_filer);
           song_filer.close();
-          list_songs_files();
-          returntonav(navSongmenu, sg_labels_count - 1,sublevels[navSongmenu]);
-          }
+          locked_fileing = 0 ;
+          self->catalog->list_files();
         }
 
         static void insert_int_in_song_file(File &song_filer,int leint, char *leparam) {
@@ -411,8 +384,9 @@ class SongMenuRouter : public SectionHolder {
             insert_int_in_song_file(song_filer,patternonsong[i], (char*)"songpat");
           }
         }
+        
         static void parseSong(){
-          File song_filer = SD.open(self->get_current_song_path().c_str());
+          File song_filer = SD.open(self->catalog->get_current_file_path(0).c_str());
             if (song_filer) {
               //increse parsingbuffersize if more settings are added
               for (int i = 0; i < parsingbuffersize; i++) {
@@ -431,64 +405,18 @@ class SongMenuRouter : public SectionHolder {
             parser.Reset();
             song_filer.close();
         }
+
         static void load_song() {
-          song_nav_one();
-          if (navlevel >= navSongmenu + 2) {
-            parseSong();
-            returntonav(navSongmenu, sg_labels_count - 1,sublevels[navSongmenu]);
-          }
+          lv1_wrapper(self->parseSong);
         }
 
         static void song_nav_zero(){
-          dm.clear_3();
-          reinitsublevels(navSongmenu + 1);
-          navrange = sg_labels_count - 1;
-          use_song_list();
-          dm.dodisplay();
-        }
-
-        static void song_nav_one(){
-          dm.clear_3();
-          navrange = songs_count-1;
-          if (sublevels[navSongmenu] == 1 ){
-            navrange = songs_count;
-          }
-          use_song_list();
-          dm.dodisplay();
-
+          self->catalog->nav_zero();
         }
 
         static void initializepatternonsong() {
           for (int j = 0; j < 99; j++) {
             patternonsong[j] = 0;
-          }
-        }
-
-        static void draw_song_list() {
-          int startx = 80;
-          int starty = 16;
-          songs_names_offset = sublevels[navSongmenu + 1];
-          refresh_songs_names();
-          canvastitle.setCursor(startx, 0);
-          canvastitle.setTextSize(1);
-          if (sublevels[navSongmenu + 1] == songs_count && sublevels[navSongmenu] == 1) {
-            canvastitle.print("New()");
-          } else {
-            canvastitle.print(songs_names[0]);
-          }
-          canvastitle.setTextSize(1);
-          canvasBIG.setTextSize(1);
-          if (sublevels[navSongmenu + 1] == songs_count) {
-            //if cursor is on new(), the sng_size-1 elements are displayed below.
-            for (int i = 0; i < sng_size-1; i++) {
-              canvasBIG.setCursor(startx, (10 * (songs_count - sublevels[navSongmenu + 1])) + 16 + ((i)*10));
-              canvasBIG.println(songs_names[i]);
-            }
-          } else {
-            for (int i = 0; i < sng_size - 1 ; i++) {
-              canvasBIG.setCursor(startx, starty + ((i)*10));
-              canvasBIG.println(songs_names[i+1]);
-            }
           }
         }
 
@@ -500,24 +428,23 @@ class SongMenuRouter : public SectionHolder {
             if (sublevels[navSongmenu+1] == 1) {
               initializepatternonsong();
             }
-            returntonav(navSongmenu, sg_labels_count - 1,sublevels[navSongmenu]);
+            returntonav(navSongmenu, self->home_navrange,sublevels[navSongmenu]);
           }
         }
 
         static void duplicate_song(){
-          song_nav_one();
-          if (navlevel >= navSongmenu + 2) {
-            copySong();
-            returntonav(navSongmenu, sg_labels_count - 1,sublevels[navSongmenu]);
-          }
+          lv1_wrapper(self->copySong);
         }
 
         static void copySong() {
+          if (locked_fileing)
+            return;
+          locked_fileing = 1 ;
           File origin_file;
           File target_file;
-          if (SD.exists(self->get_current_song_path().c_str())) {
-            target_file = SD.open(get_new_file_name("SONGS/SONG#").c_str(), FILE_WRITE);
-            origin_file = SD.open(self->get_current_song_path().c_str(), FILE_READ);
+          if (SD.exists(self->catalog->get_current_file_path(0).c_str())) {
+            target_file = SD.open(self->catalog->get_new_file_name().c_str(), FILE_WRITE);
+            origin_file = SD.open(self->catalog->get_current_file_path(0).c_str(), FILE_READ);
             size_t n;
             uint8_t buf[64];
             while ((n = origin_file.read(buf, sizeof(buf))) > 0) {
@@ -526,19 +453,17 @@ class SongMenuRouter : public SectionHolder {
           }
           origin_file.close();
           target_file.close();
+          locked_fileing = 0 ;
+          self->catalog->list_files();
+
         }
 
         static void remove_song(){
-          song_nav_one();
-          if (navlevel >= navSongmenu + 2) {
-            deleteSong();
-            list_songs_files();
-            returntonav(navSongmenu, sg_labels_count - 1,sublevels[navSongmenu]);
-          }
+          lv1_wrapper(self->deleteSong);
         }
         static void deleteSong() {
-          if (SD.exists(self->get_current_song_path().c_str())) {
-            SD.remove(self->get_current_song_path().c_str());
+          if (SD.exists(self->catalog->get_current_file_path(0).c_str())) {
+            SD.remove(self->catalog->get_current_file_path(0).c_str());
           }
         }
 
@@ -594,7 +519,7 @@ class SongMenuRouter : public SectionHolder {
            showSongShifterdisplays();
           if (navlevel >= navSongmenu + 2) {
             doSongShifter();
-            returntonav(navSongmenu, sg_labels_count - 1,sublevels[navSongmenu]);
+            returntonav(navSongmenu, self->home_navrange,sublevels[navSongmenu]);
           }
         }
 
@@ -621,11 +546,11 @@ class SongMenuRouter : public SectionHolder {
         static void song_params_panel(){
             show_some_params();
           if (navlevel >= navSongmenu + 2) {
-            returntonav(navSongmenu, sg_labels_count - 1,sublevels[navSongmenu]);
+            returntonav(navSongmenu, self->home_navrange,sublevels[navSongmenu]);
           }
         }
 
-        static void use_song_list(){
+        static void draw_song_menu(){
           char Songmenulabels[sg_labels_count][12] = {
               "Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params", "Shift"};
           byte startx = 5;
@@ -636,7 +561,7 @@ class SongMenuRouter : public SectionHolder {
           canvastitle.println(textin);
           canvasBIG.setTextSize(1);
           // canvasBIG.fillScreen(SSD1306_BLACK);
-          for (int i = 0; i < sg_labels_count - 1 - (sublevels[navSongmenu]); i++) {
+          for (int i = 0; i < self->home_navrange - (sublevels[navSongmenu]); i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
             canvasBIG.println(Songmenulabels[sublevels[navSongmenu] + 1 + i]);
           }
@@ -644,7 +569,7 @@ class SongMenuRouter : public SectionHolder {
             canvasBIG.setCursor(startx, (10 * (sg_labels_count - sublevels[navSongmenu]) + 6 + ((i)*10)));
             canvasBIG.println(Songmenulabels[i]);
           }
-          draw_song_list();
+
         }
 
         static constexpr void (*_route_nav[5])() = {&song_nav_zero, &route_navlevel,
@@ -652,7 +577,7 @@ class SongMenuRouter : public SectionHolder {
 
     private:
 
-      static constexpr void (*_nav_song[sg_labels_count])() = {&call_songeditor,&writedasong, &load_song, &duplicate_song,
+      static constexpr void (*_nav_song[sg_labels_count])() = {&call_songeditor,&save_song, &load_song, &duplicate_song,
                                                       &remove_song, &clear_song_popup, &song_params_panel, &shift_song};
       static SongMenuRouter* self;
 };

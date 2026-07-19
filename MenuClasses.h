@@ -2,12 +2,15 @@
 
 #include <Arduino.h>
 #include <Audio.h>
-constexpr uint8_t SCREEN_ADDRESS = 0x3C;
-constexpr uint8_t OSCS_COUNT = 3;
-constexpr uint8_t SN_MENU_LABELS_COUNT = 5 ;
-constexpr int SYNTH_LINERS_COUNT = 6 ;
+#include <Adafruit_SSD1306.h>
+#include <Adafruit_GFX.h>
 
+struct CcCalls {
+    const char *name;
+    void (*tweaker)(byte);
+};
 
+extern const CcCalls ctl[] ;
 class Adafruit_SSD1306;
 class GFXcanvas1;
 extern Adafruit_SSD1306 display;
@@ -16,6 +19,35 @@ extern int navrange;
 extern const unsigned char menuBG[];
 extern int sublevels[9];
 extern int previousnavlevel;
+
+extern const uint8_t SCREEN_ADDRESS;
+extern const uint8_t OSCS_COUNT;
+extern const uint8_t SN_MENU_LABELS_COUNT;
+extern const int SYNTH_LINERS_COUNT;
+extern const int available_track_types;
+extern const int pbars;
+extern const int flash_liners_count;
+extern const int sampler_labels_count;
+extern bool track_cells[2][32];
+
+extern byte synth_partition[6][32][3];
+extern byte temp_synth_partition[32][3];
+extern byte synth_off_pat[6][32][3];
+extern int synth_notes_length[6][32];
+extern byte synth_start_tpos[6];
+extern byte sampler_partition[16][32][3];
+extern byte temp_sampler_partition[32][3];
+extern int flash_notes_length[16][32];
+extern byte sampler_off_pat[32][3];
+extern bool patternOn;
+extern bool stoptick;
+extern bool recordCC;
+extern bool patrecord;
+extern int midiknobassigned[128];
+extern byte cc_partition[128][32];
+
+
+
 void call_sn_show();
 void call_lf_show();
 void call_rd_show();
@@ -34,7 +66,7 @@ extern GFXcanvas1 canvasBIG;
 extern GFXcanvas1 canvastitle;
 extern byte mixlevelsM[4];
 extern byte WetMixMasters[4];
-extern byte mixlevelsL[OSCS_COUNT];
+extern byte mixlevelsL[3];
 extern byte wetins[3];
 extern byte oscillator;
 extern AudioAmplifier ampL;
@@ -47,7 +79,7 @@ extern AudioMixer4 MasterL1;
 extern AudioMixer4 MasterR1;
 extern AudioMixer4 FXBusL;
 extern AudioMixer4 FXBusR;
-extern AudioMixer4 *Wavesmix[SYNTH_LINERS_COUNT];
+extern AudioMixer4 *Wavesmix[6];
 
 //extern byte mixlevelsM[3];
 
@@ -88,35 +120,63 @@ class DisplayManager{
         static void (*root_route[10])();
 
     private:
-
         void _displayleBGimg(const unsigned char *img);
         void _setupscreen_ILI(void);
-        
-            
 };
-
 
 class GlobalMixer : public SectionHolder {
-  public:
-    GlobalMixer(void);
-    static void show(void);
-    static void showmixerwaves(void);
-    static void setmastersmixlevel(int lebus);
-    static void restore_wmixer_from_temp();
-    static void set_wmixer_buff_temp();
-    static void wetmixmastercontrols(void);
-    static void set_dry_mix(int lebus);
-    static void actionwet1mixer(int linstru);
-    static void action_dry_mix(int linstru);
-    static void actionwmixer(byte vknob);
-    static void actionwmixerM(int lebus);
-    static void setwavemixlevel();
-  private:
-    
-    byte *wmixer_tmp_pointers[12];
+    public:
+        GlobalMixer(void);
+        static void show(void);
+        static void showmixerwaves(void);
+        static void setmastersmixlevel(int lebus);
+        static void restore_wmixer_from_temp();
+        static void set_wmixer_buff_temp();
+        static void wetmixmastercontrols(void);
+        static void set_dry_mix(int lebus);
+        static void actionwet1mixer(int linstru);
+        static void action_dry_mix(int linstru);
+        static void actionwmixer(byte vknob);
+        static void actionwmixerM(int lebus);
+        static void setwavemixlevel();
 
-    byte wmixer_tmp_values[12];
-
-    static GlobalMixer* self;
+    private:
+        byte *wmixer_tmp_pointers[12];
+        byte wmixer_tmp_values[12];
+        static GlobalMixer* self;
 };
 
+class SequencerClocker : public AudioStream {
+    public:
+        SequencerClocker();
+        bool stop = 1 ;
+        void setBPM(float bpm);
+        void setPPQN(uint8_t ppqn);
+        void attach_24(void (*cb)());
+        void attach_16(void (*cb)());
+        void attach_96(void (*cb)());
+        void attach_3(void (*cb)());
+        void stopticker();
+        void startticker();
+        virtual void update() override;
+    
+    private:
+
+        void calculatePPQN();
+
+        volatile uint32_t tick96 = 0;
+        volatile uint32_t quarter = 0;
+        volatile uint32_t eighth = 0;
+        volatile uint32_t sixteenth = 0;
+        volatile uint32_t thirtySecond = 0;
+
+        float  _bpm = 120.0f;
+        uint8_t _divisionsPerQuarter = 4;
+        uint8_t _PPQN = 96 ;
+        double _samplesPerTick = 0;
+        double _sampleAccumulator = 0;
+        void (*_callback_24)() = nullptr;
+        void (*_callback_3)() = nullptr;
+        void (*_callback_96)() = nullptr;
+        void (*_callback_16)() = nullptr;
+};

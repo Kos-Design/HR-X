@@ -300,159 +300,155 @@ class Filter303MenuRouter : public SectionHolder {
   public:
     Filter303MenuRouter() {
                     self = this;
-                    this->home_navrange=SN_MENU_LABELS_COUNT-1;
-                    this->relative_navlevel=1;
-                    this->max_navlevel=5;
-                    this->sublevels_address={0,0,0};
+                    self->home_navrange=SN_MENU_LABELS_COUNT-1;
+                    self->relative_navlevel=1;
+                    self->max_navlevel=5;
+                    self->sublevels_address={0,0,0};
     }
 
-  static void setle303filterpass(int linei) {
-    les303passes[linei]->gain(0,le303filterzgainz[0]);
-    les303passes[linei]->gain(1,le303filterzgainz[1]);
-    les303passes[linei]->gain(2,le303filterzgainz[2]);
-  }
-
-  static void initialize303group() {
-    for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-      setle303filterpass(i);
-      les303wet[i]->gain(1, 1);
-      les303wet[i]->gain(0, 0);
-      les303filterz[i]->frequency(220);
-      les303filterz[i]->resonance(5);
+    static void setle303filterpass(int linei) {
+      les303passes[linei]->gain(0,le303filterzgainz[0]);
+      les303passes[linei]->gain(1,le303filterzgainz[1]);
+      les303passes[linei]->gain(2,le303filterzgainz[2]);
     }
-  }
 
-  static void le303filtercontrols() {
-    for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-      setle303filterpass(i);
-    }
-  }
-
-  static void Wavespreamp303controls() {
-    for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-      Wavespreamp303[i]->gain(preampleswaves*2 / 127.0);
-    }
-  }
-
-  static void le303filterzWet() {
-    for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-      les303wet[i]->gain(0, le303filterzwet / 100.0);
-      les303wet[i]->gain(1, (1 - (le303filterzwet / 100.0)));
-    }
-  }
-  
-  static void allpasslevels() {
-  mix303L1.gain(0, 1);
-  mix303L1.gain(1, 0);
-  mix303L1.gain(2, 0);
-  }
-  float slopelinear[18] = {0.85,0.858334,0.866668,0.875,0.883336,0.89167,0.900004,0.908338,0.916672,0.925006,0.93334,0.941674,0.95,0.958342,0.966676,0.97501,0.983344,0.991678};
-
-  float fxsloper[18] = {0.85,0.88,0.91,0.92,0.93,0.95,0.95,0.96,0.97,0.97,0.98,0.98,0.99,0.99,1.00,1.00,1.00,1.00};
-
-  int lardiff;
-  float sloped[18];
-
-  static void pseudo303() {
-    float glidefactorCmode[SYNTH_LINERS_COUNT];
-    //sould only go through -> activated lines
-    for (int i = 0; i < _rg.synth_lines_active; i++) {
-      if (glidemode > 0 && dogliding[i]) {
-        glidefactorCmode[i] =  (millis() - leglideposition[i]) /  (glidemode * millitickinterval * 1.0);
-        //notefrequency = (glidefactorCmode[i]) * leglidershiftCmode[i] + notestofreq[lapreviousnotewCmode[i]][1];
-        notefrequency = glidefactorCmode[i] * freq_difference + notestofreq[note_before][1];
-        tweakfreqlive(i, notefrequency);
-        if ((int)(millis() - leglideposition[i]) > glidemode * millitickinterval ) {
-          stopglidenoteChords(i);
-        }
-      }
-      
-      if (_rg.active_synths[i]->f303) {
-        Serial.println(self->sloped[_rg.active_synths[i]->sloper_step%18]);
-
-        letbfreq = le303filterzfreq + 50 - (le303filterzfreq * self->sloped[_rg.active_synths[i]->sloper_step]);
-        if (_rg.active_synths[i]->sloper_step > 18) {
-          _rg.active_synths[i]->f303 = 0;
-          letbfreq = 50 ;
-          ladiff1 = 0 ;
-          _rg.active_synths[i]->sloper_step = 0 ;
-        }
-        les303filterz[_rg.active_synths[i]->l_index]->frequency(letbfreq);
-        les303filterz[_rg.active_synths[i]->l_index]->resonance(0.1 + (le303filterzreso) * self->sloped[_rg.active_synths[i]->sloper_step]);
-        _rg.active_synths[i]->sloper_step++;
+    static void initialize303group() {
+      for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+        setle303filterpass(i);
+        les303wet[i]->gain(1, 1);
+        les303wet[i]->gain(0, 0);
+        les303filterz[i]->frequency(220);
+        les303filterz[i]->resonance(5);
       }
     }
-  }
 
-  float fxslopedown2(byte curve, float laxval) {
-    return pow(laxval, (double)(curve / 127.0));
-  }
-
-    static void filter_knob_freq(){
-      navrange = 127;
-      le303ffilterzVknobs[0] = sublevels[3];
-      le303filterzfreq = round((le303ffilterzVknobs[0] / 127.0) * 10000);
+    static void le303filtercontrols() {
+      for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+        setle303filterpass(i);
+      }
     }
 
-    static void filter_knob_res(){
-      navrange = 127;
-      le303ffilterzVknobs[1] = sublevels[3];
-      le303filterzreso = ((le303ffilterzVknobs[1]) / 127.0) * 5;
+    static void Wavespreamp303controls() {
+      for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+        Wavespreamp303[i]->gain(preampleswaves*2 / 127.0);
+      }
     }
 
-    static void filter_knob_low(){
-      mixle303ffilterzVknobs[0] = sublevels[3];
-      le303filterzgainz[0] = (mixle303ffilterzVknobs[0]) / 127.0;
+    static void le303filterzWet() {
+      for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+        les303wet[i]->gain(0, le303filterzwet / 100.0);
+        les303wet[i]->gain(1, (1 - (le303filterzwet / 100.0)));
+      }
+    }
+    
+    static void allpasslevels() {
+    mix303L1.gain(0, 1);
+    mix303L1.gain(1, 0);
+    mix303L1.gain(2, 0);
+    }
+    float slopelinear[18] = {0.85,0.858334,0.866668,0.875,0.883336,0.89167,0.900004,0.908338,0.916672,0.925006,0.93334,0.941674,0.95,0.958342,0.966676,0.97501,0.983344,0.991678};
+
+    float fxsloper[18] = {0.85,0.88,0.91,0.92,0.93,0.95,0.95,0.96,0.97,0.97,0.98,0.98,0.99,0.99,1.00,1.00,1.00,1.00};
+
+    int lardiff;
+    float sloped[18];
+
+    static void pseudo303() {
+      float glidefactorCmode[SYNTH_LINERS_COUNT];
+      //sould only go through -> activated lines
+      for (int i = 0; i < _rg.synth_lines_active; i++) {
+        if (glidemode > 0 && dogliding[i]) {
+          glidefactorCmode[i] =  (millis() - leglideposition[i]) /  (glidemode * millitickinterval * 1.0);
+          //notefrequency = (glidefactorCmode[i]) * leglidershiftCmode[i] + notestofreq[lapreviousnotewCmode[i]][1];
+          notefrequency = glidefactorCmode[i] * freq_difference + notestofreq[note_before][1];
+          tweakfreqlive(i, notefrequency);
+          if ((int)(millis() - leglideposition[i]) > glidemode * millitickinterval ) {
+            stopglidenoteChords(i);
+          }
+        }
+        
+        if (_rg.active_synths[i]->f303) {
+          Serial.println(self->sloped[_rg.active_synths[i]->sloper_step%18]);
+
+          letbfreq = le303filterzfreq + 50 - (le303filterzfreq * self->sloped[_rg.active_synths[i]->sloper_step]);
+          if (_rg.active_synths[i]->sloper_step > 18) {
+            _rg.active_synths[i]->f303 = 0;
+            letbfreq = 50 ;
+            ladiff1 = 0 ;
+            _rg.active_synths[i]->sloper_step = 0 ;
+          }
+          les303filterz[_rg.active_synths[i]->l_index]->frequency(letbfreq);
+          les303filterz[_rg.active_synths[i]->l_index]->resonance(0.1 + (le303filterzreso) * self->sloped[_rg.active_synths[i]->sloper_step]);
+          _rg.active_synths[i]->sloper_step++;
+        }
+      }
     }
 
-    static void filter_knob_band(){
-      mixle303ffilterzVknobs[1] = sublevels[3];
-      le303filterzgainz[1] = (mixle303ffilterzVknobs[1]) / 127.0;
-    }
-
-    static void filter_knob_high(){
-      mixle303ffilterzVknobs[2] = sublevels[3];
-      le303filterzgainz[2] = (mixle303ffilterzVknobs[2]) / 127.0;
-    }
-
-    static void filter_knob_wet(){
-      navrange = 100;
-      le303filterzwet = sublevels[3];
-      // le303filterzwet = (mixle303ffilterzVknobs[2])/127.0 ;
-      le303filterzWet();
-    }
-
-    static void filter_knob_preamp(){
-      preampleswaves = sublevels[3];
-      Wavespreamp303controls();
-    }
-
-    static void filter_knob_glide(){
-      navrange = 5;
-      glidemode = sublevels[3];
-    }
-
-
-    static void le303filterVpanelAction() {
-
-      if (navlevel == 3) {
-        retroaction = sublevels[2];
+      static void filter_knob_freq(){
         navrange = 127;
-        if (!temp_buff_armed) {
-          set_filter_buff_temp();
-          temp_buff_armed = 1 ;
-        }
-        // AudioNoInterrupts();
-        (filters_pointers[sublevels[2]])();
-        le303filtercontrols();
+        le303ffilterzVknobs[0] = sublevels[3];
+        le303filterzfreq = round((le303ffilterzVknobs[0] / 127.0) * 10000);
+      }
 
+      static void filter_knob_res(){
+        navrange = 127;
+        le303ffilterzVknobs[1] = sublevels[3];
+        le303filterzreso = ((le303ffilterzVknobs[1]) / 127.0) * 5;
       }
-      if (navlevel > 3) {
-        temp_buff_armed = 0 ;
-        returntonav(2,7,sublevels[2]);
+
+      static void filter_knob_low(){
+        mixle303ffilterzVknobs[0] = sublevels[3];
+        le303filterzgainz[0] = (mixle303ffilterzVknobs[0]) / 127.0;
       }
-    }
-    static void le303filterVpanel() {
+
+      static void filter_knob_band(){
+        mixle303ffilterzVknobs[1] = sublevels[3];
+        le303filterzgainz[1] = (mixle303ffilterzVknobs[1]) / 127.0;
+      }
+
+      static void filter_knob_high(){
+        mixle303ffilterzVknobs[2] = sublevels[3];
+        le303filterzgainz[2] = (mixle303ffilterzVknobs[2]) / 127.0;
+      }
+
+      static void filter_knob_wet(){
+        navrange = 100;
+        le303filterzwet = sublevels[3];
+        // le303filterzwet = (mixle303ffilterzVknobs[2])/127.0 ;
+        le303filterzWet();
+      }
+
+      static void filter_knob_preamp(){
+        preampleswaves = sublevels[3];
+        Wavespreamp303controls();
+      }
+
+      static void filter_knob_glide(){
+        navrange = 5;
+        glidemode = sublevels[3];
+      }
+
+
+      static void le303filterVpanelAction() {
+
+        if (navlevel == 3) {
+          retroaction = sublevels[2];
+          navrange = 127;
+          if (!temp_buff_armed) {
+            set_filter_buff_temp();
+            temp_buff_armed = 1 ;
+          }
+          // AudioNoInterrupts();
+          (filters_pointers[sublevels[2]])();
+          le303filtercontrols();
+
+        }
+        if (navlevel > 3) {
+          temp_buff_armed = 0 ;
+          returntonav(2,7,sublevels[2]);
+        }
+      }
+      static void le303filterVpanel() {
 
       //if back from knob and !  : revert from temp ( all or just the changed one ? -> knob validation updates temps )
       // when set temp
@@ -695,7 +691,7 @@ class Filter303MenuRouter : public SectionHolder {
 };
 
 Filter303MenuRouter* Filter303MenuRouter::self = nullptr;
-Filter303MenuRouter _fl;
+Filter303MenuRouter _ft;
 
 class SynthMenuRouter : public SectionHolder {
     public:

@@ -3,10 +3,10 @@ class LFOMenuRouter : public SectionHolder {
     public:
         LFOMenuRouter() {
                     self = this;
-                    this->home_navrange=2;
-                    this->relative_navlevel=1;
-                    this->max_navlevel=5;
-                    this->sublevels_address={1,0,0};
+                    self->home_navrange=2;
+                    self->relative_navlevel=1;
+                    self->max_navlevel=5;
+                    self->sublevels_address={1,0,0};
                     
                     }
 

@@ -121,7 +121,7 @@ void fairly_often() {
 }
 
 void at_a_paced_rate() {
-  _fl.pseudo303();
+  _ft.pseudo303();
 }
 
 void once_in_a_while(){
