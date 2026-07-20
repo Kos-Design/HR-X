@@ -24,6 +24,7 @@ class WaveformsMenuRouter : public SectionHolder {
         }
         
         static void waveforms_nav_zero(){
+          waveforming = 0 ;
           self->catalog->nav_zero();
         }
 
@@ -32,10 +33,10 @@ class WaveformsMenuRouter : public SectionHolder {
           navrange = 2 ;
           if (navlevel == 3 ){
             navrange = 127;
-            *valz[sublevels[2]]=sublevels[3];
+            *waveform_tracers[sublevels[2]]=sublevels[3];
           }
           
-          sublevels[3]=*valz[sublevels[2]];
+          sublevels[3]=*waveform_tracers[sublevels[2]];
           display.clearDisplay();
           display.setCursor(0,0);
           display.setTextSize(1);
@@ -158,8 +159,8 @@ class WaveformsMenuRouter : public SectionHolder {
             w_cursor_x = map(la_val, 0, 127, 0, 255);
             //arbitrary_waveforms[waveformIndex][w_cursor_x] = map(cw_change, 0, 127, -32768, 32767);
             sublevels[2]=w_cursor_x;
-            vraipos = w_cursor_x;
-            myEnc.write(vraipos * 4);
+            rota_true_pos = w_cursor_x;
+            myEnc.write(rota_true_pos * 4);
             set_array_at_cursor();
           }
         }
@@ -177,6 +178,7 @@ class WaveformsMenuRouter : public SectionHolder {
         }
 
         static void WaveformEditer() {
+          waveforming = 1;
           navrange = 255;
           dm.clean_title_1();
           

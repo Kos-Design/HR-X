@@ -77,18 +77,18 @@ class SongEditorRouter : public SectionHolder {
           //}
           songplaying = 1;
           loadsongpattern();
-          clocker.startticker();
+          Tocker.startticker();
         }
 
         void stopdasong() {
           songplaying = 0;
           songplayhead = 0;
-          clocker.stopticker();
+          Tocker.stopticker();
         }
 
         void pausedasong() {
           songplaying = 0;
-          clocker.stopticker();
+          Tocker.stopticker();
         }
         void showplayheadprogress() {
           display.drawLine(songplayhead * 8, 16, songplayhead * 8, 64, SSD1306_INVERSE);
@@ -97,7 +97,7 @@ class SongEditorRouter : public SectionHolder {
 
           if (patternonsong[songplayhead] > 0) {
             call_set_pt_offset(patternonsong[songplayhead] - 1 );
-            call_parsepattern();
+            _pt.parsepattern();
           } else {
             stopdasong();
           }
@@ -175,7 +175,7 @@ class SongEditorRouter : public SectionHolder {
         }
 
         void selectpatterninsong() {
-          navrange = patterns_count;
+          navrange = _pt.catalog->files_counter;
           canvastitle.setCursor(0, 0);
           canvastitle.setTextSize(1);
 

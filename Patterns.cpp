@@ -162,17 +162,6 @@ PatEditRouter::PatEditRouter() {
                     this->sublevels_address={4,7,0};
                     }
 
-/*
-void (*PatEditRouter::cell_events[7])() = {&homer,&track_selector, &note_selector,
-                                                    &start_cell_setter, &stretch_cell_length,
-                                                    &stretch_cell_velocity, &set_cell_velocity};
-                                                
-void (*PatEditRouter::_refresher[2])() = {&refresh_synth_track, &refresh_flash_track};
-
-void (*PatEditRouter::set_editor_type[2])(byte) = {&set_editor_to_synth, &set_editor_to_sampler}; 
-
-void (*PatEditRouter::_sanitizer[2])() = {&sanitize_synth_partition,&sanitize_sampler_partition}; 
-*/
 void PatEditRouter::homer(){
           navrange = available_track_types - 1;
           self->track_type = sublevels[navlevelpatedit];
@@ -348,6 +337,8 @@ void PatEditRouter::track_selector() {
         }
 
 void PatEditRouter::show_track_header(){
+          paterning = false ;
+
           display.clearDisplay();
           String head_title[2]={"Synth","Flash"};
           canvastitle.setCursor(0, 0);
@@ -358,6 +349,8 @@ void PatEditRouter::show_track_header(){
         }
 
 void PatEditRouter::note_selector() {
+          paterning = false ;
+
           display.clearDisplay();
           navrange = 127;
           sync_temp();
@@ -372,6 +365,8 @@ void PatEditRouter::note_selector() {
         }
 
 void PatEditRouter::start_cell_setter() {
+          paterning = true ;
+
           previousnavlevel = navlevel;
           //last level showing the noteline and its velocity
           display.clearDisplay();
@@ -396,6 +391,8 @@ void PatEditRouter::draw_velobars(){
         }
 
 void PatEditRouter::stretch_cell_length() {
+          paterning = false ;
+
           byte note_we_found = self->_on_part[sublevels[navlevelpatedit + 3]][2];
           if (note_we_found) {
             //delete previous key if present
@@ -423,6 +420,8 @@ void PatEditRouter::stretch_cell_length() {
 
 void PatEditRouter::stretch_cell_velocity() {
           navrange = 127;
+          paterning = true ;
+
           addinglenght = 0;
           self->_temp_part[sublevels[navlevelpatedit + 3]][2] = sublevels[navlevelpatedit + 5];
           display.clearDisplay();
@@ -1322,6 +1321,7 @@ void PatternsMenuRouter::show() {
         }
 
 void PatternsMenuRouter::pattern_nav_zero(){
+          paterning = false ;
           self->catalog->nav_zero();
         }
 

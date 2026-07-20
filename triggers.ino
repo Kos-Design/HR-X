@@ -37,6 +37,7 @@ bool linerhasevents(byte liner) {
   return 0;
 }
 
+//TODO refactor recording
 void getlinerwithoutevents() {
   offsetliner = 0;
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
@@ -80,50 +81,52 @@ void setchordnotesOff(byte absolutenote, byte lachord) {
   }
 }
 
-void MaNoteOn(byte channel, byte data1, byte data2) {
+void MaNoteOn(byte channel, byte note_byte, byte velo_) {
   byte larpegeline;
   int lachordon;
   uint8_t statusByte = static_cast<uint8_t>(0x90 | channel);
-  if (data1 == tapnote && taptap_on) {
+  if (note_byte == tapnote && taptap_on) {
     _st.taptap();
     return;
   }
   if (debugmidion) {
-    debugmidi((char *)"NoteOn", (int)(channel), (int)(data1), (int)(data2));
+    debugmidi((char *)"NoteOn", (int)(channel), (int)(note_byte), (int)(velo_));
   }
-  //printnoteon(channel,data1,data2);
+  if (navlevel)
+    notes_edgecases(note_byte,velo_);
+  //printnoteon(channel,note_byte,velo_);
   if ((channel == synthmidichannel) or (synthmidichannel == 0)) {
     if (!arpegiatorOn) {
       if (!chordson) {
-        initiateasynthliner(data1, data2);
+        initiateasynthliner(note_byte, velo_);
       } else {
         // if chords
-        setchordnotes(data1, lasetchord);
+        setchordnotes(note_byte, lasetchord);
         for (int i = 0; i < 3; i++) {
-          lachordon = chordnotes[i] + ((int(data1 / 12)) * 12);
-          initiateasynthliner(lachordon, data2);
+          lachordon = chordnotes[i] + ((int(note_byte / 12)) * 12);
+          initiateasynthliner(lachordon, velo_);
         }
       }
     } else {
-      larpegeline = incrementarpegiatingNote(data1);
+      larpegeline = incrementarpegiatingNote(note_byte);
       if (larpegeline < SYNTH_LINERS_COUNT) {
         //should not stop tick during arpegio
         stoptick = 0;
-        synth_arpegiator_ticker(data1, data2, larpegeline);
+        synth_arpegiator_ticker(note_byte, velo_, larpegeline);
       }
     }
   }
 
   if ((channel == samplermidichannel) or (samplermidichannel == 0)) {
-    //printnoteon(channel, data1, data2);
+    //printnoteon(channel, note_byte, velo_);
     if (!chordson) {
-      initiateasamplerliner(data1, data2);
+      initiateasamplerliner(note_byte, velo_);
     } else {
       // if chords
-      setchordnotes(data1, lasetchord);
+      setchordnotes(note_byte, lasetchord);
       for (int i = 0; i < 3; i++) {
-        lachordon = chordnotes[i] + ((int(data1 / 12)) * 12);
-        initiateasamplerliner(lachordon, data2);
+        lachordon = chordnotes[i] + ((int(note_byte / 12)) * 12);
+        initiateasamplerliner(lachordon, velo_);
       }
     }
   }
@@ -131,7 +134,7 @@ void MaNoteOn(byte channel, byte data1, byte data2) {
   if (SendMidiOut) {
     // TODO: send midi during sound trigger to use arpegiators (+ note offs if
     // arpegiator doesn't already send Off notes ?)
-    MidiUSB.sendMIDI({0x09, statusByte, data1, data2});
+    MidiUSB.sendMIDI({0x09, statusByte, note_byte, velo_});
     MidiUSB.flush();
   }
 }
@@ -806,17 +809,75 @@ void moncontrollercc(byte channel, byte control, byte value) {
 }
 
 void cc_edgecases(byte control, byte value){
-  if (sublevels[0] == 5 && sublevels[1] == 15 && navlevel == 3){
+
+  //inside Knobs Setter panel
+  if (knobsetting){
     _ka.learn_midi(control);
   }
+  //set this control == 19 optional in settings 
+  
+  //inside pattern mode
+  if (paterning && control == 19) {
+    if (_pe.track_type == 0) {
+      synth_partition[sublevels[2]][sublevels[5]][2] = value; 
+    } else if (_pe.track_type == 1) {
+      sampler_partition[sublevels[2]][sublevels[5]][2] = value; 
+    }
+  }
 
-  if (sublevels[0] == 8 && navlevel == 2 && trace_waveform){
-    if (control == y_axis_cc ) {
-       call_set_y_cursor_value(value);
+  if (setting_on_board) {
+    if (navlevel == 2) {
+      
+      if (control == 19)  {
+        but_channel[sublevels[2]] = (but_channel[sublevels[2]] + 1) % 17;
+      }
+      if (control == 28) {
+        but_channel[sublevels[2]] = (but_channel[sublevels[2]] + 16) % 17;
+      }
     }
-    if (control == x_axis_cc ) {
-       call_set_x_cursor_value(value);
+    if (navlevel == 3) {
+      //should be another or check above
+      if (control == 19) {
+        but_velocity[sublevels[2]] = value;
+      }
     }
+  }
+
+  //inside waveform tracer
+  if (waveforming) {
+    if (control == trace_wave_cc) {
+      trace_waveform = !trace_waveform;
+    }
+    if (trace_waveform){
+      if (control == y_axis_cc ) {
+        call_set_y_cursor_value(value);
+      }
+      if (control == x_axis_cc ) {
+        call_set_x_cursor_value(value);
+      }
+    }
+  }
+
+  if (!songplaying && !noCCrecordlist(control) && !debugmidion) {
+    dm.show();
+  }
+}
+
+void notes_edgecases(byte note, byte velo){
+  // control is (byte)pot_assignements[11 + paddered]
+  //inside sample assigner
+  if (setting_on_board && (navlevel == 2)) helper_onbard();
+  
+  if (assigning_sample_to_note) returntonav(3,127,note);
+    //sets the navigation wheel to the captured note position for easier selection when assigning Flashsamples
+}
+
+void helper_onbard(){
+  if (potsboards[sublevels[2]] >= 0) {
+    muxed_channels[potsboards[sublevels[2]]] = but_channel[sublevels[2]];
+  }
+  if ((paddered != 26) && (paddered != 17)) {
+    returntonav(navlevel,navrange,paddered + 11);
   }
 }
 
@@ -827,14 +888,12 @@ void MaControlChange(byte channel, byte control, byte value) {
     debugmidi((char *)("ControlChange"), channel, control, value);
   }
 
-  cc_edgecases(control, value);
+  if (navlevel)
+    cc_edgecases(control, value);
+
   moncontrollercc(channel, control, value);
   if ((patrecord || recordCC) && !stoptick && !isignored) {
     recordCCmidinotes(channel, control, value);
-  }
-  if (!songplaying && !isignored && !debugmidion) {
-    if (navlevel)
-      dm.show();
   }
 }
 

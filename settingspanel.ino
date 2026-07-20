@@ -36,6 +36,7 @@ class SettingsMenuRouter : public SectionHolder {
 
         static void show() {
           if (navlevel == 1) {
+            setting_on_board = false ;
             settings_nav_zero();
           }
 
@@ -189,7 +190,7 @@ class SettingsMenuRouter : public SectionHolder {
         }
 
         static void OnBoardVpanel() {
-
+          setting_on_board = true ;
           OnBoardVpanelAction();
           display.clearDisplay();
           dm.clear_buffs();
@@ -303,8 +304,8 @@ class SettingsMenuRouter : public SectionHolder {
           }
           if (navlevel > 3) {
 
-            vraipos = sublevels[2];
-            myEnc.write(vraipos * 4);
+            rota_true_pos = sublevels[2];
+            myEnc.write(rota_true_pos * 4);
             navlevel = 2;
           }
         }

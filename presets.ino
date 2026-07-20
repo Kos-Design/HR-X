@@ -259,11 +259,13 @@ class PresetsMenuRouter : public SectionHolder {
 
           parser.Read_String('#');
           parser.Skip(1);
-          int unuseded = parser.Read_Int16();
+          //int unuseded = 
+          parser.Read_Int16();
 
           parser.Read_String('#');
           parser.Skip(1);
-          int delme = parser.Read_Int16();
+          //int delme = 
+          parser.Read_Int16();
 
           for (int i = 0; i < 3; i++) {
             parser.Read_String('#');
@@ -285,7 +287,8 @@ class PresetsMenuRouter : public SectionHolder {
 
           parser.Read_String('#');
           parser.Skip(1);
-          int remove_me = parser.Read_Int16();
+          //int remove_me = 
+          parser.Read_Int16();
 
           parser.Read_String('#');
           parser.Skip(1);

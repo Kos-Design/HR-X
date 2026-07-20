@@ -21,6 +21,8 @@ void setupSD() {
   _wf.catalog->list_files();
   pseudoconsole((char *)"Scanning Songs");
   _sg.catalog->list_files();
+  pseudoconsole((char *)"Scanning MP3s");
+  _sn.count_mp3s();
 }
 
 void call_sn_show(){
@@ -99,10 +101,6 @@ void call_st_onboardPanel(){
 void call_set_bpms(){
   _st.setbpms();
 }
-void call_parsepattern(){
-  _pt.parsepattern();
-}
-
 void call_refresh_flash_track(){
   _pe.refresh_flash_track();
 }
@@ -168,7 +166,7 @@ void setup() {
   }
   pseudoconsole((char *)"I/O Set !");
   pseudoconsole((char *)"Loading Defaults");
-  clocker.stopticker();
+  Tocker.stopticker();
   setupdefaultvalues();
   _sp.Doautoassign();
   pseudoconsole((char *)"All Done !");
@@ -180,18 +178,20 @@ void setup() {
   audioShield.enable();
   audioShield.volume(1.0);
   _st.set_in_source();
-  clocker.attach_24(advance_tick);
-  clocker.attach_96(once_in_a_while);
+  Tocker.attach_24(advance_tick);
+  Tocker.attach_long(once_in_a_while);
   //clocker.attach_3(fairly_often);
-  clocker.attach_16(at_a_paced_rate);
+  Tocker.attach_16(at_a_paced_rate);
   clocker.setBPM(120);
   clocker.setPPQN(96);
+  clocker.attach_96(Tocker.click);
+
   initdone = 1;
   pseudoconsole((char *)"Enjoy !");
 }
 
 void Volume_ctl(byte cc_value){
-  // audioShield.volume(smallfloat);
+  // audioShield.volume(1.0);
   mixlevelsM[0] = cc_value;
   _mx.setmastersmixlevel(0);
 }
@@ -277,7 +277,8 @@ void CutOffTweak_ctl(byte cc_value){
 // Cutoff freq and range
   float _smallfloat = (cc_value / 127.0);
   le303ffilterzVknobs[0] = cc_value;
-  le303filterzfreq = round(_smallfloat * 14000);
+  // used to be x 14000
+  le303filterzfreq = round(_smallfloat * 10000);
 }
 
 void ResoTweak_ctl(byte cc_value){
@@ -337,16 +338,16 @@ void ArpegioLength_ctl(byte cc_value){
 void TickFromStart_Trigger_ctl(byte cc_value){
   // CuePlay
   tickposition = 0;
-  clocker.startticker();
+  Tocker.startticker();
 }
 
 void StartTicking_Trigger_ctl(byte cc_value){
-  clocker.startticker();
+  Tocker.startticker();
 }
 
 void StopTicking_Trigger_ctl(byte cc_value){
   _st.stopallnotes();
-  clocker.stopticker();
+  Tocker.stopticker();
   if (recorderrecord) {
     recorderrecord = 0;
     _rd.stopRecording();
@@ -356,7 +357,7 @@ void StopTicking_Trigger_ctl(byte cc_value){
 void RecordCCPatern_Trigger_ctl(byte cc_value){
   // record just CCs
   recordCC = 1;
-  clocker.startticker();
+  Tocker.startticker();
 }
 
 void RecordPattern_Trigger_ctl(byte cc_value){
@@ -364,7 +365,7 @@ void RecordPattern_Trigger_ctl(byte cc_value){
   //use recordmidinotes2
   getlinerwithoutevents();
   patrecord = 1;
-  clocker.startticker();
+  Tocker.startticker();
 }
 
 void StopSong_Trigger_ctl(byte cc_value){
@@ -395,6 +396,7 @@ void SynthIndex_ctl(byte cc_value){
 void SynthXFreq_ctl(byte cc_value){
   // freqs
   //rather do up to 2X current  ?
+  //TODO redo freqs
   if (wavesfreqs[oscillator] == 1) {
     demimalmode = !demimalmode;
   } else {
@@ -696,7 +698,7 @@ void LoadFirstPattern_Trigger_ctl(byte cc_value){
   _po.clearlapattern();
   //loads 1st pattern, increment patterns_names_offset for a different one
   _pt.catalog->displayable_offset = 0 ;
-  call_parsepattern();
+  _pt.parsepattern();
 }
 
 void RecordAudio_Trigger_ctl(byte cc_value){
@@ -807,4 +809,18 @@ void FlashLineVolume_Knob15_ctl(byte cc_value){
 
 void FlashLineVolume_Knob16_ctl(byte cc_value){
   smixervknobs[15] = cc_value;
+}
+
+void toggle_stereo(byte cc_value){
+  if (!stereo_toggled) {
+    stereo_toggled = true ;
+    stereoWidth.connect();
+    stereoWidth.setCutoff(250.1,1950.5);
+    stereoWidth.setResonance(0.7,0.9);
+  }
+}
+
+void turn_off_stereo(byte cc_value){
+  stereo_toggled = false ;
+  stereoWidth.disconnect();
 }

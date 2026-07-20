@@ -186,6 +186,7 @@ class FxMenuRouter : public SectionHolder {
       }
 
       static void delaycontrols(byte ledelayline, int gronint) {
+        float interpot = 0.0;
 
         AudioNoInterrupts();
         if (gronint >= 0 && gronint < 100) {
@@ -228,7 +229,7 @@ class FxMenuRouter : public SectionHolder {
       
       static void delayfeedback(byte lefilter, float lesmallfloat) {
         // delay feedback
-        if (smallfloat <= 0.1) {
+        if (lesmallfloat <= 0.1) {
           delayprefeed[lefilter]->gain(0, 0);
           delayprefeed[lefilter]->gain(1, 0);
           delayfeedbackmix[lefilter]->gain(0, 1.0);
@@ -1680,4 +1681,4 @@ class FxMenuRouter : public SectionHolder {
 };
 
 FxMenuRouter* FxMenuRouter::self = nullptr;
-EXTMEM FxMenuRouter _fx;
+FxMenuRouter _fx;

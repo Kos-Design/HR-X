@@ -262,7 +262,7 @@ void actionvbuttons() {
         // navlevel--;
         //   navlevel--;
         // navrange = numberofvbuttonslabels-1 +17+14 ;
-        // vraipos = sublevels[navlevelvbuttons + 2];
+        // rota_true_pos = sublevels[navlevelvbuttons + 2];
         //  myEnc.write(sublevels[navlevelvbuttons]*4);
         returntonav(navlevelvbuttons);
         // Serial.print( "sublevels[1]= ");

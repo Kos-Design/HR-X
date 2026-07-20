@@ -43,6 +43,7 @@ class KnobAssigner : public SectionHolder {
                     }
  
       static void show() {
+        knobsetting = false ;
         _actionable[navlevel-self->relative_navlevel]();
       }
       static void learn_midi(byte captured){
@@ -100,6 +101,7 @@ class KnobAssigner : public SectionHolder {
       }
 
       static void assigner(){
+        knobsetting = true ;
         navrange = 127;
         if (sublevels[self->relative_navlevel] == 0 ) {
           returntonav(self->relative_navlevel,CtlCount-1,sublevels[self->relative_navlevel]);
@@ -127,6 +129,7 @@ class KnobAssigner : public SectionHolder {
       }
 
       static void set_it(){
+        knobsetting = false ;
         midiknobassigned[find_assigned_knob(sublevels[self->relative_navlevel])] = 0;
         midiknobassigned[sublevels[self->relative_navlevel+1]] = sublevels[self->relative_navlevel];
         returntonav(self->relative_navlevel,CtlCount-1,sublevels[self->relative_navlevel]);

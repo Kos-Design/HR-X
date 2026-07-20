@@ -19,6 +19,7 @@ extern bool locked_fileing;
 extern byte recorded_ccs[32];
 extern byte pots_controllers[32][32][2];
 extern bool stoptickernextcycle;
+extern bool paterning;
  
 extern byte synthmidichannel;
 extern int samplermidichannel;

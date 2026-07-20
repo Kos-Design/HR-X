@@ -35,6 +35,7 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void sampler_nav_one(){
+            assigning_sample_to_note = false ;
             display.clearDisplay();
             switch (sublevels[1]) {
 
@@ -361,6 +362,7 @@ class SamplerMenuRouter : public SectionHolder {
         }
         static void Assingexplorer() {
           if (navlevel > 3) {
+            assigning_sample_to_note = false ;
             if (sublevels[2] == 1) {
               Sampleassigner();
               playflashsamplepreviews4();
@@ -392,7 +394,7 @@ class SamplerMenuRouter : public SectionHolder {
           }
 
           if (navlevel == 3) {
-
+            assigning_sample_to_note = true ;
             if (sublevels[2] == 2) {
               display.clearDisplay();
               doConfirmClearassign();
@@ -460,8 +462,8 @@ class SamplerMenuRouter : public SectionHolder {
                   numberofsamplesselected[sublevels[3]]--;
                 }
                 navlevel--;
-                vraipos = sublevels[4];
-                myEnc.write(vraipos * 4);
+                rota_true_pos = sublevels[4];
+                myEnc.write(rota_true_pos * 4);
                 // sublevels[navlevel] = sublevels[4] ;
               }
 
@@ -526,7 +528,7 @@ class SamplerMenuRouter : public SectionHolder {
                 numberofFlashsamplesselected--;
               }
               myEnc.write(sublevels[3] * 4);
-              vraipos = sublevels[3];
+              rota_true_pos = sublevels[3];
               sublevels[navlevel] = sublevels[3];
               navlevel--;
             }
@@ -789,7 +791,8 @@ class SamplerMenuRouter : public SectionHolder {
             canvasBIG.setCursor(startx, (10 * (sampledirsregistered - sublevels[navlevel])) + 6 + ((i)*10));
             canvasBIG.println((char *)samplefoldersregistered[i]);
             if (sublevels[2] == 1) {
-              drawtickboxfolderBIG(startx - 13, (10 * (keepcount - sublevels[navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, i);
+              //TODO: check if all is ok here, was previousely (10 * (keepcount - sublevels[navlevel])) + 6 + ((i)*10)
+              drawtickboxfolderBIG(startx - 13, (10 * (sublevels[navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, i);
             }
           }
         }
@@ -831,7 +834,7 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
         static void dolistAssignSampleMenu() {
-
+          assigning_sample_to_note = false ;
           const int sizeofmenuassignsample = 4;
           char menuassignsample[sizeofmenuassignsample][19] = {
               "Auto-assign", "Individual", "Clear All", "Save assigned"};
@@ -1135,7 +1138,7 @@ class SamplerMenuRouter : public SectionHolder {
 
         }
 
-        bool comparemesFiles(typeof(myMidiFile) &file, File &ffile) {
+        bool comparemesFiles(File &file, File &ffile) {
           file.seek(0);
           ffile.seek(0);
           unsigned long count = file.size();
@@ -1201,18 +1204,17 @@ class SamplerMenuRouter : public SectionHolder {
 
         static void Sampleassigner() {
           if (navlevel == 3) {
+            assigning_sample_to_note = true ;
             navrange = 127;
             listsamplesassigner();
             dm.dodisplay();
           }
           if (navlevel == 4) {
-            // to avoid the weird last one <--- probably an overflow
             navrange = numberofFlashfiles - 1;
             listsamplesassigner2();
             dm.dodisplay();
           }
           if (navlevel >= 5) {
-
             samplesetter();
             returntonav(3,127,sublevels[3]);
           }

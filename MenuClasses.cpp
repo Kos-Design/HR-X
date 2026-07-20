@@ -499,90 +499,27 @@ void SequencerClocker::setPPQN(uint8_t ppqn) {
             calculatePPQN();
         }
 
-void SequencerClocker::attach_24(void (*cb)())
-        {
-            _callback_24 = cb;
-        }
-
-void SequencerClocker::attach_16(void (*cb)())
-        {
-            _callback_16 = cb;
-        }
-
 void SequencerClocker::attach_96(void (*cb)())
         {
             _callback_96 = cb;
         }
 
-void SequencerClocker::attach_3(void (*cb)())
-        {
-            _callback_3 = cb;
-        }
-
-void SequencerClocker::stopticker() {
-            stoptick = 1;
-            recordCC = 0;
-            this->stop = 1;
-            // if (patrecord) {
-            // computelenghtmesureoffline_synth();
-            patternOn = 0;
-            patrecord = 0;
-            // tickposition = 0 ;
-        }
-
-void SequencerClocker::startticker() {
-            //TODO: reimplement external midi clock use
-            //if (!externalticker) {
-            // metro0.reset();
-            //MsTimer2::set(millitickinterval, advance_tick);
-            //MsTimer2::start();
-
-            //}
-            stoptick = 0;
-            this->stop = 0;
-            patternOn = 1;
-        }
-
 void SequencerClocker::update(){
-    if (_samplesPerTick <= 0.0)
+  if (_samplesPerTick <= 0.0)
     return;
-    _sampleAccumulator += AUDIO_BLOCK_SAMPLES;
-    while (_sampleAccumulator >= _samplesPerTick) {
-        _sampleAccumulator -= _samplesPerTick;
-
-        tick96++;
-
-        if ((tick96 % (3)) == 0 && _callback_3){
-                thirtySecond++;
-                _callback_3();
-            }
-
-        if ((tick96 % (2)) == 0 && _callback_16){
-                quarter++;
-                _callback_16();
-            }
-        if ((tick96 % (96*4)) == 0 && _callback_96){
-                eighth++;
-                _callback_96();
-            }
-        if (!stop) {
-
-            if ((tick96 % 24) == 0 && _callback_24){
-                sixteenth++;
-                _callback_24();
-            }
-        }
+  _sampleAccumulator += AUDIO_BLOCK_SAMPLES;
+  while (_sampleAccumulator >= _samplesPerTick) {
+    _sampleAccumulator -= _samplesPerTick;
+    //Tricker.click();
+    if (_callback_96){
+      _callback_96();
     }
+  }
 }
 
-    
-
 void SequencerClocker::calculatePPQN() {
-            if (_PPQN == 0 || _bpm <= 0.0f)
-            return;
-            _samplesPerTick =
-                AUDIO_SAMPLE_RATE_EXACT *
-                60.0 /
-                (_bpm * _PPQN);
+  if (_PPQN == 0 || _bpm <= 0.0f)
+    return;
+  _samplesPerTick = AUDIO_SAMPLE_RATE_EXACT * 60.0 / (_bpm * _PPQN);
 }
 

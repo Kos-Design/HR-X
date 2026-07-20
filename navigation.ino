@@ -1,31 +1,34 @@
 
-
+int rota_enc_new_pos = 0;
+int rota_enc_count = 0;
+int rota_old_Pos = -999;
+int rota_old_vrai_Pos = 0;
 // rotaencoder library increments 4 steps for 1 and keeps absolute count
 void evalrota() {
-  newPosition = myEnc.read();
-  if (newPosition != oldPosition) {
-    count++;
+  rota_enc_new_pos = myEnc.read();
+  if (rota_enc_new_pos != rota_old_Pos) {
+    rota_enc_count++;
   }
 
-  if (count >= 4) {
-    oldPosition = newPosition;
-    count = 0;
-    vraipos = newPosition / 4;
-    if (vraipos > navrange) {
+  if (rota_enc_count >= 4) {
+    rota_old_Pos = rota_enc_new_pos;
+    rota_enc_count = 0;
+    rota_true_pos = rota_enc_new_pos / 4;
+    if (rota_true_pos > navrange) {
 
-      vraipos = 0;
+      rota_true_pos = 0;
       myEnc.write(0);
     }
-    if (vraipos < 0) {
+    if (rota_true_pos < 0) {
 
-      vraipos = navrange;
+      rota_true_pos = navrange;
       myEnc.write(navrange * 4);
     }
   }
 
-  if (vraipos != oldvraipos) {
-    oldvraipos = vraipos;
-    sublevels[navlevel] = vraipos;
+  if (rota_true_pos != rota_old_vrai_Pos) {
+    rota_old_vrai_Pos = rota_true_pos;
+    sublevels[navlevel] = rota_true_pos;
     if (!navlevel) {
       dm.displaymenu();
       return;
@@ -59,7 +62,7 @@ void evalinputs() {
     sublevels[navlevel] = 0;
     if (retroaction) {
       sublevels[navlevel] = retroaction ;
-      vraipos = retroaction;
+      rota_true_pos = retroaction;
       myEnc.write(retroaction * 4);
       retroaction = 0;
     }
@@ -68,7 +71,7 @@ void evalinputs() {
   }
   if (clicked.fallingEdge()) {
     navlevel++;
-    vraipos = sublevels[navlevel];
+    rota_true_pos = sublevels[navlevel];
     myEnc.write(sublevels[navlevel] * 4);
     dm.show();
     //printit();

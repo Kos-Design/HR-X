@@ -149,34 +149,18 @@ class GlobalMixer : public SectionHolder {
 class SequencerClocker : public AudioStream {
     public:
         SequencerClocker();
-        bool stop = 1 ;
         void setBPM(float bpm);
         void setPPQN(uint8_t ppqn);
-        void attach_24(void (*cb)());
-        void attach_16(void (*cb)());
         void attach_96(void (*cb)());
-        void attach_3(void (*cb)());
-        void stopticker();
-        void startticker();
         virtual void update() override;
     
     private:
 
         void calculatePPQN();
-
-        volatile uint32_t tick96 = 0;
-        volatile uint32_t quarter = 0;
-        volatile uint32_t eighth = 0;
-        volatile uint32_t sixteenth = 0;
-        volatile uint32_t thirtySecond = 0;
-
         float  _bpm = 120.0f;
         uint8_t _divisionsPerQuarter = 4;
         uint8_t _PPQN = 96 ;
         double _samplesPerTick = 0;
         double _sampleAccumulator = 0;
-        void (*_callback_24)() = nullptr;
-        void (*_callback_3)() = nullptr;
         void (*_callback_96)() = nullptr;
-        void (*_callback_16)() = nullptr;
 };

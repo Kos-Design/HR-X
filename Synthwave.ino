@@ -295,7 +295,6 @@ class AdsrMenuRouter : public SectionHolder {
 AdsrMenuRouter* AdsrMenuRouter::self = nullptr;
 EXTMEM AdsrMenuRouter _ad;
 
-//TODO make lookup table fixed vals for slopes and fades instead of function computation
 class Filter303MenuRouter : public SectionHolder {
   public:
     Filter303MenuRouter() {
@@ -315,10 +314,10 @@ class Filter303MenuRouter : public SectionHolder {
     static void initialize303group() {
       for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
         setle303filterpass(i);
-        les303wet[i]->gain(1, 1);
-        les303wet[i]->gain(0, 0);
-        les303filterz[i]->frequency(220);
-        les303filterz[i]->resonance(5);
+        les303wet[i]->gain(1.0, 1.0);
+        les303wet[i]->gain(0.0, 0.0);
+        les303filterz[i]->frequency(1800.5);
+        les303filterz[i]->resonance(2.5);
       }
     }
 
@@ -706,6 +705,7 @@ class SynthMenuRouter : public SectionHolder {
         int unit = (int)wavesfreqs[oscillator] % 10;
         int tenth     = ((int)(wavesfreqs[oscillator] * 10)) % 10;
         int hundredth = ((int)(wavesfreqs[oscillator] * 100)) % 10;
+        int mp3_count = 0;
 
         static void show() {
           _route_nav[navlevel-1]();
@@ -1094,21 +1094,51 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void mp3_player_next(){
-          if (!mp3_looped)
-            next_mp3++;
+          
+          Serial.println("");
+          Serial.print("previous =");
+          Serial.print(previous_mp3);
+          
+          if (!mp3_looped) {
+            if (mp3_shuffle) {
+              previous_mp3 = next_mp3;
+
+              Serial.println("");
+              Serial.print("previous after next =");
+              Serial.print(previous_mp3);
+              
+              next_mp3 = rand() % self->mp3_count ;
+              Serial.println(self->mp3_count);
+              Serial.println(next_mp3);
+            } else {
+              next_mp3++;
+            }
+          }
           get_next_mp3();
         }
 
         static void mp3_player_previous(){
-          if (!mp3_looped)
-            next_mp3 -= 2;
+
+          Serial.println("");
+          Serial.print("previous =");
+          Serial.print(previous_mp3);
+
+          if (!mp3_looped){
+            if (mp3_shuffle){
+              next_mp3 = previous_mp3 ;
+            } else {
+              next_mp3 -= 2;
+            }
+          } 
           get_next_mp3();
         }
 
         static void mp3_player_shuffle(){
           mp3_shuffle = !mp3_shuffle ;
-          //TODO
-          //each play next_mp3 is random % total ?
+          if (mp3_shuffle) {
+            previous_mp3 = next_mp3;
+
+          }
         }
         static void mp3_loop_setter(){
           mp3_looped = !mp3_looped ;
@@ -1198,6 +1228,11 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void get_next_mp3() {
+          
+
+          Serial.println("");
+          Serial.print("previous now became =");
+          Serial.print(previous_mp3);
 
           if (SD.exists("MP3") ) {
             File susudir = SD.open("MP3");
@@ -1237,10 +1272,36 @@ class SynthMenuRouter : public SectionHolder {
             file_index = 0 ;
             susudir.close();
           }
-          //Serial.println((char*)mp3_name.c_str());
+          if (mp3_shuffle) {
+  
+            next_mp3 = rand() % self->mp3_count ;
+            Serial.println(self->mp3_count);
+            Serial.println(next_mp3);
+
+          }
 
         }
 
+        static void count_mp3s() {
+          self->mp3_count=0;
+          
+          if (SD.exists("MP3") ) {
+            File susudir = SD.open("MP3");
+            
+            while (true) {
+              File subentry = susudir.openNextFile();
+              if (!subentry) {
+                return;
+              }
+              if (!subentry.isDirectory()) {
+                self->mp3_count++;
+              }
+              subentry.close();
+            }
+          susudir.close();
+          }
+        }
+        
         static void transport_selector() {
           String _legend[] = {"Play All","Previous","Pause","Play file","Next","Shuffle","Loop","Stop"," "};
           int startyp = 8;

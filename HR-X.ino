@@ -1,13 +1,23 @@
 #define MULTIPLEXED_PADS 1
+
 const int display_lag = 10 ;
 const int control_lag = 10 ;
 #include "MenuClasses.h"
 #include "muxer.h"
+#include "ParserLib.h"
+#include <Adafruit_SSD1306.h>
+#include <Adafruit_GFX.h>
+#include <Bounce.h>
+#include <Encoder.h>
+#include <MIDIUSB.h>
+#include <play_sd_mp3.h>
+#include <play_sd_flac.h>
+#include "play_partial_sd_raw.h"
+#include "FilesLister.h"
+#include "Patterns.h"
+
 Muxer Muxer;
-byte itr = 0;
-int c_change;
-int cc_note_num;
-bool le_303_On ;
+
 bool locked_fileing = 0 ;
 int retroaction = 0;
 const byte sizeofnoCCrecord = 11;
@@ -38,18 +48,18 @@ bool patrecord;
 int midiknobassigned[128];
 EXTMEM byte cc_partition[128][pbars];
 
-
+bool setting_on_board = false ;
+bool waveforming = false ;
+bool assigning_sample_to_note = false ;
+bool knobsetting = false ;
+bool paterning = false ;
 
 // functions that have system or various controls that are ignored for some ops
 //outdated since refactor of ctl[]
 byte noCCrecord[sizeofnoCCrecord] = {3,35,36,37, 38,39,40,41,42,44, 1};
-byte slope1 = 10;
-byte slope2 = 10;
+byte slope1 = 100;
+byte slope2 = 1;
 bool mp3_looped = 0 ;
-byte cutoffmode;
-byte resonancemode;
-byte paramse1;
-byte paramse2;
 bool externalticker;
 int starttaptime;
 int numberoftaps;
@@ -67,13 +77,12 @@ bool avoid_fx_bounce = false;
 float interval_ms = millitickinterval ;
 byte smixervknobs[16] = {127, 127, 127, 127, 127, 127, 127, 127,
                          127, 127, 127, 127, 127, 127, 127, 127};
-int lehalfbeat;
 
 byte offsetliner;
 byte x_axis_cc = 17 ;
 byte y_axis_cc = 18 ;
 byte trace_wave_cc = 58 ;
-byte *valz[3]= {&x_axis_cc,&y_axis_cc,&trace_wave_cc};
+byte *waveform_tracers[3]= {&x_axis_cc,&y_axis_cc,&trace_wave_cc};
 bool taptap_on = true;
 bool rec_looping;
 int tocker ;
@@ -91,11 +100,11 @@ int letempipolate;
 float interpolcoeff;
 byte settointerpolate[128];
 EXTMEM byte leccinterpolated[128];
-float le303filterzgainz[3] = {1.0, 0, 0};
-byte le303filterzwet;
+float le303filterzgainz[3] = {1.0, 1.0, 1.0};
+byte le303filterzwet = 100;
 float le303filterzfreq = 10000;
-float le303filterzreso = 0.7;
-float le303filterzoctv = 0.25;
+float le303filterzreso = 2.7;
+float le303filterzoctv = 2.5;
 bool clearsaniloop;
 // float targetBPM = 120.0 ;
 float BPMs = (60000.0 / millitickinterval) / 4.0;
@@ -108,7 +117,6 @@ unsigned long MICROSECONDS_PER_MIDI_CLOCK = MICROSECONDS_PER_BEAT / 4; // MIDI c
 */
 // unsigned long latimelineshifter = ((60000/19200)*pbars) ;
 bool SendMidiOut;
-#include <MIDIUSB.h>
 char arranged_buttons[6][6] = {{1,  5,  9,  13, 32,  23,},
                                {2,  6,  10, 14, 33,  24,},
                                {3,  7,  11, 15, 34,  25,},
@@ -150,16 +158,7 @@ const int sizeopremixtoM = 9 * fxs_count;
 const int sizeopremixWtoM = 9 * fxs_count;
 const int sizeofxcords = 9 * fxs_count * 2 * 3;
 
-float interpot;
 bool noteprint = 0;
-
-byte patterns_count = 0 ;
-const byte ptn_size = 6;
-
-
-const byte pst_size = 6;
-
-
 
 bool demimalmode;
 bool addinglenght;
@@ -173,7 +172,6 @@ byte tapnote = byte(3);
 bool tapstarted;
 
 byte preampleswaves = 64;
-int entry_num = 0 ;
 const byte szsset = 99;
 const byte ssnamsize = 26;
 EXTMEM char samplefoldersregistered[szsset][ssnamsize];
@@ -184,7 +182,9 @@ EXTMEM bool samplesselected[99][999];
 EXTMEM int numberofsamplesselected[99];
 EXTMEM bool samplesfoldersselected[99];
 EXTMEM int numofsamplesfoldersselected = 0;
+
 #include "/home/kosmin/HR-X/includes/AudioSetup.ino"
+
 // current stage to configure [lebiquad] instance
 const int bqstagesnum = 4;
 int bqstage[fxs_count];
@@ -212,18 +212,7 @@ String newRecpathL = "SOUNDSET/REC/RECZ00#L.RAW";
 String newRecpathR = "SOUNDSET/REC/RECZ00#R.RAW";
 #include "/home/kosmin/HR-X/includes/images.ino"
 #include "/home/kosmin/HR-X/includes/notestofrequency_442.ino"
-#include "ParserLib.h"
-#include <Adafruit_SSD1306.h>
-#include <Adafruit_GFX.h>
 
-#include <Bounce.h>
-#include <Encoder.h>
-
-
-bool tb303[SYNTH_LINERS_COUNT];
-long le303start[SYNTH_LINERS_COUNT];
-
-//EXTMEM unsigned long pulsers[SYNTH_LINERS_COUNT][2]= { {0,120}, {0,120}, {0,120},{0,120}, {0,120}, {0,120}};
 
 int samplermidichannel = 8;
 //0 is All, channel indexes are thus offset +1
@@ -255,7 +244,6 @@ byte arpegnoteoffin[SYNTH_LINERS_COUNT][SYNTH_LINERS_COUNT] = {1};
 byte arpegnotestick[SYNTH_LINERS_COUNT];
 byte arpegemptyticks[SYNTH_LINERS_COUNT];
 bool digitalplay = 0;
-bool lefadout[SYNTH_LINERS_COUNT];
 
 
 byte glidemode = 0;
@@ -297,22 +285,12 @@ byte activateinterpolatecc[8];
 //TODO reduce size
 // make class to store list and size of just the ignorable or visible CCs?
 bool ignorethatcc[128];
-bool ccoverdub;
-bool recpaterninit;
-int lavelocity;
-int interpolated_ctrls = 0;
-int availableliner;
-int olderliner;
-
-byte fffnote;
-
 EXTMEM GFXcanvas1 canvasBIG(128, 64);
 EXTMEM GFXcanvas1 canvastitle(128, 16);
 
 #define SDCARD_CS_PIN 10
 #define SDCARD_MOSI_PIN 7
 #define SDCARD_SCK_PIN 14
-short lefakeselector;
 // SD on audio board reader on chipSelect 10
 const int chipSelect = 10;
 //flash player is in 6
@@ -328,9 +306,6 @@ int samplesSelected = 0;
 
 #define LOGO_HEIGHT 32
 #define LOGO_WIDTH 64
-File myMidiFile;
-int filecount;
-int keepcount;
 Bounce clicked = Bounce(32, 100);
 Encoder myEnc(30, 31);
 //placeholder
@@ -342,15 +317,8 @@ Bounce Backb = Bounce( 33, 5 );
 const unsigned int manyinputpins = 1;
 const int inputpins[manyinputpins] = {32};
 int startingnoteline;
-int vraipos = 0;
-int oldvraipos = 0;
-int oldPosition = -999;
-int count = 0;
+
 float notefrequency = 440.0;
-int newPosition = 0;
-int filelenght;
-bool selectedFileorDir;
-float smallfloat;
 
 const int lesformes[9] PROGMEM = {
     WAVEFORM_SINE,     WAVEFORM_SAWTOOTH,          WAVEFORM_SAWTOOTH_REVERSE,
@@ -544,13 +512,13 @@ char mainmenufxlist[mainmenufxlistsize][12] = {
 
 byte WetMixMasters[4] = {0, 0, 0, 0};
 
-
+bool stereo_toggled = false ;
 
 const CcCalls ctl[] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel",&SynthVolume_ctl},{"SDLevel",&SDPlayerVolume_ctl},{"FlashLevel",&FlashVolume_ctl},
                       {"FX1 Wet",&Wet1Volume_ctl},{"FX2 Wet",&Wet2Volume_ctl},{"FX3 Wet",&Wet3Volume_ctl},{"Dry Sampler",&DrySampler_ctl},{"Dry Synth",&DrySynth_ctl},
                       //10 ok
                       {"Dry Audio In",&DryAudioIn_ctl},{"CutOff slp.",&Slope1_ctl},{"Reso slp.",&Slope2_ctl},{"Reso Tweak",&ResoTweak_ctl},{"Filter303 Oct.",&Filter303Octave_ctl},
-                      {"CutOff Tweak",&CutOffTweak_ctl},{"Free",nullptr},{"free",nullptr},{"Filter303 Lvl.",&Filter303_ctl},{"Filter303 Glide",&Filter303Glide_ctl},
+                      {"CutOff Tweak",&CutOffTweak_ctl},{"Stereo On",toggle_stereo},{"Stereo Off",turn_off_stereo},{"Filter303 Lvl.",&Filter303_ctl},{"Filter303 Glide",&Filter303Glide_ctl},
                       //20 ok
                       {"Filter303 PreAmp",&FilterPreAmp_ctl},{"Synth Index",&SynthIndex_ctl},{"Syth X Lvl.",&SynthXLevel_ctl},{"Synth X Freq",&SynthXFreq_ctl},{"Chords type",&SetChords_ctl},
                       {"Pans Levels",&PansLevels_ctl},{"Metronome Level",&MetroDrumLevel_ctl},{"Play Song",&PlaySong_Trigger_ctl},{"Stop Song",&StopSong_Trigger_ctl},{"Pause Song",&PauseSong_Trigger_ctl},
@@ -696,6 +664,9 @@ bool mp3_paused ;
 bool mp3_shuffle ;
 int file_index = 0 ;
 int next_mp3 = 0 ;
+int previous_mp3 = 0 ;
+
+
 byte mp3_ext ;
 bool mp3_continue;
 
@@ -969,28 +940,24 @@ class ClockSink : public AudioStream {
     audio_block_t *inputQueueArray[1];
 };
 
-EXTMEM ClockSink sink;
+ClockSink sink;
 
 EXTMEM AudioConnection patchCord_sinker(clocker, 0, sink, 0);
 
 DisplayManager dm = DisplayManager();
-EXTMEM GlobalMixer _mx;
+GlobalMixer _mx;
 
-//EXTMEM DisplayManager dm = DisplayManager();
+int rota_true_pos = 0;
 
-void returntonav(byte lelevel, byte lanavrange = navrange,byte t_vraipos = vraipos) {
+void returntonav(byte lelevel, byte lanavrange = navrange,byte t_vraipos = rota_true_pos) {
     //never returntonav home
   navlevel = lelevel;
-  vraipos = t_vraipos;
-  myEnc.write(vraipos * 4);
+  rota_true_pos = t_vraipos;
+  myEnc.write(rota_true_pos * 4);
   navrange = lanavrange;
   if (navlevel)
     dm.show();
 }
-
-#include <play_sd_mp3.h>
-#include <play_sd_flac.h>
-#include "play_partial_sd_raw.h"
 
 AudioPlaySdMp3           playMp31;
 AudioPlaySdFlac          playFlac1;
@@ -1008,163 +975,96 @@ EXTMEM AudioConnection          sd_mix_mp3R(playMp31, 1, sd_mixerR, 1);
 EXTMEM AudioConnection          sd_mix_flacL(playFlac1, 0, sd_mixerL, 2);
 EXTMEM AudioConnection          sd_mix_flacR(playFlac1, 1, sd_mixerR, 2);
 
-#include "FilesLister.h"
 
-/*
-class FilesLister{
-    static const byte max_displayables = 6; //displayables lines
+CCEditor _ce;
+PatEditRouter _pe;
+POptionsRouter _po;
+PatternsMenuRouter _pt;
+
+class MasterClock {
     public:
-        FilesLister(const char *main_folder, const char *base_filename, const char *file_extension, void (*menu_labels_method)(), byte navranger) : 
-            folder_dir(main_folder), basenamer(base_filename), extension(file_extension), home(menu_labels_method), home_navrange(navranger), base_char_count(strlen(basenamer)) {}
 
-        const char *folder_dir;
-        const char *basenamer;
-        const char *extension;
-        void (*home)();
-        byte home_navrange;
-        size_t base_char_count;
-        int left_margin = 80;
-        int top_margin = 16;
-        int v_spacer = 10 ;
-        //only lists files with 00.ext suffix as it extracts the basename to only deal with their respective numbers.
-        // can't work on normal files not following this naming format yet.
-        byte files_counter = 0 ;
-        byte displayable_offset = 0 ;
-        String files_displayable[max_displayables];
-        //stores files suffixes numbers only
-        byte files_indexed[99];
-        bool new_file_mode = 0;
-        //the files list should be responding to shifting in navlevel r_nav and display in r_nav-1(navlevel of the menu instancer)
-        byte r_nav = 2;
-        
-        String get_file_name(byte number) {
-            char formatted_number[4] ;
-            sprintf(formatted_number,"%02d",number);
-            return this->basenamer + (String)formatted_number ;
+        MasterClock() {self = this;}
+
+        bool stop = 1 ;
+
+        static void click() {
+            self->tick96++;
+            //if (!(self->tick96 % 2))
+            self->dispatch_ticks();
         }
 
-        String get_current_file_path(byte f_index=0){
-            return this->folder_dir + this->files_displayable[f_index] + this->extension;
-        }
-
-        String make_full_file_name(byte number) {
-            char formatted_number[4] ;
-            sprintf(formatted_number,"%02d",number);
-            return(String)((String)this->folder_dir+(String)this->basenamer + (String)formatted_number + this->extension);
-        }
-
-        String get_new_file_name() {
-            byte file_number = this->files_counter ;
-            String new_path = make_full_file_name(file_number);
-            while (SD.exists(new_path.c_str())) {
-                file_number++;
-                new_path = make_full_file_name(file_number);
+        void dispatch_ticks() {
+            
+            if ((tick96 % 3) == 0 && _callback_3){
+                //thirtySecond++;
+                _callback_3();
             }
-            return new_path ;
-        }
-        
-        void nav_zero(){
-            dm.clear_buffs();
-            navrange = this->home_navrange;
-            reinitsublevels(this->r_nav);
-            this->display_files_list();
-            this->home();
-            dm.dodisplay();
-        }
-
-        void nav_one(byte save_lbl_idx=0,byte lbl_navlevel=1){
-            this->new_file_mode = false;
-            navrange = max(this->files_counter - 1, 0);
-            if (sublevels[lbl_navlevel] == save_lbl_idx) {
-                navrange = this->files_counter;
-                this->new_file_mode = true;
+            if ((tick96 % 96*4) == 0 && _callback_long){
+                //quarter++;
+                _callback_long();
             }
-            this->display_files_list();
-            this->home();
-            dm.dodisplay();
-        }
-
-        void refresh_files_names() {
-            for (int i = 0 ; i < max_displayables ; i++) {
-                //empty spots are left at the end of the list if it is small, otherwise the names are looped
-                //maybe looped list is better actually...
-                this->files_displayable[i] = " ";
-                if (this->displayable_offset+i < this->files_counter ) {
-                    this->files_displayable[i] = this->get_file_name(this->files_indexed[this->displayable_offset+i]);
-                } else if (this->files_counter >= max_displayables ){
-                    this->files_displayable[i] = this->get_file_name(this->files_indexed[((this->displayable_offset+i)%this->files_counter) ]);
+            if ((tick96 % 2) == 0 && _callback_16){
+                //eighth++;
+                _callback_16();
+            }
+            if (!self->stop) {
+                if ((tick96 % 24) == 0 && _callback_24){
+                    //sixteenth++;
+                    _callback_24();
                 }
-
             }
         }
 
-         void display_files_list() {
-          dm.clean_title_1_1();
-
-          this->displayable_offset = sublevels[this->r_nav] ;
-          //% this->files_counter  ;
-          refresh_files_names();
-          canvastitle.setCursor(left_margin, 0);
-          //activate new_file_mode from instancer file actions selector
-          if (this->displayable_offset == this->files_counter && this->new_file_mode) {
-            canvastitle.print("New()");
-          } else {
-            canvastitle.print(this->files_displayable[0]);
-          }
-          
-          if (this->displayable_offset == this->files_counter) {
-            //if cursor is on new(), the size-1 elements are displayed below.
-            for (int i = 0; i < max_displayables-1; i++) {
-              canvasBIG.setCursor(left_margin, (v_spacer * (this->files_counter - this->displayable_offset)) + top_margin + ((i)*v_spacer));
-              canvasBIG.println(this->files_displayable[i]);
-            }
-          } else {
-            //rest of indexes after title (refresh_names handles list population)
-            for (int i = 0; i < max_displayables - 1 ; i++) {
-              canvasBIG.setCursor(left_margin, top_margin + i*v_spacer);
-              canvasBIG.println(this->files_displayable[1 + i]);
-            }
-          }
+        void attach_16(void (*cb)()) {
+            _callback_16 = cb;
         }
 
-         void list_files() {
-            //no lock fileing on read as it is used during locked ops, should be fine
-            this->files_counter = 0;
-            if (SD.exists(this->folder_dir)) {
-            File opened_dir = SD.open(this->folder_dir);
-            while (this->files_counter < 99) {
-                File entry = opened_dir.openNextFile();
-                if (!entry) {
-                    break;
-                }
-                if (!entry.isDirectory()) {
-                    char* named = (char*)entry.name();                    
-                    //maybe get ext in a separate list for mixed files type <- but that shouldn't be happening
-                    //perhaps for .wav and .raw but best to sort them on pc before transfer to SD
-                    named[strlen(named) - 4] = '\0';
-                    //int is at X chars after prefix
-                    bool good_base = (bool)(strncmp((char*)entry.name(), this->basenamer, this->base_char_count) == 0) ;
-                    if (strlen((char*)entry.name()) != this->base_char_count+2 || !good_base ){
-                        Serial.println(" ");
-                        Serial.print(strlen((char*)entry.name()));
-                        Serial.print("<-- badly named !!! or is it ? we got a base name length of ");
-                        Serial.println(this->base_char_count+2);
-                        continue;
-                    }
-                    //keep only last 2 digits assuming a basename of 8 chars
-                    this->files_indexed[this->files_counter] = atoi(named+this->base_char_count);
-                    this->files_counter++;
-                }
-                entry.close();
-            }
-            opened_dir.close();
-            }
-            refresh_files_names();
-
+        void attach_long(void (*cb)()) {
+            _callback_long = cb;
         }
-        // static constexpr void (*_nav_fx[5])() = {&fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one};
 
-   
+        void attach_24(void (*cb)()) {
+            _callback_24 = cb;
+        }
+
+        void attach_3(void (*cb)()) {
+            _callback_3 = cb;
+        }
+
+        void stopticker() {
+            stoptick = 1;
+            recordCC = 0;
+            self->stop = 1;
+            // if (patrecord) {
+            // computelenghtmesureoffline();
+            patternOn = 0;
+            patrecord = 0;
+            // tickposition = 0 ;
+        }
+
+        void startticker() {
+            //TODO: reimplement external midi clock use
+            //if (!externalticker) {
+            stoptick = 0;
+            self->stop = 0;
+            patternOn = 1;
+        }
+
+    private:
+
+        volatile uint32_t tick96 = 0;
+        //volatile uint32_t quarter = 0;
+        //volatile uint32_t eighth = 0;
+        //volatile uint32_t sixteenth = 0;
+        //volatile uint32_t thirtySecond = 0;
+        void (*_callback_24)() = nullptr;
+        void (*_callback_3)() = nullptr;
+        void (*_callback_16)() = nullptr;
+        void (*_callback_long)() = nullptr;
+        static MasterClock* self;
 };
 
-*/
+MasterClock* MasterClock::self = nullptr;
+
+MasterClock Tocker;
