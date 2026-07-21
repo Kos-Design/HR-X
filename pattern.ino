@@ -4,8 +4,8 @@ AudioFilterStateVariable stereoFilterL;
 AudioFilterStateVariable stereoFilterR;
 
 // Optional modulation
-AudioSynthWaveform stereoLFO1;
-AudioSynthWaveform stereoLFO2;
+AudioSynthWaveform stereoLFOL;
+AudioSynthWaveform stereoLFOR;
 
 // ===== Patch Cords =====
 // These are NOT connected until connect() is called.
@@ -16,6 +16,9 @@ AudioConnection stereoPatch3;
 AudioConnection stereoPatch4;
 AudioConnection stereoPatch5;
 AudioConnection stereoPatch6;
+AudioConnection lfo_stereoL(stereoLFOL,0,stereoFilterL,1);
+AudioConnection lfo_stereoR(stereoLFOR,0,stereoFilterR,1);
+
 class StereoDualFilter {
   public:
 
@@ -66,15 +69,19 @@ class StereoDualFilter {
     }
 
     void reconnect_standard(){
-      patchCord150.connect(mixerWAll, 0, MasterL1, 2);
-      patchCord151.connect(mixerWAll, 0, MasterR1, 2);
-      patchCord148.connect(mixerWAll, 0, FXBusR, 2);
-      patchCord149.connect(mixerWAll, 0, FXBusL, 2);
+      patchCord150.connect();
+      patchCord151.connect();
+      patchCord148.connect();
+      patchCord149.connect();
     }
 
     void connect()
     {
         disconnect_standard();
+        stereoLFOL.begin(0.4, 0.025, WAVEFORM_SINE);
+        stereoLFOR.begin(0.4, 0.025, WAVEFORM_SINE);
+        stereoLFOL.phase(180);
+
         patchInL.connect(mInput,0,mFilterL,0);
         patchInR.connect(mInput,0,mFilterR,0);
         

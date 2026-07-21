@@ -182,6 +182,9 @@ void setup() {
   Tocker.attach_long(once_in_a_while);
   //clocker.attach_3(fairly_often);
   Tocker.attach_16(at_a_paced_rate);
+  Tocker.attach_3(oscilloscope_loop);
+
+  
   clocker.setBPM(120);
   clocker.setPPQN(96);
   clocker.attach_96(Tocker.click);
@@ -815,8 +818,8 @@ void toggle_stereo(byte cc_value){
   if (!stereo_toggled) {
     stereo_toggled = true ;
     stereoWidth.connect();
-    stereoWidth.setCutoff(250.1,1950.5);
-    stereoWidth.setResonance(0.7,0.9);
+    stereoWidth.setCutoff(1950,1800.5);
+    stereoWidth.setResonance(0.8,0.8);
   }
 }
 

@@ -220,6 +220,8 @@ void setupdefaultvalues() {
   //midiknobassigned[111] = 109 ;
   //98 debugcpu
   pot_assignements[all_buttonns-5] = 106 ;
+  midiknobassigned[100] = 116 ;
+  midiknobassigned[101] = 117 ;
   //midiknobassigned[106] = 98;
   //granular fx toggle
   //midiknobassigned[100] = 78;
