@@ -5,11 +5,6 @@ void setupSD() {
     _sp.errorsd("initialization SD failed!");
     return;
   }
-
-  //for (int i=0; i<10 ; i++) {
-      //FlashSampler[i]->enableInterpolation(true);
-    //FlashSampler[i]->setFilesystem(thyfs);
-  //}
   _sp.initializesamplesselectedlist();
   pseudoconsole((char *)"Scanning Samples");
   _sp.dosoundlist();
@@ -21,6 +16,8 @@ void setupSD() {
   _wf.catalog->list_files();
   pseudoconsole((char *)"Scanning Songs");
   _sg.catalog->list_files();
+    pseudoconsole((char *)"Scanning Records");
+  _rd.catalog->list_files();
   pseudoconsole((char *)"Scanning MP3s");
   _sn.count_mp3s();
 }
@@ -182,7 +179,7 @@ void setup() {
   Tocker.attach_long(once_in_a_while);
   //clocker.attach_3(fairly_often);
   Tocker.attach_16(at_a_paced_rate);
-  Tocker.attach_3(oscilloscope_loop);
+  //Tocker.attach_3(oscilloscope_loop);
 
   
   clocker.setBPM(120);
@@ -814,6 +811,11 @@ void FlashLineVolume_Knob16_ctl(byte cc_value){
   smixervknobs[15] = cc_value;
 }
 
+void USB_In_Volume_ctl(byte cc_value){
+  InMixL.gain(0,cc_value/127.0) ;
+  InMixR.gain(0,cc_value/127.0) ;
+}
+
 void toggle_stereo(byte cc_value){
   if (!stereo_toggled) {
     stereo_toggled = true ;
@@ -826,4 +828,21 @@ void toggle_stereo(byte cc_value){
 void turn_off_stereo(byte cc_value){
   stereo_toggled = false ;
   stereoWidth.disconnect();
+}
+
+void adjust_osc_timee_ctl(byte cc_val) {
+  oscillisc_timee = map(cc_val,0,127, 4, 16);
+}
+
+void adjust_osc_framerate_ctl(byte cc_val) {
+  osc_framerate = map(cc_val,0,127, 8, 42);
+}
+
+void adjust_osc_refresher_period_ctl(byte cc_val) {
+  osc_refresher_period = 1 + (cc_val / 2) ; 
+}
+
+void adjust_waveEditor_pitch_ctl(byte cc_val) {
+  _rd.pitcher = (cc_val/127.0) * 2.0;
+; 
 }

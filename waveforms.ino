@@ -257,11 +257,9 @@ class WaveformsMenuRouter : public SectionHolder {
           if (self->catalog->new_file_mode) {
             waveform_file = SD.open(self->catalog->get_new_file_name().c_str(), FILE_WRITE);
           } else {
-            String selected_waveform = self->catalog->get_current_file_path(0);
-            if (SD.exists(selected_waveform.c_str())) {
-              SD.remove(selected_waveform.c_str());
-            }
-            waveform_file = SD.open(selected_waveform.c_str(), FILE_WRITE);
+            const char* overwritee = self->catalog->get_current_file_path(0).c_str();
+            self->catalog->deleteFile();
+            waveform_file = SD.open(overwritee, FILE_WRITE);
           }
           if (waveform_file) {
             writewaveforms(waveform_file);
@@ -301,14 +299,7 @@ class WaveformsMenuRouter : public SectionHolder {
         }
 
         static void deletewaveform() {
-          if (locked_fileing)
-            return;
-          locked_fileing = 1 ;
-          if (SD.exists(self->catalog->get_current_file_path(0).c_str())) {
-            SD.remove(self->catalog->get_current_file_path(0).c_str());
-          }
-          self->catalog->list_files();
-          locked_fileing = 0 ;
+          self->catalog->deleteFile();
         }
 
         static void parsewaveformfile() {

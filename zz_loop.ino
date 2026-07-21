@@ -18,6 +18,8 @@ void loop() {
   if (millis() % 3 == 0) {
    fairly_often();
    loopusbHub();
+  } else if (millis() % osc_refresher_period == 0) {
+    oscilloscope_loop();
   }
   /*
   if (debug_cpu){

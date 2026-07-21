@@ -353,10 +353,9 @@ class SongMenuRouter : public SectionHolder {
           if (self->catalog->new_file_mode) {
             song_filer = SD.open(self->catalog->get_new_file_name().c_str(), FILE_WRITE);
           } else {
-            if (SD.exists(self->catalog->get_current_file_path(0).c_str())) {
-              SD.remove(self->catalog->get_current_file_path(0).c_str());
-            }
-            song_filer = SD.open(self->catalog->get_current_file_path(0).c_str(), FILE_WRITE);
+            const char* overwritee = self->catalog->get_current_file_path(0).c_str();
+            self->catalog->deleteFile();
+            song_filer = SD.open(overwritee, FILE_WRITE);
           }
           writeSong(song_filer);
           song_filer.close();
@@ -462,9 +461,7 @@ class SongMenuRouter : public SectionHolder {
           lv1_wrapper(self->deleteSong);
         }
         static void deleteSong() {
-          if (SD.exists(self->catalog->get_current_file_path(0).c_str())) {
-            SD.remove(self->catalog->get_current_file_path(0).c_str());
-          }
+          self->catalog->deleteFile();
         }
 
 

@@ -27,21 +27,24 @@ void loopusbHub() {
   do {
     rx = MidiUSB.read();
     if (rx.header != 0) {
-      switch(rx.header){
-        case 8:
-          MaNoteOn(rx.byte1,rx.byte2,rx.byte3);
+      uint8_t status_midi  = rx.byte1;
+      uint8_t type_midi    = status_midi & 0xF0;
+      uint8_t channel_midi = (status_midi & 0x0F) + 1;
+      switch(type_midi){
+        case 0x90:
+          MaNoteOn(channel_midi,rx.byte2,rx.byte3);
           //rec_test(0,rx.byte1,rx.byte2,rx.byte3);
           //song.send_to_wire(0,rx.byte1,rx.byte2,rx.byte3);
         break;
 
-        case 9:
+        case 0x80:
           //rec_test(1,rx.byte1,rx.byte2,rx.byte3);
           //song.send_to_wire(1,rx.byte1,rx.byte2,rx.byte3);
-          MaNoteOff(rx.byte1,rx.byte2,rx.byte3);
+          MaNoteOff(channel_midi,rx.byte2,rx.byte3);
         break;
 
-        case 11:
-          MaControlChange(rx.byte1,rx.byte2,rx.byte3);
+        case 0xB0:
+          MaControlChange(channel_midi,rx.byte2,rx.byte3);
         break;
 
         default:
@@ -72,28 +75,26 @@ void setuphubusb() {
   midi3.setHandleNoteOn(MaNoteOn);
   midi3.setHandleNoteOff(MaNoteOff);
   midi3.setHandleControlChange(MaControlChange);
-
-  // midi1.setHandleAfterTouchPoly(myAfterTouchPoly);
-  //  midi1.setHandleProgramChange(myProgramChange);
-  //  midi1.setHandleAfterTouchChannel(myAfterTouchChannel);
-  //  midi1.setHandlePitchChange(myPitchChange);
-  // Only one of these System Exclusive handlers will actually be
-  // used.  See the comments below for the difference between them.
-  //  midi1.setHandleSystemExclusive(mySystemExclusiveChunk);
-  //  midi1.setHandleSystemExclusive(mySystemExclusive);
-  //  midi1.setHandleTimeCodeQuarterFrame(myTimeCodeQuarterFrame);
-  // midi1.setHandleSongPosition(mySongPosition);
-  // midi1.setHandleSongSelect(mySongSelect);
-  //  midi1.setHandleTuneRequest(myTuneRequest);
-  //midi1.setHandleClock(Mytickmidi);
-  //  midi1.setHandleStart(myStart);
-  //  midi1.setHandleContinue(myContinue);
-  //  midi1.setHandleStop(myStop);
-  //  midi1.setHandleActiveSensing(myActiveSensing);
-  //  midi1.setHandleSystemReset(mySystemReset);
-  // This generic System Real Time handler is only used if the
-  // more specific ones are not set.
-  //  midi1.setHandleRealTimeSystem(myRealTimeSystem);
+/*
+TODO:
+  void myAfterTouchPoly(byte channel, byte note, byte velocity)
+  void myProgramChange(byte channel, byte program)
+  void myAfterTouch(byte channel, byte pressure)
+  void myPitchChange(byte channel, int pitch)
+  void mySystemExclusiveChunk(const byte *data, uint16_t length, bool last)
+  void mySystemExclusive(byte *data, unsigned int length)
+  void myTimeCodeQuarterFrame(byte data)
+  void mySongPosition(uint16_t beats)
+  void mySongSelect(byte songNumber)
+  void myTuneRequest()
+  void myClock()
+  void myStart()
+  void myContinue()
+  void myStop()
+  void myActiveSensing()
+  void mySystemReset()
+  void myRealTimeSystem(byte realtimebyte)
+  */
 }
 
 

@@ -75,12 +75,13 @@ void loadsynthdefaults() {
 
   AudioNoInterrupts();
 
+/*
   adsrlevels[0] = _ad.MadsrAttackDelay;
   adsrlevels[1] = _ad.mappedattack;
   adsrlevels[3] = _ad.mappeddecay;
   adsrlevels[4] = float( _ad.mappedsustain / 100);
   adsrlevels[5] = _ad.mappedrelease;
-
+*/
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
     enveloppesL[i]->delay(adsrlevels[0]);
     enveloppesL[i]->attack(adsrlevels[1]);
@@ -88,7 +89,7 @@ void loadsynthdefaults() {
     enveloppesL[i]->decay(adsrlevels[3]);
     enveloppesL[i]->sustain(adsrlevels[4]);
     enveloppesL[i]->release(adsrlevels[5]);
-    enveloppesL[i]->releaseNoteOn(20);
+    //enveloppesL[i]->releaseNoteOn(20);
   }
 
   //ch 0 is the sum of signals sent to fx should stay at 1
@@ -112,6 +113,7 @@ void loadsynthdefaults() {
   mixerWL5to8.gain(1, .25);
   mixerWL5to8.gain(2, 0.0);
   mixerWL5to8.gain(3, 0.0);
+  _ft.le303filterzWet();
 
   _ft.le303filtercontrols();
   AudioInterrupts();
@@ -119,12 +121,11 @@ void loadsynthdefaults() {
 
 void setupdefaultvalues() {
   _ft.initialize303group();
-  ampL.gain(1);
-  ampR.gain(1);
+  ampL.gain(1.0);
+  ampR.gain(1.0);
   // ADSR & synths
   loadsynthdefaults();
-  premixMaster.gain(0, 0.5);
-  premixMaster.gain(1, 0.5);
+
 
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
     for (int j = 0; j < OSCS_COUNT; j++) {
@@ -172,14 +173,17 @@ void setupdefaultvalues() {
   MasterL.gain(1, 0);
   MasterR.gain(1, 0);
   //Input
-  MasterL.gain(2, 0);
-  MasterR.gain(2, 0);
+  MasterL.gain(2, 1.0);
+  MasterR.gain(2, 1.0);
   //PlayRaw
   MasterL.gain(3, 1.0);
   MasterR.gain(3, 1.0);
 
   WetMixMasterL.gain(0, 1);
   WetMixMasterR.gain(0, 1);
+
+  premixMaster.gain(0, 0.5);
+  premixMaster.gain(1, 0.5);
 
   //needed to level fxBus & wetins
   for (int i = 0; i < 3; i++) {
@@ -200,7 +204,9 @@ void setupdefaultvalues() {
   //midiknobassigned[13] = 3;
   // FX Wet
   midiknobassigned[20] = 5;
-  midiknobassigned[21] = 6;
+  //in levels
+  midiknobassigned[21] = 89;
+  midiknobassigned[22] = 118;
   //audio In level
   //midiknobassigned[22] = 97;
 
@@ -210,16 +216,22 @@ void setupdefaultvalues() {
   // 303 pulse
   //midiknobassigned[23] = 20;
   //midiknobassigned[24] = 21;
-
-  pot_assignements[all_buttonns-4] = 100 ;
-  pot_assignements[all_buttonns-13] = 101 ;
+/*/
+  
   pot_assignements[all_buttonns-18] = 111 ;
   pot_assignements[all_buttonns-19] = 110 ;
   pot_assignements[all_buttonns-10] = 108 ;
   pot_assignements[all_buttonns-9] = 107 ;
+  */
   //midiknobassigned[111] = 109 ;
   //98 debugcpu
-  pot_assignements[all_buttonns-5] = 106 ;
+  //pots_assignements are to map onboard buttons to midi notes or ccs
+  //pot_assignements[all_buttonns-5] = 106 ;
+  //osc toggles
+  pot_assignements[all_buttonns-4] = 100 ;
+  pot_assignements[all_buttonns-13] = 101 ;
+
+  //midiknobs link a midi cc note to an index from ctl[] 
   midiknobassigned[100] = 116 ;
   midiknobassigned[101] = 117 ;
   //midiknobassigned[106] = 98;
@@ -241,8 +253,8 @@ void setupdefaultvalues() {
     call_setwavetypefromlist();
   }
   // USB Line in
-  InMixL.gain(0, 0);
-  InMixR.gain(0, 0);
+  InMixL.gain(0, 1.0);
+  InMixR.gain(0, 1.0);
   // LineIn
   InMixL.gain(1,1.0);
   InMixR.gain(1, 1.0);
@@ -251,6 +263,19 @@ void setupdefaultvalues() {
   InMixR.gain(2, 1.0);
   InMixL.gain(3, 0.0);
   InMixR.gain(3, 0.0);
+  
+  sd_mixerL.gain(0, 1.0);
+  sd_mixerR.gain(0, 1.0);
+
+  sd_mixerL.gain(1, 1.0);
+  sd_mixerR.gain(1, 1.0);
+
+  sd_mixerL.gain(2, 1.0);
+  sd_mixerR.gain(2, 1.0);
+
+  sd_mixerL.gain(3, 0.0);
+  sd_mixerR.gain(3, 0.0);
+
   LineInPreAmpL.gain(1.0);
   LineInPreAmpR.gain(1.0);
 }

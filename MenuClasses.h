@@ -19,7 +19,7 @@ extern int navrange;
 extern const unsigned char menuBG[];
 extern int sublevels[9];
 extern int previousnavlevel;
-
+extern bool externalticker;
 extern const uint8_t SCREEN_ADDRESS;
 extern const uint8_t OSCS_COUNT;
 extern const uint8_t SN_MENU_LABELS_COUNT;
@@ -126,7 +126,7 @@ class DisplayManager{
 
 class GlobalMixer : public SectionHolder {
     public:
-        GlobalMixer(void);
+        GlobalMixer(AudioControlSGTL5000& shield);
         static void show(void);
         static void showmixerwaves(void);
         static void setmastersmixlevel(int lebus);
@@ -144,6 +144,7 @@ class GlobalMixer : public SectionHolder {
         byte *wmixer_tmp_pointers[12];
         byte wmixer_tmp_values[12];
         static GlobalMixer* self;
+        AudioControlSGTL5000& MixShield;
 };
 
 class SequencerClocker : public AudioStream {

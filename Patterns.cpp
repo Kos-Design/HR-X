@@ -1682,15 +1682,8 @@ void PatternsMenuRouter::doPatternsmenu() {
         }
 
 void PatternsMenuRouter::deletepattern() {
-          Serial.println("");
-          Serial.print(self->catalog->get_current_file_path(0));
-          Serial.print(" = ");
-          Serial.print(SD.exists(self->catalog->get_current_file_path(0).c_str()));
-          if (SD.exists(self->catalog->get_current_file_path(0).c_str())) {
-            SD.remove(self->catalog->get_current_file_path(0).c_str());
-          }
-          self->catalog->list_files();
-        }
+  self->catalog->deleteFile();
+}
 
 void PatternsMenuRouter::copypattern() {
           File originpatternfile = SD.open(self->catalog->get_current_file_path(0).c_str());
@@ -1813,10 +1806,9 @@ void PatternsMenuRouter::writelemidi() {
           if (self->catalog->new_file_mode) {
             pat_filer = SD.open(self->catalog->get_new_file_name().c_str(), FILE_WRITE);
           } else {
-            if (SD.exists(self->catalog->get_current_file_path(0).c_str())) {
-              SD.remove(self->catalog->get_current_file_path(0).c_str());
-            }
-            pat_filer = SD.open(self->catalog->get_current_file_path(0).c_str(), FILE_WRITE);
+            const char* overwritee = self->catalog->get_current_file_path(0).c_str();
+            self->catalog->deleteFile();
+            pat_filer = SD.open(overwritee, FILE_WRITE);
           }
           if (pat_filer) {
             write_midi_info(pat_filer);

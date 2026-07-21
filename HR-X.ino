@@ -100,7 +100,7 @@ int letempipolate;
 float interpolcoeff;
 byte settointerpolate[128];
 EXTMEM byte leccinterpolated[128];
-float le303filterzgainz[3] = {1.0, 1.0, 1.0};
+float le303filterzgainz[3] = {1.0, 0.0, 0.0};
 byte le303filterzwet = 100;
 float le303filterzfreq = 10000;
 float le303filterzreso = 2.7;
@@ -498,7 +498,7 @@ bool LFOsync[OSCS_COUNT] = {0,0,0};
 byte wave1offset[OSCS_COUNT] = {64,64,64};
 
 // File originefile ;
-int adsrlevels[6] = {0, 5, 0, 50, 100, 60};
+int adsrlevels[6] = {0, 5, 0, 50, 100, 750};
 
 int navleveloverwrite = 2;
 int knobiprev[OSCS_COUNT] = {0, 0, 0};
@@ -548,7 +548,9 @@ const CcCalls ctl[] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel"
                       {"Flash Line6 Level",&FlashLineVolume_Knob6_ctl},{"Flash Line7 Level",&FlashLineVolume_Knob7_ctl},{"Flash Line8 Level",&FlashLineVolume_Knob8_ctl},{"Flash Line9 Level",&FlashLineVolume_Knob9_ctl},{"Flash Line10 Level",&FlashLineVolume_Knob10_ctl},
                       //130 ok
                       {"Flash Line11 Level",&FlashLineVolume_Knob11_ctl},{"Flash Line12 Level",&FlashLineVolume_Knob12_ctl},{"Flash Line13 Level",&FlashLineVolume_Knob13_ctl},{"Flash Line14 Level",&FlashLineVolume_Knob14_ctl},{"Flash Line15 Level",&FlashLineVolume_Knob15_ctl},
-                      {"Flash Line16 Level",&FlashLineVolume_Knob16_ctl},{"start oscilloscope",&start_spectro},{"stop oscilloscope",&stop_spectro}
+                      {"Flash Line16 Level",&FlashLineVolume_Knob16_ctl},{"start oscilloscope",&start_spectro},{"stop oscilloscope",&stop_spectro},{"USB In Volume",&USB_In_Volume_ctl},{"Fps oscilloscope",&adjust_osc_framerate_ctl},
+                      //140 ok
+                      {"Time oscilloscope",&adjust_osc_timee_ctl},{"refresh OscScope",&adjust_osc_refresher_period_ctl},{"Wav Editor Pitch",&adjust_waveEditor_pitch_ctl}  
 
                       };
 
@@ -606,19 +608,17 @@ char lastpathlisted[50];
 // char menuitem ;
 
 int midiknobs[128];
-// int midiknobiprev[128] ;
 
 int sublevels[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-// make it float
 
-float wavesfreqs[OSCS_COUNT] = {1.0, 1.0, 2.0};
+float wavesfreqs[OSCS_COUNT] = {1.0, 1.0, 0.5};
 float panLs[OSCS_COUNT] = {1, 1, 1};
 
-byte mixlevelsL[OSCS_COUNT] = {13, 0, 0};
+byte mixlevelsL[OSCS_COUNT] = {126, 64, 64};
 // 0 master , 1synth, 2 sampler, 3 unused
 byte mixlevelsM[4] = {127, 127, 38, 127};
 
-unsigned int Waveformstyped[OSCS_COUNT] = {1, 11, 11};
+unsigned int Waveformstyped[OSCS_COUNT] = {1, 0, 1};
 byte samplesnotesOn[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 AudioEffectEnvelope *enveloppesL[SYNTH_LINERS_COUNT] = {&envelopeL0, &envelopeL1, &envelopeL2,
@@ -945,7 +945,7 @@ ClockSink sink;
 EXTMEM AudioConnection patchCord_sinker(clocker, 0, sink, 0);
 
 DisplayManager dm = DisplayManager();
-GlobalMixer _mx;
+GlobalMixer _mx = GlobalMixer(audioShield);
 
 int rota_true_pos = 0;
 
@@ -991,12 +991,12 @@ class MasterClock {
         static void click() {
             self->tick96++;
             //if (!(self->tick96 % 2))
-            self->dispatch_ticks();
+            //self->dispatch_ticks();
         }
 
         void dispatch_ticks() {
             
-            if ((tick96 % 3) == 0 && _callback_3){
+            if ((tick96 % 8) == 0 && _callback_3){
                 //thirtySecond++;
                 _callback_3();
             }

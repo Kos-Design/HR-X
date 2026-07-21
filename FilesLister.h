@@ -2,6 +2,8 @@
 
 #include <Arduino.h>
 
+extern bool locked_fileing;
+
 class FilesLister{
     static const byte max_displayables = 6; //displayables lines
     public:
@@ -30,9 +32,11 @@ class FilesLister{
         String get_current_file_path(byte f_index);
         String make_full_file_name(byte number);
         String get_new_file_name();
+        void deleteFile();
         void nav_zero();
         void nav_one(byte save_lbl_idx,byte lbl_navlevel);
         void refresh_files_names();
+        void make_sub_folder(const char *base_folder, const char *subfoldee);
         void display_files_list();
         void list_files();
 };

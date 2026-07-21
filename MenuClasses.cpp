@@ -130,38 +130,38 @@ extern DisplayManager dm ;
 
 GlobalMixer* GlobalMixer::self = nullptr;
 
-GlobalMixer::GlobalMixer(){  
-                    self = this; 
-                    this->home_navrange=SN_MENU_LABELS_COUNT-1;
-                    this->relative_navlevel=1;
-                    this->max_navlevel=5;
-                    this->sublevels_address={0,0,0};
-                        wmixer_tmp_pointers[0]  = &mixlevelsM[0];
-                        wmixer_tmp_pointers[1]  = &mixlevelsM[1];
-                        wmixer_tmp_pointers[2]  = &mixlevelsM[2];
-                        wmixer_tmp_pointers[3]  = &WetMixMasters[1];
-                        wmixer_tmp_pointers[4]  = &WetMixMasters[2];
-                        wmixer_tmp_pointers[5]  = &WetMixMasters[3];
-                        wmixer_tmp_pointers[6]  = &wetins[0];
-                        wmixer_tmp_pointers[7]  = &wetins[1];
-                        wmixer_tmp_pointers[8]  = &wetins[2];
-                        wmixer_tmp_pointers[9]  = &mixlevelsL[0];
-                        wmixer_tmp_pointers[10] = &mixlevelsL[1];
-                        wmixer_tmp_pointers[11] = &mixlevelsL[2];
+GlobalMixer::GlobalMixer(AudioControlSGTL5000& shield) : MixShield(shield) {  
+    self = this; 
+    this->home_navrange=SN_MENU_LABELS_COUNT-1;
+    this->relative_navlevel=1;
+    this->max_navlevel=5;
+    this->sublevels_address={0,0,0};
+    wmixer_tmp_pointers[0]  = &mixlevelsM[0];
+    wmixer_tmp_pointers[1]  = &mixlevelsM[1];
+    wmixer_tmp_pointers[2]  = &mixlevelsM[2];
+    wmixer_tmp_pointers[3]  = &WetMixMasters[1];
+    wmixer_tmp_pointers[4]  = &WetMixMasters[2];
+    wmixer_tmp_pointers[5]  = &WetMixMasters[3];
+    wmixer_tmp_pointers[6]  = &wetins[0];
+    wmixer_tmp_pointers[7]  = &wetins[1];
+    wmixer_tmp_pointers[8]  = &wetins[2];
+    wmixer_tmp_pointers[9]  = &mixlevelsL[0];
+    wmixer_tmp_pointers[10] = &mixlevelsL[1];
+    wmixer_tmp_pointers[11] = &mixlevelsL[2];
 
-                        wmixer_tmp_values[0]  = mixlevelsM[0];
-                        wmixer_tmp_values[1]  = mixlevelsM[1];
-                        wmixer_tmp_values[2]  = mixlevelsM[2];
-                        wmixer_tmp_values[3]  = WetMixMasters[1];
-                        wmixer_tmp_values[4]  = WetMixMasters[2];
-                        wmixer_tmp_values[5]  = WetMixMasters[3];
-                        wmixer_tmp_values[6]  = wetins[0];
-                        wmixer_tmp_values[7]  = wetins[1];
-                        wmixer_tmp_values[8]  = wetins[2];
-                        wmixer_tmp_values[9]  = mixlevelsL[0];
-                        wmixer_tmp_values[10] = mixlevelsL[1];
-                        wmixer_tmp_values[11] = mixlevelsL[2];
-                    }
+    wmixer_tmp_values[0]  = mixlevelsM[0];
+    wmixer_tmp_values[1]  = mixlevelsM[1];
+    wmixer_tmp_values[2]  = mixlevelsM[2];
+    wmixer_tmp_values[3]  = WetMixMasters[1];
+    wmixer_tmp_values[4]  = WetMixMasters[2];
+    wmixer_tmp_values[5]  = WetMixMasters[3];
+    wmixer_tmp_values[6]  = wetins[0];
+    wmixer_tmp_values[7]  = wetins[1];
+    wmixer_tmp_values[8]  = wetins[2];
+    wmixer_tmp_values[9]  = mixlevelsL[0];
+    wmixer_tmp_values[10] = mixlevelsL[1];
+    wmixer_tmp_values[11] = mixlevelsL[2];
+    }
 
 void GlobalMixer::show(){
       showmixerwaves();
@@ -299,9 +299,10 @@ void GlobalMixer::setmastersmixlevel(int lebus) {
       switch (lebus) {
         case 0:
           // set mastermixlevel
-          //audioShield.volume(mixlevelsM[0] / 127.0);
-          ampL.gain(mixlevelsM[0] / 127.0);
-          ampR.gain(mixlevelsM[0] / 127.0);
+          self->MixShield.volume(mixlevelsM[0] / 127.0);
+          //ampL & R level should be 1.0 as they are used by queue recorder
+          //ampL.gain(mixlevelsM[0] / 127.0);
+          //ampR.gain(mixlevelsM[0] / 127.0);
           break;
         case 1:
           // set synth Main
@@ -511,7 +512,7 @@ void SequencerClocker::update(){
   while (_sampleAccumulator >= _samplesPerTick) {
     _sampleAccumulator -= _samplesPerTick;
     //Tricker.click();
-    if (_callback_96){
+    if (_callback_96 && !externalticker){
       _callback_96();
     }
   }

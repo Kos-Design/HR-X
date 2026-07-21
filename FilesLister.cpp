@@ -37,7 +37,16 @@ String FilesLister::get_new_file_name() {
             }
             return new_path ;
         }
-
+void FilesLister::deleteFile() {
+          if (locked_fileing)
+            return;
+          locked_fileing = 1 ;
+          if (SD.exists((char *)(this->get_current_file_path(0)).c_str())) {
+            SD.remove((char *)(this->get_current_file_path(0)).c_str());
+          }
+          this->list_files();
+          locked_fileing = 0 ;
+        }
 void  FilesLister::nav_zero(){
             dm.clear_buffs();
             navrange = this->home_navrange;
@@ -73,6 +82,15 @@ void  FilesLister::refresh_files_names() {
             }
         }
 
+void FilesLister::make_sub_folder(const char *base_folder, const char *subfoldee){
+  if (!(SD.exists(base_folder))) {
+    SD.mkdir(base_folder);
+  }
+  if (!(SD.exists(((String)base_folder+"/"+(String)subfoldee).c_str()))) {
+    SD.mkdir(((String)base_folder+"/"+(String)subfoldee).c_str());
+  }
+}
+
 void  FilesLister::display_files_list() {
           dm.clean_title_1_1();
 
@@ -103,38 +121,37 @@ void  FilesLister::display_files_list() {
         }
 
 void  FilesLister::list_files() {
-            //no lock fileing on read as it is used during locked ops, should be fine
-            this->files_counter = 0;
-            if (SD.exists(this->folder_dir)) {
-            File opened_dir = SD.open(this->folder_dir);
-            while (this->files_counter < 99) {
-                File entry = opened_dir.openNextFile();
-                if (!entry) {
-                    break;
-                }
-                if (!entry.isDirectory()) {
-                    char* named = (char*)entry.name();                    
-                    //maybe get ext in a separate list for mixed files type <- but that shouldn't be happening
-                    //perhaps for .wav and .raw but best to sort them on pc before transfer to SD
-                    named[strlen(named) - 4] = '\0';
-                    //int is at X chars after prefix
-                    bool good_base = (bool)(strncmp((char*)entry.name(), this->basenamer, this->base_char_count) == 0) ;
-                    if (strlen((char*)entry.name()) != this->base_char_count+2 || !good_base ){
-                        /*Serial.println(" ");
-                        Serial.print(strlen((char*)entry.name()));
-                        Serial.print("<-- badly named !!! or is it ? we got a base name length of ");
-                        Serial.println(this->base_char_count+2);*/
-                        continue;
-                    }
-                    //keep only last 2 digits assuming a basename of 8 chars
-                    this->files_indexed[this->files_counter] = atoi(named+this->base_char_count);
-                    this->files_counter++;
-                }
-                entry.close();
-            }
-            opened_dir.close();
-            }
-            refresh_files_names();
-
+  //no lock fileing on read as it is used during locked ops, should be fine
+  this->files_counter = 0;
+  if (SD.exists(this->folder_dir)) {
+    File opened_dir = SD.open(this->folder_dir);
+    while (this->files_counter < 99) {
+      File entry = opened_dir.openNextFile();
+      if (!entry) {
+          break;
+      }
+      if (!entry.isDirectory()) {
+        char* named = (char*)entry.name();                    
+        //maybe get ext in a separate list for mixed files type <- but that shouldn't be happening
+        //perhaps for .wav and .raw but best to sort them on pc before transfer to SD
+        named[strlen(named) - strlen(this->extension)] = '\0';
+        //int is at X chars after prefix
+        bool good_base = (bool)(strncmp((char*)entry.name(), this->basenamer, this->base_char_count) == 0) ;
+        if (strlen((char*)entry.name()) != this->base_char_count+2 || !good_base ){
+            Serial.println(" ");
+            Serial.print(strlen((char*)entry.name()));
+            Serial.print("<-- badly named !!! or is it ? we got a base name length of ");
+            Serial.println(this->base_char_count+2);
+            continue;
         }
+        //keep only last 2 digits assuming a basename of 8 chars
+        this->files_indexed[this->files_counter] = atoi(named+this->base_char_count);
+        this->files_counter++;
+      }
+      entry.close();
+    }
+    opened_dir.close();
+  }
+  refresh_files_names();
+}
 

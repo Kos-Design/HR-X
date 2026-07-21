@@ -3,14 +3,17 @@
 class SamplerMenuRouter : public SectionHolder {
     public:
         SamplerMenuRouter() {
-          self = this ;
-                    this->home_navrange=sampler_labels_count-1;
-                    this->relative_navlevel=1;
-                    this->max_navlevel=5;
-                    this->sublevels_address={7,0,0};
+                    self = this ;
+                    self->home_navrange=sampler_labels_count-1;
+                    self->catalog = new FilesLister("SOUNDSET/","SAMPLE#",".RAW",show,self->home_navrange);
+                    self->relative_navlevel=1;
+                    self->max_navlevel=5;
+                    self->sublevels_address={7,0,0};
                     //home method not really used yet
                     //this->set_home(call_fx_mainpanel);
                     }
+        FilesLister *catalog;
+
         static void sampler_nav_two(){
             if (sublevels[1] == 0) {
                 display.clearDisplay();
@@ -354,9 +357,7 @@ class SamplerMenuRouter : public SectionHolder {
         }
         static void domkdir() {
           newmkdirpath = get_new_dir_name("SOUNDSET/MABANK") ;
-          if (!(SD.exists(newmkdirpath.c_str()))) {
-            SD.mkdir(newmkdirpath.c_str());
-          }
+          self->catalog->make_sub_folder("SOUNDSET", newmkdirpath.c_str());
           copyflashtoSD();
           dosoundlist();
         }

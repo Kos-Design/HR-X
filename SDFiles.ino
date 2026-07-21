@@ -1,4 +1,4 @@
-
+/*
 String make_full_rec_file_name(byte number,String base_path_dir,String suffix="#L.RAW") {
   char formatted_number[4] ;
   sprintf(formatted_number,"%02d",number);
@@ -20,7 +20,7 @@ String get_new_REC_LOOP_name(String base_path_dir, String ext=".TXT") {
   }
   return new_path ;
 }
-
+*/
 String make_full_dir_name(byte number,String base_path_dir) {
   char formatted_number[4] ;
   sprintf(formatted_number,"%02d",number);

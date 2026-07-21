@@ -13,8 +13,6 @@ class PresetsMenuRouter : public SectionHolder {
         }
         FilesLister *catalog;
 
-        byte presets_count = 0 ;
-
         static void route_navlevel(){
           _nav_presets[sublevels[1]]();
         }
@@ -54,23 +52,14 @@ class PresetsMenuRouter : public SectionHolder {
           if (self->catalog->new_file_mode) {
             String presets_base_path = "PRESETS" ;
             String presets_sub_path = "SYNTH" ;
-
-            if (!(SD.exists(presets_base_path.c_str()))) {
-              SD.mkdir(presets_base_path.c_str());
-            }
-
-            if (!(SD.exists((presets_base_path+"/"+presets_sub_path).c_str()))) {
-              SD.mkdir((presets_base_path+"/"+presets_sub_path).c_str());
-            }
-
+            self->catalog->make_sub_folder("PRESETS", "SYNTH");
             String new_preset_name = self->catalog->get_new_file_name() ;
             preset_filer = SD.open(new_preset_name.c_str(), FILE_WRITE);
 
           } else {
-            if (SD.exists(self->catalog->get_current_file_path(0).c_str())) {
-              SD.remove(self->catalog->get_current_file_path(0).c_str());
-            }
-            preset_filer = SD.open(self->catalog->get_current_file_path(0).c_str(), FILE_WRITE);
+            const char* overwritee = self->catalog->get_current_file_path(0).c_str();
+            self->catalog->deleteFile();
+            preset_filer = SD.open(overwritee, FILE_WRITE);
           }
           if (preset_filer) {
             writesynthpreset(preset_filer);
@@ -609,14 +598,7 @@ class PresetsMenuRouter : public SectionHolder {
         }
 
         static void deletepreset() {
-          if (locked_fileing)
-            return;
-          locked_fileing = 1 ;
-          if (SD.exists(self->catalog->get_current_file_path(0).c_str())) {
-            SD.remove(self->catalog->get_current_file_path(0).c_str());
-          }
-          self->catalog->list_files();
-          locked_fileing = 1 ;
+          self->catalog->deleteFile();
         }
 
         static void remove_preset(){

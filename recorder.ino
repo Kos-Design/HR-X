@@ -14,21 +14,32 @@ class RecorderMenuRouter : public SectionHolder {
     public:
         RecorderMenuRouter() {
                     self = this;
-                    this->home_navrange=self->rec_labels_count - 1;
-                    this->relative_navlevel=navrecmenu;
-                    this->max_navlevel=5;
-                    this->sublevels_address={7,3,0};
+                    self->home_navrange=self->rec_labels_count - 1;
+                    self->catalog = new FilesLister("SOUNDSET/REC/","LOOP","#L.RAW",recorder_menu,self->home_navrange);
+                    self->relative_navlevel=navrecmenu;
+                    self->max_navlevel=5;
+                    self->sublevels_address={7,3,0};
+                    self->catalog->list_files();
                     }
 
+        FilesLister *catalog;
         const byte rec_labels_count = 5;
-        
+        float pitcher = 1.0;
+
         static void show() {
-         _route_nav[navlevel-self->relative_navlevel]();
+          _route_nav[navlevel-self->relative_navlevel]();
+        }
+
+        static void lv1_wrapper_template (void (*func)()) {
+          self->catalog->nav_one(0,1);
+          if (navlevel >= 3) {
+            func();
+            returntonav(1, self->home_navrange,sublevels[1]);
+          }
         }
 
         static void getthisRecname() {
-          byte lerecdiri = self->getrecdir();
-          newRecpathL = samplefullpath(lerecdiri,sublevels[navrecmenu + 1]);
+          newRecpathL = self->catalog->get_current_file_path(0);
           newloopedpath = newRecpathL ;
           //not the same file if stereo
           //newRecpathR = newRecpathL ;
@@ -43,7 +54,6 @@ class RecorderMenuRouter : public SectionHolder {
           return sampledirsregistered;
         }
 
-
         static void startRecording() {
           if (locked_fileing)
             return;
@@ -52,7 +62,8 @@ class RecorderMenuRouter : public SectionHolder {
             just_pressed_rec = true ;
             check_rec_folder_path();
             tocker = millis();
-            newloopedpath = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW");
+            newloopedpath = self->catalog->get_new_file_name();
+            //self->catalog->get_new_file_name();
             looper = SD.open(newloopedpath.c_str(), FILE_WRITE);
             if (looper) {
               //AudioNoInterrupts();
@@ -63,18 +74,16 @@ class RecorderMenuRouter : public SectionHolder {
             } else {
               rec_looping = false ;
             }
-
-        //start at pat pos
-        //rec mono
-        // ends in 32 ticks
-        //save sample
-        // assign saved to note 50
-        // set pattern empty and place note 50 on 0
-        //clear locks
-
+              //TODO: pattern synched record
+              //start at pat pos
+              //rec mono
+              // ends in 32 ticks
+              //save sample
+              // assign saved to note 50
+              // set pattern empty and place note 50 on 0
+              //clear locks
           }
         }
-
 
         static void stopRecordingR() {
           // frec2 = SD.open("RECORDR.RAW", FILE_WRITE);
@@ -145,7 +154,6 @@ class RecorderMenuRouter : public SectionHolder {
             }
             locked_fileing = 0 ;
         }
-
 
         static void recordVpanelAction() {
           if (navlevel == navrec + 1) {
@@ -314,49 +322,20 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void check_rec_folder_path(){
-          if (!(SD.exists(((String)"SOUNDSET/REC").c_str()))) {
-            if (!(SD.exists(((String)"SOUNDSET").c_str()))) {
-              SD.mkdir(((String)"SOUNDSET").c_str());
-            }
-            SD.mkdir(((String)"SOUNDSET/REC").c_str());
-          }
-        }
-
-        static void dolistofRecs() {
-          int startx = 80;
-          int starty = 16;
-          canvastitle.setCursor(startx, 0);
-          canvastitle.setTextSize(1);
-          byte lerecdiri = self->getrecdir();
-          if (lerecdiri < sampledirsregistered) {
-            canvastitle.print((char *)samplebase[lerecdiri][sublevels[navrecmenu + 1]]);
-            for (int i=0;i<sizeofsamplefolder[lerecdiri]-1-(sublevels[navrecmenu + 1]);i++) {
-              canvasBIG.setCursor(startx, starty + ((i)*10));
-              canvasBIG.println((char *)samplebase[lerecdiri][sublevels[navrecmenu + 1] + 1 + i]);
-            }
-            for (int i=0; i<sublevels[navrecmenu+1]; i++) {
-              canvasBIG.setCursor(startx,(10*(sizeofsamplefolder[lerecdiri]-sublevels[navrecmenu + 1]))+6+(i*10));
-              canvasBIG.println((char *)samplebase[lerecdiri][i]);
-            }
-          }
+          if (!(SD.exists(((String)"SOUNDSET/REC").c_str()))) 
+            self->catalog->make_sub_folder("SOUNDSET", "REC");
         }
 
         static void deleteRec() {
-          if (locked_fileing)
-            return;
-          locked_fileing = 1 ;
-          byte lerecdiri = self->getrecdir();
-          if (SD.exists((char *)(samplefullpath(lerecdiri,sublevels[navrecmenu + 1]).c_str()))) {
-            SD.remove((char *)(samplefullpath(lerecdiri,sublevels[navrecmenu + 1]).c_str()));
-          }
-          call_dosoundlist();
-          locked_fileing = 0 ;
+          self->catalog->deleteFile();
         }
 
         static void recorder_menu() {
           char Recmenulabels[self->rec_labels_count][12] = {"Record", "Load", "Delete", "Params","Edit"};
           byte startx = 5;
           byte starty = 16;
+          canvastitle.setCursor(0, 0);
+          canvastitle.setTextSize(2);
           char *textin = (char *)Recmenulabels[sublevels[navrecmenu]];
           canvastitle.println(textin);
           for (int i=0;i<self->rec_labels_count-1-(sublevels[navrecmenu]);i++) {
@@ -377,14 +356,20 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void rec_nav_zero(){
+          //dm.clean_title_2_1();
+          self->catalog->nav_zero();
+          /*
           dm.clean_title_2_1();
           navrange = self->home_navrange;
           recorder_menu();
           dolistofRecs();
           dm.dodisplay();
+          */
         }
 
         static void rec_nav_one(){
+
+          /*
           byte lerecddir = self->getrecdir();
               if (lerecddir < sampledirsregistered) {
                 navrange = sizeofsamplefolder[lerecddir] - 1;
@@ -395,11 +380,13 @@ class RecorderMenuRouter : public SectionHolder {
               }
           recorder_menu();
           dolistofRecs();
+          */
         }
 
         static void lv1_wrapper(void (*func)()) {
           dm.clean_title_2_1();
-          rec_nav_one();
+          self->catalog->nav_one(99,1);
+
           if (navlevel >= self->relative_navlevel + 2) {
             func();
             scheddule_wave_rebuild(true);
@@ -527,24 +514,6 @@ class RecorderMenuRouter : public SectionHolder {
           self->start_zone = self->start_zone + subStart * zone_width;
         }
 
-        /*
-        static void getRange(float startPos, float endPos,
-              uint32_t &startByte,
-              uint32_t &endByte,
-              uint32_t sampleSize){ 
-
-            uint32_t fileSize = src.size();
-            startPos = constrain(startPos, 0.0f, 1.0f);
-            endPos   = constrain(endPos, 0.0f, 1.0f);
-
-            if (startPos > endPos)
-                swap(startPos, endPos);
-
-            startByte = ((uint32_t)(fileSize * startPos) / sampleSize) * sampleSize;
-            endByte   = ((uint32_t)(fileSize * endPos) / sampleSize) * sampleSize;
-        }
-        */
-
         static void reverseSection(float startPos, float endPos) {
           if (locked_fileing)
           return;
@@ -556,7 +525,7 @@ class RecorderMenuRouter : public SectionHolder {
             File src = SD.open(newloopedpath.c_str(), FILE_READ);
             if (!src) return;
             
-            String new_file = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+            String new_file = self->catalog->get_new_file_name() ;
             File dst = SD.open(new_file.c_str(), FILE_WRITE);
             if (!dst) {
                 src.close();
@@ -641,7 +610,7 @@ class RecorderMenuRouter : public SectionHolder {
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           
-          String new_file = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+          String new_file = self->catalog->get_new_file_name() ;
           File dst = SD.open(new_file.c_str(), FILE_WRITE);
           const uint32_t BUFFER_SAMPLES = 1024;
           int16_t buffer[BUFFER_SAMPLES];
@@ -747,7 +716,7 @@ class RecorderMenuRouter : public SectionHolder {
             if (!in)
                 return;
 
-            String new_file = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+            String new_file = self->catalog->get_new_file_name() ;
             File out = SD.open(new_file.c_str(), FILE_WRITE);
             if (!out)
             {
@@ -821,7 +790,7 @@ class RecorderMenuRouter : public SectionHolder {
             File src = SD.open(newloopedpath.c_str(), FILE_READ);
             if (!src) return;
             
-            String new_file = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+            String new_file = self->catalog->get_new_file_name() ;
             File dst = SD.open(new_file.c_str(), FILE_WRITE);
 
             uint32_t fileSize = src.size();
@@ -973,7 +942,7 @@ class RecorderMenuRouter : public SectionHolder {
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           
-          String new_file = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+          String new_file = self->catalog->get_new_file_name() ;
           File dst = SD.open(new_file.c_str(), FILE_WRITE);
           //const uint16_t sampleSize = 2;
           const uint32_t BUFFER_SAMPLES = 1024;
@@ -1051,7 +1020,6 @@ class RecorderMenuRouter : public SectionHolder {
           locked_fileing = 0 ;
         }
 
-        //TODO yes I know it's not very optimized to use 2 methods...
         static void fadeOutSection(float startPos, float endPos) {
           if (locked_fileing)
           return;
@@ -1060,7 +1028,7 @@ class RecorderMenuRouter : public SectionHolder {
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           
-          String new_file = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+          String new_file = self->catalog->get_new_file_name() ;
           File dst = SD.open(new_file.c_str(), FILE_WRITE);
 
           //const uint16_t sampleSize = 2;
@@ -1139,6 +1107,18 @@ class RecorderMenuRouter : public SectionHolder {
           locked_fileing = 0 ;
         }
 
+        static void start_inputting_pitch(){
+          navrange = 127 ;
+          self->pitcher = (sublevels[self->relative_navlevel + 2]/127.0) * 2.0;
+
+          if (navlevel >= self->relative_navlevel+3) {
+            pitchSection(self->start_zone,self->end_zone,self->pitcher);
+            scheddule_wave_rebuild();
+            returntonav(self->relative_navlevel + 1,11,sublevels[self->relative_navlevel + 1]);
+
+          }
+        }
+
         static void deleteSection(float startPos, float endPos){
           if (locked_fileing)
           return;
@@ -1147,7 +1127,7 @@ class RecorderMenuRouter : public SectionHolder {
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           
-          String new_file = get_new_REC_LOOP_name("SOUNDSET/REC/LOOP","#L.RAW") ;
+          String new_file = self->catalog->get_new_file_name() ;
           File dst = SD.open(new_file.c_str(), FILE_WRITE);
           const uint32_t BUFFER_SIZE = 2048;
           uint8_t buffer[BUFFER_SIZE];
@@ -1270,8 +1250,7 @@ class RecorderMenuRouter : public SectionHolder {
             }
             //pitching
             if (sublevels[self->relative_navlevel + 1] == 5){
-              pitchSection(self->start_zone,self->end_zone,0.5);
-              scheddule_wave_rebuild();
+              start_inputting_pitch();
             }
 
             //trim in
@@ -1323,12 +1302,38 @@ class RecorderMenuRouter : public SectionHolder {
               display.display();
             //returntonav(self->relative_navlevel + 1, self->home_navrange,0);
             }
+          
+          //5 is pitch
+            if (sublevels[self->relative_navlevel + 1] == 5){
+              start_inputting_pitch();
+            }
           }
-          if (navlevel > self->relative_navlevel +3) {
+          if (navlevel > self->relative_navlevel +3 ) {
               returntonav(self->relative_navlevel + 1,11,sublevels[self->relative_navlevel + 1]);
               self->wave_selected = 1;
               }
         }
+
+        static void Undo(){
+
+        }
+
+        static void redo(){
+
+        }
+        
+        static void apply_ops(){
+
+        }
+
+        static void clear_temp_files(){
+          
+        }
+
+        static void make_temp_folders(){
+          self->catalog->make_sub_folder("SOUNDSET", "TEMP");
+        }
+
         float previous_offset = 0.0f ;
         float start_zone = 0.0f ;
         float end_zone = 1.0f ; 
