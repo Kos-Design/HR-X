@@ -436,25 +436,7 @@ class SongMenuRouter : public SectionHolder {
         }
 
         static void copySong() {
-          if (locked_fileing)
-            return;
-          locked_fileing = 1 ;
-          File origin_file;
-          File target_file;
-          if (SD.exists(self->catalog->get_current_file_path(0).c_str())) {
-            target_file = SD.open(self->catalog->get_new_file_name().c_str(), FILE_WRITE);
-            origin_file = SD.open(self->catalog->get_current_file_path(0).c_str(), FILE_READ);
-            size_t n;
-            uint8_t buf[64];
-            while ((n = origin_file.read(buf, sizeof(buf))) > 0) {
-              target_file.write(buf, n);
-            }
-          }
-          origin_file.close();
-          target_file.close();
-          locked_fileing = 0 ;
-          self->catalog->list_files();
-
+          self->catalog->copyFile();
         }
 
         static void remove_song(){

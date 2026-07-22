@@ -9,7 +9,7 @@ class FilesLister{
     public:
         FilesLister(const char *main_folder, const char *base_filename, const char *file_extension, void (*menu_labels_method)(), byte navranger);
 
-        const char *folder_dir;
+        char folder_dir[32];
         const char *basenamer;
         const char *extension;
         void (*home)();
@@ -18,13 +18,22 @@ class FilesLister{
         int left_margin = 80;
         int top_margin = 16;
         int v_spacer = 10 ;
+        bool folders_mode = false;
+        bool folders_already_listed = false;
         //only lists files with 00.ext suffix as it extracts the basename to only deal with their respective numbers.
         // can't work on normal files not following this naming format yet.
         byte files_counter = 0 ;
+        byte folders_counter = 0 ;
+        byte free_counter = 0 ;
         byte displayable_offset = 0 ;
         String files_displayable[max_displayables];
+        String folders_displayable[max_displayables];
+
         //stores files suffixes numbers only
         byte files_indexed[99];
+        char folders_indexed[99][16];
+        char free_files[99][16];
+        String folder_selected;
         bool new_file_mode = 0;
         //the files list should be responding to shifting in navlevel r_nav and display in r_nav-1(navlevel of the menu instancer)
         byte r_nav = 2;
@@ -33,11 +42,15 @@ class FilesLister{
         String make_full_file_name(byte number);
         String get_new_file_name();
         void deleteFile();
+        void copyFile();
         void nav_zero();
         void nav_one(byte save_lbl_idx,byte lbl_navlevel);
         void refresh_files_names();
+        void refresh_folders_names();
         void make_sub_folder(const char *base_folder, const char *subfoldee);
         void display_files_list();
+        void display_folders_list();
         void list_files();
+
 };
 

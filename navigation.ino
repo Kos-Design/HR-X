@@ -57,6 +57,7 @@ void evalinputs() {
     }
     if (!navlevel) {
       dm.displaymenu();
+      reinitsublevels(1);
       return;
     }
     sublevels[navlevel] = 0;

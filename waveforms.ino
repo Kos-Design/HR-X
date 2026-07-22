@@ -275,27 +275,7 @@ class WaveformsMenuRouter : public SectionHolder {
         }
 
         static void copywaveform() {
-          if (locked_fileing)
-            return;
-          locked_fileing = 1 ;
-          File origin_file;
-          File target_file;
-          String waveform_path = self->catalog->get_current_file_path(0) ;
-          if (SD.exists(waveform_path.c_str())) {
-            target_file = SD.open(self->catalog->get_new_file_name().c_str(), FILE_WRITE);
-            origin_file = SD.open(waveform_path.c_str(), FILE_READ);
-            size_t n_size;
-            uint8_t buf[64];
-            while ((n_size = origin_file.read(buf, sizeof(buf))) > 0) {
-              target_file.write(buf, n_size);
-            }
-          }
-
-          origin_file.close();
-          target_file.close();
-          self->catalog->list_files();
-          
-          locked_fileing = 0 ;
+          self->catalog->copyFile();
         }
 
         static void deletewaveform() {

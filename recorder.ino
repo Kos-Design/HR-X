@@ -19,11 +19,11 @@ class RecorderMenuRouter : public SectionHolder {
                     self->relative_navlevel=navrecmenu;
                     self->max_navlevel=5;
                     self->sublevels_address={7,3,0};
-                    self->catalog->list_files();
+                    //self->catalog->list_files();
                     }
 
         FilesLister *catalog;
-        const byte rec_labels_count = 5;
+        const byte rec_labels_count = 6;
         float pitcher = 1.0;
 
         static void show() {
@@ -41,6 +41,8 @@ class RecorderMenuRouter : public SectionHolder {
         static void getthisRecname() {
           newRecpathL = self->catalog->get_current_file_path(0);
           newloopedpath = newRecpathL ;
+          Serial.println(newloopedpath);
+
           //not the same file if stereo
           //newRecpathR = newRecpathL ;
         }
@@ -331,7 +333,8 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void recorder_menu() {
-          char Recmenulabels[self->rec_labels_count][12] = {"Record", "Load", "Delete", "Params","Edit"};
+          self->catalog->folders_mode = false ;
+          char Recmenulabels[self->rec_labels_count][12] = {"Record", "Load", "Delete", "Params","Edit","../"};
           byte startx = 5;
           byte starty = 16;
           canvastitle.setCursor(0, 0);
@@ -356,31 +359,53 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void rec_nav_zero(){
-          //dm.clean_title_2_1();
           self->catalog->nav_zero();
-          /*
-          dm.clean_title_2_1();
-          navrange = self->home_navrange;
-          recorder_menu();
-          dolistofRecs();
-          dm.dodisplay();
-          */
         }
+        
+        static void drawFoldersList(){
+          
+          self->catalog->folders_mode = true ;
+          //self->catalog->folder_dir = "SOUNDSET/" ;
+          strncpy(self->catalog->folder_dir, "SOUNDSET/", 31);
+          self->catalog->folder_dir[31] = '\0';
+          self->catalog->extension = ".RAW" ;
+          if (!self->catalog->folders_already_listed){
+            self->catalog->displayable_offset = 0 ;
+            self->catalog->list_files();
+            //Serial.println("folders listed");
+            //set this to false when creating new soundbank or temp
+            self->catalog->folders_already_listed = true;
+          }
+          navrange = max(self->catalog->folders_counter - 1, 0);
+          //
+          //Serial.println(self->catalog->folder_selected );
+          self->catalog->display_folders_list();
+          dm.dodisplay();
+          //Serial.println(self->catalog->folder_selected);
+          if (navlevel > self->relative_navlevel+1){
+            String entering_dir = ((String)self->catalog->folder_dir + self->catalog->folder_selected + "/");
+            if (SD.exists(entering_dir.c_str())){
+              self->catalog->folders_mode = false ;
+              //self->catalog->folder_dir = (entering_dir).c_str();
+              strncpy(self->catalog->folder_dir, entering_dir.c_str(), 31);
+              self->catalog->folder_dir[31] = '\0';
 
-        static void rec_nav_one(){
+              //self->catalog->folder_dir[strlen(entering_dir.c_str())-1] = '\0';
 
-          /*
-          byte lerecddir = self->getrecdir();
-              if (lerecddir < sampledirsregistered) {
-                navrange = sizeofsamplefolder[lerecddir] - 1;
-              } else {
-                
-                pseudoconsole("No SOUNDSET/REC folder \n on SD card");
-                returntonav(self->relative_navlevel, self->home_navrange,sublevels[self->relative_navlevel]);
+              if (strcmp(self->catalog->folder_selected.c_str(), "REC") == 0 ) {
+                self->catalog->extension = "#L.RAW" ;
               }
-          recorder_menu();
-          dolistofRecs();
-          */
+
+            } else {
+              Serial.println("error with dir");
+              Serial.println(self->catalog->folder_selected);
+              returntonav(navrecmenu,self->home_navrange,0);
+            }
+            self->catalog->list_files();
+            self->catalog->folders_already_listed = false;
+            
+            returntonav(navrecmenu,self->home_navrange,0);
+          }
         }
 
         static void lv1_wrapper(void (*func)()) {
@@ -458,12 +483,12 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void select_cursor() {
-          String _legend[] = {"Select","Zoom Out","Zoom In","Normalize","Reverse","Pitch","Fade In","Fade Out","Preview","Del before","Del after","Del zone","Keep zone"," "," "};
+          String _legend[] = {"Select","Zoom Out","Zoom In","Normalize","Reverse","Pitch x","Fade In","Fade Out","Preview","Del before","Del after","Del zone","Keep zone","Undo"," "};
 
           display.clearDisplay();
           dm.dodisplay();
           int cursor_coords[][4] = {{0,0,18,8},{22,0,9,8},{38,0,9,8},{52,0,9,8},{64,0,9,8},{76,0,9,8},{88,0,14,8},{106,0,14,8},{0,8,128,48},
-                                    {23,56,14,8},{40,56,21,8},{64,56,20,8},{88,56,27,8}};
+                                    {23,56,14,8},{40,56,21,8},{64,56,20,8},{88,56,27,8},{116,56,12,8}};
           display.fillRect(cursor_coords[sublevels[self->relative_navlevel+1]][0], 
                             cursor_coords[sublevels[self->relative_navlevel+1]][1],
                             cursor_coords[sublevels[self->relative_navlevel+1]][2],
@@ -476,7 +501,7 @@ class RecorderMenuRouter : public SectionHolder {
           //display.fillRect(80,16, 38, 10, SSD1306_INVERSE);
           display.setTextSize(1);
           display.setTextColor(SSD1306_INVERSE);
-          display.setCursor(68,12);
+          display.setCursor(60,12);
           display.print(_legend[sublevels[self->relative_navlevel +1]]);
           display.display();
         }
@@ -498,7 +523,7 @@ class RecorderMenuRouter : public SectionHolder {
           canvasBIG.print(" Out");// trim from begining to end of zone
           canvasBIG.print(" Del");// remove selected zone
           canvasBIG.print(" Trim");// keep only selected zone
-          
+          canvasBIG.print((char)14);// Undo
         }
 
         static void redraw_selection_box(){
@@ -521,10 +546,9 @@ class RecorderMenuRouter : public SectionHolder {
             const uint16_t sampleSize = 2;      // 16-bit RAW
             const uint32_t blockSamples = 512;  // 1024-byte buffer
             uint8_t buffer[blockSamples * sampleSize];
-
             File src = SD.open(newloopedpath.c_str(), FILE_READ);
             if (!src) return;
-            
+            //should get new temp name
             String new_file = self->catalog->get_new_file_name() ;
             File dst = SD.open(new_file.c_str(), FILE_WRITE);
             if (!dst) {
@@ -596,6 +620,7 @@ class RecorderMenuRouter : public SectionHolder {
             src.close();
             dst.close();
 
+            //new current should be new/current temp
             newloopedpath = new_file ;
             locked_fileing = 0 ;
 
@@ -921,7 +946,7 @@ class RecorderMenuRouter : public SectionHolder {
 
         static void playSection(){
           PartialPlayerMono.play(newloopedpath.c_str(),self->start_zone,self->end_zone);
-          returntonav(self->relative_navlevel + 1,11,sublevels[self->relative_navlevel + 1]);
+          returntonav(self->relative_navlevel + 1,12,sublevels[self->relative_navlevel + 1]);
         }
 
         static void scheddule_wave_rebuild(bool noreturn = 0){
@@ -930,7 +955,7 @@ class RecorderMenuRouter : public SectionHolder {
           self->wave_buffed = 0 ;
           reinitsublevels(self->relative_navlevel + 1); 
           if (!noreturn)
-            returntonav(self->relative_navlevel + 1,11,sublevels[self->relative_navlevel + 1]);
+            returntonav(self->relative_navlevel + 1,12,sublevels[self->relative_navlevel + 1]);
           locked_fileing = 0 ; 
         }
 
@@ -1109,12 +1134,15 @@ class RecorderMenuRouter : public SectionHolder {
 
         static void start_inputting_pitch(){
           navrange = 127 ;
+          display.setCursor(104,12);
+          display.fillRect(104, 12, 30, 10, SSD1306_BLACK);
           self->pitcher = (sublevels[self->relative_navlevel + 2]/127.0) * 2.0;
-
+          display.print(self->pitcher);
+          dm.dodisplay();
           if (navlevel >= self->relative_navlevel+3) {
             pitchSection(self->start_zone,self->end_zone,self->pitcher);
             scheddule_wave_rebuild();
-            returntonav(self->relative_navlevel + 1,11,sublevels[self->relative_navlevel + 1]);
+            returntonav(self->relative_navlevel + 1,12,sublevels[self->relative_navlevel + 1]);
 
           }
         }
@@ -1201,7 +1229,8 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void edit_record(){
-          navrange = 12 ;
+          make_temp_folders();
+          navrange = 13 ;
            if (navlevel == self->relative_navlevel+1) {
             
             if (!self->wave_buffed) {
@@ -1225,7 +1254,7 @@ class RecorderMenuRouter : public SectionHolder {
               zoomRange((sublevels[self->relative_navlevel + 2] / 127.0 ),((sublevels[self->relative_navlevel + 2] + sublevels[self->relative_navlevel + 3] ) / 127.0 ));
               self->wave_buffed = 0 ;
               reinitsublevels(self->relative_navlevel + 2);
-              returntonav(self->relative_navlevel + 1,11,sublevels[self->relative_navlevel + 1]);
+              returntonav(self->relative_navlevel + 1,12,sublevels[self->relative_navlevel + 1]);
             }
 
             //select
@@ -1273,6 +1302,11 @@ class RecorderMenuRouter : public SectionHolder {
               trimSection(self->start_zone,self->end_zone);
               scheddule_wave_rebuild();
             }
+            //save selected
+            if (sublevels[self->relative_navlevel + 1] == 13){
+              apply_ops();
+              scheddule_wave_rebuild();
+            }
             //fadein
             if (sublevels[self->relative_navlevel + 1] == 6){
               fadeInSection(self->start_zone,self->end_zone);
@@ -1287,7 +1321,7 @@ class RecorderMenuRouter : public SectionHolder {
             //playSection
             if (sublevels[self->relative_navlevel + 1] == 8){
               playSection();
-              returntonav(self->relative_navlevel + 1,11,sublevels[self->relative_navlevel + 1]);
+              returntonav(self->relative_navlevel + 1,12,sublevels[self->relative_navlevel + 1]);
             }
 
           }
@@ -1309,20 +1343,44 @@ class RecorderMenuRouter : public SectionHolder {
             }
           }
           if (navlevel > self->relative_navlevel +3 ) {
-              returntonav(self->relative_navlevel + 1,11,sublevels[self->relative_navlevel + 1]);
+              returntonav(self->relative_navlevel + 1,12,sublevels[self->relative_navlevel + 1]);
               self->wave_selected = 1;
               }
         }
 
         static void Undo(){
-
+          //should pick from tmp
         }
 
         static void redo(){
 
         }
-        
+        static void get_current_temp_file(){
+          //file n* tmp_counter in tmp folder
+          //current is last one in tmp
+          //**open tmp directly from index, make index
+          File entry = SD.open((const char*)self->catalog->folder_dir);
+          
+          if (!entry) {
+            Serial.println("Empty tmp ");
+              return;
+          }
+          if (!entry.isDirectory()) {
+            Serial.println(entry.name());
+          }
+        }
         static void apply_ops(){
+          /*
+          all ops make a new n+1 tmp
+
+            backup is savd in new temp name
+
+            ops are overwriting source AFTER  and a 
+          */
+          //copy from tmp to source file in parent dir
+          //unbuff and show real file before new ops
+          clear_temp_files();
+          returntonav(self->relative_navlevel + 1,12,0);
 
         }
 
@@ -1331,9 +1389,9 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void make_temp_folders(){
-          self->catalog->make_sub_folder("SOUNDSET", "TEMP");
+          self->catalog->make_sub_folder(self->catalog->folder_dir, "TMP");
         }
-
+        bool temp_ops ;
         float previous_offset = 0.0f ;
         float start_zone = 0.0f ;
         float end_zone = 1.0f ; 
@@ -1343,7 +1401,7 @@ class RecorderMenuRouter : public SectionHolder {
                                     &records_actions, &records_actions,&records_actions, &records_actions,
                                     &records_actions, &records_actions};
         
-        static constexpr void  (*_nav_recs[5])() = {&recordVpanel, &load_record, &remove_record, &rec_params, &edit_record};
+        static constexpr void  (*_nav_recs[6])() = {&recordVpanel, &load_record, &remove_record, &rec_params, &edit_record, &drawFoldersList};
         
 
   private:
