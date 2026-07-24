@@ -32,7 +32,7 @@
 #include <AudioStream.h> // github.com/PaulStoffregen/cores/blob/master/teensy4/AudioStream.h
 //#include <SerialFlash.h> // github.com/PaulStoffregen/SerialFlash/blob/master/SerialFlash.h
 #include <LittleFS.h> // from Paul as well
-
+#include <SD.h>
 
 class AudioPlayLittleSerialflashRaw : public AudioStream
 {

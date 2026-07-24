@@ -12,6 +12,7 @@ FilesLister::FilesLister(const char *main_folder, const char *base_filename, con
                      base_char_count(strlen(basenamer)) {
                       strncpy(folder_dir, main_folder, sizeof(folder_dir) - 1);
                       folder_dir[sizeof(folder_dir) - 1] = '\0';
+                      snprintf(tmp_folder, 32, "%s%s",folder_dir,"TMP/");
             }
 String FilesLister::get_file_name(byte number) {
             char formatted_number[4] ;
@@ -49,49 +50,118 @@ String FilesLister::make_full_file_name(byte number) {
             return(String)((String)this->folder_dir+(String)this->basenamer + (String)formatted_number + this->extension);
         }
 
+String FilesLister::get_full_tmp_file_path(byte number) {
+    char formatted_number[4] ;
+    sprintf(formatted_number,"%02d",number);
+    return (String)((String)this->tmp_folder+(String)formatted_number);
+}
+
 String FilesLister::get_new_file_name() {
-            byte file_number = this->files_counter ;
-            String new_path = make_full_file_name(file_number);
-            while (SD.exists(new_path.c_str())) {
-                file_number++;
-                new_path = make_full_file_name(file_number);
-            }
-            return new_path ;
-        }
+  byte file_number = this->files_counter ;
+  String new_path = make_full_file_name(file_number);
+  while (SD.exists(new_path.c_str())) {
+      file_number++;
+      new_path = make_full_file_name(file_number);
+  }
+  return new_path ;
+}
+
+String FilesLister::get_new_tmp_name() {
+  byte tmp_file_number = this->tmp_counter ;
+  String new_path = get_full_tmp_file_path(tmp_file_number);
+  while (SD.exists(new_path.c_str())) {
+      tmp_file_number++;
+      new_path = get_full_tmp_file_path(tmp_file_number);
+  }
+  return new_path ;
+}
+
 void FilesLister::deleteFile() {
-          if (locked_fileing)
-            return;
-          locked_fileing = 1 ;
-          if (SD.exists((char *)(this->get_current_file_path(0)).c_str())) {
-            SD.remove((char *)(this->get_current_file_path(0)).c_str());
-          }
-          this->list_files();
-          locked_fileing = 0 ;
-        }
+  if (locked_fileing)
+    return;
+  locked_fileing = 1 ;
+  if (SD.exists((char *)(this->get_current_file_path(0)).c_str())) {
+    SD.remove((char *)(this->get_current_file_path(0)).c_str());
+  }
+  this->list_files();
+  locked_fileing = 0 ;
+}
+
+void FilesLister::deleteFileGeneric(const char* _target_file) {
+  if (locked_fileing)
+    return;
+  locked_fileing = 1 ;
+  if (SD.exists(_target_file)) {
+    Serial.println(" ");
+    Serial.print("deleting ");
+    Serial.print(_target_file);
+
+    SD.remove(_target_file);
+  }
+  locked_fileing = 0 ;
+}
 
 void FilesLister::copyFile() {
-          if (locked_fileing)
-            return;
-          locked_fileing = 1 ;
-          File origin_file;
-          File target_file;
-          String current_pathed = this->get_current_file_path(0) ;
-          if (SD.exists(current_pathed.c_str())) {
-            target_file = SD.open(this->get_new_file_name().c_str(), FILE_WRITE);
-            origin_file = SD.open(current_pathed.c_str(), FILE_READ);
-            size_t n_size;
-            uint8_t buf[64];
-            while ((n_size = origin_file.read(buf, sizeof(buf))) > 0) {
-              target_file.write(buf, n_size);
-            }
-          }
+  if (locked_fileing)
+    return;
+  locked_fileing = 1 ;
+  File origin_file;
+  File target_file;
+  String current_pathed = this->get_current_file_path(0) ;
+  if (SD.exists(current_pathed.c_str())) {
+    target_file = SD.open(this->get_new_file_name().c_str(), FILE_WRITE);
+    origin_file = SD.open(current_pathed.c_str(), FILE_READ);
+    size_t n_size;
+    uint8_t buf[64];
+    while ((n_size = origin_file.read(buf, sizeof(buf))) > 0) {
+      target_file.write(buf, n_size);
+    }
+  }
 
-          origin_file.close();
-          target_file.close();
-          this->list_files();
-          
-          locked_fileing = 0 ;
-        }
+  origin_file.close();
+  target_file.close();
+  this->list_files();
+  
+  locked_fileing = 0 ;
+}
+
+void FilesLister::copyFileGeneric(const char* _origin_file,const char* _target_file) {
+  if (SD.exists(_origin_file)) {
+    if (SD.exists(_target_file)) 
+      deleteFileGeneric(_target_file);
+    if (locked_fileing){
+      Serial.println("already locked");
+      return;
+    }
+    locked_fileing = 1 ;
+    File origin_file = SD.open(_origin_file, FILE_READ);
+    File target_file = SD.open(_target_file, FILE_WRITE);
+    size_t n_size;
+    uint8_t buf[64];
+    while ((n_size = origin_file.read(buf, sizeof(buf))) > 0) {
+      target_file.write(buf, n_size);
+    }
+        Serial.println(" ");
+    Serial.print("copied ");
+    Serial.print(_origin_file);
+    Serial.print(" to ");
+    Serial.print(_target_file);
+  origin_file.close();
+  target_file.close();
+  locked_fileing = 0 ;
+  } else {
+    Serial.println("origin file error");
+  }
+  
+}
+
+void  FilesLister::make_temp_folders(){
+  make_sub_folder(this->folder_dir, "TMP");
+  strncpy(this->tmp_folder, ((String)this->folder_dir+"TMP/").c_str(), 31);
+  this->tmp_folder[31] = '\0'; 
+  //Serial.println(get_new_tmp_name());
+}
+
 void  FilesLister::nav_zero(){
             dm.clear_buffs();
             navrange = this->home_navrange;

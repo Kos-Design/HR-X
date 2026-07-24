@@ -5,6 +5,7 @@ void setupSD() {
     _sp.errorsd("initialization SD failed!");
     return;
   }
+  _rd.clear_temp_files();
   _sp.initializesamplesselectedlist();
   pseudoconsole((char *)"Scanning Samples");
   _sp.dosoundlist();

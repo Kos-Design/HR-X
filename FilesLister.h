@@ -16,6 +16,9 @@ class FilesLister{
         byte home_navrange;
         size_t base_char_count;
         int left_margin = 80;
+        int tmp_counter = 0;
+        char tmp_folder[32];
+
         int top_margin = 16;
         int v_spacer = 10 ;
         bool folders_mode = false;
@@ -42,8 +45,13 @@ class FilesLister{
         String make_full_file_name(byte number);
         String get_new_file_name();
         void deleteFile();
+        void deleteFileGeneric(const char*);
         void copyFile();
+        void copyFileGeneric(const char* _origin_file,const char* _target_file) ;
         void nav_zero();
+        void make_temp_folders();
+        String get_full_tmp_file_path(byte);
+        String get_new_tmp_name();
         void nav_one(byte save_lbl_idx,byte lbl_navlevel);
         void refresh_files_names();
         void refresh_folders_names();

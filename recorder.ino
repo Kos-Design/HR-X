@@ -19,6 +19,7 @@ class RecorderMenuRouter : public SectionHolder {
                     self->relative_navlevel=navrecmenu;
                     self->max_navlevel=5;
                     self->sublevels_address={7,3,0};
+                    
                     //self->catalog->list_files();
                     }
 
@@ -38,12 +39,11 @@ class RecorderMenuRouter : public SectionHolder {
           }
         }
 
-        static void getthisRecname() {
+        static void Load_raw_file() {
+          clear_temp_files();
           newRecpathL = self->catalog->get_current_file_path(0);
           newloopedpath = newRecpathL ;
-          Serial.println(newloopedpath);
-
-          //not the same file if stereo
+          //TODO if stereo
           //newRecpathR = newRecpathL ;
         }
 
@@ -64,6 +64,7 @@ class RecorderMenuRouter : public SectionHolder {
             just_pressed_rec = true ;
             check_rec_folder_path();
             tocker = millis();
+
             newloopedpath = self->catalog->get_new_file_name();
             //self->catalog->get_new_file_name();
             looper = SD.open(newloopedpath.c_str(), FILE_WRITE);
@@ -147,6 +148,8 @@ class RecorderMenuRouter : public SectionHolder {
             looper.close();
             queue1.clear();
             //AudioInterrupts();
+            clear_temp_files();
+
             call_dosoundlist();
             }
             just_pressed_rec = false ;
@@ -334,6 +337,8 @@ class RecorderMenuRouter : public SectionHolder {
 
         static void recorder_menu() {
           self->catalog->folders_mode = false ;
+            scheddule_wave_rebuild(1);
+
           char Recmenulabels[self->rec_labels_count][12] = {"Record", "Load", "Delete", "Params","Edit","../"};
           byte startx = 5;
           byte starty = 16;
@@ -429,7 +434,7 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void load_record(){
-          lv1_wrapper(self->getthisRecname);
+          lv1_wrapper(self->Load_raw_file);
         }
 
         static void drawWaveform(
@@ -540,103 +545,104 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void reverseSection(float startPos, float endPos) {
+          self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+          self->catalog->tmp_counter++;
           if (locked_fileing)
           return;
-          locked_fileing = 1 ;
             const uint16_t sampleSize = 2;      // 16-bit RAW
             const uint32_t blockSamples = 512;  // 1024-byte buffer
             uint8_t buffer[blockSamples * sampleSize];
             File src = SD.open(newloopedpath.c_str(), FILE_READ);
             if (!src) return;
             //should get new temp name
-            String new_file = self->catalog->get_new_file_name() ;
-            File dst = SD.open(new_file.c_str(), FILE_WRITE);
+            File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
             if (!dst) {
                 src.close();
                 return;
             }
+          
+          locked_fileing = 1 ;
+          uint32_t fileSize = src.size();
 
-            uint32_t fileSize = src.size();
+          // Clamp
+          if (startPos < 0.0f) startPos = 0.0f;
+          if (endPos > 1.0f) endPos = 1.0f;
+          if (startPos > endPos) {
+              float t = startPos;
+              startPos = endPos;
+              endPos = t;
+          }
 
-            // Clamp
-            if (startPos < 0.0f) startPos = 0.0f;
-            if (endPos > 1.0f) endPos = 1.0f;
-            if (startPos > endPos) {
-                float t = startPos;
-                startPos = endPos;
-                endPos = t;
+          uint32_t startByte = (uint32_t)(fileSize * startPos);
+          uint32_t endByte   = (uint32_t)(fileSize * endPos);
+
+          // Align to sample boundaries
+          startByte = (startByte / sampleSize) * sampleSize;
+          endByte   = (endByte / sampleSize) * sampleSize;
+
+          src.seek(0);
+
+          uint32_t remaining = startByte;
+
+          while (remaining) {
+              uint32_t n = min((uint32_t)sizeof(buffer), remaining);
+              src.read(buffer, n);
+              dst.write(buffer, n);
+              remaining -= n;
+          }
+
+          int32_t pos = endByte;
+
+          while (pos > (int32_t)startByte) {
+
+            uint32_t chunk = min((uint32_t)(pos - startByte),
+                                (uint32_t)sizeof(buffer));
+
+            // Keep sample alignment
+            chunk = (chunk / sampleSize) * sampleSize;
+
+            pos -= chunk;
+
+            src.seek(pos);
+            src.read(buffer, chunk);
+
+            // Reverse samples inside buffer
+            for (uint32_t i = 0; i < chunk; i += sampleSize) {
+              uint32_t srcIndex = chunk - sampleSize - i;
+              dst.write(buffer + srcIndex, sampleSize);
             }
+          }
 
-            uint32_t startByte = (uint32_t)(fileSize * startPos);
-            uint32_t endByte   = (uint32_t)(fileSize * endPos);
+          src.seek(endByte);
 
-            // Align to sample boundaries
-            startByte = (startByte / sampleSize) * sampleSize;
-            endByte   = (endByte / sampleSize) * sampleSize;
+          while (true) {
+              int n = src.read(buffer, sizeof(buffer));
+              if (n <= 0) break;
+              dst.write(buffer, n);
+          }
 
-            src.seek(0);
+          src.close();
+          dst.close();
+          locked_fileing = 0 ;
 
-            uint32_t remaining = startByte;
-
-            while (remaining) {
-                uint32_t n = min((uint32_t)sizeof(buffer), remaining);
-                src.read(buffer, n);
-                dst.write(buffer, n);
-                remaining -= n;
-            }
-
-            int32_t pos = endByte;
-
-            while (pos > (int32_t)startByte) {
-
-                uint32_t chunk = min((uint32_t)(pos - startByte),
-                                    (uint32_t)sizeof(buffer));
-
-                // Keep sample alignment
-                chunk = (chunk / sampleSize) * sampleSize;
-
-                pos -= chunk;
-
-                src.seek(pos);
-                src.read(buffer, chunk);
-
-                // Reverse samples inside buffer
-                for (uint32_t i = 0; i < chunk; i += sampleSize) {
-
-                    uint32_t srcIndex = chunk - sampleSize - i;
-
-                    dst.write(buffer + srcIndex, sampleSize);
-                }
-            }
-
-            src.seek(endByte);
-
-            while (true) {
-                int n = src.read(buffer, sizeof(buffer));
-                if (n <= 0) break;
-                dst.write(buffer, n);
-            }
-
-            src.close();
-            dst.close();
-
-            //new current should be new/current temp
-            newloopedpath = new_file ;
-            locked_fileing = 0 ;
-
+          self->catalog->tmp_counter++;
+          self->catalog->copyFileGeneric(self->get_current_temp_file().c_str(),newloopedpath.c_str());
+          self->catalog->deleteFileGeneric(self->get_current_temp_file().c_str());
+          self->catalog->tmp_counter--;
         }
 
         static void pitchSection(float startPos, float endPos, float speed) {
+          self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+          self->catalog->tmp_counter++;
           if (locked_fileing)
           return;
-          locked_fileing = 1 ;
             if (speed <= 0.0f) return;
 
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
-          
-          String new_file = self->catalog->get_new_file_name() ;
-          File dst = SD.open(new_file.c_str(), FILE_WRITE);
+          File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
+          locked_fileing = 1 ;
+
           const uint32_t BUFFER_SAMPLES = 1024;
           int16_t buffer[BUFFER_SAMPLES];
 
@@ -729,25 +735,30 @@ class RecorderMenuRouter : public SectionHolder {
           
           src.close();
           dst.close();
-          newloopedpath = new_file ;
           locked_fileing = 0 ;
+
+          self->catalog->tmp_counter++;
+          self->catalog->copyFileGeneric(self->get_current_temp_file().c_str(),newloopedpath.c_str());
+          self->catalog->deleteFileGeneric(self->get_current_temp_file().c_str());
+          self->catalog->tmp_counter--;
         }
 
         static void trimSection(float start_pos = 0.0f, float end_pos = 1.0f) {
+          self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+          self->catalog->tmp_counter++;
           if (locked_fileing)
           return;
-          locked_fileing = 1 ;
             File in = SD.open(newloopedpath.c_str(), FILE_READ);
             if (!in)
                 return;
 
-            String new_file = self->catalog->get_new_file_name() ;
-            File out = SD.open(new_file.c_str(), FILE_WRITE);
+            File out = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
             if (!out)
             {
                 in.close();
                 return;
             }
+          locked_fileing = 1 ;
 
             uint32_t fileSize = in.size();
 
@@ -800,14 +811,19 @@ class RecorderMenuRouter : public SectionHolder {
 
             out.close();
             in.close();
-            locked_fileing = 0 ; 
-            newloopedpath = new_file ;
+            locked_fileing = 0 ;
+
+            self->catalog->tmp_counter++;
+            self->catalog->copyFileGeneric(self->get_current_temp_file().c_str(),newloopedpath.c_str());
+            self->catalog->deleteFileGeneric(self->get_current_temp_file().c_str());
+            self->catalog->tmp_counter--;
         }
    
         static void normalizeSection(float startPos, float endPos) {
+          self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+          self->catalog->tmp_counter++;
           if (locked_fileing)
           return;
-          locked_fileing = 1 ;
             const uint16_t sampleSize = 2;      // 16-bit mono
             const uint32_t bufferSamples = 512;
             int16_t buffer[bufferSamples];
@@ -815,8 +831,9 @@ class RecorderMenuRouter : public SectionHolder {
             File src = SD.open(newloopedpath.c_str(), FILE_READ);
             if (!src) return;
             
-            String new_file = self->catalog->get_new_file_name() ;
-            File dst = SD.open(new_file.c_str(), FILE_WRITE);
+            
+            File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
+            locked_fileing = 1 ;
 
             uint32_t fileSize = src.size();
 
@@ -940,8 +957,12 @@ class RecorderMenuRouter : public SectionHolder {
             }
           src.close();
           dst.close();
-          newloopedpath = new_file ;
           locked_fileing = 0 ;
+
+          self->catalog->tmp_counter++;
+          self->catalog->copyFileGeneric(self->get_current_temp_file().c_str(),newloopedpath.c_str());
+          self->catalog->deleteFileGeneric(self->get_current_temp_file().c_str());
+          self->catalog->tmp_counter--;
         }
 
         static void playSection(){
@@ -960,15 +981,17 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void fadeInSection(float startPos, float endPos) {
+          self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+          self->catalog->tmp_counter++;
           if (locked_fileing)
           return;
-          locked_fileing = 1 ;
 
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           
-          String new_file = self->catalog->get_new_file_name() ;
-          File dst = SD.open(new_file.c_str(), FILE_WRITE);
+          File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
+          locked_fileing = 1 ;
+
           //const uint16_t sampleSize = 2;
           const uint32_t BUFFER_SAMPLES = 1024;
 
@@ -1041,20 +1064,26 @@ class RecorderMenuRouter : public SectionHolder {
 
           src.close();
           dst.close();
-          newloopedpath = new_file ;
           locked_fileing = 0 ;
+
+          self->catalog->tmp_counter++;
+          self->catalog->copyFileGeneric(self->get_current_temp_file().c_str(),newloopedpath.c_str());
+          self->catalog->deleteFileGeneric(self->get_current_temp_file().c_str());
+          self->catalog->tmp_counter--;
         }
 
         static void fadeOutSection(float startPos, float endPos) {
+          self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+          self->catalog->tmp_counter++;
           if (locked_fileing)
           return;
-          locked_fileing = 1 ;
 
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           
-          String new_file = self->catalog->get_new_file_name() ;
-          File dst = SD.open(new_file.c_str(), FILE_WRITE);
+          
+          File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
+          locked_fileing = 1 ;
 
           //const uint16_t sampleSize = 2;
           const uint32_t BUFFER_SAMPLES = 1024;
@@ -1128,8 +1157,12 @@ class RecorderMenuRouter : public SectionHolder {
           }
           src.close();
           dst.close();
-          newloopedpath = new_file ;
           locked_fileing = 0 ;
+
+          self->catalog->tmp_counter++;
+          self->catalog->copyFileGeneric(self->get_current_temp_file().c_str(),newloopedpath.c_str());
+          self->catalog->deleteFileGeneric(self->get_current_temp_file().c_str());
+          self->catalog->tmp_counter--;
         }
 
         static void start_inputting_pitch(){
@@ -1148,15 +1181,19 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void deleteSection(float startPos, float endPos){
+          self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+          self->catalog->tmp_counter++;
+
           if (locked_fileing)
           return;
-          locked_fileing = 1 ;
 
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           
-          String new_file = self->catalog->get_new_file_name() ;
-          File dst = SD.open(new_file.c_str(), FILE_WRITE);
+          
+          File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
+          locked_fileing = 1 ;
+
           const uint32_t BUFFER_SIZE = 2048;
           uint8_t buffer[BUFFER_SIZE];
 
@@ -1224,11 +1261,18 @@ class RecorderMenuRouter : public SectionHolder {
 
           src.close();
           dst.close();
-          newloopedpath = new_file ;
           locked_fileing = 0 ;
+
+          self->catalog->tmp_counter++;
+          self->catalog->copyFileGeneric(self->get_current_temp_file().c_str(),newloopedpath.c_str());
+          self->catalog->deleteFileGeneric(self->get_current_temp_file().c_str());
+          self->catalog->tmp_counter--;
+          
         }
 
         static void edit_record(){
+          Serial.println(self->catalog->tmp_folder);
+
           make_temp_folders();
           navrange = 13 ;
            if (navlevel == self->relative_navlevel+1) {
@@ -1304,7 +1348,7 @@ class RecorderMenuRouter : public SectionHolder {
             }
             //save selected
             if (sublevels[self->relative_navlevel + 1] == 13){
-              apply_ops();
+              Undo();
               scheddule_wave_rebuild();
             }
             //fadein
@@ -1348,49 +1392,66 @@ class RecorderMenuRouter : public SectionHolder {
               }
         }
 
-        static void Undo(){
-          //should pick from tmp
-        }
-
         static void redo(){
 
         }
-        static void get_current_temp_file(){
-          //file n* tmp_counter in tmp folder
+
+        String get_current_temp_file(){
           //current is last one in tmp
           //**open tmp directly from index, make index
-          File entry = SD.open((const char*)self->catalog->folder_dir);
-          
-          if (!entry) {
-            Serial.println("Empty tmp ");
-              return;
-          }
-          if (!entry.isDirectory()) {
-            Serial.println(entry.name());
-          }
+          //String tmp_folder = (String)self->catalog->folder_dir + "TMP";
+          //if (SD.exists((const char*)self->catalog->get_full_tmp_file_path(max(self->catalog->tmp_counter-1,0)).c_str()))
+          //  Serial.println("ok coral");
+
+          return (self->catalog->get_full_tmp_file_path(max(self->catalog->tmp_counter-1,0))); 
         }
-        static void apply_ops(){
-          /*
-          all ops make a new n+1 tmp
 
-            backup is savd in new temp name
-
-            ops are overwriting source AFTER  and a 
-          */
-          //copy from tmp to source file in parent dir
-          //unbuff and show real file before new ops
-          clear_temp_files();
-          returntonav(self->relative_navlevel + 1,12,0);
-
+        static void Undo(){
+          if (SD.exists(self->get_current_temp_file().c_str())){
+            //make first temp if none only
+            //during ops, copy first orig, then apply to new temp, copy back new tep , del new tem identical
+            self->catalog->copyFileGeneric(self->get_current_temp_file().c_str(),newloopedpath.c_str());
+            self->catalog->deleteFileGeneric(self->get_current_temp_file().c_str());
+            self->catalog->tmp_counter--;
+          } else {
+            Serial.println(SD.exists(self->get_current_temp_file().c_str()));
+          }
+          scheddule_wave_rebuild();
         }
 
         static void clear_temp_files(){
-          
+          if (SD.exists(self->catalog->tmp_folder)) {
+            File opened_dir = SD.open((const char*)self->catalog->tmp_folder);
+            while (true) {
+              File entry = opened_dir.openNextFile();
+              
+              if (!entry) {
+                Serial.println("Empty now ");
+                  break;
+              }
+              //Serial.println(entry.name());
+              if (!entry.isDirectory()) {
+                //entry.remove();
+                char apathe[32];
+                snprintf(apathe, sizeof(apathe), "%s%s",self->catalog->tmp_folder, entry.name());
+
+                SD.remove(apathe);
+                Serial.println("");
+                Serial.print("Purged ");
+                Serial.print(apathe);
+                
+                entry.close();
+              }
+            }
+          }
+          self->catalog->tmp_counter = 0;
         }
 
         static void make_temp_folders(){
-          self->catalog->make_sub_folder(self->catalog->folder_dir, "TMP");
+          self->catalog->make_temp_folders();
+          //make_sub_folder(self->catalog->folder_dir, "TMP");
         }
+
         bool temp_ops ;
         float previous_offset = 0.0f ;
         float start_zone = 0.0f ;
