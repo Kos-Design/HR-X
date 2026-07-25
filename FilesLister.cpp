@@ -12,7 +12,7 @@ FilesLister::FilesLister(const char *main_folder, const char *base_filename, con
                      base_char_count(strlen(basenamer)) {
                       strncpy(folder_dir, main_folder, sizeof(folder_dir) - 1);
                       folder_dir[sizeof(folder_dir) - 1] = '\0';
-                      snprintf(tmp_folder, 32, "%s%s",folder_dir,"TMP/");
+                      snprintf(tmp_folder, 36, "%s%s",folder_dir,"TMP/");
             }
 String FilesLister::get_file_name(byte number) {
             char formatted_number[4] ;
@@ -22,10 +22,10 @@ String FilesLister::get_file_name(byte number) {
 
 String FilesLister::get_current_file_path(byte f_index=0){
   //Serial.println(((this->folder_dir + this->files_displayable[f_index]).c_str()));
-  Serial.println(this->folder_dir);
+  //Serial.println(this->folder_dir);
 
   String based_file = this->folder_dir + this->files_displayable[f_index] + this->extension ;
-  Serial.println(this->folder_dir);
+  //Serial.println(this->folder_dir);
   
   if (SD.exists(based_file.c_str())){
     Serial.println("based file");
@@ -157,15 +157,14 @@ void FilesLister::copyFileGeneric(const char* _origin_file,const char* _target_f
 
 void  FilesLister::make_temp_folders(){
   make_sub_folder(this->folder_dir, "TMP");
-  strncpy(this->tmp_folder, ((String)this->folder_dir+"TMP/").c_str(), 31);
-  this->tmp_folder[31] = '\0'; 
+  strncpy(this->tmp_folder, ((String)this->folder_dir+"TMP/").c_str(), 35);
+  this->tmp_folder[35] = '\0'; 
   //Serial.println(get_new_tmp_name());
 }
 
 void  FilesLister::nav_zero(){
             dm.clear_buffs();
             navrange = this->home_navrange;
-            reinitsublevels(this->r_nav);
             this->display_files_list();
             this->home();
             dm.dodisplay();

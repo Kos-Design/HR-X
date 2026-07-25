@@ -29,17 +29,22 @@ class FxBus {
       //delay
       if (selected_fx_type == 8) {
         delayCords[f_index]->connect();
+        delayCordsR[f_index]->connect();
       }
       if (selected_fx_type == 4) {
         flange[f_index]->begin(flangedelays[f_index],FLANGE_DELAY_LENGTH,flangeoffset,flangedepth,flangefreq[f_index]);
         flange[f_index]->voices(FLANGE_DELAY_PASSTHRU,0,0);
+        flangeR[f_index]->begin(flangedelays[f_index],FLANGE_DELAY_LENGTH,flangeoffset,flangedepth,flangefreq[f_index]);
+        flangeR[f_index]->voices(FLANGE_DELAY_PASSTHRU,0,0);
       }
       if (selected_fx_type == 5) {
         chorus[f_index]->begin(chorusdelaylines[f_index],CHORUS_DELAY_LENGTH,chorusvoices[f_index]) ;
+        chorusR[f_index]->begin(chorusdelaylines[f_index],CHORUS_DELAY_LENGTH,chorusvoices[f_index]) ;
       }
       premixesMto_index = (selected_fx_type * fxs_count) + (f_index);
       fxcording_index = (selected_fx_type*fxs_count*2*3) + (f_index*fxs_count*2) + (2*f_index);
       premixesMto[premixesMto_index]->connect();
+      premixesMtoR[premixesMto_index]->connect();
       fxcording[fxcording_index]->connect();
       fxcording[fxcording_index + 1]->connect();
       AudioInterrupts();
@@ -49,18 +54,22 @@ class FxBus {
 
       for (int j = 0; j < 8; j++) {
         lesdelays[f_index]->disable(j);
+        lesdelaysR[f_index]->disable(j);
+
       }
     }
 
     void unplug_fx_line() {
       AudioNoInterrupts();
       premixesMto[premixesMto_index]->disconnect();
+      premixesMtoR[premixesMto_index]->disconnect();
       fxcording[fxcording_index]->disconnect();
       fxcording[fxcording_index + 1]->disconnect();
       premixesMto_index = 1000;
       fxcording_index = 1000;
       stopdelayline();
       delayCords[f_index]->disconnect();
+      delayCordsR[f_index]->disconnect();
       AudioInterrupts();
       plugged_fx_type = mainmenufxlistsize-1;
     }
@@ -141,11 +150,17 @@ class FxMenuRouter : public SectionHolder {
           biquad[lebiquad]->setLowpass(bqstage[lebiquad],
                                       bqfreq[lebiquad][bqstage[lebiquad]],
                                       bqslope[lebiquad][bqstage[lebiquad]]);
+          biquadR[lebiquad]->setLowpass(bqstage[lebiquad],
+                                      bqfreq[lebiquad][bqstage[lebiquad]],
+                                      bqslope[lebiquad][bqstage[lebiquad]]);
 
           break;
         case 1:
 
           biquad[lebiquad]->setHighpass(bqstage[lebiquad],
+                                        bqfreq[lebiquad][bqstage[lebiquad]],
+                                        bqslope[lebiquad][bqstage[lebiquad]]);
+          biquadR[lebiquad]->setHighpass(bqstage[lebiquad],
                                         bqfreq[lebiquad][bqstage[lebiquad]],
                                         bqslope[lebiquad][bqstage[lebiquad]]);
 
@@ -155,11 +170,17 @@ class FxMenuRouter : public SectionHolder {
           biquad[lebiquad]->setBandpass(bqstage[lebiquad],
                                         bqfreq[lebiquad][bqstage[lebiquad]],
                                         bqslope[lebiquad][bqstage[lebiquad]]);
+          biquadR[lebiquad]->setBandpass(bqstage[lebiquad],
+                                        bqfreq[lebiquad][bqstage[lebiquad]],
+                                        bqslope[lebiquad][bqstage[lebiquad]]);
 
           break;
         case 3:
 
           biquad[lebiquad]->setNotch(bqstage[lebiquad],
+                                    bqfreq[lebiquad][bqstage[lebiquad]],
+                                    bqslope[lebiquad][bqstage[lebiquad]]);
+          biquadR[lebiquad]->setNotch(bqstage[lebiquad],
                                     bqfreq[lebiquad][bqstage[lebiquad]],
                                     bqslope[lebiquad][bqstage[lebiquad]]);
 
@@ -170,11 +191,19 @@ class FxMenuRouter : public SectionHolder {
                                         bqfreq[lebiquad][bqstage[lebiquad]],
                                         bqgain[lebiquad][bqstage[lebiquad]],
                                         bqslope[lebiquad][bqstage[lebiquad]]);
+          biquadR[lebiquad]->setLowShelf(bqstage[lebiquad],
+                                        bqfreq[lebiquad][bqstage[lebiquad]],
+                                        bqgain[lebiquad][bqstage[lebiquad]],
+                                        bqslope[lebiquad][bqstage[lebiquad]]);
 
           break;
         case 5:
 
           biquad[lebiquad]->setHighShelf(bqstage[lebiquad],
+                                        bqfreq[lebiquad][bqstage[lebiquad]],
+                                        bqgain[lebiquad][bqstage[lebiquad]],
+                                        bqslope[lebiquad][bqstage[lebiquad]]);
+          biquadR[lebiquad]->setHighShelf(bqstage[lebiquad],
                                         bqfreq[lebiquad][bqstage[lebiquad]],
                                         bqgain[lebiquad][bqstage[lebiquad]],
                                         bqslope[lebiquad][bqstage[lebiquad]]);
@@ -193,36 +222,50 @@ class FxMenuRouter : public SectionHolder {
           interpot = map(gronint, 0, 100, 0, 1);
           delaypremix[2 * ledelayline]->gain(0, 1 - interpot);
           delaypremix[2 * ledelayline]->gain(1, interpot);
+          delaypremixR[2 * ledelayline]->gain(0, 1 - interpot);
+          delaypremixR[2 * ledelayline]->gain(1, interpot);
         }
         if (gronint >= 100 && gronint < 250) {
           interpot = map(gronint, 100, 250, 0, 1);
           delaypremix[2 * ledelayline]->gain(1, 1 - interpot);
           delaypremix[2 * ledelayline]->gain(2, interpot);
+          delaypremixR[2 * ledelayline]->gain(1, 1 - interpot);
+          delaypremixR[2 * ledelayline]->gain(2, interpot);
         }
         if (gronint >= 250 && gronint < 400) {
           interpot = map(gronint, 250, 400, 0, 1);
           delaypremix[2 * ledelayline]->gain(2, 1 - interpot);
           delaypremix[2 * ledelayline]->gain(3, interpot);
+          delaypremixR[2 * ledelayline]->gain(2, 1 - interpot);
+          delaypremixR[2 * ledelayline]->gain(3, interpot);
         }
         if (gronint >= 400 && gronint < 550) {
           interpot = map(gronint, 400, 550, 0, 1);
           delaypremix[2 * ledelayline]->gain(3, 1 - interpot);
           delaypremix[2 * ledelayline + 1]->gain(0, interpot);
+          delaypremixR[2 * ledelayline]->gain(3, 1 - interpot);
+          delaypremixR[2 * ledelayline + 1]->gain(0, interpot);
         }
         if (gronint >= 550 && gronint < 700) {
           interpot = map(gronint, 550, 700, 0, 1);
           delaypremix[2 * ledelayline + 1]->gain(0, 1 - interpot);
           delaypremix[2 * ledelayline + 1]->gain(1, interpot);
+          delaypremixR[2 * ledelayline + 1]->gain(0, 1 - interpot);
+          delaypremixR[2 * ledelayline + 1]->gain(1, interpot);
         }
         if (gronint >= 700 && gronint < 850) {
           interpot = map(gronint, 700, 850, 0, 1);
           delaypremix[2 * ledelayline + 1]->gain(1, 1 - interpot);
           delaypremix[2 * ledelayline + 1]->gain(2, interpot);
+          delaypremixR[2 * ledelayline + 1]->gain(1, 1 - interpot);
+          delaypremixR[2 * ledelayline + 1]->gain(2, interpot);
         }
         if (gronint >= 850 && gronint <= 1024) {
           interpot = map(gronint, 850, 1024, 0, 1);
           delaypremix[2 * ledelayline + 1]->gain(2, 1 - interpot);
           delaypremix[2 * ledelayline + 1]->gain(3, interpot);
+          delaypremixR[2 * ledelayline + 1]->gain(2, 1 - interpot);
+          delaypremixR[2 * ledelayline + 1]->gain(3, interpot);
         }
         AudioInterrupts();
       }
@@ -230,15 +273,17 @@ class FxMenuRouter : public SectionHolder {
       static void delayfeedback(byte lefilter, float lesmallfloat) {
         // delay feedback
         if (lesmallfloat <= 0.1) {
-          delayprefeed[lefilter]->gain(0, 0);
-          delayprefeed[lefilter]->gain(1, 0);
+
           delayfeedbackmix[lefilter]->gain(0, 1.0);
           delayfeedbackmix[lefilter]->gain(1, 0);
+          delayfeedbackmixR[lefilter]->gain(0, 1.0);
+          delayfeedbackmixR[lefilter]->gain(1, 0);
         } else {
-          delayprefeed[lefilter]->gain(0, 1.0);
-          delayprefeed[lefilter]->gain(1, 1.0);
+
           delayfeedbackmix[lefilter]->gain(0, 1.0 - lesmallfloat);
           delayfeedbackmix[lefilter]->gain(1, lesmallfloat);
+          delayfeedbackmixR[lefilter]->gain(0, 1.0 - lesmallfloat);
+          delayfeedbackmixR[lefilter]->gain(1, lesmallfloat);
         }
         // restartdelayline(lefilter);
       }
@@ -249,12 +294,16 @@ class FxMenuRouter : public SectionHolder {
         for (int j = 0; j < 4; j++) {
           delaypremix[2 * lefilter]->gain(j, 0);
           delaypremix[2 * lefilter + 1]->gain(j, 0);
+          delaypremixR[2 * lefilter]->gain(j, 0);
+          delaypremixR[2 * lefilter + 1]->gain(j, 0);
         }
         if (leselectee < 4) {
           delaypremix[2 * lefilter]->gain(leselectee, 1);
+          delaypremixR[2 * lefilter]->gain(leselectee, 1);
         }
         if (leselectee >= 4) {
           delaypremix[2 * lefilter + 1]->gain(leselectee - 4, 1);
+          delaypremixR[2 * lefilter + 1]->gain(leselectee - 4, 1);
         }
         // restartdelayline(lefilter);
       }
@@ -269,6 +318,8 @@ class FxMenuRouter : public SectionHolder {
         for (int j = 0; j < 8; j++) {
 
           lesdelays[lefilter]->delay(j, delaymultiplier[lefilter] * (j + 2));
+          lesdelaysR[lefilter]->delay(j, delaymultiplier[lefilter] * (j + 2));
+
         }
       }
       
@@ -316,6 +367,7 @@ class FxMenuRouter : public SectionHolder {
         flangefreq[lefilter] = (double)(flangerVknobs[lefilter][2] / 127.0) * 2;
         // AudioNoInterrupts();
         flange[lefilter]->voices(flangeoffset, flangedepth, flangefreq[lefilter]);
+        flangeR[lefilter]->voices(flangeoffset, flangedepth, flangefreq[lefilter]);
         // AudioInterrupts();
       }
       static void flangerVpanelAction(byte lefilter) {
@@ -475,6 +527,7 @@ class FxMenuRouter : public SectionHolder {
       static void choruscontrols(byte lefilter) {
         chorusvoices[lefilter] = round((chorusVknobs[lefilter] / 127.0) * 8) ;
         chorus[lefilter]->voices(chorusvoices[lefilter]);
+        chorusR[lefilter]->voices(chorusvoices[lefilter]);
       }
 
       static void chorusVpanelAction(byte lefilter) {
@@ -585,15 +638,19 @@ class FxMenuRouter : public SectionHolder {
         if (granular_shifting[lefilter]) {
           if (!granular_freezing[lefilter]) {
             granular[lefilter]->begin(granularMemories[lefilter], GRANULAR_MEMORY_SIZE);
+            granularR[lefilter]->begin(granularMemories[lefilter], GRANULAR_MEMORY_SIZE);
           }
           granularcontrols(lefilter);
           granular[lefilter]->beginPitchShift(legrainleng);
+          granularR[lefilter]->beginPitchShift(legrainleng);
+
           //octavedown1.begin(120.0, 33.0);
 
         } else if(granular_freezing[lefilter]){
             granular_freeze(lefilter);
         } else {
           granular[lefilter]->stop();
+          granularR[lefilter]->stop();
           //octavedown1.end();
         }
       }
@@ -604,20 +661,24 @@ class FxMenuRouter : public SectionHolder {
         if (granular_freezing[lefilter]) {
           if (!granular_shifting[lefilter]) {
             granular[lefilter]->begin(granularMemories[lefilter], GRANULAR_MEMORY_SIZE);
+            granularR[lefilter]->begin(granularMemories[lefilter], GRANULAR_MEMORY_SIZE);
           }
           granularcontrols(lefilter);
           granular[lefilter]->beginFreeze(legrainleng);
+          granularR[lefilter]->beginFreeze(legrainleng);
         } else if(granular_shifting[lefilter]){
             //granular_pitch_shift stops the freeze
             granular_pitch_shift(lefilter);
         } else {
           granular[lefilter]->stop();
+          granularR[lefilter]->stop();
         }
       }
 
       static void granularcontrols(byte lefilter) {
         float g_speed = 0.125 + (map(granularVknobs[lefilter][1],0,127,0,7875)/1000.0);
         granular[lefilter]->setSpeed(g_speed);
+        granularR[lefilter]->setSpeed(g_speed);
       }
 
       static void granularVpanelAction(byte lefilter) {
@@ -786,6 +847,8 @@ class FxMenuRouter : public SectionHolder {
       static void bitcrusherctrl(byte lefilter) {
         bitcrusher[lefilter]->bits(bitcrusherVknobs[lefilter][0]);
         bitcrusher[lefilter]->sampleRate(round((bitcrusherVknobs[lefilter][1] / 127.0) * 44100));
+        bitcrusherR[lefilter]->bits(bitcrusherVknobs[lefilter][0]);
+        bitcrusherR[lefilter]->sampleRate(round((bitcrusherVknobs[lefilter][1] / 127.0) * 44100));
       }
 
       static void bitcrusherVpanelAction(byte lefilter) {
@@ -910,6 +973,7 @@ class FxMenuRouter : public SectionHolder {
         //freeverbs[lefilter]->roomsize(reverbVknobs[lefilter][0] / 127.0);
         //freeverbs[lefilter]->damping(reverbVknobs[lefilter][1] / 127.0);
         freeverbs[lefilter]->reverbTime((reverbVknobs[lefilter][0] / 127.0)*10);
+        freeverbsR[lefilter]->reverbTime((reverbVknobs[lefilter][0] / 127.0)*10);
         //AudioInterrupts();
       }
 
@@ -1227,6 +1291,7 @@ class FxMenuRouter : public SectionHolder {
         unpluglfoonfilterz(lefilter);
         if (LFOonfilterz[lefilter] < OSCS_COUNT) {
           LFOtoFilterz[((fxs_count * lefilter) + LFOonfilterz[lefilter])]->connect();
+          LFOtoFilterzR[((fxs_count * lefilter) + LFOonfilterz[lefilter])]->connect();
           call_restart_lfo(LFOonfilterz[lefilter]);
         }
 
@@ -1236,6 +1301,7 @@ class FxMenuRouter : public SectionHolder {
         //each line has 3 lfo linked to a filter
         for (int i = 0; i < fxs_count; i++) {
           LFOtoFilterz[lefilter*fxs_count+i]->disconnect();
+          LFOtoFilterzR[lefilter*fxs_count+i]->disconnect();
         }
       }
 
@@ -1255,10 +1321,14 @@ class FxMenuRouter : public SectionHolder {
         }
         for (int i = 0; i < 3; i++) {
           mixfilter[lefilter]->gain(i, filterzgainz[lefilter][i]);
+          mixfilterR[lefilter]->gain(i, filterzgainz[lefilter][i]);
         }
         filterz[lefilter]->frequency(filterzfreq[lefilter]);
         filterz[lefilter]->resonance(filterzreso[lefilter]);
         filterz[lefilter]->octaveControl(filterzoctv[lefilter]);
+        filterzR[lefilter]->frequency(filterzfreq[lefilter]);
+        filterzR[lefilter]->resonance(filterzreso[lefilter]);
+        filterzR[lefilter]->octaveControl(filterzoctv[lefilter]);
       }
       static void filterVpanel(byte lefilter) {
         char LFOnamelist[4][6] = {"LFO1", "LFO2", "LFO3", "None"};

@@ -25,7 +25,7 @@ void display_oscilloscope(){
 
     //int y = map(rolling_queue_buff[index], -32768, 32767, 63, 0);
     //dirty scalling
-    int y = map(rolling_queue_buff[index], -32768/4, 32767/4, 63, 0);
+    int y = map(rolling_queue_buff[index], -32768/4, 32767/4, 0, 63);
 
     if (x > 0)
         canvasBIG.drawLine(

@@ -49,12 +49,12 @@ class SettingsMenuRouter : public SectionHolder {
         static void set_in_source(){
           switch (self->AudioInSource) {
             case 0 :
-              audioShield.inputSelect(AUDIO_INPUT_MIC);
+              AudioShield.inputSelect(AUDIO_INPUT_MIC);
               InMixL.gain(1, 0.01);
               InMixR.gain(1, 0.01);
               break;
             case 1 :
-              audioShield.inputSelect(AUDIO_INPUT_LINEIN);
+              AudioShield.inputSelect(AUDIO_INPUT_LINEIN);
               InMixL.gain(1,1.0);
               InMixR.gain(1, 1.0);
               break;

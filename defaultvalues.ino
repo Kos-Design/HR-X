@@ -136,21 +136,31 @@ void setupdefaultvalues() {
   for (int i = 0; i < fxs_count; i++) {
     fx[i]->stopdelayline();
     delayCords[i]->disconnect();
+    delayCordsR[i]->disconnect();
+
   }
   AudioNoInterrupts();
   for (int i = 0; i < fxs_count; i++) {
     delaypostmix[i]->gain(0, 1);
     delaypostmix[i]->gain(1, 1);
+    delaypostmixR[i]->gain(0, 1);
+    delaypostmixR[i]->gain(1, 1);
     delayfeedbackmix[i]->gain(0, 1);
     delayfeedbackmix[i]->gain(1, 0);
-    delayprefeed[i]->gain(0, 1);
-    delayprefeed[i]->gain(1, 1);
-    //for loop of 4 for convenience, not related to OSCS_COUNT
+    delayfeedbackmixR[i]->gain(0, 1);
+    delayfeedbackmixR[i]->gain(1, 0);
+    //loop of 4 channels, not OSCS_COUNT
     for (int j = 0; j < 4; j++) {
       lesdelays[i]->disable(2 * j);
       lesdelays[i]->disable(2 * j + 1);
+      lesdelaysR[i]->disable(2 * j);
+      lesdelaysR[i]->disable(2 * j + 1);
+
       delaypremix[i * 2]->gain(j, 0);
       delaypremix[i * 2 + 1]->gain(j, 0);
+      delaypremixR[i * 2]->gain(j, 0);
+      delaypremixR[i * 2 + 1]->gain(j, 0);
+
     }
     AudioInterrupts();
   }
@@ -182,14 +192,12 @@ void setupdefaultvalues() {
   WetMixMasterL.gain(0, 1);
   WetMixMasterR.gain(0, 1);
 
-  premixMaster.gain(0, 0.5);
-  premixMaster.gain(1, 0.5);
 
   //needed to level fxBus & wetins
   for (int i = 0; i < 3; i++) {
     _mx.set_dry_mix(i);
   }
-
+  // if MULTIPLEXED_PADS
   for (int i = 0; i < all_buttonns; i++) {
     if (!((i <= 11) || (i >= 46))) {
       pot_assignements[i] = i + 128 + 30;

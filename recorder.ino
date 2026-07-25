@@ -43,6 +43,8 @@ class RecorderMenuRouter : public SectionHolder {
           clear_temp_files();
           newRecpathL = self->catalog->get_current_file_path(0);
           newloopedpath = newRecpathL ;
+          Serial.println(newloopedpath);
+
           //TODO if stereo
           //newRecpathR = newRecpathL ;
         }
@@ -294,6 +296,8 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void playrecordsd() {
+            Serial.println(newloopedpath);
+          
           if (SD.exists(newloopedpath.c_str())) {
             AudioNoInterrupts();
             playRawL.play(newloopedpath.c_str());
@@ -306,16 +310,23 @@ class RecorderMenuRouter : public SectionHolder {
           }
         }
 
-        static void playrecordsd_old() {
-          if (SD.exists(newRecpathL.c_str())) {
+        static void playrecordsd_pathed(const char* lepath) {
+            Serial.print(lepath);
+
+          if (SD.exists(lepath)) {
             AudioNoInterrupts();
-            playRawL.play(newRecpathL.c_str());
+            playRawL.play(lepath);
             if (modestereo) {
               playRawR.play(newRecpathR.c_str());
             } else {
-              playRawR.play(newRecpathL.c_str());
+              playRawR.play(lepath);
             }
             AudioInterrupts();
+          } else {
+            Serial.println("");
+            Serial.print("error playing ");
+            Serial.print(lepath);
+            
           }
         }
 
@@ -337,7 +348,7 @@ class RecorderMenuRouter : public SectionHolder {
 
         static void recorder_menu() {
           self->catalog->folders_mode = false ;
-            scheddule_wave_rebuild(1);
+            scheddule_wave_rebuild(1,1);
 
           char Recmenulabels[self->rec_labels_count][12] = {"Record", "Load", "Delete", "Params","Edit","../"};
           byte startx = 5;
@@ -419,7 +430,7 @@ class RecorderMenuRouter : public SectionHolder {
 
           if (navlevel >= self->relative_navlevel + 2) {
             func();
-            scheddule_wave_rebuild(true);
+            scheddule_wave_rebuild(true,true);
             returntonav(self->relative_navlevel, self->home_navrange,sublevels[self->relative_navlevel]);
           }
           dm.dodisplay();
@@ -970,11 +981,12 @@ class RecorderMenuRouter : public SectionHolder {
           returntonav(self->relative_navlevel + 1,12,sublevels[self->relative_navlevel + 1]);
         }
 
-        static void scheddule_wave_rebuild(bool noreturn = 0){
+        static void scheddule_wave_rebuild(bool noreturn = 0,bool noreinit = 0){
           self->end_zone = 1.0;
           self->start_zone = 0.0 ;
           self->wave_buffed = 0 ;
-          reinitsublevels(self->relative_navlevel + 1); 
+          if (!noreinit)
+            reinitsublevels(self->relative_navlevel + 1); 
           if (!noreturn)
             returntonav(self->relative_navlevel + 1,12,sublevels[self->relative_navlevel + 1]);
           locked_fileing = 0 ; 
@@ -1271,7 +1283,7 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void edit_record(){
-          Serial.println(self->catalog->tmp_folder);
+          //Serial.println(self->catalog->tmp_folder);
 
           make_temp_folders();
           navrange = 13 ;
@@ -1432,7 +1444,7 @@ class RecorderMenuRouter : public SectionHolder {
               //Serial.println(entry.name());
               if (!entry.isDirectory()) {
                 //entry.remove();
-                char apathe[32];
+                char apathe[37];
                 snprintf(apathe, sizeof(apathe), "%s%s",self->catalog->tmp_folder, entry.name());
 
                 SD.remove(apathe);

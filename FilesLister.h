@@ -17,7 +17,7 @@ class FilesLister{
         size_t base_char_count;
         int left_margin = 80;
         int tmp_counter = 0;
-        char tmp_folder[32];
+        char tmp_folder[36];
 
         int top_margin = 16;
         int v_spacer = 10 ;

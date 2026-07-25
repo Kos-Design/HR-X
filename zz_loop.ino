@@ -32,7 +32,7 @@ void loop() {
       pre_record = false ;
     }
   }
-  if ( rec_looping ) {
+  if ( rec_looping && (millis() % 2 == 0)) {
     _rd.continue_looper();
   }
 

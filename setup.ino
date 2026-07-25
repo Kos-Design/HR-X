@@ -19,6 +19,7 @@ void unplugfx() {
 
   for (int i = 0; i < sizeopremixtoM; i++) {
     premixesMto[i]->disconnect();
+    premixesMtoR[i]->disconnect();
   }
   for (int i = 0; i < sizeofxcords; i++) {
     fxcording[i]->disconnect();

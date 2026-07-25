@@ -172,17 +172,16 @@ void setup() {
   Muxer.start();
   //queue1.begin();
   AudioMemory(1200);
-  audioShield.inputSelect(AUDIO_INPUT_LINEIN);
-  audioShield.enable();
-  audioShield.volume(1.0);
+  AudioShield.volume(0.0);
+  AudioShield.enable();
   _st.set_in_source();
+  AudioShield.volume(1.0);
+  _rd.playrecordsd_pathed("SOUNDSET/REC/LOOP22#L.RAW");
   Tocker.attach_24(advance_tick);
   Tocker.attach_long(once_in_a_while);
   //clocker.attach_3(fairly_often);
   Tocker.attach_16(at_a_paced_rate);
   //Tocker.attach_3(oscilloscope_loop);
-
-  
   clocker.setBPM(120);
   clocker.setPPQN(96);
   clocker.attach_96(Tocker.click);

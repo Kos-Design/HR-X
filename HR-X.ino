@@ -218,7 +218,7 @@ int samplermidichannel = 8;
 //0 is All, channel indexes are thus offset +1
 byte synthmidichannel = 0;
 bool blocked = false ;
-byte navrec = 3;
+byte navrec = navrecmenu + 1;
 int tickposition;
 
 bool arpegiatorOn = 0;
@@ -678,9 +678,6 @@ EXTMEM short granularMemory3[GRANULAR_MEMORY_SIZE];
 
 short *granularMemories[3] = {granularMemory,granularMemory2,granularMemory3};
 
-EXTMEM AudioConnection delayCord1(feedbackdelay1, delay1);
-EXTMEM AudioConnection delayCord2(feedbackdelay2, delay2);
-EXTMEM AudioConnection delayCord3(feedbackdelay3, delay3);
 
 EXTMEM AudioConnection Notespy_cable(ampL, notefreq1);
 
@@ -851,7 +848,6 @@ EXTMEM AudioConnection MDstringCord20(string3L4, 0, modulate3L4, 0);
 EXTMEM AudioConnection MDstringCord21(string3L5, 0, modulate3L5, 0);
 EXTMEM AudioConnection MDstringCord22(string3L6, 0, modulate3L6, 0);
 
-AudioConnection *delayCords[3] = {&delayCord1, &delayCord2, &delayCord3};
 
 AudioConnection *stringcords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
     &stringCord01, &stringCord02, &stringCord03, &stringCord04, &stringCord05, &stringCord06,
@@ -945,7 +941,7 @@ ClockSink sink;
 EXTMEM AudioConnection patchCord_sinker(clocker, 0, sink, 0);
 
 DisplayManager dm = DisplayManager();
-GlobalMixer _mx = GlobalMixer(audioShield);
+GlobalMixer _mx = GlobalMixer(AudioShield);
 
 int rota_true_pos = 0;
 
