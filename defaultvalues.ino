@@ -226,8 +226,7 @@ void setupdefaultvalues() {
   //midiknobassigned[24] = 21;
 /*/
   
-  pot_assignements[all_buttonns-18] = 111 ;
-  pot_assignements[all_buttonns-19] = 110 ;
+
   pot_assignements[all_buttonns-10] = 108 ;
   pot_assignements[all_buttonns-9] = 107 ;
   */
@@ -235,10 +234,24 @@ void setupdefaultvalues() {
   //98 debugcpu
   //pots_assignements are to map onboard buttons to midi notes or ccs
   //pot_assignements[all_buttonns-5] = 106 ;
-  //osc toggles
+  pot_assignements[all_buttonns-20] = 110 ;
+  pot_assignements[all_buttonns-21] = 109 ;
+  pot_assignements[all_buttonns-19] = 111 ;
+
+  pot_assignements[all_buttonns-12] = 108 ;
+  pot_assignements[all_buttonns-11] = 107 ;
+  pot_assignements[all_buttonns-10] = 106 ;
+
+  midiknobassigned[alt_nav[2]] = 125 ;
+  midiknobassigned[alt_nav[3]] = 126 ;
+  midiknobassigned[alt_nav[0]] = 123 ;
+  midiknobassigned[alt_nav[1]] = 124 ;
+
+
+
   pot_assignements[all_buttonns-4] = 100 ;
   pot_assignements[all_buttonns-13] = 101 ;
-
+  //osc toggles
   //midiknobs link a midi cc note to an index from ctl[] 
   midiknobassigned[100] = 116 ;
   midiknobassigned[101] = 117 ;

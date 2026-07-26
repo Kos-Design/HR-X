@@ -843,6 +843,43 @@ void adjust_osc_refresher_period_ctl(byte cc_val) {
 }
 
 void adjust_waveEditor_pitch_ctl(byte cc_val) {
-  _rd.pitcher = (cc_val/127.0) * 2.0;
-; 
+  _rd.pitcher = (cc_val/127.0) * 2.0; 
+}
+
+void cancel_pushed_ctl(byte c_c=0){
+  if (navlevel > 0) {
+    navlevel--;
+  }
+  if (!navlevel) {
+    dm.displaymenu();
+    reinitsublevels(1);
+    return;
+  }
+  sublevels[navlevel] = 0;
+  if (retroaction) {
+    sublevels[navlevel] = retroaction ;
+    rota_true_pos = retroaction;
+    myEnc.write(retroaction * 4);
+    retroaction = 0;
+  }
+  dm.show();
+  return;
+}
+
+void validate_pushed_ctl(byte c_c=0){
+  navlevel++;
+  rota_true_pos = sublevels[navlevel];
+  myEnc.write(sublevels[navlevel] * 4);
+  dm.show();
+}
+
+void rota_increase_ctl(byte c_c=0){
+  int this_rota = myEnc.read();
+  myEnc.write(this_rota+4);
+  evalrota() ;
+}
+void rota_decrease_ctl(byte c_c=0){
+  int this_rota = myEnc.read();
+  myEnc.write(this_rota-4);
+  evalrota(); 
 }

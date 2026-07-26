@@ -15,12 +15,10 @@ class SettingsMenuRouter : public SectionHolder {
     public:
         SettingsMenuRouter() {
                     self = this;
-                    this->home_navrange=settings_labels_count - 1;
-                    this->relative_navlevel=2;
-                    this->max_navlevel=5;
-                    this->sublevels_address={5,0,0};
-                    //home method not really used yet
-                    //this->set_home(call_fx_mainpanel);
+                    self->home_navrange=settings_labels_count - 1;
+                    self->relative_navlevel=2;
+                    self->max_navlevel=5;
+                    self->sublevels_address={5,0,0};
                     }
 
         char onboards[all_buttonns][8] = {
@@ -43,6 +41,54 @@ class SettingsMenuRouter : public SectionHolder {
           // arpegiator has its own panel -> 8 , same for 11 which is OnboardPanel
           if (navlevel >= 2) {
             settings_nav_one();
+          }
+        }
+
+        static void apply_alt_ctl(){
+          //TODO implement learn midi
+          for (int i = 0; i < 4; i++) {
+            _ka.set_midi_cc_to_ctl(_ka.find_assigned_knob(alt_nav[i]),0);
+            //hope that ctl index of rota_increase_ctl doesn't change
+            _ka.set_midi_cc_to_ctl(alt_nav[i],123+i);
+          }
+        }
+        static void set_alternative_rota(){
+
+          navrange = 3 ;
+          if (navlevel == 3 ){
+            navrange = 127;
+            alt_nav[sublevels[2]]=sublevels[3];
+          }
+          
+          sublevels[3]=alt_nav[sublevels[2]];
+          display.clearDisplay();
+          display.setCursor(0,0);
+          display.setTextSize(1);
+         
+          display.print("Set Nav Controls");
+          display.println(" ");
+          display.println(" ");
+          display.print("Increase: ");
+          display.print(alt_nav[0]);
+
+          display.setCursor(0, 28);
+          display.print("Decrease: ");
+          display.print(alt_nav[1]);
+
+          display.setCursor(0, 40);
+          display.print("Validate: ");
+          display.print(alt_nav[2]);
+
+          display.setCursor(0, 52);
+          display.print("Cancel:   ");
+          display.print(alt_nav[3]);
+
+          display.drawRoundRect(56,11+12*sublevels[2], 25, 16, 3, SSD1306_WHITE);
+          display.display();
+          
+          if (navlevel > 3 ){
+            apply_alt_ctl();
+            returntonav(2,3,sublevels[2]);
           }
         }
 
@@ -498,7 +544,8 @@ class SettingsMenuRouter : public SectionHolder {
                                                                 "Audio Source",
                                                                 "Midi Out",
                                                                 "Virtual Knobs",
-                                                                "Knobs Setter"};
+                                                                "Knobs Setter",
+                                                                "Nav Config"};
           display.clearDisplay();
           canvasBIG.fillScreen(SSD1306_BLACK);
           int startx = 0;
@@ -593,7 +640,7 @@ class SettingsMenuRouter : public SectionHolder {
             }
             // canvasBIG.setTextSize(1);
           }
-
+          
           for (int filer = 0; filer < settings_labels_count - 1 - (sublevels[1]);
               filer++) {
 
@@ -613,7 +660,7 @@ class SettingsMenuRouter : public SectionHolder {
           canvasBIG.setTextSize(1);
           canvastitle.setTextSize(1);
           _settings_menu[sublevels[1]]();
-          if (sublevels[1] != 8 && sublevels[1] != 15 && sublevels[1] != 14 && sublevels[1] != 11 ) {
+          if (sublevels[1] != 8 && sublevels[1] != 15 && sublevels[1] != 14 && sublevels[1] != 16 && sublevels[1] != 11 ) {
             makesettingslist();
             dm.dodisplay();
           }
@@ -700,14 +747,14 @@ class SettingsMenuRouter : public SectionHolder {
 
       static void toggle_freeze_midi(){
         toggle_that(freezemidicc);
-        returntonav(1,13,1);
+        returntonav(1,self->home_navrange,1);
       }
 
       static void set_synth_midi_ch(){
         navrange = 16;
         synthmidichannel = (byte)sublevels[2];
         if (navlevel >= 3) {
-          returntonav(1,13,2);
+          returntonav(1,self->home_navrange,2);
         }
       }
 
@@ -715,13 +762,13 @@ class SettingsMenuRouter : public SectionHolder {
         navrange = 16;
         samplermidichannel = sublevels[2];
         if (navlevel >= 3) {
-          returntonav(1,13,3);
+          returntonav(1,self->home_navrange,3);
         }
       }
       
       static void toggle_digital_analog(){
         toggle_that(digitalplay);
-        returntonav(1,13,4);
+        returntonav(1,self->home_navrange,4);
       }
       
       
@@ -729,7 +776,7 @@ class SettingsMenuRouter : public SectionHolder {
         navrange = 127;
         tapnote = byte(sublevels[2]);
         if (navlevel >= 3 ){
-          returntonav(1,13,5);
+          returntonav(1,self->home_navrange,5);
         }
       }
 
@@ -741,7 +788,7 @@ class SettingsMenuRouter : public SectionHolder {
           millitickinterval = sublevels[2];
           self->setbpms();
           //tempo = millitickinterval;
-          returntonav(1,13,6);
+          returntonav(1,self->home_navrange,6);
         }
       }
 
@@ -754,14 +801,14 @@ class SettingsMenuRouter : public SectionHolder {
           chordson = 0;
         }
         if (navlevel >= 3) {
-          returntonav(1,13,7);
+          returntonav(1,self->home_navrange,7);
         }
       }
 
       static void toggle_ext_clock(){
         //externalticker = !externalticker;
         toggle_that(externalticker);
-        returntonav(1,13,9);
+        returntonav(1,self->home_navrange,9);
       }
 
       static void toggle_note_spy(){
@@ -773,7 +820,7 @@ class SettingsMenuRouter : public SectionHolder {
           unplug_notefreq_from_ampL();
         }
         if (navlevel >= 3) {
-          returntonav(1,13,10);
+          returntonav(1,self->home_navrange,10);
         }
       }
 
@@ -782,18 +829,18 @@ class SettingsMenuRouter : public SectionHolder {
         self->AudioInSource = sublevels[2] ;
         if (navlevel >= 3) {
           set_in_source();
-          returntonav(1,13,12);
+          returntonav(1,self->home_navrange,12);
         }
       }
 
       static void toggle_midi_out(){
         toggle_that(SendMidiOut);
-        returntonav(1,13,13);
+        returntonav(1,self->home_navrange,13);
       }
      
       static constexpr void (*_settings_menu[settings_labels_count])() = {&toggle_echo_midi,&toggle_freeze_midi,&set_synth_midi_ch,&set_sampler_midi_ch,&toggle_digital_analog,
                                                                         &set_tap_note,&set_bpms_interval,&set_chord_mode,&arpegiatorVpanel,&toggle_ext_clock,&toggle_note_spy,
-                                                                        &OnBoardVpanel,&set_audio_source,&toggle_midi_out,&Vbuttonspanel,&_ka.show};
+                                                                        &OnBoardVpanel,&set_audio_source,&toggle_midi_out,&Vbuttonspanel,&_ka.show,&set_alternative_rota};
 
       //static constexpr void (*_nav_fx[sampler_labels_count])() = {&fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one};
 

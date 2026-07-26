@@ -69,7 +69,7 @@ const byte sg_labels_count = 8;
 
 const byte ps_labels_count = 5;
 const byte sizeofLFOlabels = 9;
-const byte settings_labels_count = 16;
+const byte settings_labels_count = 17;
 //doesn't seem to affect arbitrary waveforms... :(
 float arbitrary_maxF[3] = { 172.0, 172.0, 172.0} ;
 int millitickinterval = 115;
@@ -514,6 +514,11 @@ byte WetMixMasters[4] = {0, 0, 0, 0};
 
 bool stereo_toggled = false ;
 
+void validate_pushed_ctl(byte);
+void cancel_pushed_ctl(byte);
+void rota_increase_ctl(byte);
+void rota_decrease_ctl(byte);
+
 const CcCalls ctl[] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel",&SynthVolume_ctl},{"SDLevel",&SDPlayerVolume_ctl},{"FlashLevel",&FlashVolume_ctl},
                       {"FX1 Wet",&Wet1Volume_ctl},{"FX2 Wet",&Wet2Volume_ctl},{"FX3 Wet",&Wet3Volume_ctl},{"Dry Sampler",&DrySampler_ctl},{"Dry Synth",&DrySynth_ctl},
                       //10 ok
@@ -550,13 +555,15 @@ const CcCalls ctl[] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel"
                       {"Flash Line11 Level",&FlashLineVolume_Knob11_ctl},{"Flash Line12 Level",&FlashLineVolume_Knob12_ctl},{"Flash Line13 Level",&FlashLineVolume_Knob13_ctl},{"Flash Line14 Level",&FlashLineVolume_Knob14_ctl},{"Flash Line15 Level",&FlashLineVolume_Knob15_ctl},
                       {"Flash Line16 Level",&FlashLineVolume_Knob16_ctl},{"start oscilloscope",&start_spectro},{"stop oscilloscope",&stop_spectro},{"USB In Volume",&USB_In_Volume_ctl},{"Fps oscilloscope",&adjust_osc_framerate_ctl},
                       //140 ok
-                      {"Time oscilloscope",&adjust_osc_timee_ctl},{"refresh OscScope",&adjust_osc_refresher_period_ctl},{"Wav Editor Pitch",&adjust_waveEditor_pitch_ctl}  
-
+                      {"Time oscilloscope",&adjust_osc_timee_ctl},{"refresh OscScope",&adjust_osc_refresher_period_ctl},{"Wav Editor Pitch",&adjust_waveEditor_pitch_ctl},{"Rota Nav +",&rota_increase_ctl}, {"Rota Nav -",&rota_decrease_ctl},      
+                      {"Validate Nav",&validate_pushed_ctl},{"Cancel Nav",&cancel_pushed_ctl} 
                       };
 
 constexpr uint16_t CtlCount = sizeof(ctl) / sizeof(ctl[0]);
 
 bool patterninparse;
+//midi cc notes controlling navigation
+byte alt_nav[4] = {106,107,110,111};
 
 bool granular_shifting[fxs_count] = {0,0,0};
 bool granular_freezing[fxs_count] = {0,0,0};

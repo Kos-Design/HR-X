@@ -127,12 +127,17 @@ class KnobAssigner : public SectionHolder {
         }
         dm.dodisplay();
       }
+      
+      static void set_midi_cc_to_ctl(byte cc_nt, int cc_cl){
+        midiknobassigned[cc_nt] = cc_cl;
+      }
 
       static void set_it(){
         knobsetting = false ;
-        midiknobassigned[find_assigned_knob(sublevels[self->relative_navlevel])] = 0;
-        midiknobassigned[sublevels[self->relative_navlevel+1]] = sublevels[self->relative_navlevel];
-        returntonav(self->relative_navlevel,CtlCount-1,sublevels[self->relative_navlevel]);
+        set_midi_cc_to_ctl(find_assigned_knob(sublevels[self->relative_navlevel]), 0);
+        set_midi_cc_to_ctl(sublevels[self->relative_navlevel+1] , sublevels[self->relative_navlevel]);
+
+        returntonav(self->relative_navlevel,CtlCount-1, sublevels[self->relative_navlevel]);
       }
 
 

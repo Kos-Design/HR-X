@@ -177,7 +177,6 @@ class RecorderMenuRouter : public SectionHolder {
                   stopplayrecordsd();
                 }
                 startRecording();
-                // makenewRecename();
               }
             }
 
@@ -296,7 +295,7 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void playrecordsd() {
-            Serial.println(newloopedpath);
+            //Serial.println(newloopedpath);
           
           if (SD.exists(newloopedpath.c_str())) {
             AudioNoInterrupts();
@@ -311,7 +310,7 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void playrecordsd_pathed(const char* lepath) {
-            Serial.print(lepath);
+            //Serial.print(lepath);
 
           if (SD.exists(lepath)) {
             AudioNoInterrupts();
@@ -430,7 +429,7 @@ class RecorderMenuRouter : public SectionHolder {
 
           if (navlevel >= self->relative_navlevel + 2) {
             func();
-            scheddule_wave_rebuild(true,true);
+            scheddule_wave_rebuild(true);
             returntonav(self->relative_navlevel, self->home_navrange,sublevels[self->relative_navlevel]);
           }
           dm.dodisplay();

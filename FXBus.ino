@@ -365,10 +365,10 @@ class FxMenuRouter : public SectionHolder {
         flangedepth =
             round((flangerVknobs[lefilter][1] / 127.0) * FLANGE_DELAY_LENGTH / 4);
         flangefreq[lefilter] = (double)(flangerVknobs[lefilter][2] / 127.0) * 2;
-        // AudioNoInterrupts();
+         AudioNoInterrupts();
         flange[lefilter]->voices(flangeoffset, flangedepth, flangefreq[lefilter]);
         flangeR[lefilter]->voices(flangeoffset, flangedepth, flangefreq[lefilter]);
-        // AudioInterrupts();
+         AudioInterrupts();
       }
       static void flangerVpanelAction(byte lefilter) {
         if (navlevel == 4) {

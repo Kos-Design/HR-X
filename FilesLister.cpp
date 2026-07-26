@@ -224,7 +224,12 @@ void  FilesLister::display_files_list() {
   dm.clean_title_1_1();
   canvasBIG.setCursor(left_margin,0);
 
-  this->displayable_offset = sublevels[this->r_nav] ;
+  if (navlevel == this->r_nav) {
+    this->displayable_offset = sublevels[this->r_nav]  ;
+    Serial.println("");
+    Serial.print("setted at lvl ");
+    Serial.print(navlevel);
+  }
   //% this->files_counter  ;
   int all_files_count = this->free_counter + this->files_counter ;
   refresh_files_names();
@@ -256,9 +261,12 @@ void  FilesLister::display_files_list() {
 
 void  FilesLister::display_folders_list() {
   dm.clean_title_1_1();
-  
-  this->displayable_offset = sublevels[this->r_nav]  ;
-
+  if (navlevel == this->r_nav) {
+    this->displayable_offset = sublevels[this->r_nav]  ;
+    Serial.println("");
+    Serial.print("setted at lvl ");
+    Serial.print(navlevel);
+  }
   //% this->files_counter  ;
   refresh_folders_names();
   this->folder_selected = this->folders_displayable[0];
