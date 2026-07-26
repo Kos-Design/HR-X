@@ -397,3 +397,286 @@ AudioMixer4 *les303wet[SYNTH_LINERS_COUNT] = {&mixerWet303L1, &mixerWet303L2, &m
 
 AudioFilterStateVariable *les303filterz[SYNTH_LINERS_COUNT] = {
     &filter303L1, &filter303L2, &filter303L3, &filter303L4, &filter303L5, &filter303L6};
+
+
+
+EXTMEM AudioConnection Notespy_cable(ampL, notefreq1);
+
+EXTMEM AudioConnection FMWaveCord01(FMWaveform1L1, 0, WavesL1, 0);
+EXTMEM AudioConnection FMWaveCord02(FMWaveform1L2, 0, WavesL2, 0);
+EXTMEM AudioConnection FMWaveCord03(FMWaveform1L3, 0, WavesL3, 0);
+EXTMEM AudioConnection FMWaveCord04(FMWaveform1L4, 0, WavesL4, 0);
+EXTMEM AudioConnection FMWaveCord05(FMWaveform1L5, 0, WavesL5, 0);
+EXTMEM AudioConnection FMWaveCord06(FMWaveform1L6, 0, WavesL6, 0);
+
+EXTMEM AudioConnection FMWaveCord09(FMWaveform2L1, 0, WavesL1, 1);
+EXTMEM AudioConnection FMWaveCord10(FMWaveform2L2, 0, WavesL2, 1);
+EXTMEM AudioConnection FMWaveCord11(FMWaveform2L3, 0, WavesL3, 1);
+EXTMEM AudioConnection FMWaveCord12(FMWaveform2L4, 0, WavesL4, 1);
+EXTMEM AudioConnection FMWaveCord13(FMWaveform2L5, 0, WavesL5, 1);
+EXTMEM AudioConnection FMWaveCord14(FMWaveform2L6, 0, WavesL6, 1);
+
+EXTMEM AudioConnection FMWaveCord17(FMWaveform3L1, 0, WavesL1, 2);
+EXTMEM AudioConnection FMWaveCord18(FMWaveform3L2, 0, WavesL2, 2);
+EXTMEM AudioConnection FMWaveCord19(FMWaveform3L3, 0, WavesL3, 2);
+EXTMEM AudioConnection FMWaveCord20(FMWaveform3L4, 0, WavesL4, 2);
+EXTMEM AudioConnection FMWaveCord21(FMWaveform3L5, 0, WavesL5, 2);
+EXTMEM AudioConnection FMWaveCord22(FMWaveform3L6, 0, WavesL6, 2);
+
+EXTMEM AudioConnection stringCord01(string1L1, 0, WavesL1, 0);
+EXTMEM AudioConnection stringCord02(string1L2, 0, WavesL2, 0);
+EXTMEM AudioConnection stringCord03(string1L3, 0, WavesL3, 0);
+EXTMEM AudioConnection stringCord04(string1L4, 0, WavesL4, 0);
+EXTMEM AudioConnection stringCord05(string1L5, 0, WavesL5, 0);
+EXTMEM AudioConnection stringCord06(string1L6, 0, WavesL6, 0);
+
+EXTMEM AudioConnection stringCord09(string2L1, 0, WavesL1, 1);
+EXTMEM AudioConnection stringCord10(string2L2, 0, WavesL2, 1);
+EXTMEM AudioConnection stringCord11(string2L3, 0, WavesL3, 1);
+EXTMEM AudioConnection stringCord12(string2L4, 0, WavesL4, 1);
+EXTMEM AudioConnection stringCord13(string2L5, 0, WavesL5, 1);
+EXTMEM AudioConnection stringCord14(string2L6, 0, WavesL6, 1);
+
+EXTMEM AudioConnection stringCord17(string3L1, 0, WavesL1, 2);
+EXTMEM AudioConnection stringCord18(string3L2, 0, WavesL2, 2);
+EXTMEM AudioConnection stringCord19(string3L3, 0, WavesL3, 2);
+EXTMEM AudioConnection stringCord20(string3L4, 0, WavesL4, 2);
+EXTMEM AudioConnection stringCord21(string3L5, 0, WavesL5, 2);
+EXTMEM AudioConnection stringCord22(string3L6, 0, WavesL6, 2);
+
+EXTMEM AudioConnection drumCord01(drum1L1, 0, WavesL1, 0);
+EXTMEM AudioConnection drumCord02(drum1L2, 0, WavesL2, 0);
+EXTMEM AudioConnection drumCord03(drum1L3, 0, WavesL3, 0);
+EXTMEM AudioConnection drumCord04(drum1L4, 0, WavesL4, 0);
+EXTMEM AudioConnection drumCord05(drum1L5, 0, WavesL5, 0);
+EXTMEM AudioConnection drumCord06(drum1L6, 0, WavesL6, 0);
+
+EXTMEM AudioConnection drumCord09(drum2L1, 0, WavesL1, 1);
+EXTMEM AudioConnection drumCord10(drum2L2, 0, WavesL2, 1);
+EXTMEM AudioConnection drumCord11(drum2L3, 0, WavesL3, 1);
+EXTMEM AudioConnection drumCord12(drum2L4, 0, WavesL4, 1);
+EXTMEM AudioConnection drumCord13(drum2L5, 0, WavesL5, 1);
+EXTMEM AudioConnection drumCord14(drum2L6, 0, WavesL6, 1);
+
+EXTMEM AudioConnection drumCord17(drum3L1, 0, WavesL1, 2);
+EXTMEM AudioConnection drumCord18(drum3L2, 0, WavesL2, 2);
+EXTMEM AudioConnection drumCord19(drum3L3, 0, WavesL3, 2);
+EXTMEM AudioConnection drumCord20(drum3L4, 0, WavesL4, 2);
+EXTMEM AudioConnection drumCord21(drum3L5, 0, WavesL5, 2);
+EXTMEM AudioConnection drumCord22(drum3L6, 0, WavesL6, 2);
+
+EXTMEM AudioConnection wavelinecord19(waveform1L5, 0, WavesL5, 0);
+EXTMEM AudioConnection wavelinecord20(waveform1L6, 0, WavesL6, 0);
+EXTMEM AudioConnection wavelinecord21(waveform1L4, 0, WavesL4, 0);
+EXTMEM AudioConnection wavelinecord22(waveform1L2, 0, WavesL2, 0);
+EXTMEM AudioConnection wavelinecord23(waveform1L3, 0, WavesL3, 0);
+EXTMEM AudioConnection wavelinecord24(waveform1L1, 0, WavesL1, 0);
+
+EXTMEM AudioConnection wavelinecord33(waveform2L5, 0, WavesL5, 1);
+EXTMEM AudioConnection wavelinecord34(waveform3L5, 0, WavesL5, 2);
+EXTMEM AudioConnection wavelinecord35(waveform2L6, 0, WavesL6, 1);
+EXTMEM AudioConnection wavelinecord36(waveform3L6, 0, WavesL6, 2);
+EXTMEM AudioConnection wavelinecord37(waveform3L3, 0, WavesL3, 2);
+EXTMEM AudioConnection wavelinecord39(waveform2L3, 0, WavesL3, 1);
+EXTMEM AudioConnection wavelinecord41(waveform2L4, 0, WavesL4, 1);
+EXTMEM AudioConnection wavelinecord42(waveform3L4, 0, WavesL4, 2);
+EXTMEM AudioConnection wavelinecord43(waveform3L2, 0, WavesL2, 2);
+EXTMEM AudioConnection wavelinecord44(waveform3L1, 0, WavesL1, 2);
+EXTMEM AudioConnection wavelinecord45(waveform2L2, 0, WavesL2, 1);
+EXTMEM AudioConnection wavelinecord47(waveform2L1, 0, WavesL1, 1);
+
+EXTMEM AudioConnection modulateCord01(modulate1L1, 0, WavesL1, 0);
+EXTMEM AudioConnection modulateCord02(modulate1L2, 0, WavesL2, 0);
+EXTMEM AudioConnection modulateCord03(modulate1L3, 0, WavesL3, 0);
+EXTMEM AudioConnection modulateCord04(modulate1L4, 0, WavesL4, 0);
+EXTMEM AudioConnection modulateCord05(modulate1L5, 0, WavesL5, 0);
+EXTMEM AudioConnection modulateCord06(modulate1L6, 0, WavesL6, 0);
+EXTMEM AudioConnection modulateCord09(modulate2L1, 0, WavesL1, 1);
+EXTMEM AudioConnection modulateCord10(modulate2L2, 0, WavesL2, 1);
+EXTMEM AudioConnection modulateCord11(modulate2L3, 0, WavesL3, 1);
+EXTMEM AudioConnection modulateCord12(modulate2L4, 0, WavesL4, 1);
+EXTMEM AudioConnection modulateCord13(modulate2L5, 0, WavesL5, 1);
+EXTMEM AudioConnection modulateCord14(modulate2L6, 0, WavesL6, 1);
+EXTMEM AudioConnection modulateCord17(modulate3L1, 0, WavesL1, 2);
+EXTMEM AudioConnection modulateCord18(modulate3L2, 0, WavesL2, 2);
+EXTMEM AudioConnection modulateCord19(modulate3L3, 0, WavesL3, 2);
+EXTMEM AudioConnection modulateCord20(modulate3L4, 0, WavesL4, 2);
+EXTMEM AudioConnection modulateCord21(modulate3L5, 0, WavesL5, 2);
+EXTMEM AudioConnection modulateCord22(modulate3L6, 0, WavesL6, 2);
+
+EXTMEM AudioConnection MDwaveCord01(waveform1L1, 0, modulate1L1, 0);
+EXTMEM AudioConnection MDwaveCord02(waveform1L2, 0, modulate1L2, 0);
+EXTMEM AudioConnection MDwaveCord03(waveform1L3, 0, modulate1L3, 0);
+EXTMEM AudioConnection MDwaveCord04(waveform1L4, 0, modulate1L4, 0);
+EXTMEM AudioConnection MDwaveCord05(waveform1L5, 0, modulate1L5, 0);
+EXTMEM AudioConnection MDwaveCord06(waveform1L6, 0, modulate1L6, 0);
+
+EXTMEM AudioConnection MDwaveCord09(waveform2L1, 0, modulate2L1, 0);
+EXTMEM AudioConnection MDwaveCord10(waveform2L2, 0, modulate2L2, 0);
+EXTMEM AudioConnection MDwaveCord11(waveform2L3, 0, modulate2L3, 0);
+EXTMEM AudioConnection MDwaveCord12(waveform2L4, 0, modulate2L4, 0);
+EXTMEM AudioConnection MDwaveCord13(waveform2L5, 0, modulate2L5, 0);
+EXTMEM AudioConnection MDwaveCord14(waveform2L6, 0, modulate2L6, 0);
+
+EXTMEM AudioConnection MDwaveCord17(waveform3L1, 0, modulate3L1, 0);
+EXTMEM AudioConnection MDwaveCord18(waveform3L2, 0, modulate3L2, 0);
+EXTMEM AudioConnection MDwaveCord19(waveform3L3, 0, modulate3L3, 0);
+EXTMEM AudioConnection MDwaveCord20(waveform3L4, 0, modulate3L4, 0);
+EXTMEM AudioConnection MDwaveCord21(waveform3L5, 0, modulate3L5, 0);
+EXTMEM AudioConnection MDwaveCord22(waveform3L6, 0, modulate3L6, 0);
+
+
+
+EXTMEM AudioConnection MDdrumCord01(drum1L1, 0, modulate1L1, 0);
+EXTMEM AudioConnection MDdrumCord02(drum1L2, 0, modulate1L2, 0);
+EXTMEM AudioConnection MDdrumCord03(drum1L3, 0, modulate1L3, 0);
+EXTMEM AudioConnection MDdrumCord04(drum1L4, 0, modulate1L4, 0);
+EXTMEM AudioConnection MDdrumCord05(drum1L5, 0, modulate1L5, 0);
+EXTMEM AudioConnection MDdrumCord06(drum1L6, 0, modulate1L6, 0);
+
+EXTMEM AudioConnection MDdrumCord09(drum2L1, 0, modulate2L1, 0);
+EXTMEM AudioConnection MDdrumCord10(drum2L2, 0, modulate2L2, 0);
+EXTMEM AudioConnection MDdrumCord11(drum2L3, 0, modulate2L3, 0);
+EXTMEM AudioConnection MDdrumCord12(drum2L4, 0, modulate2L4, 0);
+EXTMEM AudioConnection MDdrumCord13(drum2L5, 0, modulate2L5, 0);
+EXTMEM AudioConnection MDdrumCord14(drum2L6, 0, modulate2L6, 0);
+
+EXTMEM AudioConnection MDdrumCord17(drum3L1, 0, modulate3L1, 0);
+EXTMEM AudioConnection MDdrumCord18(drum3L2, 0, modulate3L2, 0);
+EXTMEM AudioConnection MDdrumCord19(drum3L3, 0, modulate3L3, 0);
+EXTMEM AudioConnection MDdrumCord20(drum3L4, 0, modulate3L4, 0);
+EXTMEM AudioConnection MDdrumCord21(drum3L5, 0, modulate3L5, 0);
+EXTMEM AudioConnection MDdrumCord22(drum3L6, 0, modulate3L6, 0);
+
+EXTMEM AudioConnection MDstringCord01(string1L1, 0, modulate1L1, 0);
+EXTMEM AudioConnection MDstringCord02(string1L2, 0, modulate1L2, 0);
+EXTMEM AudioConnection MDstringCord03(string1L3, 0, modulate1L3, 0);
+EXTMEM AudioConnection MDstringCord04(string1L4, 0, modulate1L4, 0);
+EXTMEM AudioConnection MDstringCord05(string1L5, 0, modulate1L5, 0);
+EXTMEM AudioConnection MDstringCord06(string1L6, 0, modulate1L6, 0);
+
+EXTMEM AudioConnection MDstringCord09(string2L1, 0, modulate2L1, 0);
+EXTMEM AudioConnection MDstringCord10(string2L2, 0, modulate2L2, 0);
+EXTMEM AudioConnection MDstringCord11(string2L3, 0, modulate2L3, 0);
+EXTMEM AudioConnection MDstringCord12(string2L4, 0, modulate2L4, 0);
+EXTMEM AudioConnection MDstringCord13(string2L5, 0, modulate2L5, 0);
+EXTMEM AudioConnection MDstringCord14(string2L6, 0, modulate2L6, 0);
+
+EXTMEM AudioConnection MDstringCord17(string3L1, 0, modulate3L1, 0);
+EXTMEM AudioConnection MDstringCord18(string3L2, 0, modulate3L2, 0);
+EXTMEM AudioConnection MDstringCord19(string3L3, 0, modulate3L3, 0);
+EXTMEM AudioConnection MDstringCord20(string3L4, 0, modulate3L4, 0);
+EXTMEM AudioConnection MDstringCord21(string3L5, 0, modulate3L5, 0);
+EXTMEM AudioConnection MDstringCord22(string3L6, 0, modulate3L6, 0);
+
+
+AudioConnection *stringcords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
+    &stringCord01, &stringCord02, &stringCord03, &stringCord04, &stringCord05, &stringCord06,
+    &stringCord09, &stringCord10, &stringCord11, &stringCord12, &stringCord13, &stringCord14,
+    &stringCord17, &stringCord18, &stringCord19, &stringCord20, &stringCord21, &stringCord22};
+
+AudioConnection *drumcords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
+    &drumCord01, &drumCord02, &drumCord03, &drumCord04, &drumCord05, &drumCord06,
+    &drumCord09, &drumCord10, &drumCord11, &drumCord12, &drumCord13, &drumCord14,
+    &drumCord17, &drumCord18, &drumCord19, &drumCord20, &drumCord21, &drumCord22};
+
+AudioConnection *modulatecords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
+    &modulateCord01, &modulateCord02, &modulateCord03, &modulateCord04, &modulateCord05, &modulateCord06,
+    &modulateCord09, &modulateCord10, &modulateCord11, &modulateCord12, &modulateCord13, &modulateCord14,
+    &modulateCord17, &modulateCord18, &modulateCord19, &modulateCord20, &modulateCord21, &modulateCord22};
+
+AudioConnection *MDdrumcords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
+    &MDdrumCord01, &MDdrumCord02, &MDdrumCord03, &MDdrumCord04, &MDdrumCord05, &MDdrumCord06,
+    &MDdrumCord09, &MDdrumCord10, &MDdrumCord11, &MDdrumCord12, &MDdrumCord13, &MDdrumCord14,
+    &MDdrumCord17, &MDdrumCord18, &MDdrumCord19, &MDdrumCord20, &MDdrumCord21, &MDdrumCord22};
+
+AudioConnection *MDwavecords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
+    &MDwaveCord01, &MDwaveCord02, &MDwaveCord03, &MDwaveCord04, &MDwaveCord05, &MDwaveCord06,
+    &MDwaveCord09, &MDwaveCord10, &MDwaveCord11, &MDwaveCord12, &MDwaveCord13, &MDwaveCord14,
+    &MDwaveCord17, &MDwaveCord18, &MDwaveCord19, &MDwaveCord20, &MDwaveCord21, &MDwaveCord22};
+
+AudioConnection *MDstringcords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
+    &MDstringCord01, &MDstringCord02, &MDstringCord03, &MDstringCord04, &MDstringCord05, &MDstringCord06,
+    &MDstringCord09, &MDstringCord10, &MDstringCord11, &MDstringCord12, &MDstringCord13, &MDstringCord14,
+    &MDstringCord17, &MDstringCord18, &MDstringCord19, &MDstringCord20, &MDstringCord21, &MDstringCord22};
+
+AudioConnection *FMwavecords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
+    &FMWaveCord01, &FMWaveCord02, &FMWaveCord03, &FMWaveCord04, &FMWaveCord05, &FMWaveCord06,
+    &FMWaveCord09, &FMWaveCord10, &FMWaveCord11, &FMWaveCord12, &FMWaveCord13, &FMWaveCord14,
+    &FMWaveCord17, &FMWaveCord18, &FMWaveCord19, &FMWaveCord20, &FMWaveCord21, &FMWaveCord22};
+
+AudioConnection *wavelinescords[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
+    &wavelinecord24, &wavelinecord22, &wavelinecord23, &wavelinecord21, &wavelinecord19, &wavelinecord20,
+    &wavelinecord47, &wavelinecord45, &wavelinecord39, &wavelinecord41, &wavelinecord33, &wavelinecord35,
+    &wavelinecord44, &wavelinecord43, &wavelinecord37, &wavelinecord42, &wavelinecord34, &wavelinecord36};
+
+AudioSynthWaveform *waveforms1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
+    &waveform1L1, &waveform1L2, &waveform1L3, &waveform1L4, &waveform1L5, &waveform1L6,
+    &waveform2L1, &waveform2L2, &waveform2L3, &waveform2L4, &waveform2L5, &waveform2L6,
+    &waveform3L1, &waveform3L2, &waveform3L3, &waveform3L4, &waveform3L5, &waveform3L6};
+
+AudioSynthWaveformModulated *FMwaveforms1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
+    &FMWaveform1L1, &FMWaveform1L2, &FMWaveform1L3, &FMWaveform1L4, &FMWaveform1L5, &FMWaveform1L6,
+    &FMWaveform2L1, &FMWaveform2L2, &FMWaveform2L3, &FMWaveform2L4, &FMWaveform2L5, &FMWaveform2L6,
+    &FMWaveform3L1, &FMWaveform3L2, &FMWaveform3L3, &FMWaveform3L4, &FMWaveform3L5, &FMWaveform3L6};
+
+AudioSynthSimpleDrum *drums1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
+    &drum1L1, &drum1L2, &drum1L3, &drum1L4, &drum1L5, &drum1L6,
+    &drum2L1, &drum2L2, &drum2L3, &drum2L4, &drum2L5, &drum2L6,
+    &drum3L1, &drum3L2, &drum3L3, &drum3L4, &drum3L5, &drum3L6};
+
+AudioSynthKarplusStrong *strings1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
+    &string1L1, &string1L2, &string1L3, &string1L4, &string1L5, &string1L6,
+    &string2L1, &string2L2, &string2L3, &string2L4,&string2L5, &string2L6,
+    &string3L1, &string3L2, &string3L3, &string3L4, &string3L5, &string3L6};
+
+AudioMixer4 *Wavesmix[SYNTH_LINERS_COUNT] = {&WavesL1, &WavesL2, &WavesL3, &WavesL4, &WavesL5, &WavesL6};
+
+AudioPlaySerialflashRaw *FlashSampler[16] = {
+    &FlashSampler1,  &FlashSampler2,  &FlashSampler3,  &FlashSampler4,
+    &FlashSampler5,  &FlashSampler6,  &FlashSampler7,  &FlashSampler8,
+    &FlashSampler9,  &FlashSampler10, &FlashSampler11, &FlashSampler12,
+    &FlashSampler13, &FlashSampler14, &FlashSampler15, &FlashSampler16};
+
+AudioMixer4 *Flashmixer[4] = {&flashmix1, &flashmix2, &flashmix3, &flashmix4};
+
+AudioAmplifier *Wavespreamp303[SYNTH_LINERS_COUNT] = {&wavePAmp0, &wavePAmp1, &wavePAmp2,
+                                     &wavePAmp3, &wavePAmp4, &wavePAmp5};
+
+AudioSynthWaveform *LFOwaveforms1[OSCS_COUNT] = {&LFOrm1, &LFOrm2, &LFOrm3};
+
+AudioEffectEnvelope *enveloppesL[SYNTH_LINERS_COUNT] = {&envelopeL0, &envelopeL1, &envelopeL2,
+                                                     &envelopeL3, &envelopeL4, &envelopeL5};
+
+
+AudioPlaySdMp3           playMp31;
+AudioPlaySdFlac          playFlac1;
+
+EXTMEM AudioPlayPartialSdRaw PartialPlayerMono;
+EXTMEM AudioMixer4 sd_mixerL ;
+EXTMEM AudioMixer4 sd_mixerR ;
+
+EXTMEM AudioConnection          sd_mix_itL(sd_mixerL, 0, InMixL , 2);
+EXTMEM AudioConnection          sd_mix_itR(sd_mixerR, 0, InMixR , 2);
+EXTMEM AudioConnection          sd_mix_partialL(PartialPlayerMono, 0, sd_mixerL, 0);
+EXTMEM AudioConnection          sd_mix_partialR(PartialPlayerMono, 0, sd_mixerR, 0);
+EXTMEM AudioConnection          sd_mix_mp3L(playMp31, 0, sd_mixerL, 1);
+EXTMEM AudioConnection          sd_mix_mp3R(playMp31, 1, sd_mixerR, 1);
+EXTMEM AudioConnection          sd_mix_flacL(playFlac1, 0, sd_mixerL, 2);
+EXTMEM AudioConnection          sd_mix_flacR(playFlac1, 1, sd_mixerR, 2);
+
+SequencerClocker clocker;
+
+class ClockSink : public AudioStream {
+    public:
+        ClockSink() : AudioStream(1, inputQueueArray) {}
+
+        void update(void) override {}
+
+    private:
+    audio_block_t *inputQueueArray[1];
+};
+
+EXTMEM ClockSink sink;
+
+EXTMEM AudioConnection patchCord_sinker(clocker, 0, sink, 0);

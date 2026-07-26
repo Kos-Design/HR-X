@@ -358,4 +358,4 @@ class LFOMenuRouter : public SectionHolder {
 };
 
 LFOMenuRouter* LFOMenuRouter::self = nullptr;
-EXTMEM LFOMenuRouter _lf;
+LFOMenuRouter _lf;

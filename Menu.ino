@@ -149,7 +149,7 @@ class KnobAssigner : public SectionHolder {
 
 
 KnobAssigner* KnobAssigner::self = nullptr;
-EXTMEM KnobAssigner _ka;
+KnobAssigner _ka;
 
 class SynthLiner {
   public:

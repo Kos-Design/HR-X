@@ -1481,6 +1481,6 @@ class RecorderMenuRouter : public SectionHolder {
 };
 
 RecorderMenuRouter* RecorderMenuRouter::self = nullptr;
-EXTMEM RecorderMenuRouter _rd;
+RecorderMenuRouter _rd;
        
         

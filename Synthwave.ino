@@ -293,7 +293,7 @@ class AdsrMenuRouter : public SectionHolder {
 };
 
 AdsrMenuRouter* AdsrMenuRouter::self = nullptr;
-EXTMEM AdsrMenuRouter _ad;
+AdsrMenuRouter _ad;
 
 class Filter303MenuRouter : public SectionHolder {
   public:
@@ -1581,5 +1581,5 @@ class SynthMenuRouter : public SectionHolder {
 };
 
 SynthMenuRouter* SynthMenuRouter::self = nullptr;
-EXTMEM SynthMenuRouter _sn;
+SynthMenuRouter _sn;
 

@@ -20,6 +20,7 @@ void loop() {
    loopusbHub();
   } else if (millis() % osc_refresher_period == 0) {
     oscilloscope_loop();
+    //UpdateSpectrum();
   }
   /*
   if (debug_cpu){
@@ -35,7 +36,19 @@ void loop() {
   if ( rec_looping && (millis() % 2 == 0)) {
     _rd.continue_looper();
   }
-
-  
-  
 }
+
+void start_eq_display_Trigger_ctl(byte cc_value){
+  if (showing_eq) return ;
+  showing_eq = true ;
+  
+  //fft256.begin();
+}
+
+void stop_eq_display_Trigger_ctl(byte cc_value){
+  if (!showing_eq) return ;
+  showing_eq = false ;
+  //fft256.end();
+  //fft256.clear();
+}
+

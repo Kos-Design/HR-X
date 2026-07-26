@@ -59,7 +59,7 @@ void printit() {
 void fairly_often() {
   //set them all on a separate cycle if possible
   control_me();
-  
+  UpdateSpectrum();
   Tocker.dispatch_ticks();
   
   //pseudo303();

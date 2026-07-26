@@ -77,3 +77,72 @@ void oscilloscope_loop() {
         frameTimer = 0;
     }
 }
+
+#define NUM_BARS    16
+#define SCREEN_H    64
+
+
+float bars[NUM_BARS];
+float displayBars[NUM_BARS];
+float peaks[NUM_BARS];
+
+const float bandFreq[17] = {
+    20, 60, 120, 200,
+    320, 500, 750, 1100,
+    1600, 2300, 3300, 4700,
+    6700, 9500, 13000, 17000,
+    22000
+};
+
+void UpdateSpectrum(){
+  
+  if (!showing_eq || !fft256.available()) return;
+    
+    for (int b = 0; b < 16; b++)
+    {
+        float level = fft256.read(bandFreq[b], bandFreq[b+1]);
+
+        // Progressive high-frequency boost
+        //level *= (1.0f + b * 0.12f);
+        level *= sqrtf((float)(b + 1));
+
+        // Smooth
+        displayBars[b] = displayBars[b] * 0.75f + level * 0.25f;
+
+        float db = 20.0f * log10f(level + 1e-6f);
+
+        db += 70.0f;          // Shift into visible range
+
+        if (db < 0) db = 0;
+        if (db > 63) db = 63;
+
+        bars[b] = db;
+
+        // Peak hold
+        if (db > peaks[b])
+            peaks[b] = db;
+        else if (peaks[b] > 0)
+            peaks[b] -= 0.5f;
+    }
+
+    DrawSpectrum();
+}
+
+void DrawSpectrum()
+{
+    display.clearDisplay();
+
+    for(int b=0;b<NUM_BARS;b++)
+    {
+        int x = b * 8;
+        int h = (int)bars[b];
+
+        display.fillRect(x, SCREEN_H - h, 7, h, WHITE);
+
+        int py = SCREEN_H - (int)peaks[b];
+
+        display.drawFastHLine( x, py, 7,WHITE);
+    }
+
+    display.display();
+}

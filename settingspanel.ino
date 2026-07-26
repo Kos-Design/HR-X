@@ -350,9 +350,8 @@ class SettingsMenuRouter : public SectionHolder {
           }
           if (navlevel > 3) {
 
-            rota_true_pos = sublevels[2];
-            myEnc.write(rota_true_pos * 4);
-            navlevel = 2;
+            returntonav(2,6,sublevels[2]);
+
           }
         }
 
@@ -849,4 +848,4 @@ class SettingsMenuRouter : public SectionHolder {
 };
 
 SettingsMenuRouter* SettingsMenuRouter::self = nullptr;
-EXTMEM SettingsMenuRouter _st;
+SettingsMenuRouter _st;

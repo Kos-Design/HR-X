@@ -111,7 +111,8 @@ void setup() {
 
   // pseudoconsole((char*)"initializing...");
   // settime();
-
+  SPI.setSCK(14);  // Audio shield has SCK on pin 14
+  SPI.setMOSI(7);  // Audio shield has MOSI on pin 7
   AudioNoInterrupts();
   unplugsynth();
   unplugfx();
@@ -181,7 +182,7 @@ void setup() {
   Tocker.attach_long(once_in_a_while);
   //clocker.attach_3(fairly_often);
   Tocker.attach_16(at_a_paced_rate);
-  //Tocker.attach_3(oscilloscope_loop);
+  //fft256.averageTogether(2);
   clocker.setBPM(120);
   clocker.setPPQN(96);
   clocker.attach_96(Tocker.click);
@@ -878,6 +879,7 @@ void rota_increase_ctl(byte c_c=0){
   myEnc.write(this_rota+4);
   evalrota() ;
 }
+
 void rota_decrease_ctl(byte c_c=0){
   int this_rota = myEnc.read();
   myEnc.write(this_rota-4);
