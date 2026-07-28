@@ -15,11 +15,13 @@ void control_me(){
 void loop() {
   //wav_record_loop();
  // if (!stoptick) {
+   loopusbHub();
+
   if (millis() % 3 == 0) {
    fairly_often();
-   loopusbHub();
   } else if (millis() % osc_refresher_period == 0) {
     oscilloscope_loop();
+    
     //UpdateSpectrum();
   }
   /*
@@ -37,18 +39,3 @@ void loop() {
     _rd.continue_looper();
   }
 }
-
-void start_eq_display_Trigger_ctl(byte cc_value){
-  if (showing_eq) return ;
-  showing_eq = true ;
-  
-  //fft256.begin();
-}
-
-void stop_eq_display_Trigger_ctl(byte cc_value){
-  if (!showing_eq) return ;
-  showing_eq = false ;
-  //fft256.end();
-  //fft256.clear();
-}
-

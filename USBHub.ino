@@ -30,6 +30,12 @@ void loopusbHub() {
       uint8_t status_midi  = rx.byte1;
       uint8_t type_midi    = status_midi & 0xF0;
       uint8_t channel_midi = (status_midi & 0x0F) + 1;
+      //if (status_midi == 0xF8) _sg.midi_clock_accumulator();
+      if (status_midi == 0xF2){
+        uint8_t songpos_midi = rx.byte2 | (rx.byte3 << 7);
+        if (songpos_midi == 4 ) _sg.x_ = 0 ;
+        //Serial.println(songpos_midi);
+      } 
       switch(type_midi){
         case 0x90:
           MaNoteOn(channel_midi,rx.byte2,rx.byte3);
@@ -43,9 +49,9 @@ void loopusbHub() {
           MaNoteOff(channel_midi,rx.byte2,rx.byte3);
         break;
 
-        case 0xB0:
+        /*case 0xB0:
           MaControlChange(channel_midi,rx.byte2,rx.byte3);
-        break;
+        break;*/
 
         default:
         break;
@@ -97,7 +103,7 @@ TODO:
   */
 }
 
-
+//
 void debugmidi(char *typemsg = (char *)"midi ", byte channel = 0,
                byte mnote = 0, byte mvelocity = 0) {
 

@@ -183,6 +183,7 @@ void setup() {
   //clocker.attach_3(fairly_often);
   Tocker.attach_16(at_a_paced_rate);
   //fft256.averageTogether(2);
+  fft256.windowFunction(AudioWindowHanning256);
   clocker.setBPM(120);
   clocker.setPPQN(96);
   clocker.attach_96(Tocker.click);
@@ -553,7 +554,7 @@ void BiQuadFreq_ctl(byte cc_value){
 
 void BiQuadSlope_ctl(byte cc_value){
   bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][1] = cc_value;
-  bqslope[ccfxlineselector][bqstage[ccfxlineselector]] = (cc_value / 127.0);
+  bqslope[ccfxlineselector][bqstage[ccfxlineselector]] = 0.001+(cc_value / 127.0)*5.0;
   if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
     _fx.biquadcontrols(ccfxlineselector);
   }
@@ -561,7 +562,7 @@ void BiQuadSlope_ctl(byte cc_value){
 
 void BiQuadGain_ctl(byte cc_value){
   bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][2] = cc_value;
-  bqgain[ccfxlineselector][bqstage[ccfxlineselector]] = (cc_value / 127.0);
+  bqgain[ccfxlineselector][bqstage[ccfxlineselector]] = 100.0 - (cc_value / 127.0)*200.0;
   if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
     _fx.biquadcontrols(ccfxlineselector);
   }
@@ -570,7 +571,7 @@ void BiQuadGain_ctl(byte cc_value){
 void BiQuadType_ctl(byte cc_value){
    // type
   bqtype[ccfxlineselector][bqstage[ccfxlineselector]] =
-      round((cc_value / 127.0) * 5.0);
+      round((cc_value / 127.0) * 6.0);
   if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
     _fx.biquadcontrols(ccfxlineselector);
   }
@@ -884,4 +885,14 @@ void rota_decrease_ctl(byte c_c=0){
   int this_rota = myEnc.read();
   myEnc.write(this_rota-4);
   evalrota(); 
+}
+
+void spectro_Toggle_ctl(byte unused_cc){
+  showing_oscilloscope = !showing_oscilloscope;
+  stop_spectro();
+  if (showing_oscilloscope) start_spectro();
+}
+
+void eq_display_Toggle_ctl(byte cc_value){
+  showing_eq = !showing_eq ;
 }

@@ -7,9 +7,6 @@ AudioFilterStateVariable stereoFilterR;
 AudioSynthWaveform stereoLFOL;
 AudioSynthWaveform stereoLFOR;
 
-// ===== Patch Cords =====
-// These are NOT connected until connect() is called.
-
 AudioConnection stereoPatch1;
 AudioConnection stereoPatch2;
 AudioConnection stereoPatch3;

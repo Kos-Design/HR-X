@@ -26,7 +26,7 @@ extern const uint8_t SN_MENU_LABELS_COUNT;
 extern const int SYNTH_LINERS_COUNT;
 extern const int available_track_types;
 extern const int pbars;
-extern const int flash_liners_count;
+extern const int FLASH_LINERS_COUNT;
 extern const int sampler_labels_count;
 extern bool track_cells[2][32];
 

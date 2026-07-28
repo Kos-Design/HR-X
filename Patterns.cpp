@@ -186,7 +186,7 @@ void PatEditRouter::set_editor_to_sampler(byte liner = self->local_line){
          self->_on_part = sampler_partition[liner] ;
           self->_off_part = sampler_off_pat;
           self->_temp_part = temp_sampler_partition;
-          self->liners_count = flash_liners_count;
+          self->liners_count = FLASH_LINERS_COUNT;
           self->_length_part = flash_notes_length[liner] ;
         }
 
@@ -271,7 +271,7 @@ void PatEditRouter::refresh_synth_track() {
 
 void PatEditRouter::refresh_flash_track() {
           clearevented0(1);
-          for (int linerrd = 0; linerrd < flash_liners_count; linerrd++) {
+          for (int linerrd = 0; linerrd < FLASH_LINERS_COUNT; linerrd++) {
 
             for (int i = 0; i < pbars; i++) {
 
@@ -505,9 +505,9 @@ void PatEditRouter::sanitize_synth_partition(){
 
 void PatEditRouter::sanitize_sampler_partition(){
 
-          bool offUsed[flash_liners_count][pbars] = {false};
+          bool offUsed[FLASH_LINERS_COUNT][pbars] = {false};
 
-          for (int line = 0; line < flash_liners_count; line++) {
+          for (int line = 0; line < FLASH_LINERS_COUNT; line++) {
             for (int onStep = 0; onStep < pbars; onStep++){
               // Skip empty Note On
               if (sampler_partition[line][onStep][2] == 0)
@@ -530,7 +530,7 @@ void PatEditRouter::sanitize_sampler_partition(){
               int s = (onStep + 1) & (pbars-1);
 
               while (!found) {
-                for (int l = 0; l < flash_liners_count; l++) {
+                for (int l = 0; l < FLASH_LINERS_COUNT; l++) {
                   if (offUsed[l][s])
                     continue;
 
@@ -571,7 +571,7 @@ void PatEditRouter::sanitize_sampler_partition(){
               }
             }
           }
-          for (int line = 0; line < flash_liners_count; line++) {
+          for (int line = 0; line < FLASH_LINERS_COUNT; line++) {
             for (int step = 0; step < pbars; step++) {
               if (!offUsed[line][step]) {
                 sampler_off_pat[step][0] = 0;
@@ -701,7 +701,7 @@ void POptionsRouter::merge_synth_partition_liners(){
         }
 void POptionsRouter::clearsamplerpatternline() {
           for (int j = 0; j < pbars; j++) {
-            for (int i = 0; i < flash_liners_count; i++) {
+            for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
 
               sampler_partition[i][j][1] = 0;
               sampler_partition[i][j][2] = 0;
@@ -1043,7 +1043,7 @@ void POptionsRouter::shiftnotes2up(int leshifter) {
                   ((int)sampler_off_pat[j][1] > 2)) {
                 sampler_off_pat[j][1]++;
               }
-              for (int i = 0; i < flash_liners_count; i++) {
+              for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
                 if (((int)sampler_partition[i][j][1] < 127) &&
                     ((int)sampler_partition[i][j][1] > 2)) {
 
@@ -1060,7 +1060,7 @@ void POptionsRouter::shiftnotes2down(int leshifter) {
               if ((int)sampler_off_pat[j][1] > 1) {
                 sampler_off_pat[j][1]--;
               }
-              for (int i = 0; i < flash_liners_count; i++) {
+              for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
                 if ((int)sampler_partition[i][j][1] > 1) {
 
                   sampler_partition[i][j][1]--;
@@ -1097,7 +1097,7 @@ void POptionsRouter::shiftnotes2right(int leshifter) {
                   sampler_off_pat[j][k] = letempevent2[1][k];
                 }
               }
-              for (int i = 0; i < flash_liners_count; i++) {
+              for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
                 if (j == pbars - 1) {
 
                   for (int k = 0; k < 3; k++) {
@@ -1147,7 +1147,7 @@ void POptionsRouter::shiftnotes2left(int leshifter) {
                   sampler_off_pat[j][k] = letempevent2[1][k];
                 }
               }
-              for (int i = 0; i < flash_liners_count; i++) {
+              for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
                 if (j == 0) {
 
                   for (int k = 0; k < 3; k++) {
@@ -1452,7 +1452,7 @@ void PatternsMenuRouter::parsepattern() {
                 }
                 if (letempspattern == previousTp) {
                   lenint++;
-                  if ((lenint > SYNTH_LINERS_COUNT + flash_liners_count - 1) ||
+                  if ((lenint > SYNTH_LINERS_COUNT + FLASH_LINERS_COUNT - 1) ||
                       (leparsed[0] == (char)'O' && leparsed[1] == (char)'n') ||
                       (leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
                     // parserp.SkipUntil(parserp.IsNewLine);
@@ -1531,7 +1531,7 @@ void PatternsMenuRouter::parsepattern() {
                 }
                 if (letempspattern == previousTp) {
                   lenint++;
-                  if ((lenint > SYNTH_LINERS_COUNT + flash_liners_count - 1) ||
+                  if ((lenint > SYNTH_LINERS_COUNT + FLASH_LINERS_COUNT - 1) ||
                       (leparsed[0] == (char)'O' && leparsed[1] == (char)'f') ||
                       (leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
                     // parserp.SkipUntil(parserp.IsNewLine);
@@ -1778,7 +1778,7 @@ void PatternsMenuRouter::write_midi_info(File &pat_filer) {
                 midifileliner(pat_filer,j, t);
               }
             }
-            for (int j = 0; j < flash_liners_count; j++) {
+            for (int j = 0; j < FLASH_LINERS_COUNT; j++) {
               if (sampler_partition[j][t][1] != 0) {
                 midifilelinerSampler(pat_filer,j, t);
               }

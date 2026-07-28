@@ -7,7 +7,7 @@ void init_synth_liners(){
 }
 
 void init_flash_liners(){
-  for (int i = 0; i < flash_liners_count; i++) {
+  for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
     flash_lines[i] = new FlashLiner(i);
   }
 }
@@ -191,15 +191,19 @@ void initiatearpegesynthliner(byte larpegeline, byte data1, byte data2) {
 }
 
 byte get_free_sampler(byte note) {
-  for (byte i = 0; i < flash_liners_count; i++) {
+  for (byte i = 0; i < FLASH_LINERS_COUNT; i++) {
 
-    //if (! {
-    //if (!(FlashSampler[i]->isPlaying() )) {
-    if (!flash_lines[i]->activated ) {
+        Serial.println("");
+    Serial.print(i);
+    Serial.print(" is playing --> ");
+    Serial.print(FlashSampler[i]->isPlaying());
+    if (!(FlashSampler[i]->isPlaying() )) {
+    //if (!flash_lines[i]->activated ) {
+    
 
       if (patrecord) {
         //merge liner tracks after recording instead
-        if (i + offsetliner < flash_liners_count) {
+        if (i + offsetliner < FLASH_LINERS_COUNT) {
           return i + offsetliner;
         }
       } else {
@@ -216,7 +220,7 @@ byte get_free_sampler(byte note) {
 
 void turn_off_the_lines() {
   //Serial.println("");
-  for (byte i = 0; i < flash_liners_count; i++) {
+  for (byte i = 0; i < FLASH_LINERS_COUNT; i++) {
     if (flash_lines[i]->activated ) { 
       flash_lines[i]->liner_off();
     }
@@ -243,10 +247,11 @@ void initiateasynthliner(byte data1, byte data2) {
 
 void initiateasamplerliner(byte data1, byte data2) {
   byte free_line = get_free_sampler(data1);
-  if (free_line < flash_liners_count) {
+  if (free_line < FLASH_LINERS_COUNT) {
     if (patrecord) {
       recordmidinotes(free_line, samplermidichannel, data1, data2);
     }
+
     flash_lines[free_line]->liner_on(data1, data2);
   }
 }
@@ -274,7 +279,7 @@ void synth_used_this_note(byte data1) {
 }
 
 void flash_used_this_note(byte data1) {
-  for (int i = 0; i < flash_liners_count; i++) {
+  for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
     if (data1 == flash_lines[i]->note) {
       flash_lines[i]->liner_off();
     }
@@ -621,7 +626,7 @@ void record_synth_notesOff(int liner, byte channel, byte lenote, byte velocity) 
 }
 
 bool isalreadysameSamplerinpat(byte lenote,int tick) {
-  for (int i = 0; i < flash_liners_count; i++) {
+  for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
     if (lenote == sampler_partition[i][tick][1]) {
       return 1;
     }
@@ -755,7 +760,7 @@ void computelenghtmesureoffline_synth() {
 }
 
 void computelenghtmesureoffline_sampler() {
-  for (int linei = 0; linei < flash_liners_count; linei++) {
+  for (int linei = 0; linei < FLASH_LINERS_COUNT; linei++) {
     for (int i = 0; i < pbars; i++) {
       if (sampler_partition[linei][i][1] != 0) {
         int laposof = getnextposofevent1Off_sampler(linei, sampler_partition[linei][i][1], i);

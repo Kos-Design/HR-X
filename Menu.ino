@@ -237,14 +237,16 @@ class FlashLiner {
       if (data1==note) {
         liner_off();
       }
-      if (FlashSampler[l_index]->isPlaying()) {
-        FlashSampler[l_index]->stop();
-      }
+      //if (FlashSampler[l_index]->isPlaying()) {
+      //  FlashSampler[l_index]->stop();
+      //}
+      /*
       if (!digitalplay) {
         Flashmixer[int(l_index / 4)]->gain(l_index - 4 * int(l_index / 4),(smixervknobs[l_index] / 127.0) * (data2 / 127.0));
       } else {
         Flashmixer[int(l_index / 4)]->gain(l_index - 4 * int(l_index / 4),(smixervknobs[l_index] / 127.0));
       }
+      */
       playable_file = (String)Flashsamplename[Sampleassigned[(int)(data1)]];
       if (!test_flash_sample_name(playable_file)){
         playable_file = lower_extension_case(playable_file);
@@ -268,6 +270,6 @@ class FlashLiner {
 };
 
 
-FlashLiner *flash_lines[flash_liners_count] = {nullptr};
+FlashLiner *flash_lines[FLASH_LINERS_COUNT] = {nullptr};
 
 

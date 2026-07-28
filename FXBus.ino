@@ -9,7 +9,7 @@ class FxBus {
     int fxcording_index = 1000 ;
 
     FxBus(byte f_index) : f_index(f_index) {}
-
+    
     void route_fx(byte selected_fx_type) {
       //remembver to manage avoid_fx_bounce if plugging fx outside of menu
       if (!avoid_fx_bounce){
@@ -23,7 +23,7 @@ class FxBus {
         }
       }
     }
-
+   
     void plug_fx_line(byte selected_fx_type){
       AudioNoInterrupts();
       //delay
@@ -92,6 +92,83 @@ class FxMenuRouter : public SectionHolder {
       static void show() {
         _nav_fx[sublevels[1]](); 
       }
+       /*bqslope[fxs_count][bqstagesnum];
+      float bqgain[fxs_count][bqstagesnum];
+      float */
+      //coeffs per bq stage
+      double coeffs[bqstagesnum][5];
+      /*
+      biquad_peaking(
+          3000.0,    // Hz
+          4.0,       // +4dB
+          1.0,       // Q
+          AUDIO_SAMPLE_RATE,   // sample rate
+          coeffs
+      );
+      */
+      static void peakingEQ(float freq, float gainDB, float Q,
+                    float Fs, double *c)
+      {
+
+          float A = powf(10.0f, gainDB / 40.0f);
+          float w0 = 2.0f * PI * freq / Fs;
+
+          float alpha = sinf(w0)/(2.0f*Q);
+
+          float cosw = cosf(w0);
+
+          float b0 = 1 + alpha*A;
+          float b1 = -2*cosw;
+          float b2 = 1 - alpha*A;
+
+          float a0 = 1 + alpha/A;
+          float a1 = -2*cosw;
+          float a2 = 1 - alpha/A;
+          
+          Serial.println("inside");
+          Serial.println(b0, 6);
+          Serial.println(b1, 6);
+          Serial.println(b2, 6);
+          Serial.println(a1, 6);
+          Serial.println(a2, 6);
+          Serial.println("");
+          Serial.print("a0 = ");
+          Serial.print(a0, 6);
+          Serial.println("");
+
+          c[0] = b0/a0;
+          c[1] = b1/a0;
+          c[2] = b2/a0;
+          c[3] = a1/a0;
+          c[4] = a2/a0;
+
+          Serial.printf("write c=%p\n", c);
+        for (int i = 0; i < 5; i++) {
+          Serial.println(c[i], 12);
+        }
+      }
+      
+      static void prepare_coeffs(byte lebiquad){
+        peakingEQ(bqfreq[lebiquad][bqstage[lebiquad]], bqgain[lebiquad][bqstage[lebiquad]], bqslope[lebiquad][bqstage[lebiquad]], AUDIO_SAMPLE_RATE, self->coeffs[bqstage[lebiquad]]);
+        //eq.setCoefficients(1, self->coeffs[bqstage[lebiquad]]);
+        
+        Serial.println("before set:");
+for (int i = 0; i < 5; i++)
+    Serial.println(self->coeffs[bqstage[lebiquad]][i], 12);
+        
+        Serial.println("");
+        Serial.print("biquad: ");
+        Serial.print(lebiquad);
+        Serial.print("stage: ");
+        Serial.print(bqstage[lebiquad]);
+        Serial.print("gain: ");
+        Serial.print(bqgain[lebiquad][bqstage[lebiquad]]);
+        Serial.print(" freq: ");
+        Serial.print(bqfreq[lebiquad][bqstage[lebiquad]]);
+        Serial.print(" slope: ");
+        Serial.print(bqslope[lebiquad][bqstage[lebiquad]]);
+        
+      }
 
       static void dolistMainFxPanel() {
         byte startx = 5;
@@ -143,73 +220,81 @@ class FxMenuRouter : public SectionHolder {
 
       static void biquadcontrols(byte lebiquad) {
         // AudioNoInterrupts();
-
         switch (bqtype[lebiquad][bqstage[lebiquad]]) {
-        case 0:
+        
+          case 0:
+            biquad[lebiquad]->setLowpass(bqstage[lebiquad],
+                                        bqfreq[lebiquad][bqstage[lebiquad]],
+                                        bqslope[lebiquad][bqstage[lebiquad]]);
+            biquadR[lebiquad]->setLowpass(bqstage[lebiquad],
+                                        bqfreq[lebiquad][bqstage[lebiquad]],
+                                        bqslope[lebiquad][bqstage[lebiquad]]);
+            break;
 
-          biquad[lebiquad]->setLowpass(bqstage[lebiquad],
+          case 1:
+
+            biquad[lebiquad]->setHighpass(bqstage[lebiquad],
+                                          bqfreq[lebiquad][bqstage[lebiquad]],
+                                          bqslope[lebiquad][bqstage[lebiquad]]);
+            biquadR[lebiquad]->setHighpass(bqstage[lebiquad],
+                                          bqfreq[lebiquad][bqstage[lebiquad]],
+                                          bqslope[lebiquad][bqstage[lebiquad]]);
+            break;
+
+          case 2:
+            biquad[lebiquad]->setBandpass(bqstage[lebiquad],
+                                          bqfreq[lebiquad][bqstage[lebiquad]],
+                                          bqslope[lebiquad][bqstage[lebiquad]]);
+            biquadR[lebiquad]->setBandpass(bqstage[lebiquad],
+                                          bqfreq[lebiquad][bqstage[lebiquad]],
+                                          bqslope[lebiquad][bqstage[lebiquad]]);
+            break;
+
+          case 3:
+            biquad[lebiquad]->setNotch(bqstage[lebiquad],
                                       bqfreq[lebiquad][bqstage[lebiquad]],
                                       bqslope[lebiquad][bqstage[lebiquad]]);
-          biquadR[lebiquad]->setLowpass(bqstage[lebiquad],
+            biquadR[lebiquad]->setNotch(bqstage[lebiquad],
                                       bqfreq[lebiquad][bqstage[lebiquad]],
                                       bqslope[lebiquad][bqstage[lebiquad]]);
+            break;
 
-          break;
-        case 1:
+          case 4:
+            biquad[lebiquad]->setLowShelf(bqstage[lebiquad],
+                                          bqfreq[lebiquad][bqstage[lebiquad]],
+                                          bqgain[lebiquad][bqstage[lebiquad]],
+                                          bqslope[lebiquad][bqstage[lebiquad]]);
+            biquadR[lebiquad]->setLowShelf(bqstage[lebiquad],
+                                          bqfreq[lebiquad][bqstage[lebiquad]],
+                                          bqgain[lebiquad][bqstage[lebiquad]],
+                                          bqslope[lebiquad][bqstage[lebiquad]]);
+            break;
 
-          biquad[lebiquad]->setHighpass(bqstage[lebiquad],
-                                        bqfreq[lebiquad][bqstage[lebiquad]],
-                                        bqslope[lebiquad][bqstage[lebiquad]]);
-          biquadR[lebiquad]->setHighpass(bqstage[lebiquad],
-                                        bqfreq[lebiquad][bqstage[lebiquad]],
-                                        bqslope[lebiquad][bqstage[lebiquad]]);
+          case 5:
+            biquad[lebiquad]->setHighShelf(bqstage[lebiquad],
+                                          bqfreq[lebiquad][bqstage[lebiquad]],
+                                          bqgain[lebiquad][bqstage[lebiquad]],
+                                          bqslope[lebiquad][bqstage[lebiquad]]);
+            biquadR[lebiquad]->setHighShelf(bqstage[lebiquad],
+                                          bqfreq[lebiquad][bqstage[lebiquad]],
+                                          bqgain[lebiquad][bqstage[lebiquad]],
+                                          bqslope[lebiquad][bqstage[lebiquad]]);
+            break;
 
-          break;
-        case 2:
+          case 6:
+              //set self->coeffs
+              Serial.println("");
+              Serial.print("Calling biquad");
+              Serial.println(lebiquad);
 
-          biquad[lebiquad]->setBandpass(bqstage[lebiquad],
-                                        bqfreq[lebiquad][bqstage[lebiquad]],
-                                        bqslope[lebiquad][bqstage[lebiquad]]);
-          biquadR[lebiquad]->setBandpass(bqstage[lebiquad],
-                                        bqfreq[lebiquad][bqstage[lebiquad]],
-                                        bqslope[lebiquad][bqstage[lebiquad]]);
+              prepare_coeffs(lebiquad);
+              
+              biquad[lebiquad]->setCoefficients(bqstage[lebiquad], self->coeffs[bqstage[lebiquad]]);
+              biquadR[lebiquad]->setCoefficients(bqstage[lebiquad], self->coeffs[bqstage[lebiquad]]);
+            break;
 
-          break;
-        case 3:
-
-          biquad[lebiquad]->setNotch(bqstage[lebiquad],
-                                    bqfreq[lebiquad][bqstage[lebiquad]],
-                                    bqslope[lebiquad][bqstage[lebiquad]]);
-          biquadR[lebiquad]->setNotch(bqstage[lebiquad],
-                                    bqfreq[lebiquad][bqstage[lebiquad]],
-                                    bqslope[lebiquad][bqstage[lebiquad]]);
-
-          break;
-        case 4:
-
-          biquad[lebiquad]->setLowShelf(bqstage[lebiquad],
-                                        bqfreq[lebiquad][bqstage[lebiquad]],
-                                        bqgain[lebiquad][bqstage[lebiquad]],
-                                        bqslope[lebiquad][bqstage[lebiquad]]);
-          biquadR[lebiquad]->setLowShelf(bqstage[lebiquad],
-                                        bqfreq[lebiquad][bqstage[lebiquad]],
-                                        bqgain[lebiquad][bqstage[lebiquad]],
-                                        bqslope[lebiquad][bqstage[lebiquad]]);
-
-          break;
-        case 5:
-
-          biquad[lebiquad]->setHighShelf(bqstage[lebiquad],
-                                        bqfreq[lebiquad][bqstage[lebiquad]],
-                                        bqgain[lebiquad][bqstage[lebiquad]],
-                                        bqslope[lebiquad][bqstage[lebiquad]]);
-          biquadR[lebiquad]->setHighShelf(bqstage[lebiquad],
-                                        bqfreq[lebiquad][bqstage[lebiquad]],
-                                        bqgain[lebiquad][bqstage[lebiquad]],
-                                        bqslope[lebiquad][bqstage[lebiquad]]);
-
-          break;
-          break;
+          default:
+            break;
         }
         // AudioInterrupts();
       }
@@ -1499,7 +1584,7 @@ class FxMenuRouter : public SectionHolder {
           }
           // mode
           if (slct == 1) {
-            navrange = 5;
+            navrange = 6;
             bqtype[lebiquad][bqstage[lebiquad]] = sublevels[4];
           }
           // freq
@@ -1513,15 +1598,13 @@ class FxMenuRouter : public SectionHolder {
           if (slct == 3) {
             navrange = 127;
             bqVpot[lebiquad][bqstage[lebiquad]][1] = sublevels[4];
-            bqslope[lebiquad][bqstage[lebiquad]] =
-                (bqVpot[lebiquad][bqstage[lebiquad]][1]) / 127.0;
+            bqslope[lebiquad][bqstage[lebiquad]] = 0.001 + 5.0 * ((bqVpot[lebiquad][bqstage[lebiquad]][1]) / 127.0);
           }
           // gain
           if (slct == 5) {
             navrange = 127;
             bqVpot[lebiquad][bqstage[lebiquad]][2] = sublevels[4];
-            bqgain[lebiquad][bqstage[lebiquad]] =
-                (bqVpot[lebiquad][bqstage[lebiquad]][2]) / 127.0;
+            bqgain[lebiquad][bqstage[lebiquad]] = 100.0 - ((bqVpot[lebiquad][bqstage[lebiquad]][2]) / 127.0) * 200.0 ;
           }
           // to avoid setting up a stage unconfigured while browsing
           if (bqfreq[lebiquad][bqstage[lebiquad]] >= 101) {
@@ -1539,8 +1622,8 @@ class FxMenuRouter : public SectionHolder {
       }
 
       static void biquadVpanel(byte lebiquad) {
-        char bqtypeLabels[6][12] = {"Low Pass", "High Pass", "Band Pass",
-                                    "Notch",    "LowShelf",  "High Shelf"};
+        char bqtypeLabels[7][12] = {"Low Pass", "High Pass", "Band Pass",
+                                    "Notch",    "LowShelf",  "High Shelf","Param EQ"};
         biquadVpanelAction(lebiquad);
         byte knobradius = 12;
         byte centercirclex = 10 + knobradius;
@@ -1686,9 +1769,10 @@ class FxMenuRouter : public SectionHolder {
               choruscontrols(i);
             break;
             case 6:
-              for (int j = 0; j < 4; j++) {
+              for (int j = 0; j < bqstagesnum; j++) {
+                //TODO: REDO
                 //to avoid configuring unused biquad filters stages
-                if (bqfreq[i][j] >= 303) {
+                if (bqfreq[i][j] >= 101) {
                   biquadcontrols(i);
                   break;
                 }

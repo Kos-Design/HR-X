@@ -367,7 +367,7 @@ class Filter303MenuRouter : public SectionHolder {
         }
         
         if (_rg.active_synths[i]->f303) {
-          Serial.println(self->sloped[_rg.active_synths[i]->sloper_step%18]);
+          //Serial.println(self->sloped[_rg.active_synths[i]->sloper_step%18]);
 
           letbfreq = le303filterzfreq + 50 - (le303filterzfreq * self->sloped[_rg.active_synths[i]->sloper_step]);
           if (_rg.active_synths[i]->sloper_step > 18) {

@@ -9,7 +9,7 @@ void toggle_that(bool &booler){
 }
 int oscillisc_timee = 8;
 uint8_t osc_framerate = 33 ;
-uint8_t osc_refresher_period = 5 ;
+uint8_t osc_refresher_period = 3 ;
 
 elapsedMillis frameTimer;
 int16_t rolling_queue_buff[128];
@@ -40,19 +40,13 @@ void display_oscilloscope(){
   dm.dodisplay();
 }
 
-void stop_spectro(byte unused_cc){
-  if (!showing_oscilloscope) return ;
-
-  showing_oscilloscope = false ;
+void stop_spectro(){
   queue1.end();
   queue1.clear();
 }
 
-void start_spectro(byte unused_cc){
-  if (showing_oscilloscope) return ;
+void start_spectro(){
   queue1.begin();
-  showing_oscilloscope = true ;
-  
 }
 
 void oscilloscope_loop() {
@@ -78,70 +72,81 @@ void oscilloscope_loop() {
     }
 }
 
-#define NUM_BARS    16
-#define SCREEN_H    64
-
-
-float bars[NUM_BARS];
+#define NUM_BARS 64
+#define SCREEN_H 64
 float displayBars[NUM_BARS];
-float peaks[NUM_BARS];
+uint8_t bars[NUM_BARS];
+const uint8_t dbScale[65] = {
+     0,  8, 12, 15, 18, 20, 22, 24,
+    26, 28, 30, 31, 33, 34, 36, 37,
+    38, 39, 41, 42, 43, 44, 45, 46,
+    47, 48, 49, 50, 51, 52, 53, 54,
+    55, 55, 56, 57, 58, 58, 59, 60,
+    60, 61, 61, 62, 62, 62, 63, 63,
+    63, 63, 63, 63, 63, 63, 63, 63,
+    63, 63, 63, 63, 63, 63, 63, 63,
+    63
+};
+float fftGain[NUM_BARS] = {
+    // bass
+    
+   // bass
+    35.0f,47.775f,52.82f,63.825f,
+    88.2f,92.575f,98.6f,106.92f,
+    
+    117.12f,127.255f,136.5f,
+    144.71f,151.9f,157.95f,
+    
+    163.15f,167.25f,180.0f,181.47f,
+    181.94f,181.44f,180.0f, 193.8f,
 
-const float bandFreq[17] = {
-    20, 60, 120, 200,
-    320, 500, 750, 1100,
-    1600, 2300, 3300, 4700,
-    6700, 9500, 13000, 17000,
-    22000
+    // upper mids
+   200.5f, 206.9f, 213.0f, 218.8f,
+   224.3f, 229.5f, 234.4f, 239.0f,
+
+    // presence
+   243.2f, 247.1f, 250.6f, 253.8f,
+   256.6f, 259.0f, 260.9f, 262.5f,
+
+    // highs
+   263.6f, 264.3f, 264.6f, 264.5f,
+   263.9f, 262.9f, 261.5f, 259.7f,
+
+    // air
+    240.0f, 249.6f, 259.3f, 269.3f,
+    279.5f, 289.8f, 300.3f, 311.1f,
+    
+    322.0f, 333.1f, 344.4f, 355.9f,
+    367.5f, 379.4f, 391.4f, 403.6f
 };
 
 void UpdateSpectrum(){
-  
-  if (!showing_eq || !fft256.available()) return;
-    
-    for (int b = 0; b < 16; b++)
-    {
-        float level = fft256.read(bandFreq[b], bandFreq[b+1]);
-
-        // Progressive high-frequency boost
-        //level *= (1.0f + b * 0.12f);
-        level *= sqrtf((float)(b + 1));
-
-        // Smooth
-        displayBars[b] = displayBars[b] * 0.75f + level * 0.25f;
-
-        float db = 20.0f * log10f(level + 1e-6f);
-
-        db += 70.0f;          // Shift into visible range
-
-        if (db < 0) db = 0;
-        if (db > 63) db = 63;
-
-        bars[b] = db;
-
-        // Peak hold
-        if (db > peaks[b])
-            peaks[b] = db;
-        else if (peaks[b] > 0)
-            peaks[b] -= 0.5f;
+  if (!showing_eq || !fft256.available())
+      return;
+  for (int i = 0; i < NUM_BARS; i++) {
+        float level = fft256.read(i + 1);
+        level *= fftGain[i];
+        // simple smoothing
+        displayBars[i] = displayBars[i] * 0.75f + level * 0.25f;
+        int h = displayBars[i] * 80.0f;
+        if (h > 63) h = 63;
+        if (h < 0)  h = 0;
+        bars[i] = h;
     }
-
-    DrawSpectrum();
+    DrawSpectrum64();
 }
 
-void DrawSpectrum()
-{
+void DrawSpectrum64(){
     display.clearDisplay();
 
-    for(int b=0;b<NUM_BARS;b++)
+    for (int i = 0; i < 64; i++)
     {
-        int x = b * 8;
-        int h = (int)bars[b];
-
-        display.fillRect(x, SCREEN_H - h, 7, h, WHITE);
-
-        int py = SCREEN_H - (int)peaks[b];
-
-        display.drawFastHLine( x, py, 7,WHITE);
+        int h = bars[i];
+        display.drawFastVLine(
+            i * 2,
+            SCREEN_H - h,
+            h,
+            WHITE);
     }
 
     display.display();

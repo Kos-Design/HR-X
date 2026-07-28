@@ -32,7 +32,7 @@ constexpr uint8_t SN_MENU_LABELS_COUNT = 5 ;
 constexpr int SYNTH_LINERS_COUNT = 6 ;
 const int available_track_types = 2;
 const int pbars = 32;
-const int flash_liners_count = 16;
+const int FLASH_LINERS_COUNT = 16;
 const int sampler_labels_count = 4;
 bool track_cells[available_track_types][pbars] = {0};
 
@@ -41,9 +41,9 @@ EXTMEM byte temp_synth_partition[pbars][3];
 EXTMEM byte synth_off_pat[SYNTH_LINERS_COUNT][pbars][3];
 EXTMEM int synth_notes_length[SYNTH_LINERS_COUNT][pbars];
 byte synth_start_tpos[SYNTH_LINERS_COUNT];
-EXTMEM byte sampler_partition[flash_liners_count][pbars][3];
+EXTMEM byte sampler_partition[FLASH_LINERS_COUNT][pbars][3];
 EXTMEM byte temp_sampler_partition[pbars][3];
-EXTMEM int flash_notes_length[flash_liners_count][pbars];
+EXTMEM int flash_notes_length[FLASH_LINERS_COUNT][pbars];
 byte sampler_off_pat[pbars][3];
 bool patternOn;
 bool stoptick = true;
@@ -194,7 +194,7 @@ const int bqstagesnum = 4;
 int bqstage[fxs_count];
 // [lebiquad] [stage]
 EXTMEM float bqslope[fxs_count][bqstagesnum];
-EXTMEM float bqgain[fxs_count][bqstagesnum];
+float bqgain[fxs_count][bqstagesnum];
 EXTMEM float bqfreq[fxs_count][bqstagesnum];
 EXTMEM int bqtype[fxs_count][bqstagesnum];
 // [lebiquad] [lestage] freq slope gain
@@ -219,7 +219,7 @@ String newRecpathR = "SOUNDSET/REC/RECZ00#R.RAW";
 
 int samplermidichannel = 8;
 //0 is All, channel indexes are thus offset +1
-byte synthmidichannel = 0;
+byte synthmidichannel = 16;
 bool blocked = false ;
 byte navrec = navrecmenu + 1;
 int tickposition;
@@ -523,7 +523,7 @@ void cancel_pushed_ctl(byte);
 void rota_increase_ctl(byte);
 void rota_decrease_ctl(byte);
 
-const CcCalls ctl[129] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel",&SynthVolume_ctl},{"SDLevel",&SDPlayerVolume_ctl},{"FlashLevel",&FlashVolume_ctl},
+const CcCalls ctl[] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel",&SynthVolume_ctl},{"SDLevel",&SDPlayerVolume_ctl},{"FlashLevel",&FlashVolume_ctl},
                       {"FX1 Wet",&Wet1Volume_ctl},{"FX2 Wet",&Wet2Volume_ctl},{"FX3 Wet",&Wet3Volume_ctl},{"Dry Sampler",&DrySampler_ctl},{"Dry Synth",&DrySynth_ctl},
                       //10 ok
                       {"Dry Audio In",&DryAudioIn_ctl},{"CutOff slp.",&Slope1_ctl},{"Reso slp.",&Slope2_ctl},{"Reso Tweak",&ResoTweak_ctl},{"Filter303 Oct.",&Filter303Octave_ctl},
@@ -557,23 +557,22 @@ const CcCalls ctl[129] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLev
                       {"Flash Line6 Level",&FlashLineVolume_Knob6_ctl},{"Flash Line7 Level",&FlashLineVolume_Knob7_ctl},{"Flash Line8 Level",&FlashLineVolume_Knob8_ctl},{"Flash Line9 Level",&FlashLineVolume_Knob9_ctl},{"Flash Line10 Level",&FlashLineVolume_Knob10_ctl},
                       //130 ok
                       {"Flash Line11 Level",&FlashLineVolume_Knob11_ctl},{"Flash Line12 Level",&FlashLineVolume_Knob12_ctl},{"Flash Line13 Level",&FlashLineVolume_Knob13_ctl},{"Flash Line14 Level",&FlashLineVolume_Knob14_ctl},{"Flash Line15 Level",&FlashLineVolume_Knob15_ctl},
-                      {"Flash Line16 Level",&FlashLineVolume_Knob16_ctl},{"start oscilloscope",&start_spectro},{"stop oscilloscope",&stop_spectro},{"USB In Volume",&USB_In_Volume_ctl},{"Fps oscilloscope",&adjust_osc_framerate_ctl},
+                      {"Flash Line16 Level",&FlashLineVolume_Knob16_ctl},{"Show oscilloscope",&spectro_Toggle_ctl},{"Show EQ Bars",&eq_display_Toggle_ctl},{"USB In Volume",&USB_In_Volume_ctl},{"Fps oscilloscope",&adjust_osc_framerate_ctl},
                       //140 ok
                       {"Time oscilloscope",&adjust_osc_timee_ctl},{"refresh OscScope",&adjust_osc_refresher_period_ctl},{"Wav Editor Pitch",&adjust_waveEditor_pitch_ctl},{"Rota Nav +",&rota_increase_ctl}, {"Rota Nav -",&rota_decrease_ctl},      
-                      {"Validate Nav",&validate_pushed_ctl},{"Cancel Nav",&cancel_pushed_ctl},{"Show EQ",&start_eq_display_Trigger_ctl},{"Stop Showing EQ",&stop_eq_display_Trigger_ctl}   
+                      {"Validate Nav",&validate_pushed_ctl},{"Cancel Nav",&cancel_pushed_ctl} 
                       };
 
-constexpr uint16_t CtlCount = 129;
-//sizeof(ctl) / sizeof(ctl[0]);
+constexpr uint16_t CtlCount = sizeof(ctl) / sizeof(ctl[0]);
 
 bool patterninparse;
 //midi cc notes controlling navigation
 byte alt_nav[4] = {106,107,110,111};
-bool showing_eq = true;
+bool showing_eq = false;
 
 AudioAnalyzeFFT256 fft256;
 
-EXTMEM AudioConnection patchCordFFT(ampL, fft256);
+AudioConnection patchCordFFT(ampL, fft256);
 
 bool granular_shifting[fxs_count] = {0,0,0};
 bool granular_freezing[fxs_count] = {0,0,0};

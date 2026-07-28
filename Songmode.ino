@@ -63,7 +63,7 @@ class SongEditorRouter : public SectionHolder {
             shutlineroff(samplermidichannel,sampler_off_pat[tickposition][1]);
               //flash_lines[i]->liner_off();
             }
-          for (int i = 0; i < flash_liners_count; i++) {
+          for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
 
             if (sampler_partition[i][tickposition][1] != 0) {
               play_sampler_line(i);
@@ -501,7 +501,20 @@ class SongMenuRouter : public SectionHolder {
             returntonav(navSongmenu, self->home_navrange,sublevels[navSongmenu]);
           }
         }
+        int x_ = 0 ;
+        int t_ = 0 ;
 
+        static void midi_clock_accumulator(){
+          self->t_ += 1 ;
+          if (!(self->t_% 24)) fine_cursor() ;
+        }
+        static void fine_cursor(){
+          self->x_ = (4+self->x_)%128 ;
+          display.drawFastVLine(self->x_, 0, 64, INVERSE);
+          display.drawFastVLine(self->x_-4, 0, 64, INVERSE);
+          display.display();
+          self->t_ = 0 ;
+        }
         static void show_some_params(){
           navrange = 32;
           dm.clean_title_1();

@@ -1,5 +1,5 @@
 void initextmems() {
-  for (int i = 0; i < flash_liners_count; i++) {
+  for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
     for (int j = 0; j < pbars; j++) {
       flash_notes_length[i][j] = 0;
       for (int k = 0; k < 3; k++) {
@@ -132,6 +132,13 @@ void setupdefaultvalues() {
       Wavesmix[i]->gain(j, mixlevelsL[j]/127.0);
     }
   }
+
+  for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+    //for (int j = 0; j < 4; j++) {
+      Flashmixer[int(i / 4)]->gain(i - 4 * int(i / 4),1.0);
+    //}
+  }
+
   unplug_notefreq_from_ampL();
   for (int i = 0; i < fxs_count; i++) {
     fx[i]->stopdelayline();

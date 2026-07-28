@@ -351,7 +351,6 @@ class LFOMenuRouter : public SectionHolder {
             &go_previous,
             &go_next
         };
-        //void (LFOMenuRouter::*_nav_lfo[7])() = {nullptr};
         static constexpr void (*_nav_lfo[7])() = {&lfo_zero, &LFOlining,&LFOlining,&LFOlining,
                           &LFOlining,&LFOlining,&LFOlining};
         static LFOMenuRouter* self;
