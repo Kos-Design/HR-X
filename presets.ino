@@ -93,7 +93,7 @@ class PresetsMenuRouter : public SectionHolder {
           insert_float(preset_filer,le303filterzreso, (char*)"le303reso");
 
           insert_float(preset_filer,le303filterzoctv, (char*)"le303octv");
-          insert_int(preset_filer,int(glidemode), (char*)"glidemode");
+          insert_int(preset_filer,int(portamento_time), (char*)"portamento_time");
           insert_int(preset_filer,preampleswaves, (char*)"preampleswaves");
           insert_int(preset_filer,int(arpegiatorOn) + 1, (char*)"arpegiatorOn");
           insert_int(preset_filer,arpegiatortype, (char*)"arpegiatortype");
@@ -293,7 +293,7 @@ class PresetsMenuRouter : public SectionHolder {
 
           parser.Read_String('#');
           parser.Skip(1);
-          glidemode = parser.Read_Int16();
+          portamento_time = parser.Read_Int16();
 
           parser.Read_String('#');
           parser.Skip(1);

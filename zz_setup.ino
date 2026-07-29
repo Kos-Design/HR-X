@@ -20,7 +20,7 @@ void setupSD() {
     pseudoconsole((char *)"Scanning Records");
   _rd.catalog->list_files();
   pseudoconsole((char *)"Scanning MP3s");
-  _sn.count_mp3s();
+  _mp.count_mp3s();
 }
 
 void call_sn_show(){
@@ -295,8 +295,9 @@ void Filter303Octave_ctl(byte cc_value){
   le303filterzoctv = ((le303ffilterzVknobs[2]) / 127.0) * 7;
 }
 
-void Filter303Glide_ctl(byte cc_value){
-  glidemode = cc_value;  
+void set_Portamento_time_ctl(byte cc_value){
+  portamento_time = cc_value;
+    
 }
 
 void FilterPreAmp_ctl(byte cc_value){

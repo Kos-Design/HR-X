@@ -9,13 +9,15 @@ const int control_lag = 10 ;
 #include <Adafruit_GFX.h>
 #include <Bounce.h>
 #include <Encoder.h>
-#include <MIDIUSB.h>
+//#include <usbMIDI.h>
 #include <play_sd_mp3.h>
 #include <play_sd_flac.h>
 #include "play_partial_sd_raw.h"
 #include "FilesLister.h"
 #include "Patterns.h"
+#include "pads.h"
 
+EXTMEM Pads Pads;
 Muxer Muxer;
 
 /*
@@ -249,17 +251,8 @@ byte arpegemptyticks[SYNTH_LINERS_COUNT];
 bool digitalplay = 0;
 
 
-byte glidemode = 0;
-byte note_before;
-bool dogliding[SYNTH_LINERS_COUNT];
-int freq_difference;
-long unsigned int leglideposition[SYNTH_LINERS_COUNT];
-int note_difference;
-float glidefactor;
-int time_of_last_note = 0 ;
-byte lapreviousnotewCmode[SYNTH_LINERS_COUNT];
-int leglidershiftCmode[SYNTH_LINERS_COUNT];
-int note_differenceCmode[SYNTH_LINERS_COUNT];
+byte portamento_time = 90;
+byte glide_height = 0;
 
 byte oscillator = 0;
 byte cclfoselector = 0 ;
@@ -323,7 +316,8 @@ const int inputpins[manyinputpins] = {32};
 int startingnoteline;
 
 float notefrequency = 440.0;
-
+//0 is Off, 1-> Waveform, 2-> FM Waveform, 3->Drum, 4->String 
+byte audio_obj_type[OSCS_COUNT] = {1,1,1};
 const int lesformes[9] PROGMEM = {
     WAVEFORM_SINE,     WAVEFORM_SAWTOOTH,          WAVEFORM_SAWTOOTH_REVERSE,
     WAVEFORM_TRIANGLE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SQUARE,
@@ -496,19 +490,20 @@ byte LFOmenuroot = 2;
 int LFOoffset[OSCS_COUNT] = {50,50,50};
 byte LFOformstype[OSCS_COUNT] = {0, 0, 0};
 byte LFOfreqs[OSCS_COUNT] = {100,100,100};
+float LFOHz[OSCS_COUNT] = {1.00,1.00,1.00};
 byte LFOlevel[OSCS_COUNT] = {0,0,0};
 bool LFOsync[OSCS_COUNT] = {0,0,0};
+
 //64 is center 0 for -1  +1 range
 byte wave1offset[OSCS_COUNT] = {64,64,64};
 
-// File originefile ;
+//Atk Delay, Attack, Hold, Decay, Sustain, Release
 int adsrlevels[6] = {0, 5, 0, 50, 100, 750};
 
 int navleveloverwrite = 2;
 int knobiprev[OSCS_COUNT] = {0, 0, 0};
 
-#include "pads.h"
-EXTMEM Pads Pads;
+
 
 char mainmenufxlist[mainmenufxlistsize][12] = {
       "Multiply", "Reverb", "Granular", "BitCrusher", "Flanger",
@@ -527,7 +522,7 @@ const CcCalls ctl[] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel"
                       {"FX1 Wet",&Wet1Volume_ctl},{"FX2 Wet",&Wet2Volume_ctl},{"FX3 Wet",&Wet3Volume_ctl},{"Dry Sampler",&DrySampler_ctl},{"Dry Synth",&DrySynth_ctl},
                       //10 ok
                       {"Dry Audio In",&DryAudioIn_ctl},{"CutOff slp.",&Slope1_ctl},{"Reso slp.",&Slope2_ctl},{"Reso Tweak",&ResoTweak_ctl},{"Filter303 Oct.",&Filter303Octave_ctl},
-                      {"CutOff Tweak",&CutOffTweak_ctl},{"Stereo On",toggle_stereo},{"Stereo Off",turn_off_stereo},{"Filter303 Lvl.",&Filter303_ctl},{"Filter303 Glide",&Filter303Glide_ctl},
+                      {"CutOff Tweak",&CutOffTweak_ctl},{"Stereo On",toggle_stereo},{"Stereo Off",turn_off_stereo},{"Filter303 Lvl.",&Filter303_ctl},{"Portamento time",&set_Portamento_time_ctl},
                       //20 ok
                       {"Filter303 PreAmp",&FilterPreAmp_ctl},{"Synth Index",&SynthIndex_ctl},{"Syth X Lvl.",&SynthXLevel_ctl},{"Synth X Freq",&SynthXFreq_ctl},{"Chords type",&SetChords_ctl},
                       {"Pans Levels",&PansLevels_ctl},{"Metronome Level",&MetroDrumLevel_ctl},{"Play Song",&PlaySong_Trigger_ctl},{"Stop Song",&StopSong_Trigger_ctl},{"Pause Song",&PauseSong_Trigger_ctl},

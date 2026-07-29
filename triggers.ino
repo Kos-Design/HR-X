@@ -14,7 +14,9 @@ void init_flash_liners(){
 
 byte get_free_synth(byte note) {
   for (byte i = 0; i < SYNTH_LINERS_COUNT; i++) {
-    if (!synth_lines[i]->activated) {
+    //if (!synth_lines[i]->activated) {
+    if (!enveloppesL[i]->isActive()) {
+      
       if (patrecord) {
         //merge liner tracks after recording instead
         if (i + offsetliner < SYNTH_LINERS_COUNT) {
@@ -49,23 +51,7 @@ void getlinerwithoutevents() {
   }
 }
 
-void setfreqWavelines(float tune, int liner, byte velocityz) {
-  // AudioNoInterrupts();
-  //TODO adsrlevels correspondance
-  for (int i = 0; i < OSCS_COUNT; i++) {
-    waveforms1[liner + (i * SYNTH_LINERS_COUNT)]->amplitude(velocityz / 127.0);
-    waveforms1[liner + (i * SYNTH_LINERS_COUNT)]->frequency(tune * wavesfreqs[i]);
-    waveforms1[liner + (i * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - wave1offset[i]) / 64.0)));
-    waveforms1[liner + (i * SYNTH_LINERS_COUNT)]->phase(phaselevelsL[i]);
-    FMwaveforms1[liner + (i * SYNTH_LINERS_COUNT)]->frequency(tune * wavesfreqs[i]);
-    FMwaveforms1[liner + (i * SYNTH_LINERS_COUNT)]->amplitude(velocityz / 127.0);
-    FMwaveforms1[liner + (i * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - wave1offset[i]) / 64.0)));
-    drums1[liner + (i * SYNTH_LINERS_COUNT)]->length(adsrlevels[1] + adsrlevels[2] + adsrlevels[3]);
-    drums1[liner + (i * SYNTH_LINERS_COUNT)]->frequency(tune * wavesfreqs[i]);
-    drums1[liner + (i * SYNTH_LINERS_COUNT)]->noteOn();
-    strings1[liner + (i * SYNTH_LINERS_COUNT)]->noteOn(tune * wavesfreqs[i],(velocityz / 127.0));
-  }
-}
+
 
 void setchordnotes(byte absolutenote, byte lachord) {
   byte relativenote = ((absolutenote + 12) % 12);
@@ -84,7 +70,7 @@ void setchordnotesOff(byte absolutenote, byte lachord) {
 void MaNoteOn(byte channel, byte note_byte, byte velo_) {
   byte larpegeline;
   int lachordon;
-  uint8_t statusByte = static_cast<uint8_t>(0x90 | channel);
+  //uint8_t statusByte = static_cast<uint8_t>(0x90 | channel);
   if (note_byte == tapnote && taptap_on) {
     _st.taptap();
     return;
@@ -134,8 +120,11 @@ void MaNoteOn(byte channel, byte note_byte, byte velo_) {
   if (SendMidiOut) {
     // TODO: send midi during sound trigger to use arpegiators (+ note offs if
     // arpegiator doesn't already send Off notes ?)
-    MidiUSB.sendMIDI({0x09, statusByte, note_byte, velo_});
-    MidiUSB.flush();
+   // MidiUSB.sendMIDI({0x09, statusByte, note_byte, velo_});
+   // MidiUSB.flush();
+    //usbMIDI.send((uint8_t)0x09, (uint8_t)note_byte, (uint8_t)velo_, (uint8_t)channel,(uint8_t)0);
+    usbMIDI.sendNoteOn(note_byte, velo_, channel);
+    usbMIDI.send_now();
   }
 }
 
@@ -218,20 +207,21 @@ byte get_free_sampler(byte note) {
 }
 
 
-void turn_off_the_lines() {
+void update_active_lines() {
   //Serial.println("");
+  //use register and avoid closing random lines
+  for (int i = 0; i < _rg.synth_lines_active; i++) {
+    _ft.pseudo303(i);
+    _rg.active_synths[i]->update_line();
+  }
+  /*
   for (byte i = 0; i < FLASH_LINERS_COUNT; i++) {
     if (flash_lines[i]->activated ) { 
       flash_lines[i]->liner_off();
     }
-    /*
-    Serial.print(" ");
-    Serial.print(i);
-    Serial.print(": ");
-
-    Serial.print(FlashSampler[i]->isPlaying());
-    */
-  }
+    
+  }*/
+   // liner.update_line
 }
 
 void initiateasynthliner(byte data1, byte data2) {
@@ -509,11 +499,15 @@ void playarpegenote(byte larpegeline) {
 }
 
 void MaNoteOff(byte channel, byte data1, byte data2) {
-  uint8_t statusByte = static_cast<uint8_t>(0x80 | channel);
+  //uint8_t statusByte = static_cast<uint8_t>(0x80 | channel);
   int lachordnote;
   if (SendMidiOut) {
-    MidiUSB.sendMIDI({0x08, statusByte, data1, data2});
-    MidiUSB.flush();
+    //MidiUSB.sendMIDI({0x08, statusByte, data1, data2});
+    //MidiUSB.flush();
+    //usbMIDI.send((uint8_t)0x09, (uint8_t)data1, (uint8_t)data2, (uint8_t)channel,(uint8_t)0);
+    usbMIDI.sendNoteOff(data1, data2, channel);
+
+    usbMIDI.send_now();
   }
   if (!arpegiatorOn) {
     if (!chordson) {
@@ -710,39 +704,7 @@ void tweakfreqlive(int liner, float tune) {
   //AudioInterrupts();
 }
 
-void stopglidenote(byte liner) {
-  // during loop shift freq & restart freqs interpolating from last note during
-  // glide duration hold+atck?
-  dogliding[liner] = 0;
-  note_before += note_difference;
-}
 
-void stopglidenoteChords(byte liner) {
-  // during loop shift freq & restart freqs interpolating from last note during
-  // glide duration hold+atck?
-  dogliding[liner] = 0;
-  lapreviousnotewCmode[liner] += note_differenceCmode[liner];
-}
-
-void startglidenote(byte liner, byte data1) {
-  // during loop shift freq & restart freqs interpolating from last note during
-  // glide duration hold+atck?
-  //glide for this liner activated
-  dogliding[liner] = 1;
-
-  note_difference = data1 - note_before;
-  freq_difference = notestofreq[data1][1] - notestofreq[note_before][1];
-  leglideposition[liner] = millis();
-}
-
-void startglidenoteChords(byte liner, byte data1) {
-  // during loop shift freq & restart freqs interpolating from last note during
-  // glide duration hold+atck?
-  dogliding[liner] = 1;
-  note_differenceCmode[liner] = data1 - lapreviousnotewCmode[liner];
-  leglidershiftCmode[liner] = notestofreq[data1][1] - notestofreq[lapreviousnotewCmode[liner]][1];
-  leglideposition[liner] = millis();
-}
 
 void computelenghtmesureoffline_synth() {
   for (int linei = 0; linei < SYNTH_LINERS_COUNT; linei++) {
@@ -786,26 +748,16 @@ void closeallenvelopes() {
   }
 }
 
-bool check_glide_status(byte this_note){
-  bool do_glide = 0;
-  if (glidemode > 0 ){
-    if (millis() - time_of_last_note > 5000) {
-      note_before = this_note ;
-      time_of_last_note = millis();
-    } else {
-      do_glide = 1;
-    }
-  }
-  return do_glide ;
-}
-
 void moncontrollercc(byte channel, byte control, byte value) {
   if (value < 128) {
     if (midiknobassigned[control] != 0 && !freezemidicc) {
       if (SendMidiOut) {
-        uint8_t statusByte = static_cast<uint8_t>(0xB0 | channel);
-        MidiUSB.sendMIDI({0x0B, statusByte, control, value});
-        MidiUSB.flush();
+        //uint8_t statusByte = static_cast<uint8_t>(0xB0 | channel);
+        //MidiUSB.sendMIDI({0x0B, statusByte, control, value});
+        //MidiUSB.flush();
+        usbMIDI.sendControlChange(control,value,channel);
+        usbMIDI.send_now();
+        
       }
       ctl[midiknobassigned[control]].tweaker(value);
       // AudioInterrupts();

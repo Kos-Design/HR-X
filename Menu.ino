@@ -5,6 +5,51 @@ void reinitsublevels(byte fromlei) {
   }
 }
 
+void waveformize(byte l_index,byte osc_idx,byte currentFreq,byte targetFreq,byte velocity){
+  waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->amplitude(velocity / 127.0);
+  waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->frequency(currentFreq * wavesfreqs[osc_idx]);
+  waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - wave1offset[osc_idx]) / 64.0)));
+  waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->phase(phaselevelsL[osc_idx]);       
+}
+
+void FMformize(byte l_index,byte osc_idx,byte currentFreq,byte targetFreq,byte velocity){
+  FMwaveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->frequency(currentFreq * wavesfreqs[osc_idx]);
+  FMwaveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->amplitude(velocity / 127.0);
+  FMwaveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - wave1offset[osc_idx]) / 64.0)));
+}  
+
+void drumize(byte l_index,byte osc_idx,byte currentFreq,byte targetFreq,byte velocity){
+  //look into pitchMod
+  drums1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->length(adsrlevels[1] + adsrlevels[2] + adsrlevels[3]);
+  drums1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->frequency(currentFreq * wavesfreqs[osc_idx]);
+  drums1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->noteOn();
+} 
+void stringize(byte l_index,byte osc_idx,byte currentFreq,byte targetFreq,byte velocity){
+  strings1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->noteOn(targetFreq * wavesfreqs[osc_idx],(velocity / 127.0));
+}
+
+//byte l_index, byte osc_idx, byte currentFreq, byte velocity
+static constexpr void (*audio_obj_starter[4])(byte,byte,byte,byte,byte) = {&waveformize, &FMformize, &drumize, &stringize};
+
+
+void waveform_refresh(byte l_index,byte osc_idx,byte currentFreq,byte velocity){
+  waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->amplitude(velocity / 127.0);
+  waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->frequency(currentFreq * wavesfreqs[osc_idx]);
+  //waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->phase(phaselevelsL[osc_idx]);       
+}
+
+void FMform_refresh(byte l_index,byte osc_idx,byte currentFreq,byte velocity){
+  FMwaveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->frequency(currentFreq * wavesfreqs[osc_idx]);
+  FMwaveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->amplitude(velocity / 127.0);
+}  
+
+void drum_refresh(byte l_index,byte osc_idx,byte currentFreq,byte velocity){
+  //look into pitchMod
+  drums1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->frequency(currentFreq * wavesfreqs[osc_idx]);
+
+} 
+static constexpr void (*audio_obj_refresher[3])(byte,byte,byte,byte) = {&waveform_refresh, &FMform_refresh, &drum_refresh};
+
 class SynthLiner;
 
 class ActiveLinesRegister {
@@ -32,6 +77,7 @@ class ActiveLinesRegister {
 };
 
 ActiveLinesRegister _rg;
+
 class KnobAssigner : public SectionHolder {
   public:
       KnobAssigner() {
@@ -147,7 +193,6 @@ class KnobAssigner : public SectionHolder {
     static KnobAssigner* self;
 };
 
-
 KnobAssigner* KnobAssigner::self = nullptr;
 KnobAssigner _ka;
 
@@ -158,65 +203,86 @@ class SynthLiner {
     byte note = 0 ;
     byte velocity = 0 ;
     byte sloper_step = 0;
+    float targetFreq;
+    float currentFreq = 0;
+    float steps = 0 ;
     bool f303 = 0 ;
-    SynthLiner(byte line_index = 0 ) : l_index(line_index) { self = this; }
+
+    SynthLiner(byte line_index = 0 ) : l_index(line_index) { }
 
     void liner_on(byte data1, byte data2) {
-      if (activated||data1==note) {
+      if (this->activated||data1==this->note) {
         liner_off();
       }
-      activated=true;
-      note=data1;
-      velocity=data2;
-      //to avoid bounces and midi panik !
-      if (!enveloppesL[l_index]->isActive()){
-        //if (!f303) {
-          //pulsers[l_index][0]=millis();
-          f303 = 1;
-        //}
-        enveloppesL[l_index]->hold(millitickinterval - adsrlevels[3]);
-        //enveloppesR[liner]->hold(500);
-        if (check_glide_status(note)){
-          if (!chordson) {
-            notefrequency = notestofreq[note_before][1];
-            setfreqWavelines(notefrequency,l_index,velocity);
-            startglidenote(l_index,note);
-          } else {
-            notefrequency = notestofreq[lapreviousnotewCmode[l_index]][1];
-            startglidenoteChords(l_index, note);
-            setfreqWavelines(notefrequency, l_index, velocity);
-          }
-          note_before = note ;
-        } else {
-          notefrequency = notestofreq[note][1];
-          setfreqWavelines(notefrequency, l_index, velocity);
+      this->activated=true;
+      this->note=data1;
+      this->velocity=data2;
+      this->f303=1;
+      //enveloppesR[liner]->hold(500);
+
+      // if same note as previousely
+      this->targetFreq = notestofreq[this->note][1];
+      setPortamentoTime();
+
+      setfreqWavelines();
+      enveloppesL[this->l_index]->hold(millitickinterval - adsrlevels[3]);
+      enveloppesL[this->l_index]->noteOn();
+      _rg.add_active_synth(this);
+    }
+
+    void setPortamentoTime(){
+      float glideTime = map(portamento_time, 0, 127, 0, 2000);
+      float dt = AUDIO_BLOCK_SAMPLES * 1000.0f / AUDIO_SAMPLE_RATE_EXACT;
+      int updates = max(1, (int)(glideTime / dt));
+      this->steps = (this->targetFreq - this->currentFreq) / updates;
+    } 
+        
+    void setfreqWavelines() {
+      //this->currentFreq = this->targetFreq +1000; <--- evil space sound
+      update_line();
+      activateWavelines();
+    }
+    
+    void activateWavelines() {
+      //Sample & Hold waveform does not support phase modulation. Attempting to modulate its phase may give random or inconsistent results.
+      for (int i = 0; i < OSCS_COUNT; i++) {
+        if (audio_obj_type[i]) audio_obj_starter[audio_obj_type[i]-1](this->l_index,i,this->currentFreq,this->targetFreq,this->velocity);
+      }
+    }
+
+    void refreshWavelines() {
+      for (int i = 0; i < OSCS_COUNT; i++) {
+        if (audio_obj_type[i] && audio_obj_type[i] < 4) {
+         audio_obj_refresher[audio_obj_type[i]-1](this->l_index,i,this->currentFreq,this->velocity);
         }
-        enveloppesL[l_index]->noteOn();
-        _rg.add_active_synth(this);
-      } else {
-        liner_off();
       }
     }
 
     void liner_off() {
       // AudioNoInterrupts();
-      //if (enveloppesL[l_index]->isActive()) {
-        enveloppesL[l_index]->hold(0);
-        enveloppesL[l_index]->noteOff();
-        f303 = 0;
-        
-        activated = false;
-        _rg.remove_inactive_synth(this);
+      //if (enveloppesL[this->l_index]->isActive()) {
+      enveloppesL[this->l_index]->hold(0);
+      enveloppesL[this->l_index]->noteOff();
+      this->f303 = 0;
+      this->activated = false;
+      _rg.remove_inactive_synth(this);
+      this->note = 0 ;
+      //should reinitialize to something
+      //this->currentFreq = max(this->targetFreq - 1000, 1000.0);
+    }
 
-        note = 0 ;
+    //call in loop
+    void update_line(){
+      this->currentFreq += this->steps;
+      if ((this->steps > 0 && this->currentFreq >= this->targetFreq) ||
+          (this->steps < 0 && this->currentFreq <= this->targetFreq) ) {
+          this->currentFreq = this->targetFreq;
       }
-    //}
-    static SynthLiner* self;
+      refreshWavelines(); 
+    }
 };
-SynthLiner* SynthLiner::self = nullptr;
 
 SynthLiner *synth_lines[SYNTH_LINERS_COUNT] = {nullptr};
-
 
 class FlashLiner {
   public:

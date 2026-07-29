@@ -66,19 +66,19 @@ void fairly_often() {
 }
 
 void at_a_paced_rate() {
-  _ft.pseudo303();
+  update_active_lines();
+
 }
 
 void once_in_a_while(){
   if (mp3_continue){
     refresh_mp3_player();
   }
-  turn_off_the_lines();
 }
 
 void refresh_mp3_player(){
   if (!playFlac1.isPlaying() && !playMp31.isPlaying()) {  
-    _sn.mp3_player_next();
-    _sn.mp3_player_play();
+    _mp.mp3_player_next();
+    _mp.mp3_player_play();
   }
 }

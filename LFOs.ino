@@ -7,8 +7,11 @@ class LFOMenuRouter : public SectionHolder {
                     self->relative_navlevel=1;
                     self->max_navlevel=5;
                     self->sublevels_address={1,0,0};
-                    
                     }
+
+        int unit = (int)LFOfreqs[cclfoselector] % 10;
+        int tenth     = ((int)(LFOfreqs[cclfoselector] * 10)) % 10;
+        int hundredth = ((int)(LFOfreqs[cclfoselector] * 100)) % 10;
 
         static void show() {
           _nav_lfo[navlevel-1]();
@@ -89,8 +92,6 @@ class LFOMenuRouter : public SectionHolder {
             gobacktolfoparams();
           }
         }
-
-
 
         static void displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int leLFO, typeof(WAVEFORM_SINE) wavetype) {
 
@@ -195,6 +196,86 @@ class LFOMenuRouter : public SectionHolder {
           doLFOparamdisplayval(LFOfreqs[leLFO]);
         }
 
+
+        static void freqbars_panel_selector() {
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            switch (sublevels[3]){
+              case 0:
+                display.fillRect(62, 0, 16, 16, SSD1306_INVERSE);
+                self->unit = (int)LFOHz[cclfoselector];
+                sublevels[4]=self->unit;
+              break;
+              case 1:
+                display.fillRect(88, 0, 12, 16, SSD1306_INVERSE);
+                self->tenth = ((int)(LFOHz[cclfoselector]* 10)) % 10;
+                sublevels[4]=self->tenth;
+              break;
+              case 2:
+                display.fillRect(100, 0, 12, 16, SSD1306_INVERSE);
+                self->hundredth = ((int)(LFOHz[cclfoselector] * 100)) % 10;
+                sublevels[4]=self->hundredth;
+              break;
+            }
+          display.display();
+          }
+        }
+        static void freqbars_panel_action() {
+
+          navrange = 9;
+          switch (sublevels[3]){
+            case 0:
+              self->unit = sublevels[4];
+            break;
+            case 1:
+              self->tenth = sublevels[4];
+              //Serial.println(self->hundredth);
+            break;
+            case 2:
+              self->hundredth = sublevels[4];
+              //Serial.println(self->hundredth);
+            break;
+          }
+
+          LFOHz[cclfoselector] = (float)(self->unit + self->tenth * 0.1f + self->hundredth * 0.01f);
+        }
+
+        static void displayfreqbars(){
+          //dm.clear_3();
+          display.setTextSize(2);
+          display.setCursor(65, 0);
+          display.println(LFOHz[cclfoselector]);
+          //dolistLFOparams();
+          //dm.dodisplay();
+        }
+
+        static void freqbars_panel() {
+          if (navlevel >= 3) {
+            retroaction = sublevels[2];
+            if (navlevel == 3) {
+              navrange = 2;
+
+            }
+            if (navlevel == 4) {
+              retroaction = sublevels[3];
+              freqbars_panel_action();
+            }
+            if (navlevel >= 5) {
+              returntonav(3,9,sublevels[3]);
+            }
+            //dm.dodisplay();
+          }
+          displayfreqbars();
+          freqbars_panel_selector();
+          if (navlevel == 2) {
+            retroaction = sublevels[1];
+            navrange = sizeofLFOlabels - 1;
+            //sublevels[4] = round(LFOfreqs[leLFO]);
+          }
+        }
+
+
+
         static void dolistLFOparams() {
           char LFOlabels[sizeofLFOlabels][12] = {"Type",  "Level",  "Sync",
                                                 "Freq",  "Offset", "Phase",
@@ -265,9 +346,9 @@ class LFOMenuRouter : public SectionHolder {
               syncher = (1000.00/(millitickinterval+1));
             }
 
-            LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), (LFOfreqs[leLFO]/127.0)*syncher, lesformes[LFOformstype[leLFO]]);
+            LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), LFOHz[leLFO]*syncher, lesformes[LFOformstype[leLFO]]);
           } else {
-            LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), (LFOfreqs[leLFO]/127.0)*2, lesformes[LFOformstype[leLFO]]);
+            LFOwaveforms1[leLFO]->begin((float)(LFOlevel[leLFO]/127.00), LFOHz[leLFO]*2, lesformes[LFOformstype[leLFO]]);
           }
           if (LFOformstype[leLFO] == 7) {
             LFOwaveforms1[leLFO]->arbitraryWaveform(arbitrary_waveforms[leLFO],arbitrary_maxF[leLFO]);
@@ -344,7 +425,7 @@ class LFOMenuRouter : public SectionHolder {
             &LFOrmType,
             &doLFOlevel,
             &doLFObool,
-            &doLFOfreqd,
+            &freqbars_panel,
             &doLFOoffset,
             &doLFOphase,
             &go_to_synth,

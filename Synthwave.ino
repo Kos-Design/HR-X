@@ -341,10 +341,11 @@ class Filter303MenuRouter : public SectionHolder {
     }
     
     static void allpasslevels() {
-    mix303L1.gain(0, 1);
-    mix303L1.gain(1, 0);
-    mix303L1.gain(2, 0);
+      mix303L1.gain(0, 1);
+      mix303L1.gain(1, 0);
+      mix303L1.gain(2, 0);
     }
+
     float slopelinear[18] = {0.85,0.858334,0.866668,0.875,0.883336,0.89167,0.900004,0.908338,0.916672,0.925006,0.93334,0.941674,0.95,0.958342,0.966676,0.97501,0.983344,0.991678};
 
     float fxsloper[18] = {0.85,0.88,0.91,0.92,0.93,0.95,0.95,0.96,0.97,0.97,0.98,0.98,0.99,0.99,1.00,1.00,1.00,1.00};
@@ -352,19 +353,9 @@ class Filter303MenuRouter : public SectionHolder {
     int lardiff;
     float sloped[18];
 
-    static void pseudo303() {
-      float glidefactorCmode[SYNTH_LINERS_COUNT];
+    static void pseudo303(byte i) {
       //sould only go through -> activated lines
-      for (int i = 0; i < _rg.synth_lines_active; i++) {
-        if (glidemode > 0 && dogliding[i]) {
-          glidefactorCmode[i] =  (millis() - leglideposition[i]) /  (glidemode * millitickinterval * 1.0);
-          //notefrequency = (glidefactorCmode[i]) * leglidershiftCmode[i] + notestofreq[lapreviousnotewCmode[i]][1];
-          notefrequency = glidefactorCmode[i] * freq_difference + notestofreq[note_before][1];
-          tweakfreqlive(i, notefrequency);
-          if ((int)(millis() - leglideposition[i]) > glidemode * millitickinterval ) {
-            stopglidenoteChords(i);
-          }
-        }
+      
         
         if (_rg.active_synths[i]->f303) {
           //Serial.println(self->sloped[_rg.active_synths[i]->sloper_step%18]);
@@ -380,7 +371,7 @@ class Filter303MenuRouter : public SectionHolder {
           les303filterz[_rg.active_synths[i]->l_index]->resonance(0.1 + (le303filterzreso) * self->sloped[_rg.active_synths[i]->sloper_step]);
           _rg.active_synths[i]->sloper_step++;
         }
-      }
+      
     }
 
       static void filter_knob_freq(){
@@ -423,8 +414,8 @@ class Filter303MenuRouter : public SectionHolder {
       }
 
       static void filter_knob_glide(){
-        navrange = 5;
-        glidemode = sublevels[3];
+        navrange = 127;
+        set_Portamento_time_ctl(sublevels[3]);
       }
 
 
@@ -565,21 +556,9 @@ class Filter303MenuRouter : public SectionHolder {
 
       canvastitle.setCursor(94, 8);
       canvastitle.print("S:");
-      if (glidemode > 0 && glidemode < 13) {
-        canvastitle.print(".0");
-        canvastitle.print(100 * (glidemode / 127.0), 0);
-      }
-      if (glidemode > 12 && glidemode < 128) {
-        canvastitle.print(".");
-        canvastitle.print(100 * (glidemode / 127.0), 0);
-      }
-      if (glidemode == 127) {
-        canvastitle.print("1.0");
-      }
-      if (glidemode == 0) {
-        canvastitle.print("Off");
-      }
-
+      if (!portamento_time) canvastitle.print("Off");
+      else canvastitle.print(portamento_time);
+      
       le303filterVpanelSelector();
       dm.dodisplay();
     }
@@ -650,7 +629,7 @@ class Filter303MenuRouter : public SectionHolder {
       }
 
       if (slct == 7) {
-        sublevels[3] = glidemode;
+        sublevels[3] = portamento_time;
         canvasBIG.setCursor(100, 8);
         canvasBIG.print((char)9);
       }
@@ -682,395 +661,30 @@ class Filter303MenuRouter : public SectionHolder {
     static constexpr void (*filters_pointers[8])() = {&filter_knob_freq, &filter_knob_res, &filter_knob_low, &filter_knob_band, &filter_knob_high,
                                             &filter_knob_wet, &filter_knob_preamp, &filter_knob_glide};
                     byte *filter_tmp_pointers[8] = { &le303ffilterzVknobs[0], &le303ffilterzVknobs[1], &mixle303ffilterzVknobs[0], &mixle303ffilterzVknobs[1], &mixle303ffilterzVknobs[2],
-                                              &le303filterzwet, &preampleswaves, &glidemode };
+                                              &le303filterzwet, &preampleswaves, &portamento_time };
 
                     byte filter_tmp_values[8] = {le303ffilterzVknobs[0],le303ffilterzVknobs[1],mixle303ffilterzVknobs[0],mixle303ffilterzVknobs[1],mixle303ffilterzVknobs[2],
-                                          le303filterzwet,preampleswaves,glidemode };
+                                          le303filterzwet,preampleswaves,portamento_time };
     static Filter303MenuRouter* self;
 };
 
 Filter303MenuRouter* Filter303MenuRouter::self = nullptr;
 Filter303MenuRouter _ft;
 
-class SynthMenuRouter : public SectionHolder {
+
+class Mp3PlayerRouter : public SectionHolder {
     public:
-        SynthMenuRouter() {
-                    self = this;
-                    this->home_navrange=SN_MENU_LABELS_COUNT-1;
-                    this->relative_navlevel=1;
-                    this->max_navlevel=5;
-                    this->sublevels_address={0,0,0};
+        Mp3PlayerRouter() {self = this;
+                            self->home_navrange=8;
+                            self->catalog = new FilesLister("MP3/","LONGFILE#",".MP3",mp3_player_panel,self->home_navrange);
+                            self->relative_navlevel=2;
+                            self->max_navlevel=5;
+                            self->sublevels_address={7,0,0};
+                            //home method not really used yet
+                            //this->set_home(call_fx_mainpanel);
                     }
-
-        int unit = (int)wavesfreqs[oscillator] % 10;
-        int tenth     = ((int)(wavesfreqs[oscillator] * 10)) % 10;
-        int hundredth = ((int)(wavesfreqs[oscillator] * 100)) % 10;
+        FilesLister *catalog;
         int mp3_count = 0;
-
-        static void show() {
-          _route_nav[navlevel-1]();
-        }
-
-        static void route_navlevel_1(){
-          synth_nav_zero();
-        }
-
-        static void route_navlevel_2(){
-          retroaction = sublevels[1];
-          _nav_synth[sublevels[1]]();
-        }
-
-        static void displayoffsetwav() {
-          dm.clear_3();
-          if (navlevel == 3) {
-            retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
-            sublevels[4] = wave1offset[oscillator];
-          }
-          if (navlevel == 4) {
-            navrange = 127;
-            retroaction = sublevels[3];
-            wave1offset[oscillator] = sublevels[4];
-            for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-              waveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - wave1offset[oscillator]) / 64.0)));
-              FMwaveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - wave1offset[oscillator]) / 64.0)));
-            }
-          }
-          if (navlevel >= 5) {
-            returntonav(3,synth_params_count-1,sublevels[3]);
-            return;
-          }
-          display.setTextSize(1);
-          display.setCursor(80, 8);
-          display.print((float)(((64.0 - wave1offset[oscillator]) / 64.0)));
-
-          draw_synth_params();
-          dm.dodisplay();
-        }
-
-        static void freqbars_panel_selector() {
-          if (navlevel == 4) {
-            retroaction = sublevels[3];
-            switch (sublevels[4]){
-              case 0:
-                display.fillRect(62, 0, 16, 16, SSD1306_INVERSE);
-                self->unit = (int)wavesfreqs[oscillator];
-                sublevels[5]=self->unit;
-              break;
-              case 1:
-                display.fillRect(88, 0, 12, 16, SSD1306_INVERSE);
-                self->tenth = ((int)(wavesfreqs[oscillator]* 10)) % 10;
-                sublevels[5]=self->tenth;
-              break;
-              case 2:
-                display.fillRect(100, 0, 12, 16, SSD1306_INVERSE);
-                self->hundredth = ((int)(wavesfreqs[oscillator] * 100)) % 10;
-                sublevels[5]=self->hundredth;
-              break;
-            }
-          display.display();
-          }
-        }
-        static void freqbars_panel_action() {
-
-          navrange = 9;
-          switch (sublevels[4]){
-            case 0:
-              self->unit = sublevels[5];
-            break;
-            case 1:
-              self->tenth = sublevels[5];
-              //Serial.println(self->hundredth);
-            break;
-            case 2:
-              self->hundredth = sublevels[5];
-              //Serial.println(self->hundredth);
-            break;
-          }
-
-          wavesfreqs[oscillator] = (float)(self->unit + self->tenth * 0.1f + self->hundredth * 0.01f);
-        }
-
-        static void displayfreqbars(){
-          dm.clear_3();
-          display.setTextSize(2);
-          display.setCursor(65, 0);
-          display.println(wavesfreqs[oscillator]);
-          draw_synth_params();
-          dm.dodisplay();
-        }
-
-        static void freqbars_panel() {
-          if (navlevel >= 4) {
-            retroaction = sublevels[3];
-            if (navlevel == 4) {
-              navrange = 2;
-
-            }
-            if (navlevel == 5) {
-              retroaction = sublevels[4];
-              freqbars_panel_action();
-            }
-            if (navlevel >= 6) {
-              returntonav(4,9,sublevels[4]);
-            }
-            //dm.dodisplay();
-          }
-          displayfreqbars();
-          freqbars_panel_selector();
-          if (navlevel == 3) {
-            retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
-            //sublevels[4] = round(wavesfreqs[oscillator]);
-          }
-        }
-
-        static void displayphasebars() {
-          dm.clear_3();
-          if (navlevel == 3) {
-            retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
-            sublevels[4] = int(phaselevelsL[oscillator]);
-          }
-          if (navlevel >= 4) {
-            if (navlevel == 4) {
-              navrange = 360;
-              retroaction = sublevels[3];
-              phaselevelsL[oscillator] = int(sublevels[4]);
-              setphaselevel();
-            }
-            if (navlevel >= 5) {
-              setphaselevel();
-              returntonav(3,synth_params_count-1,sublevels[3]);
-            }
-          }
-
-          draw_synth_params();
-
-          display.setCursor(80, 0);
-          display.setTextSize(2);
-          display.println(phaselevelsL[oscillator]);
-          dm.dodisplay();
-        }
-
-        static void displayModulatedbool() {
-          char modulation_labels[4][7] = {"Off", "Freq", "Phase", "Ampl"};
-
-          draw_synth_params();
-          dm.dodisplay();
-          display.setCursor(64, 0);
-          display.setTextSize(2);
-          display.println(modulation_labels[FMmodulated[oscillator]]);
-          draw_synth_params();
-          dm.dodisplay();
-
-        }
-
-        static void setfmtophase() {
-          for (byte i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            //phaseModulation should be based on lfo level
-            FMwaveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->phaseModulation(180);
-          }
-        }
-
-        static void setfmtofreq() {
-          for (byte i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            //phaseModulation should be based on lfo level
-            FMwaveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->frequencyModulation(10);
-          }
-        }
-
-        static void wavelineModulatedbool() {
-          dm.clear_3();
-          if (navlevel == 3) {
-            retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
-          }
-          if (navlevel == 4) {
-            navrange = 3;
-            retroaction = sublevels[3];
-            FMmodulated[oscillator] = sublevels[4];
-          }
-          if (navlevel > 4) {
-            setwavetypefromlist();
-            returntonav(3,synth_params_count-1,sublevels[3]);
-          }
-          displayModulatedbool();
-        }
-
-        static void displaywaveformicon(){
-          dm.clear_3();
-          if (navlevel == 3) {
-            retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
-            sublevels[4] = Waveformstyped[oscillator];
-          }
-          if (navlevel == 4) {
-            navrange = 11;
-            Waveformstyped[oscillator] = sublevels[4];
-            retroaction = sublevels[3];
-          }
-          if (navlevel > 4) {
-            setwavetypefromlist();
-            if (Waveformstyped[oscillator] == 11) {
-              mixlevelsL[oscillator] = 0;
-              _mx.setwavemixlevel();
-            }
-            returntonav(3,synth_params_count-1,sublevels[3]);
-            return;
-          }
-          const unsigned char *_img[12] = { sinewave, sawtoothwave, reversesawtoothwave, trianglewave,
-                                        variabletriangle, squarewave, pulsewave,arbitrarywave,
-                                        samplehold,arbitrarywave,samplehold,moonwave};
-          String lelabelw[12] = {"SineWave","SawWave","ReverseSaw" ,"Triangle","V-Triangle","SquareWave",
-                              "PulseWave","Arbitrary","SampleHold", "Drum","String", "Wave OFF"};
-
-          display.drawBitmap(74, 20, _img[sublevels[4]], 32, 32, SSD1306_WHITE);
-          display.setTextSize(1);
-          display.setTextColor(SSD1306_WHITE);
-          display.setCursor(64, 0);
-          display.println(lelabelw[sublevels[4]]);
-          display.setCursor(120, 57);
-          display.print(oscillator + 1);
-          draw_synth_params();
-          dm.dodisplay();
-        }
-
-        static void displayLFOpanel() {
-          dm.clear_3();
-          if (navlevel == 3 ) {
-            retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
-          }
-          draw_synth_params();
-            dm.dodisplay();
-          if (navlevel >= 4) {
-            sublevels[0] = 1;
-            sublevels[1] = oscillator;
-            sublevels[2] = 0;
-            returntonav(navlevel-2,sizeofLFOlabels - 1,0);
-          }
-        }
-
-        static void go_previous(){
-          dm.clear_3();
-          if (navlevel == 3) {
-            retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
-          }
-
-          if (navlevel >= 4) {
-            if (oscillator-1 < 0)
-              oscillator = 2 ;
-            else
-              oscillator = oscillator-1;
-
-            sublevels[2] = oscillator ;
-            returntonav(navlevel-1,synth_params_count-1,sublevels[3]);
-            return;
-          }
-          draw_synth_params();
-          dm.dodisplay();
-        }
-        static void go_next(){
-          dm.clear_3();
-          if (navlevel == 3) {
-            retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
-          }
-          if (navlevel >= 4) {
-            oscillator = (oscillator+1)%3;
-            sublevels[2] = oscillator ;
-            returntonav(navlevel-1,synth_params_count-1,sublevels[3]);
-          }
-          draw_synth_params();
-          dm.dodisplay();
-        }
-
-        static void wavelinesBG() {
-          display.clearDisplay();
-          display.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
-          display.display();
-        }
-
-        static void wavelining() {
-          retroaction = sublevels[3];
-          _synth_params[sublevels[3]]();
-        }
-
-        static void draw_synth_params() {
-          char wavelineslabels[synth_params_count][12] = {
-              "Type", "Mod", "LFO", "Freq", "Offset", "Phase", "<-  ", "  ->"};
-
-          int startx = 2;
-          int starty = 16;
-          char *textin = (char *)wavelineslabels[sublevels[3]];
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(2);
-          canvastitle.println(textin);
-          canvasBIG.setTextSize(1);
-          canvasBIG.fillScreen(SSD1306_BLACK);
-          for (int i = 0; i < synth_params_count - 1 - (sublevels[3]); i++) {
-            canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println(wavelineslabels[sublevels[3] + 1 + i]);
-          }
-          for (int i = 0; i < sublevels[3]; i++) {
-            canvasBIG.setCursor(startx,(10 * (synth_params_count - sublevels[3]) + 6 + ((i)*10)));
-            canvasBIG.println(wavelineslabels[i]);
-          }
-          canvasBIG.setCursor(120, 57);
-          canvasBIG.print(oscillator + 1);
-        }
-
-        static void dolistsyntmenu() {
-          char synthmenulabels[SN_MENU_LABELS_COUNT][12] = {"Synths", "Mixer", "ADSR", "MP3 Player", "Filter"};
-          byte startx = 5;
-          byte starty = 16;
-          char *textin = (char *)synthmenulabels[sublevels[1]];
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(2);
-          canvastitle.println(textin);
-          canvasBIG.setTextSize(1);
-          canvasBIG.fillScreen(SSD1306_BLACK);
-          for (int i = 0; i < 4 - (sublevels[1]); i++) {
-            canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println(synthmenulabels[sublevels[1] + 1 + i]);
-          }
-          for (int i = 0; i < sublevels[1]; i++) {
-            canvasBIG.setCursor(startx, (10 * (5 - sublevels[1])) + 6 + ((i)*10));
-            canvasBIG.println(synthmenulabels[i]);
-          }
-        }
-
-        static void synths_switcher(){
-          String titled = "Waveline ";
-          oscillator = sublevels[2]%OSCS_COUNT;
-          String synth_num = oscillator + 1 ;
-          navrange = OSCS_COUNT-1;
-          String leprintlabel = titled + synth_num ;
-          wavelinesBG();
-          sublevels[3] = 0;
-          display.fillRect(0+(oscillator%2)*64, 16+(24*(oscillator/2)), 64, 24, SSD1306_INVERSE);
-          dm.printlabel((char*)leprintlabel.c_str());
-          display.display();
-        }
-
-        static void wavesline_selector(){
-          retroaction = sublevels[navlevel-2] ;
-          _waveliners[navlevel-2]();
-        }
-
-        static void synth_nav_zero() {
-            navrange = 4;
-            display.clearDisplay();
-            //if (!retroaction)
-            //  reinitsublevels(2);
-            dolistsyntmenu();
-            retroaction = sublevels[1] ;
-            dm.dodisplay();
-        }
 
         static void mp3_player_play(){
           if (!SD.exists((char*)mp3_name.c_str())) {
@@ -1342,6 +956,394 @@ class SynthMenuRouter : public SectionHolder {
         }
 
    
+  private:
+      static Mp3PlayerRouter* self;
+};
+
+Mp3PlayerRouter* Mp3PlayerRouter::self = nullptr;
+Mp3PlayerRouter _mp;
+
+
+class SynthMenuRouter : public SectionHolder {
+    public:
+        SynthMenuRouter() {
+                    self = this;
+                    this->home_navrange=SN_MENU_LABELS_COUNT-1;
+                    this->relative_navlevel=1;
+                    this->max_navlevel=5;
+                    this->sublevels_address={0,0,0};
+                    }
+
+        int unit = (int)wavesfreqs[oscillator] % 10;
+        int tenth     = ((int)(wavesfreqs[oscillator] * 10)) % 10;
+        int hundredth = ((int)(wavesfreqs[oscillator] * 100)) % 10;
+        //TODO give default value based on wformtype
+        
+
+        static void show() {
+          _route_nav[navlevel-1]();
+        }
+
+        static void route_navlevel_1(){
+          synth_nav_zero();
+        }
+
+        static void route_navlevel_2(){
+          retroaction = sublevels[1];
+          _nav_synth[sublevels[1]]();
+        }
+
+        static void displayoffsetwav() {
+          dm.clear_3();
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1;
+            sublevels[4] = wave1offset[oscillator];
+          }
+          if (navlevel == 4) {
+            navrange = 127;
+            retroaction = sublevels[3];
+            wave1offset[oscillator] = sublevels[4];
+            for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+              waveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - wave1offset[oscillator]) / 64.0)));
+              FMwaveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - wave1offset[oscillator]) / 64.0)));
+            }
+          }
+          if (navlevel >= 5) {
+            returntonav(3,synth_params_count-1,sublevels[3]);
+            return;
+          }
+          display.setTextSize(1);
+          display.setCursor(80, 8);
+          display.print((float)(((64.0 - wave1offset[oscillator]) / 64.0)));
+
+          draw_synth_params();
+          dm.dodisplay();
+        }
+
+        static void freqbars_panel_selector() {
+          if (navlevel == 4) {
+            retroaction = sublevels[3];
+            switch (sublevels[4]){
+              case 0:
+                display.fillRect(62, 0, 16, 16, SSD1306_INVERSE);
+                self->unit = (int)wavesfreqs[oscillator];
+                sublevels[5]=self->unit;
+              break;
+              case 1:
+                display.fillRect(88, 0, 12, 16, SSD1306_INVERSE);
+                self->tenth = ((int)(wavesfreqs[oscillator]* 10)) % 10;
+                sublevels[5]=self->tenth;
+              break;
+              case 2:
+                display.fillRect(100, 0, 12, 16, SSD1306_INVERSE);
+                self->hundredth = ((int)(wavesfreqs[oscillator] * 100)) % 10;
+                sublevels[5]=self->hundredth;
+              break;
+            }
+          display.display();
+          }
+        }
+        static void freqbars_panel_action() {
+
+          navrange = 9;
+          switch (sublevels[4]){
+            case 0:
+              self->unit = sublevels[5];
+            break;
+            case 1:
+              self->tenth = sublevels[5];
+              //Serial.println(self->hundredth);
+            break;
+            case 2:
+              self->hundredth = sublevels[5];
+              //Serial.println(self->hundredth);
+            break;
+          }
+
+          wavesfreqs[oscillator] = (float)(self->unit + self->tenth * 0.1f + self->hundredth * 0.01f);
+        }
+
+        static void displayfreqbars(){
+          dm.clear_3();
+          display.setTextSize(2);
+          display.setCursor(65, 0);
+          display.println(wavesfreqs[oscillator]);
+          draw_synth_params();
+          dm.dodisplay();
+        }
+
+        static void freqbars_panel() {
+          if (navlevel >= 4) {
+            retroaction = sublevels[3];
+            if (navlevel == 4) {
+              navrange = 2;
+
+            }
+            if (navlevel == 5) {
+              retroaction = sublevels[4];
+              freqbars_panel_action();
+            }
+            if (navlevel >= 6) {
+              returntonav(4,9,sublevels[4]);
+            }
+            //dm.dodisplay();
+          }
+          displayfreqbars();
+          freqbars_panel_selector();
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1;
+            //sublevels[4] = round(wavesfreqs[oscillator]);
+          }
+        }
+
+        static void displayphasebars() {
+          dm.clear_3();
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1;
+            sublevels[4] = int(phaselevelsL[oscillator]);
+          }
+          if (navlevel >= 4) {
+            if (navlevel == 4) {
+              navrange = 360;
+              retroaction = sublevels[3];
+              phaselevelsL[oscillator] = int(sublevels[4]);
+              setphaselevel();
+            }
+            if (navlevel >= 5) {
+              setphaselevel();
+              returntonav(3,synth_params_count-1,sublevels[3]);
+            }
+          }
+
+          draw_synth_params();
+
+          display.setCursor(80, 0);
+          display.setTextSize(2);
+          display.println(phaselevelsL[oscillator]);
+          dm.dodisplay();
+        }
+
+        static void displayModulatedbool() {
+          char modulation_labels[4][7] = {"Off", "Freq", "Phase", "Ampl"};
+
+          draw_synth_params();
+          dm.dodisplay();
+          display.setCursor(64, 0);
+          display.setTextSize(2);
+          display.println(modulation_labels[FMmodulated[oscillator]]);
+          draw_synth_params();
+          dm.dodisplay();
+
+        }
+
+        static void setfmtophase() {
+          for (byte i = 0; i < SYNTH_LINERS_COUNT; i++) {
+            //phaseModulation should be based on lfo level
+            FMwaveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->phaseModulation(180);
+          }
+        }
+
+        static void setfmtofreq() {
+          for (byte i = 0; i < SYNTH_LINERS_COUNT; i++) {
+            //phaseModulation should be based on lfo level
+            FMwaveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->frequencyModulation(10);
+          }
+        }
+
+        static void wavelineModulatedbool() {
+          dm.clear_3();
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1;
+          }
+          if (navlevel == 4) {
+            navrange = 3;
+            retroaction = sublevels[3];
+            FMmodulated[oscillator] = sublevels[4];
+          }
+          if (navlevel > 4) {
+            setwavetypefromlist();
+            returntonav(3,synth_params_count-1,sublevels[3]);
+          }
+          displayModulatedbool();
+        }
+
+        static void displaywaveformicon(){
+          dm.clear_3();
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1;
+            sublevels[4] = Waveformstyped[oscillator];
+          }
+          if (navlevel == 4) {
+            navrange = 11;
+            Waveformstyped[oscillator] = sublevels[4];
+            retroaction = sublevels[3];
+          }
+          if (navlevel > 4) {
+            setwavetypefromlist();
+            if (Waveformstyped[oscillator] == 11) {
+              mixlevelsL[oscillator] = 0;
+              _mx.setwavemixlevel();
+            }
+            returntonav(3,synth_params_count-1,sublevels[3]);
+            return;
+          }
+          const unsigned char *_img[12] = { sinewave, sawtoothwave, reversesawtoothwave, trianglewave,
+                                        variabletriangle, squarewave, pulsewave,arbitrarywave,
+                                        samplehold,arbitrarywave,samplehold,moonwave};
+          const char* lelabelw[12] = {"SineWave","SawWave","ReverseSaw" ,"Triangle","V-Triangle","SquareWave",
+                              "PulseWave","Arbitrary","SampleHold", "Drum","String", "Wave OFF"};
+
+          display.drawBitmap(74, 20, _img[sublevels[4]], 32, 32, SSD1306_WHITE);
+          display.setTextSize(1);
+          display.setTextColor(SSD1306_WHITE);
+          display.setCursor(64, 0);
+          display.println(lelabelw[sublevels[4]]);
+          display.setCursor(120, 57);
+          display.print(oscillator + 1);
+          draw_synth_params();
+          dm.dodisplay();
+        }
+
+        static void displayLFOpanel() {
+          dm.clear_3();
+          if (navlevel == 3 ) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1;
+          }
+          draw_synth_params();
+            dm.dodisplay();
+          if (navlevel >= 4) {
+            sublevels[0] = 1;
+            sublevels[1] = oscillator;
+            sublevels[2] = 0;
+            returntonav(navlevel-2,sizeofLFOlabels - 1,0);
+          }
+        }
+
+        static void go_previous(){
+          dm.clear_3();
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1;
+          }
+
+          if (navlevel >= 4) {
+            if (oscillator-1 < 0)
+              oscillator = 2 ;
+            else
+              oscillator = oscillator-1;
+
+            sublevels[2] = oscillator ;
+            returntonav(navlevel-1,synth_params_count-1,sublevels[3]);
+            return;
+          }
+          draw_synth_params();
+          dm.dodisplay();
+        }
+        static void go_next(){
+          dm.clear_3();
+          if (navlevel == 3) {
+            retroaction = sublevels[2];
+            navrange = synth_params_count - 1;
+          }
+          if (navlevel >= 4) {
+            oscillator = (oscillator+1)%3;
+            sublevels[2] = oscillator ;
+            returntonav(navlevel-1,synth_params_count-1,sublevels[3]);
+          }
+          draw_synth_params();
+          dm.dodisplay();
+        }
+
+        static void wavelinesBG() {
+          display.clearDisplay();
+          display.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
+          display.display();
+        }
+
+        static void wavelining() {
+          retroaction = sublevels[3];
+          _synth_params[sublevels[3]]();
+        }
+
+        static void draw_synth_params() {
+          char wavelineslabels[synth_params_count][12] = {
+              "Type", "Mod", "LFO", "Freq", "Offset", "Phase", "<-  ", "  ->"};
+
+          int startx = 2;
+          int starty = 16;
+          char *textin = (char *)wavelineslabels[sublevels[3]];
+          canvastitle.fillScreen(SSD1306_BLACK);
+          canvastitle.setCursor(0, 0);
+          canvastitle.setTextSize(2);
+          canvastitle.println(textin);
+          canvasBIG.setTextSize(1);
+          canvasBIG.fillScreen(SSD1306_BLACK);
+          for (int i = 0; i < synth_params_count - 1 - (sublevels[3]); i++) {
+            canvasBIG.setCursor(startx, starty + ((i)*10));
+            canvasBIG.println(wavelineslabels[sublevels[3] + 1 + i]);
+          }
+          for (int i = 0; i < sublevels[3]; i++) {
+            canvasBIG.setCursor(startx,(10 * (synth_params_count - sublevels[3]) + 6 + ((i)*10)));
+            canvasBIG.println(wavelineslabels[i]);
+          }
+          canvasBIG.setCursor(120, 57);
+          canvasBIG.print(oscillator + 1);
+        }
+
+        static void dolistsyntmenu() {
+          char synthmenulabels[SN_MENU_LABELS_COUNT][12] = {"Synths", "Mixer", "ADSR", "MP3 Player", "Filter"};
+          byte startx = 5;
+          byte starty = 16;
+          char *textin = (char *)synthmenulabels[sublevels[1]];
+          canvastitle.fillScreen(SSD1306_BLACK);
+          canvastitle.setCursor(0, 0);
+          canvastitle.setTextSize(2);
+          canvastitle.println(textin);
+          canvasBIG.setTextSize(1);
+          canvasBIG.fillScreen(SSD1306_BLACK);
+          for (int i = 0; i < 4 - (sublevels[1]); i++) {
+            canvasBIG.setCursor(startx, starty + ((i)*10));
+            canvasBIG.println(synthmenulabels[sublevels[1] + 1 + i]);
+          }
+          for (int i = 0; i < sublevels[1]; i++) {
+            canvasBIG.setCursor(startx, (10 * (5 - sublevels[1])) + 6 + ((i)*10));
+            canvasBIG.println(synthmenulabels[i]);
+          }
+        }
+
+        static void synths_switcher(){
+          String titled = "Waveline ";
+          oscillator = sublevels[2]%OSCS_COUNT;
+          String synth_num = oscillator + 1 ;
+          navrange = OSCS_COUNT-1;
+          String leprintlabel = titled + synth_num ;
+          wavelinesBG();
+          sublevels[3] = 0;
+          display.fillRect(0+(oscillator%2)*64, 16+(24*(oscillator/2)), 64, 24, SSD1306_INVERSE);
+          dm.printlabel((char*)leprintlabel.c_str());
+          display.display();
+        }
+
+        static void wavesline_selector(){
+          retroaction = sublevels[navlevel-2] ;
+          _waveliners[navlevel-2]();
+        }
+
+        static void synth_nav_zero() {
+            navrange = 4;
+            display.clearDisplay();
+            //if (!retroaction)
+            //  reinitsublevels(2);
+            dolistsyntmenu();
+            retroaction = sublevels[1] ;
+            dm.dodisplay();
+        }
 
         static void plug_no_waves(){
           mixlevelsL[oscillator] = 0;
@@ -1464,28 +1466,34 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void no_modulation(){
-              byte letype = Waveformstyped[oscillator];
-              if (letype < 9) {
-                plug_waves();
-              }
-              else if (letype == 9) {
-                plug_drum_waves();
-              }
-              else if (letype == 10) {
-                plug_strings_waves();
-              }
+          byte letype = Waveformstyped[oscillator];
+          if (letype < 9) {
+            audio_obj_type[oscillator] = 1; //       9*4 + drums *2 + string *2 + off
+            plug_waves();
+          }
+          else if (letype == 9) {
+            audio_obj_type[oscillator] = 3 ;
+            plug_drum_waves();
+          }
+          else if (letype == 10) {
+            audio_obj_type[oscillator] = 4 ;
+            plug_strings_waves();
+          }
         }
 
         static void freq_modulation(){
           byte letype = Waveformstyped[oscillator];
           if (letype < 9) {
+            audio_obj_type[oscillator] = 2;
             plug_moded_waves();
           }
           //no freq modulation on strings or drums
           else if (letype == 9) {
+            audio_obj_type[oscillator] = 3;
             plug_drum_waves();
           }
           else if (letype == 10) {
+            audio_obj_type[oscillator] = 4;
             plug_strings_waves();
           }
         }
@@ -1493,13 +1501,16 @@ class SynthMenuRouter : public SectionHolder {
         static void phase_modulation(){
           byte letype = Waveformstyped[oscillator];
           if (letype < 9) {
+              audio_obj_type[oscillator] = 2;
               plug_moded_waves();
             }
             //no phase modulation on strings or drums
             else if (letype == 9) {
+              audio_obj_type[oscillator] = 3;
               plug_drum_waves();
             }
             else if (letype == 10) {
+              audio_obj_type[oscillator] = 4;
               plug_strings_waves();
           }
         }
@@ -1507,14 +1518,18 @@ class SynthMenuRouter : public SectionHolder {
         static void amplitude_modulation(){
           byte letype = Waveformstyped[oscillator];
           if (letype < 9) {
+              audio_obj_type[oscillator] = 1;
               plug_ampl_moded_waves();
             }
             else if (letype == 9) {
               // amplitude modulated drum
+              audio_obj_type[oscillator] = 3;
+              //36 + (bool)FMmodulated[oscillator];
               plug_ampl_moded_drums();
             }
             else if (letype == 10) {
               // amplitude modulated string
+              audio_obj_type[oscillator] = 4;
               plug_ampl_moded_strings();
             }
             call_restart_lfo(oscillator);
@@ -1522,10 +1537,17 @@ class SynthMenuRouter : public SectionHolder {
 
         static void setwavetypefromlist() {
           AudioNoInterrupts();
+          // all normal/freq/phase/ampl when applicable
+          //  WAVEFORM_SINE,     WAVEFORM_SAWTOOTH,          WAVEFORM_SAWTOOTH_REVERSE,
+          // WAVEFORM_TRIANGLE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SQUARE,
+          // WAVEFORM_PULSE,    WAVEFORM_ARBITRARY,         WAVEFORM_SAMPLE_HOLD};
+          // audio_obj_type  9*4 + drums *2 + string *2 + off
+          //Waveformstyped + 2*mod + 2*mod*(drum|||string)
           byte letype = Waveformstyped[oscillator];
           if (letype == 11) {
             // synth line off
             plug_no_waves();
+            audio_obj_type[oscillator] = 0;
             AudioInterrupts();
             _mx.setwavemixlevel();
             return;
@@ -1543,21 +1565,7 @@ class SynthMenuRouter : public SectionHolder {
           AudioInterrupts();
         }
 
-        void setsynthfrequencyi(float tune, int voice, byte velocityz) {
-          // AudioNoInterrupts();
-          for (int i = 0; i < OSCS_COUNT; i++) {
-            waveforms1[voice + (i * SYNTH_LINERS_COUNT)]->frequency(tune * wavesfreqs[i - 1]);
-            waveforms1[voice + (i * SYNTH_LINERS_COUNT)]->amplitude(velocityz / 127.0);
-            FMwaveforms1[voice + (i * SYNTH_LINERS_COUNT)]->frequency(tune * wavesfreqs[i - 1]);
-            FMwaveforms1[voice + (i * SYNTH_LINERS_COUNT)]->amplitude(velocityz / 127.0);
-            drums1[voice + (i * SYNTH_LINERS_COUNT)]->length(velocityz * 5);
-          }
-          // AudioInterrupts();
-        }
-
-
-
-        static constexpr void (*_nav_synth[])() = {&wavesline_selector,&call_mx_show, &call_ad_show, &mp3_player_panel, &call_fl_show};
+        static constexpr void (*_nav_synth[])() = {&wavesline_selector,&call_mx_show, &call_ad_show, &_mp.mp3_player_panel, &call_fl_show};
         static constexpr void (*_waveliners[6])() = {&synths_switcher,&wavelining, &wavelining, &wavelining,&wavelining, &wavelining};
         static constexpr void (*modulation_pointers[4])() = {&no_modulation,&freq_modulation,&phase_modulation,&amplitude_modulation};
 

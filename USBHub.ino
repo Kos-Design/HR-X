@@ -20,12 +20,14 @@ void loopusbHub() {
     //if (!midi2){
        midi3.read();
     //}
-
+  usbMIDI.read();
+  //usbmidi ??
   //}
-  // need to handle MidiUSB.read() for msgs from pc or front usb
+  // needed to handle usbMIDI.read() for msgs from pc or front usb
+  /*
   midiEventPacket_t rx;
   do {
-    rx = MidiUSB.read();
+    rx = usbMIDI.read();
     if (rx.header != 0) {
       uint8_t status_midi  = rx.byte1;
       uint8_t type_midi    = status_midi & 0xF0;
@@ -33,6 +35,7 @@ void loopusbHub() {
       //if (status_midi == 0xF8) _sg.midi_clock_accumulator();
       if (status_midi == 0xF2){
         uint8_t songpos_midi = rx.byte2 | (rx.byte3 << 7);
+        //4 seems to be pos 0 on ardour
         if (songpos_midi == 4 ) _sg.x_ = 0 ;
         //Serial.println(songpos_midi);
       } 
@@ -49,16 +52,16 @@ void loopusbHub() {
           MaNoteOff(channel_midi,rx.byte2,rx.byte3);
         break;
 
-        /*case 0xB0:
+        case 0xB0:
           MaControlChange(channel_midi,rx.byte2,rx.byte3);
-        break;*/
+        break;
 
         default:
         break;
       }
     }
   } while (rx.header != 0);
-
+  */
 }
 
 void Mytickmidi() {
@@ -81,6 +84,11 @@ void setuphubusb() {
   midi3.setHandleNoteOn(MaNoteOn);
   midi3.setHandleNoteOff(MaNoteOff);
   midi3.setHandleControlChange(MaControlChange);
+
+  usbMIDI.setHandleNoteOn(MaNoteOn);
+  usbMIDI.setHandleNoteOff(MaNoteOff);
+  usbMIDI.setHandleControlChange(MaControlChange);
+  usbMIDI.setHandleClock(_sg.midi_clock_accumulator);
 /*
 TODO:
   void myAfterTouchPoly(byte channel, byte note, byte velocity)
