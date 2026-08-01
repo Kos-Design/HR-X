@@ -295,6 +295,79 @@ class AdsrMenuRouter : public SectionHolder {
 AdsrMenuRouter* AdsrMenuRouter::self = nullptr;
 AdsrMenuRouter _ad;
 
+class GlideMenuRouter : public SectionHolder {
+  public:
+    GlideMenuRouter() {
+                    self = this;
+                    self->home_navrange=4-1;
+                    self->relative_navlevel=2;
+                    self->max_navlevel=5;
+                    self->sublevels_address={0,0,0};
+                    
+                    }
+
+
+        uint8_t *glide_params[4] = {reinterpret_cast<uint8_t*>(&glideMode),&portamento_time,&portamento_height,&glide_slope};
+
+        static void apply_alt_ctl(){
+          //*self->glide_params[sublevels[2]] = (uint8_t)sublevels[3];
+        }
+
+        static void show(){
+
+          navrange = self->home_navrange ;
+          if (navlevel == 3 ){
+            navrange = 127;
+            if (!sublevels[self->relative_navlevel]) navrange = 4;
+            *self->glide_params[sublevels[2]] = sublevels[3];
+          }
+          sublevels[3]=*self->glide_params[sublevels[2]];
+
+          display.clearDisplay();
+          display.setCursor(0,0);
+          display.setTextSize(1);
+         
+          display.print("Glide Settings");
+          display.println(" ");
+          display.println(" ");
+          display.print("Mode: ");
+          display.print(GlideModeLabels[glideMode]);
+          //display.print(alt_nav[0]);
+
+          display.setCursor(0, 28);
+          display.print("Time: ");
+          display.print(portamento_time);
+
+          display.setCursor(0, 40);
+          display.print("Height: ");
+          display.print(64-portamento_height);
+
+          
+          display.setCursor(0, 52);
+          display.print("Slope:   ");
+          display.print((64-glide_slope)/64.0);
+
+          
+          
+          
+          display.display();
+          display.fillRoundRect(0,11+12*sublevels[2], 35, 16, 3, SSD1306_INVERSE);
+          display.display();
+          
+          if (navlevel > 3 ){
+            //apply_alt_ctl();
+            returntonav(self->relative_navlevel,self->home_navrange,sublevels[2]);
+          }
+        }
+
+  private:
+    
+    static GlideMenuRouter* self;
+};
+
+GlideMenuRouter* GlideMenuRouter::self = nullptr;
+GlideMenuRouter _gd;
+
 class Filter303MenuRouter : public SectionHolder {
   public:
     Filter303MenuRouter() {
@@ -463,7 +536,7 @@ class Filter303MenuRouter : public SectionHolder {
       canvastitle.setCursor(22, 0);
 
       canvastitle.print("In:");
-      canvastitle.print((preampleswaves*2 / 127.0) * 100.0, 1);
+      canvastitle.print((int)((preampleswaves*2 / 127.0) * 100.0));
 
       coeffangle = (6.2831 - (le303ffilterzVknobs[0] / 127.0) * 6.2831) + 3.1416;
       canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
@@ -554,8 +627,8 @@ class Filter303MenuRouter : public SectionHolder {
 
       barsize = round((0.5 * (totbartall - 4)));
 
-      canvastitle.setCursor(94, 8);
-      canvastitle.print("S:");
+      canvastitle.setCursor(54, 8);
+      canvastitle.print("Glide: ");
       if (!portamento_time) canvastitle.print("Off");
       else canvastitle.print(portamento_time);
       
@@ -629,7 +702,7 @@ class Filter303MenuRouter : public SectionHolder {
       }
 
       if (slct == 7) {
-        sublevels[3] = portamento_time;
+        sublevels[3] = portamento_time ;
         canvasBIG.setCursor(100, 8);
         canvasBIG.print((char)9);
       }
@@ -1297,22 +1370,19 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void dolistsyntmenu() {
-          char synthmenulabels[SN_MENU_LABELS_COUNT][12] = {"Synths", "Mixer", "ADSR", "MP3 Player", "Filter"};
+          char synthmenulabels[SN_MENU_LABELS_COUNT][12] = {"Synths", "Mixer", "ADSR", "MP3 Player", "Filter", "Glider"};
           byte startx = 5;
           byte starty = 16;
           char *textin = (char *)synthmenulabels[sublevels[1]];
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(2);
+          dm.clean_title_2_1();
           canvastitle.println(textin);
-          canvasBIG.setTextSize(1);
-          canvasBIG.fillScreen(SSD1306_BLACK);
-          for (int i = 0; i < 4 - (sublevels[1]); i++) {
+
+          for (int i = 0; i < navrange - (sublevels[1]); i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
             canvasBIG.println(synthmenulabels[sublevels[1] + 1 + i]);
           }
           for (int i = 0; i < sublevels[1]; i++) {
-            canvasBIG.setCursor(startx, (10 * (5 - sublevels[1])) + 6 + ((i)*10));
+            canvasBIG.setCursor(startx, (10 * (SN_MENU_LABELS_COUNT - sublevels[1])) + 6 + ((i)*10));
             canvasBIG.println(synthmenulabels[i]);
           }
         }
@@ -1336,13 +1406,13 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void synth_nav_zero() {
-            navrange = 4;
-            display.clearDisplay();
-            //if (!retroaction)
-            //  reinitsublevels(2);
-            dolistsyntmenu();
-            retroaction = sublevels[1] ;
-            dm.dodisplay();
+          navrange = self->home_navrange;
+          display.clearDisplay();
+          //if (!retroaction)
+          //  reinitsublevels(2);
+          dolistsyntmenu();
+          retroaction = sublevels[1] ;
+          dm.dodisplay();
         }
 
         static void plug_no_waves(){
@@ -1552,7 +1622,7 @@ class SynthMenuRouter : public SectionHolder {
             _mx.setwavemixlevel();
             return;
           }
-          (modulation_pointers[FMmodulated[oscillator]] )();
+          (modulation_pointers[FMmodulated[oscillator]])();
           AudioInterrupts();
           _mx.setwavemixlevel();
         }
@@ -1565,7 +1635,7 @@ class SynthMenuRouter : public SectionHolder {
           AudioInterrupts();
         }
 
-        static constexpr void (*_nav_synth[])() = {&wavesline_selector,&call_mx_show, &call_ad_show, &_mp.mp3_player_panel, &call_fl_show};
+        static constexpr void (*_nav_synth[SN_MENU_LABELS_COUNT])() = {&wavesline_selector,&call_mx_show, &call_ad_show, &_mp.mp3_player_panel, &call_fl_show,&_gd.show};
         static constexpr void (*_waveliners[6])() = {&synths_switcher,&wavelining, &wavelining, &wavelining,&wavelining, &wavelining};
         static constexpr void (*modulation_pointers[4])() = {&no_modulation,&freq_modulation,&phase_modulation,&amplitude_modulation};
 

@@ -30,7 +30,7 @@ const byte sizeofnoCCrecord = 11;
 
 constexpr uint8_t SCREEN_ADDRESS = 0x3C;
 constexpr uint8_t OSCS_COUNT = 3;
-constexpr uint8_t SN_MENU_LABELS_COUNT = 5 ;
+constexpr uint8_t SN_MENU_LABELS_COUNT = 6 ;
 constexpr int SYNTH_LINERS_COUNT = 6 ;
 const int available_track_types = 2;
 const int pbars = 32;
@@ -250,9 +250,27 @@ byte arpegnotestick[SYNTH_LINERS_COUNT];
 byte arpegemptyticks[SYNTH_LINERS_COUNT];
 bool digitalplay = 0;
 
+byte portamento_time = 60;
+byte portamento_height = 70;
+//0: exponential | 64: linear | 127: log-like
+byte glide_slope = 64 ;
+enum GlideMode : uint8_t  {
+    Off,
+    Portamento,
+    ReversePortamento,
+    PitchAttack,
+    ReversePitchAttack
+};
 
-byte portamento_time = 90;
-byte glide_height = 0;
+const char* GlideModeLabels[5] = {
+    "Off",
+    "Portamento",
+    "ReversePortamento",
+    "PitchAttack",
+    "ReversePitchAttack"
+};
+
+GlideMode glideMode = PitchAttack;
 
 byte oscillator = 0;
 byte cclfoselector = 0 ;
@@ -343,6 +361,8 @@ static const uint8_t fake_gauss_kernel[17] = {
 int cw_change = 64;
 int w_cursor_y = 32;
 int w_cursor_x = 0;
+
+
 
 const byte leschords[6][12][3] PROGMEM = {{{0, 4, 7},
                                            {1, 5, 8},
@@ -555,7 +575,7 @@ const CcCalls ctl[] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel"
                       {"Flash Line16 Level",&FlashLineVolume_Knob16_ctl},{"Show oscilloscope",&spectro_Toggle_ctl},{"Show EQ Bars",&eq_display_Toggle_ctl},{"USB In Volume",&USB_In_Volume_ctl},{"Fps oscilloscope",&adjust_osc_framerate_ctl},
                       //140 ok
                       {"Time oscilloscope",&adjust_osc_timee_ctl},{"refresh OscScope",&adjust_osc_refresher_period_ctl},{"Wav Editor Pitch",&adjust_waveEditor_pitch_ctl},{"Rota Nav +",&rota_increase_ctl}, {"Rota Nav -",&rota_decrease_ctl},      
-                      {"Validate Nav",&validate_pushed_ctl},{"Cancel Nav",&cancel_pushed_ctl} 
+                      {"Validate Nav",&validate_pushed_ctl},{"Cancel Nav",&cancel_pushed_ctl},{"Pitch Attack",&set_Portamento_height_ctl} 
                       };
 
 constexpr uint16_t CtlCount = sizeof(ctl) / sizeof(ctl[0]);

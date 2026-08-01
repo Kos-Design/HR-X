@@ -296,8 +296,11 @@ void Filter303Octave_ctl(byte cc_value){
 }
 
 void set_Portamento_time_ctl(byte cc_value){
-  portamento_time = cc_value;
-    
+  portamento_time = cc_value ;   
+}
+
+void set_Portamento_height_ctl(byte cc_value){
+  portamento_height = cc_value ;   
 }
 
 void FilterPreAmp_ctl(byte cc_value){

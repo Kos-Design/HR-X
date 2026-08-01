@@ -10,7 +10,7 @@ struct CcCalls {
     void (*tweaker)(byte);
 };
 
-extern const CcCalls ctl[129] ;
+extern const CcCalls ctl[] ;
 class Adafruit_SSD1306;
 class GFXcanvas1;
 extern Adafruit_SSD1306 display;
@@ -113,6 +113,7 @@ class DisplayManager{
         void clean_title_2(void);
         void clean_title_2_1(void);
         void clean_title_1_1(void);
+        void clean_title_1_2(void);
         void clean_title_2_2(void);
         void clean_title_1(void);
         void show(void);

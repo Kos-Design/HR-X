@@ -83,6 +83,12 @@ void DisplayManager::clean_title_1_1(){
             canvastitle.setTextSize(1);
             canvasBIG.setTextSize(1);
         }
+void DisplayManager::clean_title_1_2(){
+            clear_3();
+            canvastitle.setCursor(0, 0);
+            canvastitle.setTextSize(1);
+            canvasBIG.setTextSize(2);
+        }
 void DisplayManager::clean_title_2_2(){
             clear_3();
             canvastitle.setCursor(0, 0);
@@ -132,6 +138,7 @@ GlobalMixer* GlobalMixer::self = nullptr;
 
 GlobalMixer::GlobalMixer(AudioControlSGTL5000& shield) : MixShield(shield) {  
     self = this; 
+    //not good
     this->home_navrange=SN_MENU_LABELS_COUNT-1;
     this->relative_navlevel=1;
     this->max_navlevel=5;

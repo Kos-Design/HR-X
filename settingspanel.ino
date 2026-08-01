@@ -142,6 +142,7 @@ class SettingsMenuRouter : public SectionHolder {
 
         static void settings_nav_zero(){
           reinitsublevels(2);
+          dm.clean_title_1_1();
           debugmidion = 0;
           noteprint = 0;
           navrange = settings_labels_count - 1;

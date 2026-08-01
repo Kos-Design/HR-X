@@ -5,50 +5,49 @@ void reinitsublevels(byte fromlei) {
   }
 }
 
-void waveformize(byte l_index,byte osc_idx,byte currentFreq,byte targetFreq,byte velocity){
+void waveformize(byte l_index,byte osc_idx,float currentFreq,float targetFreq,byte velocity){
   waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->amplitude(velocity / 127.0);
   waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->frequency(currentFreq * wavesfreqs[osc_idx]);
   waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - wave1offset[osc_idx]) / 64.0)));
   waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->phase(phaselevelsL[osc_idx]);       
 }
 
-void FMformize(byte l_index,byte osc_idx,byte currentFreq,byte targetFreq,byte velocity){
+void FMformize(byte l_index,byte osc_idx,float currentFreq,float targetFreq,byte velocity){
   FMwaveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->frequency(currentFreq * wavesfreqs[osc_idx]);
   FMwaveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->amplitude(velocity / 127.0);
   FMwaveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - wave1offset[osc_idx]) / 64.0)));
 }  
 
-void drumize(byte l_index,byte osc_idx,byte currentFreq,byte targetFreq,byte velocity){
+void drumize(byte l_index,byte osc_idx,float currentFreq,float targetFreq,byte velocity){
   //look into pitchMod
   drums1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->length(adsrlevels[1] + adsrlevels[2] + adsrlevels[3]);
   drums1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->frequency(currentFreq * wavesfreqs[osc_idx]);
   drums1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->noteOn();
 } 
-void stringize(byte l_index,byte osc_idx,byte currentFreq,byte targetFreq,byte velocity){
+void stringize(byte l_index,byte osc_idx,float currentFreq,float targetFreq,byte velocity){
   strings1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->noteOn(targetFreq * wavesfreqs[osc_idx],(velocity / 127.0));
 }
 
-//byte l_index, byte osc_idx, byte currentFreq, byte velocity
-static constexpr void (*audio_obj_starter[4])(byte,byte,byte,byte,byte) = {&waveformize, &FMformize, &drumize, &stringize};
+static constexpr void (*audio_obj_starter[4])(byte,byte,float,float,byte) = {&waveformize, &FMformize, &drumize, &stringize};
 
 
-void waveform_refresh(byte l_index,byte osc_idx,byte currentFreq,byte velocity){
+void waveform_refresh(byte l_index,byte osc_idx,float currentFreq,byte velocity){
   waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->amplitude(velocity / 127.0);
   waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->frequency(currentFreq * wavesfreqs[osc_idx]);
   //waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->phase(phaselevelsL[osc_idx]);       
 }
 
-void FMform_refresh(byte l_index,byte osc_idx,byte currentFreq,byte velocity){
+void FMform_refresh(byte l_index,byte osc_idx,float currentFreq,byte velocity){
   FMwaveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->frequency(currentFreq * wavesfreqs[osc_idx]);
   FMwaveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->amplitude(velocity / 127.0);
 }  
 
-void drum_refresh(byte l_index,byte osc_idx,byte currentFreq,byte velocity){
+void drum_refresh(byte l_index,byte osc_idx,float currentFreq,byte velocity){
   //look into pitchMod
   drums1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->frequency(currentFreq * wavesfreqs[osc_idx]);
 
 } 
-static constexpr void (*audio_obj_refresher[3])(byte,byte,byte,byte) = {&waveform_refresh, &FMform_refresh, &drum_refresh};
+static constexpr void (*audio_obj_refresher[3])(byte,byte,float,byte) = {&waveform_refresh, &FMform_refresh, &drum_refresh};
 
 class SynthLiner;
 
@@ -111,10 +110,9 @@ class KnobAssigner : public SectionHolder {
 
       static void kb_home(){
         navrange = CtlCount-1;
-        dm.clear_3();
-        canvastitle.setCursor(0, 0);
+        dm.clean_title_1_2();
         if (sublevels[self->relative_navlevel] != 0) {
-          canvastitle.setTextSize(2);
+          
           canvastitle.println(ctl[sublevels[self->relative_navlevel]].name);
           canvasBIG.setTextSize(2);
           canvasBIG.setCursor(0, 40);
@@ -152,7 +150,7 @@ class KnobAssigner : public SectionHolder {
         if (sublevels[self->relative_navlevel] == 0 ) {
           returntonav(self->relative_navlevel,CtlCount-1,sublevels[self->relative_navlevel]);
         } else {
-          dm.clean_title_2_2();
+          dm.clean_title_1_2();
           canvastitle.println(ctl[sublevels[self->relative_navlevel]].name);
           canvasBIG.setCursor(0, 40);
           if (sublevels[self->relative_navlevel+1] != 0) {
@@ -201,44 +199,118 @@ class SynthLiner {
     byte l_index = 0 ;
     bool activated = 0 ;
     byte note = 0 ;
+    byte previous_note = 0 ;
     byte velocity = 0 ;
     byte sloper_step = 0;
     float targetFreq;
     float currentFreq = 0;
     float steps = 0 ;
     bool f303 = 0 ;
-
+    int totalUpdates = 0;
+    int currentUpdate = 0;
+    float startFreq;
+    
     SynthLiner(byte line_index = 0 ) : l_index(line_index) { }
 
     void liner_on(byte data1, byte data2) {
       if (this->activated||data1==this->note) {
         liner_off();
+        return;
       }
       this->activated=true;
       this->note=data1;
       this->velocity=data2;
       this->f303=1;
-      //enveloppesR[liner]->hold(500);
 
-      // if same note as previousely
       this->targetFreq = notestofreq[this->note][1];
-      setPortamentoTime();
+      int note_diff = ((this->note + (64 - portamento_height)) % 127 + 127) % 127;
+      switch (glideMode) {
+        case Off:
+          this->currentFreq = this->targetFreq ;
+        break;
 
+        case Portamento:
+        if (portamento_time)  {
+          this->currentFreq = notestofreq[this->previous_note][1];
+          }
+        break;
+
+        case ReversePortamento:
+          if (portamento_time)  {
+            this->targetFreq = notestofreq[this->previous_note][1];
+            this->currentFreq = notestofreq[this->note][1];
+          }
+        break;
+
+        case PitchAttack:
+          this->currentFreq = notestofreq[note_diff][1];
+        break;
+
+        case ReversePitchAttack:
+          this->currentFreq = this->targetFreq;
+          this->targetFreq = notestofreq[note_diff][1];
+        break;
+
+      }
+      this->startFreq = this->currentFreq;
+      this->totalUpdates = max(1, (int)(portamento_time / 0.145));
+      //this->steps = (this->targetFreq - this->currentFreq) / this->totalUpdates;
+      this->currentUpdate = 0;
+
+     // setPortamentoTime();
+      
       setfreqWavelines();
       enveloppesL[this->l_index]->hold(millitickinterval - adsrlevels[3]);
       enveloppesL[this->l_index]->noteOn();
       _rg.add_active_synth(this);
     }
 
+    void update_line_old(){
+     // float t = (float)this->currentUpdate / this->totalUpdates;
+      this->currentFreq += this->steps;
+      if ((this->steps > 0 && this->currentFreq >= this->targetFreq) ||
+        (this->steps < 0 && this->currentFreq <= this->targetFreq) ) {
+        this->currentFreq = this->targetFreq;
+      }
+      refreshWavelines(); 
+      this->currentUpdate++;
+    }
+
+    void update_line(){
+      float glide_curve = (64 - glide_slope) / 64.0f ;
+        if (this->currentUpdate < this->totalUpdates)
+        {
+            float t = (float)this->currentUpdate / (float)this->totalUpdates;
+            float s = t;
+            if (glide_curve > 0.0f) {
+              float exp = 1.0f + 4.0f * glide_curve;
+              s = powf(t, exp);
+            }
+            else if (glide_curve < 0.0f)  {
+              float exp = 1.0f - 4.0f * glide_curve;
+              s = 1.0f - powf(1.0f - t, exp);
+            }
+
+            this->currentFreq = this->startFreq + (this->targetFreq - this->startFreq) * s;
+
+            this->currentUpdate++;
+
+            if (this->currentUpdate >= this->totalUpdates)
+                this->currentFreq = this->targetFreq;
+        }
+
+        refreshWavelines();
+    }
     void setPortamentoTime(){
-      float glideTime = map(portamento_time, 0, 127, 0, 2000);
-      float dt = AUDIO_BLOCK_SAMPLES * 1000.0f / AUDIO_SAMPLE_RATE_EXACT;
-      int updates = max(1, (int)(glideTime / dt));
-      this->steps = (this->targetFreq - this->currentFreq) / updates;
-    } 
+      //float dt = AUDIO_BLOCK_SAMPLES * 1000.0f / AUDIO_SAMPLE_RATE_EXACT;
+      //128*1000 / 44100.0f = 2,902494331 ms if we update every audio sample 
+      //porta is scaled 20x so 2.9 becomes 0.145 since aproximations are fine
+      this->totalUpdates = max(1, (int)(portamento_time / 0.145));
+      this->steps = (this->targetFreq - this->currentFreq) / this->totalUpdates;
+      this->currentUpdate = 0;
+    }
         
     void setfreqWavelines() {
-      //this->currentFreq = this->targetFreq +1000; <--- evil space sound
       update_line();
       activateWavelines();
     }
@@ -252,6 +324,7 @@ class SynthLiner {
 
     void refreshWavelines() {
       for (int i = 0; i < OSCS_COUNT; i++) {
+        // oscs Offs or of string type do not need refreshing
         if (audio_obj_type[i] && audio_obj_type[i] < 4) {
          audio_obj_refresher[audio_obj_type[i]-1](this->l_index,i,this->currentFreq,this->velocity);
         }
@@ -266,20 +339,11 @@ class SynthLiner {
       this->f303 = 0;
       this->activated = false;
       _rg.remove_inactive_synth(this);
+      this->previous_note = this->note ;
       this->note = 0 ;
-      //should reinitialize to something
-      //this->currentFreq = max(this->targetFreq - 1000, 1000.0);
+
     }
 
-    //call in loop
-    void update_line(){
-      this->currentFreq += this->steps;
-      if ((this->steps > 0 && this->currentFreq >= this->targetFreq) ||
-          (this->steps < 0 && this->currentFreq <= this->targetFreq) ) {
-          this->currentFreq = this->targetFreq;
-      }
-      refreshWavelines(); 
-    }
 };
 
 SynthLiner *synth_lines[SYNTH_LINERS_COUNT] = {nullptr};

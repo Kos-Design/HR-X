@@ -293,7 +293,7 @@ void  FilesLister::list_files() {
       File entry = opened_dir.openNextFile();
       
       if (!entry) {
-        Serial.println("Empty now ");
+        //Serial.println("Empty now ");
           break;
       }
       //Serial.println(entry.name());
