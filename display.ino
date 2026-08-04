@@ -68,8 +68,8 @@ void pleasewait(float lewait, float letotwait) {
   display.display();
 }
 
-void pseudoconsole(const char *lemsg) {
-  shiftconsolemsgarray();
+void pseudoconsole(const char *lemsg,bool new_lines=true) {
+  if (new_lines) shiftconsolemsgarray();
   setleconsolemsg(0, (char *)lemsg);
   display.clearDisplay();
   display.setTextSize(1);

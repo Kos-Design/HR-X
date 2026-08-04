@@ -74,21 +74,13 @@ void replug_notefreq_from_ampL(){
 void loadsynthdefaults() {
 
   AudioNoInterrupts();
-
-/*
-  adsrlevels[0] = _ad.MadsrAttackDelay;
-  adsrlevels[1] = _ad.mappedattack;
-  adsrlevels[3] = _ad.mappeddecay;
-  adsrlevels[4] = float( _ad.mappedsustain / 100);
-  adsrlevels[5] = _ad.mappedrelease;
-*/
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-    enveloppesL[i]->delay(adsrlevels[0]);
-    enveloppesL[i]->attack(adsrlevels[1]);
+    enveloppesL[i]->delay(adsrlevels[AttackDelay]);
+    enveloppesL[i]->attack(adsrlevels[Attack]);
     // enveloppesL[i]->hold(adsrlevels[2]);
-    enveloppesL[i]->decay(adsrlevels[3]);
-    enveloppesL[i]->sustain(adsrlevels[4]);
-    enveloppesL[i]->release(adsrlevels[5]);
+    enveloppesL[i]->decay(adsrlevels[Decay]);
+    enveloppesL[i]->sustain(adsrlevels[Sustain]);
+    enveloppesL[i]->release(adsrlevels[Release]);
     //enveloppesL[i]->releaseNoteOn(20);
   }
 

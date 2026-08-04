@@ -47,7 +47,8 @@ class FilesLister{
         void deleteFile();
         void deleteFileGeneric(const char*);
         void copyFile();
-        void copyFileGeneric(const char* _origin_file,const char* _target_file) ;
+        void copyFileGeneric(const char*,const char*);
+        void move_file(const char*,const char* );
         void nav_zero();
         void make_temp_folders();
         String get_full_tmp_file_path(byte);

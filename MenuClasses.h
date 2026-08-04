@@ -116,6 +116,7 @@ class DisplayManager{
         void clean_title_1_2(void);
         void clean_title_2_2(void);
         void clean_title_1(void);
+        void main_panel(const char* const*,int,int);
         void show(void);
         void dodisplay(void);
         static void (*root_route[10])();
@@ -165,4 +166,33 @@ class SequencerClocker : public AudioStream {
         double _samplesPerTick = 0;
         double _sampleAccumulator = 0;
         void (*_callback_96)() = nullptr;
+};
+
+class DisplayConsoler : public Print {
+public:
+    DisplayConsoler();
+
+    void clearing();
+    void refresh();
+    void wipe();
+    size_t write(uint8_t c) override;
+
+private:
+    void newLine();
+    void scroll();
+    void drawChar(char c);
+
+    static constexpr uint8_t SCREEN_WIDTH  = 128;
+    static constexpr uint8_t SCREEN_HEIGHT = 64;
+
+    static constexpr uint8_t CHAR_W = 6;     // Adafruit default font
+    static constexpr uint8_t CHAR_H = 10;    // 8px glyph + spacing
+
+    static constexpr uint8_t COLS = SCREEN_WIDTH / CHAR_W;   // 21
+    static constexpr uint8_t ROWS = SCREEN_HEIGHT / CHAR_H;  // 6
+
+    char _c_buff[ROWS][COLS];
+
+    uint8_t cursorX;
+    uint8_t cursorY;
 };

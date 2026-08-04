@@ -85,8 +85,6 @@ class FxMenuRouter : public SectionHolder {
                       self->relative_navlevel=1;
                       self->max_navlevel=5;
                       self->sublevels_address={6,0,0};
-                      //home method not really used yet
-                      //this->set_home(call_fx_mainpanel);
                       }
 
       static void show() {

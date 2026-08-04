@@ -392,7 +392,7 @@ class FlashLiner {
     }
 
     void liner_off() {
-      FlashSampler[l_index]->stop();
+      //FlashSampler[l_index]->stop();
       activated = false;
       note = 0 ;
       velocity = 0 ;

@@ -105,8 +105,8 @@ void FilesLister::copyFile() {
   if (locked_fileing)
     return;
   locked_fileing = 1 ;
-  File origin_file;
-  File target_file;
+ File origin_file;
+ File target_file;
   String current_pathed = this->get_current_file_path(0) ;
   if (SD.exists(current_pathed.c_str())) {
     target_file = SD.open(this->get_new_file_name().c_str(), FILE_WRITE);
@@ -121,8 +121,13 @@ void FilesLister::copyFile() {
   origin_file.close();
   target_file.close();
   this->list_files();
-  
   locked_fileing = 0 ;
+}
+
+void FilesLister::move_file(const char* source, const char* dest){
+  SdFile file;
+  file.open(source, O_READ);
+  file.rename(dest);
 }
 
 void FilesLister::copyFileGeneric(const char* _origin_file,const char* _target_file) {
@@ -134,43 +139,37 @@ void FilesLister::copyFileGeneric(const char* _origin_file,const char* _target_f
       return;
     }
     locked_fileing = 1 ;
-    File origin_file = SD.open(_origin_file, FILE_READ);
-    File target_file = SD.open(_target_file, FILE_WRITE);
+   File origin_file = SD.open(_origin_file, FILE_READ);
+   File target_file = SD.open(_target_file, FILE_WRITE);
     size_t n_size;
     uint8_t buf[64];
     while ((n_size = origin_file.read(buf, sizeof(buf))) > 0) {
       target_file.write(buf, n_size);
     }
-        Serial.println(" ");
-    Serial.print("copied ");
-    Serial.print(_origin_file);
-    Serial.print(" to ");
-    Serial.print(_target_file);
   origin_file.close();
   target_file.close();
   locked_fileing = 0 ;
   } else {
     Serial.println("origin file error");
   }
-  
 }
 
-void  FilesLister::make_temp_folders(){
+void FilesLister::make_temp_folders(){
   make_sub_folder(this->folder_dir, "TMP");
   strncpy(this->tmp_folder, ((String)this->folder_dir+"TMP/").c_str(), 35);
   this->tmp_folder[35] = '\0'; 
   //Serial.println(get_new_tmp_name());
 }
 
-void  FilesLister::nav_zero(){
-            dm.clear_buffs();
-            navrange = this->home_navrange;
-            this->display_files_list();
-            this->home();
-            dm.dodisplay();
-        }
+void FilesLister::nav_zero(){
+  dm.clear_buffs();
+  navrange = this->home_navrange;
+  this->display_files_list();
+  this->home();
+  dm.dodisplay();
+}
 
-void  FilesLister::nav_one(byte save_lbl_idx=0,byte lbl_navlevel=1){
+void FilesLister::nav_one(byte save_lbl_idx=0,byte lbl_navlevel=1){
   this->new_file_mode = false;
   navrange = max(this->files_counter + this->free_counter - 1, 0);
   if (sublevels[lbl_navlevel] == save_lbl_idx) {
@@ -185,7 +184,7 @@ void  FilesLister::nav_one(byte save_lbl_idx=0,byte lbl_navlevel=1){
   dm.dodisplay();
 }
 
-void  FilesLister::refresh_files_names() {
+void FilesLister::refresh_files_names() {
   for (int i = 0 ; i < max_displayables ; i++) {
     //empty spots are left at the end of the list if it is small, otherwise the names are looped
     //maybe looped list is better actually...
@@ -200,7 +199,7 @@ void  FilesLister::refresh_files_names() {
   }
 }
 
-void  FilesLister::refresh_folders_names() {
+void FilesLister::refresh_folders_names() {
   for (int i = 0 ; i < max_displayables ; i++) {
     this->folders_displayable[i] = " ";
     if (this->displayable_offset+i < this->folders_counter ) {
@@ -220,18 +219,18 @@ void FilesLister::make_sub_folder(const char *base_folder, const char *subfoldee
   }
 }
 
-void  FilesLister::display_files_list() {
+void FilesLister::display_files_list() {
   dm.clean_title_1_1();
+  //TODO: dangerous use of global
   canvasBIG.setCursor(left_margin,0);
+  int all_files_count = this->free_counter + this->files_counter ;
+
+  navrange = all_files_count-1;
 
   if (navlevel == this->r_nav) {
     this->displayable_offset = sublevels[this->r_nav]  ;
-    Serial.println("");
-    Serial.print("setted at lvl ");
-    Serial.print(navlevel);
   }
   //% this->files_counter  ;
-  int all_files_count = this->free_counter + this->files_counter ;
   refresh_files_names();
   canvastitle.setCursor(left_margin, 0);
   //activate new_file_mode from instancer file actions selector
@@ -259,7 +258,7 @@ void  FilesLister::display_files_list() {
   canvastitle.fillRect(0, 0, 30, 64, SSD1306_BLACK);
 }
 
-void  FilesLister::display_folders_list() {
+void FilesLister::display_folders_list() {
   dm.clean_title_1_1();
   if (navlevel == this->r_nav) {
     this->displayable_offset = sublevels[this->r_nav]  ;
@@ -282,15 +281,15 @@ void  FilesLister::display_folders_list() {
   
 }
 
-void  FilesLister::list_files() {
+void FilesLister::list_files() {
   //no lock fileing on read as it is used during locked ops, should be fine
   this->files_counter = 0;
   this->folders_counter = 0;
   this->free_counter = 0 ;
   if (SD.exists((const char*)this->folder_dir)) {
-    File opened_dir = SD.open((const char*)this->folder_dir);
+   File opened_dir = SD.open((const char*)this->folder_dir);
     while (this->files_counter < 99 && this->folders_counter < 99 && this->free_counter < 99) {
-      File entry = opened_dir.openNextFile();
+     File entry = opened_dir.openNextFile();
       
       if (!entry) {
         //Serial.println("Empty now ");

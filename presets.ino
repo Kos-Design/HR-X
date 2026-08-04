@@ -3,7 +3,7 @@ class PresetsMenuRouter : public SectionHolder {
     public:
         PresetsMenuRouter() {
                     self = this;
-                    self->home_navrange=ps_labels_count-1;
+                    self->home_navrange=self->ps_labels_count-1;
                     self->catalog = new FilesLister("PRESETS/SYNTH/","SYNSET",".TXT",presets_menu,self->home_navrange);
                     self->relative_navlevel=1;
                     self->max_navlevel=5;
@@ -12,6 +12,7 @@ class PresetsMenuRouter : public SectionHolder {
                     //this->set_home(call_fx_mainpanel);
         }
         FilesLister *catalog;
+        const byte ps_labels_count = 5;
 
         static void route_navlevel(){
           _nav_presets[sublevels[1]]();
@@ -26,22 +27,9 @@ class PresetsMenuRouter : public SectionHolder {
         }
 
         static void presets_menu() {
-          char presetmenulabels[ps_labels_count][12] = {
+          const char* presetmenulabels[] = {
               "Save", "Load", "Copy", "Delete", "Params"};
-          byte startx = 5;
-          byte starty = 16;
-          char *textin = (char *)presetmenulabels[sublevels[1]];
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(2);
-          canvastitle.println(textin);
-          for (int i = 0; i < self->home_navrange - (sublevels[1]); i++) {
-            canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println(presetmenulabels[sublevels[1] + 1 + i]);
-          }
-          for (int i = 0; i < sublevels[1]; i++) {
-            canvasBIG.setCursor(startx, (10 * (ps_labels_count - sublevels[1]) + 6 + i*10));
-            canvasBIG.println(presetmenulabels[i]);
-          }
+          dm.main_panel(presetmenulabels,1,self->ps_labels_count);
         }
 
         static void writepreset() {
@@ -212,6 +200,37 @@ class PresetsMenuRouter : public SectionHolder {
           preset_filer.print("#");
           preset_filer.print(float(leint));
           preset_filer.print("\n");
+        }
+
+        static void new_parser(){
+          File f = SD.open("preset.txt");
+
+          char line[64];
+
+          while (f.available()) {
+            int len = f.readBytesUntil('\n', line, sizeof(line)-1);
+            line[len] = '\0';
+
+            char *eq = strchr(line, '=');
+            if (!eq) continue;
+
+            *eq = '\0';
+
+            char *key = line;
+            char *value = eq + 1;
+
+            if (!strcmp(key, "volume"))
+            continue;
+                //volume = atof(value);
+
+            else if (!strcmp(key, "cutoff"))
+            continue;
+                //cutoff = atoi(value);
+
+            else if (!strcmp(key, "resonance"))
+            continue;
+                //resonance = atof(value);
+          }
         }
 
         static void parsefile() {
@@ -615,7 +634,7 @@ class PresetsMenuRouter : public SectionHolder {
 
         //arbitrary depth of 5, don't go further
         static constexpr void (*_route_nav[5])() = {&presets_nav_zero, &route_navlevel, &route_navlevel, &route_navlevel, &route_navlevel};
-        static constexpr void (*_nav_presets[ps_labels_count])() = {&save_preset,&load_preset,&duplicate_preset,&remove_preset,&params_presets};
+        static constexpr void (*_nav_presets[5])() = {&save_preset,&load_preset,&duplicate_preset,&remove_preset,&params_presets};
   private:
     static PresetsMenuRouter* self;
 };

@@ -1,7 +1,5 @@
 #define MULTIPLEXED_PADS 1
 
-const int display_lag = 10 ;
-const int control_lag = 10 ;
 #include "MenuClasses.h"
 #include "muxer.h"
 #include "ParserLib.h"
@@ -9,7 +7,6 @@ const int control_lag = 10 ;
 #include <Adafruit_GFX.h>
 #include <Bounce.h>
 #include <Encoder.h>
-//#include <usbMIDI.h>
 #include <play_sd_mp3.h>
 #include <play_sd_flac.h>
 #include "play_partial_sd_raw.h"
@@ -59,6 +56,8 @@ bool waveforming = false ;
 bool assigning_sample_to_note = false ;
 bool knobsetting = false ;
 bool paterning = false ;
+const int display_lag = 10 ;
+const int control_lag = 10 ;
 
 // functions that have system or various controls that are ignored for some ops
 //outdated since refactor of ctl[]
@@ -73,7 +72,6 @@ int tapstime[5] = {0};
 float tapaverage;
 const byte sg_labels_count = 8;
 
-const byte ps_labels_count = 5;
 const byte sizeofLFOlabels = 9;
 const byte settings_labels_count = 17;
 //doesn't seem to affect arbitrary waveforms... :(
@@ -520,6 +518,25 @@ byte wave1offset[OSCS_COUNT] = {64,64,64};
 //Atk Delay, Attack, Hold, Decay, Sustain, Release
 int adsrlevels[6] = {0, 5, 0, 50, 100, 750};
 
+enum ADSR : uint8_t  {
+    AttackDelay,
+    Attack,
+    Hold,
+    Decay,
+    Sustain,
+    Release
+};
+
+ADSR adsr;
+
+const char* ADSRLabels[6] = {
+    "Attack Delay",
+    "Attack",
+    "Hold",
+    "Decay",
+    "Sustain",
+    "Release"
+};
 int navleveloverwrite = 2;
 int knobiprev[OSCS_COUNT] = {0, 0, 0};
 
@@ -813,3 +830,5 @@ class MasterClock {
 MasterClock* MasterClock::self = nullptr;
 
 MasterClock Tocker;
+
+DisplayConsoler consoler;

@@ -30,6 +30,11 @@ void shutlineroff(byte,byte);
 void playarpegenote(byte);
 void closeallenvelopes();
 
+enum TrackTypes : uint8_t  {
+    Synth,
+    Flash
+};
+
 class CCEditor : public SectionHolder {
   public:
         CCEditor();

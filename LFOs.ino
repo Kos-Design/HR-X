@@ -277,32 +277,11 @@ class LFOMenuRouter : public SectionHolder {
 
 
         static void dolistLFOparams() {
-          char LFOlabels[sizeofLFOlabels][12] = {"Type",  "Level",  "Sync",
+          const char* LFOlabels[] = {"Type",  "Level",  "Sync",
                                                 "Freq",  "Offset", "Phase",
                                                 "Synth", "<-  ",   "  ->"};
-          display.clearDisplay();
-          int startx = 5;
-          int starty = 16;
-          char *textin = (char *)LFOlabels[sublevels[2]];
+          dm.main_panel(LFOlabels, 2, sizeofLFOlabels);
 
-          dm.clean_title_2();
-          canvastitle.println(textin);
-
-          canvasBIG.setTextSize(1);
-
-
-
-          for (int filer = 0; filer < sizeofLFOlabels - 1 - (sublevels[2]); filer++) {
-
-            canvasBIG.setCursor(startx, starty + ((filer)*10));
-            canvasBIG.println(LFOlabels[sublevels[2] + 1 + filer]);
-          }
-          for (int filer = 0; filer < sublevels[2]; filer++) {
-
-            canvasBIG.setCursor(
-                startx, (10 * (sizeofLFOlabels - sublevels[2]) + 6 + ((filer)*10)));
-            canvasBIG.println(LFOlabels[filer]);
-          }
         }
 
         static void doLFOallcontrols(byte leLFO) {

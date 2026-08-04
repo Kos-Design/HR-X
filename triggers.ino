@@ -181,11 +181,12 @@ void initiatearpegesynthliner(byte larpegeline, byte data1, byte data2) {
 
 byte get_free_sampler(byte note) {
   for (byte i = 0; i < FLASH_LINERS_COUNT; i++) {
-
+  /*
         Serial.println("");
     Serial.print(i);
     Serial.print(" is playing --> ");
     Serial.print(FlashSampler[i]->isPlaying());
+    */
     if (!(FlashSampler[i]->isPlaying() )) {
     //if (!flash_lines[i]->activated ) {
     
@@ -196,12 +197,14 @@ byte get_free_sampler(byte note) {
           return i + offsetliner;
         }
       } else {
-        flash_lines[i]->liner_off();
+        //flash_lines[i]->liner_off();
         return i;
       }
-    } else {
+    } 
+    
+    /*else {
       flash_lines[i]->liner_off();
-    }
+    }*/
   }
   return 0;
 }
@@ -568,7 +571,7 @@ int tick_for_that(int tick){
 void recordmidinotes(int liner, byte channel, byte lenote, byte velocity) {
   int pos = tick_for_that(tickposition);
   synth_start_tpos[liner] = pos;
-  track_cells[0][tickposition] = 1;
+  track_cells[Synth][tickposition] = 1;
   synth_partition[liner][pos][1] = lenote;
   synth_partition[liner][pos][2] = velocity;
   synth_partition[liner][pos][0] = channel;
@@ -631,7 +634,7 @@ bool isalreadysameSamplerinpat(byte lenote,int tick) {
 void recordmidinotes2(int liner, byte channel, byte lenote, byte velocity) {
   int pos = tick_for_that(tickposition);
   if (!isalreadysameSamplerinpat(lenote,pos)) {
-    track_cells[1][pos] = 1;
+    track_cells[Flash][pos] = 1;
     sampler_partition[liner][pos][1] = lenote;
     sampler_partition[liner][pos][2] = velocity;
     sampler_partition[liner][pos][0] = channel;

@@ -27,7 +27,7 @@ void DisplayManager::printlabel(char *toprint) {
         }
 
 void DisplayManager::displaymenu() {
-            char menus_lbl[10][11] = {"WaveSynth", "LFOs", "Wav Editor", "Song", "Pattern", "Settings",
+            char menus_lbl[10][11] = {"WaveSynth", "LFOs", "CoolEditor", "Song", "Pattern", "Settings",
                         "MainFX", "Sampler", "Waveformer", "Presets"};
             if (navlevel == 0) {
                 previousnavlevel = 0;
@@ -38,6 +38,26 @@ void DisplayManager::displaymenu() {
             printlabel(menus_lbl[sublevels[0]]);
             display.display();
         }
+
+void DisplayManager::main_panel(const char* const* menulabels, int lvl, int menu_lbls_count) {
+  if ( navlevel == lvl ) navrange = menu_lbls_count-1;
+  byte startx = 5;
+  byte starty = 16;
+  char *textin = (char *)menulabels[sublevels[lvl]%(menu_lbls_count-1)];
+  //dm.clean_title_2_1();
+  canvastitle.setCursor(0, 0);
+  canvastitle.setTextSize(2);
+  canvastitle.println(textin);
+
+  for (int i = 0; i < menu_lbls_count - 1 - (sublevels[lvl]%(menu_lbls_count-1)); i++) {
+    canvasBIG.setCursor(startx, starty + ((i)*10));
+    canvasBIG.println(menulabels[sublevels[lvl]%(menu_lbls_count-1) + 1 + i]);
+  }
+  for (int i = 0; i < sublevels[lvl]%(menu_lbls_count-1); i++) {
+    canvasBIG.setCursor(startx, (10 * (menu_lbls_count - sublevels[lvl]%(menu_lbls_count-1))) + 6 + ((i)*10));
+    canvasBIG.println(menulabels[i]);
+  }
+}
 
 void DisplayManager::clear_buffs(){
             canvasBIG.fillScreen(SSD1306_BLACK);
@@ -138,11 +158,10 @@ GlobalMixer* GlobalMixer::self = nullptr;
 
 GlobalMixer::GlobalMixer(AudioControlSGTL5000& shield) : MixShield(shield) {  
     self = this; 
-    //not good
-    this->home_navrange=SN_MENU_LABELS_COUNT-1;
-    this->relative_navlevel=1;
-    this->max_navlevel=5;
-    this->sublevels_address={0,0,0};
+    self->home_navrange=11;
+    self->relative_navlevel=2;
+    self->max_navlevel=5;
+    self->sublevels_address={0,1,0};
     wmixer_tmp_pointers[0]  = &mixlevelsM[0];
     wmixer_tmp_pointers[1]  = &mixlevelsM[1];
     wmixer_tmp_pointers[2]  = &mixlevelsM[2];
@@ -531,3 +550,104 @@ void SequencerClocker::calculatePPQN() {
   _samplesPerTick = AUDIO_SAMPLE_RATE_EXACT * 60.0 / (_bpm * _PPQN);
 }
 
+DisplayConsoler::DisplayConsoler(){
+    clearing();
+}
+
+void DisplayConsoler::clearing(){
+    cursorX = 0;
+    cursorY = 0;
+
+    memset(_c_buff, ' ', sizeof(_c_buff));
+
+/*
+    display.clearDisplay();
+    display.setTextColor(SSD1306_WHITE);
+    display.setTextWrap(false);
+    display.setCursor(0,0);
+
+    display.display();
+    */
+}
+
+void DisplayConsoler::wipe(){
+    cursorX = 0;
+    cursorY = 0;
+
+    memset(_c_buff, ' ', sizeof(_c_buff));
+
+
+    display.clearDisplay();
+    //display.setTextColor(SSD1306_WHITE);
+    //display.setTextWrap(false);
+    display.setCursor(0,0);
+
+    display.display();
+    
+}
+size_t DisplayConsoler::write(uint8_t c){
+    if (c == '\r')
+        return 1;
+
+    if (c == '\n')
+    {
+        newLine();
+        return 1;
+    }
+
+    _c_buff[cursorY][cursorX] = c;
+
+    drawChar(c);
+
+    cursorX++;
+
+    if (cursorX >= COLS)
+        newLine();
+
+    return 1;
+}
+
+void DisplayConsoler::drawChar(char c){
+    display.setCursor(cursorX * CHAR_W,
+                      cursorY * CHAR_H);
+
+    display.write(c);
+}
+
+void DisplayConsoler::newLine(){
+    cursorX = 0;
+
+    if (cursorY < ROWS - 1)
+    {
+        cursorY++;
+        return;
+    }
+
+    scroll();
+}
+
+void DisplayConsoler::scroll(){
+    for (uint8_t y = 0; y < ROWS - 1; y++)
+    {
+        memcpy(_c_buff[y], _c_buff[y + 1], COLS);
+    }
+
+    memset(_c_buff[ROWS - 1], ' ', COLS);
+
+    display.clearDisplay();
+
+    for (uint8_t y = 0; y < ROWS; y++)
+    {
+        display.setCursor(0, y * CHAR_H);
+
+        for (uint8_t x = 0; x < COLS; x++)
+            display.write(_c_buff[y][x]);
+          continue;
+    }
+
+    cursorY = ROWS - 1;
+}
+
+void DisplayConsoler::refresh(){
+    display.display();
+}

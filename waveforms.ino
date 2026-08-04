@@ -202,8 +202,6 @@ class WaveformsMenuRouter : public SectionHolder {
             w_cursor_y = map(arbitrary_waveforms[waveformIndex][w_cursor_x], -32768, 32767, 63, 0);
             sublevels[3] = map(arbitrary_waveforms[waveformIndex][w_cursor_x],-32768, 32767, 0, 255 ) ;
           }
-          
-
           canvasBIG.drawCircle(sublevels[2]/2, w_cursor_y, 2, SSD1306_WHITE);
           draw_wave_graph();
           //canvastitle.print(arbitrary_waveforms[waveformIndex][sublevels[2]]);
@@ -212,27 +210,9 @@ class WaveformsMenuRouter : public SectionHolder {
         }
 
         static void wforms_menu() {
-          canvastitle.setCursor(0,0);
-          char waveformsmenulabels[wf_labels_count][12] = {
+          const char* waveformsmenulabels[] = {
               "Save", "Load", "Copy", "Delete", "Edit", "-->", "<--","Params"};
-          byte startx = 5;
-          byte starty = 16;
-          char *textin = (char *)waveformsmenulabels[sublevels[1]];
-          canvastitle.setTextSize(2);
-          canvasBIG.setTextSize(2);
-          canvastitle.println(textin);
-          canvasBIG.drawRoundRect(50,25,22,22,3,SSD1306_WHITE);
-          canvasBIG.setCursor(56,29);
-          canvasBIG.print(waveformIndex+1);
-          canvasBIG.setTextSize(1);
-          for (int i = 0; i < wf_labels_count - 1 - (sublevels[1]); i++) {
-            canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println(waveformsmenulabels[sublevels[1] + 1 + i]);
-          }
-          for (int i = 0; i < sublevels[1]; i++) {
-            canvasBIG.setCursor(startx, (10 * (wf_labels_count - sublevels[1]) + 6 + ((i)*10)));
-            canvasBIG.println(waveformsmenulabels[i]);
-          }
+          dm.main_panel(waveformsmenulabels, 1, wf_labels_count);
         }
 
         static void go_previous(){

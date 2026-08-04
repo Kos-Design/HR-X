@@ -16,19 +16,19 @@ class AdsrMenuRouter : public SectionHolder {
 
     static void ApplyADSR() {
       for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-        enveloppesL[i]->delay(adsrlevels[0]);
-        enveloppesL[i]->attack(adsrlevels[1]);
-        enveloppesL[i]->hold(adsrlevels[2]);
-        enveloppesL[i]->decay(adsrlevels[3]);
-        enveloppesL[i]->sustain(adsrlevels[4] / 100.0);
-        enveloppesL[i]->release(adsrlevels[5]);
+        enveloppesL[i]->delay(adsrlevels[AttackDelay]);
+        enveloppesL[i]->attack(adsrlevels[Attack]);
+        enveloppesL[i]->hold(adsrlevels[Hold]);
+        enveloppesL[i]->decay(adsrlevels[Decay]);
+        enveloppesL[i]->sustain(adsrlevels[Sustain] / 100.0);
+        enveloppesL[i]->release(adsrlevels[Release]);
       }
-      self->mappedattack = adsrlevels[1];
-      self->mappeddecay = adsrlevels[3];
-      self->mappedrelease = adsrlevels[5];
-      self->mappedsustain = adsrlevels[4];
-      self->MadsrAttackDelay = adsrlevels[0];
-      self->MadsrHold = adsrlevels[2];
+      self->mappedattack = adsrlevels[Attack];
+      self->mappeddecay = adsrlevels[Decay];
+      self->mappedrelease = adsrlevels[Release];
+      self->mappedsustain = adsrlevels[Sustain];
+      self->MadsrAttackDelay = adsrlevels[AttackDelay];
+      self->MadsrHold = adsrlevels[Hold];
     }
     static void displayadsrgraph() {
       navrange = 5 ;
@@ -133,12 +133,12 @@ class AdsrMenuRouter : public SectionHolder {
     }
 
     static void SetADSR() {
-      adsrlevels[0] = self->MadsrAttackDelay;
-      adsrlevels[4] = self->mappedsustain;
-      adsrlevels[5] = self->mappedrelease;
-      adsrlevels[3] = self->mappeddecay;
-      adsrlevels[1] = self->mappedattack;
-      adsrlevels[2] = self->MadsrHold;
+      adsrlevels[AttackDelay] = self->MadsrAttackDelay;
+      adsrlevels[Sustain] = self->mappedsustain;
+      adsrlevels[Release] = self->mappedrelease;
+      adsrlevels[Decay] = self->mappeddecay;
+      adsrlevels[Attack] = self->mappedattack;
+      adsrlevels[Hold] = self->MadsrHold;
     }
 
     static void GlobalADSR() {
@@ -821,6 +821,9 @@ class Mp3PlayerRouter : public SectionHolder {
         }
 
         static void mp3_player_shuffle(){
+          //TODO: make whole list of shuffled numbers the size of their folder files count
+          // allow next and previous
+          //regenerate on stop / and shuffle toggle 
           mp3_shuffle = !mp3_shuffle ;
           if (mp3_shuffle) {
             previous_mp3 = next_mp3;
@@ -1345,46 +1348,16 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void draw_synth_params() {
-          char wavelineslabels[synth_params_count][12] = {
+          const char* wavelineslabels[] = {
               "Type", "Mod", "LFO", "Freq", "Offset", "Phase", "<-  ", "  ->"};
-
-          int startx = 2;
-          int starty = 16;
-          char *textin = (char *)wavelineslabels[sublevels[3]];
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(2);
-          canvastitle.println(textin);
-          canvasBIG.setTextSize(1);
-          canvasBIG.fillScreen(SSD1306_BLACK);
-          for (int i = 0; i < synth_params_count - 1 - (sublevels[3]); i++) {
-            canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println(wavelineslabels[sublevels[3] + 1 + i]);
-          }
-          for (int i = 0; i < sublevels[3]; i++) {
-            canvasBIG.setCursor(startx,(10 * (synth_params_count - sublevels[3]) + 6 + ((i)*10)));
-            canvasBIG.println(wavelineslabels[i]);
-          }
+          dm.main_panel(wavelineslabels,3,synth_params_count);
           canvasBIG.setCursor(120, 57);
           canvasBIG.print(oscillator + 1);
         }
 
         static void dolistsyntmenu() {
-          char synthmenulabels[SN_MENU_LABELS_COUNT][12] = {"Synths", "Mixer", "ADSR", "MP3 Player", "Filter", "Glider"};
-          byte startx = 5;
-          byte starty = 16;
-          char *textin = (char *)synthmenulabels[sublevels[1]];
-          dm.clean_title_2_1();
-          canvastitle.println(textin);
-
-          for (int i = 0; i < navrange - (sublevels[1]); i++) {
-            canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println(synthmenulabels[sublevels[1] + 1 + i]);
-          }
-          for (int i = 0; i < sublevels[1]; i++) {
-            canvasBIG.setCursor(startx, (10 * (SN_MENU_LABELS_COUNT - sublevels[1])) + 6 + ((i)*10));
-            canvasBIG.println(synthmenulabels[i]);
-          }
+          const char* synthmenulabels[] = {"Synths", "Mixer", "ADSR", "MP3 Player", "Filter", "Glider"};
+          dm.main_panel(synthmenulabels,1,SN_MENU_LABELS_COUNT);          
         }
 
         static void synths_switcher(){
@@ -1407,7 +1380,7 @@ class SynthMenuRouter : public SectionHolder {
 
         static void synth_nav_zero() {
           navrange = self->home_navrange;
-          display.clearDisplay();
+          dm.clean_title_2_1();
           //if (!retroaction)
           //  reinitsublevels(2);
           dolistsyntmenu();
@@ -1439,7 +1412,7 @@ class SynthMenuRouter : public SectionHolder {
             MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
             drumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
             wavelinescords[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
-            if (Waveformstyped[oscillator] == 7) {
+            if (Waveformstyped[oscillator] == WAVEFORM_ARBITRARY) {
               waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->arbitraryWaveform(arbitrary_waveforms[oscillator],arbitrary_maxF[oscillator]);
             }
             waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->begin(lesformes[Waveformstyped[oscillator]]);
@@ -1456,7 +1429,7 @@ class SynthMenuRouter : public SectionHolder {
             drumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
             MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
             FMwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
-            if (Waveformstyped[oscillator] == 7) {
+            if (Waveformstyped[oscillator] == WAVEFORM_ARBITRARY) {
               FMwaveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->arbitraryWaveform(arbitrary_waveforms[oscillator],arbitrary_maxF[oscillator]);
             }
             FMwaveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->begin(lesformes[Waveformstyped[oscillator]]);
@@ -1474,7 +1447,7 @@ class SynthMenuRouter : public SectionHolder {
             FMwavecords1[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
             MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
             modulatecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
-            if (Waveformstyped[oscillator] == 7) {
+            if (Waveformstyped[oscillator] == WAVEFORM_ARBITRARY) {
               waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->arbitraryWaveform(arbitrary_waveforms[oscillator],arbitrary_maxF[oscillator]);
             }
             waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->begin(lesformes[Waveformstyped[oscillator]]);

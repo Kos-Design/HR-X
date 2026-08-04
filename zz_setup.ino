@@ -2,24 +2,24 @@
 void setupSD() {
 
   if (!(SD.begin(chipSelect))) {
-    _sp.errorsd("initialization SD failed!");
+    consoler.println((char *)"initialization SD failed!");
     return;
   }
   _rd.clear_temp_files();
   _sp.initializesamplesselectedlist();
-  pseudoconsole((char *)"Scanning Samples");
+  consoler.println((char *)"Scanning Samples");
   _sp.dosoundlist();
-  pseudoconsole((char *)"Scanning Presets");
+  consoler.println((char *)"Scanning Presets");
   _ps.catalog->list_files();
-  pseudoconsole((char *)"Scanning Patterns");
+  consoler.println((char *)"Scanning Patterns");
   _pt.catalog->list_files();
-  pseudoconsole((char *)"Scanning Waveforms");
+  consoler.println((char *)"Scanning Waveforms");
   _wf.catalog->list_files();
-  pseudoconsole((char *)"Scanning Songs");
+  consoler.println((char *)"Scanning Songs");
   _sg.catalog->list_files();
-    pseudoconsole((char *)"Scanning Records");
+    consoler.println((char *)"Scanning Records");
   _rd.catalog->list_files();
-  pseudoconsole((char *)"Scanning MP3s");
+  consoler.println((char *)"Scanning MP3s");
   _mp.count_mp3s();
 }
 
@@ -109,7 +109,7 @@ void call_songeditor(){
 
 void setup() {
 
-  // pseudoconsole((char*)"initializing...");
+  // consoler.println((char*)"initializing...");
   // settime();
   SPI.setSCK(14);  // Audio shield has SCK on pin 14
   SPI.setMOSI(7);  // Audio shield has MOSI on pin 7
@@ -135,7 +135,9 @@ void setup() {
 
   initializeconsolemsg();
   dm.setupscreen();
-  pseudoconsole((char *)"initializing...");
+  consoler.wipe();
+  consoler.println((char *)"initializing...");
+  consoler.refresh();
   _sg.initializepatternonsong();
   //delay(100);
   //Initialise the AutoVolumeLeveller
@@ -144,32 +146,34 @@ void setup() {
   //seems to hang in a loop. with it set 1 or 2, this does not occur.
   //audioShield.autoVolumeDisable();
   //audioShield.audioPostProcessorEnable();
-  pseudoconsole((char *)"Setting USB Host...");
+  consoler.println((char *)"Setting USB Host...");
   delay(100);
 
   setuphubusb();
-  pseudoconsole((char *)"USB Host Ready !");
+  consoler.println((char *)"USB Host Ready !");
   delay(50);
 
-  pseudoconsole((char *)"Scanning SD Card");
+  consoler.println((char *)"Scanning SD Card");
   delay(100);
   setupSD();
-  pseudoconsole((char *)"SD Card OK !");
+  consoler.println((char *)"SD Card OK !");
   Pads.begin();
-  pseudoconsole((char *)"Setting up I/O");
+  consoler.println((char *)"Setting up I/O");
   for (unsigned int i = 0; i < manyinputpins; i++) {
     pinMode(inputpins[i], INPUT_PULLUP);
   }
   for (int i = 0; i < 128; i++) {
     midiknobassigned[i] = 0;
   }
-  pseudoconsole((char *)"I/O Set !");
-  pseudoconsole((char *)"Loading Defaults");
+  consoler.println((char *)"I/O Set !");
+  consoler.println((char *)"Loading Defaults");
   Tocker.stopticker();
   setupdefaultvalues();
   _sp.Doautoassign();
-  pseudoconsole((char *)"All Done !");
-  pseudoconsole((char *)"starting muxer");
+  consoler.println((char *)"All Done !");
+  consoler.println((char *)"starting muxer");
+  consoler.refresh();
+
   Muxer.start();
   //queue1.begin();
   AudioMemory(1200);
@@ -189,7 +193,9 @@ void setup() {
   clocker.attach_96(Tocker.click);
 
   initdone = 1;
-  pseudoconsole((char *)"Enjoy !");
+  consoler.println((char *)"Enjoy !");
+  consoler.refresh();
+
 }
 
 void Volume_ctl(byte cc_value){
@@ -488,27 +494,27 @@ void LFOXLSync_Toggle_ctl(byte cc_value){
 }
 
 void AdsrAtckDelay_ctl(byte cc_value){
-  adsrlevels[0] = round((cc_value / 127.0) * 32.0);
+  adsrlevels[AttackDelay] = round((cc_value / 127.0) * 32.0);
 }
 
 void AdsrAttack_ctl(byte cc_value){
-  adsrlevels[1] = cc_value;
+  adsrlevels[Attack] = cc_value;
 }
 
 void AdsrHold_ctl(byte cc_value){
-  adsrlevels[2] = cc_value;
+  adsrlevels[Hold] = cc_value;
 }
 
 void AdsrDecay_ctl(byte cc_value){
-  adsrlevels[3] = round((cc_value / 127.0) * 512.0);
+  adsrlevels[Decay] = round((cc_value / 127.0) * 512.0);
 }
 
 void AdsrSustain_ctl(byte cc_value){
-  adsrlevels[4] = round((cc_value / 127.0) * 100.0);
+  adsrlevels[Sustain] = round((cc_value / 127.0) * 100.0);
 }
 
 void AdsrRelease_ctl(byte cc_value){
-  adsrlevels[5] = round((cc_value / 127.0) * 512.0);
+  adsrlevels[Release] = round((cc_value / 127.0) * 512.0);
 }
 
 void Filter303_Knob1_ctl(byte cc_value){

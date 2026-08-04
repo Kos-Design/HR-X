@@ -263,7 +263,7 @@ void PatEditRouter::refresh_synth_track() {
           for (int linerrd = 0; linerrd < SYNTH_LINERS_COUNT; linerrd++) {
             for (int i = 0; i < pbars; i++) {
               if (synth_partition[linerrd][i][1] != 0) {
-                track_cells[0][i] = true;
+                track_cells[Synth][i] = true;
               }
             }
           }
@@ -276,7 +276,7 @@ void PatEditRouter::refresh_flash_track() {
             for (int i = 0; i < pbars; i++) {
 
               if (sampler_partition[linerrd][i][1] != 0) {
-                track_cells[1][i] = true;
+                track_cells[Flash][i] = true;
               }
             }
           }
@@ -672,7 +672,7 @@ void POptionsRouter::clearsynthpatternline() {
               synth_off_pat[i][j][0] = 0;
               synth_off_pat[i][j][1] = 0;
             }
-            track_cells[0][j] = 0;
+            track_cells[Synth][j] = 0;
           }
         }
 void POptionsRouter::merge_synth_partition_liners(){
@@ -707,7 +707,7 @@ void POptionsRouter::clearsamplerpatternline() {
               sampler_partition[i][j][2] = 0;
               sampler_partition[i][j][0] = 0;
             }
-            track_cells[1][j] = 0;
+            track_cells[Flash][j] = 0;
             sampler_off_pat[j][0] = 0;
             sampler_off_pat[j][1] = 0;
           }
@@ -1485,7 +1485,7 @@ void PatternsMenuRouter::parsepattern() {
                 parserp.JumpTo(Parser::IsDigit);
                 synth_off_pat[lenint][letempspattern][2] = parserp.Read_Int32();
                 synth_off_pat[lenint][letempspattern][2] = 0;
-                track_cells[0][letempspattern] = 1;
+                track_cells[Synth][letempspattern] = 1;
                 leparsed[1] = (char)'z';
                 leparsed[0] = (char)'z';
                 parserp.SkipUntil(parserp.IsNewLine);
@@ -1568,10 +1568,10 @@ void PatternsMenuRouter::parsepattern() {
                   parserp.JumpTo(Parser::IsDigit);
                   sampler_partition[lenint][letempspattern][2] = parserp.Read_Int32();
                   addnoteoff2next(sampler_partition[lenint][letempspattern][1], letempspattern);
-                  track_cells[1][letempspattern] = 1;
+                  track_cells[Flash][letempspattern] = 1;
                 }
 
-                track_cells[0][letempspattern] = 1;
+                track_cells[Synth][letempspattern] = 1;
                 leparsed[1] = (char)'z';
                 leparsed[0] = (char)'z';
                 parserp.SkipUntil(parserp.IsNewLine);
@@ -1662,23 +1662,10 @@ void PatternsMenuRouter::parsepattern() {
         }
 
 void PatternsMenuRouter::doPatternsmenu() {
-          char patternlistlabels[sizeofpatternlistlabels][12] = {
+          const char* patternlistlabels[] = {
               "Edit", "Save", "Load", "Copy", "Delete", "Params", "Clear", "C-Edit"};
-          byte startx = 5;
-          byte starty = 16;
-          char *textin = (char *)patternlistlabels[sublevels[1]];
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(2);
-          canvastitle.println(textin);
-          canvasBIG.setTextSize(1);
-          for (int i = 0; i < sizeofpatternlistlabels - 1 - (sublevels[1]); i++) {
-            canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println(patternlistlabels[sublevels[1] + 1 + i]);
-          }
-          for (int i = 0; i < sublevels[1]; i++) {
-            canvasBIG.setCursor(startx, (10 * (sizeofpatternlistlabels - sublevels[1]) + 6 + ((i)*10)));
-            canvasBIG.println(patternlistlabels[i]);
-          }
+          
+          dm.main_panel(patternlistlabels,1,sizeofpatternlistlabels);
         }
 
 void PatternsMenuRouter::deletepattern() {

@@ -543,25 +543,9 @@ class SongMenuRouter : public SectionHolder {
         }
 
         static void draw_song_menu(){
-          char Songmenulabels[sg_labels_count][12] = {
+          const char* Songmenulabels[] = {
               "Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params", "Shift"};
-          byte startx = 5;
-          byte starty = 16;
-          char *textin = (char *)Songmenulabels[sublevels[navSongmenu]];
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(2);
-          canvastitle.println(textin);
-          canvasBIG.setTextSize(1);
-          // canvasBIG.fillScreen(SSD1306_BLACK);
-          for (int i = 0; i < self->home_navrange - (sublevels[navSongmenu]); i++) {
-            canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println(Songmenulabels[sublevels[navSongmenu] + 1 + i]);
-          }
-          for (int i = 0; i < sublevels[navSongmenu]; i++) {
-            canvasBIG.setCursor(startx, (10 * (sg_labels_count - sublevels[navSongmenu]) + 6 + ((i)*10)));
-            canvasBIG.println(Songmenulabels[i]);
-          }
-
+          dm.main_panel(Songmenulabels,1,sg_labels_count);
         }
 
         static constexpr void (*_route_nav[5])() = {&song_nav_zero, &route_navlevel,

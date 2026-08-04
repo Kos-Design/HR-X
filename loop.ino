@@ -61,8 +61,6 @@ void fairly_often() {
   control_me();
   UpdateSpectrum();
   Tocker.dispatch_ticks();
-  
-  //pseudo303();
 }
 
 void at_a_paced_rate() {

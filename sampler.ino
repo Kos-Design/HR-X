@@ -9,70 +9,36 @@ class SamplerMenuRouter : public SectionHolder {
                     self->relative_navlevel=1;
                     self->max_navlevel=5;
                     self->sublevels_address={7,0,0};
-                    //home method not really used yet
-                    //this->set_home(call_fx_mainpanel);
                     }
         FilesLister *catalog;
         String newmkdirpath = "SOUNDSET/MABANK01" ;
 
         static void sampler_nav_two(){
-            if (sublevels[1] == 0) {
-                display.clearDisplay();
-                samplerexplorer();
-            }
-            if (sublevels[1] == 1) {
-                display.clearDisplay();
+          if (sublevels[1] == 0) {
+              display.clearDisplay();
+              samplerexplorer();
+          }
+          if (sublevels[1] == 1) {
+              display.clearDisplay();
+              Flashsamplerexplorer();
+          }
+          if (sublevels[1] == 2) {
+              display.clearDisplay();
+              Assingexplorer();
+          }
 
-                Flashsamplerexplorer();
-            }
-            if (sublevels[1] == 2) {
-                display.clearDisplay();
-
-                Assingexplorer();
-            }
-
-            if (sublevels[1] == 3) {
-                // display.clearDisplay();
-
-                smixerVpanel();
-            }
+          if (sublevels[1] == 3) {
+              smixerVpanel();
+          }
         }
 
         static void sampler_nav_one(){
-            assigning_sample_to_note = false ;
-            display.clearDisplay();
-            switch (sublevels[1]) {
-
-                case 0:
-                navrange = 4 - 1;
-                dolistLoadSampleMenu();
-
-                break;
-
-                case 1:
-                // deletesamples menu
-                navrange = 4 - 1;
-                dolistDelSampleMenu();
-                break;
-
-                case 2:
-                // assign samples menu
-                navrange = 4 - 1;
-                dolistAssignSampleMenu();
-                break;
-                
-                case 3:
-                // assign samples menu
-                // navrange = 16;
-                smixerVpanel();
-                break;
-                default:
-                break;
-            }
-            dm.dodisplay();
-            //display.display();
+          assigning_sample_to_note = false ;
+          display.clearDisplay();
+          _nav_sampler[sublevels[1]]();
+          dm.dodisplay();
         }
-
+        
         static void sampler_nav_zero(){
             reinitsublevels(2);
             navrange = sampler_labels_count - 1;
@@ -97,70 +63,6 @@ class SamplerMenuRouter : public SectionHolder {
           }
           if (navlevel > 3) {
             returntonav(2);
-          }
-        }
-
-        static void smixerVpanelSelector() {
-          byte startlex = 4;
-
-          byte ecartl = 19;
-
-          int totbartall = 32;
-          int topwbarstart = 16;
-          int wbarwidth2 = 7;
-
-          int slct = sublevels[2];
-          canvasBIG.drawLine(
-              startlex - 2 + slct * ecartl, topwbarstart + totbartall + 2,
-              startlex - 2 + slct * ecartl,
-              topwbarstart + totbartall + 1 + wbarwidth2 + 3 - 1, SSD1306_WHITE);
-          canvasBIG.drawLine(startlex - 2 + 1 + slct * ecartl,
-                            topwbarstart + totbartall + wbarwidth2 + 4,
-                            wbarwidth2 + 3 + startlex - 4 + slct * ecartl,
-                            topwbarstart + totbartall + wbarwidth2 + 4, SSD1306_WHITE);
-
-          if (slct == 0) {
-
-            sublevels[3] = arpegiatortype;
-            // canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2,
-            // SSD1306_WHITE);
-          }
-          // damp
-          if (slct == 1) {
-
-            sublevels[3] = arpegmode;
-            // canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2,
-            // SSD1306_WHITE);
-          }
-          if (slct == 2) {
-
-            sublevels[3] = arpegstartoffset;
-            // canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2,
-            // SSD1306_WHITE);
-          }
-          if (slct == 3) {
-
-            sublevels[3] = arpegnumofnotes - 1;
-            // canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2,
-            // SSD1306_WHITE);
-          }
-          if (slct == 4) {
-
-            sublevels[3] = arpeggridC;
-            // canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2,
-            // SSD1306_WHITE);
-          }
-          if (slct == 5) {
-
-            sublevels[3] = arpeggridS;
-            // canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2,
-            // SSD1306_WHITE);
-          }
-          if (slct == 6) {
-
-            sublevels[3] = arpeglengh;
-            // canvasBIG.drawCircle(centercirclex, centercircley, knobradius-2,
-            // SSD1306_WHITE);
           }
         }
 
@@ -194,24 +96,16 @@ class SamplerMenuRouter : public SectionHolder {
             centercircley = 16 + knobradius;
             canvastitle.setCursor(centercirclex - 5 + 3, 8);
             canvastitle.setTextSize(1);
-
             canvastitle.print(i + 1);
-            // canvastitle.print((char)masterfulllabels[i][2]);
-
-            canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
-                                SSD1306_WHITE);
-
+            canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
             trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
             trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
-
-            display.drawLine(centercirclex, centercircley, trianglepointx,
-                            trianglepointy, SSD1306_WHITE);
+            display.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
           }
 
           if (slct < 8) {
             centercirclex = knobradius + (xcentershifter * slct);
-            canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
-                                SSD1306_WHITE);
+            canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
             canvastitle.setCursor(95, 0);
             canvastitle.print((smixervknobs[slct] / 127.0) * 100.0, 1);
           }
@@ -220,29 +114,18 @@ class SamplerMenuRouter : public SectionHolder {
 
             coeffangle = (6.2831 - (smixervknobs[i + 8] / 127.0) * 6.2831) + 3.1416;
             centercirclex = knobradius + (xcentershifter * i);
-            canvasBIG.setCursor(centercirclex - 5,
-                                centercircley - (2 + knobradius * 2) - 1);
-
-            // canvastitle.setCursor(centercirclex-5,8);
+            canvasBIG.setCursor(centercirclex - 5, centercircley - (2 + knobradius * 2) - 1);
             canvasBIG.setTextSize(1);
-
             canvasBIG.print(i + 1 + 8);
-            // canvastitle.print((char)masterfulllabels[i][2]);
-
-            canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
-                                SSD1306_WHITE);
-
+            canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
             trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
             trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
-
-            display.drawLine(centercirclex, centercircley, trianglepointx,
-                            trianglepointy, SSD1306_WHITE);
+            display.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
           }
 
           if (slct > 7) {
             centercirclex = knobradius + (xcentershifter * (slct - 8));
-            canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
-                                SSD1306_WHITE);
+            canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
             canvastitle.setCursor(95, 0);
             canvastitle.print((smixervknobs[slct] / 127.0) * 100.0, 1);
           }
@@ -250,39 +133,33 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void dolistsamplermenu() {
-            
-            char samplerlabels[sampler_labels_count][12] = {"Load", "Delete", "Assign", "Mixer"};
-            int startx = 5;
-            int starty = 16;
-            char *textin = (char *)samplerlabels[sublevels[1]];
-            canvastitle.fillScreen(SSD1306_BLACK);
-            canvastitle.setCursor(0, 0);
-            canvastitle.setTextSize(2);
-            canvastitle.println(textin);
-            canvasBIG.setTextSize(1);
-            canvasBIG.fillScreen(SSD1306_BLACK);
-            for (int i = 0; i < sampler_labels_count - 1 - (sublevels[1]); i++) {
-                canvasBIG.setCursor(startx, starty + ((i)*10));
-                canvasBIG.println(samplerlabels[sublevels[1] + 1 + i]);
-            }
-            for (int i = 0; i < sublevels[1]; i++) {
-                canvasBIG.setCursor(startx, (10 * (sampler_labels_count - sublevels[1]) + 6 + ((i)*10)));
-                canvasBIG.println(samplerlabels[i]);
-            }
+          char samplerlabels[sampler_labels_count][12] = {"Load", "Delete", "Assign", "Mixer"};
+          int startx = 5;
+          int starty = 16;
+          char *textin = (char *)samplerlabels[sublevels[1]];
+          canvastitle.fillScreen(SSD1306_BLACK);
+          canvastitle.setCursor(0, 0);
+          canvastitle.setTextSize(2);
+          canvastitle.println(textin);
+          canvasBIG.setTextSize(1);
+          canvasBIG.fillScreen(SSD1306_BLACK);
+          for (int i = 0; i < sampler_labels_count - 1 - (sublevels[1]); i++) {
+              canvasBIG.setCursor(startx, starty + ((i)*10));
+              canvasBIG.println(samplerlabels[sublevels[1] + 1 + i]);
+          }
+          for (int i = 0; i < sublevels[1]; i++) {
+              canvasBIG.setCursor(startx, (10 * (sampler_labels_count - sublevels[1]) + 6 + ((i)*10)));
+              canvasBIG.println(samplerlabels[i]);
+          }
         }
         
-
-
         static void setlefilenamed(int lefolder, int lefile, char *lefname) {
           int fnamesize = strlen((char *)lefname);         
-         // int foldersize = strlen((char *)samplefoldersregistered[lefolder]);
           for (int i = 0; i < fnamesize; i++) {
-            //samplefullpath[lefolder][lefile][foldersize + 10 + i] = lefname[i];
             if (i < fnamesize - 4) {
               samplebase[lefolder][lefile][i] = lefname[i];
             }
           }
-          //samplefullpath[lefolder][lefile][foldersize + 10 + fnamesize] = (char)'\0';
           samplebase[lefolder][lefile][fnamesize - 4] = (char)'\0';
         }
 
@@ -300,7 +177,6 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void playsamplepreview() {
-          //AudioNoInterrupts();
           String playable_file = samplefullpath(sublevels[3],sublevels[4]);
           if (!test_flash_sample_name(playable_file)){
             playable_file = lower_extension_case(playable_file);
@@ -310,31 +186,18 @@ class SamplerMenuRouter : public SectionHolder {
           }
           playRawL.play(playable_file.c_str());
           playRawR.play(playable_file.c_str());
-          //AudioInterrupts();
         }
 
-        // TODO CRITICAL
-        static void playflashsamplepreview() {
-          String playable_file = (String)Flashsamplename[sublevels[3]];
-          if (!test_flash_sample_name(playable_file)){
-            playable_file = lower_extension_case(playable_file);
-          }
-          if (!test_flash_sample_name(playable_file)){
-            return;
-          }
-          //FlashRaw.playRaw(playable_file.c_str());
-        }
-        //TODO WILL PROBABLY FAIL
-        static void playflashsamplepreviews4() {
-          //AudioNoInterrupts();
+        static void preview_flash_assignee() {
           String playable_file = (String)Flashsamplename[sublevels[4]];
           if (!test_flash_sample_name(playable_file)){
             playable_file = lower_extension_case(playable_file);
+
           }
           if (!test_flash_sample_name(playable_file)){
             return;
           }
-          //FlashRaw.playRaw(playable_file.c_str());
+          FlashRaw.play(playable_file.c_str());
         }
 
         static void copybacklaflashfile(int leflashfile) {
@@ -368,19 +231,15 @@ class SamplerMenuRouter : public SectionHolder {
             assigning_sample_to_note = false ;
             if (sublevels[2] == 1) {
               Sampleassigner();
-              playflashsamplepreviews4();
-              //returntonav(2,127,sublevels[2]);
-              // return ;
+              preview_flash_assignee();
             }
             if (sublevels[2] == 0 && sublevels[3] == 1) {
               autoassignsamples();
               returntonav(2,127,sublevels[2]);
-              // return ;
             }
             if (sublevels[2] == 2 && sublevels[3] == 1) {
               clearassignedsamples();
               returntonav(2,127,sublevels[2]);
-              // return ;
             }
 
             if (sublevels[2] == 3 && sublevels[3] == 1) {
@@ -388,7 +247,6 @@ class SamplerMenuRouter : public SectionHolder {
               domkdir();
               dosoundlist();
               returntonav(2,127,sublevels[2]);
-              // return ;
             }
 
             if (sublevels[3] == 0) {
@@ -429,14 +287,10 @@ class SamplerMenuRouter : public SectionHolder {
               initializesamplesselectedlist();
               initializesamplesfoldersselectedlist();
               returntonav(2,3,sublevels[2]) ;
-
             }
 
             if (sublevels[2] != 0 && sublevels[2] != 1 && sublevels[3] == 0) {
               returntonav(2,3,sublevels[2]);
-
-              // refresh the menu
-              //call_sp_show();
             }
 
             if (sublevels[2] == 1) {
@@ -466,12 +320,8 @@ class SamplerMenuRouter : public SectionHolder {
                   samplesselected[sublevels[3]][sublevels[4]] = 0;
                   numberofsamplesselected[sublevels[3]]--;
                 }
-                navlevel--;
-                rota_true_pos = sublevels[4];
-                myEnc.write(rota_true_pos * 4);
-                // sublevels[navlevel] = sublevels[4] ;
+              returntonav(4,navrange,sublevels[4]);
               }
-
               showsamplerfilesList();
             }
           }
@@ -481,14 +331,11 @@ class SamplerMenuRouter : public SectionHolder {
             if (sublevels[2] == 2) {
               display.clearDisplay();
               doConfirmLoadsamples();
-
-              // return ;
             }
+
             if (sublevels[2] == 3) {
               display.clearDisplay();
               doConfirmClearList();
-
-              // return;
             }
 
             if ((sublevels[2] == 0 || sublevels[2] == 1) && (sublevels[1] == 0)) {
@@ -505,17 +352,14 @@ class SamplerMenuRouter : public SectionHolder {
 
             if (sublevels[2] == 2 && sublevels[3] == 1) {
               DelSelectedFlashSamples();
-              // clear selection
               returntonav(2,3,sublevels[2]);
             }
             if (sublevels[2] == 3 && sublevels[3] == 1) {
               initializeFlashsamplesselected();
-              // clear selection
               returntonav(2,3,sublevels[2]);
             }
             if (sublevels[2] == 1 && sublevels[3] == 1) {
               RemoveAllfromFlash();
-              // clear selection
               returntonav(2,3,sublevels[2]);
             }
             if (sublevels[2] != 0 && sublevels[3] == 0) {
@@ -525,36 +369,28 @@ class SamplerMenuRouter : public SectionHolder {
             if (sublevels[2] == 0) {
               if (Flashsamplesselected[sublevels[3]] == 0) {
                 Flashsamplesselected[sublevels[3]] = 1;
+                if (SerialFlash.exists((const char *)Flashsamplename[sublevels[3]])) FlashRaw.play((const char *)Flashsamplename[sublevels[3]]);
                 numberofFlashsamplesselected++;
-                playflashsamplepreview();
+                
               } else {
                 Flashsamplesselected[sublevels[3]] = 0;
                 numberofFlashsamplesselected--;
               }
-              myEnc.write(sublevels[3] * 4);
-              rota_true_pos = sublevels[3];
-              sublevels[navlevel] = sublevels[3];
-              navlevel--;
+              returntonav(3,navrange,sublevels[3]);
             }
           }
           if (navlevel == 3) {
             if (sublevels[2] == 2) {
               display.clearDisplay();
               doConfirmDelsamples();
-
-              //  return ;
             }
             if (sublevels[2] == 3) {
               display.clearDisplay();
               doConfirmClearSelectedFlashList();
-
-              //  return;
             }
             if (sublevels[2] == 1) {
               display.clearDisplay();
               doConfirmRemoveAll();
-
-              //  return;
             }
             if (sublevels[2] == 0) {
               if (previousnavlevel != navlevel) {
@@ -650,6 +486,7 @@ class SamplerMenuRouter : public SectionHolder {
           initializeFlashsamplename();
           listFlashfiles();
         }
+
         static void initializeFlashsamplename() {
           numberofFlashfiles = 0;
           for (int i = 0; i < 999; i++) {
@@ -657,16 +494,19 @@ class SamplerMenuRouter : public SectionHolder {
           }
           initializeFlashsamplebase();
         }
+
         static void clearFlashsamplename(int lefile) {
           for (int i = 0; i < 13; i++) {
             Flashsamplename[lefile][i] = (char)'\0';
           }
         }
+
         static void initializeFlashsamplebase() {
           for (int i = 0; i < 999; i++) {
             clearFlashsamplebase(i);
           }
         }
+
         static void clearFlashsamplebase(int lefile) {
           for (int i = 0; i < 9; i++) {
             Flashsamplebase[lefile][i] = (char)'\0';
@@ -694,6 +534,7 @@ class SamplerMenuRouter : public SectionHolder {
             numberofsamplesselected[i] = 0;
           }
         }
+
         static void clearsamplesselectedlist(int lefolder) {
           for (int i = 0; i < 999; i++) {
             samplesselected[lefolder][i] = 0;
@@ -802,6 +643,7 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void dolistLoadSampleMenu() {
+          navrange = 4 - 1;
           const int sizeofmenuloadsample = 4;
           char menuloadsample[sizeofmenuloadsample][16] = {
               "Select", "Whole pack", "Load Selection", "Clear Selection"};
@@ -819,7 +661,10 @@ class SamplerMenuRouter : public SectionHolder {
             canvasBIG.println(menuloadsample[i]);
           }
         }
+
         static void dolistDelSampleMenu() {
+          navrange = 4 - 1;
+
           const int sizeofmenudelsample = 4;
           char menudelsample[sizeofmenudelsample][16] = {
               "Select", "Remove All", "Remove Selected", "Clear Selection"};
@@ -837,7 +682,9 @@ class SamplerMenuRouter : public SectionHolder {
             canvasBIG.println(menudelsample[i]);
           }
         }
+
         static void dolistAssignSampleMenu() {
+          navrange = 4 - 1;
           assigning_sample_to_note = false ;
           const int sizeofmenuassignsample = 4;
           char menuassignsample[sizeofmenuassignsample][19] = {
@@ -857,7 +704,6 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-
         static void autoassignsamples() {
           Doautoassign();
           return;
@@ -872,6 +718,7 @@ class SamplerMenuRouter : public SectionHolder {
             }
           }
         }
+
         static void clearassignedsamples() {
           doclearassign();
           return;
@@ -916,12 +763,15 @@ class SamplerMenuRouter : public SectionHolder {
           // same
           doConfirmDelsamples();
         }
+
         static void doConfirmLoadsamples() {
           char messageconfirm[32] = "Confirm Loading ?";
           doConfirmpanel((char *)messageconfirm);
         }
 
         static void RemoveAllfromFlash() {
+          initializeconsolemsg();
+          consoler.wipe();
           //SerialFlash.quickFormat();
           unsigned long startMillis = millis();
           if (!SerialFlash.begin(FlashChipSelect)) return;
@@ -948,8 +798,13 @@ class SamplerMenuRouter : public SectionHolder {
               if (millis() - dotMillis > 1000) {
                 dotMillis = dotMillis + 1000;
                 Serial.print(".");
+                consoler.print(".");
+                consoler.refresh();
+                //pseudoconsole(" . ",0);
                 dotcount = dotcount + 1;
-                if (dotcount >= 60) {
+                if (dotcount >= 30) {
+                  consoler.print(".");
+                  consoler.refresh();
                   Serial.println();
                   dotcount = 0;
                 }
@@ -978,10 +833,12 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void DelSelectedFlashSamples() {
+          initializeconsolemsg();
           for (int j = 0; j < 999; j++) {
-            pleasewait(j, 999);
+            //pleasewait(j, 999);
             if (Flashsamplesselected[j] == 1) {
               if (SerialFlash.exists((const char *)Flashsamplename[j])) {
+                pseudoconsole((const char *)Flashsamplename[j]);
                 SerialFlash.remove((const char *)Flashsamplename[j]);
               }
             }
@@ -992,10 +849,8 @@ class SamplerMenuRouter : public SectionHolder {
 
         static void addfolderstoselectionset() {
           if (numofsamplesfoldersselected > 0) {
-
             for (int i = 0; i < 99; i++) {
               if (samplesfoldersselected[i]) {
-
                 for (int j = 0; j < 999; j++) {
                   samplesselected[i][j] = 1;
                 }
@@ -1004,36 +859,19 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        bool comparer(File file_1, SerialFlashFile file_2) {
-            const size_t buffer_Size = 128; // Define buffer size
-            byte buffer_1[buffer_Size];
-            byte buffer_2[buffer_Size];
-
-            while (file_1.available() && file_2.available()) {
-                size_t size_1 = file_1.read(buffer_1, buffer_Size);
-                size_t size_2 = file_2.read(buffer_2, buffer_Size);
-
-                if (size_1 != size_2 || memcmp(buffer_1, buffer_2, size_1) != 0) {
-                    return false; // Files are not identical
-                }
-            }
-
-            // Check if both files ended at the same time
-            return !file_1.available() && !file_2.available();
-        }
-
         static void loadSelectedSamples() {
+          initializeconsolemsg();
           unsigned long lengthz;
           File currentsample;
           SerialFlashFile currentFlashfile;
           addfolderstoselectionset();
           delay(100);
           if (!SerialFlash.begin(FlashChipSelect)) {
-            errorsd("Unable to access SPI Flash chip");
+            pseudoconsole((char *)"Unable to access SPI Flash chip");
           }
 
           for (int i = 0; i < 99; i++) {
-            pleasewait(i, 99);
+            //pleasewait(i, 99);
             for (int j = 0; j < 999; j++) {
               if (samplesselected[i][j]) {
                 currentsample = SD.open(samplefullpath(i,j).c_str());
@@ -1047,6 +885,7 @@ class SamplerMenuRouter : public SectionHolder {
                   continue;
                 }
                 lengthz = currentsample.size();
+                pseudoconsole(currentflashname);
                 if (SerialFlash.exists(currentflashname)) continue; 
 
                 if (SerialFlash.create(currentflashname, lengthz)) {
@@ -1072,10 +911,8 @@ class SamplerMenuRouter : public SectionHolder {
             }
             delay(10);
           }
-          
           initializesamplesselectedlist();
           initializesamplesfoldersselectedlist();
-
           listFlashfiles();
         }
 
@@ -1119,33 +956,11 @@ class SamplerMenuRouter : public SectionHolder {
         
         }
 
-        bool comparemesFiles(File &file, File &ffile) {
-          file.seek(0);
-          ffile.seek(0);
-          unsigned long count = file.size();
-          while (count > 0) {
-            char buf1[128], buf2[128];
-            unsigned long n = count;
-            if (n > 127)
-              n = 127;
-            file.read(buf1, n);
-            ffile.read(buf2, n);
-            if (memcmp(buf1, buf2, n) != 0)
-              return false; // differ
-            count = count - n;
-          }
-          return true; // all data identical
-        }
-
-        static void errorsd(const char *message) {
-          pseudoconsole(message);
-        }
-
         static void listFlashfiles() {
           initializeFlashsamplename();
           initializeFlashsamplebase();
           if (!SerialFlash.begin(FlashChipSelect)) {
-            errorsd("Unable to access SPI Flash chip");
+            pseudoconsole((char *)"Unable to access SPI Flash chip");
           }
           char filename[13];
           uint32_t filesize;
@@ -1191,6 +1006,7 @@ class SamplerMenuRouter : public SectionHolder {
             returntonav(3,127,sublevels[3]);
           }
         }
+
         static void listsamplesassigner() {
 
           display.clearDisplay();
@@ -1241,8 +1057,6 @@ class SamplerMenuRouter : public SectionHolder {
         static void listSoundsetsubdir(int ledir) {
           if (SD.exists((char *)sampledirpath)) {
             File susudir = SD.open((char *)sampledirpath);
-            // SOUNDSET/GLITCH/
-              //Serial.println(susudir.name());
             while (true) {
               File subentry = susudir.openNextFile();
               if (!subentry) {
@@ -1256,13 +1070,11 @@ class SamplerMenuRouter : public SectionHolder {
                   shorter_name[i-fnamesize+11] = new_namer[i];
                 }
                 shorter_name[11] = (char)'\0';
-                  //Serial.println(subentry.name());
                 String full_file = (String)sampledirpath + subentry.name();
                 String full_new_file = (String)sampledirpath + (String)shorter_name;
                 SD.rename(full_file.c_str(), full_new_file.c_str());
                 continue;
               }
-              //String newly_named = renameIfTooLong((char*)subentry.name(),13);
               if (!subentry.isDirectory()) {
                   setlefilenamed(ledir, sizeofsamplefolder[ledir], (char*)subentry.name());
                 (sizeofsamplefolder[ledir])++;
@@ -1274,36 +1086,36 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void dosoundlist() {
-          if (!initdone) {
-            pseudoconsole((char *)"Files on Flash");
-          }
+          //if (!initdone) {
+          //  pseudoconsole((char *)"Files on Flash");
+          //}
           initializeFlashsamplesselected();
           initializesamplesfoldersselectedlist();
           rebuildflashsamplesnames();
           clearsizeofsamplefolder();
           sampledirsregistered = 0;
-          if (!initdone) {
-            pseudoconsole((char *)"Files on SD");
-          }
+          //if (!initdone) {
+          //  pseudoconsole((char *)"Files on SD");
+         // }
           setupsamplefoldersregistered();
 
           initializesamplebase();
           listSoundset();
           for (int i = 1; i < sampledirsregistered; i++) {
-            pleasewait(i, sampledirsregistered);
+            //pleasewait(i, sampledirsregistered);
             voidsampledirpath();
             makesoundsetfullpathfromchars(i);
             listSoundsetsubdir(i);
           }
-          // printthem();
         }
-
+//TODO: refactor nav routing after using fileslister
         static constexpr void (*_route_nav[7])() = {&sampler_nav_zero, &sampler_nav_one, &sampler_nav_two, 
                                                     &sampler_nav_two, &sampler_nav_two,&sampler_nav_two, &sampler_nav_two};
+                                    
         
     private:
         
-        static constexpr void (*_nav_sampler[sampler_labels_count])() = {&sampler_nav_one, &sampler_nav_one, &sampler_nav_one, &sampler_nav_one};
+        static constexpr void (*_nav_sampler[sampler_labels_count])() = {&dolistLoadSampleMenu, &dolistDelSampleMenu, &dolistAssignSampleMenu, &smixerVpanel};
         static SamplerMenuRouter* self;
 };
 
