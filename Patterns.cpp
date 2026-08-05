@@ -62,7 +62,7 @@ void CCEditor::showleditcc() {
           if (navlevel == 2) {
             canvastitle.fillScreen(SSD1306_BLACK);
             canvastitle.setCursor(0, 0);
-            if (midiknobassigned[sublevels[2]] == 0) {
+            if (gg.midiknobassigned[sublevels[2]] == 0) {
               canvastitle.setTextSize(2);
               canvastitle.print("Edit CC");
               if (sublevels[2] < 100) {
@@ -77,7 +77,7 @@ void CCEditor::showleditcc() {
               canvastitle.print("CC");
               canvastitle.print(sublevels[2]);
               canvastitle.print(" ");
-              canvastitle.print((char *)ctl[midiknobassigned[sublevels[2]]].name);
+              canvastitle.print((char *)ctl[gg.midiknobassigned[sublevels[2]]].name);
             }
           }
           canvasBIG.drawRect(0, 16, 128, 64, SSD1306_WHITE);
@@ -400,7 +400,7 @@ void PatEditRouter::stretch_cell_length() {
             returntonav(navlevel-1,127,note_we_found);
           } else {
             addinglenght = 1;
-            self->_temp_part[sublevels[navlevelpatedit + 3]][0] = ((int[2]){synthmidichannel,samplermidichannel})[self->track_type];
+            self->_temp_part[sublevels[navlevelpatedit + 3]][0] = ((int[2]){gg.synthmidichannel,gg.samplermidichannel})[self->track_type];
             self->_temp_part[sublevels[navlevelpatedit + 3]][1] = (byte)sublevels[navlevelpatedit + 2];
             self->_temp_part[sublevels[navlevelpatedit + 3]][2] = (byte)64;
 
@@ -610,7 +610,7 @@ void PatEditRouter::set_cell_velocity() {
           previousnavlevel = navlevel;
           byte sub3 = sublevels[navlevelpatedit + 3];
           byte sub4 = sublevels[navlevelpatedit + 4] ;
-          set_cell_at_pos(((int[2]){synthmidichannel,samplermidichannel})[self->track_type],sublevels[navlevelpatedit + 2],self->_temp_part[sub3][2]);
+          set_cell_at_pos(((int[2]){gg.synthmidichannel,gg.samplermidichannel})[self->track_type],sublevels[navlevelpatedit + 2],self->_temp_part[sub3][2]);
           if (!self->_temp_part[sub3][2]){
             set_cell_at_pos(0,0,0);
           }
@@ -1352,12 +1352,12 @@ void PatternsMenuRouter::lv1_wrapper(void (*func)()) {
 
 void PatternsMenuRouter::addnoteoff2next(byte lanotee, byte lapos) {
           if (lapos < pbars - 1) {
-            sampler_off_pat[lapos + 1][0] = samplermidichannel;
+            sampler_off_pat[lapos + 1][0] = gg.samplermidichannel;
             sampler_off_pat[lapos + 1][1] = lanotee;
             sampler_off_pat[lapos + 1][2] = 0;
           }
           if (lapos == pbars - 1) {
-            sampler_off_pat[0][0] = samplermidichannel;
+            sampler_off_pat[0][0] = gg.samplermidichannel;
             sampler_off_pat[0][1] = lanotee;
             sampler_off_pat[0][2] = 0;
           }
@@ -1473,7 +1473,7 @@ void PatternsMenuRouter::parsepattern() {
 
                 parsedchannel = parserp.Read_Int32();
                 // not sure why I was using parsedchannel == 0 ||
-                if (parsedchannel == samplermidichannel) {
+                if (parsedchannel == gg.samplermidichannel) {
                   leparsed[1] = (char)'z';
                   leparsed[0] = (char)'z';
                   break;
@@ -1553,14 +1553,14 @@ void PatternsMenuRouter::parsepattern() {
                 //if (parsedchannel == 0) {
                 //  break;
                 //}
-                if (parsedchannel == synthmidichannel) {
+                if (parsedchannel == gg.synthmidichannel) {
                   synth_partition[lenint][letempspattern][0] = parsedchannel;
                   parserp.JumpTo(Parser::IsDigit);
                   synth_partition[lenint][letempspattern][1] = parserp.Read_Int32();
                   parserp.JumpTo(Parser::IsDigit);
                   synth_partition[lenint][letempspattern][2] = parserp.Read_Int32();
                 }
-                if (parsedchannel == samplermidichannel) {
+                if (parsedchannel == gg.samplermidichannel) {
 
                   sampler_partition[lenint][letempspattern][0] = parsedchannel;
                   parserp.JumpTo(Parser::IsDigit);
@@ -1734,7 +1734,7 @@ void PatternsMenuRouter::midifilelinerOff(File &pat_filer, int liner, int ticker
 void PatternsMenuRouter::midifileCC(File &pat_filer,int lecc, int ticker) {
           pat_filer.print(latimeline);
           pat_filer.print(" Par ch=");
-          int leintc = (int)synthmidichannel;
+          int leintc = (int)gg.synthmidichannel;
           pat_filer.print(leintc);
           pat_filer.print(" c=");
           int leintn = lecc;
@@ -1811,7 +1811,7 @@ void PatternsMenuRouter::arpegiate_synth() {
             calledarpegenote[i][0] = 0;
             for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
               if (arpegnoteoffin[i][j] == 1) {
-                shutlineroff(synthmidichannel,playingarpegiator[i][j]);
+                shutlineroff(gg.synthmidichannel,playingarpegiator[i][j]);
                 arpegnoteoffin[i][j] = 0;
                 playingarpegiator[i][j] = 0;
               }

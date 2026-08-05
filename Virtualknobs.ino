@@ -16,10 +16,10 @@ void doposkselector() {
   if (sublevels[navlevelvbuttons] < numberofvbuttonslabels) {
     canvastitle.fillScreen(SSD1306_BLACK);
     canvasBIG.setTextSize(1);
-    if (midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 + (14 + 17))] !=
+    if (gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 + (14 + 17))] !=
         0) {
       printassignedmidi(
-          midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 + (14 + 17))]);
+          gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 + (14 + 17))]);
 
     } else {
       canvasBIG.setCursor(0, 0);
@@ -46,9 +46,9 @@ void doposkselector() {
           16 + ((sublevels[navlevelvbuttons] - numberofvbuttonslabels) * 7), 9,
           6, 1, SSD1306_WHITE);
 
-      if (midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
+      if (gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
                             (numberofvbuttonslabels))] != 0) {
-        printassignedmidi(midiknobassigned[(70 + sublevels[navlevelvbuttons] +
+        printassignedmidi(gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] +
                                             1 - (numberofvbuttonslabels))]);
 
       } else {
@@ -72,9 +72,9 @@ void doposkselector() {
             16 + ((sublevels[navlevelvbuttons] - numberofvbuttonslabels - 7) *
                   7),
             9, 6, 1, SSD1306_WHITE);
-        if (midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
+        if (gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
                               (numberofvbuttonslabels))] != 0) {
-          printassignedmidi(midiknobassigned[(70 + sublevels[navlevelvbuttons] +
+          printassignedmidi(gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] +
                                               1 - (numberofvbuttonslabels))]);
 
         } else {
@@ -100,10 +100,10 @@ void doposkselector() {
           canvasBIG.drawCircle(xcentershifter, 64 - 9, knobradius - 1,
                                SSD1306_WHITE);
 
-          if (midiknobassigned[(sublevels[navlevelvbuttons] + 1 -
+          if (gg.midiknobassigned[(sublevels[navlevelvbuttons] + 1 -
                                 (numberofvbuttonslabels))] != 0) {
             printassignedmidi(
-                midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
+                gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
                                   (numberofvbuttonslabels))]);
 
           } else {
@@ -118,7 +118,7 @@ void doposkselector() {
                           (numberofvbuttonslabels));
 
           canvasBIG.setCursor(110, 8);
-          canvasBIG.print(vPots[sublevels[navlevelvbuttons] -
+          canvasBIG.print(gg.vPots[sublevels[navlevelvbuttons] -
                                 (numberofvbuttonslabels + 14)]);
         } else {
 
@@ -131,10 +131,10 @@ void doposkselector() {
                                     numberofvbuttonslabels - 14 - 6));
             canvasBIG.drawCircle(xcentershifter, 64 - 9 - 16, knobradius - 1,
                                  SSD1306_WHITE);
-            if (midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
+            if (gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
                                   (numberofvbuttonslabels))] != 0) {
               printassignedmidi(
-                  midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
+                  gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
                                     (numberofvbuttonslabels))]);
 
             } else {
@@ -149,7 +149,7 @@ void doposkselector() {
                             (numberofvbuttonslabels));
 
             canvasBIG.setCursor(110, 8);
-            canvasBIG.print(vPots[sublevels[navlevelvbuttons] -
+            canvasBIG.print(gg.vPots[sublevels[navlevelvbuttons] -
                                   (numberofvbuttonslabels + 14)]);
 
           } else {
@@ -158,10 +158,10 @@ void doposkselector() {
                 sublevels[navlevelvbuttons] <
                     numberofvbuttonslabels + 14 + 6 + 5 + 6) {
 
-              if (midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
+              if (gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
                                     (numberofvbuttonslabels))] != 0) {
                 printassignedmidi(
-                    midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
+                    gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
                                       (numberofvbuttonslabels))]);
 
               } else {
@@ -176,7 +176,7 @@ void doposkselector() {
                               (numberofvbuttonslabels));
 
               canvasBIG.setCursor(110, 8);
-              canvasBIG.print(vPots[sublevels[navlevelvbuttons] -
+              canvasBIG.print(gg.vPots[sublevels[navlevelvbuttons] -
                                     (numberofvbuttonslabels + 14)]);
 
               xcentershifter = 97 - (((knobradius * 2) + 4) *
@@ -235,28 +235,28 @@ void actionvbuttons() {
 
       navrange = numberofvbuttonslabels - 1 + 17 + 14;
       sublevels[navlevelvbuttons + 1] =
-          vPots[sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14];
+          gg.vPots[sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14];
       sublevels[navlevelvbuttons + 2] =
-          vPots[sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14];
+          gg.vPots[sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14];
     } else {
 
       if (navlevel == navlevelvbuttons + 1) {
 
         navrange = 127;
-        vPots[sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14] =
+        gg.vPots[sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14] =
             sublevels[navlevelvbuttons + 1];
 
         if (sublevels[navlevelvbuttons] > numberofvbuttonslabels + 14) {
           int CClaval2 =
               70 + (sublevels[navlevelvbuttons] + 1 - (numberofvbuttonslabels));
           moncontrollercc((byte)1, (byte)CClaval2,
-                          (byte)(vPots[sublevels[navlevelvbuttons] -
+                          (byte)(gg.vPots[sublevels[navlevelvbuttons] -
                                        numberofvbuttonslabels - 14]));
           // moncontrollercc( (byte)1,(byte)CClaval0, (byte)0);
         }
       }
       if (navlevel >= navlevelvbuttons + 2) {
-        vPots[sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14] =
+        gg.vPots[sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14] =
             sublevels[navlevelvbuttons + 1];
         sublevels[navlevelvbuttons + 2] = sublevels[navlevelvbuttons];
         // navlevel--;
@@ -302,11 +302,11 @@ void displayonscreenbuttons() {
   }
   for (int i = 0; i < 6; i++) {
 
-    coeffangle = (6.2831 - ((float)vPots[16 - i] / 127.0) * 6.2831) + 3.1416;
+    coeffangle = (6.2831 - ((float)gg.vPots[16 - i] / 127.0) * 6.2831) + 3.1416;
 
     // Serial.print(i);
     // Serial.print(" ");
-    // Serial.print(vPots[16-i]/127.0);
+    // Serial.print(gg.vPots[16-i]/127.0);
     //   Serial.print(" angle ");
     // Serial.println(angleofknob);
 
@@ -326,9 +326,9 @@ void displayonscreenbuttons() {
   centercircley += 19 - (knobradius / 2);
   for (int i = 0; i < 5; i++) {
 
-    //  float coeffangle = ((float)vPots[6+i]/127.0)*0.05 ;
+    //  float coeffangle = ((float)gg.vPots[6+i]/127.0)*0.05 ;
     // angleofknob = ((360.0 * coeffangle ) - 45.0 );
-    coeffangle = (6.2831 - ((float)vPots[6 + i] / 127.0) * 6.2831) + 3.1416;
+    coeffangle = (6.2831 - ((float)gg.vPots[6 + i] / 127.0) * 6.2831) + 3.1416;
 
     xcentershifter = (knobradius * 2) + 4;
     centercirclex = knobradius + (xcentershifter * i);
@@ -347,8 +347,8 @@ void displayonscreenbuttons() {
     xcentershifter = (knobradius * 2) + 4;
     centercirclex = knobradius + (xcentershifter * i);
 
-    // float coeffangle = ((float)vPots[5-i]/127.0)*0.05 ;
-    coeffangle = (6.2831 - ((float)vPots[5 - i] / 127.0) * 6.2831) + 3.1416;
+    // float coeffangle = ((float)gg.vPots[5-i]/127.0)*0.05 ;
+    coeffangle = (6.2831 - ((float)gg.vPots[5 - i] / 127.0) * 6.2831) + 3.1416;
 
     trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
     trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));

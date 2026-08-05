@@ -21,8 +21,6 @@ extern byte pots_controllers[32][32][2];
 extern bool stoptickernextcycle;
 extern bool paterning;
  
-extern byte synthmidichannel;
-extern int samplermidichannel;
 void computelenghtmesureoffline_synth();
 void computelenghtmesureoffline_sampler();
 void call_refresh_flash_track();

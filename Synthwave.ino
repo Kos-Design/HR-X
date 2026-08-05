@@ -16,19 +16,19 @@ class AdsrMenuRouter : public SectionHolder {
 
     static void ApplyADSR() {
       for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-        enveloppesL[i]->delay(adsrlevels[AttackDelay]);
-        enveloppesL[i]->attack(adsrlevels[Attack]);
-        enveloppesL[i]->hold(adsrlevels[Hold]);
-        enveloppesL[i]->decay(adsrlevels[Decay]);
-        enveloppesL[i]->sustain(adsrlevels[Sustain] / 100.0);
-        enveloppesL[i]->release(adsrlevels[Release]);
+        enveloppesL[i]->delay(gg.adsrlevels[AttackDelay]);
+        enveloppesL[i]->attack(gg.adsrlevels[Attack]);
+        enveloppesL[i]->hold(gg.adsrlevels[Hold]);
+        enveloppesL[i]->decay(gg.adsrlevels[Decay]);
+        enveloppesL[i]->sustain(gg.adsrlevels[Sustain] / 100.0);
+        enveloppesL[i]->release(gg.adsrlevels[Release]);
       }
-      self->mappedattack = adsrlevels[Attack];
-      self->mappeddecay = adsrlevels[Decay];
-      self->mappedrelease = adsrlevels[Release];
-      self->mappedsustain = adsrlevels[Sustain];
-      self->MadsrAttackDelay = adsrlevels[AttackDelay];
-      self->MadsrHold = adsrlevels[Hold];
+      self->mappedattack = gg.adsrlevels[Attack];
+      self->mappeddecay = gg.adsrlevels[Decay];
+      self->mappedrelease = gg.adsrlevels[Release];
+      self->mappedsustain = gg.adsrlevels[Sustain];
+      self->MadsrAttackDelay = gg.adsrlevels[AttackDelay];
+      self->MadsrHold = gg.adsrlevels[Hold];
     }
     static void displayadsrgraph() {
       navrange = 5 ;
@@ -133,12 +133,12 @@ class AdsrMenuRouter : public SectionHolder {
     }
 
     static void SetADSR() {
-      adsrlevels[AttackDelay] = self->MadsrAttackDelay;
-      adsrlevels[Sustain] = self->mappedsustain;
-      adsrlevels[Release] = self->mappedrelease;
-      adsrlevels[Decay] = self->mappeddecay;
-      adsrlevels[Attack] = self->mappedattack;
-      adsrlevels[Hold] = self->MadsrHold;
+      gg.adsrlevels[AttackDelay] = self->MadsrAttackDelay;
+      gg.adsrlevels[Sustain] = self->mappedsustain;
+      gg.adsrlevels[Release] = self->mappedrelease;
+      gg.adsrlevels[Decay] = self->mappeddecay;
+      gg.adsrlevels[Attack] = self->mappedattack;
+      gg.adsrlevels[Hold] = self->MadsrHold;
     }
 
     static void GlobalADSR() {
@@ -307,7 +307,7 @@ class GlideMenuRouter : public SectionHolder {
                     }
 
 
-        uint8_t *glide_params[4] = {reinterpret_cast<uint8_t*>(&glideMode),&portamento_time,&portamento_height,&glide_slope};
+        uint8_t *glide_params[4] = {reinterpret_cast<uint8_t*>(&gg.glideMode),&gg.portamento_time,&gg.portamento_height,&gg.glide_slope};
 
         static void apply_alt_ctl(){
           //*self->glide_params[sublevels[2]] = (uint8_t)sublevels[3];
@@ -331,21 +331,21 @@ class GlideMenuRouter : public SectionHolder {
           display.println(" ");
           display.println(" ");
           display.print("Mode: ");
-          display.print(GlideModeLabels[glideMode]);
+          display.print(GlideModeLabels[gg.glideMode]);
           //display.print(alt_nav[0]);
 
           display.setCursor(0, 28);
           display.print("Time: ");
-          display.print(portamento_time);
+          display.print(gg.portamento_time);
 
           display.setCursor(0, 40);
           display.print("Height: ");
-          display.print(64-portamento_height);
+          display.print(64-gg.portamento_height);
 
           
           display.setCursor(0, 52);
           display.print("Slope:   ");
-          display.print((64-glide_slope)/64.0);
+          display.print((64-gg.glide_slope)/64.0);
 
           
           
@@ -379,9 +379,9 @@ class Filter303MenuRouter : public SectionHolder {
     }
 
     static void setle303filterpass(int linei) {
-      les303passes[linei]->gain(0,le303filterzgainz[0]);
-      les303passes[linei]->gain(1,le303filterzgainz[1]);
-      les303passes[linei]->gain(2,le303filterzgainz[2]);
+      les303passes[linei]->gain(0,gg.le303filterzgainz[0]/127.0);
+      les303passes[linei]->gain(1,gg.le303filterzgainz[1]/127.0);
+      les303passes[linei]->gain(2,gg.le303filterzgainz[2]/127.0);
     }
 
     static void initialize303group() {
@@ -402,14 +402,14 @@ class Filter303MenuRouter : public SectionHolder {
 
     static void Wavespreamp303controls() {
       for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-        Wavespreamp303[i]->gain(preampleswaves*2 / 127.0);
+        Wavespreamp303[i]->gain((gg.preampleswaves / 127.0)*2);
       }
     }
 
     static void le303filterzWet() {
       for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-        les303wet[i]->gain(0, le303filterzwet / 100.0);
-        les303wet[i]->gain(1, (1 - (le303filterzwet / 100.0)));
+        les303wet[i]->gain(0, gg.le303filterzwet / 127.0);
+        les303wet[i]->gain(1, (1 - (gg.le303filterzwet / 127.0)));
       }
     }
     
@@ -427,13 +427,8 @@ class Filter303MenuRouter : public SectionHolder {
     float sloped[18];
 
     static void pseudo303(byte i) {
-      //sould only go through -> activated lines
-      
-        
         if (_rg.active_synths[i]->f303) {
-          //Serial.println(self->sloped[_rg.active_synths[i]->sloper_step%18]);
-
-          letbfreq = le303filterzfreq + 50 - (le303filterzfreq * self->sloped[_rg.active_synths[i]->sloper_step]);
+          letbfreq = gg.le303filterzfreq + 50 - (gg.le303filterzfreq * self->sloped[_rg.active_synths[i]->sloper_step]);
           if (_rg.active_synths[i]->sloper_step > 18) {
             _rg.active_synths[i]->f303 = 0;
             letbfreq = 50 ;
@@ -441,7 +436,7 @@ class Filter303MenuRouter : public SectionHolder {
             _rg.active_synths[i]->sloper_step = 0 ;
           }
           les303filterz[_rg.active_synths[i]->l_index]->frequency(letbfreq);
-          les303filterz[_rg.active_synths[i]->l_index]->resonance(0.1 + (le303filterzreso) * self->sloped[_rg.active_synths[i]->sloper_step]);
+          les303filterz[_rg.active_synths[i]->l_index]->resonance(0.1 + ((gg.le303filterzreso/127.0)*5) * self->sloped[_rg.active_synths[i]->sloper_step]);
           _rg.active_synths[i]->sloper_step++;
         }
       
@@ -449,40 +444,41 @@ class Filter303MenuRouter : public SectionHolder {
 
       static void filter_knob_freq(){
         navrange = 127;
-        le303ffilterzVknobs[0] = sublevels[3];
-        le303filterzfreq = round((le303ffilterzVknobs[0] / 127.0) * 10000);
+        gg.le303ffilterzVknobs[0] = sublevels[3];
+        gg.le303filterzfreq = lround((gg.le303ffilterzVknobs[0] / 127.0) * 14000);
       }
 
       static void filter_knob_res(){
         navrange = 127;
-        le303ffilterzVknobs[1] = sublevels[3];
-        le303filterzreso = ((le303ffilterzVknobs[1]) / 127.0) * 5;
+        gg.le303ffilterzVknobs[1] = sublevels[3];
+        gg.le303filterzreso = gg.le303ffilterzVknobs[1];
       }
 
       static void filter_knob_low(){
-        mixle303ffilterzVknobs[0] = sublevels[3];
-        le303filterzgainz[0] = (mixle303ffilterzVknobs[0]) / 127.0;
+        gg.mixle303ffilterzVknobs[0] = sublevels[3];
+        gg.le303filterzgainz[0] = gg.mixle303ffilterzVknobs[0];
       }
 
       static void filter_knob_band(){
-        mixle303ffilterzVknobs[1] = sublevels[3];
-        le303filterzgainz[1] = (mixle303ffilterzVknobs[1]) / 127.0;
+        gg.mixle303ffilterzVknobs[1] = sublevels[3];
+        gg.le303filterzgainz[1] = gg.mixle303ffilterzVknobs[1];
       }
 
       static void filter_knob_high(){
-        mixle303ffilterzVknobs[2] = sublevels[3];
-        le303filterzgainz[2] = (mixle303ffilterzVknobs[2]) / 127.0;
+        gg.mixle303ffilterzVknobs[2] = sublevels[3];
+        gg.le303filterzgainz[2] = gg.mixle303ffilterzVknobs[2];
       }
 
       static void filter_knob_wet(){
-        navrange = 100;
-        le303filterzwet = sublevels[3];
-        // le303filterzwet = (mixle303ffilterzVknobs[2])/127.0 ;
+        navrange = 127;
+        gg.le303filterzwet = sublevels[3];
+        // gg.le303filterzwet = (gg.mixle303ffilterzVknobs[2])/127.0 ;
         le303filterzWet();
       }
 
       static void filter_knob_preamp(){
-        preampleswaves = sublevels[3];
+        navrange = 127;
+        gg.preampleswaves = sublevels[3];
         Wavespreamp303controls();
       }
 
@@ -536,9 +532,9 @@ class Filter303MenuRouter : public SectionHolder {
       canvastitle.setCursor(22, 0);
 
       canvastitle.print("In:");
-      canvastitle.print((int)((preampleswaves*2 / 127.0) * 100.0));
+      canvastitle.print((int)((gg.preampleswaves / 127.0) * 200.0));
 
-      coeffangle = (6.2831 - (le303ffilterzVknobs[0] / 127.0) * 6.2831) + 3.1416;
+      coeffangle = (6.2831 - (gg.le303ffilterzVknobs[0] / 127.0) * 6.2831) + 3.1416;
       canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
       ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
       ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
@@ -548,23 +544,23 @@ class Filter303MenuRouter : public SectionHolder {
                           centercircley + knobradius + 4);
       canvasBIG.setTextSize(1);
       canvasBIG.print("FQ");
-      if (le303filterzfreq < 1000) {
+      if (gg.le303filterzfreq < 1000) {
         canvasBIG.setCursor(centercirclex - knobradius + 1, 25);
-        canvasBIG.print(le303filterzfreq, 0);
+        canvasBIG.print(gg.le303filterzfreq);
       }
-      if ((round(le303filterzfreq) < 9900) && (le303filterzfreq >= 1000)) {
+      if ((gg.le303filterzfreq < 9900) && (gg.le303filterzfreq >= 1000)) {
         canvasBIG.setCursor(centercirclex - knobradius - 1, 25);
-        canvasBIG.print(round(le303filterzfreq) / 1000.0, 1);
+        canvasBIG.print(round(gg.le303filterzfreq) / 1000.0, 1);
         canvasBIG.print("k");
       }
-      if (le303filterzfreq >= 9900) {
+      if (gg.le303filterzfreq >= 9900) {
         canvasBIG.setCursor(centercirclex - knobradius - 5, 25);
-        canvasBIG.print(le303filterzfreq / 1000.0, 1);
+        canvasBIG.print(gg.le303filterzfreq / 1000.0, 1);
         canvasBIG.print("k");
       }
 
       // resonnance
-      coeffangle = (6.2831 - (le303ffilterzVknobs[1] / 127.0) * 6.2831) + 3.1416;
+      coeffangle = (6.2831 - (gg.le303ffilterzVknobs[1] / 127.0) * 6.2831) + 3.1416;
       centercirclex = knobradius + 30;
       canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
       ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
@@ -576,26 +572,9 @@ class Filter303MenuRouter : public SectionHolder {
       canvasBIG.setTextSize(1);
       canvasBIG.print("Res");
       canvasBIG.setCursor(centercirclex - knobradius + 2, 25);
-      canvasBIG.print(le303filterzreso, 1);
+      canvasBIG.print((gg.le303filterzreso/127.0)*5, 1);
 
-        /*
-        // octave
-        coeffangle = (6.2831 - (le303ffilterzVknobs[2] / 127.0) * 6.2831) + 3.1416;
-        centercirclex = knobradius + 55;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
-        ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
-        ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx,
-                          ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 1,
-                            centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.print("Oct");
-        canvasBIG.setCursor(centercirclex - knobradius + 1, 25);
-        canvasBIG.print(le303filterzoctv, 1);
-        */
-
-      barsize = round((le303filterzgainz[0] * (totbartall - 4)));
+      barsize = round(((gg.le303filterzgainz[0]/127.0) * (totbartall - 4)));
       canvasBIG.drawRoundRect(81, topwbarstart, wbarwidth, totbartall, 2,
                               SSD1306_WHITE);
       canvasBIG.fillRect(81 + 2, (totbartall + topwbarstart - barsize - 2),
@@ -603,23 +582,23 @@ class Filter303MenuRouter : public SectionHolder {
       canvasBIG.setCursor(81, totbartall + topwbarstart + 4);
       canvasBIG.print("LP");
       // canvasBIG.setCursor(80,18);
-      // canvasBIG.print(bqgain[0][bqstage[0]]);
-      barsize = round((le303filterzgainz[1] * (totbartall - 4)));
+      // canvasBIG.print(bqgain[0][gg.bqstage[0]]);
+      barsize = round(((gg.le303filterzgainz[1]/127.0) * (totbartall - 4)));
       canvasBIG.drawRoundRect(98, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
       canvasBIG.fillRect(98 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
       canvasBIG.setCursor(97, totbartall + topwbarstart + 4);
       canvasBIG.print("BP");
       // canvasBIG.setCursor(93,18);
-      // canvasBIG.print(bqgain[0][bqstage[0]]);
-      barsize = round((le303filterzgainz[2] * (totbartall - 4)));
+      // canvasBIG.print(bqgain[0][gg.bqstage[0]]);
+      barsize = round(((gg.le303filterzgainz[2]/127.0) * (totbartall - 4)));
       canvasBIG.drawRoundRect(115, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
       canvasBIG.fillRect(115 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
       canvasBIG.setCursor(114, totbartall + topwbarstart + 4);
       canvasBIG.print("HP");
       // canvasBIG.setCursor(114,18);
-      // canvasBIG.print(bqgain[lefilter][bqstage[lefilter]]);
+      // canvasBIG.print(bqgain[lefilter][gg.bqstage[lefilter]]);
       // wetbar
-      barsize = round(((le303filterzwet / 100.0) * (totbartall - 4)));
+      barsize = round(((gg.le303filterzwet / 127.0) * (totbartall - 4)));
       canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
       canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
       canvasBIG.setCursor(startlex2, 0);
@@ -629,8 +608,8 @@ class Filter303MenuRouter : public SectionHolder {
 
       canvastitle.setCursor(54, 8);
       canvastitle.print("Glide: ");
-      if (!portamento_time) canvastitle.print("Off");
-      else canvastitle.print(portamento_time);
+      if (!gg.portamento_time) canvastitle.print("Off");
+      else canvastitle.print(gg.portamento_time);
       
       le303filterVpanelSelector();
       dm.dodisplay();
@@ -652,57 +631,57 @@ class Filter303MenuRouter : public SectionHolder {
       int slct = sublevels[2];
       // fq
       if (slct == 0) {
-        sublevels[3] = le303ffilterzVknobs[0];
+        sublevels[3] = gg.le303ffilterzVknobs[0];
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
                             SSD1306_WHITE);
       }
       // res
       if (slct == 1) {
-        sublevels[3] = le303ffilterzVknobs[1];
+        sublevels[3] = gg.le303ffilterzVknobs[1];
         canvasBIG.drawCircle(centercirclex + 25, centercircley, knobradius - 2,
                             SSD1306_WHITE);
       }
       /*
       // oct
       if (slct == 2) {
-        sublevels[3] = le303ffilterzVknobs[2];
+        sublevels[3] = gg.le303ffilterzVknobs[2];
         canvasBIG.drawCircle(centercirclex + 50, centercircley, knobradius - 2,
                             SSD1306_WHITE);
       }
       */
       // lp
       if (slct == 2) {
-        sublevels[3] = mixle303ffilterzVknobs[0];
+        sublevels[3] = gg.mixle303ffilterzVknobs[0];
         canvasBIG.drawRect(83, topwbarstart, wbarwidth - 4, totbartall,
                           SSD1306_WHITE);
       }
       // bp
       if (slct == 3) {
-        sublevels[3] = mixle303ffilterzVknobs[1];
+        sublevels[3] = gg.mixle303ffilterzVknobs[1];
         canvasBIG.drawRect(100, topwbarstart, wbarwidth - 4, totbartall,
                           SSD1306_WHITE);
       }
       // hp
       if (slct == 4) {
-        sublevels[3] = mixle303ffilterzVknobs[2];
+        sublevels[3] = gg.mixle303ffilterzVknobs[2];
         canvasBIG.drawRect(117, topwbarstart, wbarwidth - 4, totbartall,
                           SSD1306_WHITE);
       }
       // wet
       if (slct == 5) {
-        sublevels[3] = le303filterzwet;
+        sublevels[3] = gg.le303filterzwet;
         canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
                           wbarwidth2 - 4, SSD1306_WHITE);
       }
       
       if (slct == 6) {
-        sublevels[3] = preampleswaves;
+        sublevels[3] = gg.preampleswaves;
         canvasBIG.setCursor(34, 0);
         canvasBIG.print((char)9);
       }
 
       if (slct == 7) {
-        sublevels[3] = portamento_time ;
+        sublevels[3] = gg.portamento_time ;
         canvasBIG.setCursor(100, 8);
         canvasBIG.print((char)9);
       }
@@ -733,11 +712,11 @@ class Filter303MenuRouter : public SectionHolder {
   private:
     static constexpr void (*filters_pointers[8])() = {&filter_knob_freq, &filter_knob_res, &filter_knob_low, &filter_knob_band, &filter_knob_high,
                                             &filter_knob_wet, &filter_knob_preamp, &filter_knob_glide};
-                    byte *filter_tmp_pointers[8] = { &le303ffilterzVknobs[0], &le303ffilterzVknobs[1], &mixle303ffilterzVknobs[0], &mixle303ffilterzVknobs[1], &mixle303ffilterzVknobs[2],
-                                              &le303filterzwet, &preampleswaves, &portamento_time };
+                    byte *filter_tmp_pointers[8] = { &gg.le303ffilterzVknobs[0], &gg.le303ffilterzVknobs[1], &gg.mixle303ffilterzVknobs[0], &gg.mixle303ffilterzVknobs[1], &gg.mixle303ffilterzVknobs[2],
+                                              &gg.le303filterzwet, &gg.preampleswaves, &gg.portamento_time };
 
-                    byte filter_tmp_values[8] = {le303ffilterzVknobs[0],le303ffilterzVknobs[1],mixle303ffilterzVknobs[0],mixle303ffilterzVknobs[1],mixle303ffilterzVknobs[2],
-                                          le303filterzwet,preampleswaves,portamento_time };
+                    byte filter_tmp_values[8] = {gg.le303ffilterzVknobs[0],gg.le303ffilterzVknobs[1],gg.mixle303ffilterzVknobs[0],gg.mixle303ffilterzVknobs[1],gg.mixle303ffilterzVknobs[2],
+                                          gg.le303filterzwet,gg.preampleswaves,gg.portamento_time };
     static Filter303MenuRouter* self;
 };
 
@@ -1050,9 +1029,9 @@ class SynthMenuRouter : public SectionHolder {
                     this->sublevels_address={0,0,0};
                     }
 
-        int unit = (int)wavesfreqs[oscillator] % 10;
-        int tenth     = ((int)(wavesfreqs[oscillator] * 10)) % 10;
-        int hundredth = ((int)(wavesfreqs[oscillator] * 100)) % 10;
+        int unit = (int)gg.wavesfreqs[oscillator] % 10;
+        int tenth     = ((int)(gg.wavesfreqs[oscillator] * 10)) % 10;
+        int hundredth = ((int)(gg.wavesfreqs[oscillator] * 100)) % 10;
         //TODO give default value based on wformtype
         
 
@@ -1074,15 +1053,15 @@ class SynthMenuRouter : public SectionHolder {
           if (navlevel == 3) {
             retroaction = sublevels[2];
             navrange = synth_params_count - 1;
-            sublevels[4] = wave1offset[oscillator];
+            sublevels[4] = gg.wave1offset[oscillator];
           }
           if (navlevel == 4) {
             navrange = 127;
             retroaction = sublevels[3];
-            wave1offset[oscillator] = sublevels[4];
+            gg.wave1offset[oscillator] = sublevels[4];
             for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-              waveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - wave1offset[oscillator]) / 64.0)));
-              FMwaveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - wave1offset[oscillator]) / 64.0)));
+              waveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - gg.wave1offset[oscillator]) / 64.0)));
+              FMwaveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - gg.wave1offset[oscillator]) / 64.0)));
             }
           }
           if (navlevel >= 5) {
@@ -1091,7 +1070,7 @@ class SynthMenuRouter : public SectionHolder {
           }
           display.setTextSize(1);
           display.setCursor(80, 8);
-          display.print((float)(((64.0 - wave1offset[oscillator]) / 64.0)));
+          display.print((float)(((64.0 - gg.wave1offset[oscillator]) / 64.0)));
 
           draw_synth_params();
           dm.dodisplay();
@@ -1103,17 +1082,17 @@ class SynthMenuRouter : public SectionHolder {
             switch (sublevels[4]){
               case 0:
                 display.fillRect(62, 0, 16, 16, SSD1306_INVERSE);
-                self->unit = (int)wavesfreqs[oscillator];
+                self->unit = (int)gg.wavesfreqs[oscillator];
                 sublevels[5]=self->unit;
               break;
               case 1:
                 display.fillRect(88, 0, 12, 16, SSD1306_INVERSE);
-                self->tenth = ((int)(wavesfreqs[oscillator]* 10)) % 10;
+                self->tenth = ((int)(gg.wavesfreqs[oscillator]* 10)) % 10;
                 sublevels[5]=self->tenth;
               break;
               case 2:
                 display.fillRect(100, 0, 12, 16, SSD1306_INVERSE);
-                self->hundredth = ((int)(wavesfreqs[oscillator] * 100)) % 10;
+                self->hundredth = ((int)(gg.wavesfreqs[oscillator] * 100)) % 10;
                 sublevels[5]=self->hundredth;
               break;
             }
@@ -1137,14 +1116,14 @@ class SynthMenuRouter : public SectionHolder {
             break;
           }
 
-          wavesfreqs[oscillator] = (float)(self->unit + self->tenth * 0.1f + self->hundredth * 0.01f);
+          gg.wavesfreqs[oscillator] = (float)(self->unit + self->tenth * 0.1f + self->hundredth * 0.01f);
         }
 
         static void displayfreqbars(){
           dm.clear_3();
           display.setTextSize(2);
           display.setCursor(65, 0);
-          display.println(wavesfreqs[oscillator]);
+          display.println(gg.wavesfreqs[oscillator]);
           draw_synth_params();
           dm.dodisplay();
         }
@@ -1170,7 +1149,7 @@ class SynthMenuRouter : public SectionHolder {
           if (navlevel == 3) {
             retroaction = sublevels[2];
             navrange = synth_params_count - 1;
-            //sublevels[4] = round(wavesfreqs[oscillator]);
+            //sublevels[4] = round(gg.wavesfreqs[oscillator]);
           }
         }
 
@@ -1179,13 +1158,13 @@ class SynthMenuRouter : public SectionHolder {
           if (navlevel == 3) {
             retroaction = sublevels[2];
             navrange = synth_params_count - 1;
-            sublevels[4] = int(phaselevelsL[oscillator]);
+            sublevels[4] = gg.phaselevelsL[oscillator];
           }
           if (navlevel >= 4) {
             if (navlevel == 4) {
-              navrange = 360;
+              navrange = 127;
               retroaction = sublevels[3];
-              phaselevelsL[oscillator] = int(sublevels[4]);
+              gg.phaselevelsL[oscillator] = sublevels[4];
               setphaselevel();
             }
             if (navlevel >= 5) {
@@ -1198,7 +1177,8 @@ class SynthMenuRouter : public SectionHolder {
 
           display.setCursor(80, 0);
           display.setTextSize(2);
-          display.println(phaselevelsL[oscillator]);
+          display.print(lround((gg.phaselevelsL[oscillator]/127.0)*360));
+          //display.print("°");
           dm.dodisplay();
         }
 
@@ -1209,7 +1189,7 @@ class SynthMenuRouter : public SectionHolder {
           dm.dodisplay();
           display.setCursor(64, 0);
           display.setTextSize(2);
-          display.println(modulation_labels[FMmodulated[oscillator]]);
+          display.println(modulation_labels[gg.FMmodulated[oscillator]]);
           draw_synth_params();
           dm.dodisplay();
 
@@ -1238,7 +1218,7 @@ class SynthMenuRouter : public SectionHolder {
           if (navlevel == 4) {
             navrange = 3;
             retroaction = sublevels[3];
-            FMmodulated[oscillator] = sublevels[4];
+            gg.FMmodulated[oscillator] = sublevels[4];
           }
           if (navlevel > 4) {
             setwavetypefromlist();
@@ -1252,17 +1232,17 @@ class SynthMenuRouter : public SectionHolder {
           if (navlevel == 3) {
             retroaction = sublevels[2];
             navrange = synth_params_count - 1;
-            sublevels[4] = Waveformstyped[oscillator];
+            sublevels[4] = gg.Waveformstyped[oscillator];
           }
           if (navlevel == 4) {
             navrange = 11;
-            Waveformstyped[oscillator] = sublevels[4];
+            gg.Waveformstyped[oscillator] = sublevels[4];
             retroaction = sublevels[3];
           }
           if (navlevel > 4) {
             setwavetypefromlist();
-            if (Waveformstyped[oscillator] == 11) {
-              mixlevelsL[oscillator] = 0;
+            if (gg.Waveformstyped[oscillator] == 11) {
+              gg.mixlevelsL[oscillator] = 0;
               _mx.setwavemixlevel();
             }
             returntonav(3,synth_params_count-1,sublevels[3]);
@@ -1389,7 +1369,7 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void plug_no_waves(){
-          mixlevelsL[oscillator] = 0;
+          gg.mixlevelsL[oscillator] = 0;
           for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
             wavelinescords[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
             stringcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
@@ -1412,10 +1392,10 @@ class SynthMenuRouter : public SectionHolder {
             MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
             drumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
             wavelinescords[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
-            if (Waveformstyped[oscillator] == WAVEFORM_ARBITRARY) {
+            if (gg.Waveformstyped[oscillator] == WAVEFORM_ARBITRARY) {
               waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->arbitraryWaveform(arbitrary_waveforms[oscillator],arbitrary_maxF[oscillator]);
             }
-            waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->begin(lesformes[Waveformstyped[oscillator]]);
+            waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->begin(lesformes[gg.Waveformstyped[oscillator]]);
           }
         }
 
@@ -1429,10 +1409,10 @@ class SynthMenuRouter : public SectionHolder {
             drumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
             MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
             FMwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
-            if (Waveformstyped[oscillator] == WAVEFORM_ARBITRARY) {
+            if (gg.Waveformstyped[oscillator] == WAVEFORM_ARBITRARY) {
               FMwaveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->arbitraryWaveform(arbitrary_waveforms[oscillator],arbitrary_maxF[oscillator]);
             }
-            FMwaveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->begin(lesformes[Waveformstyped[oscillator]]);
+            FMwaveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->begin(lesformes[gg.Waveformstyped[oscillator]]);
           }
           call_restart_lfo(oscillator);
         }
@@ -1447,10 +1427,10 @@ class SynthMenuRouter : public SectionHolder {
             FMwavecords1[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
             MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
             modulatecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
-            if (Waveformstyped[oscillator] == WAVEFORM_ARBITRARY) {
+            if (gg.Waveformstyped[oscillator] == WAVEFORM_ARBITRARY) {
               waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->arbitraryWaveform(arbitrary_waveforms[oscillator],arbitrary_maxF[oscillator]);
             }
-            waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->begin(lesformes[Waveformstyped[oscillator]]);
+            waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->begin(lesformes[gg.Waveformstyped[oscillator]]);
           }
           call_restart_lfo(oscillator);
         }
@@ -1509,7 +1489,7 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void no_modulation(){
-          byte letype = Waveformstyped[oscillator];
+          byte letype = gg.Waveformstyped[oscillator];
           if (letype < 9) {
             audio_obj_type[oscillator] = 1; //       9*4 + drums *2 + string *2 + off
             plug_waves();
@@ -1525,7 +1505,7 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void freq_modulation(){
-          byte letype = Waveformstyped[oscillator];
+          byte letype = gg.Waveformstyped[oscillator];
           if (letype < 9) {
             audio_obj_type[oscillator] = 2;
             plug_moded_waves();
@@ -1542,7 +1522,7 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void phase_modulation(){
-          byte letype = Waveformstyped[oscillator];
+          byte letype = gg.Waveformstyped[oscillator];
           if (letype < 9) {
               audio_obj_type[oscillator] = 2;
               plug_moded_waves();
@@ -1559,7 +1539,7 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void amplitude_modulation(){
-          byte letype = Waveformstyped[oscillator];
+          byte letype = gg.Waveformstyped[oscillator];
           if (letype < 9) {
               audio_obj_type[oscillator] = 1;
               plug_ampl_moded_waves();
@@ -1567,7 +1547,7 @@ class SynthMenuRouter : public SectionHolder {
             else if (letype == 9) {
               // amplitude modulated drum
               audio_obj_type[oscillator] = 3;
-              //36 + (bool)FMmodulated[oscillator];
+              //36 + (bool)gg.FMmodulated[oscillator];
               plug_ampl_moded_drums();
             }
             else if (letype == 10) {
@@ -1585,8 +1565,8 @@ class SynthMenuRouter : public SectionHolder {
           // WAVEFORM_TRIANGLE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SQUARE,
           // WAVEFORM_PULSE,    WAVEFORM_ARBITRARY,         WAVEFORM_SAMPLE_HOLD};
           // audio_obj_type  9*4 + drums *2 + string *2 + off
-          //Waveformstyped + 2*mod + 2*mod*(drum|||string)
-          byte letype = Waveformstyped[oscillator];
+          //gg.Waveformstyped + 2*mod + 2*mod*(drum|||string)
+          byte letype = gg.Waveformstyped[oscillator];
           if (letype == 11) {
             // synth line off
             plug_no_waves();
@@ -1595,7 +1575,7 @@ class SynthMenuRouter : public SectionHolder {
             _mx.setwavemixlevel();
             return;
           }
-          (modulation_pointers[FMmodulated[oscillator]])();
+          (modulation_pointers[gg.FMmodulated[oscillator]])();
           AudioInterrupts();
           _mx.setwavemixlevel();
         }
@@ -1603,7 +1583,7 @@ class SynthMenuRouter : public SectionHolder {
         static void setphaselevel() {
           AudioNoInterrupts();
           for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->phase(phaselevelsL[oscillator]);
+            waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->phase((int)((gg.phaselevelsL[oscillator]/ 127.0) * 360.0));
           }
           AudioInterrupts();
         }

@@ -4,15 +4,15 @@ int paddered;
 void check_pads() {
   PadResult padder = Pads.padloop();
   paddered = arranged_buttons[padder.pad_result[0]][padder.pad_result[1]];
-  int chan_received = but_channel[11 + paddered];
-  int cc_note_num = pot_assignements[11 + paddered] - 128;
+  int chan_received = gg.but_channel[11 + paddered];
+  int cc_note_num = gg.pot_assignements[11 + paddered] - 128;
   //if multiplexed condition || 36 is the cancel button when in multiplexed mode, should not trigger another note or control.
   if ((padder.pad_result[2] == 1) && (paddered != 36)) {
     if (cc_note_num < 0) {
-      MaControlChange(chan_received,(byte)pot_assignements[11 + paddered], 64);
+      MaControlChange(chan_received,(byte)gg.pot_assignements[11 + paddered], 64);
     }
     else {
-      MaNoteOn(chan_received, cc_note_num, but_velocity[11 + paddered]);
+      MaNoteOn(chan_received, cc_note_num, gg.but_velocity[11 + paddered]);
     }
   }
   else if ((padder.pad_result[2] == 0) && (paddered != 36) && (cc_note_num > 0)) {
@@ -25,7 +25,7 @@ byte muxer_ch_active = 1;
 void check_pots() {
   int c_change = Muxer.read_val(muxer_ch_active);
   if (c_change >= 0 && muxer_ch_active !=9) {
-    MaControlChange(muxed_channels[muxer_ch_active], (byte)ordered_pots[muxer_ch_active], (byte)((c_change / 1024.0) * 127));
+    MaControlChange(gg.muxed_channels[muxer_ch_active], (byte)gg.ordered_pots[muxer_ch_active], (byte)((c_change / 1024.0) * 127));
   }
   muxer_ch_active = (muxer_ch_active+1)%15; // mux_ch 16 is broken (pot in 9 as well)
 }

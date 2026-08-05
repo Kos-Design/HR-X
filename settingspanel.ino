@@ -153,7 +153,7 @@ class SettingsMenuRouter : public SectionHolder {
         static void OnBoardVpanelAction() {
           if (navlevel > 3) {
             if (((sublevels[2] <= 11) || (sublevels[2] > 45)) && (navlevel == 4)) {
-              ordered_pots[potsboards[sublevels[2]]] = pot_assignements[sublevels[2]];
+              gg.ordered_pots[potsboards[sublevels[2]]] = gg.pot_assignements[sublevels[2]];
             }
             returntonav(2);
           }
@@ -164,7 +164,7 @@ class SettingsMenuRouter : public SectionHolder {
           int selecta = sublevels[2];
           if (navlevel == 2) {
             navrange = all_buttonns - 1;
-            sublevels[3] = pot_assignements[sublevels[2]];
+            sublevels[3] = gg.pot_assignements[sublevels[2]];
           }
 
           if (selecta < 9) {
@@ -201,12 +201,12 @@ class SettingsMenuRouter : public SectionHolder {
 
           canvasBIG.setCursor(8, 24);
           // canvasBIG.setTextSize(1);
-          sprintf(self->ch_lbl_buffer, "%02d", but_channel[sublevels[2]]);
+          sprintf(self->ch_lbl_buffer, "%02d", gg.but_channel[sublevels[2]]);
           canvasBIG.print(self->ch_lbl_buffer);
 
           if (navlevel == 3) {
-            sublevels[4] = pot_assignements[sublevels[2]];
-            pot_assignements[sublevels[2]] = sublevels[3];
+            sublevels[4] = gg.pot_assignements[sublevels[2]];
+            gg.pot_assignements[sublevels[2]] = sublevels[3];
             if (selecta <= 11) {
               navrange = 127;
             }
@@ -224,15 +224,15 @@ class SettingsMenuRouter : public SectionHolder {
           canvastitle.print(self->onboards[selecta]);
 
           canvastitle.setCursor(42, 0);
-          if (pot_assignements[sublevels[2]] <= 128) {
+          if (gg.pot_assignements[sublevels[2]] <= 128) {
             canvastitle.print("CC ");
-            canvastitle.print(pot_assignements[sublevels[2]]);
+            canvastitle.print(gg.pot_assignements[sublevels[2]]);
           } else {
             canvastitle.print("Note ");
-            canvastitle.print(pot_assignements[sublevels[2]] - 128);
+            canvastitle.print(gg.pot_assignements[sublevels[2]] - 128);
             canvastitle.setCursor(90, 0);
             canvastitle.print("V ");
-            canvastitle.print(but_velocity[sublevels[2]]);
+            canvastitle.print(gg.but_velocity[sublevels[2]]);
           }
         }
 
@@ -282,8 +282,8 @@ class SettingsMenuRouter : public SectionHolder {
 
         static void setbpms() {
           //clocker.setDivision(4);
-          //  BPMs = (60000.0/millitickinterval)/4.0 ;
-          BPMs = 15000 / millitickinterval;
+          //  BPMs = (60000.0/gg.millitickinterval)/4.0 ;
+          BPMs = 15000 / gg.millitickinterval;
           clocker.setBPM(BPMs);
         }
         
@@ -291,7 +291,7 @@ class SettingsMenuRouter : public SectionHolder {
           for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
             // stoplengthmesure(i);
             if (synth_lines[i]->note != 0) {
-              MaNoteOff(synthmidichannel, synth_lines[i]->note, 0);
+              MaNoteOff(gg.synthmidichannel, synth_lines[i]->note, 0);
             }
           }
         }
@@ -304,13 +304,13 @@ class SettingsMenuRouter : public SectionHolder {
 
             if (slct == 0) {
               navrange = arpeges_types;
-              arpegiatortype = sublevels[3];
-              // arpegiatortype = sublevels[2];
-              if (arpegiatortype < arpeges_types) {
-                arpegiatorOn = 1;
+              gg.arpegiatortype = sublevels[3];
+              // gg.arpegiatortype = sublevels[2];
+              if (gg.arpegiatortype < arpeges_types) {
+                gg.arpegiatorOn = 1;
                 //metro0.reset();
               } else {
-                arpegiatorOn = 0;
+                gg.arpegiatorOn = 0;
                 for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
                   calledarpegenote[i][0] = 0;
                   calledarpegenote[i][1] = 0;
@@ -326,27 +326,27 @@ class SettingsMenuRouter : public SectionHolder {
             // damp
             if (slct == 1) {
               navrange = 7;
-              arpegmode = sublevels[3];
+              gg.arpegmode = sublevels[3];
             }
             if (slct == 2) {
               navrange = 3 * 6;
-              arpegstartoffset = sublevels[3];
+              gg.arpegstartoffset = sublevels[3];
             }
             if (slct == 3) {
               navrange = 6;
-              arpegnumofnotes = 1 + sublevels[3];
+              gg.arpegnumofnotes = 1 + sublevels[3];
             }
             if (slct == 4) {
               navrange = 8;
-              arpeggridC = sublevels[3];
+              gg.arpeggridC = sublevels[3];
             }
             if (slct == 5) {
               navrange = 8;
-              arpeggridS = sublevels[3];
+              gg.arpeggridS = sublevels[3];
             }
             if (slct == 6) {
               navrange = 8;
-              arpeglengh = sublevels[3];
+              gg.arpeglengh = sublevels[3];
             }
           }
           if (navlevel > 3) {
@@ -377,32 +377,32 @@ class SettingsMenuRouter : public SectionHolder {
 
           if (slct == 0) {
 
-            sublevels[3] = arpegiatortype;
+            sublevels[3] = gg.arpegiatortype;
           }
           // damp
           if (slct == 1) {
 
-            sublevels[3] = arpegmode;
+            sublevels[3] = gg.arpegmode;
           }
           if (slct == 2) {
 
-            sublevels[3] = arpegstartoffset;
+            sublevels[3] = gg.arpegstartoffset;
           }
           if (slct == 3) {
 
-            sublevels[3] = arpegnumofnotes - 1;
+            sublevels[3] = gg.arpegnumofnotes - 1;
           }
           if (slct == 4) {
 
-            sublevels[3] = arpeggridC;
+            sublevels[3] = gg.arpeggridC;
           }
           if (slct == 5) {
 
-            sublevels[3] = arpeggridS;
+            sublevels[3] = gg.arpeggridS;
           }
           if (slct == 6) {
 
-            sublevels[3] = arpeglengh;
+            sublevels[3] = gg.arpeglengh;
           }
         }
 
@@ -425,21 +425,21 @@ class SettingsMenuRouter : public SectionHolder {
                                         "Mixolydian", "Aeolian", "Harmonic", "Locrian"};
               dm.clean_title_1();
           canvastitle.print("Arpegiator ");
-          if (arpegiatortype < arpeges_types) {
-            canvastitle.print((char *)lesarpegestype[arpegiatortype]);
+          if (gg.arpegiatortype < arpeges_types) {
+            canvastitle.print((char *)lesarpegestype[gg.arpegiatortype]);
           } else {
             canvastitle.print("disabled");
           }
-          float letype = arpegiatortype / 8.0;
-          float legridC = arpeggridC / 8.0;
-          float legridS = arpeggridS / 8.0;
-          float lelengh = arpeglengh / 8.0;
-          float lemode = arpegmode / 7.0;
-          float lenumofnotes = arpegnumofnotes / 7.0;
-          float leoffset = arpegstartoffset / (3 * 6.0);
-          byte arpegiovalues[7] = {arpegiatortype,  arpegmode,  arpegstartoffset,
-                                  arpegnumofnotes, arpeggridC, arpeggridS,
-                                  arpeglengh};
+          float letype = gg.arpegiatortype / 8.0;
+          float legridC = gg.arpeggridC / 8.0;
+          float legridS = gg.arpeggridS / 8.0;
+          float lelengh = gg.arpeglengh / 8.0;
+          float lemode = gg.arpegmode / 7.0;
+          float lenumofnotes = gg.arpegnumofnotes / 7.0;
+          float leoffset = gg.arpegstartoffset / (3 * 6.0);
+          byte arpegiovalues[7] = {gg.arpegiatortype,  gg.arpegmode,  gg.arpegstartoffset,
+                                  gg.arpegnumofnotes, gg.arpeggridC, gg.arpeggridS,
+                                  gg.arpeglengh};
           float lesarparams[7] = {letype,  lemode,  leoffset, lenumofnotes,
                                   legridC, legridS, lelengh};
           char lesbarlabels[7][12] = {"Type",      "Mode",        "Offset",
@@ -453,7 +453,7 @@ class SettingsMenuRouter : public SectionHolder {
           canvasBIG.print((char *)lesbarlabels[slct]);
           canvasBIG.print(" = ");
           if (slct == 1) {
-            canvasBIG.print((char *)lesarpegesmodes[arpegmode]);
+            canvasBIG.print((char *)lesarpegesmodes[gg.arpegmode]);
           } else {
             canvasBIG.print(arpegiovalues[slct]);
           }
@@ -487,7 +487,7 @@ class SettingsMenuRouter : public SectionHolder {
             tottaptime += (tapstime[i] - starttaptime);
           }
           tapaverage = tottaptime / numberoftaps;
-          millitickinterval = round(tapaverage / 10.0);
+          gg.millitickinterval = round(tapaverage / 10.0);
           setbpms();
         }
 
@@ -570,17 +570,17 @@ class SettingsMenuRouter : public SectionHolder {
 
           if (sublevels[1] == 2) {
             canvastitle.setCursor(96, 0);
-            canvastitle.println(midichlist[synthmidichannel]);
-            sublevels[2] = (int)synthmidichannel;
+            canvastitle.println(midichlist[gg.synthmidichannel]);
+            sublevels[2] = (int)gg.synthmidichannel;
           }
           if (sublevels[1] == 3) {
             canvastitle.setCursor(96, 0);
-            canvastitle.println(midichlist[samplermidichannel]);
-            sublevels[2] = int(samplermidichannel);
+            canvastitle.println(midichlist[gg.samplermidichannel]);
+            sublevels[2] = int(gg.samplermidichannel);
           }
           if (sublevels[1] == 4) {
             canvastitle.setCursor(96, 0);
-            if (digitalplay) {
+            if (gg.digitalplay) {
               canvastitle.println("On");
             } else {
               canvastitle.println("Off");
@@ -588,26 +588,26 @@ class SettingsMenuRouter : public SectionHolder {
           }
           if (sublevels[1] == 5) {
             canvastitle.setCursor(96, 0);
-            canvastitle.println(int(tapnote));
-            sublevels[2] = int(tapnote);
+            canvastitle.println(int(gg.tapnote));
+            sublevels[2] = int(gg.tapnote);
           }
           if (sublevels[1] == 6) {
             canvastitle.setCursor(96, 0);
             //canvastitle.println(BPMs, 1);
-            canvastitle.println(15000 / millitickinterval, 1);
+            canvastitle.println(15000 / gg.millitickinterval, 1);
             if (navlevel <= 2) {
-              sublevels[2] = millitickinterval;
+              sublevels[2] = gg.millitickinterval;
             }
           }
           if (sublevels[1] == 7) {
-            sublevels[2] = lasetchord;
+            sublevels[2] = gg.lasetchord;
             canvasBIG.setTextSize(1);
             canvasBIG.setCursor(66, 0);
-            canvasBIG.println(chordslabels[lasetchord]);
+            canvasBIG.println(chordslabels[gg.lasetchord]);
           }
           if (sublevels[1] == 8) {
             canvasBIG.setCursor(96, 0);
-            if (arpegiatortype != 8) {
+            if (gg.arpegiatortype != 8) {
               canvasBIG.print("On");
             } else {
               canvasBIG.print("Off");
@@ -742,17 +742,17 @@ class SettingsMenuRouter : public SectionHolder {
       }
 
       static void toggle_echo_midi(){
-        toggle_that(debugmidion);
+        debugmidion = !debugmidion;
       }
 
       static void toggle_freeze_midi(){
-        toggle_that(freezemidicc);
+        freezemidicc = !freezemidicc;
         returntonav(1,self->home_navrange,1);
       }
 
       static void set_synth_midi_ch(){
         navrange = 16;
-        synthmidichannel = (byte)sublevels[2];
+        gg.synthmidichannel = (byte)sublevels[2];
         if (navlevel >= 3) {
           returntonav(1,self->home_navrange,2);
         }
@@ -760,21 +760,21 @@ class SettingsMenuRouter : public SectionHolder {
 
       static void set_sampler_midi_ch(){
         navrange = 16;
-        samplermidichannel = sublevels[2];
+        gg.samplermidichannel = sublevels[2];
         if (navlevel >= 3) {
           returntonav(1,self->home_navrange,3);
         }
       }
       
       static void toggle_digital_analog(){
-        toggle_that(digitalplay);
+        gg.digitalplay = !gg.digitalplay;
         returntonav(1,self->home_navrange,4);
       }
       
       
       static void set_tap_note(){
         navrange = 127;
-        tapnote = byte(sublevels[2]);
+        gg.tapnote = byte(sublevels[2]);
         if (navlevel >= 3 ){
           returntonav(1,self->home_navrange,5);
         }
@@ -782,23 +782,23 @@ class SettingsMenuRouter : public SectionHolder {
 
       static void set_bpms_interval(){
         navrange = 620;
-        millitickinterval = sublevels[2];
+        gg.millitickinterval = sublevels[2];
         //setbpms();
         if (navlevel >= 3) {
-          millitickinterval = sublevels[2];
+          gg.millitickinterval = sublevels[2];
           self->setbpms();
-          //tempo = millitickinterval;
+          //tempo = gg.millitickinterval;
           returntonav(1,self->home_navrange,6);
         }
       }
 
       static void set_chord_mode(){
         navrange = 6;
-        lasetchord = sublevels[2];
-        if (lasetchord < 6) {
-          chordson = 1;
+        gg.lasetchord = sublevels[2];
+        if (gg.lasetchord < 6) {
+          gg.chordson = 1;
         } else {
-          chordson = 0;
+          gg.chordson = 0;
         }
         if (navlevel >= 3) {
           returntonav(1,self->home_navrange,7);
@@ -807,12 +807,12 @@ class SettingsMenuRouter : public SectionHolder {
 
       static void toggle_ext_clock(){
         //externalticker = !externalticker;
-        toggle_that(externalticker);
+        externalticker = !externalticker;
         returntonav(1,self->home_navrange,9);
       }
 
       static void toggle_note_spy(){
-        toggle_that(noteprint);
+        noteprint = !noteprint;
         if (noteprint) {
           replug_notefreq_from_ampL();
           notefreq1.begin(.15);
@@ -834,7 +834,7 @@ class SettingsMenuRouter : public SectionHolder {
       }
 
       static void toggle_midi_out(){
-        toggle_that(SendMidiOut);
+        SendMidiOut = !SendMidiOut ;
         returntonav(1,self->home_navrange,13);
       }
      

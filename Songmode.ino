@@ -60,7 +60,7 @@ class SongEditorRouter : public SectionHolder {
 
           }
           if (sampler_off_pat[tickposition][1] != 0) {
-            shutlineroff(samplermidichannel,sampler_off_pat[tickposition][1]);
+            shutlineroff(gg.samplermidichannel,sampler_off_pat[tickposition][1]);
               //flash_lines[i]->liner_off();
             }
           for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
@@ -211,9 +211,9 @@ class SongEditorRouter : public SectionHolder {
 
         void play_sampler_line(int linei) {
           if (sampler_partition[linei][tickposition][1] != 0) {
-            if (Sampleassigned[sampler_partition[linei][tickposition][1]] != 0 &&
-                ((samplermidichannel == 0) ||
-                ((byte)samplermidichannel == sampler_partition[linei][tickposition][0]))) {
+            if (gg.Sampleassigned[sampler_partition[linei][tickposition][1]] != 0 &&
+                ((gg.samplermidichannel == 0) ||
+                ((byte)gg.samplermidichannel == sampler_partition[linei][tickposition][0]))) {
                   initiateasamplerliner(sampler_partition[linei][tickposition][1], sampler_partition[linei][tickposition][2]);
             }
           }

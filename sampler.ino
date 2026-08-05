@@ -55,11 +55,11 @@ class SamplerMenuRouter : public SectionHolder {
         static void smixerVpanelAction() {
           if (navlevel == 3) {
             navrange = 127;
-            smixervknobs[sublevels[2]] = sublevels[3];
+            gg.smixervknobs[sublevels[2]] = sublevels[3];
           }
           if (navlevel == 2) {
             navrange = 15;
-            sublevels[3] = smixervknobs[sublevels[2]];
+            sublevels[3] = gg.smixervknobs[sublevels[2]];
           }
           if (navlevel > 3) {
             returntonav(2);
@@ -76,7 +76,7 @@ class SamplerMenuRouter : public SectionHolder {
           // canvastitle.setCursor(70,0);
           canvasBIG.setTextSize(1);
           canvasBIG.setCursor(0, 0);
-          canvasBIG.print(smixervknobs[sublevels[2]]);
+          canvasBIG.print(gg.smixervknobs[sublevels[2]]);
 
           byte centercirclex;
           byte centercircley;
@@ -91,7 +91,7 @@ class SamplerMenuRouter : public SectionHolder {
 
           for (int i = 0; i < 8; i++) {
 
-            coeffangle = (6.2831 - (smixervknobs[i] / 127.0) * 6.2831) + 3.1416;
+            coeffangle = (6.2831 - (gg.smixervknobs[i] / 127.0) * 6.2831) + 3.1416;
             centercirclex = knobradius + (xcentershifter * i);
             centercircley = 16 + knobradius;
             canvastitle.setCursor(centercirclex - 5 + 3, 8);
@@ -107,12 +107,12 @@ class SamplerMenuRouter : public SectionHolder {
             centercirclex = knobradius + (xcentershifter * slct);
             canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
             canvastitle.setCursor(95, 0);
-            canvastitle.print((smixervknobs[slct] / 127.0) * 100.0, 1);
+            canvastitle.print((gg.smixervknobs[slct] / 127.0) * 100.0, 1);
           }
           centercircley = yshifter + knobradius;
           for (int i = 0; i < 8; i++) {
 
-            coeffangle = (6.2831 - (smixervknobs[i + 8] / 127.0) * 6.2831) + 3.1416;
+            coeffangle = (6.2831 - (gg.smixervknobs[i + 8] / 127.0) * 6.2831) + 3.1416;
             centercirclex = knobradius + (xcentershifter * i);
             canvasBIG.setCursor(centercirclex - 5, centercircley - (2 + knobradius * 2) - 1);
             canvasBIG.setTextSize(1);
@@ -127,7 +127,7 @@ class SamplerMenuRouter : public SectionHolder {
             centercirclex = knobradius + (xcentershifter * (slct - 8));
             canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
             canvastitle.setCursor(95, 0);
-            canvastitle.print((smixervknobs[slct] / 127.0) * 100.0, 1);
+            canvastitle.print((gg.smixervknobs[slct] / 127.0) * 100.0, 1);
           }
           dm.dodisplay();
         }
@@ -215,8 +215,8 @@ class SamplerMenuRouter : public SectionHolder {
 
         static void copyflashtoSD() {
           for (int i = 0; i < 128; i++) {
-            if (Sampleassigned[i] != 0) {
-              copybacklaflashfile(Sampleassigned[i]);
+            if (gg.Sampleassigned[i] != 0) {
+              copybacklaflashfile(gg.Sampleassigned[i]);
             }
           }
         }
@@ -712,7 +712,7 @@ class SamplerMenuRouter : public SectionHolder {
         static void Doautoassign() {
           for (int i = 0; i < numberofFlashfiles - 1; i++) {
             if (i + 4 < 128) {
-              Sampleassigned[i + 4] = i;
+              gg.Sampleassigned[i + 4] = i;
             } else {
               break;
             }
@@ -726,7 +726,7 @@ class SamplerMenuRouter : public SectionHolder {
 
         static void doclearassign() {
           for (int i = 0; i < 128; i++) {
-            Sampleassigned[i] = 0;
+            gg.Sampleassigned[i] = 0;
           }
         }
 
@@ -1019,16 +1019,16 @@ class SamplerMenuRouter : public SectionHolder {
           canvastitle.println(sublevels[3]);
 
           canvasBIG.fillScreen(SSD1306_BLACK);
-          if (Sampleassigned[sublevels[3]] != 0) {
+          if (gg.Sampleassigned[sublevels[3]] != 0) {
             canvasBIG.setTextSize(2);
             canvasBIG.setCursor(85, 16);
-            canvasBIG.println(Sampleassigned[sublevels[3]]);
+            canvasBIG.println(gg.Sampleassigned[sublevels[3]]);
             canvasBIG.setCursor(0, 40);
-            canvasBIG.println((char *)Flashsamplebase[Sampleassigned[sublevels[3]]]);
+            canvasBIG.println((char *)Flashsamplebase[gg.Sampleassigned[sublevels[3]]]);
           }
         }
 
-        static void samplesetter() { Sampleassigned[sublevels[3]] = sublevels[4]; }
+        static void samplesetter() { gg.Sampleassigned[sublevels[3]] = sublevels[4]; }
 
         static void listsamplesassigner2() {
 

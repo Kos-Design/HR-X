@@ -3,7 +3,7 @@ class FxBus {
   public:
     byte f_index = 0 ;
     bool active = 0 ;
-    byte plugged_fx_type = mainmenufxlistsize-1;
+    byte plugged_fx = mainmenufxlistsize-1;
     //find safe off value
     int premixesMto_index = 1000 ;
     int fxcording_index = 1000 ;
@@ -14,12 +14,12 @@ class FxBus {
       //remembver to manage avoid_fx_bounce if plugging fx outside of menu
       if (!avoid_fx_bounce){
         avoid_fx_bounce = true ;
-        if (plugged_fx_type != (mainmenufxlistsize - 1)) {
+        if (plugged_fx != (mainmenufxlistsize - 1)) {
           unplug_fx_line();
         }
         if (selected_fx_type != (mainmenufxlistsize - 1)) {
           plug_fx_line(selected_fx_type);
-          plugged_fx_type = selected_fx_type;
+          plugged_fx = selected_fx_type;
         }
       }
     }
@@ -71,7 +71,7 @@ class FxBus {
       delayCords[f_index]->disconnect();
       delayCordsR[f_index]->disconnect();
       AudioInterrupts();
-      plugged_fx_type = mainmenufxlistsize-1;
+      plugged_fx = mainmenufxlistsize-1;
     }
 };
 
@@ -147,24 +147,24 @@ class FxMenuRouter : public SectionHolder {
       }
       
       static void prepare_coeffs(byte lebiquad){
-        peakingEQ(bqfreq[lebiquad][bqstage[lebiquad]], bqgain[lebiquad][bqstage[lebiquad]], bqslope[lebiquad][bqstage[lebiquad]], AUDIO_SAMPLE_RATE, self->coeffs[bqstage[lebiquad]]);
-        //eq.setCoefficients(1, self->coeffs[bqstage[lebiquad]]);
+        peakingEQ(bqfreq[lebiquad][gg.bqstage[lebiquad]], bqgain[lebiquad][gg.bqstage[lebiquad]], bqslope[lebiquad][gg.bqstage[lebiquad]], AUDIO_SAMPLE_RATE, self->coeffs[gg.bqstage[lebiquad]]);
+        //eq.setCoefficients(1, self->coeffs[gg.bqstage[lebiquad]]);
         
         Serial.println("before set:");
 for (int i = 0; i < 5; i++)
-    Serial.println(self->coeffs[bqstage[lebiquad]][i], 12);
+    Serial.println(self->coeffs[gg.bqstage[lebiquad]][i], 12);
         
         Serial.println("");
         Serial.print("biquad: ");
         Serial.print(lebiquad);
         Serial.print("stage: ");
-        Serial.print(bqstage[lebiquad]);
+        Serial.print(gg.bqstage[lebiquad]);
         Serial.print("gain: ");
-        Serial.print(bqgain[lebiquad][bqstage[lebiquad]]);
+        Serial.print(bqgain[lebiquad][gg.bqstage[lebiquad]]);
         Serial.print(" freq: ");
-        Serial.print(bqfreq[lebiquad][bqstage[lebiquad]]);
+        Serial.print(bqfreq[lebiquad][gg.bqstage[lebiquad]]);
         Serial.print(" slope: ");
-        Serial.print(bqslope[lebiquad][bqstage[lebiquad]]);
+        Serial.print(bqslope[lebiquad][gg.bqstage[lebiquad]]);
         
       }
 
@@ -191,8 +191,8 @@ for (int i = 0; i < 5; i++)
         byte startx = 5;
         byte starty = 16;
         String textin;
-        if (fx[sublevels[1]%fxs_count]->plugged_fx_type != (mainmenufxlistsize - 1)) {
-          textin = (String)mainmenufxlist[fx[sublevels[1]%fxs_count]->plugged_fx_type];
+        if (fx[sublevels[1]%fxs_count]->plugged_fx != (mainmenufxlistsize - 1)) {
+          textin = (String)mainmenufxlist[fx[sublevels[1]%fxs_count]->plugged_fx];
         } else {
           textin = (String)mainfxlineslist[sublevels[1]%fxs_count];
         }
@@ -200,16 +200,16 @@ for (int i = 0; i < 5; i++)
         canvastitle.println(textin);
         for (int i = 0; i < fxs_count - 1 - sublevels[1]; i++) {
           canvasBIG.setCursor(startx, starty + ((i)*10));
-          if (fx[sublevels[1]%fxs_count + 1 + i]->plugged_fx_type != mainmenufxlistsize-1) {
-            canvasBIG.println((String)mainmenufxlist[fx[sublevels[1]%fxs_count + 1 + i]->plugged_fx_type]);
+          if (fx[sublevels[1]%fxs_count + 1 + i]->plugged_fx != mainmenufxlistsize-1) {
+            canvasBIG.println((String)mainmenufxlist[fx[sublevels[1]%fxs_count + 1 + i]->plugged_fx]);
           } else {
             canvasBIG.println(mainfxlineslist[sublevels[1]%fxs_count + 1 + i]);
           }
         }
         for (int i = 0; i < sublevels[1]%fxs_count; i++) {
           canvasBIG.setCursor(startx, (10 * (fxs_count - (sublevels[1]%fxs_count)) + 6 + ((i)*10)));
-          if (fx[i]->plugged_fx_type != (mainmenufxlistsize - 1)) {
-            canvasBIG.println((String)mainmenufxlist[fx[i]->plugged_fx_type]);
+          if (fx[i]->plugged_fx != (mainmenufxlistsize - 1)) {
+            canvasBIG.println((String)mainmenufxlist[fx[i]->plugged_fx]);
           } else {
             canvasBIG.println(mainfxlineslist[i]);
           }
@@ -218,65 +218,65 @@ for (int i = 0; i < 5; i++)
 
       static void biquadcontrols(byte lebiquad) {
         // AudioNoInterrupts();
-        switch (bqtype[lebiquad][bqstage[lebiquad]]) {
+        switch (gg.bqtype[lebiquad][gg.bqstage[lebiquad]]) {
         
           case 0:
-            biquad[lebiquad]->setLowpass(bqstage[lebiquad],
-                                        bqfreq[lebiquad][bqstage[lebiquad]],
-                                        bqslope[lebiquad][bqstage[lebiquad]]);
-            biquadR[lebiquad]->setLowpass(bqstage[lebiquad],
-                                        bqfreq[lebiquad][bqstage[lebiquad]],
-                                        bqslope[lebiquad][bqstage[lebiquad]]);
+            biquad[lebiquad]->setLowpass(gg.bqstage[lebiquad],
+                                        bqfreq[lebiquad][gg.bqstage[lebiquad]],
+                                        bqslope[lebiquad][gg.bqstage[lebiquad]]);
+            biquadR[lebiquad]->setLowpass(gg.bqstage[lebiquad],
+                                        bqfreq[lebiquad][gg.bqstage[lebiquad]],
+                                        bqslope[lebiquad][gg.bqstage[lebiquad]]);
             break;
 
           case 1:
 
-            biquad[lebiquad]->setHighpass(bqstage[lebiquad],
-                                          bqfreq[lebiquad][bqstage[lebiquad]],
-                                          bqslope[lebiquad][bqstage[lebiquad]]);
-            biquadR[lebiquad]->setHighpass(bqstage[lebiquad],
-                                          bqfreq[lebiquad][bqstage[lebiquad]],
-                                          bqslope[lebiquad][bqstage[lebiquad]]);
+            biquad[lebiquad]->setHighpass(gg.bqstage[lebiquad],
+                                          bqfreq[lebiquad][gg.bqstage[lebiquad]],
+                                          bqslope[lebiquad][gg.bqstage[lebiquad]]);
+            biquadR[lebiquad]->setHighpass(gg.bqstage[lebiquad],
+                                          bqfreq[lebiquad][gg.bqstage[lebiquad]],
+                                          bqslope[lebiquad][gg.bqstage[lebiquad]]);
             break;
 
           case 2:
-            biquad[lebiquad]->setBandpass(bqstage[lebiquad],
-                                          bqfreq[lebiquad][bqstage[lebiquad]],
-                                          bqslope[lebiquad][bqstage[lebiquad]]);
-            biquadR[lebiquad]->setBandpass(bqstage[lebiquad],
-                                          bqfreq[lebiquad][bqstage[lebiquad]],
-                                          bqslope[lebiquad][bqstage[lebiquad]]);
+            biquad[lebiquad]->setBandpass(gg.bqstage[lebiquad],
+                                          bqfreq[lebiquad][gg.bqstage[lebiquad]],
+                                          bqslope[lebiquad][gg.bqstage[lebiquad]]);
+            biquadR[lebiquad]->setBandpass(gg.bqstage[lebiquad],
+                                          bqfreq[lebiquad][gg.bqstage[lebiquad]],
+                                          bqslope[lebiquad][gg.bqstage[lebiquad]]);
             break;
 
           case 3:
-            biquad[lebiquad]->setNotch(bqstage[lebiquad],
-                                      bqfreq[lebiquad][bqstage[lebiquad]],
-                                      bqslope[lebiquad][bqstage[lebiquad]]);
-            biquadR[lebiquad]->setNotch(bqstage[lebiquad],
-                                      bqfreq[lebiquad][bqstage[lebiquad]],
-                                      bqslope[lebiquad][bqstage[lebiquad]]);
+            biquad[lebiquad]->setNotch(gg.bqstage[lebiquad],
+                                      bqfreq[lebiquad][gg.bqstage[lebiquad]],
+                                      bqslope[lebiquad][gg.bqstage[lebiquad]]);
+            biquadR[lebiquad]->setNotch(gg.bqstage[lebiquad],
+                                      bqfreq[lebiquad][gg.bqstage[lebiquad]],
+                                      bqslope[lebiquad][gg.bqstage[lebiquad]]);
             break;
 
           case 4:
-            biquad[lebiquad]->setLowShelf(bqstage[lebiquad],
-                                          bqfreq[lebiquad][bqstage[lebiquad]],
-                                          bqgain[lebiquad][bqstage[lebiquad]],
-                                          bqslope[lebiquad][bqstage[lebiquad]]);
-            biquadR[lebiquad]->setLowShelf(bqstage[lebiquad],
-                                          bqfreq[lebiquad][bqstage[lebiquad]],
-                                          bqgain[lebiquad][bqstage[lebiquad]],
-                                          bqslope[lebiquad][bqstage[lebiquad]]);
+            biquad[lebiquad]->setLowShelf(gg.bqstage[lebiquad],
+                                          bqfreq[lebiquad][gg.bqstage[lebiquad]],
+                                          bqgain[lebiquad][gg.bqstage[lebiquad]],
+                                          bqslope[lebiquad][gg.bqstage[lebiquad]]);
+            biquadR[lebiquad]->setLowShelf(gg.bqstage[lebiquad],
+                                          bqfreq[lebiquad][gg.bqstage[lebiquad]],
+                                          bqgain[lebiquad][gg.bqstage[lebiquad]],
+                                          bqslope[lebiquad][gg.bqstage[lebiquad]]);
             break;
 
           case 5:
-            biquad[lebiquad]->setHighShelf(bqstage[lebiquad],
-                                          bqfreq[lebiquad][bqstage[lebiquad]],
-                                          bqgain[lebiquad][bqstage[lebiquad]],
-                                          bqslope[lebiquad][bqstage[lebiquad]]);
-            biquadR[lebiquad]->setHighShelf(bqstage[lebiquad],
-                                          bqfreq[lebiquad][bqstage[lebiquad]],
-                                          bqgain[lebiquad][bqstage[lebiquad]],
-                                          bqslope[lebiquad][bqstage[lebiquad]]);
+            biquad[lebiquad]->setHighShelf(gg.bqstage[lebiquad],
+                                          bqfreq[lebiquad][gg.bqstage[lebiquad]],
+                                          bqgain[lebiquad][gg.bqstage[lebiquad]],
+                                          bqslope[lebiquad][gg.bqstage[lebiquad]]);
+            biquadR[lebiquad]->setHighShelf(gg.bqstage[lebiquad],
+                                          bqfreq[lebiquad][gg.bqstage[lebiquad]],
+                                          bqgain[lebiquad][gg.bqstage[lebiquad]],
+                                          bqslope[lebiquad][gg.bqstage[lebiquad]]);
             break;
 
           case 6:
@@ -287,8 +287,8 @@ for (int i = 0; i < 5; i++)
 
               prepare_coeffs(lebiquad);
               
-              biquad[lebiquad]->setCoefficients(bqstage[lebiquad], self->coeffs[bqstage[lebiquad]]);
-              biquadR[lebiquad]->setCoefficients(bqstage[lebiquad], self->coeffs[bqstage[lebiquad]]);
+              biquad[lebiquad]->setCoefficients(gg.bqstage[lebiquad], self->coeffs[gg.bqstage[lebiquad]]);
+              biquadR[lebiquad]->setCoefficients(gg.bqstage[lebiquad], self->coeffs[gg.bqstage[lebiquad]]);
             break;
 
           default:
@@ -393,10 +393,10 @@ for (int i = 0; i < 5; i++)
 
       static void restartdelayline(int lefilter) {
 
-        delaymultiplier[lefilter] = delayVknobs[lefilter][1] + 1;
-        delaytimingselect(lefilter, delayVknobs[lefilter][0]);
+        delaymultiplier[lefilter] = gg.delayVknobs[lefilter][1] + 1;
+        delaytimingselect(lefilter, gg.delayVknobs[lefilter][0]);
 
-        delayfeedback(lefilter, (delayVknobs[lefilter][2] / 127.0) * 0.45);
+        delayfeedback(lefilter, (gg.delayVknobs[lefilter][2] / 127.0) * 0.45);
         //8 is delay obj tap channels
         for (int j = 0; j < 8; j++) {
 
@@ -408,7 +408,7 @@ for (int i = 0; i < 5; i++)
       
       static void changebiquadfreqvalue(byte lebiquad, int valub) {
         // valub range 1024
-        bqfreq[lebiquad][bqstage[lebiquad]] = valub * 3;
+        bqfreq[lebiquad][gg.bqstage[lebiquad]] = valub * 3;
         biquadcontrols(lebiquad);
       }
 
@@ -444,10 +444,10 @@ for (int i = 0; i < 5; i++)
       }
       static void flangercontrols(byte lefilter) {
         flangeoffset =
-            round((flangerVknobs[lefilter][0] / 127.0) * FLANGE_DELAY_LENGTH / 4);
+            round((gg.flangerVknobs[lefilter][0] / 127.0) * FLANGE_DELAY_LENGTH / 4);
         flangedepth =
-            round((flangerVknobs[lefilter][1] / 127.0) * FLANGE_DELAY_LENGTH / 4);
-        flangefreq[lefilter] = (double)(flangerVknobs[lefilter][2] / 127.0) * 2;
+            round((gg.flangerVknobs[lefilter][1] / 127.0) * FLANGE_DELAY_LENGTH / 4);
+        flangefreq[lefilter] = (double)(gg.flangerVknobs[lefilter][2] / 127.0) * 2;
          AudioNoInterrupts();
         flange[lefilter]->voices(flangeoffset, flangedepth, flangefreq[lefilter]);
         flangeR[lefilter]->voices(flangeoffset, flangedepth, flangefreq[lefilter]);
@@ -460,13 +460,13 @@ for (int i = 0; i < 5; i++)
           // offset
           if (slct == 0) {
             navrange = 127;
-            flangerVknobs[lefilter][0] = sublevels[4];
+            gg.flangerVknobs[lefilter][0] = sublevels[4];
             flangercontrols(lefilter);
           }
           // depth
           if (slct == 1) {
             navrange = 127;
-            flangerVknobs[lefilter][1] = sublevels[4];
+            gg.flangerVknobs[lefilter][1] = sublevels[4];
             flangercontrols(lefilter);
             // apply
           }
@@ -474,7 +474,7 @@ for (int i = 0; i < 5; i++)
           // depth
           if (slct == 2) {
             navrange = 127;
-            flangerVknobs[lefilter][2] = sublevels[4];
+            gg.flangerVknobs[lefilter][2] = sublevels[4];
             flangercontrols(lefilter);
             // apply
           }
@@ -489,7 +489,7 @@ for (int i = 0; i < 5; i++)
       }
 
       static void set_wet_mix_at_sub4(byte i){
-        WetMixMasters[i + 1] = sublevels[4] ;
+        gg.WetMixMasters[i + 1] = sublevels[4] ;
         _mx.wetmixmastercontrols();
       }
 
@@ -507,26 +507,26 @@ for (int i = 0; i < 5; i++)
         byte slct = sublevels[3];
         // size
         if (slct == 0) {
-          sublevels[4] = flangerVknobs[lefilter][0];
+          sublevels[4] = gg.flangerVknobs[lefilter][0];
           canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
-          sublevels[4] = flangerVknobs[lefilter][1];
+          sublevels[4] = gg.flangerVknobs[lefilter][1];
           canvasBIG.drawCircle(centercirclex + 40, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
 
         if (slct == 2) {
-          sublevels[4] = flangerVknobs[lefilter][2];
+          sublevels[4] = gg.flangerVknobs[lefilter][2];
           canvasBIG.drawCircle(centercirclex + 40 + 40, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
 
         // wet
         if (slct == 3) {
-          sublevels[4] = WetMixMasters[lefilter+ 1];
+          sublevels[4] = gg.WetMixMasters[lefilter+ 1];
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -550,12 +550,12 @@ for (int i = 0; i < 5; i++)
             dm.clean_title_1();
         canvastitle.print("Flanger ");
         canvastitle.print(lefilter + 1);
-        //  flangerVknobs[lefilter][0] ;
-        // float dephtflange = flangerVknobs[lefilter][1]/127.0 ;
-        // float freqflange = flangerVknobs[lefilter][2]/127.0 ;
+        //  gg.flangerVknobs[lefilter][0] ;
+        // float dephtflange = gg.flangerVknobs[lefilter][1]/127.0 ;
+        // float freqflange = gg.flangerVknobs[lefilter][2]/127.0 ;
         // voices(flangeoffset, flangedepth, flangefreq);
         // Roomsize
-        coeffangle = (6.2831 - (flangerVknobs[lefilter][0] / 127.0) * 6.2831) + 3.1416;
+        coeffangle = (6.2831 - (gg.flangerVknobs[lefilter][0] / 127.0) * 6.2831) + 3.1416;
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
@@ -563,13 +563,13 @@ for (int i = 0; i < 5; i++)
         canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
         canvasBIG.setTextSize(1);
 
-        canvasBIG.print(round((flangerVknobs[lefilter][0] / 127.0) * FLANGE_DELAY_LENGTH / 4));
+        canvasBIG.print(round((gg.flangerVknobs[lefilter][0] / 127.0) * FLANGE_DELAY_LENGTH / 4));
         // canvasBIG.setCursor(centercirclex-knobradius+1, 8);
         canvasBIG.setCursor(centercirclex - knobradius - 6, centercircley + knobradius + 4 + 10);
         canvasBIG.print("Offset");
 
         // damping
-        coeffangle = (6.2831 - (flangerVknobs[lefilter][1] / 127.0) * 6.2831) + 3.1416;
+        coeffangle = (6.2831 - (gg.flangerVknobs[lefilter][1] / 127.0) * 6.2831) + 3.1416;
         centercirclex = centercirclex + 40;
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
@@ -578,13 +578,13 @@ for (int i = 0; i < 5; i++)
         canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
         canvasBIG.setTextSize(1);
         canvasBIG.print(
-            round((flangerVknobs[lefilter][1] / 127.0) * FLANGE_DELAY_LENGTH / 4));
+            round((gg.flangerVknobs[lefilter][1] / 127.0) * FLANGE_DELAY_LENGTH / 4));
         // canvasBIG.setCursor(centercirclex-knobradius+1, 8);
         canvasBIG.setCursor(centercirclex - knobradius - 2, centercircley + knobradius + 4 + 10);
         canvasBIG.print("Depth");
 
         coeffangle =
-            (6.2831 - (flangerVknobs[lefilter][2] / 127.0) * 6.2831) + 3.1416;
+            (6.2831 - (gg.flangerVknobs[lefilter][2] / 127.0) * 6.2831) + 3.1416;
         centercirclex = centercirclex + 40;
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
@@ -592,13 +592,13 @@ for (int i = 0; i < 5; i++)
         canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
         canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
         canvasBIG.setTextSize(1);
-        canvasBIG.print(((flangerVknobs[lefilter][2] / 127.0) * 2), 2);
+        canvasBIG.print(((gg.flangerVknobs[lefilter][2] / 127.0) * 2), 2);
         canvasBIG.setCursor(centercirclex - knobradius - 2, centercircley + knobradius + 4 + 10);
         // canvasBIG.setCursor(centercirclex-knobradius+1, 8);
         canvasBIG.print("Delay");
 
         // wetbar
-        barsize = round((WetMixMasters[lefilter + 1] /127.0) * (totbartall - 4));
+        barsize = round((gg.WetMixMasters[lefilter + 1] /127.0) * (totbartall - 4));
         canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
         canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
         canvasBIG.setCursor(startlex2 - 6, 0);
@@ -608,7 +608,7 @@ for (int i = 0; i < 5; i++)
       }
 
       static void choruscontrols(byte lefilter) {
-        chorusvoices[lefilter] = round((chorusVknobs[lefilter] / 127.0) * 8) ;
+        chorusvoices[lefilter] = round((gg.chorusVknobs[lefilter] / 127.0) * 8) ;
         chorus[lefilter]->voices(chorusvoices[lefilter]);
         chorusR[lefilter]->voices(chorusvoices[lefilter]);
       }
@@ -620,7 +620,7 @@ for (int i = 0; i < 5; i++)
           // fq
           if (slct == 0) {
             navrange = 127;
-            chorusVknobs[lefilter] = sublevels[4];
+            gg.chorusVknobs[lefilter] = sublevels[4];
             choruscontrols(lefilter);
           }
           // res
@@ -649,14 +649,14 @@ for (int i = 0; i < 5; i++)
         int slct = sublevels[3];
         // size
         if (slct == 0) {
-          sublevels[4] = chorusVknobs[lefilter];
+          sublevels[4] = gg.chorusVknobs[lefilter];
           canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
 
         // wet
         if (slct == 1) {
-          sublevels[4] = WetMixMasters[lefilter + 1];
+          sublevels[4] = gg.WetMixMasters[lefilter + 1];
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
                             wbarwidth2 - 4, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
@@ -682,7 +682,7 @@ for (int i = 0; i < 5; i++)
         canvastitle.print("Chorus ");
         canvastitle.print(lefilter + 1);
 
-        float leroomsize = chorusVknobs[lefilter] / 127.0;
+        float leroomsize = gg.chorusVknobs[lefilter] / 127.0;
         // Roomsize
         coeffangle = (6.2831 - (leroomsize)*6.2831) + 3.1416;
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
@@ -693,13 +693,13 @@ for (int i = 0; i < 5; i++)
         canvasBIG.setCursor(centercirclex - knobradius + 5,
                             centercircley + knobradius + 4);
         canvasBIG.setTextSize(1);
-        canvasBIG.print(round((chorusVknobs[lefilter] / 127.0) * 8));
+        canvasBIG.print(round((gg.chorusVknobs[lefilter] / 127.0) * 8));
         canvasBIG.setCursor(centercirclex - knobradius - 1, 8);
         canvasBIG.print("Voices");
 
         // wetbar
         barsize =
-            round((WetMixMasters[lefilter + 1]/127.0) *
+            round((gg.WetMixMasters[lefilter + 1]/127.0) *
                   (totbartall - 4));
         canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall,
                                 wbarwidth2, 2, SSD1306_WHITE);
@@ -715,9 +715,9 @@ for (int i = 0; i < 5; i++)
 
       static void granular_pitch_shift(byte lefilter){
         // up to 1/3 of GRANULAR_MEMORY_SIZE in ms equivalent !!!
-        //float leratio = (granularVknobs[lefilter][1] / 127.0) * 3.0;
+        //float leratio = (gg.granularVknobs[lefilter][1] / 127.0) * 3.0;
         int maxgrain = (int)(0.027 * GRANULAR_MEMORY_SIZE );// up to (GRANULAR_MEMORY_SIZE / 290) ms if grain is 12800 so ratio of 0.027 of GRANULAR_MEMORY_SIZE
-        float legrainleng = 1.0 * map(granularVknobs[lefilter][0],0,127,1,maxgrain) ;
+        float legrainleng = 1.0 * map(gg.granularVknobs[lefilter][0],0,127,1,maxgrain) ;
         if (granular_shifting[lefilter]) {
           if (!granular_freezing[lefilter]) {
             granular[lefilter]->begin(granularMemories[lefilter], GRANULAR_MEMORY_SIZE);
@@ -740,7 +740,7 @@ for (int i = 0; i < 5; i++)
 
       static void granular_freeze(byte lefilter){
         int maxgrain = (int)(0.027 * GRANULAR_MEMORY_SIZE );// up to (GRANULAR_MEMORY_SIZE / 290) ms if grain is 12800 so ratio of 0.027 of GRANULAR_MEMORY_SIZE
-        float legrainleng = 0.75*map(granularVknobs[lefilter][0],0,127,1,maxgrain) ;
+        float legrainleng = 0.75*map(gg.granularVknobs[lefilter][0],0,127,1,maxgrain) ;
         if (granular_freezing[lefilter]) {
           if (!granular_shifting[lefilter]) {
             granular[lefilter]->begin(granularMemories[lefilter], GRANULAR_MEMORY_SIZE);
@@ -759,7 +759,7 @@ for (int i = 0; i < 5; i++)
       }
 
       static void granularcontrols(byte lefilter) {
-        float g_speed = 0.125 + (map(granularVknobs[lefilter][1],0,127,0,7875)/1000.0);
+        float g_speed = 0.125 + (map(gg.granularVknobs[lefilter][1],0,127,0,7875)/1000.0);
         granular[lefilter]->setSpeed(g_speed);
         granularR[lefilter]->setSpeed(g_speed);
       }
@@ -770,21 +770,21 @@ for (int i = 0; i < 5; i++)
           // g leng
           if (slct == 0) {
             navrange = 127;
-            granularVknobs[lefilter][0] = sublevels[4];
+            gg.granularVknobs[lefilter][0] = sublevels[4];
           }
           if (slct == 1) {
             navrange = 127;
-            granularVknobs[lefilter][1] = sublevels[4];
+            gg.granularVknobs[lefilter][1] = sublevels[4];
             granularcontrols(lefilter);
           }
           // res
           if (slct == 2) {
-            toggle_that(granular_freezing[lefilter]);
+            granular_freezing[lefilter] = !granular_freezing[lefilter];
             granular_freeze(lefilter);
             returntonav(3);
           }
           if (slct == 3) {
-            toggle_that(granular_shifting[lefilter]);
+            granular_shifting[lefilter] = !granular_shifting[lefilter] ;
             granular_pitch_shift(lefilter);
             returntonav(3);
           }
@@ -815,12 +815,12 @@ for (int i = 0; i < 5; i++)
         byte slct = sublevels[3];
         // size
         if (slct == 0) {
-          sublevels[4] = granularVknobs[lefilter][0];
+          sublevels[4] = gg.granularVknobs[lefilter][0];
           canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
-          sublevels[4] = granularVknobs[lefilter][1];
+          sublevels[4] = gg.granularVknobs[lefilter][1];
           canvasBIG.drawCircle(knobradius + 45, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         if (slct == 2) {
@@ -839,7 +839,7 @@ for (int i = 0; i < 5; i++)
         }
         // wet
         if (slct == 4) {
-          sublevels[4] = WetMixMasters[lefilter + 1] ;
+          sublevels[4] = gg.WetMixMasters[lefilter + 1] ;
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -859,14 +859,14 @@ for (int i = 0; i < 5; i++)
         const byte wbarwidth2 = 8;
         byte barsize;
         const byte startlex2 = 67;
-        int legrainleng = map(granularVknobs[lefilter][0],0,127,1,GRANULAR_MEMORY_SIZE);
-        float leratio = 0.125 + (map(granularVknobs[lefilter][1],0,127,0,7875)/1000.0);
+        int legrainleng = map(gg.granularVknobs[lefilter][0],0,127,1,GRANULAR_MEMORY_SIZE);
+        float leratio = 0.125 + (map(gg.granularVknobs[lefilter][1],0,127,0,7875)/1000.0);
 
             dm.clean_title_1();
         canvastitle.print("Granular ");
         canvastitle.print(lefilter + 1);
-        float grain_speed = granularVknobs[lefilter][1] / 127.0;
-        float grain_size = granularVknobs[lefilter][0] / 127.0;
+        float grain_speed = gg.granularVknobs[lefilter][1] / 127.0;
+        float grain_size = gg.granularVknobs[lefilter][0] / 127.0;
         // grain_size
         coeffangle = (6.2831 - (grain_size)*6.2831) + 3.1416;
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
@@ -918,7 +918,7 @@ for (int i = 0; i < 5; i++)
           canvasBIG.setTextColor(SSD1306_WHITE);
         }
         // wetbar
-        barsize = round(((WetMixMasters[lefilter + 1]/127.0) * (totbartall - 4)));
+        barsize = round(((gg.WetMixMasters[lefilter + 1]/127.0) * (totbartall - 4)));
         canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
         canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
         canvasBIG.setCursor(startlex2 - 6, 0);
@@ -928,10 +928,10 @@ for (int i = 0; i < 5; i++)
       }
 
       static void bitcrusherctrl(byte lefilter) {
-        bitcrusher[lefilter]->bits(bitcrusherVknobs[lefilter][0]);
-        bitcrusher[lefilter]->sampleRate(round((bitcrusherVknobs[lefilter][1] / 127.0) * 44100));
-        bitcrusherR[lefilter]->bits(bitcrusherVknobs[lefilter][0]);
-        bitcrusherR[lefilter]->sampleRate(round((bitcrusherVknobs[lefilter][1] / 127.0) * 44100));
+        bitcrusher[lefilter]->bits(gg.bitcrusherVknobs[lefilter][0]);
+        bitcrusher[lefilter]->sampleRate(round((gg.bitcrusherVknobs[lefilter][1] / 127.0) * 44100));
+        bitcrusherR[lefilter]->bits(gg.bitcrusherVknobs[lefilter][0]);
+        bitcrusherR[lefilter]->sampleRate(round((gg.bitcrusherVknobs[lefilter][1] / 127.0) * 44100));
       }
 
       static void bitcrusherVpanelAction(byte lefilter) {
@@ -941,13 +941,13 @@ for (int i = 0; i < 5; i++)
           // fq
           if (slct == 0) {
             navrange = 16;
-            bitcrusherVknobs[lefilter][0] = sublevels[4];
+            gg.bitcrusherVknobs[lefilter][0] = sublevels[4];
             bitcrusherctrl(lefilter);
           }
           // res
           if (slct == 1) {
             navrange = 127;
-            bitcrusherVknobs[lefilter][1] = sublevels[4];
+            gg.bitcrusherVknobs[lefilter][1] = sublevels[4];
             bitcrusherctrl(lefilter);
             // apply
           }
@@ -977,18 +977,18 @@ for (int i = 0; i < 5; i++)
         int slct = sublevels[3];
         // size
         if (slct == 0) {
-          sublevels[4] = bitcrusherVknobs[lefilter][0];
+          sublevels[4] = gg.bitcrusherVknobs[lefilter][0];
           canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
-          sublevels[4] = bitcrusherVknobs[lefilter][1];
+          sublevels[4] = gg.bitcrusherVknobs[lefilter][1];
           canvasBIG.drawCircle(knobradius + 68, centercircley, knobradius - 2, SSD1306_WHITE);
         }
 
         // wet
         if (slct == 2) {
-          sublevels[4] = WetMixMasters[lefilter + 1] ;
+          sublevels[4] = gg.WetMixMasters[lefilter + 1] ;
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -1012,8 +1012,8 @@ for (int i = 0; i < 5; i++)
             dm.clean_title_1();
         canvastitle.print("Bitcrusher ");
         canvastitle.print(lefilter + 1);
-        float lesamperate = bitcrusherVknobs[lefilter][1] / 127.0;
-        float lebitsz = bitcrusherVknobs[lefilter][0] / 16.0;
+        float lesamperate = gg.bitcrusherVknobs[lefilter][1] / 127.0;
+        float lebitsz = gg.bitcrusherVknobs[lefilter][0] / 16.0;
         // Roomsize
         coeffangle = (6.2831 - (lebitsz)*6.2831) + 3.1416;
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
@@ -1041,7 +1041,7 @@ for (int i = 0; i < 5; i++)
         canvasBIG.print("S.Rate");
 
         // wetbar
-        barsize = round(((WetMixMasters[lefilter + 1]/127.0) * (totbartall - 4)));
+        barsize = round(((gg.WetMixMasters[lefilter + 1]/127.0) * (totbartall - 4)));
         canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
         canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
         canvasBIG.setCursor(startlex2 - 6, 0);
@@ -1053,10 +1053,10 @@ for (int i = 0; i < 5; i++)
       static void freeverbscontrl(byte lefilter) {
         //AudioNoInterrupts();
         //other reverb type, disabled for noisy noise
-        //freeverbs[lefilter]->roomsize(reverbVknobs[lefilter][0] / 127.0);
-        //freeverbs[lefilter]->damping(reverbVknobs[lefilter][1] / 127.0);
-        freeverbs[lefilter]->reverbTime((reverbVknobs[lefilter][0] / 127.0)*10);
-        freeverbsR[lefilter]->reverbTime((reverbVknobs[lefilter][0] / 127.0)*10);
+        //freeverbs[lefilter]->roomsize(gg.reverbVknobs[lefilter][0] / 127.0);
+        //freeverbs[lefilter]->damping(gg.reverbVknobs[lefilter][1] / 127.0);
+        freeverbs[lefilter]->reverbTime((gg.reverbVknobs[lefilter][0] / 127.0)*10);
+        freeverbsR[lefilter]->reverbTime((gg.reverbVknobs[lefilter][0] / 127.0)*10);
         //AudioInterrupts();
       }
 
@@ -1067,13 +1067,13 @@ for (int i = 0; i < 5; i++)
           // fq
           if (slct == 0) {
             navrange = 127;
-            reverbVknobs[lefilter][0] = sublevels[4];
+            gg.reverbVknobs[lefilter][0] = sublevels[4];
             freeverbscontrl(lefilter);
           }
           // res
           //if (slct == 1) {
           //  navrange = 127;
-          //  reverbVknobs[lefilter][1] = sublevels[4];
+          //  gg.reverbVknobs[lefilter][1] = sublevels[4];
           //  freeverbscontrl(lefilter);
           //}
           if (slct == 1) {
@@ -1101,18 +1101,18 @@ for (int i = 0; i < 5; i++)
         int slct = sublevels[3];
         // second
         if (slct == 0) {
-          sublevels[4] = reverbVknobs[lefilter][0];
+          sublevels[4] = gg.reverbVknobs[lefilter][0];
           canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp ( disabled , from other freeverb module)
         //if (slct == 1) {
-        //  sublevels[4] = reverbVknobs[lefilter][1];
+        //  sublevels[4] = gg.reverbVknobs[lefilter][1];
         //  canvasBIG.drawCircle(knobradius + 68, centercircley, knobradius - 2, SSD1306_WHITE);
         //}
 
         // wet
         if (slct == 1) {
-          sublevels[4] = WetMixMasters[lefilter + 1];
+          sublevels[4] = gg.WetMixMasters[lefilter + 1];
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -1136,8 +1136,8 @@ for (int i = 0; i < 5; i++)
             dm.clean_title_1();
         canvastitle.print("Reverb ");
         canvastitle.print(lefilter + 1);
-        //float ledamping = reverbVknobs[lefilter][1] / 127.0;
-        float leroomsize = reverbVknobs[lefilter][0] / 127.0;
+        //float ledamping = gg.reverbVknobs[lefilter][1] / 127.0;
+        float leroomsize = gg.reverbVknobs[lefilter][0] / 127.0;
         // Roomsize
         coeffangle = (6.2831 - (leroomsize)*6.2831) + 3.1416;
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
@@ -1164,7 +1164,7 @@ for (int i = 0; i < 5; i++)
         //canvasBIG.print("Damping");
 
         // wetbar
-        barsize = round((WetMixMasters[lefilter + 1]/127.0) * (totbartall - 4));
+        barsize = round((gg.WetMixMasters[lefilter + 1]/127.0) * (totbartall - 4));
         canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
         canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
         canvasBIG.setCursor(startlex2 - 6, 0);
@@ -1180,24 +1180,24 @@ for (int i = 0; i < 5; i++)
           // time
           if (slct == 0) {
             navrange = 127;
-            delayVknobs[lefilter][0] = sublevels[4];
+            gg.delayVknobs[lefilter][0] = sublevels[4];
             restartdelayline(lefilter);
           }
           // timeX
           if (slct == 1) {
             navrange = 127;
-            delayVknobs[lefilter][1] = sublevels[4];
+            gg.delayVknobs[lefilter][1] = sublevels[4];
             restartdelayline(lefilter);
           }
           // feedback
           if (slct == 2) {
             navrange = 127;
-            delayVknobs[lefilter][2] = sublevels[4];
+            gg.delayVknobs[lefilter][2] = sublevels[4];
             restartdelayline(lefilter);
           }
           if (slct == 3) {
             navrange = 127;
-            WetMixMasters[lefilter + 1] = sublevels[4] ;
+            gg.WetMixMasters[lefilter + 1] = sublevels[4] ;
             _mx.wetmixmastercontrols();
           }
         }
@@ -1220,23 +1220,23 @@ for (int i = 0; i < 5; i++)
         byte slct = sublevels[3];
         // size
         if (slct == 0) {
-          sublevels[4] = delayVknobs[lefilter][0];
+          sublevels[4] = gg.delayVknobs[lefilter][0];
           canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
-          sublevels[4] = delayVknobs[lefilter][1];
+          sublevels[4] = gg.delayVknobs[lefilter][1];
           canvasBIG.drawCircle(centercirclex + 40, centercircley, knobradius - 2, SSD1306_WHITE);
         }
 
         if (slct == 2) {
-          sublevels[4] = delayVknobs[lefilter][2];
+          sublevels[4] = gg.delayVknobs[lefilter][2];
           canvasBIG.drawCircle(centercirclex + 40 + 40, centercircley, knobradius - 2, SSD1306_WHITE);
         }
 
         // wet
         if (slct == 3) {
-          sublevels[4] = WetMixMasters[lefilter + 1];
+          sublevels[4] = gg.WetMixMasters[lefilter + 1];
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -1260,9 +1260,9 @@ for (int i = 0; i < 5; i++)
             dm.clean_title_1();
         canvastitle.print("Delay ");
         canvastitle.print(lefilter + 1);
-        float delaytime = delayVknobs[lefilter][0] / 127.0;
-        float dephtflange = delayVknobs[lefilter][1] / 127.0;
-        float freqflange = delayVknobs[lefilter][2] / 127.0;
+        float delaytime = gg.delayVknobs[lefilter][0] / 127.0;
+        float dephtflange = gg.delayVknobs[lefilter][1] / 127.0;
+        float freqflange = gg.delayVknobs[lefilter][2] / 127.0;
 
         // Tsel
         coeffangle = (6.2831 - (delaytime)*6.2831) + 3.1416;
@@ -1272,7 +1272,7 @@ for (int i = 0; i < 5; i++)
         canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
         canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
         canvasBIG.setTextSize(1);
-        canvasBIG.print(round((delayVknobs[lefilter][0] / 127.0) * 7));
+        canvasBIG.print(round((gg.delayVknobs[lefilter][0] / 127.0) * 7));
         // canvasBIG.setCursor(centercirclex-knobradius+1, 8);
         canvasBIG.setCursor(centercirclex - knobradius - 6, centercircley + knobradius + 4 + 10);
         canvasBIG.print("TSel");
@@ -1286,7 +1286,7 @@ for (int i = 0; i < 5; i++)
         canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
         canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
         canvasBIG.setTextSize(1);
-        canvasBIG.print(delayVknobs[lefilter][1]);
+        canvasBIG.print(gg.delayVknobs[lefilter][1]);
         // canvasBIG.setCursor(centercirclex-knobradius+1, 8);
         canvasBIG.setCursor(centercirclex - knobradius - 2, centercircley + knobradius + 4 + 10);
         canvasBIG.print("TimeX");
@@ -1299,13 +1299,13 @@ for (int i = 0; i < 5; i++)
         canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
         canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
         canvasBIG.setTextSize(1);
-        canvasBIG.print(((delayVknobs[lefilter][2] / 127.0)), 2);
+        canvasBIG.print(((gg.delayVknobs[lefilter][2] / 127.0)), 2);
         canvasBIG.setCursor(centercirclex - knobradius - 2, centercircley + knobradius + 4 + 10);
         // canvasBIG.setCursor(centercirclex-knobradius+1, 8);
         canvasBIG.print("Fback");
 
         // wetbar
-        barsize = round(((WetMixMasters[lefilter + 1]/127.0) * (totbartall - 4)));
+        barsize = round(((gg.WetMixMasters[lefilter + 1]/127.0) * (totbartall - 4)));
         canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
         canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
         canvasBIG.setCursor(startlex2 - 6, 0);
@@ -1317,46 +1317,46 @@ for (int i = 0; i < 5; i++)
 
       static void filterVpanelAction(byte lefilter) {
         if (navlevel == 3) {
-          filter_lfo_option = LFOonfilterz[lefilter] ;
+          filter_lfo_option = gg.LFOonfilterz[lefilter] ;
         }
         if (navlevel == 4) {
           byte slct = sublevels[3];
           // fq
           if (slct == 0) {
             navrange = 127;
-            ffilterzVknobs[lefilter][0] = sublevels[4];
+            gg.ffilterzVknobs[lefilter][0] = sublevels[4];
           }
           // res
           if (slct == 1) {
             navrange = 127;
-            ffilterzVknobs[lefilter][1] = sublevels[4];
+            gg.ffilterzVknobs[lefilter][1] = sublevels[4];
           }
           // octaves
           if (slct == 2) {
             navrange = 127;
-            ffilterzVknobs[lefilter][2] = sublevels[4];
+            gg.ffilterzVknobs[lefilter][2] = sublevels[4];
           }
           // lowpass
           if (slct == 3) {
             navrange = 127;
-            mixffilterzVknobs[lefilter][0] = sublevels[4];
+            gg.mixffilterzVknobs[lefilter][0] = sublevels[4];
           }
           // bandpass
           if (slct == 4) {
             navrange = 127;
-            mixffilterzVknobs[lefilter][1] = sublevels[4];
+            gg.mixffilterzVknobs[lefilter][1] = sublevels[4];
           }
           // high pass
           if (slct == 5) {
             navrange = 127;
-            mixffilterzVknobs[lefilter][2] = sublevels[4];
+            gg.mixffilterzVknobs[lefilter][2] = sublevels[4];
           }
           if (slct == 6) {
             //navrange is 3 + 1 for none
             navrange = OSCS_COUNT;
             filter_lfo_option = sublevels[4];
             if (filter_lfo_option < OSCS_COUNT) {
-              LFOonfilterz[lefilter] = filter_lfo_option;
+              gg.LFOonfilterz[lefilter] = filter_lfo_option;
             }
           }
           if (slct == 7) {
@@ -1372,10 +1372,10 @@ for (int i = 0; i < 5; i++)
 
       static void lfoonfilterreplug(byte lefilter) {
         unpluglfoonfilterz(lefilter);
-        if (LFOonfilterz[lefilter] < OSCS_COUNT) {
-          LFOtoFilterz[((fxs_count * lefilter) + LFOonfilterz[lefilter])]->connect();
-          LFOtoFilterzR[((fxs_count * lefilter) + LFOonfilterz[lefilter])]->connect();
-          call_restart_lfo(LFOonfilterz[lefilter]);
+        if (gg.LFOonfilterz[lefilter] < OSCS_COUNT) {
+          LFOtoFilterz[((fxs_count * lefilter) + gg.LFOonfilterz[lefilter])]->connect();
+          LFOtoFilterzR[((fxs_count * lefilter) + gg.LFOonfilterz[lefilter])]->connect();
+          call_restart_lfo(gg.LFOonfilterz[lefilter]);
         }
 
       }
@@ -1389,15 +1389,15 @@ for (int i = 0; i < 5; i++)
       }
 
       static void filtercontrols(byte lefilter) {
-        filterzfreq[lefilter] = (ffilterzVknobs[lefilter][0] / 127.0) * filterzrange;
-        filterzreso[lefilter] = ((ffilterzVknobs[lefilter][1]) / 127.0) * 5;
+        filterzfreq[lefilter] = (gg.ffilterzVknobs[lefilter][0] / 127.0) * filterzrange;
+        filterzreso[lefilter] = ((gg.ffilterzVknobs[lefilter][1]) / 127.0) * 5;
         if (filterzreso[lefilter] < 0.7) {
           filterzreso[lefilter] = 0.7;
         }
-        filterzoctv[lefilter] = ((ffilterzVknobs[lefilter][2]) / 127.0) * 7;
-        filterzgainz[lefilter][0] = (mixffilterzVknobs[lefilter][0]) / 127.0;
-        filterzgainz[lefilter][1] = (mixffilterzVknobs[lefilter][1]) / 127.0;
-        filterzgainz[lefilter][2] = (mixffilterzVknobs[lefilter][2]) / 127.0;
+        filterzoctv[lefilter] = ((gg.ffilterzVknobs[lefilter][2]) / 127.0) * 7;
+        filterzgainz[lefilter][0] = (gg.mixffilterzVknobs[lefilter][0]) / 127.0;
+        filterzgainz[lefilter][1] = (gg.mixffilterzVknobs[lefilter][1]) / 127.0;
+        filterzgainz[lefilter][2] = (gg.mixffilterzVknobs[lefilter][2]) / 127.0;
         unpluglfoonfilterz(lefilter);
         if (sublevels[4] < OSCS_COUNT) {
           lfoonfilterreplug(lefilter);
@@ -1439,7 +1439,7 @@ for (int i = 0; i < 5; i++)
         canvastitle.print((char *)LFOnamelist[filter_lfo_option]);
 
         // bqfreq
-        coeffangle = (6.2831 - (ffilterzVknobs[lefilter][0] / 127.0) * 6.2831) + 3.1416;
+        coeffangle = (6.2831 - (gg.ffilterzVknobs[lefilter][0] / 127.0) * 6.2831) + 3.1416;
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
@@ -1463,7 +1463,7 @@ for (int i = 0; i < 5; i++)
         }
 
         // resonnance
-        coeffangle = (6.2831 - (ffilterzVknobs[lefilter][1] / 127.0) * 6.2831) + 3.1416;
+        coeffangle = (6.2831 - (gg.ffilterzVknobs[lefilter][1] / 127.0) * 6.2831) + 3.1416;
         centercirclex = knobradius + 30;
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
@@ -1476,7 +1476,7 @@ for (int i = 0; i < 5; i++)
         canvasBIG.print(filterzreso[lefilter], 1);
 
         // octave
-        coeffangle = (6.2831 - (ffilterzVknobs[lefilter][2] / 127.0) * 6.2831) + 3.1416;
+        coeffangle = (6.2831 - (gg.ffilterzVknobs[lefilter][2] / 127.0) * 6.2831) + 3.1416;
         centercirclex = knobradius + 55;
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
@@ -1506,7 +1506,7 @@ for (int i = 0; i < 5; i++)
         canvasBIG.setCursor(114, totbartall + topwbarstart + 4);
         canvasBIG.print("HP");
 
-        barsize = round(((WetMixMasters[lefilter + 1]/127.0) * (totbartall - 4)));
+        barsize = round(((gg.WetMixMasters[lefilter + 1]/127.0) * (totbartall - 4)));
         canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
         canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
         canvasBIG.setCursor(startlex2 - 6, 0);
@@ -1531,32 +1531,32 @@ for (int i = 0; i < 5; i++)
         byte slct = sublevels[3];
         // fq
         if (slct == 0) {
-          sublevels[4] = ffilterzVknobs[lefilter][0];
+          sublevels[4] = gg.ffilterzVknobs[lefilter][0];
           canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // res
         if (slct == 1) {
-          sublevels[4] = ffilterzVknobs[lefilter][1];
+          sublevels[4] = gg.ffilterzVknobs[lefilter][1];
           canvasBIG.drawCircle(centercirclex + 25, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // oct
         if (slct == 2) {
-          sublevels[4] = ffilterzVknobs[lefilter][2];
+          sublevels[4] = gg.ffilterzVknobs[lefilter][2];
           canvasBIG.drawCircle(centercirclex + 50, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // lp
         if (slct == 3) {
-          sublevels[4] = mixffilterzVknobs[lefilter][0];
+          sublevels[4] = gg.mixffilterzVknobs[lefilter][0];
           canvasBIG.drawRect(83, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
         }
         // bp
         if (slct == 4) {
-          sublevels[4] = mixffilterzVknobs[lefilter][1];
+          sublevels[4] = gg.mixffilterzVknobs[lefilter][1];
           canvasBIG.drawRect(100, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
         }
         // hp
         if (slct == 5) {
-          sublevels[4] = mixffilterzVknobs[lefilter][2];
+          sublevels[4] = gg.mixffilterzVknobs[lefilter][2];
           canvasBIG.drawRect(117, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
         }
         // Select LFO
@@ -1566,7 +1566,7 @@ for (int i = 0; i < 5; i++)
           canvasBIG.print((char)9);
         }
         if (slct == 7) {
-          sublevels[4] = WetMixMasters[lefilter + 1];
+          sublevels[4] = gg.WetMixMasters[lefilter + 1];
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -1578,34 +1578,34 @@ for (int i = 0; i < 5; i++)
           // stage
           if (slct == 0) {
             navrange = 3;
-            bqstage[lebiquad] = sublevels[4];
+            gg.bqstage[lebiquad] = sublevels[4];
           }
           // mode
           if (slct == 1) {
             navrange = 6;
-            bqtype[lebiquad][bqstage[lebiquad]] = sublevels[4];
+            gg.bqtype[lebiquad][gg.bqstage[lebiquad]] = sublevels[4];
           }
           // freq
           if (slct == 2) {
             navrange = 127;
-            bqVpot[lebiquad][bqstage[lebiquad]][0] = sublevels[4];
-            bqfreq[lebiquad][bqstage[lebiquad]] =
-                (((bqVpot[lebiquad][bqstage[lebiquad]][0]) / 127.0) * bqrange) + 101;
+            gg.bqVpot[lebiquad][gg.bqstage[lebiquad]][0] = sublevels[4];
+            bqfreq[lebiquad][gg.bqstage[lebiquad]] =
+                (((gg.bqVpot[lebiquad][gg.bqstage[lebiquad]][0]) / 127.0) * bqrange) + 101;
           }
           // slope or Q
           if (slct == 3) {
             navrange = 127;
-            bqVpot[lebiquad][bqstage[lebiquad]][1] = sublevels[4];
-            bqslope[lebiquad][bqstage[lebiquad]] = 0.001 + 5.0 * ((bqVpot[lebiquad][bqstage[lebiquad]][1]) / 127.0);
+            gg.bqVpot[lebiquad][gg.bqstage[lebiquad]][1] = sublevels[4];
+            bqslope[lebiquad][gg.bqstage[lebiquad]] = 0.001 + 5.0 * ((gg.bqVpot[lebiquad][gg.bqstage[lebiquad]][1]) / 127.0);
           }
           // gain
           if (slct == 5) {
             navrange = 127;
-            bqVpot[lebiquad][bqstage[lebiquad]][2] = sublevels[4];
-            bqgain[lebiquad][bqstage[lebiquad]] = 100.0 - ((bqVpot[lebiquad][bqstage[lebiquad]][2]) / 127.0) * 200.0 ;
+            gg.bqVpot[lebiquad][gg.bqstage[lebiquad]][2] = sublevels[4];
+            bqgain[lebiquad][gg.bqstage[lebiquad]] = 100.0 - ((gg.bqVpot[lebiquad][gg.bqstage[lebiquad]][2]) / 127.0) * 200.0 ;
           }
           // to avoid setting up a stage unconfigured while browsing
-          if (bqfreq[lebiquad][bqstage[lebiquad]] >= 101) {
+          if (bqfreq[lebiquad][gg.bqstage[lebiquad]] >= 101) {
             biquadcontrols(lebiquad);
           }
           if (slct == 4) {
@@ -1634,20 +1634,20 @@ for (int i = 0; i < 5; i++)
         byte totbartall = 24;
         byte topwbarstart = 16 + 12;
         byte wbarwidth = 9;
-        byte barsize = round((bqVpot[lebiquad][bqstage[lebiquad]][2] / 127.0) * (totbartall - 4));
+        byte barsize = round((gg.bqVpot[lebiquad][gg.bqstage[lebiquad]][2] / 127.0) * (totbartall - 4));
             dm.clean_title_1();
         canvastitle.print("Biquad ");
         canvastitle.print(lebiquad + 1);
         canvastitle.setCursor(107, 8);
         // reflect lebq
         canvastitle.print("s:");
-        canvastitle.print(bqstage[lebiquad] + 1);
+        canvastitle.print(gg.bqstage[lebiquad] + 1);
 
         canvastitle.setCursor(0, 8);
         canvastitle.print("mode: ");
-        canvastitle.print((char *)bqtypeLabels[bqtype[lebiquad][bqstage[lebiquad]]]);
+        canvastitle.print((char *)bqtypeLabels[gg.bqtype[lebiquad][gg.bqstage[lebiquad]]]);
         // bqfreq
-        coeffangle = (6.2831 - (bqVpot[lebiquad][bqstage[lebiquad]][0] / 127.0) * 6.2831) + 3.1416;
+        coeffangle = (6.2831 - (gg.bqVpot[lebiquad][gg.bqstage[lebiquad]][0] / 127.0) * 6.2831) + 3.1416;
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         bqVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         bqVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
@@ -1655,18 +1655,18 @@ for (int i = 0; i < 5; i++)
         canvasBIG.setCursor(centercirclex - knobradius, centercircley + knobradius + 4);
         canvasBIG.setTextSize(1);
         canvasBIG.print("Freq.");
-        if (bqfreq[lebiquad][bqstage[lebiquad]] < 1000) {
+        if (bqfreq[lebiquad][gg.bqstage[lebiquad]] < 1000) {
           canvasBIG.setCursor(centercirclex - knobradius + 4, 18);
         }
-        if ((bqfreq[lebiquad][bqstage[lebiquad]] < 10000) && (bqfreq[lebiquad][bqstage[lebiquad]] >= 1000)) {
+        if ((bqfreq[lebiquad][gg.bqstage[lebiquad]] < 10000) && (bqfreq[lebiquad][gg.bqstage[lebiquad]] >= 1000)) {
           canvasBIG.setCursor(centercirclex - knobradius + 2, 18);
         }
-        if (bqfreq[lebiquad][bqstage[lebiquad]] >= 10000) {
+        if (bqfreq[lebiquad][gg.bqstage[lebiquad]] >= 10000) {
           canvasBIG.setCursor(centercirclex - knobradius - 2, 18);
         }
-        canvasBIG.print(bqfreq[lebiquad][bqstage[lebiquad]], 0);
+        canvasBIG.print(bqfreq[lebiquad][gg.bqstage[lebiquad]], 0);
         // bqslope
-        coeffangle = (6.2831 - (bqVpot[lebiquad][bqstage[lebiquad]][1] / 127.0) * 6.2831) + 3.1416;
+        coeffangle = (6.2831 - (gg.bqVpot[lebiquad][gg.bqstage[lebiquad]][1] / 127.0) * 6.2831) + 3.1416;
         centercirclex = knobradius + 50;
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         bqVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
@@ -1676,17 +1676,17 @@ for (int i = 0; i < 5; i++)
         canvasBIG.setTextSize(1);
         canvasBIG.print("Slope");
         canvasBIG.setCursor(centercirclex - knobradius, 18);
-        canvasBIG.print(bqslope[lebiquad][bqstage[lebiquad]]);
+        canvasBIG.print(bqslope[lebiquad][gg.bqstage[lebiquad]]);
         // gain if  setLowShelf or sethighShelf
-        if (bqtype[lebiquad][bqstage[lebiquad]] > 3) {
+        if (gg.bqtype[lebiquad][gg.bqstage[lebiquad]] > 3) {
           canvasBIG.drawRoundRect(95, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
           canvasBIG.fillRect(95 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
           canvasBIG.setCursor(90, totbartall + topwbarstart + 4);
           canvasBIG.print("Gain");
           canvasBIG.setCursor(90, 18);
-          canvasBIG.print(bqgain[lebiquad][bqstage[lebiquad]]);
+          canvasBIG.print(bqgain[lebiquad][gg.bqstage[lebiquad]]);
         }
-        barsize = round(((WetMixMasters[lebiquad + 1]/127.0) * (totbartall + 13 - 4)));
+        barsize = round(((gg.WetMixMasters[lebiquad + 1]/127.0) * (totbartall + 13 - 4)));
         canvasBIG.drawRoundRect(topwbarstart - 12 + startlex2 + 4, 0, totbartall + 13, wbarwidth2, 2, SSD1306_WHITE);
         canvasBIG.fillRect((topwbarstart - 12 + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
         canvasBIG.setCursor(startlex2 - 6, 0);
@@ -1702,44 +1702,44 @@ for (int i = 0; i < 5; i++)
         byte wbarwidth2 = 7;
         if (navlevel == 3) {
           navrange = 4;
-          if (bqtype[lebiquad][bqstage[lebiquad]] > 3) {
+          if (gg.bqtype[lebiquad][gg.bqstage[lebiquad]] > 3) {
             navrange = 5;
           }
         }
         byte slct = sublevels[3];
         // stage
         if (slct == 0) {
-          sublevels[4] = bqstage[lebiquad];
+          sublevels[4] = gg.bqstage[lebiquad];
           canvasBIG.setCursor(103, 9);
           canvasBIG.print((char)9);
         }
         // mode
         if (slct == 1) {
-          sublevels[4] = bqtype[lebiquad][bqstage[lebiquad]];
+          sublevels[4] = gg.bqtype[lebiquad][gg.bqstage[lebiquad]];
           canvasBIG.setCursor(29, 8);
           canvasBIG.print((char)9);
         }
         // freq
         if (slct == 2) {
-          sublevels[4] = bqVpot[lebiquad][bqstage[lebiquad]][0];
+          sublevels[4] = gg.bqVpot[lebiquad][gg.bqstage[lebiquad]][0];
           canvasBIG.setCursor(20, 36);
           canvasBIG.print((char)9);
         }
         // slope
         if (slct == 3) {
-          sublevels[4] = bqVpot[lebiquad][bqstage[lebiquad]][1];
+          sublevels[4] = gg.bqVpot[lebiquad][gg.bqstage[lebiquad]][1];
           canvasBIG.setCursor(60, 36);
           canvasBIG.print((char)9);
         }
         // gain
         if (slct == 5) {
-          sublevels[4] = bqVpot[lebiquad][bqstage[lebiquad]][2];
+          sublevels[4] = gg.bqVpot[lebiquad][gg.bqstage[lebiquad]][2];
           canvasBIG.setCursor(89, 36);
           canvasBIG.print((char)9);
         }
 
         if (slct == 4) {
-          sublevels[4] = WetMixMasters[lebiquad + 1];
+          sublevels[4] = gg.WetMixMasters[lebiquad + 1];
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -1747,7 +1747,7 @@ for (int i = 0; i < 5; i++)
 
       static void allfxcontrolled() {
         for (int i = 0; i < 3; i++) {
-          switch(fx[i]->plugged_fx_type){
+          switch(fx[i]->plugged_fx){
             case 0:
             //multiply
             break;
@@ -1795,7 +1795,7 @@ for (int i = 0; i < 5; i++)
         display.clearDisplay();
         dolistmainfxlines();
         dm.dodisplay();
-        sublevels[2] = fx[sublevels[1]%fxs_count]->plugged_fx_type ;
+        sublevels[2] = fx[sublevels[1]%fxs_count]->plugged_fx ;
       }
 
       static void fx_nav_one(){

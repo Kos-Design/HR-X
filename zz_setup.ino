@@ -163,7 +163,7 @@ void setup() {
     pinMode(inputpins[i], INPUT_PULLUP);
   }
   for (int i = 0; i < 128; i++) {
-    midiknobassigned[i] = 0;
+    gg.midiknobassigned[i] = 0;
   }
   consoler.println((char *)"I/O Set !");
   consoler.println((char *)"Loading Defaults");
@@ -200,13 +200,13 @@ void setup() {
 
 void Volume_ctl(byte cc_value){
   // audioShield.volume(1.0);
-  mixlevelsM[0] = cc_value;
+  gg.mixlevelsM[0] = cc_value;
   _mx.setmastersmixlevel(0);
 }
 
 void SynthVolume_ctl(byte cc_value){
   // main synth level
-  mixlevelsM[1] = cc_value;
+  gg.mixlevelsM[1] = cc_value;
   _mx.setmastersmixlevel(1);
 }
 
@@ -218,57 +218,57 @@ void SDPlayerVolume_ctl(byte cc_value){
 
 void FlashVolume_ctl(byte cc_value){
   // flash
-  mixlevelsM[2] = cc_value;
+  gg.mixlevelsM[2] = cc_value;
   _mx.setmastersmixlevel(2);
 }
 
 void Wet1Volume_ctl(byte cc_value){
   // WetMixMaster1
-  WetMixMasters[1] = cc_value;
+  gg.WetMixMasters[1] = cc_value;
   _mx.wetmixmastercontrols();
 }
 
 void Wet2Volume_ctl(byte cc_value){
   // WetMixMaster2
-  WetMixMasters[2] = cc_value;
+  gg.WetMixMasters[2] = cc_value;
   _mx.wetmixmastercontrols();
 }
 
 void Wet3Volume_ctl(byte cc_value){
   // WetMixMaster3
-  WetMixMasters[3] = cc_value;
+  gg.WetMixMasters[3] = cc_value;
   _mx.wetmixmastercontrols();
 }
 
 void DrySampler_ctl(byte cc_value){
   /// sampler wetness
-  wetins[1] = cc_value;
+  gg.wetins[1] = cc_value;
   _mx.set_dry_mix(1);
 }
 
 void DrySynth_ctl(byte cc_value){
   /// synth wetness
-  wetins[0] = cc_value;
+  gg.wetins[0] = cc_value;
   _mx.set_dry_mix(0);
 }
 
 void DryAudioIn_ctl(byte cc_value){
   /// audio In wetness
-  wetins[2] = cc_value;
+  gg.wetins[2] = cc_value;
   _mx.set_dry_mix(2);
 }
 
 void Slope1_ctl(byte cc_value){
   // 303 cutoff pulse length
-  slope1 = cc_value;
+  gg.cut_off_slope = cc_value;
   for (int i=0; i<18; i++){
-    _ft.sloped[i] = _ft.fxsloper[i]*(slope1/127.0) + _ft.slopelinear[i]*(1-(slope1/127.0)) ;
+    _ft.sloped[i] = _ft.fxsloper[i]*(gg.cut_off_slope/127.0) + _ft.slopelinear[i]*(1-(gg.cut_off_slope/127.0)) ;
   }
 }
 
 void Slope2_ctl(byte cc_value){
 // 303 resonance pulse length
-  slope2 = cc_value;
+  gg.resonance_slope = cc_value;
 }
 
 void ArbitraryMaxF_ctl(byte cc_value){
@@ -277,74 +277,68 @@ void ArbitraryMaxF_ctl(byte cc_value){
 }
 
 void Filter303_ctl(byte cc_value){
-  le303filterzwet = round((cc_value / 127.0) * 100.0);
+  gg.le303filterzwet = cc_value;
   _ft.le303filterzWet();
 }
 
 void CutOffTweak_ctl(byte cc_value){
 // Cutoff freq and range
   float _smallfloat = (cc_value / 127.0);
-  le303ffilterzVknobs[0] = cc_value;
+  gg.le303ffilterzVknobs[0] = cc_value;
   // used to be x 14000
-  le303filterzfreq = round(_smallfloat * 10000);
+  gg.le303filterzfreq = lround(_smallfloat * 14000);
 }
 
 void ResoTweak_ctl(byte cc_value){
   // Resonance
-  le303ffilterzVknobs[1] = cc_value;
-  le303filterzreso = ((le303ffilterzVknobs[1]) / 127.0) * 5;
-}
-
-void Filter303Octave_ctl(byte cc_value){
-  // Filter Octave range
-  le303ffilterzVknobs[2] = cc_value;
-  le303filterzoctv = ((le303ffilterzVknobs[2]) / 127.0) * 7;
+  gg.le303ffilterzVknobs[1] = cc_value;
+  gg.le303filterzreso = cc_value;
 }
 
 void set_Portamento_time_ctl(byte cc_value){
-  portamento_time = cc_value ;   
+  gg.portamento_time = cc_value ;   
 }
 
 void set_Portamento_height_ctl(byte cc_value){
-  portamento_height = cc_value ;   
+  gg.portamento_height = cc_value ;   
 }
 
 void FilterPreAmp_ctl(byte cc_value){
   //filter Input gain
-  preampleswaves = cc_value;
+  gg.preampleswaves = cc_value;
 }
 
 void ArpegioType_ctl(byte cc_value){
-  arpegiatortype = round((cc_value / 127.0) * 8.0);
-  if (arpegiatortype < 8) {
-    arpegiatorOn = 1;
+  gg.arpegiatortype = round((cc_value / 127.0) * 8.0);
+  if (gg.arpegiatortype < 8) {
+    gg.arpegiatorOn = 1;
   } else {
-    arpegiatorOn = 0;
+    gg.arpegiatorOn = 0;
   }
 }
 
 void ArpegioMode_ctl(byte cc_value){
-  arpegmode = round((cc_value / 127.0) * 7.0);
+  gg.arpegmode = round((cc_value / 127.0) * 7.0);
 }
 
 void ArpegioNotesCount_ctl(byte cc_value){
-  arpegnumofnotes = round((cc_value / 127.0) * 6.0) + 1;
+  gg.arpegnumofnotes = round((cc_value / 127.0) * 6.0) + 1;
 }
 
 void ArpegioStartOffset_ctl(byte cc_value){
-  arpegstartoffset = round((cc_value / 127.0) * 18.0);  
+  gg.arpegstartoffset = round((cc_value / 127.0) * 18.0);  
 }
 
 void ArpegioGridC_ctl(byte cc_value){
-  arpeggridC = round((cc_value / 127.0) * 8.0);
+  gg.arpeggridC = round((cc_value / 127.0) * 8.0);
 }
 
 void ArpegioGridS_ctl(byte cc_value){
-  arpeggridS = round((cc_value / 127.0) * 8.0);
+  gg.arpeggridS = round((cc_value / 127.0) * 8.0);
 }
 
 void ArpegioLength_ctl(byte cc_value){
-  arpeglengh = round((cc_value / 127.0) * 8.0);
+  gg.arpeglengh = round((cc_value / 127.0) * 8.0);
 }
 
 void TickFromStart_Trigger_ctl(byte cc_value){
@@ -393,11 +387,11 @@ void PlaySong_Trigger_ctl(byte cc_value){
 }
 
 void SetChords_ctl(byte cc_value){
-  lasetchord = round((cc_value / 127.0) * 6.0);
-  if (lasetchord < 6) {
-    chordson = 1;
+  gg.lasetchord = round((cc_value / 127.0) * 6.0);
+  if (gg.lasetchord < 6) {
+    gg.chordson = 1;
   } else {
-    chordson = 0;
+    gg.chordson = 0;
   }
 }
 
@@ -407,32 +401,15 @@ void SynthIndex_ctl(byte cc_value){
 
 void SynthXFreq_ctl(byte cc_value){
   // freqs
-  //rather do up to 2X current  ?
-  //TODO redo freqs
-  if (wavesfreqs[oscillator] == 1) {
-    demimalmode = !demimalmode;
-  } else {
-    if (wavesfreqs[oscillator] <= 1) {
-      demimalmode = 1;
-    }
-  }
-  if (demimalmode) {
-    wavesfreqs[oscillator] = ((cc_value / 127.0) * 10.0) / 10.0;
-  }
-
-  if (!demimalmode) {
-    wavesfreqs[oscillator] = round((cc_value / 127.0) * 10.0);
-  }
+  gg.wavesfreqs[oscillator] = (cc_value / 127.0) * 2.0;
 }
 
 void SynthXLevel_ctl(byte cc_value){
-  mixlevelsL[oscillator] = cc_value;
+  gg.mixlevelsL[oscillator] = cc_value;
 }
 
 void PansLevels_ctl(byte cc_value){
-  // panLs[i-1]
-  panLs[oscillator] = (cc_value / 127.0);
-  _mx.setwavemixlevel();
+  gg.panLs = cc_value;
 }
 
 void MetroDrumLevel_ctl(byte cc_value){
@@ -441,99 +418,99 @@ void MetroDrumLevel_ctl(byte cc_value){
 }
 
 void SynthXModulationType_ctl(byte cc_value){
-  FMmodulated[oscillator] = round((cc_value / 127.0) * 3.0);
+  gg.FMmodulated[oscillator] = round((cc_value / 127.0) * 3.0);
   _sn.setwavetypefromlist();
 }
 
 void SynthXtype_ctl(byte cc_value){
-  Waveformstyped[oscillator] = round((cc_value / 127.0) * 11.0);
+  gg.Waveformstyped[oscillator] = round((cc_value / 127.0) * 11.0);
   _sn.setwavetypefromlist();
 }
 
 void SynthXOffset_ctl(byte cc_value){
-  wave1offset[oscillator] = cc_value;
+  gg.wave1offset[oscillator] = cc_value;
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
     waveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->offset(
-        (float)(((64.0 - wave1offset[oscillator]) / 64.0)));
+        (float)(((64.0 - gg.wave1offset[oscillator]) / 64.0)));
     FMwaveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->offset(
-        (float)(((64.0 - wave1offset[oscillator]) / 64.0)));
+        (float)(((64.0 - gg.wave1offset[oscillator]) / 64.0)));
   }
 }
 
 void SynthXPhase_ctl(byte cc_value){
-   phaselevelsL[oscillator] = round((cc_value / 127.0) * 360.0);
-      _sn.setphaselevel();
+  gg.phaselevelsL[oscillator] = cc_value ;
+  _sn.setphaselevel();
 }
 
 void AnalogTouch_Toggle_ctl(byte cc_value){
-  digitalplay = !digitalplay;
+  gg.digitalplay = !gg.digitalplay;
 }
 
 void LFOXLevel_ctl(byte cc_value){
-  LFOlevel[oscillator] = cc_value;
+  gg.LFOlevel[oscillator] = cc_value;
 }
       
 void LFOXType_ctl(byte cc_value){
-  LFOformstype[oscillator] = round((cc_value / 127.0) * 8.0);
+  gg.LFOformstype[oscillator] = round((cc_value / 127.0) * 8.0);
 }
 
 void LFOXFreq_ctl(byte cc_value){
-  LFOfreqs[oscillator] = cc_value;
+  gg.LFOHz[oscillator] = (cc_value/127.0)*2.0;
 }
 
 void LFOXPhase_ctl(byte cc_value){
-  LFOphase[oscillator] = round((cc_value / 127.0) * 360.0);
+  gg.LFOphase[oscillator] = cc_value;
 }
 
 void LFOXOffset_ctl(byte cc_value){
-  LFOoffset[oscillator] = cc_value;
+  gg.LFOoffset[oscillator] = cc_value;
 }
 
 void LFOXLSync_Toggle_ctl(byte cc_value){
-  LFOsync[oscillator] = !LFOsync[oscillator];
+  gg.LFOsync[oscillator] = !gg.LFOsync[oscillator];
 }
 
 void AdsrAtckDelay_ctl(byte cc_value){
-  adsrlevels[AttackDelay] = round((cc_value / 127.0) * 32.0);
+  gg.adsrlevels[AttackDelay] = round((cc_value / 127.0) * 32.0);
 }
 
 void AdsrAttack_ctl(byte cc_value){
-  adsrlevels[Attack] = cc_value;
+  gg.adsrlevels[Attack] = cc_value;
 }
 
 void AdsrHold_ctl(byte cc_value){
-  adsrlevels[Hold] = cc_value;
+  gg.adsrlevels[Hold] = cc_value;
 }
 
 void AdsrDecay_ctl(byte cc_value){
-  adsrlevels[Decay] = round((cc_value / 127.0) * 512.0);
+  gg.adsrlevels[Decay] = round((cc_value / 127.0) * 512.0);
 }
 
 void AdsrSustain_ctl(byte cc_value){
-  adsrlevels[Sustain] = round((cc_value / 127.0) * 100.0);
+  gg.adsrlevels[Sustain] = round((cc_value / 127.0) * 100.0);
 }
 
 void AdsrRelease_ctl(byte cc_value){
-  adsrlevels[Release] = round((cc_value / 127.0) * 512.0);
+  gg.adsrlevels[Release] = round((cc_value / 127.0) * 512.0);
 }
 
 void Filter303_Knob1_ctl(byte cc_value){
-  mixle303ffilterzVknobs[0] = cc_value;
-  le303filterzgainz[0] = (cc_value / 127.0);
+  gg.mixle303ffilterzVknobs[0] = cc_value;
+  gg.le303filterzgainz[0] = cc_value;
   _ft.le303filtercontrols();
-  // le303filterzgainz[0]
-  //  mixle303ffilterzVknobs[0]
+  // gg.le303filterzgainz[0]
+  //  gg.mixle303ffilterzVknobs[0]
 }
 
 void Filter303_Knob2_ctl(byte cc_value){
-  mixle303ffilterzVknobs[1] = cc_value;
-  le303filterzgainz[1] = (cc_value / 127.0);
+  gg.mixle303ffilterzVknobs[1] = cc_value;
+  gg.le303filterzgainz[1] = cc_value ;
   _ft.le303filtercontrols();
 }
 
 void Filter303_Knob3_ctl(byte cc_value){
-  mixle303ffilterzVknobs[2] = cc_value;
-  le303filterzgainz[2] = (cc_value / 127.0);
+  gg.mixle303ffilterzVknobs[2] = cc_value;
+  gg.le303filterzgainz[2] = cc_value ;
   _ft.le303filtercontrols();
 }
      
@@ -542,59 +519,59 @@ void FXBusSelector_ctl(byte cc_value){
 }
 
 void ChorusVoices_ctl(byte cc_value){
-  chorusVknobs[ccfxlineselector] = cc_value;
+  gg.chorusVknobs[ccfxlineselector] = cc_value;
 }
 
 void LFOonFilter_ctl(byte cc_value){
-  LFOonfilterz[ccfxlineselector] = round((cc_value / 127.0) * 3.0);
+  gg.LFOonfilterz[ccfxlineselector] = round((cc_value / 127.0) * 3.0);
   _fx.filtercontrols(ccfxlineselector);
 }
 
 void BiQuadStage_ctl(byte cc_value){
-  bqstage[ccfxlineselector] = round((cc_value / 127.0) * 3.0);
+  gg.bqstage[ccfxlineselector] = round((cc_value / 127.0) * 3.0);
 }
 
 void BiQuadFreq_ctl(byte cc_value){
-  bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][0] = cc_value;
-  bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] = ((cc_value / 127.0) * bqrange) + 101;
-  if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
+  gg.bqVpot[ccfxlineselector][gg.bqstage[ccfxlineselector]][0] = cc_value;
+  bqfreq[ccfxlineselector][gg.bqstage[ccfxlineselector]] = ((cc_value / 127.0) * bqrange) + 101;
+  if (bqfreq[ccfxlineselector][gg.bqstage[ccfxlineselector]] >= 101) {
     _fx.biquadcontrols(ccfxlineselector);
   }
 }
 
 void BiQuadSlope_ctl(byte cc_value){
-  bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][1] = cc_value;
-  bqslope[ccfxlineselector][bqstage[ccfxlineselector]] = 0.001+(cc_value / 127.0)*5.0;
-  if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
+  gg.bqVpot[ccfxlineselector][gg.bqstage[ccfxlineselector]][1] = cc_value;
+  bqslope[ccfxlineselector][gg.bqstage[ccfxlineselector]] = 0.001+(cc_value / 127.0)*5.0;
+  if (bqfreq[ccfxlineselector][gg.bqstage[ccfxlineselector]] >= 101) {
     _fx.biquadcontrols(ccfxlineselector);
   }
 }
 
 void BiQuadGain_ctl(byte cc_value){
-  bqVpot[ccfxlineselector][bqstage[ccfxlineselector]][2] = cc_value;
-  bqgain[ccfxlineselector][bqstage[ccfxlineselector]] = 100.0 - (cc_value / 127.0)*200.0;
-  if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
+  gg.bqVpot[ccfxlineselector][gg.bqstage[ccfxlineselector]][2] = cc_value;
+  bqgain[ccfxlineselector][gg.bqstage[ccfxlineselector]] = 100.0 - (cc_value / 127.0)*200.0;
+  if (bqfreq[ccfxlineselector][gg.bqstage[ccfxlineselector]] >= 101) {
     _fx.biquadcontrols(ccfxlineselector);
   }
 }
 
 void BiQuadType_ctl(byte cc_value){
    // type
-  bqtype[ccfxlineselector][bqstage[ccfxlineselector]] =
+  gg.bqtype[ccfxlineselector][gg.bqstage[ccfxlineselector]] =
       round((cc_value / 127.0) * 6.0);
-  if (bqfreq[ccfxlineselector][bqstage[ccfxlineselector]] >= 101) {
+  if (bqfreq[ccfxlineselector][gg.bqstage[ccfxlineselector]] >= 101) {
     _fx.biquadcontrols(ccfxlineselector);
   }
 }
 
 void GranularGrains_Knob1_ctl(byte cc_value){
   //granular grains
-  granularVknobs[ccfxlineselector][0] = cc_value;
+  gg.granularVknobs[ccfxlineselector][0] = cc_value;
 }
 
 void GranularSpeed_Knob2_ctl(byte cc_value){
   //granular speed ratio
-  granularVknobs[ccfxlineselector][1] = cc_value;
+  gg.granularVknobs[ccfxlineselector][1] = cc_value;
   _fx.granularcontrols(ccfxlineselector);
 }
 
@@ -609,77 +586,77 @@ void GranularFreeze_Toggle_ctl(byte cc_value){
 }
 
 void ReverbSize_ctl(byte cc_value){
-  reverbVknobs[ccfxlineselector][0] = cc_value;
+  gg.reverbVknobs[ccfxlineselector][0] = cc_value;
   _fx.freeverbscontrl(ccfxlineselector);
 }
 
 void BitCrusherSamples_ctl(byte cc_value){
-  bitcrusherVknobs[ccfxlineselector][0] = round((cc_value / 127.0) * 16.0);
+  gg.bitcrusherVknobs[ccfxlineselector][0] = round((cc_value / 127.0) * 16.0);
   _fx.bitcrusherctrl(ccfxlineselector);
 }
 
 void BitCrusherBits_ctl(byte cc_value){
-  bitcrusherVknobs[ccfxlineselector][1] = cc_value;
+  gg.bitcrusherVknobs[ccfxlineselector][1] = cc_value;
   _fx.bitcrusherctrl(ccfxlineselector);
 }
 
 void FFilter_Cutoff_Knob1_ctl(byte cc_value){
-  mixffilterzVknobs[ccfxlineselector][0] = cc_value;
+  gg.mixffilterzVknobs[ccfxlineselector][0] = cc_value;
   _fx.filtercontrols(ccfxlineselector);
 }
 
 void FFilter_Reso_Knob2_ctl(byte cc_value){
-  mixffilterzVknobs[ccfxlineselector][1] = cc_value;
+  gg.mixffilterzVknobs[ccfxlineselector][1] = cc_value;
       _fx.filtercontrols(ccfxlineselector);
 }
 
 void FFilter_Oct_Knob3_ctl(byte cc_value){
-   mixffilterzVknobs[ccfxlineselector][2] = cc_value;
+   gg.mixffilterzVknobs[ccfxlineselector][2] = cc_value;
       _fx.filtercontrols(ccfxlineselector);
 }
 
 void FFilter_LowPass_Knob4_ctl(byte cc_value){
-  ffilterzVknobs[ccfxlineselector][0] = cc_value;
+  gg.ffilterzVknobs[ccfxlineselector][0] = cc_value;
   _fx.filtercontrols(ccfxlineselector);
 }
 
 void FFilter_BandPass_Knob5_ctl(byte cc_value){
- ffilterzVknobs[ccfxlineselector][1] = cc_value;
+ gg.ffilterzVknobs[ccfxlineselector][1] = cc_value;
   _fx.filtercontrols(ccfxlineselector);
 }
 
 void FFilter_HighPass_Knob6_ctl(byte cc_value){
-  ffilterzVknobs[ccfxlineselector][2] = cc_value;
+  gg.ffilterzVknobs[ccfxlineselector][2] = cc_value;
   _fx.filtercontrols(ccfxlineselector);
 }
 
 void FlangerOffset_Knob1_ctl(byte cc_value){
-  flangerVknobs[ccfxlineselector][0] = cc_value;
+  gg.flangerVknobs[ccfxlineselector][0] = cc_value;
   _fx.flangercontrols(ccfxlineselector);
 }
 
 void FlangerDepth_Knob2_ctl(byte cc_value){
-  flangerVknobs[ccfxlineselector][1] = cc_value;
+  gg.flangerVknobs[ccfxlineselector][1] = cc_value;
   _fx.flangercontrols(ccfxlineselector);
 }
 
 void FlangerDelay_Knob3_ctl(byte cc_value){
-  flangerVknobs[ccfxlineselector][2] = cc_value;
+  gg.flangerVknobs[ccfxlineselector][2] = cc_value;
   _fx.flangercontrols(ccfxlineselector);
 }
 
 void DelayTimeSelection_Knob1_ctl(byte cc_value){
-  delayVknobs[ccfxlineselector][0] = cc_value;
+  gg.delayVknobs[ccfxlineselector][0] = cc_value;
   _fx.restartdelayline(ccfxlineselector);
 }
 
 void DelayTimeMultiplier_Knob2_ctl(byte cc_value){
-  delayVknobs[ccfxlineselector][1] = cc_value;
+  gg.delayVknobs[ccfxlineselector][1] = cc_value;
   _fx.restartdelayline(ccfxlineselector);
 }
 
 void DelayFeedback_Knob3_ctl(byte cc_value){
-  delayVknobs[ccfxlineselector][2] = cc_value;
+  gg.delayVknobs[ccfxlineselector][2] = cc_value;
   _fx.restartdelayline(ccfxlineselector);
 }
 
@@ -695,7 +672,7 @@ void DebugCPU_Toggle_ctl(byte cc_value){
 
 void SetBPMs_ctl(byte cc_value){
   // bpms
-  millitickinterval = map(cc_value, 0, 127, 250, 63);
+  gg.millitickinterval = map(cc_value, 0, 127, 250, 63);
   _st.setbpms();
 }
 
@@ -751,7 +728,7 @@ void StopRecording_Trigger_ctl(byte cc_value){
 void LoadFirstPreset_Toggle_ctl(byte cc_value){
   _ps.catalog->displayable_offset = 0 ;
   _ps.catalog->refresh_files_names();
-  _ps.parsefile();
+  _ps.read_preset();
 }
 
 void MergeSynthPatterns_Trigger_ctl(byte cc_value){
@@ -760,67 +737,67 @@ void MergeSynthPatterns_Trigger_ctl(byte cc_value){
 }
 
 void FlashLineVolume_Knob1_ctl(byte cc_value){
-  smixervknobs[0] = cc_value;
+  gg.smixervknobs[0] = cc_value;
 }
 
 void FlashLineVolume_Knob2_ctl(byte cc_value){
-  smixervknobs[1] = cc_value;
+  gg.smixervknobs[1] = cc_value;
 }
 
 void FlashLineVolume_Knob3_ctl(byte cc_value){
-  smixervknobs[2] = cc_value;
+  gg.smixervknobs[2] = cc_value;
 }
 
 void FlashLineVolume_Knob4_ctl(byte cc_value){
-  smixervknobs[3] = cc_value;
+  gg.smixervknobs[3] = cc_value;
 }
 
 void FlashLineVolume_Knob5_ctl(byte cc_value){
-  smixervknobs[4] = cc_value;
+  gg.smixervknobs[4] = cc_value;
 }
 
 void FlashLineVolume_Knob6_ctl(byte cc_value){
-  smixervknobs[5] = cc_value;
+  gg.smixervknobs[5] = cc_value;
 }
 
 void FlashLineVolume_Knob7_ctl(byte cc_value){
-  smixervknobs[6] = cc_value;
+  gg.smixervknobs[6] = cc_value;
 }
 
 void FlashLineVolume_Knob8_ctl(byte cc_value){
-  smixervknobs[7] = cc_value;
+  gg.smixervknobs[7] = cc_value;
 }
 
 void FlashLineVolume_Knob9_ctl(byte cc_value){
-  smixervknobs[8] = cc_value;
+  gg.smixervknobs[8] = cc_value;
 }
 
 void FlashLineVolume_Knob10_ctl(byte cc_value){
-  smixervknobs[9] = cc_value;
+  gg.smixervknobs[9] = cc_value;
 }
 
 void FlashLineVolume_Knob11_ctl(byte cc_value){
-  smixervknobs[10] = cc_value;
+  gg.smixervknobs[10] = cc_value;
 }
 
 void FlashLineVolume_Knob12_ctl(byte cc_value){
-  smixervknobs[11] = cc_value;
+  gg.smixervknobs[11] = cc_value;
 }
 
 void FlashLineVolume_Knob13_ctl(byte cc_value){
-  smixervknobs[12] = cc_value;
+  gg.smixervknobs[12] = cc_value;
 }
 
 void FlashLineVolume_Knob14_ctl(byte cc_value){
-  smixervknobs[13] = cc_value;
+  gg.smixervknobs[13] = cc_value;
 }
 
 void FlashLineVolume_Knob15_ctl(byte cc_value){
-  smixervknobs[14] = cc_value;
+  gg.smixervknobs[14] = cc_value;
 }
 
 void FlashLineVolume_Knob16_ctl(byte cc_value){
-  smixervknobs[15] = cc_value;
+  gg.smixervknobs[15] = cc_value;
 }
 
 void USB_In_Volume_ctl(byte cc_value){

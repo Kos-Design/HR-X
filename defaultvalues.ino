@@ -40,10 +40,10 @@ void initextmems() {
           bqslope[i][j] = 0.0;
           bqgain[i][j] = 0.0;
           bqfreq[i][j] = 0.0;
-          bqtype[i][j] = 0.0;
-          bqVpot[i][j][0] = 0;
-          bqVpot[i][j][1] = 0;
-          bqVpot[i][j][2] = 0;
+          gg.bqtype[i][j] = 0.0;
+          gg.bqVpot[i][j][0] = 0;
+          gg.bqVpot[i][j][1] = 0;
+          gg.bqVpot[i][j][2] = 0;
       }
     }
     for (int i = 0; i < GRANULAR_MEMORY_SIZE; i++) {
@@ -75,12 +75,12 @@ void loadsynthdefaults() {
 
   AudioNoInterrupts();
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-    enveloppesL[i]->delay(adsrlevels[AttackDelay]);
-    enveloppesL[i]->attack(adsrlevels[Attack]);
-    // enveloppesL[i]->hold(adsrlevels[2]);
-    enveloppesL[i]->decay(adsrlevels[Decay]);
-    enveloppesL[i]->sustain(adsrlevels[Sustain]);
-    enveloppesL[i]->release(adsrlevels[Release]);
+    enveloppesL[i]->delay(gg.adsrlevels[AttackDelay]);
+    enveloppesL[i]->attack(gg.adsrlevels[Attack]);
+    // enveloppesL[i]->hold(gg.adsrlevels[2]);
+    enveloppesL[i]->decay(gg.adsrlevels[Decay]);
+    enveloppesL[i]->sustain(gg.adsrlevels[Sustain]);
+    enveloppesL[i]->release(gg.adsrlevels[Release]);
     //enveloppesL[i]->releaseNoteOn(20);
   }
 
@@ -121,7 +121,7 @@ void setupdefaultvalues() {
 
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
     for (int j = 0; j < OSCS_COUNT; j++) {
-      Wavesmix[i]->gain(j, mixlevelsL[j]/127.0);
+      Wavesmix[i]->gain(j, gg.mixlevelsL[j]/127.0);
     }
   }
 
@@ -192,79 +192,79 @@ void setupdefaultvalues() {
   WetMixMasterR.gain(0, 1);
 
 
-  //needed to level fxBus & wetins
+  //needed to level fxBus & gg.wetins
   for (int i = 0; i < 3; i++) {
     _mx.set_dry_mix(i);
   }
   // if MULTIPLEXED_PADS
   for (int i = 0; i < all_buttonns; i++) {
     if (!((i <= 11) || (i >= 46))) {
-      pot_assignements[i] = i + 128 + 30;
+      gg.pot_assignements[i] = i + 128 + 30;
     } else {
-      pot_assignements[i] = ordered_pots[potsboards[i]];
+      gg.pot_assignements[i] = gg.ordered_pots[potsboards[i]];
     }
   }
 
   // Volume
-  midiknobassigned[11] = 1;
-  midiknobassigned[12] = 2;
-  //midiknobassigned[13] = 3;
+  gg.midiknobassigned[11] = 1;
+  gg.midiknobassigned[12] = 2;
+  //gg.midiknobassigned[13] = 3;
   // FX Wet
-  midiknobassigned[20] = 5;
+  gg.midiknobassigned[20] = 5;
   //in levels
-  midiknobassigned[21] = 89;
-  midiknobassigned[22] = 118;
+  gg.midiknobassigned[21] = 89;
+  gg.midiknobassigned[22] = 118;
   //audio In level
-  //midiknobassigned[22] = 97;
+  //gg.midiknobassigned[22] = 97;
 
   // ccfxlineselector crossfader
-  //midiknobassigned[10] = 69;
+  //gg.midiknobassigned[10] = 69;
 
   // 303 pulse
-  //midiknobassigned[23] = 20;
-  //midiknobassigned[24] = 21;
+  //gg.midiknobassigned[23] = 20;
+  //gg.midiknobassigned[24] = 21;
 /*/
   
 
-  pot_assignements[all_buttonns-10] = 108 ;
-  pot_assignements[all_buttonns-9] = 107 ;
+  gg.pot_assignements[all_buttonns-10] = 108 ;
+  gg.pot_assignements[all_buttonns-9] = 107 ;
   */
-  //midiknobassigned[111] = 109 ;
+  //gg.midiknobassigned[111] = 109 ;
   //98 debugcpu
   //pots_assignements are to map onboard buttons to midi notes or ccs
-  //pot_assignements[all_buttonns-5] = 106 ;
-  pot_assignements[all_buttonns-20] = 110 ;
-  pot_assignements[all_buttonns-21] = 109 ;
-  pot_assignements[all_buttonns-19] = 111 ;
+  //gg.pot_assignements[all_buttonns-5] = 106 ;
+  gg.pot_assignements[all_buttonns-20] = 110 ;
+  gg.pot_assignements[all_buttonns-21] = 109 ;
+  gg.pot_assignements[all_buttonns-19] = 111 ;
 
-  pot_assignements[all_buttonns-12] = 108 ;
-  pot_assignements[all_buttonns-11] = 107 ;
-  pot_assignements[all_buttonns-10] = 106 ;
+  gg.pot_assignements[all_buttonns-12] = 108 ;
+  gg.pot_assignements[all_buttonns-11] = 107 ;
+  gg.pot_assignements[all_buttonns-10] = 106 ;
 
-  midiknobassigned[alt_nav[2]] = 125 ;
-  midiknobassigned[alt_nav[3]] = 126 ;
-  midiknobassigned[alt_nav[0]] = 123 ;
-  midiknobassigned[alt_nav[1]] = 124 ;
+  gg.midiknobassigned[alt_nav[2]] = 125 ;
+  gg.midiknobassigned[alt_nav[3]] = 126 ;
+  gg.midiknobassigned[alt_nav[0]] = 123 ;
+  gg.midiknobassigned[alt_nav[1]] = 124 ;
 
 
 
-  pot_assignements[all_buttonns-4] = 100 ;
-  pot_assignements[all_buttonns-13] = 101 ;
+  gg.pot_assignements[all_buttonns-4] = 100 ;
+  gg.pot_assignements[all_buttonns-13] = 101 ;
   //osc toggles
   //midiknobs link a midi cc note to an index from ctl[] 
-  midiknobassigned[100] = 116 ;
-  midiknobassigned[101] = 117 ;
-  //midiknobassigned[106] = 98;
+  gg.midiknobassigned[100] = 116 ;
+  gg.midiknobassigned[101] = 117 ;
+  //gg.midiknobassigned[106] = 98;
   //granular fx toggle
-  //midiknobassigned[100] = 78;
+  //gg.midiknobassigned[100] = 78;
     //phase
-  //midiknobassigned[17] = 76;
-  //midiknobassigned[18] = 77;
-  //midiknobassigned[19] = 81;
+  //gg.midiknobassigned[17] = 76;
+  //gg.midiknobassigned[18] = 77;
+  //gg.midiknobassigned[19] = 81;
 
- // midiknobassigned[14] = 93;
- // midiknobassigned[15] = 94;
- // midiknobassigned[16] = 95;
+ // gg.midiknobassigned[14] = 93;
+ // gg.midiknobassigned[15] = 94;
+ // gg.midiknobassigned[16] = 95;
 
 
   //note: WetMixMasterLs[0] is the dry channel

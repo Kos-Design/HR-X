@@ -10,6 +10,11 @@ struct CcCalls {
     void (*tweaker)(byte);
 };
 
+const unsigned short all_buttonns = 49;
+constexpr uint8_t OSCS_COUNT = 3;
+const int fxs_count = 3;
+const int bqstagesnum = 4;
+
 extern const CcCalls ctl[] ;
 class Adafruit_SSD1306;
 class GFXcanvas1;
@@ -21,7 +26,6 @@ extern int sublevels[9];
 extern int previousnavlevel;
 extern bool externalticker;
 extern const uint8_t SCREEN_ADDRESS;
-extern const uint8_t OSCS_COUNT;
 extern const uint8_t SN_MENU_LABELS_COUNT;
 extern const int SYNTH_LINERS_COUNT;
 extern const int available_track_types;
@@ -43,10 +47,7 @@ extern bool patternOn;
 extern bool stoptick;
 extern bool recordCC;
 extern bool patrecord;
-extern int midiknobassigned[128];
 extern byte cc_partition[128][32];
-
-
 
 void call_sn_show();
 void call_lf_show();
@@ -64,10 +65,6 @@ extern int retroaction;
 extern bool temp_buff_armed ;
 extern GFXcanvas1 canvasBIG;
 extern GFXcanvas1 canvastitle;
-extern byte mixlevelsM[4];
-extern byte WetMixMasters[4];
-extern byte mixlevelsL[3];
-extern byte wetins[3];
 extern byte oscillator;
 extern AudioAmplifier ampL;
 extern AudioAmplifier ampR;
@@ -81,7 +78,120 @@ extern AudioMixer4 FXBusL;
 extern AudioMixer4 FXBusR;
 extern AudioMixer4 *Wavesmix[6];
 
-//extern byte mixlevelsM[3];
+enum GlideMode : uint8_t {
+    Off,
+    Portamento,
+    ReversePortamento,
+    PitchAttack,
+    ReversePitchAttack
+};
+
+struct Preset {
+    int32_t millitickinterval = 115;
+    //Atk Delay, Attack, Hold, Decay, Sustain, Release
+    int32_t adsrlevels[6] = {0, 5, 0, 50, 100, 750};
+    int32_t pot_assignements[all_buttonns];
+    int32_t ordered_pots[15] = {
+        10, 12, 11, 16, 15, 14, 19, 18, 17, 13,
+        24, 22, 23, 21, 20
+    };
+    int32_t midiknobassigned[128];
+    int32_t Sampleassigned[128];
+    int32_t bqstage[fxs_count];
+    int32_t LFOonfilterz[fxs_count] = {3,3,3};
+    int32_t bqtype[fxs_count][bqstagesnum];
+    //individual frequency multipliers for the oscillators
+    float wavesfreqs[OSCS_COUNT] = {1.0f, 1.0f, 0.5f};
+    float LFOHz[OSCS_COUNT] = {1.0f,1.0f,1.0f};
+    GlideMode glideMode = PitchAttack;
+
+    uint16_t le303filterzfreq = 14000;
+    // 1-byte aligned
+    uint8_t le303filterzgainz[3] = {127,0,0};
+    uint8_t le303filterzreso = 70;
+    uint8_t panLs = 64;
+    uint8_t phaselevelsL[OSCS_COUNT] = {0,0,0};
+    uint8_t cut_off_slope = 100;
+    //unused until 303 refactor
+    uint8_t resonance_slope = 1;
+    // cutoff, resonance, octave
+    uint8_t le303ffilterzVknobs[3];
+    // LP BP HP
+    uint8_t mixle303ffilterzVknobs[3] = {127,0,0};
+    uint8_t le303filterzwet = 127;
+    uint8_t preampleswaves = 64;
+    //0: exponential | 64: linear | 127: log-like
+    uint8_t glide_slope = 64;
+    uint8_t portamento_height = 70;
+    uint8_t portamento_time = 60;
+    bool arpegiatorOn = false;
+    uint8_t arpegiatortype = 8;
+    uint8_t arpeglengh = 0;
+    uint8_t arpegmode = 4;
+    uint8_t arpegnumofnotes = 7;
+    uint8_t arpegstartoffset = 0;
+    uint8_t arpeggridC;
+    uint8_t arpeggridS;
+    bool digitalplay = false;
+    bool chordson = false;
+    // 6 is Off
+    uint8_t lasetchord = 6;
+    //wetness for: synth, sampler, audio In
+    uint8_t wetins[3] = {64,64,64};
+    uint8_t synthmidichannel = 16;
+    uint8_t samplermidichannel = 8;
+    uint8_t tapnote = 3;
+    uint8_t smixervknobs[16] = {
+        127,127,127,127,
+        127,127,127,127,
+        127,127,127,127,
+        127,127,127,127
+    };
+    uint8_t plugged_fx_type[3];
+    uint8_t WetMixMasters[4] = {0,0,0,0};
+    uint8_t mixlevelsM[4] = {127,127,38,127};
+    uint8_t FMmodulated[OSCS_COUNT] = {0,0,0};
+    uint8_t mixlevelsL[OSCS_COUNT] = {126,64,64};
+    uint8_t Waveformstyped[OSCS_COUNT] = {1,0,1};
+    //64 is center 0 for -1  +1 range
+    uint8_t wave1offset[OSCS_COUNT] = {64,64,64};
+    uint8_t LFOlevel[OSCS_COUNT] = {0,0,0};
+    uint8_t LFOformstype[OSCS_COUNT] = {0,0,0};
+    uint8_t LFOphase[OSCS_COUNT] = {0,0,0};
+    uint8_t LFOoffset[OSCS_COUNT] = {64,64,64};
+    bool LFOsync[OSCS_COUNT] = {false,false,false};
+    //midi channels used for the built-in buttons handled by the multiplexer
+    uint8_t but_channel[all_buttonns] = {
+        1,1,1,1,1,1,1,1,1,1,1,1,
+        16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,
+        8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
+        1,1,1
+    };
+    //midi default velocity used for the built-in buttons handled by the multiplexer
+    uint8_t but_velocity[all_buttonns] = {
+        127,127,127,127,127,127,127,127,127,127,127,127,
+        127,127,127,127,127,127,127,127,127,127,127,127,
+        127,127,127,127,
+        64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,64,
+        127,127,127
+    };
+    //midi channels of the pots used for the built-in pots handled by the multiplexer
+    uint8_t muxed_channels[15] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+    // virtual pots available for keyboardless control
+    uint8_t vPots[17];
+    uint8_t chorusVknobs[fxs_count];
+    uint8_t reverbVknobs[fxs_count][2];
+    uint8_t bitcrusherVknobs[fxs_count][2];
+    uint8_t granularVknobs[fxs_count][2];
+    uint8_t mixffilterzVknobs[fxs_count][3];
+    // cutoff, resonance, octave
+    uint8_t ffilterzVknobs[fxs_count][3];
+    uint8_t delayVknobs[fxs_count][3];
+    uint8_t flangerVknobs[fxs_count][3];
+    // [lebiquad] [lestage] freq slope gain
+    uint8_t bqVpot[fxs_count][bqstagesnum][3];
+};
+extern Preset gg ;
 
 class SectionHolder{
     public:

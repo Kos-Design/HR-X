@@ -1,7 +1,5 @@
 #include "MenuClasses.h"
 
-
-
 void SectionHolder::set_home(void (*_cb)()){
     _home = _cb;
 }
@@ -11,6 +9,7 @@ void DisplayManager::display_home() {
         Serial.println("ILI_128x64 detected");
     }
 }
+
 void DisplayManager::setupscreen(){
             if (ILI_128x64) {
                 _setupscreen_ILI();
@@ -20,41 +19,41 @@ void DisplayManager::setupscreen(){
 void DisplayManager::displayleBGimg(const unsigned char *img) {_displayleBGimg(img);}
 
 void DisplayManager::printlabel(char *toprint) {
-            display.setTextSize(2);
-            display.setTextColor(SSD1306_WHITE);
-            display.setCursor(0, 0);
-            display.println(toprint);
-        }
+    display.setTextSize(2);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(0, 0);
+    display.println(toprint);
+}
 
 void DisplayManager::displaymenu() {
-            char menus_lbl[10][11] = {"WaveSynth", "LFOs", "CoolEditor", "Song", "Pattern", "Settings",
-                        "MainFX", "Sampler", "Waveformer", "Presets"};
-            if (navlevel == 0) {
-                previousnavlevel = 0;
-                navrange = 9;
-                displayleBGimg(menuBG);
-            }
-            display.drawRoundRect(5 + (sublevels[0]%5)*24, 17+((sublevels[0]/5)*24), 21, 21, 3, SSD1306_WHITE);
-            printlabel(menus_lbl[sublevels[0]]);
-            display.display();
-        }
+  char menus_lbl[10][11] = {"WaveSynth", "LFOs", "CoolEditor", "Song", "Pattern", "Settings",
+              "MainFX", "Sampler", "Waveformer", "Presets"};
+  if (navlevel == 0) {
+      previousnavlevel = 0;
+      navrange = 9;
+      displayleBGimg(menuBG);
+  }
+  display.drawRoundRect(5 + (sublevels[0]%5)*24, 17+((sublevels[0]/5)*24), 21, 21, 3, SSD1306_WHITE);
+  printlabel(menus_lbl[sublevels[0]]);
+  display.display();
+}
 
 void DisplayManager::main_panel(const char* const* menulabels, int lvl, int menu_lbls_count) {
   if ( navlevel == lvl ) navrange = menu_lbls_count-1;
   byte startx = 5;
   byte starty = 16;
-  char *textin = (char *)menulabels[sublevels[lvl]%(menu_lbls_count-1)];
+  char *textin = (char *)menulabels[sublevels[lvl]];
   //dm.clean_title_2_1();
   canvastitle.setCursor(0, 0);
   canvastitle.setTextSize(2);
   canvastitle.println(textin);
 
-  for (int i = 0; i < menu_lbls_count - 1 - (sublevels[lvl]%(menu_lbls_count-1)); i++) {
+  for (int i = 0; i < menu_lbls_count - 1 - (sublevels[lvl]); i++) {
     canvasBIG.setCursor(startx, starty + ((i)*10));
-    canvasBIG.println(menulabels[sublevels[lvl]%(menu_lbls_count-1) + 1 + i]);
+    canvasBIG.println(menulabels[sublevels[lvl] + 1 + i]);
   }
-  for (int i = 0; i < sublevels[lvl]%(menu_lbls_count-1); i++) {
-    canvasBIG.setCursor(startx, (10 * (menu_lbls_count - sublevels[lvl]%(menu_lbls_count-1))) + 6 + ((i)*10));
+  for (int i = 0; i < sublevels[lvl]; i++) {
+    canvasBIG.setCursor(startx, (10 * (menu_lbls_count - sublevels[lvl])) + 6 + ((i)*10));
     canvasBIG.println(menulabels[i]);
   }
 }
@@ -162,31 +161,31 @@ GlobalMixer::GlobalMixer(AudioControlSGTL5000& shield) : MixShield(shield) {
     self->relative_navlevel=2;
     self->max_navlevel=5;
     self->sublevels_address={0,1,0};
-    wmixer_tmp_pointers[0]  = &mixlevelsM[0];
-    wmixer_tmp_pointers[1]  = &mixlevelsM[1];
-    wmixer_tmp_pointers[2]  = &mixlevelsM[2];
-    wmixer_tmp_pointers[3]  = &WetMixMasters[1];
-    wmixer_tmp_pointers[4]  = &WetMixMasters[2];
-    wmixer_tmp_pointers[5]  = &WetMixMasters[3];
-    wmixer_tmp_pointers[6]  = &wetins[0];
-    wmixer_tmp_pointers[7]  = &wetins[1];
-    wmixer_tmp_pointers[8]  = &wetins[2];
-    wmixer_tmp_pointers[9]  = &mixlevelsL[0];
-    wmixer_tmp_pointers[10] = &mixlevelsL[1];
-    wmixer_tmp_pointers[11] = &mixlevelsL[2];
+    wmixer_tmp_pointers[0]  = &gg.mixlevelsM[0];
+    wmixer_tmp_pointers[1]  = &gg.mixlevelsM[1];
+    wmixer_tmp_pointers[2]  = &gg.mixlevelsM[2];
+    wmixer_tmp_pointers[3]  = &gg.WetMixMasters[1];
+    wmixer_tmp_pointers[4]  = &gg.WetMixMasters[2];
+    wmixer_tmp_pointers[5]  = &gg.WetMixMasters[3];
+    wmixer_tmp_pointers[6]  = &gg.wetins[0];
+    wmixer_tmp_pointers[7]  = &gg.wetins[1];
+    wmixer_tmp_pointers[8]  = &gg.wetins[2];
+    wmixer_tmp_pointers[9]  = &gg.mixlevelsL[0];
+    wmixer_tmp_pointers[10] = &gg.mixlevelsL[1];
+    wmixer_tmp_pointers[11] = &gg.mixlevelsL[2];
 
-    wmixer_tmp_values[0]  = mixlevelsM[0];
-    wmixer_tmp_values[1]  = mixlevelsM[1];
-    wmixer_tmp_values[2]  = mixlevelsM[2];
-    wmixer_tmp_values[3]  = WetMixMasters[1];
-    wmixer_tmp_values[4]  = WetMixMasters[2];
-    wmixer_tmp_values[5]  = WetMixMasters[3];
-    wmixer_tmp_values[6]  = wetins[0];
-    wmixer_tmp_values[7]  = wetins[1];
-    wmixer_tmp_values[8]  = wetins[2];
-    wmixer_tmp_values[9]  = mixlevelsL[0];
-    wmixer_tmp_values[10] = mixlevelsL[1];
-    wmixer_tmp_values[11] = mixlevelsL[2];
+    wmixer_tmp_values[0]  = gg.mixlevelsM[0];
+    wmixer_tmp_values[1]  = gg.mixlevelsM[1];
+    wmixer_tmp_values[2]  = gg.mixlevelsM[2];
+    wmixer_tmp_values[3]  = gg.WetMixMasters[1];
+    wmixer_tmp_values[4]  = gg.WetMixMasters[2];
+    wmixer_tmp_values[5]  = gg.WetMixMasters[3];
+    wmixer_tmp_values[6]  = gg.wetins[0];
+    wmixer_tmp_values[7]  = gg.wetins[1];
+    wmixer_tmp_values[8]  = gg.wetins[2];
+    wmixer_tmp_values[9]  = gg.mixlevelsL[0];
+    wmixer_tmp_values[10] = gg.mixlevelsL[1];
+    wmixer_tmp_values[11] = gg.mixlevelsL[2];
     }
 
 void GlobalMixer::show(){
@@ -238,7 +237,7 @@ void GlobalMixer::showmixerwaves() {
 
       for (int i = 0; i < 3; i++) {
 
-        coeffangle = (6.2831 - (mixlevelsM[i] / 127.0) * 6.2831) + 3.1416;
+        coeffangle = (6.2831 - (gg.mixlevelsM[i] / 127.0) * 6.2831) + 3.1416;
         centercirclex = knobradius + (xcentershifter * i);
         centercircley = 16 + knobradius;
         canvastitle.setCursor(centercirclex - 5, 8);
@@ -255,11 +254,11 @@ void GlobalMixer::showmixerwaves() {
         centercirclex = knobradius + (xcentershifter * slct);
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         canvastitle.setCursor(95, 0);
-        canvastitle.print((mixlevelsM[slct] / 127.0) * 100.0, 1);
+        canvastitle.print((gg.mixlevelsM[slct] / 127.0) * 100.0, 1);
       }
 
       for (int i = 0; i < 3; i++) {
-        coeffangle = (6.2831 - (WetMixMasters[i + 1]/127.0) * 6.2831) + 3.1416;
+        coeffangle = (6.2831 - (gg.WetMixMasters[i + 1]/127.0) * 6.2831) + 3.1416;
         centercirclex = knobradius + (xcentershifter * i) + 5 + (xcentershifter * 3);
         centercircley = 16 + knobradius;
         canvastitle.setCursor(centercirclex - 8, 8);
@@ -275,11 +274,11 @@ void GlobalMixer::showmixerwaves() {
         centercirclex = knobradius + (xcentershifter * (slct - 3)) + 5 + (xcentershifter * 3);
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         canvastitle.setCursor(95, 0);
-        canvastitle.print((WetMixMasters[slct - 3 + 1]/127.0) * 100.0, 1);
+        canvastitle.print((gg.WetMixMasters[slct - 3 + 1]/127.0) * 100.0, 1);
       }
 
       for (int i = 0; i < 3; i++) {
-        coeffangle = (6.2831 - (wetins[i] / 127.0) * 6.2831) + 3.1416;
+        coeffangle = (6.2831 - (gg.wetins[i] / 127.0) * 6.2831) + 3.1416;
         centercirclex = knobradius + (xcentershifter * i);
         centercircley = yshifter + knobradius;
         canvasBIG.setCursor(centercirclex - 7, centercircley - (2 + knobradius * 2));
@@ -295,11 +294,11 @@ void GlobalMixer::showmixerwaves() {
         centercirclex = knobradius + (xcentershifter * (slct - 6));
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         canvastitle.setCursor(95, 0);
-        canvastitle.print((wetins[slct - 6] / 127.0) * 100.0, 1);
+        canvastitle.print((gg.wetins[slct - 6] / 127.0) * 100.0, 1);
       }
 
       for (int i = 0; i < OSCS_COUNT; i++) {
-        coeffangle = (6.2831 - (mixlevelsL[i]/127.0) * 6.2831) + 3.1416;
+        coeffangle = (6.2831 - (gg.mixlevelsL[i]/127.0) * 6.2831) + 3.1416;
         centercirclex = knobradius + (xcentershifter * i) + 25 + (xcentershifter * 2);
         centercircley = yshifter + knobradius;
         canvasBIG.setCursor(centercirclex - 5, centercircley - (2 + knobradius * 2));
@@ -315,7 +314,7 @@ void GlobalMixer::showmixerwaves() {
         centercirclex = knobradius + (xcentershifter * (slct - 9)) + 25 + (xcentershifter * 2);
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         canvastitle.setCursor(95, 0);
-        canvastitle.print((mixlevelsL[slct - 9]/127.0) * 100.0, 1);
+        canvastitle.print((gg.mixlevelsL[slct - 9]/127.0) * 100.0, 1);
       }
       dm.dodisplay();
     }
@@ -325,20 +324,20 @@ void GlobalMixer::setmastersmixlevel(int lebus) {
       switch (lebus) {
         case 0:
           // set mastermixlevel
-          self->MixShield.volume(mixlevelsM[0] / 127.0);
+          self->MixShield.volume(gg.mixlevelsM[0] / 127.0);
           //ampL & R level should be 1.0 as they are used by queue recorder
-          //ampL.gain(mixlevelsM[0] / 127.0);
-          //ampR.gain(mixlevelsM[0] / 127.0);
+          //ampL.gain(gg.mixlevelsM[0] / 127.0);
+          //ampR.gain(gg.mixlevelsM[0] / 127.0);
           break;
         case 1:
           // set synth Main
-          mixerWAll.gain(1, mixlevelsM[1] / 127.0);
-          mixerWAll.gain(0, mixlevelsM[1] / 127.0);
+          mixerWAll.gain(1, gg.mixlevelsM[1] / 127.0);
+          mixerWAll.gain(0, gg.mixlevelsM[1] / 127.0);
           break;
         case 2:
           // set sampler main
-          flashMastermix.gain(0, mixlevelsM[2] / 127.0);
-          flashMastermix.gain(1, mixlevelsM[2] / 127.0);
+          flashMastermix.gain(0, gg.mixlevelsM[2] / 127.0);
+          flashMastermix.gain(1, gg.mixlevelsM[2] / 127.0);
           break;
         default:
         break;
@@ -350,8 +349,8 @@ void GlobalMixer::setmastersmixlevel(int lebus) {
 
 void GlobalMixer::wetmixmastercontrols() {
       for (byte i = 0; i < 4; i++) {
-        WetMixMasterL.gain(i, WetMixMasters[i]/127.0);
-        WetMixMasterR.gain(i, WetMixMasters[i]/127.0);
+        WetMixMasterL.gain(i, gg.WetMixMasters[i]/127.0);
+        WetMixMasterR.gain(i, gg.WetMixMasters[i]/127.0);
       }
     }
 void GlobalMixer::restore_wmixer_from_temp() {
@@ -387,26 +386,26 @@ void GlobalMixer::set_dry_mix(int lebus) {
       switch (lebus) {
       case 0:
         // set synth wetness on fx main bus
-        MasterL1.gain(2, wetins[0] / 127.0);
-        MasterR1.gain(2, wetins[0] / 127.0);
-        FXBusL.gain(2, 1 - (wetins[0] / 127.0));
-        FXBusR.gain(2, 1 - (wetins[0] / 127.0));
+        MasterL1.gain(2, gg.wetins[0] / 127.0);
+        MasterR1.gain(2, gg.wetins[0] / 127.0);
+        FXBusL.gain(2, 1 - (gg.wetins[0] / 127.0));
+        FXBusR.gain(2, 1 - (gg.wetins[0] / 127.0));
 
         break;
       case 1:
         // set sampler wetness on fx main bus
-        MasterL1.gain(3, wetins[1] / 127.0);
-        MasterR1.gain(3, wetins[1] / 127.0);
-        FXBusL.gain(1, 1 - (wetins[1] / 127.0));
-        FXBusR.gain(1, 1 - (wetins[1] / 127.0));
+        MasterL1.gain(3, gg.wetins[1] / 127.0);
+        MasterR1.gain(3, gg.wetins[1] / 127.0);
+        FXBusL.gain(1, 1 - (gg.wetins[1] / 127.0));
+        FXBusR.gain(1, 1 - (gg.wetins[1] / 127.0));
         break;
 
       case 2:
         // set wetness for "others" (audio in,SD,metronome) on fx main bus
-        MasterL1.gain(0 ,wetins[2] / 127.0);
-        MasterR1.gain(0, wetins[2] / 127.0);
-        FXBusL.gain(3, 1 - (wetins[2] / 127.0));
-        FXBusR.gain(3, 1 - (wetins[2] / 127.0));
+        MasterL1.gain(0 ,gg.wetins[2] / 127.0);
+        MasterR1.gain(0, gg.wetins[2] / 127.0);
+        FXBusL.gain(3, 1 - (gg.wetins[2] / 127.0));
+        FXBusR.gain(3, 1 - (gg.wetins[2] / 127.0));
         break;
 
       default:
@@ -418,7 +417,7 @@ void GlobalMixer::set_dry_mix(int lebus) {
 void GlobalMixer::actionwet1mixer(int linstru) {
 
           if (navlevel == 2) {
-            sublevels[3] = WetMixMasters[linstru + 1];
+            sublevels[3] = gg.WetMixMasters[linstru + 1];
           }
           if (navlevel == 3) {
             navrange = 127;
@@ -428,7 +427,7 @@ void GlobalMixer::actionwet1mixer(int linstru) {
               temp_buff_armed = 1 ;
             }
             // wetmain[lafxline] = sublevels[3];
-            WetMixMasters[linstru + 1] = sublevels[3] ;
+            gg.WetMixMasters[linstru + 1] = sublevels[3] ;
             wetmixmastercontrols();
           }
           if (navlevel == 4) {
@@ -441,7 +440,7 @@ void GlobalMixer::actionwet1mixer(int linstru) {
 void GlobalMixer::action_dry_mix(int linstru) {
 
           if (navlevel == 2) {
-            sublevels[3] = wetins[linstru];
+            sublevels[3] = gg.wetins[linstru];
           }
           if (navlevel == 3) {
             retroaction = sublevels[2];
@@ -450,7 +449,7 @@ void GlobalMixer::action_dry_mix(int linstru) {
             set_wmixer_buff_temp();
             temp_buff_armed = 1 ;
           }
-            wetins[linstru] = sublevels[3];
+            gg.wetins[linstru] = sublevels[3];
             set_dry_mix(linstru);
           }
           if (navlevel == 4) {
@@ -462,7 +461,7 @@ void GlobalMixer::action_dry_mix(int linstru) {
 void GlobalMixer::actionwmixer(byte vknob) {
 
           if (navlevel == 2) {
-            sublevels[3] = mixlevelsL[vknob];
+            sublevels[3] = gg.mixlevelsL[vknob];
           }
           if (navlevel == 3) {
             navrange = 127;
@@ -471,7 +470,7 @@ void GlobalMixer::actionwmixer(byte vknob) {
               set_wmixer_buff_temp();
               temp_buff_armed = 1 ;
             }
-            mixlevelsL[vknob] = sublevels[3];
+            gg.mixlevelsL[vknob] = sublevels[3];
             setwavemixlevel();
           }
           if (navlevel == 4) {
@@ -484,7 +483,7 @@ void GlobalMixer::actionwmixer(byte vknob) {
 void GlobalMixer::setwavemixlevel() {
         // AudioNoInterrupts();
           for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
-            Wavesmix[j]->gain(oscillator, mixlevelsL[oscillator]/127.0);
+            Wavesmix[j]->gain(oscillator, gg.mixlevelsL[oscillator]/127.0);
           }
         // AudioInterrupts();
 
@@ -493,7 +492,7 @@ void GlobalMixer::setwavemixlevel() {
 void GlobalMixer::actionwmixerM(int lebus) {
 
           if (navlevel == 2) {
-            sublevels[3] = mixlevelsM[lebus];
+            sublevels[3] = gg.mixlevelsM[lebus];
           }
           if (navlevel == 3) {
             retroaction = sublevels[2];
@@ -502,7 +501,7 @@ void GlobalMixer::actionwmixerM(int lebus) {
               temp_buff_armed = 1 ;
             }
             navrange = 127;
-            mixlevelsM[lebus] = sublevels[3];
+            gg.mixlevelsM[lebus] = sublevels[3];
 
             setmastersmixlevel(lebus);
           }

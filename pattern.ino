@@ -162,7 +162,7 @@ void advance_tick(){
 //should be set after _pt & _se
 void tick() {
 
-  if (arpegiatorOn) {
+  if (gg.arpegiatorOn) {
       _pt.arpegiate_synth();
   }
   if (patternOn) {

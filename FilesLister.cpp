@@ -171,12 +171,14 @@ void FilesLister::nav_zero(){
 
 void FilesLister::nav_one(byte save_lbl_idx=0,byte lbl_navlevel=1){
   this->new_file_mode = false;
-  navrange = max(this->files_counter + this->free_counter - 1, 0);
   if (sublevels[lbl_navlevel] == save_lbl_idx) {
     navrange = this->files_counter + this->free_counter ;
     if (sublevels[lbl_navlevel+1] == this->files_counter + this->free_counter){
       this->new_file_mode = true;
     }
+  } else {
+    navrange = max(this->files_counter + this->free_counter - 1, 0);
+
   }
 
   this->display_files_list();
@@ -225,7 +227,6 @@ void FilesLister::display_files_list() {
   canvasBIG.setCursor(left_margin,0);
   int all_files_count = this->free_counter + this->files_counter ;
 
-  navrange = all_files_count-1;
 
   if (navlevel == this->r_nav) {
     this->displayable_offset = sublevels[this->r_nav]  ;

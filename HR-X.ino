@@ -26,7 +26,6 @@ int retroaction = 0;
 const byte sizeofnoCCrecord = 11;
 
 constexpr uint8_t SCREEN_ADDRESS = 0x3C;
-constexpr uint8_t OSCS_COUNT = 3;
 constexpr uint8_t SN_MENU_LABELS_COUNT = 6 ;
 constexpr int SYNTH_LINERS_COUNT = 6 ;
 const int available_track_types = 2;
@@ -48,7 +47,7 @@ bool patternOn;
 bool stoptick = true;
 bool recordCC;
 bool patrecord;
-EXTMEM int midiknobassigned[128];
+
 EXTMEM byte cc_partition[128][pbars];
 
 bool setting_on_board = false ;
@@ -62,8 +61,8 @@ const int control_lag = 10 ;
 // functions that have system or various controls that are ignored for some ops
 //outdated since refactor of ctl[]
 byte noCCrecord[sizeofnoCCrecord] = {3,35,36,37, 38,39,40,41,42,44, 1};
-byte slope1 = 100;
-byte slope2 = 1;
+
+
 bool mp3_looped = 0 ;
 bool externalticker;
 int starttaptime;
@@ -76,12 +75,9 @@ const byte sizeofLFOlabels = 9;
 const byte settings_labels_count = 17;
 //doesn't seem to affect arbitrary waveforms... :(
 float arbitrary_maxF[3] = { 172.0, 172.0, 172.0} ;
-int millitickinterval = 115;
-bool avoid_fx_bounce = false;
-float interval_ms = millitickinterval ;
-byte smixervknobs[16] = {127, 127, 127, 127, 127, 127, 127, 127,
-                         127, 127, 127, 127, 127, 127, 127, 127};
 
+bool avoid_fx_bounce = false;
+float interval_ms = gg.millitickinterval ;
 byte offsetliner;
 byte x_axis_cc = 17 ;
 byte y_axis_cc = 18 ;
@@ -91,27 +87,20 @@ bool taptap_on = true;
 bool rec_looping;
 int tocker ;
 byte filter_lfo_option = 3 ;
-byte le303ffilterzVknobs[3];
 
 byte songpage = 0;
 byte samplelinerspage;
 
-// LP BP HP 127
-byte mixle303ffilterzVknobs[3];
 byte navrecmenu = 1;
 int laCCduration;
 int letempipolate;
 float interpolcoeff;
 byte settointerpolate[128];
 EXTMEM byte leccinterpolated[128];
-float le303filterzgainz[3] = {1.0, 0.0, 0.0};
-byte le303filterzwet = 100;
-float le303filterzfreq = 10000;
-float le303filterzreso = 2.7;
-float le303filterzoctv = 2.5;
+
 bool clearsaniloop;
 // float targetBPM = 120.0 ;
-float BPMs = (60000.0 / millitickinterval) / 4.0;
+float BPMs = (60000.0 / gg.millitickinterval) / 4.0;
 
 float BPM = 130.0;
 /*
@@ -127,35 +116,22 @@ char arranged_buttons[6][6] = {{1,  5,  9,  13, 32,  23,},
                                {4,  8,  12, 16, 35,  36,},
                                {26, 27, 28, 29, 30,  31,},
                                {17, 18, 19, 20, 21,  22}};
-const unsigned short all_buttonns = 49;
-int pot_assignements[all_buttonns] = {10};
-int ordered_pots[15] = {10, 12, 11, 16, 15, 14, 19, 18,
-                      17, 13, 24, 22, 23, 21, 20};
+
 int potsboards[all_buttonns] = {
     2,  1,  9,  5,  4,  3,  8,  7,  6,  14, 13, 11, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0,  12, 10};
-byte muxed_channels[15] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
 bool recorderstop;
 bool recorderrecord;
 bool recorderplay;
 bool started_patrecord ;
 bool trace_waveform = false;
-byte but_channel[all_buttonns] = {
-    1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1, 16, 16, 16, 16, 16,
-    16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 8, 8,  8,  8,  8,  8,
-    8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8, 1,  1,  1};
-byte but_velocity[all_buttonns] = {
-    127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127,
-    127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127,
-    127, 127, 64,  64,  64,  64,  64,  64,  64,  64,  64,  64,  64,
-    64,  64,  64,  64,  64,  64,  64,  127, 127, 127};
 
 const int mainmenufxlistsize = 10;
 char consolemsg[10][32];
 int waits = 0;
 char pleasewaitarray[10][32];
-const int fxs_count = 3;
 bool pre_record = false ;
 int delaymultiplier[fxs_count] = {55};
 const int sizeopremixtoM = 9 * fxs_count;
@@ -170,12 +146,9 @@ bool addinglenght;
 int navlevelvbuttons = 2;
 const int numberofvbuttonslabels = 8;
 byte vbuttonsCC[numberofvbuttonslabels + 14 + 17];
-byte vPots[17] = {0};
 
-byte tapnote = byte(3);
+
 bool tapstarted;
-
-byte preampleswaves = 64;
 const byte szsset = 99;
 const byte ssnamsize = 26;
 EXTMEM char samplefoldersregistered[szsset][ssnamsize];
@@ -190,15 +163,12 @@ EXTMEM int numofsamplesfoldersselected = 0;
 #include "/home/kosmin/HR-X/includes/AudioSetup.ino"
 
 // current stage to configure [lebiquad] instance
-const int bqstagesnum = 4;
-int bqstage[fxs_count];
 // [lebiquad] [stage]
 EXTMEM float bqslope[fxs_count][bqstagesnum];
 float bqgain[fxs_count][bqstagesnum];
 EXTMEM float bqfreq[fxs_count][bqstagesnum];
-EXTMEM int bqtype[fxs_count][bqstagesnum];
-// [lebiquad] [lestage] freq slope gain
-EXTMEM int bqVpot[fxs_count][bqstagesnum][3];
+
+
 // max bqfreq (in Hz) wich will be multiplied by the CC (from 0 to 127) + 300Hz
 // ---> because of the poor biquad response below 400hz
 int bqrange = 20000;
@@ -208,7 +178,7 @@ EXTMEM char Flashsamplebase[999][9];
 EXTMEM bool Flashsamplesselected[999];
 int numberofFlashsamplesselected = 0;
 int numberofFlashfiles = 0;
-int Sampleassigned[128];
+
 EXTMEM char sampledirpath[99] = {"SOUNDSET/"};
 String newloopedpath = "SOUNDSET/REC/LOOP00#L.RAW";
 String newRecpathL = "SOUNDSET/REC/RECZ00#L.RAW";
@@ -217,25 +187,14 @@ String newRecpathR = "SOUNDSET/REC/RECZ00#R.RAW";
 #include "/home/kosmin/HR-X/includes/notestofrequency_442.ino"
 
 
-int samplermidichannel = 8;
 //0 is All, channel indexes are thus offset +1
-byte synthmidichannel = 16;
+
 bool blocked = false ;
 byte navrec = navrecmenu + 1;
 int tickposition;
 
-bool arpegiatorOn = 0;
 // 8 is off
 const byte arpeges_types = 8 ;
-byte arpegiatortype = 8;
-
-byte arpeglengh = 0;
-byte arpegmode = 4;
-byte arpegnumofnotes = 7;
-byte arpegstartoffset = 0;
-byte arpeggridC;
-
-byte arpeggridS;
 bool stoptickernextcycle;
 byte arpegiatingNote[SYNTH_LINERS_COUNT];
 bool tripletdirection[SYNTH_LINERS_COUNT];
@@ -246,19 +205,6 @@ byte ticktriplet[SYNTH_LINERS_COUNT];
 byte arpegnoteoffin[SYNTH_LINERS_COUNT][SYNTH_LINERS_COUNT] = {1};
 byte arpegnotestick[SYNTH_LINERS_COUNT];
 byte arpegemptyticks[SYNTH_LINERS_COUNT];
-bool digitalplay = 0;
-
-byte portamento_time = 60;
-byte portamento_height = 70;
-//0: exponential | 64: linear | 127: log-like
-byte glide_slope = 64 ;
-enum GlideMode : uint8_t  {
-    Off,
-    Portamento,
-    ReversePortamento,
-    PitchAttack,
-    ReversePitchAttack
-};
 
 const char* GlideModeLabels[5] = {
     "Off",
@@ -268,7 +214,7 @@ const char* GlideModeLabels[5] = {
     "ReversePitchAttack"
 };
 
-GlideMode glideMode = PitchAttack;
+Preset gg ;
 
 byte oscillator = 0;
 byte cclfoselector = 0 ;
@@ -490,33 +436,11 @@ const byte **all_arpegios[arpeges_types] = {
     event_ionian,     event_dorian,  event_phrygian, event_lydian,
     event_mixolydian, event_aeolian, event_harmonic, event_locrian};
 
-bool chordson = 0;
 byte chordnotes[3];
 byte chordnotesoff[3];
-// 6 is off
-byte lasetchord = 6;
-
 const byte synth_params_count = 8;
 
-int phaselevelsL[OSCS_COUNT] = {0, 0, 0};
-
-int LFOphase[OSCS_COUNT] = {0,0,0};
-
-
 byte LFOmenuroot = 2;
-//50 is center 0 for -1  +1 range
-int LFOoffset[OSCS_COUNT] = {50,50,50};
-byte LFOformstype[OSCS_COUNT] = {0, 0, 0};
-byte LFOfreqs[OSCS_COUNT] = {100,100,100};
-float LFOHz[OSCS_COUNT] = {1.00,1.00,1.00};
-byte LFOlevel[OSCS_COUNT] = {0,0,0};
-bool LFOsync[OSCS_COUNT] = {0,0,0};
-
-//64 is center 0 for -1  +1 range
-byte wave1offset[OSCS_COUNT] = {64,64,64};
-
-//Atk Delay, Attack, Hold, Decay, Sustain, Release
-int adsrlevels[6] = {0, 5, 0, 50, 100, 750};
 
 enum ADSR : uint8_t  {
     AttackDelay,
@@ -546,8 +470,6 @@ char mainmenufxlist[mainmenufxlistsize][12] = {
       "Multiply", "Reverb", "Granular", "BitCrusher", "Flanger",
       "Chorus",   "Biquad", "Filter",   "Delay",      "None"};
 
-byte WetMixMasters[4] = {0, 0, 0, 0};
-
 bool stereo_toggled = false ;
 
 void validate_pushed_ctl(byte);
@@ -558,7 +480,7 @@ void rota_decrease_ctl(byte);
 const CcCalls ctl[] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel",&SynthVolume_ctl},{"SDLevel",&SDPlayerVolume_ctl},{"FlashLevel",&FlashVolume_ctl},
                       {"FX1 Wet",&Wet1Volume_ctl},{"FX2 Wet",&Wet2Volume_ctl},{"FX3 Wet",&Wet3Volume_ctl},{"Dry Sampler",&DrySampler_ctl},{"Dry Synth",&DrySynth_ctl},
                       //10 ok
-                      {"Dry Audio In",&DryAudioIn_ctl},{"CutOff slp.",&Slope1_ctl},{"Reso slp.",&Slope2_ctl},{"Reso Tweak",&ResoTweak_ctl},{"Filter303 Oct.",&Filter303Octave_ctl},
+                      {"Dry Audio In",&DryAudioIn_ctl},{"CutOff slp.",&Slope1_ctl},{"Reso slp.",&Slope2_ctl},{"Reso Tweak",&ResoTweak_ctl},{"FREE",nullptr},
                       {"CutOff Tweak",&CutOffTweak_ctl},{"Stereo On",toggle_stereo},{"Stereo Off",turn_off_stereo},{"Filter303 Lvl.",&Filter303_ctl},{"Portamento time",&set_Portamento_time_ctl},
                       //20 ok
                       {"Filter303 PreAmp",&FilterPreAmp_ctl},{"Synth Index",&SynthIndex_ctl},{"Syth X Lvl.",&SynthXLevel_ctl},{"Synth X Freq",&SynthXFreq_ctl},{"Chords type",&SetChords_ctl},
@@ -612,24 +534,10 @@ short lecaractere;
 short linerpat;
 
 bool debug_cpu = false;
-byte bitcrusherVknobs[fxs_count][2];
-byte granularVknobs[fxs_count][2];
-byte flangerVknobs[fxs_count][3];
-byte delayVknobs[fxs_count][3];
-byte chorusVknobs[fxs_count];
-byte reverbVknobs[fxs_count][2];
 
-// char* filespath[] = {(char*)"/",};
 //tracks of the sequencer
 const int sizeofsoundlines = 4;
-char soundlines[sizeofsoundlines][12] = {"Synth", "Sampler", "AudioIn",
-                                         "SDcard"};
-// 4 is none
-int LFOonfilterz[fxs_count] = {3,3,3};
-// fq res oct 127
-byte ffilterzVknobs[fxs_count][3];
-// LP BP HP 127
-int mixffilterzVknobs[fxs_count][3];
+char soundlines[sizeofsoundlines][12] = {"Synth", "Sampler", "AudioIn", "SDcard"};
 
 float filterzgainz[fxs_count][3];
 
@@ -649,8 +557,6 @@ int ypos;
 
 int navrange = 2; // starts at 0
 
-byte wetins[3]={64,64,64};
-
 char lastpathlisted[50];
 // char menuitem ;
 
@@ -658,14 +564,8 @@ int midiknobs[128];
 
 int sublevels[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-float wavesfreqs[OSCS_COUNT] = {1.0, 1.0, 0.5};
-float panLs[OSCS_COUNT] = {1, 1, 1};
-
-byte mixlevelsL[OSCS_COUNT] = {126, 64, 64};
 // 0 master , 1synth, 2 sampler, 3 unused
-byte mixlevelsM[4] = {127, 127, 38, 127};
 
-unsigned int Waveformstyped[OSCS_COUNT] = {1, 0, 1};
 byte samplesnotesOn[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 
@@ -679,7 +579,7 @@ Adafruit_SSD1306 display(128, 64, &Wire2, -1);
 char *toprint = (char *)"Cosmix";
 
 bool initdone;
-byte FMmodulated[OSCS_COUNT] = {0,0,0};
+
 #include "/home/kosmin/HR-X/includes/cablages.ino"
 
 #define FLANGE_DELAY_LENGTH (6 * AUDIO_BLOCK_SAMPLES)
