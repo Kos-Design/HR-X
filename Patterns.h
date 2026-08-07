@@ -28,10 +28,136 @@ void shutlineroff(byte,byte);
 void playarpegenote(byte);
 void closeallenvelopes();
 
+/*class MidiPlayer{
+  public:
+    MidiPlayer();
+
+    bool begin(FsFile &file);
+
+    void stop();
+
+    void reset();
+
+    // Returns true if one or more events were emitted
+    bool update(uint32_t currentTick);
+
+    bool isPlaying() const { return playing; }
+
+    //----------------------------------
+    // MIDI information
+    //----------------------------------
+
+    uint16_t bpm = 120;
+
+    uint16_t ppqn = 96;
+
+    uint8_t numerator = 4;
+
+    uint8_t denominator = 4;
+
+    uint32_t stepTicks = 24;
+
+  protected:
+
+    //----------------------------------
+    // User callbacks
+    //----------------------------------
+
+    virtual void noteOn(uint8_t ch,
+                        uint8_t note,
+                        uint8_t vel) {}
+
+    virtual void noteOff(uint8_t ch,
+                         uint8_t note,
+                         uint8_t vel) {}
+
+    virtual void controlChange(uint8_t ch,
+                               uint8_t cc,
+                               uint8_t value) {}
+
+  private:
+
+    //----------------------------------
+    // File
+    //----------------------------------
+
+    FsFile *f = nullptr;
+
+    uint32_t trackEnd = 0;
+
+    bool playing = false;
+
+    bool eof = false;
+
+    //----------------------------------
+    // Timing
+    //----------------------------------
+
+    uint32_t currentEventTick = 0;
+
+    uint32_t nextEventTick = 0;
+
+    //----------------------------------
+    // Pending event
+    //----------------------------------
+
+    uint8_t eventType = 0;
+
+    uint8_t eventChannel = 0;
+
+    uint8_t eventData1 = 0;
+
+    uint8_t eventData2 = 0;
+
+    //----------------------------------
+    // MIDI parser
+    //----------------------------------
+
+    uint8_t runningStatus = 0;
+
+    bool readHeader();
+
+    bool readTrack();
+
+    bool readNextEvent();
+
+    bool parseMeta();
+
+    bool parseSysEx();
+
+    //----------------------------------
+    // Helpers
+    //----------------------------------
+
+    uint8_t read8();
+
+    uint16_t read16();
+
+    uint32_t read32();
+
+    uint32_t readVar();
+
+    void skip(uint32_t bytes);
+};*/
+
 enum TrackTypes : uint8_t  {
     Synth,
     Flash
 };
+
+struct Pattern {
+    int flash_notes_length[16][32];
+    int synth_notes_length[6][32];
+    uint8_t cc_partition[128][32];
+    MidiEventer sampler_partition[16][32];
+    MidiEventer synth_partition[6][32];
+    MidiEventer synth_off_pat[6][32];
+    MidiEventer sampler_off_pat[32];
+    bool track_cells[2][32] ;
+
+};
+
+extern Pattern pp;
 
 class CCEditor : public SectionHolder {
   public:
@@ -53,9 +179,9 @@ class PatEditRouter : public SectionHolder {
     public:
         PatEditRouter();
         bool visible_tracks[6][32];
-        byte (*_on_part)[3];
-        byte (*_off_part)[3];
-        byte (*_temp_part)[3];
+        MidiEventer *_on_part;
+        MidiEventer *_off_part;
+        MidiEventer *_temp_part;
         int *_length_part;
         byte liners_count = 1 ;
         byte liners_page = 0;
@@ -158,6 +284,7 @@ class PatternsMenuRouter : public SectionHolder {
         static void addnoteoff2next(byte lanotee, byte lapos);
         static void set_ccs();
         static void parsepattern();
+        static void parsepattern_old();
         static void doPatternsmenu();
         static void deletepattern();
         static void copypattern();

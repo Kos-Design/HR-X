@@ -1,30 +1,24 @@
 void initextmems() {
-  for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
-    for (int j = 0; j < pbars; j++) {
-      flash_notes_length[i][j] = 0;
-      for (int k = 0; k < 3; k++) {
-        sampler_off_pat[j][k] = 0;
-        sampler_partition[i][j][k] = 0;
-        //thats ok we only do it once... 5 more times than necessary but you can never be sure...
-        temp_sampler_partition[j][k] = 0;
-      }
+  
+  for (int j = 0; j < pbars; j++) {
+    pp.sampler_off_pat[j] = {0,0,0};
+    temp_sampler_partition[j] = {0,0,0};
+    for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+      pp.flash_notes_length[i][j] = 0;
+      pp.sampler_partition[i][j] = {0,0,0};
     }
-  }
-  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-    for (int j = 0; j < pbars; j++) {
-      synth_notes_length[i][j] = 0;
-      for (int k = 0; k < 3; k++) {
-        synth_off_pat[i][j][k] = 0;
-        synth_partition[i][j][k] = 0;
-        //thats ok we only do it twice... 5 more times than necessary but you can never be sure...
-        temp_synth_partition[j][k] = 0;
-      }
+    pp.track_cells[0][j] = 0;
+    pp.track_cells[1][j] = 0;
+    temp_synth_partition[j] = {0,0,0};
+    for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+      pp.synth_notes_length[i][j] = 0;
+      pp.synth_partition[i][j] = {0,0,0};
+      pp.synth_off_pat[i][j] = {0,0,0};
     }
-  }
-  for (int i = 0; i < 128; i++) {
-    leccinterpolated[i] = 0;
-    for (int j = 0; j < pbars; j++) {
-      cc_partition[i][j] = 127;
+
+    for (int i = 0; i < 128; i++) {
+      if (!j) leccinterpolated[i] = 0;
+      pp.cc_partition[i][j] = 127;
     }
   }
   for (int i = 0; i < 32; i++) {

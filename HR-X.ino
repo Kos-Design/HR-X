@@ -2,7 +2,7 @@
 
 #include "MenuClasses.h"
 #include "muxer.h"
-#include "ParserLib.h"
+//#include "ParserLib.h"
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
 #include <Bounce.h>
@@ -14,6 +14,24 @@
 #include "Patterns.h"
 #include "pads.h"
 
+
+const byte sizeofnoCCrecord = 11;
+
+constexpr uint8_t SCREEN_ADDRESS = 0x3C;
+constexpr uint8_t SN_MENU_LABELS_COUNT = 6 ;
+constexpr int SYNTH_LINERS_COUNT = 6 ;
+const int available_track_types = 2;
+const int FLASH_LINERS_COUNT = 16;
+const int sampler_labels_count = 4;
+
+const int pbars = 32;
+
+
+EXTMEM MidiEventer temp_sampler_partition[pbars];
+EXTMEM MidiEventer temp_synth_partition[pbars];
+
+EXTMEM Pattern pp ;
+
 EXTMEM Pads Pads;
 Muxer Muxer;
 
@@ -23,32 +41,10 @@ Muxer Muxer;
 */
 bool locked_fileing = 0 ;
 int retroaction = 0;
-const byte sizeofnoCCrecord = 11;
-
-constexpr uint8_t SCREEN_ADDRESS = 0x3C;
-constexpr uint8_t SN_MENU_LABELS_COUNT = 6 ;
-constexpr int SYNTH_LINERS_COUNT = 6 ;
-const int available_track_types = 2;
-const int pbars = 32;
-const int FLASH_LINERS_COUNT = 16;
-const int sampler_labels_count = 4;
-bool track_cells[available_track_types][pbars] = {0};
-
-EXTMEM byte synth_partition[SYNTH_LINERS_COUNT][pbars][3];
-EXTMEM byte temp_synth_partition[pbars][3];
-EXTMEM byte synth_off_pat[SYNTH_LINERS_COUNT][pbars][3];
-EXTMEM int synth_notes_length[SYNTH_LINERS_COUNT][pbars];
-byte synth_start_tpos[SYNTH_LINERS_COUNT];
-EXTMEM byte sampler_partition[FLASH_LINERS_COUNT][pbars][3];
-EXTMEM byte temp_sampler_partition[pbars][3];
-EXTMEM int flash_notes_length[FLASH_LINERS_COUNT][pbars];
-byte sampler_off_pat[pbars][3];
 bool patternOn;
 bool stoptick = true;
 bool recordCC;
 bool patrecord;
-
-EXTMEM byte cc_partition[128][pbars];
 
 bool setting_on_board = false ;
 bool waveforming = false ;
@@ -62,6 +58,7 @@ const int control_lag = 10 ;
 //outdated since refactor of ctl[]
 byte noCCrecord[sizeofnoCCrecord] = {3,35,36,37, 38,39,40,41,42,44, 1};
 
+//MidiPlayer _md;
 
 bool mp3_looped = 0 ;
 bool externalticker;
@@ -168,7 +165,6 @@ EXTMEM float bqslope[fxs_count][bqstagesnum];
 float bqgain[fxs_count][bqstagesnum];
 EXTMEM float bqfreq[fxs_count][bqstagesnum];
 
-
 // max bqfreq (in Hz) wich will be multiplied by the CC (from 0 to 127) + 300Hz
 // ---> because of the poor biquad response below 400hz
 int bqrange = 20000;
@@ -224,11 +220,6 @@ byte ccfxlineselector = 0;
 // from leinterpolstart to [1] interpole target position
 byte Ccinterpolengh[128][3];
 
-const int parsingbuffersize = 16000;
-int parsinglength = parsingbuffersize;
-const int pat_parser_size = 32000;
-
-EXTMEM char receivedbitinchar[parsingbuffersize];
 bool debugmidion = 0;
 bool freezemidicc = 0;
 bool temp_buff_armed = 0 ;
@@ -534,10 +525,6 @@ short lecaractere;
 short linerpat;
 
 bool debug_cpu = false;
-
-//tracks of the sequencer
-const int sizeofsoundlines = 4;
-char soundlines[sizeofsoundlines][12] = {"Synth", "Sampler", "AudioIn", "SDcard"};
 
 float filterzgainz[fxs_count][3];
 

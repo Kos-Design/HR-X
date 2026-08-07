@@ -40,8 +40,8 @@ class SongEditorRouter : public SectionHolder {
           }
         /*
           for (int i = 0; i < 128; i++) {
-            if (cc_partition[i][tickposition] != 127) {
-              moncontrollercc(1, i, cc_partition[i][tickposition]);
+            if (pp.cc_partition[i][tickposition] != 127) {
+              moncontrollercc(1, i, pp.cc_partition[i][tickposition]);
             }
           }
           */
@@ -50,22 +50,22 @@ class SongEditorRouter : public SectionHolder {
         void use_pattern(){
           light_cc_change();
           for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            if (synth_off_pat[i][tickposition][1] != 0) {
+            if (pp.synth_off_pat[i][tickposition].note != 0) {
               synth_lines[i]->liner_off();
             }
             // if ( i < SYNTH_LINERS_COUNT ) {
-            if (synth_partition[i][tickposition][1] != 0) {
+            if (pp.synth_partition[i][tickposition].note != 0) {
               play_synth_line(i);
             }
 
           }
-          if (sampler_off_pat[tickposition][1] != 0) {
-            shutlineroff(gg.samplermidichannel,sampler_off_pat[tickposition][1]);
+          if (pp.sampler_off_pat[tickposition].note != 0) {
+            shutlineroff(gg.samplermidichannel,pp.sampler_off_pat[tickposition].note);
               //flash_lines[i]->liner_off();
             }
           for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
 
-            if (sampler_partition[i][tickposition][1] != 0) {
+            if (pp.sampler_partition[i][tickposition].note != 0) {
               play_sampler_line(i);
             }
           }
@@ -202,19 +202,19 @@ class SongEditorRouter : public SectionHolder {
         }
 
         void play_synth_line(int linei) {
-          if (synth_partition[linei][tickposition][1] != 0) {
+          if (pp.synth_partition[linei][tickposition].note != 0) {
             if (!synth_lines[linei]->activated) {
-              synth_lines[linei]->liner_on(synth_partition[linei][tickposition][1], synth_partition[linei][tickposition][2]);
+              synth_lines[linei]->liner_on(pp.synth_partition[linei][tickposition].note, pp.synth_partition[linei][tickposition].velocity);
             }
           }
         }
 
         void play_sampler_line(int linei) {
-          if (sampler_partition[linei][tickposition][1] != 0) {
-            if (gg.Sampleassigned[sampler_partition[linei][tickposition][1]] != 0 &&
+          if (pp.sampler_partition[linei][tickposition].note != 0) {
+            if (gg.Sampleassigned[pp.sampler_partition[linei][tickposition].note] != 0 &&
                 ((gg.samplermidichannel == 0) ||
-                ((byte)gg.samplermidichannel == sampler_partition[linei][tickposition][0]))) {
-                  initiateasamplerliner(sampler_partition[linei][tickposition][1], sampler_partition[linei][tickposition][2]);
+                ((byte)gg.samplermidichannel == pp.sampler_partition[linei][tickposition].channel))) {
+                  initiateasamplerliner(pp.sampler_partition[linei][tickposition].note, pp.sampler_partition[linei][tickposition].velocity);
             }
           }
         }
@@ -387,11 +387,10 @@ class SongMenuRouter : public SectionHolder {
         static void parseSong(){
           File song_filer = SD.open(self->catalog->get_current_file_path(0).c_str());
             if (song_filer) {
-              //increse parsingbuffersize if more settings are added
-              for (int i = 0; i < parsingbuffersize; i++) {
-                receivedbitinchar[i] = song_filer.read();
-              }
+              
+              
             }
+            /*
             Parser parser((byte *)receivedbitinchar, parsinglength);
             parser.Read_String('#');
             parser.Skip(1);
@@ -402,6 +401,7 @@ class SongMenuRouter : public SectionHolder {
               patternonsong[i] = parser.Read_Int16();
             }
             parser.Reset();
+            */
             song_filer.close();
         }
 

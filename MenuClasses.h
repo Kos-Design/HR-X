@@ -32,22 +32,12 @@ extern const int available_track_types;
 extern const int pbars;
 extern const int FLASH_LINERS_COUNT;
 extern const int sampler_labels_count;
-extern bool track_cells[2][32];
 
-extern byte synth_partition[6][32][3];
-extern byte temp_synth_partition[32][3];
-extern byte synth_off_pat[6][32][3];
-extern int synth_notes_length[6][32];
-extern byte synth_start_tpos[6];
-extern byte sampler_partition[16][32][3];
-extern byte temp_sampler_partition[32][3];
-extern int flash_notes_length[16][32];
-extern byte sampler_off_pat[32][3];
 extern bool patternOn;
 extern bool stoptick;
 extern bool recordCC;
 extern bool patrecord;
-extern byte cc_partition[128][32];
+//extern byte pp.cc_partition[128][32];
 
 void call_sn_show();
 void call_lf_show();
@@ -78,6 +68,12 @@ extern AudioMixer4 FXBusL;
 extern AudioMixer4 FXBusR;
 extern AudioMixer4 *Wavesmix[6];
 
+struct MidiEventer{
+    byte channel;
+    byte note;
+    byte velocity;
+};
+
 enum GlideMode : uint8_t {
     Off,
     Portamento,
@@ -85,6 +81,11 @@ enum GlideMode : uint8_t {
     PitchAttack,
     ReversePitchAttack
 };
+
+extern MidiEventer temp_synth_partition[32];
+
+extern MidiEventer temp_sampler_partition[32];
+
 
 struct Preset {
     int32_t millitickinterval = 115;
