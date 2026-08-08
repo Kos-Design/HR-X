@@ -171,8 +171,7 @@ void addtofolderix(char *lepathtoadd, int ix) {
 }
 
 void setupsamplefoldersregistered() {
-  // i = 99 , j = 39
-  for (int i = 0; i < szsset; i++) {
+  for (int i = 0; i < 99; i++) {
     for (int j = 0; j < ssnamsize; j++) {
       samplefoldersregistered[i][j] = (char)'\0';
     }

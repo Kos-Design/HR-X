@@ -25,9 +25,3 @@ void unplugfx() {
     fxcording[i]->disconnect();
   }
 }
-
-void init_fxes(){
-  for (int i = 0; i < fxs_count; i++) {
-    fx[i] = new FxBus(i);
-  }
-}

@@ -49,7 +49,7 @@ void loopusbHub() {
         case 0x80:
           //rec_test(1,rx.byte1,rx.byte2,rx.byte3);
           //song.send_to_wire(1,rx.byte1,rx.byte2,rx.byte3);
-          MaNoteOff(channel_midi,rx.byte2,rx.byte3);
+          _tt.MaNoteOff(channel_midi,rx.byte2,rx.byte3);
         break;
 
         case 0xB0:
@@ -69,64 +69,3 @@ void Mytickmidi() {
   advance_tick();
 }
 
-void setuphubusb() {
-
-  myusb.begin();
-
-  midi1.setHandleNoteOn(MaNoteOn);
-  midi1.setHandleNoteOff(MaNoteOff);
-  midi1.setHandleControlChange(MaControlChange);
-
-  midi2.setHandleNoteOn(MaNoteOn);
-  midi2.setHandleNoteOff(MaNoteOff);
-  midi2.setHandleControlChange(MaControlChange);
-
-  midi3.setHandleNoteOn(MaNoteOn);
-  midi3.setHandleNoteOff(MaNoteOff);
-  midi3.setHandleControlChange(MaControlChange);
-
-  usbMIDI.setHandleNoteOn(MaNoteOn);
-  usbMIDI.setHandleNoteOff(MaNoteOff);
-  usbMIDI.setHandleControlChange(MaControlChange);
-  usbMIDI.setHandleClock(_sg.midi_clock_accumulator);
-/*
-TODO:
-  void myAfterTouchPoly(byte channel, byte note, byte velocity)
-  void myProgramChange(byte channel, byte program)
-  void myAfterTouch(byte channel, byte pressure)
-  void myPitchChange(byte channel, int pitch)
-  void mySystemExclusiveChunk(const byte *data, uint16_t length, bool last)
-  void mySystemExclusive(byte *data, unsigned int length)
-  void myTimeCodeQuarterFrame(byte data)
-  void mySongPosition(uint16_t beats)
-  void mySongSelect(byte songNumber)
-  void myTuneRequest()
-  void myClock()
-  void myStart()
-  void myContinue()
-  void myStop()
-  void myActiveSensing()
-  void mySystemReset()
-  void myRealTimeSystem(byte realtimebyte)
-  */
-}
-
-//
-void debugmidi(char *typemsg = (char *)"midi ", byte channel = 0,
-               byte mnote = 0, byte mvelocity = 0) {
-
-  display.clearDisplay();
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
-  canvastitle.print(typemsg);
-  canvastitle.print(", c:");
-  canvastitle.print(channel);
-  canvastitle.print(", n:");
-  canvastitle.print(mnote);
-  canvastitle.print(", v:");
-  canvastitle.print(mvelocity);
-
-  dm.dodisplay();
-}

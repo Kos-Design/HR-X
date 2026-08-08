@@ -2,14 +2,14 @@ void initextmems() {
   
   for (int j = 0; j < pbars; j++) {
     pp.sampler_off_pat[j] = {0,0,0};
-    temp_sampler_partition[j] = {0,0,0};
+    _pe.temp_sampler_partition[j] = {0,0,0};
     for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
       pp.flash_notes_length[i][j] = 0;
       pp.sampler_partition[i][j] = {0,0,0};
     }
     pp.track_cells[0][j] = 0;
     pp.track_cells[1][j] = 0;
-    temp_synth_partition[j] = {0,0,0};
+    _pe.temp_synth_partition[j] = {0,0,0};
     for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
       pp.synth_notes_length[i][j] = 0;
       pp.synth_partition[i][j] = {0,0,0};
@@ -28,34 +28,6 @@ void initextmems() {
     }
     recorded_ccs[i] = 0 ;
   }
-
-    for (int i = 0; i < fxs_count; i++) {
-      for (int j = 0; j < bqstagesnum; j++) {
-          bqslope[i][j] = 0.0;
-          bqgain[i][j] = 0.0;
-          bqfreq[i][j] = 0.0;
-          gg.bqtype[i][j] = 0.0;
-          gg.bqVpot[i][j][0] = 0;
-          gg.bqVpot[i][j][1] = 0;
-          gg.bqVpot[i][j][2] = 0;
-      }
-    }
-    for (int i = 0; i < GRANULAR_MEMORY_SIZE; i++) {
-      granularMemory[i] = 0;
-      granularMemory2[i] = 0;
-      granularMemory3[i] = 0;
-    }
-    for (int i = 0; i < FLANGE_DELAY_LENGTH; i++) {
-      flangedelay[i] = 0;
-      flangedelay2[i] = 0;
-      flangedelay3[i] = 0;
-    }
-    for (int i = 0; i < CHORUS_DELAY_LENGTH; i++) {
-      chorusdelayline[i] = 0;
-      chorusdelayline2[i] = 0;
-      chorusdelayline3[i] = 0;
-    }
-  // ignorethatcc[88] = true;
 }
 
 void unplug_notefreq_from_ampL(){
@@ -195,7 +167,7 @@ void setupdefaultvalues() {
     if (!((i <= 11) || (i >= 46))) {
       gg.pot_assignements[i] = i + 128 + 30;
     } else {
-      gg.pot_assignements[i] = gg.ordered_pots[potsboards[i]];
+      gg.pot_assignements[i] = gg.ordered_pots[Pads.potsboards[i]];
     }
   }
 
@@ -211,7 +183,7 @@ void setupdefaultvalues() {
   //audio In level
   //gg.midiknobassigned[22] = 97;
 
-  // ccfxlineselector crossfader
+  // fidx crossfader
   //gg.midiknobassigned[10] = 69;
 
   // 303 pulse
@@ -235,10 +207,10 @@ void setupdefaultvalues() {
   gg.pot_assignements[all_buttonns-11] = 107 ;
   gg.pot_assignements[all_buttonns-10] = 106 ;
 
-  gg.midiknobassigned[alt_nav[2]] = 125 ;
-  gg.midiknobassigned[alt_nav[3]] = 126 ;
-  gg.midiknobassigned[alt_nav[0]] = 123 ;
-  gg.midiknobassigned[alt_nav[1]] = 124 ;
+  gg.midiknobassigned[gg.alt_nav[2]] = 125 ;
+  gg.midiknobassigned[gg.alt_nav[3]] = 126 ;
+  gg.midiknobassigned[gg.alt_nav[0]] = 123 ;
+  gg.midiknobassigned[gg.alt_nav[1]] = 124 ;
 
 
 

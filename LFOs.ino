@@ -12,6 +12,7 @@ class LFOMenuRouter : public SectionHolder {
         int unit = (int)gg.LFOHz[cclfoselector] % 10;
         int tenth     = ((int)(gg.LFOHz[cclfoselector] * 10)) % 10;
         int hundredth = ((int)(gg.LFOHz[cclfoselector] * 100)) % 10;
+        const byte sizeofLFOlabels = 9;
 
         static void show() {
           _nav_lfo[navlevel-1]();
@@ -246,7 +247,7 @@ class LFOMenuRouter : public SectionHolder {
           freqbars_panel_selector();
           if (navlevel == 2) {
             retroaction = sublevels[1];
-            navrange = sizeofLFOlabels - 1;
+            navrange = self->sizeofLFOlabels - 1;
           }
         }
 
@@ -256,7 +257,7 @@ class LFOMenuRouter : public SectionHolder {
           const char* LFOlabels[] = {"Type",  "Level",  "Sync",
                                                 "Freq",  "Offset", "Phase",
                                                 "Synth", "<-  ",   "  ->"};
-          dm.main_panel(LFOlabels, 2, sizeofLFOlabels);
+          dm.main_panel(LFOlabels, 2, self->sizeofLFOlabels);
 
         }
 
@@ -283,14 +284,14 @@ class LFOMenuRouter : public SectionHolder {
               cclfoselector = cclfoselector-1;
             
             sublevels[1] = cclfoselector ;
-            returntonav(navlevel-1,sizeofLFOlabels-1,sublevels[2]);
+            returntonav(navlevel-1,self->sizeofLFOlabels-1,sublevels[2]);
             }
         }
         static void go_next(){
           if (navlevel >= 3) {
             cclfoselector = (cclfoselector+1)%3;
             sublevels[1] = cclfoselector ;
-            returntonav(navlevel-1,sizeofLFOlabels-1,sublevels[2]);
+            returntonav(navlevel-1,self->sizeofLFOlabels-1,sublevels[2]);
             }
         }
         static void restartLFO(int leLFO=cclfoselector) {
@@ -306,7 +307,7 @@ class LFOMenuRouter : public SectionHolder {
             LFOwaveforms1[leLFO]->begin((float)(gg.LFOlevel[leLFO]/127.00), gg.LFOHz[leLFO]*2, lesformes[gg.LFOformstype[leLFO]]);
           }
           if (gg.LFOformstype[leLFO] == 7) {
-            LFOwaveforms1[leLFO]->arbitraryWaveform(arbitrary_waveforms[leLFO],arbitrary_maxF[leLFO]);
+            LFOwaveforms1[leLFO]->arbitraryWaveform(gg.arbitrary_waveforms[leLFO],gg.arbitrary_maxF[leLFO]);
           }
 
           for (byte i = 0; i < SYNTH_LINERS_COUNT; i++) {

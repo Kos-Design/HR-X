@@ -86,9 +86,10 @@ class KnobAssigner : public SectionHolder {
                     this->max_navlevel=3;
                     this->sublevels_address={2,0,0};
                     }
+      bool knobsetting = false ;
  
       static void show() {
-        knobsetting = false ;
+        self->knobsetting = false ;
         _actionable[navlevel-self->relative_navlevel]();
       }
       static void learn_midi(byte captured){
@@ -145,7 +146,7 @@ class KnobAssigner : public SectionHolder {
       }
 
       static void assigner(){
-        knobsetting = true ;
+        self->knobsetting = true ;
         navrange = 127;
         if (sublevels[self->relative_navlevel] == 0 ) {
           returntonav(self->relative_navlevel,CtlCount-1,sublevels[self->relative_navlevel]);
@@ -177,7 +178,7 @@ class KnobAssigner : public SectionHolder {
       }
 
       static void set_it(){
-        knobsetting = false ;
+        self->knobsetting = false ;
         set_midi_cc_to_ctl(find_assigned_knob(sublevels[self->relative_navlevel]), 0);
         set_midi_cc_to_ctl(sublevels[self->relative_navlevel+1] , sublevels[self->relative_navlevel]);
 
@@ -318,15 +319,15 @@ class SynthLiner {
     void activateWavelines() {
       //Sample & Hold waveform does not support phase modulation. Attempting to modulate its phase may give random or inconsistent results.
       for (int i = 0; i < OSCS_COUNT; i++) {
-        if (audio_obj_type[i]) audio_obj_starter[audio_obj_type[i]-1](this->l_index,i,this->currentFreq,this->targetFreq,this->velocity);
+        if (gg.audio_obj_type[i]) audio_obj_starter[gg.audio_obj_type[i]-1](this->l_index,i,this->currentFreq,this->targetFreq,this->velocity);
       }
     }
 
     void refreshWavelines() {
       for (int i = 0; i < OSCS_COUNT; i++) {
         // oscs Offs or of string type do not need refreshing
-        if (audio_obj_type[i] && audio_obj_type[i] < 4) {
-         audio_obj_refresher[audio_obj_type[i]-1](this->l_index,i,this->currentFreq,this->velocity);
+        if (gg.audio_obj_type[i] && gg.audio_obj_type[i] < 4) {
+         audio_obj_refresher[gg.audio_obj_type[i]-1](this->l_index,i,this->currentFreq,this->velocity);
         }
       }
     }

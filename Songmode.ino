@@ -29,6 +29,8 @@ class SongEditorRouter : public SectionHolder {
                     //home method not really used yet
                     //this->set_home(call_song_home);
                     }
+        
+        byte songpage = 0;
 
         //changing_ccs[32][32][2] cc,val
         void light_cc_change() {
@@ -72,7 +74,7 @@ class SongEditorRouter : public SectionHolder {
         }
 
         void playdasong() {
-          //if (!externalticker) {
+          //if (!gg.externalticker) {
             //metro0.reset();
           //}
           songplaying = 1;
@@ -122,13 +124,13 @@ class SongEditorRouter : public SectionHolder {
 
           canvasBIG.setCursor(115, 49);
           canvasBIG.print((char)26);
-          if (songpage > 0) {
+          if (this->songpage > 0) {
             canvasBIG.setCursor(2, 49);
             canvasBIG.print((char)27);
           }
         }
         void setpatterninsong() {
-          patternonsong[(songpage * 16) + sublevels[songedit] - 8] = sublevels[songedit + 1];
+          patternonsong[(this->songpage * 16) + sublevels[songedit] - 8] = sublevels[songedit + 1];
           returntonav(songedit, navrange,sublevels[songedit]);
         }
 
@@ -140,7 +142,7 @@ class SongEditorRouter : public SectionHolder {
         }
 
         void showsongcell() {
-          int lasongcell = patternonsong[(songpage * 16) + sublevels[songedit] - 8];
+          int lasongcell = patternonsong[(this->songpage * 16) + sublevels[songedit] - 8];
           canvastitle.setCursor(0, 0);
           canvastitle.setTextSize(1);
           if (navlevel == songedit) {
@@ -167,7 +169,7 @@ class SongEditorRouter : public SectionHolder {
         void showpatonSongGrid() {
           int lasongcell;
           for (int j = 0; j < 16; j++) {
-            lasongcell = patternonsong[(songpage * 16) + j];
+            lasongcell = patternonsong[(this->songpage * 16) + j];
             if (lasongcell > 0) {
               display.fillRect(j * 8 + 1, 16 + 1, 8 - 2, 12 - 2, SSD1306_WHITE);
             }
@@ -228,11 +230,11 @@ class SongEditorRouter : public SectionHolder {
             }
           }
           if (navlevel == songedit + 1) {
-            if (sublevels[songedit] == 25 && songpage > 0) {
-              songpage--;
+            if (sublevels[songedit] == 25 && this->songpage > 0) {
+              this->songpage--;
             }
-            if (sublevels[songedit] == 24 && songpage < 6) {
-              songpage++;
+            if (sublevels[songedit] == 24 && this->songpage < 6) {
+              this->songpage++;
             }
             returntonav(songedit, navrange,sublevels[songedit]);
           }
@@ -258,7 +260,7 @@ class SongEditorRouter : public SectionHolder {
           songselectorY = 16;
           songmodetopbar();
           if (navlevel == songedit) {
-            if (songpage > 0) {
+            if (this->songpage > 0) {
               navrange = 8 + 16 + 1;
             } else {
               navrange = 8 + 16;
@@ -322,6 +324,7 @@ class SongMenuRouter : public SectionHolder {
           self->max_navlevel=5;
           self->sublevels_address={3,0,0};
         }
+        static constexpr uint8_t sg_labels_count = 8;
 
         FilesLister *catalog;
 

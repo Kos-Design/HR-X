@@ -14,6 +14,16 @@ const unsigned short all_buttonns = 49;
 constexpr uint8_t OSCS_COUNT = 3;
 const int fxs_count = 3;
 const int bqstagesnum = 4;
+const int sizeopremixtoM = 9 * fxs_count;
+const int sizeopremixWtoM = 9 * fxs_count;
+const int sizeofxcords = 9 * fxs_count * 2 * 3;
+constexpr uint8_t SCREEN_ADDRESS = 0x3C;
+constexpr uint8_t SN_MENU_LABELS_COUNT = 6 ;
+constexpr int SYNTH_LINERS_COUNT = 6 ;
+const int available_track_types = 2;
+const int FLASH_LINERS_COUNT = 16;
+const int sampler_labels_count = 4;
+const int pbars = 32;
 
 extern const CcCalls ctl[] ;
 class Adafruit_SSD1306;
@@ -24,20 +34,11 @@ extern int navrange;
 extern const unsigned char menuBG[];
 extern int sublevels[9];
 extern int previousnavlevel;
-extern bool externalticker;
-extern const uint8_t SCREEN_ADDRESS;
-extern const uint8_t SN_MENU_LABELS_COUNT;
-extern const int SYNTH_LINERS_COUNT;
-extern const int available_track_types;
-extern const int pbars;
-extern const int FLASH_LINERS_COUNT;
-extern const int sampler_labels_count;
 
 extern bool patternOn;
 extern bool stoptick;
 extern bool recordCC;
 extern bool patrecord;
-//extern byte pp.cc_partition[128][32];
 
 void call_sn_show();
 void call_lf_show();
@@ -82,33 +83,42 @@ enum GlideMode : uint8_t {
     ReversePitchAttack
 };
 
-extern MidiEventer temp_synth_partition[32];
-
-extern MidiEventer temp_sampler_partition[32];
-
+enum ADSR : uint8_t  {
+    AttackDelay,
+    Attack,
+    Hold,
+    Decay,
+    Sustain,
+    Release
+};
 
 struct Preset {
     int32_t millitickinterval = 115;
     //Atk Delay, Attack, Hold, Decay, Sustain, Release
     int32_t adsrlevels[6] = {0, 5, 0, 50, 100, 750};
-    int32_t pot_assignements[all_buttonns];
+    int32_t pot_assignements[all_buttonns]{};
     int32_t ordered_pots[15] = {
         10, 12, 11, 16, 15, 14, 19, 18, 17, 13,
         24, 22, 23, 21, 20
     };
-    int32_t midiknobassigned[128];
-    int32_t Sampleassigned[128];
-    int32_t bqstage[fxs_count];
-    int32_t LFOonfilterz[fxs_count] = {3,3,3};
-    int32_t bqtype[fxs_count][bqstagesnum];
+    int32_t midiknobassigned[128]{};
+    int32_t Sampleassigned[128]{};
+
     //individual frequency multipliers for the oscillators
     float wavesfreqs[OSCS_COUNT] = {1.0f, 1.0f, 0.5f};
+    //doesn't seem to affect arbitrary waveforms... :(
+    float arbitrary_maxF[OSCS_COUNT] = { 172.0, 172.0, 172.0} ;
+
+    //individual frequency multipliers for the LFOs
     float LFOHz[OSCS_COUNT] = {1.0f,1.0f,1.0f};
+    int16_t arbitrary_waveforms[OSCS_COUNT][256]{} ;
     GlideMode glideMode = PitchAttack;
 
     uint16_t le303filterzfreq = 14000;
     // 1-byte aligned
     uint8_t le303filterzgainz[3] = {127,0,0};
+    //0 is Off, 1-> Waveform, 2-> FM Waveform, 3->Drum, 4->String 
+    uint8_t audio_obj_type[OSCS_COUNT] = {1,1,1};
     uint8_t le303filterzreso = 70;
     uint8_t panLs = 64;
     uint8_t phaselevelsL[OSCS_COUNT] = {0,0,0};
@@ -116,7 +126,7 @@ struct Preset {
     //unused until 303 refactor
     uint8_t resonance_slope = 1;
     // cutoff, resonance, octave
-    uint8_t le303ffilterzVknobs[3];
+    uint8_t le303ffilterzVknobs[3]{};
     // LP BP HP
     uint8_t mixle303ffilterzVknobs[3] = {127,0,0};
     uint8_t le303filterzwet = 127;
@@ -131,12 +141,15 @@ struct Preset {
     uint8_t arpegmode = 4;
     uint8_t arpegnumofnotes = 7;
     uint8_t arpegstartoffset = 0;
-    uint8_t arpeggridC;
-    uint8_t arpeggridS;
+    uint8_t arpeggridC = 0;
+    uint8_t arpeggridS = 0;
     bool digitalplay = false;
     bool chordson = false;
+    bool SendMidiOut;
+
     // 6 is Off
-    uint8_t lasetchord = 6;
+    uint8_t lasetchord = 6;//midi cc notes controlling navigation
+    uint8_t alt_nav[4] = {106,107,110,111};
     //wetness for: synth, sampler, audio In
     uint8_t wetins[3] = {64,64,64};
     uint8_t synthmidichannel = 16;
@@ -161,6 +174,8 @@ struct Preset {
     uint8_t LFOphase[OSCS_COUNT] = {0,0,0};
     uint8_t LFOoffset[OSCS_COUNT] = {64,64,64};
     bool LFOsync[OSCS_COUNT] = {false,false,false};
+    bool externalticker = 0;
+
     //midi channels used for the built-in buttons handled by the multiplexer
     uint8_t but_channel[all_buttonns] = {
         1,1,1,1,1,1,1,1,1,1,1,1,
@@ -180,17 +195,7 @@ struct Preset {
     uint8_t muxed_channels[15] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
     // virtual pots available for keyboardless control
     uint8_t vPots[17];
-    uint8_t chorusVknobs[fxs_count];
-    uint8_t reverbVknobs[fxs_count][2];
-    uint8_t bitcrusherVknobs[fxs_count][2];
-    uint8_t granularVknobs[fxs_count][2];
-    uint8_t mixffilterzVknobs[fxs_count][3];
-    // cutoff, resonance, octave
-    uint8_t ffilterzVknobs[fxs_count][3];
-    uint8_t delayVknobs[fxs_count][3];
-    uint8_t flangerVknobs[fxs_count][3];
-    // [lebiquad] [lestage] freq slope gain
-    uint8_t bqVpot[fxs_count][bqstagesnum][3];
+
 };
 extern Preset gg ;
 

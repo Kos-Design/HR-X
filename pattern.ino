@@ -56,6 +56,8 @@ class StereoDualFilter {
 
     {
     }
+    
+    bool stereo_toggled = false ;
 
     //--------------;------------------------------------
     void disconnect_standard(){

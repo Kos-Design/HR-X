@@ -20,6 +20,9 @@ class SettingsMenuRouter : public SectionHolder {
                     self->max_navlevel=5;
                     self->sublevels_address={5,0,0};
                     }
+                    
+        static constexpr uint8_t settings_labels_count = 17;
+        bool noteprint = 0;
 
         char onboards[all_buttonns][8] = {
           "Pot 1",  "Pot 2",  "Pot 3",  "Pot 4",  "Pot 5",  "Pot 6",  "Pot 7",
@@ -31,10 +34,12 @@ class SettingsMenuRouter : public SectionHolder {
           "But 15", "But 16", "But 17", "But 18", "Cfd",    "Jk X",   "Jk Y"};
 
         char ch_lbl_buffer[4];
+        bool setting_on_board = false ;
+        bool freezemidicc = 0;
 
         static void show() {
           if (navlevel == 1) {
-            setting_on_board = false ;
+            self->setting_on_board = false ;
             settings_nav_zero();
           }
 
@@ -47,9 +52,9 @@ class SettingsMenuRouter : public SectionHolder {
         static void apply_alt_ctl(){
           //TODO implement learn midi
           for (int i = 0; i < 4; i++) {
-            _ka.set_midi_cc_to_ctl(_ka.find_assigned_knob(alt_nav[i]),0);
+            _ka.set_midi_cc_to_ctl(_ka.find_assigned_knob(gg.alt_nav[i]),0);
             //hope that ctl index of rota_increase_ctl doesn't change
-            _ka.set_midi_cc_to_ctl(alt_nav[i],123+i);
+            _ka.set_midi_cc_to_ctl(gg.alt_nav[i],123+i);
           }
         }
         static void set_alternative_rota(){
@@ -57,10 +62,10 @@ class SettingsMenuRouter : public SectionHolder {
           navrange = 3 ;
           if (navlevel == 3 ){
             navrange = 127;
-            alt_nav[sublevels[2]]=sublevels[3];
+            gg.alt_nav[sublevels[2]]=sublevels[3];
           }
           
-          sublevels[3]=alt_nav[sublevels[2]];
+          sublevels[3]=gg.alt_nav[sublevels[2]];
           display.clearDisplay();
           display.setCursor(0,0);
           display.setTextSize(1);
@@ -69,19 +74,19 @@ class SettingsMenuRouter : public SectionHolder {
           display.println(" ");
           display.println(" ");
           display.print("Increase: ");
-          display.print(alt_nav[0]);
+          display.print(gg.alt_nav[0]);
 
           display.setCursor(0, 28);
           display.print("Decrease: ");
-          display.print(alt_nav[1]);
+          display.print(gg.alt_nav[1]);
 
           display.setCursor(0, 40);
           display.print("Validate: ");
-          display.print(alt_nav[2]);
+          display.print(gg.alt_nav[2]);
 
           display.setCursor(0, 52);
           display.print("Cancel:   ");
-          display.print(alt_nav[3]);
+          display.print(gg.alt_nav[3]);
 
           display.drawRoundRect(56,11+12*sublevels[2], 25, 16, 3, SSD1306_WHITE);
           display.display();
@@ -143,8 +148,8 @@ class SettingsMenuRouter : public SectionHolder {
         static void settings_nav_zero(){
           reinitsublevels(2);
           dm.clean_title_1_1();
-          debugmidion = 0;
-          noteprint = 0;
+          _tt.debugmidion = 0;
+          self->noteprint = 0;
           navrange = settings_labels_count - 1;
           makesettingslist();
           dm.dodisplay();
@@ -153,7 +158,7 @@ class SettingsMenuRouter : public SectionHolder {
         static void OnBoardVpanelAction() {
           if (navlevel > 3) {
             if (((sublevels[2] <= 11) || (sublevels[2] > 45)) && (navlevel == 4)) {
-              gg.ordered_pots[potsboards[sublevels[2]]] = gg.pot_assignements[sublevels[2]];
+              gg.ordered_pots[Pads.potsboards[sublevels[2]]] = gg.pot_assignements[sublevels[2]];
             }
             returntonav(2);
           }
@@ -237,7 +242,7 @@ class SettingsMenuRouter : public SectionHolder {
         }
 
         static void OnBoardVpanel() {
-          setting_on_board = true ;
+          self->setting_on_board = true ;
           OnBoardVpanelAction();
           display.clearDisplay();
           dm.clear_buffs();
@@ -287,14 +292,7 @@ class SettingsMenuRouter : public SectionHolder {
           clocker.setBPM(BPMs);
         }
         
-        static void stopallnotes() {
-          for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            // stoplengthmesure(i);
-            if (synth_lines[i]->note != 0) {
-              MaNoteOff(gg.synthmidichannel, synth_lines[i]->note, 0);
-            }
-          }
-        }
+        
 
         static void arpegiatorVpanelAction() {
           if (navlevel == 3) {
@@ -306,22 +304,7 @@ class SettingsMenuRouter : public SectionHolder {
               navrange = arpeges_types;
               gg.arpegiatortype = sublevels[3];
               // gg.arpegiatortype = sublevels[2];
-              if (gg.arpegiatortype < arpeges_types) {
-                gg.arpegiatorOn = 1;
-                //metro0.reset();
-              } else {
-                gg.arpegiatorOn = 0;
-                for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-                  calledarpegenote[i][0] = 0;
-                  calledarpegenote[i][1] = 0;
-                  for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
-                    playingarpegiator[i][j] = 0;
-                    arpegnoteoffin[i][j] = 0;
-                  }
-                  arpegiatingNote[i] = 0;
-                }
-                stopallnotes();
-              }
+              _pt.set_arp_type();
             }
             // damp
             if (slct == 1) {
@@ -481,47 +464,7 @@ class SettingsMenuRouter : public SectionHolder {
           dm.dodisplay();
         }
 
-        static void dotapaverage() {
-          int tottaptime = 0;
-          for (int i = 0; i < numberoftaps; i++) {
-            tottaptime += (tapstime[i] - starttaptime);
-          }
-          tapaverage = tottaptime / numberoftaps;
-          gg.millitickinterval = round(tapaverage / 10.0);
-          setbpms();
-        }
 
-        static void inittapstime() {
-          for (int i = 0; i < 5; i++) {
-            tapstime[i] = 0;
-          }
-        }
-
-        static void starttaptap() {
-          tapstarted = 1;
-          starttaptime = millis();
-        }
-
-        static void resettaptap() {
-
-          tapstarted = 0;
-          numberoftaps = 0;
-          inittapstime();
-        }
-
-        static void taptap() {
-          if (!tapstarted) {
-            starttaptap();
-          } else {
-            tapstime[numberoftaps] = millis();
-            numberoftaps++;
-          }
-
-          if (millis() - starttaptime > 2000 || numberoftaps >= 4) {
-            dotapaverage();
-            resettaptap();
-          }
-        }
 
         static void makesettingslist() {
           char audio_source_lbl[3][5]= {"Mic","Line","Off"};
@@ -561,7 +504,7 @@ class SettingsMenuRouter : public SectionHolder {
 
           if (sublevels[1] == 1) {
             canvastitle.setCursor(96, 0);
-            if (freezemidicc) {
+            if (self->freezemidicc) {
               canvastitle.println("On");
             } else {
               canvastitle.println("Off");
@@ -615,7 +558,7 @@ class SettingsMenuRouter : public SectionHolder {
           }
           if (sublevels[1] == 9) {
             canvastitle.setCursor(96, 0);
-            if (externalticker) {
+            if (gg.externalticker) {
               canvastitle.println("On");
             } else {
               canvastitle.println("Off");
@@ -633,7 +576,7 @@ class SettingsMenuRouter : public SectionHolder {
 
           if (sublevels[1] == 13) {
             canvastitle.setCursor(96, 0);
-            if (SendMidiOut) {
+            if (gg.SendMidiOut) {
               canvastitle.println("On");
             } else {
               canvastitle.println("Off");
@@ -742,11 +685,11 @@ class SettingsMenuRouter : public SectionHolder {
       }
 
       static void toggle_echo_midi(){
-        debugmidion = !debugmidion;
+        _tt.debugmidion = !_tt.debugmidion;
       }
 
       static void toggle_freeze_midi(){
-        freezemidicc = !freezemidicc;
+        self->freezemidicc = !self->freezemidicc;
         returntonav(1,self->home_navrange,1);
       }
 
@@ -806,14 +749,14 @@ class SettingsMenuRouter : public SectionHolder {
       }
 
       static void toggle_ext_clock(){
-        //externalticker = !externalticker;
-        externalticker = !externalticker;
+        //gg.externalticker = !gg.externalticker;
+        gg.externalticker = !gg.externalticker;
         returntonav(1,self->home_navrange,9);
       }
 
       static void toggle_note_spy(){
-        noteprint = !noteprint;
-        if (noteprint) {
+        self->noteprint = !self->noteprint;
+        if (self->noteprint) {
           replug_notefreq_from_ampL();
           notefreq1.begin(.15);
         } else {
@@ -834,7 +777,7 @@ class SettingsMenuRouter : public SectionHolder {
       }
 
       static void toggle_midi_out(){
-        SendMidiOut = !SendMidiOut ;
+        gg.SendMidiOut = !gg.SendMidiOut ;
         returntonav(1,self->home_navrange,13);
       }
      

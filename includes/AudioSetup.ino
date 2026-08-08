@@ -528,6 +528,10 @@ EXTMEM AudioConnection          patchCord221(delay2pre2R, 0, delaymix2R, 1);
 EXTMEM AudioConnection          patchCord222(delay3pre2R, 0, delaymix3R, 1);
 EXTMEM AudioConnection          patchCord223(delay1pre1R, 0, delaymix1R, 0);
 
+EXTMEM AudioAnalyzeFFT256 fft256;    //xy=4046,480
+
+EXTMEM AudioConnection patchCordFFT(ampL, fft256);
+
 AudioControlSGTL5000     AudioShield;    //xy=4016,485
 // GUItool: end automatically generated code
 

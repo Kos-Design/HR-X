@@ -12,12 +12,33 @@ class WaveformsMenuRouter : public SectionHolder {
         }
 
         FilesLister *catalog;
+        static constexpr uint8_t fake_gauss_kernel[17] = {
+              0,   2,   5,  11,
+            22,  40,  66, 100,
+            140, 185, 220, 240,
+            250, 253, 254, 255,
+            255
+        };
         static const byte wf_labels_count = 8;
         static const byte wfn_size = 6; //displayables lines
+        static const byte max_blur = 32 ;
+
+        int cw_change = 64;
+        int w_cursor_y = 32;
+        int w_cursor_x = 0;
         String wforms_names[wfn_size];
         byte wforms_indexes[99];
         byte wforms_count = 0 ;
+        byte widx = 0 ;
+
         byte wforms_names_offset = 0 ;
+        byte trace_wave_cc = 58 ;
+        byte x_axis_cc = 17 ;
+        byte y_axis_cc = 18 ;
+        bool trace_waveform = false;
+
+
+        byte *waveform_tracers[3]= {&x_axis_cc,&y_axis_cc,&trace_wave_cc};
 
         static void show() {
           _route_nav[navlevel-1]();
@@ -28,15 +49,28 @@ class WaveformsMenuRouter : public SectionHolder {
           self->catalog->nav_zero();
         }
 
+        static void set_tracer(byte control,byte value){
+          if (control == self->trace_wave_cc) {
+            self->trace_waveform = !self->trace_waveform;
+          }
+          if (self->trace_waveform){
+            if (control == self->y_axis_cc ) {
+              set_y_cursor_value(value);
+            }
+            if (control == self->x_axis_cc ) {
+              set_x_cursor_value(value);
+            }
+          }
+        }
         static void WaveformParams(){
           
           navrange = 2 ;
           if (navlevel == 3 ){
             navrange = 127;
-            *waveform_tracers[sublevels[2]]=sublevels[3];
+            *self->waveform_tracers[sublevels[2]]=sublevels[3];
           }
           
-          sublevels[3]=*waveform_tracers[sublevels[2]];
+          sublevels[3]=*self->waveform_tracers[sublevels[2]];
           display.clearDisplay();
           display.setCursor(0,0);
           display.setTextSize(1);
@@ -46,16 +80,16 @@ class WaveformsMenuRouter : public SectionHolder {
           display.println(" ");
           display.print("X-Axis CC: ");
           //17
-          display.print(x_axis_cc);
+          display.print(self->x_axis_cc);
           display.println(" ");
           display.println(" ");
           display.print("Y-Axis CC: ");
-          display.print(y_axis_cc);
+          display.print(self->y_axis_cc);
           //18
           display.println(" ");
           display.println(" ");
           display.print("Tracenote: ");
-          display.print(trace_wave_cc);
+          display.print(self->trace_wave_cc);
           //note 58
           display.drawRoundRect(62,11+16*sublevels[2], 25, 16, 3, SSD1306_WHITE);
           //display.drawRoundRect(62,11+16, 25, 16, 3, SSD1306_WHITE);
@@ -67,19 +101,19 @@ class WaveformsMenuRouter : public SectionHolder {
           }
         }
 
-        void set_y_cursor_value(byte la_val){
+        static void set_y_cursor_value(byte la_val){
           if (la_val > 0) {
-            cw_change = la_val;
-            w_cursor_y = 64 - map(cw_change, 0, 127, 0, 64);
+            self->cw_change = la_val;
+            self->w_cursor_y = 64 - map(self->cw_change, 0, 127, 0, 64);
           }
         }
 
         static void blur_w_graph_region(int16_t *arr, int index, uint8_t intensity) {
-            int range = (intensity / 255.0)*BLUR_W_MAX_RANGE;
-            int temp[2 * BLUR_W_MAX_RANGE + 1];
+            int range = (intensity / 255.0)*self->max_blur;
+            int temp[2 * self->max_blur + 1];
 
-            if (range > BLUR_W_MAX_RANGE)
-                range = BLUR_W_MAX_RANGE;
+            if (range > self->max_blur)
+                range = self->max_blur;
 
             // Calculate blurred values
             for (int d = -range; d <= range; d++)
@@ -141,25 +175,25 @@ class WaveformsMenuRouter : public SectionHolder {
         }
 
         static void smooth_w_bounds(){
-          blur_w_graph_boundary(arbitrary_waveforms[waveformIndex], 32);
+          blur_w_graph_boundary(gg.arbitrary_waveforms[self->widx], 32);
         }
 
         static void smooth_w_graph(){
-          blur_w_graph_region(arbitrary_waveforms[waveformIndex], w_cursor_x, 64);
+          blur_w_graph_region(gg.arbitrary_waveforms[self->widx], self->w_cursor_x, 64);
         }
 
-        static void set_array_at_cursor(int c_pos_w=w_cursor_x){
-          int w_graph_y = map(cw_change, 0, 127, -32768, 32767);
-          arbitrary_waveforms[waveformIndex][c_pos_w] = w_graph_y;
-          arbitrary_waveforms[waveformIndex][(c_pos_w-1)%256] = w_graph_y;
+        static void set_array_at_cursor(int c_pos_w=self->w_cursor_x){
+          int w_graph_y = map(self->cw_change, 0, 127, -32768, 32767);
+          gg.arbitrary_waveforms[self->widx][c_pos_w] = w_graph_y;
+          gg.arbitrary_waveforms[self->widx][(c_pos_w-1)%256] = w_graph_y;
         }
 
         static void set_x_cursor_value(byte la_val){
           if (la_val > 0) {
-            w_cursor_x = map(la_val, 0, 127, 0, 255);
-            //arbitrary_waveforms[waveformIndex][w_cursor_x] = map(cw_change, 0, 127, -32768, 32767);
-            sublevels[2]=w_cursor_x;
-            rota_true_pos = w_cursor_x;
+            self->w_cursor_x = map(la_val, 0, 127, 0, 255);
+            //gg.arbitrary_waveforms[self->widx][self->w_cursor_x] = map(self->cw_change, 0, 127, -32768, 32767);
+            sublevels[2]=self->w_cursor_x;
+            rota_true_pos = self->w_cursor_x;
             myEnc.write(rota_true_pos * 4);
             set_array_at_cursor();
           }
@@ -170,8 +204,8 @@ class WaveformsMenuRouter : public SectionHolder {
           int16_t y2;
           for (int i = 0; i < 128; i++) {
             if ((i * 2) + 2 < 256) {
-              y1 = map(arbitrary_waveforms[waveformIndex][i * 2], -32768, 32767, 63, 0);
-              y2 = map(arbitrary_waveforms[waveformIndex][(i * 2) + 2], -32768, 32767, 63, 0);
+              y1 = map(gg.arbitrary_waveforms[self->widx][i * 2], -32768, 32767, 63, 0);
+              y2 = map(gg.arbitrary_waveforms[self->widx][(i * 2) + 2], -32768, 32767, 63, 0);
               canvasBIG.drawLine(i, y1, i + 1, y2, SSD1306_WHITE);
             }
           }
@@ -183,28 +217,28 @@ class WaveformsMenuRouter : public SectionHolder {
           dm.clean_title_1();
           
           if (navlevel > 3) {
-            trace_waveform = 0 ;
+            self->trace_waveform = 0 ;
             
             smooth_w_graph();
             returntonav(2,255,sublevels[2]);
           }
           if (navlevel == 3) {
-            trace_waveform = 1 ;
-            cw_change = map(sublevels[3],0,255,0,127);
+            self->trace_waveform = 1 ;
+            self->cw_change = map(sublevels[3],0,255,0,127);
             set_array_at_cursor();
           }
-          if (trace_waveform) {
+          if (self->trace_waveform) {
             set_array_at_cursor();
-            w_cursor_y = map(arbitrary_waveforms[waveformIndex][w_cursor_x], -32768, 32767, 63, 0);
+            self->w_cursor_y = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x], -32768, 32767, 63, 0);
           }
           if (navlevel == 2) {
-            w_cursor_x=sublevels[2];
-            w_cursor_y = map(arbitrary_waveforms[waveformIndex][w_cursor_x], -32768, 32767, 63, 0);
-            sublevels[3] = map(arbitrary_waveforms[waveformIndex][w_cursor_x],-32768, 32767, 0, 255 ) ;
+            self->w_cursor_x=sublevels[2];
+            self->w_cursor_y = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x], -32768, 32767, 63, 0);
+            sublevels[3] = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x],-32768, 32767, 0, 255 ) ;
           }
-          canvasBIG.drawCircle(sublevels[2]/2, w_cursor_y, 2, SSD1306_WHITE);
+          canvasBIG.drawCircle(sublevels[2]/2, self->w_cursor_y, 2, SSD1306_WHITE);
           draw_wave_graph();
-          //canvastitle.print(arbitrary_waveforms[waveformIndex][sublevels[2]]);
+          //canvastitle.print(gg.arbitrary_waveforms[self->widx][sublevels[2]]);
           dm.dodisplay();
           //smooth_w_bounds();
         }
@@ -216,16 +250,16 @@ class WaveformsMenuRouter : public SectionHolder {
         }
 
         static void go_previous(){
-          if (waveformIndex-1 < 0)
-            waveformIndex = 2 ;
+          if (self->widx-1 < 0)
+            self->widx = 2 ;
           else
-            waveformIndex = waveformIndex-1;
+            self->widx = self->widx-1;
       
           returntonav(1,wf_labels_count-1,sublevels[1]);
         }
 
         static void go_next(){
-          waveformIndex = (waveformIndex+1)%3;
+          self->widx = (self->widx+1)%3;
           returntonav(1,wf_labels_count-1,sublevels[1]);
         }
 
@@ -251,7 +285,7 @@ class WaveformsMenuRouter : public SectionHolder {
         }
 
         static void writewaveforms(File &filer) {
-          filer.write((byte *)arbitrary_waveforms[waveformIndex], sizeof(arbitrary_waveforms[waveformIndex]));
+          filer.write((byte *)gg.arbitrary_waveforms[self->widx], sizeof(gg.arbitrary_waveforms[self->widx]));
         }
 
         static void copywaveform() {
@@ -267,7 +301,7 @@ class WaveformsMenuRouter : public SectionHolder {
             return;
           locked_fileing = 1 ;
           File target_waveform = SD.open(self->catalog->get_current_file_path(0).c_str(), FILE_READ);
-          target_waveform.read((byte *)arbitrary_waveforms[waveformIndex], sizeof(arbitrary_waveforms[waveformIndex]));
+          target_waveform.read((byte *)gg.arbitrary_waveforms[self->widx], sizeof(gg.arbitrary_waveforms[self->widx]));
           target_waveform.close();
           locked_fileing = 0 ;
         }

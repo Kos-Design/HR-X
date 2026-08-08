@@ -537,7 +537,7 @@ void SequencerClocker::update(){
   while (_sampleAccumulator >= _samplesPerTick) {
     _sampleAccumulator -= _samplesPerTick;
     //Tricker.click();
-    if (_callback_96 && !externalticker){
+    if (_callback_96 && !gg.externalticker){
       _callback_96();
     }
   }

@@ -15,14 +15,20 @@ class RecorderMenuRouter : public SectionHolder {
                     self = this;
                     self->home_navrange=self->rec_labels_count - 1;
                     self->catalog = new FilesLister("SOUNDSET/REC/","LOOP","#L.RAW",recorder_menu,self->home_navrange);
-                    self->relative_navlevel=navrecmenu;
+                    self->relative_navlevel=1;
                     self->max_navlevel=5;
                     self->sublevels_address={7,3,0};
                     }
-
+                    
         FilesLister *catalog;
         const byte rec_labels_count = 6;
         float pitcher = 1.0;
+        bool recorderstop = false ;
+        bool recorderrecord = false ;
+        bool recorderplay = false ;
+        bool rec_looping = false ;
+        bool pre_record = false ;
+        bool just_pressed_rec = false ;
 
         static void show() {
           _route_nav[navlevel-self->relative_navlevel]();
@@ -51,8 +57,8 @@ class RecorderMenuRouter : public SectionHolder {
           if (locked_fileing)
             return;
           locked_fileing = 1 ;
-          if (!just_pressed_rec){
-            just_pressed_rec = true ;
+          if (!self->just_pressed_rec){
+            self->just_pressed_rec = true ;
             check_rec_folder_path();
             tocker = millis();
 
@@ -62,11 +68,11 @@ class RecorderMenuRouter : public SectionHolder {
             if (looper) {
               //AudioNoInterrupts();
               queue1.begin();
-              pre_record = true;
+              self->pre_record = true;
               //AudioInterrupts();
-              //rec_looping = true ;
+              //self->rec_looping = true ;
             } else {
-              rec_looping = false ;
+              self->rec_looping = false ;
             }
               //TODO: pattern synched record
               //start at pat pos
@@ -96,7 +102,7 @@ class RecorderMenuRouter : public SectionHolder {
 
         static void auto_stop_rec(){
           if (millis() - tocker > 10000) {
-            rec_looping = false ;
+            self->rec_looping = false ;
             stopRecording();
             
           }
@@ -143,8 +149,8 @@ class RecorderMenuRouter : public SectionHolder {
 
             call_dosoundlist();
             }
-            just_pressed_rec = false ;
-            pre_record = false;
+            self->just_pressed_rec = false ;
+            self->pre_record = false;
             if (autoassign) {
               call_loadSampledSound();
             }
@@ -152,17 +158,17 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void recordVpanelAction() {
-          if (navlevel == navrec + 1) {
-            byte slct = sublevels[navrec];
+          if (navlevel == self->relative_navlevel + 2) {
+            byte slct = sublevels[self->relative_navlevel + 1];
             if (slct == 0) {
-              recorderrecord = !recorderrecord;
-              if (recorderrecord) {
+              self->recorderrecord = !self->recorderrecord;
+              if (self->recorderrecord) {
 
-                if (recorderstop) {
-                  recorderstop = 0;
+                if (self->recorderstop) {
+                  self->recorderstop = 0;
                 }
-                if (recorderplay) {
-                  recorderplay = 0;
+                if (self->recorderplay) {
+                  self->recorderplay = 0;
                   stopplayrecordsd();
                 }
                 startRecording();
@@ -170,49 +176,46 @@ class RecorderMenuRouter : public SectionHolder {
             }
 
             if (slct == 1) {
-              recorderplay = !recorderplay;
-              if (recorderplay) {
-                if (recorderstop) {
-                  recorderstop = 0;
+              self->recorderplay = !self->recorderplay;
+              if (self->recorderplay) {
+                if (self->recorderstop) {
+                  self->recorderstop = 0;
                 }
-                if (recorderrecord) {
-                  recorderrecord = 0;
+                if (self->recorderrecord) {
+                  self->recorderrecord = 0;
                   stopRecording();
                 }
                 playrecordsd();
               }
             }
             if (slct == 2) {
-              recorderstop = !recorderstop;
-              if (recorderstop) {
-
-                if (recorderplay) {
-                  recorderplay = 0;
+              self->recorderstop = !self->recorderstop;
+              if (self->recorderstop) {
+                if (self->recorderplay) {
+                  self->recorderplay = 0;
                   stopplayrecordsd();
                 }
-                if (recorderrecord) {
-                  recorderrecord = 0;
+                if (self->recorderrecord) {
+                  self->recorderrecord = 0;
                   stopRecording();
                 }
               }
             }
-            returntonav(navrec);
+            returntonav(self->relative_navlevel + 1, 2 , 0);
           }
-
-          if (navlevel > navrec) {
-
-            returntonav(navrec);
+          if (navlevel > self->relative_navlevel + 1) {
+            returntonav(self->relative_navlevel + 1, 2 , 0);
           }
         }
 
         static void recordVpanelSelector() {
-          if (navlevel == navrec) {
+          if (navlevel == self->relative_navlevel + 1) {
             navrange = 2;
           }
-          byte slct = sublevels[navrec];
+          byte slct = sublevels[self->relative_navlevel + 1];
 
           if (slct == 0) {
-            if (!recorderrecord) {
+            if (!self->recorderrecord) {
               canvasBIG.drawRoundRect(82, 18, 128 - 80 - 4, 20 - 4, 2, SSD1306_WHITE);
             } else {
               canvasBIG.drawRoundRect(82, 18, 128 - 80 - 4, 20 - 4, 2, SSD1306_BLACK);
@@ -227,7 +230,7 @@ class RecorderMenuRouter : public SectionHolder {
             }
           }
           if (slct == 2) {
-            if (!recorderstop) {
+            if (!self->recorderstop) {
               canvasBIG.drawRoundRect(2, 18 + 20 + 4, 128 - 90 - 4, 20 - 4, 2,
                                       SSD1306_WHITE);
             } else {
@@ -241,7 +244,7 @@ class RecorderMenuRouter : public SectionHolder {
           recordVpanelAction();
           display.clearDisplay();
           dm.clear_buffs();
-          if (!recorderrecord) {
+          if (!self->recorderrecord) {
             canvasBIG.drawRoundRect(80, 16, 128 - 80, 20, 2, SSD1306_WHITE);
             canvasBIG.setTextColor(SSD1306_WHITE);
             canvasBIG.setCursor(87, 16 + 6);
@@ -265,7 +268,7 @@ class RecorderMenuRouter : public SectionHolder {
             canvasBIG.print("Play");
             canvasBIG.setTextColor(SSD1306_WHITE);
           }
-          if (!recorderstop) {
+          if (!self->recorderstop) {
             canvasBIG.drawRoundRect(0, 16 + 20 + 4, 128 - 90, 20, 2, SSD1306_WHITE);
             canvasBIG.setCursor(7, 6 + 16 + 20 + 4);
             canvasBIG.setTextColor(SSD1306_WHITE);
@@ -389,12 +392,12 @@ class RecorderMenuRouter : public SectionHolder {
             } else {
               Serial.println("error with dir");
               Serial.println(self->catalog->folder_selected);
-              returntonav(navrecmenu,self->home_navrange,0);
+              returntonav(self->relative_navlevel,self->home_navrange,0);
             }
             self->catalog->list_files();
             self->catalog->folders_already_listed = false;
             
-            returntonav(navrecmenu,self->home_navrange,0);
+            returntonav(self->relative_navlevel,self->home_navrange,0);
           }
         }
 
@@ -407,7 +410,6 @@ class RecorderMenuRouter : public SectionHolder {
             scheddule_wave_rebuild(true);
             returntonav(self->relative_navlevel, self->home_navrange,sublevels[self->relative_navlevel]);
           }
-          Serial.println(navrange);
           dm.dodisplay();
         }
 

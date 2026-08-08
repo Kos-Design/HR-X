@@ -36,7 +36,6 @@ class PresetsMenuRouter : public SectionHolder {
           if (locked_fileing)
             return;
           locked_fileing = 1 ;
-            Serial.println("writing");
           FsFile preset_filer;
           if (self->catalog->new_file_mode) {
             String presets_base_path = "PRESETS" ;
@@ -44,7 +43,6 @@ class PresetsMenuRouter : public SectionHolder {
             self->catalog->make_sub_folder("PRESETS", "SYNTH");
             String new_preset_name = self->catalog->get_new_file_name() ;
             preset_filer = SD.sdfs.open(new_preset_name.c_str(), O_WRITE | O_CREAT | O_TRUNC);
-            Serial.println(new_preset_name);
           } else {
             const char* overwritee = self->catalog->get_current_file_path(0).c_str();
             self->catalog->deleteFile();
@@ -53,13 +51,11 @@ class PresetsMenuRouter : public SectionHolder {
           if (preset_filer) {
             preset_filer.write((uint8_t*)&gg, sizeof(gg));
             preset_filer.close();
-            Serial.println("WROTE OK");
 
           }
           preset_filer.close();
           locked_fileing = 0 ;
           self->catalog->list_files();
-
         }
 
         static void read_preset() {
@@ -83,7 +79,7 @@ class PresetsMenuRouter : public SectionHolder {
 
           for (int i = 0; i < 3; i++) {
             fx[i]->route_fx(gg.plugged_fx_type[i]);
-            avoid_fx_bounce = false ;
+            _fx.avoid_fx_bounce = false ;
           }
 
           call_set_bpms();

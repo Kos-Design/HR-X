@@ -306,12 +306,15 @@ class GlideMenuRouter : public SectionHolder {
                     
                     }
 
+        static constexpr const char* GlideModeLabels[5] = {
+            "Off",
+            "Portamento",
+            "ReversePortamento",
+            "PitchAttack",
+            "ReversePitchAttack"
+        };
 
         uint8_t *glide_params[4] = {reinterpret_cast<uint8_t*>(&gg.glideMode),&gg.portamento_time,&gg.portamento_height,&gg.glide_slope};
-
-        static void apply_alt_ctl(){
-          //*self->glide_params[sublevels[2]] = (uint8_t)sublevels[3];
-        }
 
         static void show(){
 
@@ -332,7 +335,6 @@ class GlideMenuRouter : public SectionHolder {
           display.println(" ");
           display.print("Mode: ");
           display.print(GlideModeLabels[gg.glideMode]);
-          //display.print(alt_nav[0]);
 
           display.setCursor(0, 28);
           display.print("Time: ");
@@ -341,21 +343,14 @@ class GlideMenuRouter : public SectionHolder {
           display.setCursor(0, 40);
           display.print("Height: ");
           display.print(64-gg.portamento_height);
-
-          
           display.setCursor(0, 52);
           display.print("Slope:   ");
           display.print((64-gg.glide_slope)/64.0);
-
-          
-          
-          
           display.display();
           display.fillRoundRect(0,11+12*sublevels[2], 35, 16, 3, SSD1306_INVERSE);
           display.display();
           
           if (navlevel > 3 ){
-            //apply_alt_ctl();
             returntonav(self->relative_navlevel,self->home_navrange,sublevels[2]);
           }
         }
@@ -377,6 +372,7 @@ class Filter303MenuRouter : public SectionHolder {
                     self->max_navlevel=5;
                     self->sublevels_address={0,0,0};
     }
+    int letbfreq = 450;
 
     static void setle303filterpass(int linei) {
       les303passes[linei]->gain(0,gg.le303filterzgainz[0]/127.0);
@@ -428,14 +424,13 @@ class Filter303MenuRouter : public SectionHolder {
 
     static void pseudo303(byte i) {
         if (_rg.active_synths[i]->f303) {
-          letbfreq = gg.le303filterzfreq + 50 - (gg.le303filterzfreq * self->sloped[_rg.active_synths[i]->sloper_step]);
+          self->letbfreq = gg.le303filterzfreq + 50 - (gg.le303filterzfreq * self->sloped[_rg.active_synths[i]->sloper_step]);
           if (_rg.active_synths[i]->sloper_step > 18) {
             _rg.active_synths[i]->f303 = 0;
-            letbfreq = 50 ;
-            ladiff1 = 0 ;
+            self->letbfreq = 50 ;
             _rg.active_synths[i]->sloper_step = 0 ;
           }
-          les303filterz[_rg.active_synths[i]->l_index]->frequency(letbfreq);
+          les303filterz[_rg.active_synths[i]->l_index]->frequency(self->letbfreq);
           les303filterz[_rg.active_synths[i]->l_index]->resonance(0.1 + ((gg.le303filterzreso/127.0)*5) * self->sloped[_rg.active_synths[i]->sloper_step]);
           _rg.active_synths[i]->sloper_step++;
         }
@@ -581,23 +576,19 @@ class Filter303MenuRouter : public SectionHolder {
                         wbarwidth - 4, barsize, SSD1306_WHITE);
       canvasBIG.setCursor(81, totbartall + topwbarstart + 4);
       canvasBIG.print("LP");
-      // canvasBIG.setCursor(80,18);
-      // canvasBIG.print(bqgain[0][gg.bqstage[0]]);
+
       barsize = round(((gg.le303filterzgainz[1]/127.0) * (totbartall - 4)));
       canvasBIG.drawRoundRect(98, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
       canvasBIG.fillRect(98 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
       canvasBIG.setCursor(97, totbartall + topwbarstart + 4);
       canvasBIG.print("BP");
-      // canvasBIG.setCursor(93,18);
-      // canvasBIG.print(bqgain[0][gg.bqstage[0]]);
+
       barsize = round(((gg.le303filterzgainz[2]/127.0) * (totbartall - 4)));
       canvasBIG.drawRoundRect(115, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
       canvasBIG.fillRect(115 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
       canvasBIG.setCursor(114, totbartall + topwbarstart + 4);
       canvasBIG.print("HP");
-      // canvasBIG.setCursor(114,18);
-      // canvasBIG.print(bqgain[lefilter][gg.bqstage[lefilter]]);
-      // wetbar
+
       barsize = round(((gg.le303filterzwet / 127.0) * (totbartall - 4)));
       canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
       canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
@@ -736,48 +727,58 @@ class Mp3PlayerRouter : public SectionHolder {
                             //this->set_home(call_fx_mainpanel);
                     }
         FilesLister *catalog;
-        int mp3_count = 0;
+        String mp3_name = "MP3/Addict.mp3";
+        String mp3_dir = "MP3/";
+        uint16_t mp3_count = 0;
+        uint16_t file_index = 0 ;
+        uint16_t next_mp3 = 0 ;
+        uint16_t previous_mp3 = 0 ;
+        byte mp3_ext = 0 ;
+        bool mp3_looped = 0 ;
+        bool mp3_paused = 0 ;
+        bool mp3_shuffle = 0 ;
+        bool mp3_continue = 0 ;
 
         static void mp3_player_play(){
-          if (!SD.exists((char*)mp3_name.c_str())) {
+          if (!SD.exists((char*)self->mp3_name.c_str())) {
             get_next_mp3();
           }
-          playFile((char*)mp3_name.c_str());
+          playFile((char*)self->mp3_name.c_str());
         }
 
         static void mp3_player_stop(){
           playMp31.stop();
-          mp3_continue = 0 ;
+          self->mp3_continue = 0 ;
         }
 
         static void mp3_player_continous(){
-          mp3_continue = !mp3_continue ;
+          self->mp3_continue = !self->mp3_continue ;
         }
 
         static void mp3_player_pause(){
-          mp3_paused = playMp31.pause(!mp3_paused);
-          mp3_continue = 0 ;
+          self->mp3_paused = playMp31.pause(!self->mp3_paused);
+          self->mp3_continue = 0 ;
         }
 
         static void mp3_player_next(){
           
           Serial.println("");
           Serial.print("previous =");
-          Serial.print(previous_mp3);
+          Serial.print(self->previous_mp3);
           
-          if (!mp3_looped) {
-            if (mp3_shuffle) {
-              previous_mp3 = next_mp3;
+          if (!self->mp3_looped) {
+            if (self->mp3_shuffle) {
+              self->previous_mp3 = self->next_mp3;
 
               Serial.println("");
               Serial.print("previous after next =");
-              Serial.print(previous_mp3);
+              Serial.print(self->previous_mp3);
               
-              next_mp3 = rand() % self->mp3_count ;
+              self->next_mp3 = rand() % self->mp3_count ;
               Serial.println(self->mp3_count);
-              Serial.println(next_mp3);
+              Serial.println(self->next_mp3);
             } else {
-              next_mp3++;
+              self->next_mp3++;
             }
           }
           get_next_mp3();
@@ -787,13 +788,13 @@ class Mp3PlayerRouter : public SectionHolder {
 
           Serial.println("");
           Serial.print("previous =");
-          Serial.print(previous_mp3);
+          Serial.print(self->previous_mp3);
 
-          if (!mp3_looped){
-            if (mp3_shuffle){
-              next_mp3 = previous_mp3 ;
+          if (!self->mp3_looped){
+            if (self->mp3_shuffle){
+              self->next_mp3 = self->previous_mp3 ;
             } else {
-              next_mp3 -= 2;
+              self->next_mp3 -= 2;
             }
           } 
           get_next_mp3();
@@ -803,15 +804,15 @@ class Mp3PlayerRouter : public SectionHolder {
           //TODO: make whole list of shuffled numbers the size of their folder files count
           // allow next and previous
           //regenerate on stop / and shuffle toggle 
-          mp3_shuffle = !mp3_shuffle ;
-          if (mp3_shuffle) {
-            previous_mp3 = next_mp3;
+          self->mp3_shuffle = !self->mp3_shuffle ;
+          if (self->mp3_shuffle) {
+            self->previous_mp3 = self->next_mp3;
 
           }
         }
         static void mp3_loop_setter(){
-          mp3_looped = !mp3_looped ;
-          mp3_continue = mp3_looped ;
+          self->mp3_looped = !self->mp3_looped ;
+          self->mp3_continue = self->mp3_looped ;
         }
         static void mp3_player_actions() {
           if (navlevel == 2) {
@@ -864,23 +865,23 @@ class Mp3PlayerRouter : public SectionHolder {
         }
         static void get_file_type(){
           /*
-          int dot = mp3_name.lastIndexOf('.');
+          int dot = self->mp3_name.lastIndexOf('.');
           if (dot >= 0) {
-            String extension = mp3_name.substring(dot + 1);
+            String extension = self->mp3_name.substring(dot + 1);
 
           }
           */
-          String filenamed = mp3_name ;
+          String filenamed = self->mp3_name ;
           filenamed.toLowerCase();
           if (filenamed.endsWith(".mp3"))
-              mp3_ext = 0 ;
+              self->mp3_ext = 0 ;
             if (filenamed.endsWith(".flac"))
-              mp3_ext = 1 ;
+              self->mp3_ext = 1 ;
         }
 
         static void playFile(const char *mp3_file) {
           get_file_type();
-          switch (mp3_ext){
+          switch (self->mp3_ext){
             case 0:
               playFlac1.stop();
               playMp31.play(mp3_file);
@@ -901,51 +902,51 @@ class Mp3PlayerRouter : public SectionHolder {
 
           Serial.println("");
           Serial.print("previous now became =");
-          Serial.print(previous_mp3);
+          Serial.print(self->previous_mp3);
 
           if (SD.exists("MP3") ) {
             File susudir = SD.open("MP3");
-            if (!mp3_looped) {
-              while (file_index <= next_mp3) {
+            if (!self->mp3_looped) {
+              while (self->file_index <= self->next_mp3) {
                 File subentry = susudir.openNextFile();
                 if (!subentry) {
-                  file_index = 0 ;
-                  next_mp3 = 0 ;
+                  self->file_index = 0 ;
+                  self->next_mp3 = 0 ;
                   return;
                 }
 
                 if (!subentry.isDirectory()) {
-                  file_index++;
-                  mp3_name = mp3_dir + subentry.name();
+                  self->file_index++;
+                  self->mp3_name = self->mp3_dir + subentry.name();
                 }
                 subentry.close();
               }
-              next_mp3++;
+              self->next_mp3++;
             } else {
 
-              while (file_index < next_mp3) {
+              while (self->file_index < self->next_mp3) {
                 File subentry = susudir.openNextFile();
                 if (!subentry) {
-                  file_index = 0 ;
+                  self->file_index = 0 ;
                   return;
                 }
 
                 if (!subentry.isDirectory()) {
-                  file_index++;
-                  mp3_name = mp3_dir + subentry.name();
+                  self->file_index++;
+                  self->mp3_name = self->mp3_dir + subentry.name();
                 }
                 subentry.close();
               }
 
             }
-            file_index = 0 ;
+            self->file_index = 0 ;
             susudir.close();
           }
-          if (mp3_shuffle) {
+          if (self->mp3_shuffle) {
   
-            next_mp3 = rand() % self->mp3_count ;
+            self->next_mp3 = rand() % self->mp3_count ;
             Serial.println(self->mp3_count);
-            Serial.println(next_mp3);
+            Serial.println(self->next_mp3);
 
           }
 
@@ -993,7 +994,7 @@ class Mp3PlayerRouter : public SectionHolder {
 
         static void display_mp3_title(){
           canvasBIG.setCursor(0,40);
-          String titler = mp3_name;
+          String titler = self->mp3_name;
           titler.remove(0, 4);
           //titler.remove(titler.length() - 4);
           canvasBIG.print((char*)titler.c_str());
@@ -1033,7 +1034,7 @@ class SynthMenuRouter : public SectionHolder {
         int tenth     = ((int)(gg.wavesfreqs[oscillator] * 10)) % 10;
         int hundredth = ((int)(gg.wavesfreqs[oscillator] * 100)) % 10;
         //TODO give default value based on wformtype
-        
+        const byte synth_params_count = 8;
 
         static void show() {
           _route_nav[navlevel-1]();
@@ -1052,7 +1053,7 @@ class SynthMenuRouter : public SectionHolder {
           dm.clear_3();
           if (navlevel == 3) {
             retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
+            navrange = self->synth_params_count - 1;
             sublevels[4] = gg.wave1offset[oscillator];
           }
           if (navlevel == 4) {
@@ -1065,7 +1066,7 @@ class SynthMenuRouter : public SectionHolder {
             }
           }
           if (navlevel >= 5) {
-            returntonav(3,synth_params_count-1,sublevels[3]);
+            returntonav(3,self->synth_params_count-1,sublevels[3]);
             return;
           }
           display.setTextSize(1);
@@ -1148,7 +1149,7 @@ class SynthMenuRouter : public SectionHolder {
           freqbars_panel_selector();
           if (navlevel == 3) {
             retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
+            navrange = self->synth_params_count - 1;
             //sublevels[4] = round(gg.wavesfreqs[oscillator]);
           }
         }
@@ -1157,7 +1158,7 @@ class SynthMenuRouter : public SectionHolder {
           dm.clear_3();
           if (navlevel == 3) {
             retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
+            navrange = self->synth_params_count - 1;
             sublevels[4] = gg.phaselevelsL[oscillator];
           }
           if (navlevel >= 4) {
@@ -1169,7 +1170,7 @@ class SynthMenuRouter : public SectionHolder {
             }
             if (navlevel >= 5) {
               setphaselevel();
-              returntonav(3,synth_params_count-1,sublevels[3]);
+              returntonav(3,self->synth_params_count-1,sublevels[3]);
             }
           }
 
@@ -1213,7 +1214,7 @@ class SynthMenuRouter : public SectionHolder {
           dm.clear_3();
           if (navlevel == 3) {
             retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
+            navrange = self->synth_params_count - 1;
           }
           if (navlevel == 4) {
             navrange = 3;
@@ -1222,7 +1223,7 @@ class SynthMenuRouter : public SectionHolder {
           }
           if (navlevel > 4) {
             setwavetypefromlist();
-            returntonav(3,synth_params_count-1,sublevels[3]);
+            returntonav(3,self->synth_params_count-1,sublevels[3]);
           }
           displayModulatedbool();
         }
@@ -1231,7 +1232,7 @@ class SynthMenuRouter : public SectionHolder {
           dm.clear_3();
           if (navlevel == 3) {
             retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
+            navrange = self->synth_params_count - 1;
             sublevels[4] = gg.Waveformstyped[oscillator];
           }
           if (navlevel == 4) {
@@ -1245,7 +1246,7 @@ class SynthMenuRouter : public SectionHolder {
               gg.mixlevelsL[oscillator] = 0;
               _mx.setwavemixlevel();
             }
-            returntonav(3,synth_params_count-1,sublevels[3]);
+            returntonav(3,self->synth_params_count-1,sublevels[3]);
             return;
           }
           const unsigned char *_img[12] = { sinewave, sawtoothwave, reversesawtoothwave, trianglewave,
@@ -1269,7 +1270,7 @@ class SynthMenuRouter : public SectionHolder {
           dm.clear_3();
           if (navlevel == 3 ) {
             retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
+            navrange = self->synth_params_count - 1;
           }
           draw_synth_params();
             dm.dodisplay();
@@ -1277,7 +1278,7 @@ class SynthMenuRouter : public SectionHolder {
             sublevels[0] = 1;
             sublevels[1] = oscillator;
             sublevels[2] = 0;
-            returntonav(navlevel-2,sizeofLFOlabels - 1,0);
+            returntonav(navlevel-2,_lf.sizeofLFOlabels - 1,0);
           }
         }
 
@@ -1285,7 +1286,7 @@ class SynthMenuRouter : public SectionHolder {
           dm.clear_3();
           if (navlevel == 3) {
             retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
+            navrange = self->synth_params_count - 1;
           }
 
           if (navlevel >= 4) {
@@ -1295,7 +1296,7 @@ class SynthMenuRouter : public SectionHolder {
               oscillator = oscillator-1;
 
             sublevels[2] = oscillator ;
-            returntonav(navlevel-1,synth_params_count-1,sublevels[3]);
+            returntonav(navlevel-1,self->synth_params_count-1,sublevels[3]);
             return;
           }
           draw_synth_params();
@@ -1305,12 +1306,12 @@ class SynthMenuRouter : public SectionHolder {
           dm.clear_3();
           if (navlevel == 3) {
             retroaction = sublevels[2];
-            navrange = synth_params_count - 1;
+            navrange = self->synth_params_count - 1;
           }
           if (navlevel >= 4) {
             oscillator = (oscillator+1)%3;
             sublevels[2] = oscillator ;
-            returntonav(navlevel-1,synth_params_count-1,sublevels[3]);
+            returntonav(navlevel-1,self->synth_params_count-1,sublevels[3]);
           }
           draw_synth_params();
           dm.dodisplay();
@@ -1330,7 +1331,7 @@ class SynthMenuRouter : public SectionHolder {
         static void draw_synth_params() {
           const char* wavelineslabels[] = {
               "Type", "Mod", "LFO", "Freq", "Offset", "Phase", "<-  ", "  ->"};
-          dm.main_panel(wavelineslabels,3,synth_params_count);
+          dm.main_panel(wavelineslabels,3,self->synth_params_count);
           canvasBIG.setCursor(120, 57);
           canvasBIG.print(oscillator + 1);
         }
@@ -1393,7 +1394,7 @@ class SynthMenuRouter : public SectionHolder {
             drumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
             wavelinescords[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
             if (gg.Waveformstyped[oscillator] == WAVEFORM_ARBITRARY) {
-              waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->arbitraryWaveform(arbitrary_waveforms[oscillator],arbitrary_maxF[oscillator]);
+              waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->arbitraryWaveform(gg.arbitrary_waveforms[oscillator],gg.arbitrary_maxF[oscillator]);
             }
             waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->begin(lesformes[gg.Waveformstyped[oscillator]]);
           }
@@ -1410,7 +1411,7 @@ class SynthMenuRouter : public SectionHolder {
             MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
             FMwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
             if (gg.Waveformstyped[oscillator] == WAVEFORM_ARBITRARY) {
-              FMwaveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->arbitraryWaveform(arbitrary_waveforms[oscillator],arbitrary_maxF[oscillator]);
+              FMwaveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->arbitraryWaveform(gg.arbitrary_waveforms[oscillator],gg.arbitrary_maxF[oscillator]);
             }
             FMwaveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->begin(lesformes[gg.Waveformstyped[oscillator]]);
           }
@@ -1428,7 +1429,7 @@ class SynthMenuRouter : public SectionHolder {
             MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
             modulatecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
             if (gg.Waveformstyped[oscillator] == WAVEFORM_ARBITRARY) {
-              waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->arbitraryWaveform(arbitrary_waveforms[oscillator],arbitrary_maxF[oscillator]);
+              waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->arbitraryWaveform(gg.arbitrary_waveforms[oscillator],gg.arbitrary_maxF[oscillator]);
             }
             waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->begin(lesformes[gg.Waveformstyped[oscillator]]);
           }
@@ -1491,15 +1492,15 @@ class SynthMenuRouter : public SectionHolder {
         static void no_modulation(){
           byte letype = gg.Waveformstyped[oscillator];
           if (letype < 9) {
-            audio_obj_type[oscillator] = 1; //       9*4 + drums *2 + string *2 + off
+            gg.audio_obj_type[oscillator] = 1; //       9*4 + drums *2 + string *2 + off
             plug_waves();
           }
           else if (letype == 9) {
-            audio_obj_type[oscillator] = 3 ;
+            gg.audio_obj_type[oscillator] = 3 ;
             plug_drum_waves();
           }
           else if (letype == 10) {
-            audio_obj_type[oscillator] = 4 ;
+            gg.audio_obj_type[oscillator] = 4 ;
             plug_strings_waves();
           }
         }
@@ -1507,16 +1508,16 @@ class SynthMenuRouter : public SectionHolder {
         static void freq_modulation(){
           byte letype = gg.Waveformstyped[oscillator];
           if (letype < 9) {
-            audio_obj_type[oscillator] = 2;
+            gg.audio_obj_type[oscillator] = 2;
             plug_moded_waves();
           }
           //no freq modulation on strings or drums
           else if (letype == 9) {
-            audio_obj_type[oscillator] = 3;
+            gg.audio_obj_type[oscillator] = 3;
             plug_drum_waves();
           }
           else if (letype == 10) {
-            audio_obj_type[oscillator] = 4;
+            gg.audio_obj_type[oscillator] = 4;
             plug_strings_waves();
           }
         }
@@ -1524,16 +1525,16 @@ class SynthMenuRouter : public SectionHolder {
         static void phase_modulation(){
           byte letype = gg.Waveformstyped[oscillator];
           if (letype < 9) {
-              audio_obj_type[oscillator] = 2;
+              gg.audio_obj_type[oscillator] = 2;
               plug_moded_waves();
             }
             //no phase modulation on strings or drums
             else if (letype == 9) {
-              audio_obj_type[oscillator] = 3;
+              gg.audio_obj_type[oscillator] = 3;
               plug_drum_waves();
             }
             else if (letype == 10) {
-              audio_obj_type[oscillator] = 4;
+              gg.audio_obj_type[oscillator] = 4;
               plug_strings_waves();
           }
         }
@@ -1541,18 +1542,18 @@ class SynthMenuRouter : public SectionHolder {
         static void amplitude_modulation(){
           byte letype = gg.Waveformstyped[oscillator];
           if (letype < 9) {
-              audio_obj_type[oscillator] = 1;
+              gg.audio_obj_type[oscillator] = 1;
               plug_ampl_moded_waves();
             }
             else if (letype == 9) {
               // amplitude modulated drum
-              audio_obj_type[oscillator] = 3;
+              gg.audio_obj_type[oscillator] = 3;
               //36 + (bool)gg.FMmodulated[oscillator];
               plug_ampl_moded_drums();
             }
             else if (letype == 10) {
               // amplitude modulated string
-              audio_obj_type[oscillator] = 4;
+              gg.audio_obj_type[oscillator] = 4;
               plug_ampl_moded_strings();
             }
             call_restart_lfo(oscillator);
@@ -1564,13 +1565,13 @@ class SynthMenuRouter : public SectionHolder {
           //  WAVEFORM_SINE,     WAVEFORM_SAWTOOTH,          WAVEFORM_SAWTOOTH_REVERSE,
           // WAVEFORM_TRIANGLE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SQUARE,
           // WAVEFORM_PULSE,    WAVEFORM_ARBITRARY,         WAVEFORM_SAMPLE_HOLD};
-          // audio_obj_type  9*4 + drums *2 + string *2 + off
+          // gg.audio_obj_type  9*4 + drums *2 + string *2 + off
           //gg.Waveformstyped + 2*mod + 2*mod*(drum|||string)
           byte letype = gg.Waveformstyped[oscillator];
           if (letype == 11) {
             // synth line off
             plug_no_waves();
-            audio_obj_type[oscillator] = 0;
+            gg.audio_obj_type[oscillator] = 0;
             AudioInterrupts();
             _mx.setwavemixlevel();
             return;
@@ -1592,7 +1593,7 @@ class SynthMenuRouter : public SectionHolder {
         static constexpr void (*_waveliners[6])() = {&synths_switcher,&wavelining, &wavelining, &wavelining,&wavelining, &wavelining};
         static constexpr void (*modulation_pointers[4])() = {&no_modulation,&freq_modulation,&phase_modulation,&amplitude_modulation};
 
-        static constexpr void (*_synth_params[synth_params_count])() = {&displaywaveformicon,&wavelineModulatedbool,&displayLFOpanel,
+        static constexpr void (*_synth_params[8])() = {&displaywaveformicon,&wavelineModulatedbool,&displayLFOpanel,
                                                       &freqbars_panel,&displayoffsetwav,&displayphasebars,&go_previous,&go_next};
 
         static constexpr void (*_route_nav[7])() = {

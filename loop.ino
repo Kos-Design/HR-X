@@ -1,24 +1,7 @@
 
 int paddered;
 
-void check_pads() {
-  PadResult padder = Pads.padloop();
-  paddered = arranged_buttons[padder.pad_result[0]][padder.pad_result[1]];
-  int chan_received = gg.but_channel[11 + paddered];
-  int cc_note_num = gg.pot_assignements[11 + paddered] - 128;
-  //if multiplexed condition || 36 is the cancel button when in multiplexed mode, should not trigger another note or control.
-  if ((padder.pad_result[2] == 1) && (paddered != 36)) {
-    if (cc_note_num < 0) {
-      MaControlChange(chan_received,(byte)gg.pot_assignements[11 + paddered], 64);
-    }
-    else {
-      MaNoteOn(chan_received, cc_note_num, gg.but_velocity[11 + paddered]);
-    }
-  }
-  else if ((padder.pad_result[2] == 0) && (paddered != 36) && (cc_note_num > 0)) {
-    MaNoteOff(chan_received, cc_note_num, 0);
-  }
-}
+
 //checking one pot per loop as it is fast as long as we call it often
 byte muxer_ch_active = 1;
 
@@ -69,7 +52,7 @@ void at_a_paced_rate() {
 }
 
 void once_in_a_while(){
-  if (mp3_continue){
+  if (_mp.mp3_continue){
     refresh_mp3_player();
   }
 }

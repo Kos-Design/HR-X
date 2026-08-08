@@ -4,29 +4,21 @@
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
-
-
-extern byte calledarpegenote[6][2];
-extern byte arpegnoteoffin[6][6];
-extern byte playingarpegiator[6][6];
-extern byte arpegiatingNote[6];
-
-    
 extern int tickposition;
-extern bool addinglenght;
 extern bool songplaying;
 extern bool locked_fileing;
 extern byte recorded_ccs[32];
 extern byte pots_controllers[32][32][2];
 extern bool stoptickernextcycle;
-extern bool paterning;
- 
+
+extern const byte arpeges_types;
 void computelenghtmesureoffline_synth();
 void computelenghtmesureoffline_sampler();
 void call_refresh_flash_track();
 void shutlineroff(byte,byte);
 void playarpegenote(byte);
 void closeallenvelopes();
+void call_stopallnotes();
 
 /*class MidiPlayer{
   public:
@@ -146,15 +138,14 @@ enum TrackTypes : uint8_t  {
 };
 
 struct Pattern {
-    int flash_notes_length[16][32];
-    int synth_notes_length[6][32];
-    uint8_t cc_partition[128][32];
-    MidiEventer sampler_partition[16][32];
-    MidiEventer synth_partition[6][32];
-    MidiEventer synth_off_pat[6][32];
-    MidiEventer sampler_off_pat[32];
-    bool track_cells[2][32] ;
-
+  int flash_notes_length[16][pbars];
+  int synth_notes_length[6][pbars];
+  uint8_t cc_partition[128][pbars];
+  MidiEventer sampler_partition[16][pbars];
+  MidiEventer synth_partition[6][pbars];
+  MidiEventer synth_off_pat[6][pbars];
+  MidiEventer sampler_off_pat[pbars];
+  bool track_cells[2][pbars] ;
 };
 
 extern Pattern pp;
@@ -178,15 +169,20 @@ extern CCEditor _ce;
 class PatEditRouter : public SectionHolder {
     public:
         PatEditRouter();
-        bool visible_tracks[6][32];
+        int *_length_part;
+        MidiEventer temp_sampler_partition[pbars];
+        MidiEventer temp_synth_partition[pbars];
         MidiEventer *_on_part;
         MidiEventer *_off_part;
         MidiEventer *_temp_part;
-        int *_length_part;
         byte liners_count = 1 ;
         byte liners_page = 0;
         byte track_type = 0;
         byte local_line = 0;
+        bool visible_tracks[6][pbars]{};
+        bool addinglength = 0;
+
+        bool paterning = false ;
 
         static void homer();
         static void set_editor_to_synth(byte liner);
@@ -273,6 +269,16 @@ class PatternsMenuRouter : public SectionHolder {
   public:
         PatternsMenuRouter();
         FilesLister *catalog;
+        byte arpegnoteoffin[SYNTH_LINERS_COUNT][SYNTH_LINERS_COUNT];
+        byte playingarpegiator[SYNTH_LINERS_COUNT][SYNTH_LINERS_COUNT];
+        byte calledarpegenote[SYNTH_LINERS_COUNT][2];
+        byte arpegiatingNote[SYNTH_LINERS_COUNT];
+        byte tickgamme[SYNTH_LINERS_COUNT];
+        byte ticktriplet[SYNTH_LINERS_COUNT];
+        byte arpegnotestick[SYNTH_LINERS_COUNT];
+        byte arpegemptyticks[SYNTH_LINERS_COUNT];
+        bool tripletdirection[SYNTH_LINERS_COUNT];
+
         static void route_navlevel();
         static void show();
         static void pattern_nav_zero();
@@ -295,6 +301,7 @@ class PatternsMenuRouter : public SectionHolder {
         static void write_midi_info(File &pat_filer);
         static void writelemidi();
         static void arpegiate_synth();
+        static void set_arp_type();
         static void call_draw_sequencer();
         static void call_options();
         static void call_edit_ccs();

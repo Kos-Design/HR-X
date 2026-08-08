@@ -1,41 +1,31 @@
 
 void control_me(){
-  if (!blocked) {
-      if (noteprint)
-        _st.printlanote();    
-      if (MULTIPLEXED_PADS){
-        check_pads();
-        check_pots();
-      }
-      evalinputs();
-      evalrota();
-    }
+  if (_st.noteprint)
+    _st.printlanote();    
+  if (MULTIPLEXED_PADS){
+    check_pads();
+    check_pots();
+  }
+  evalinputs();
+  evalrota(); 
 }
 
 void loop() {
-  //wav_record_loop();
- // if (!stoptick) {
-   loopusbHub();
 
+  loopusbHub();
   if (millis() % 3 == 0) {
    fairly_often();
   } else if (millis() % osc_refresher_period == 0) {
     oscilloscope_loop();
-    
-    //UpdateSpectrum();
   }
-  /*
-  if (debug_cpu){
-    print_memory_usage();
-  }
-  */
-  if (pre_record) {
+
+  if (_rd.pre_record) {
     if (millis() - tocker > 500) {
-      rec_looping = true ;
-      pre_record = false ;
+      _rd.rec_looping = true ;
+      _rd.pre_record = false ;
     }
   }
-  if ( rec_looping && (millis() % 2 == 0)) {
+  if ( _rd.rec_looping && (millis() % 2 == 0)) {
     _rd.continue_looper();
   }
 }

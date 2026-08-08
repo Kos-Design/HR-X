@@ -4,6 +4,7 @@
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
 #include "FilesLister.h"
+#include "Triggers.h"
 
 const int navlevelpatedit = 2;
 const byte sizeofpatternlistlabels = 8;
@@ -175,7 +176,7 @@ void PatEditRouter::homer(){
 void PatEditRouter::set_editor_to_synth(byte liner = self->local_line){
           self->_on_part = pp.synth_partition[liner] ;
           self->_off_part =  pp.synth_off_pat[liner] ;
-          self->_temp_part = temp_synth_partition;
+          self->_temp_part = self->temp_synth_partition;
           self->liners_count = SYNTH_LINERS_COUNT;
           self->_length_part = pp.synth_notes_length[liner] ;
         }
@@ -183,7 +184,7 @@ void PatEditRouter::set_editor_to_synth(byte liner = self->local_line){
 void PatEditRouter::set_editor_to_sampler(byte liner = self->local_line){
          self->_on_part = pp.sampler_partition[liner] ;
           self->_off_part = pp.sampler_off_pat;
-          self->_temp_part = temp_sampler_partition;
+          self->_temp_part = self->temp_sampler_partition;
           self->liners_count = FLASH_LINERS_COUNT;
           self->_length_part = pp.flash_notes_length[liner] ;
         }
@@ -330,7 +331,7 @@ void PatEditRouter::track_selector() {
         }
 
 void PatEditRouter::show_track_header(){
-          paterning = false ;
+          self->paterning = false ;
 
           display.clearDisplay();
           String head_title[2]={"Synth","Flash"};
@@ -342,7 +343,7 @@ void PatEditRouter::show_track_header(){
         }
 
 void PatEditRouter::note_selector() {
-          paterning = false ;
+          self->paterning = false ;
 
           display.clearDisplay();
           navrange = 127;
@@ -358,7 +359,7 @@ void PatEditRouter::note_selector() {
         }
 
 void PatEditRouter::start_cell_setter() {
-          paterning = true ;
+          self->paterning = true ;
 
           previousnavlevel = navlevel;
           //last level showing the noteline and its velocity
@@ -384,7 +385,7 @@ void PatEditRouter::draw_velobars(){
         }
 
 void PatEditRouter::stretch_cell_length() {
-          paterning = false ;
+          self->paterning = false ;
 
           byte note_we_found = self->_on_part[sublevels[navlevelpatedit + 3]].velocity;
           if (note_we_found) {
@@ -392,7 +393,7 @@ void PatEditRouter::stretch_cell_length() {
             set_cell_at_pos(0,0,0);
             returntonav(navlevel-1,127,note_we_found);
           } else {
-            addinglenght = 1;
+            self->addinglength = 1;
             self->_temp_part[sublevels[navlevelpatedit + 3]].channel = ((int[2]){gg.synthmidichannel,gg.samplermidichannel})[self->track_type];
             self->_temp_part[sublevels[navlevelpatedit + 3]].note = (byte)sublevels[navlevelpatedit + 2];
             self->_temp_part[sublevels[navlevelpatedit + 3]].velocity = (byte)64;
@@ -413,9 +414,9 @@ void PatEditRouter::stretch_cell_length() {
 
 void PatEditRouter::stretch_cell_velocity() {
           navrange = 127;
-          paterning = true ;
+          self->paterning = true ;
 
-          addinglenght = 0;
+          self->addinglength = 0;
           self->_temp_part[sublevels[navlevelpatedit + 3]].velocity = sublevels[navlevelpatedit + 5];
           display.clearDisplay();
           doshownoteline();
@@ -1248,7 +1249,7 @@ void PatternsMenuRouter::show() {
         }
 
 void PatternsMenuRouter::pattern_nav_zero(){
-          paterning = false ;
+          _pe.paterning = false ;
           self->catalog->nav_zero();
         }
 
@@ -1753,20 +1754,41 @@ void PatternsMenuRouter::writelemidi() {
           locked_fileing = 0;
         }
 
+
+void PatternsMenuRouter::set_arp_type(){
+  if (gg.arpegiatortype < arpeges_types) {
+    gg.arpegiatorOn = 1;
+    //metro0.reset();
+  } else {
+    gg.arpegiatorOn = 0;
+    for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+      self->calledarpegenote[i][0] = 0;
+      self->calledarpegenote[i][1] = 0;
+      for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
+        self->playingarpegiator[i][j] = 0;
+        self->arpegnoteoffin[i][j] = 0;
+      }
+      self->arpegiatingNote[i] = 0;
+    }
+    //_tt.stopallnotes();
+    call_stopallnotes();
+  }
+}
+
 void PatternsMenuRouter::arpegiate_synth() {
           for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            calledarpegenote[i][0] = 0;
+            self->calledarpegenote[i][0] = 0;
             for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
-              if (arpegnoteoffin[i][j] == 1) {
-                shutlineroff(gg.synthmidichannel,playingarpegiator[i][j]);
-                arpegnoteoffin[i][j] = 0;
-                playingarpegiator[i][j] = 0;
+              if (self->arpegnoteoffin[i][j] == 1) {
+                shutlineroff(gg.synthmidichannel,self->playingarpegiator[i][j]);
+                self->arpegnoteoffin[i][j] = 0;
+                self->playingarpegiator[i][j] = 0;
               }
-              if (arpegnoteoffin[i][j] > 1) {
-                arpegnoteoffin[i][j]--;
+              if (self->arpegnoteoffin[i][j] > 1) {
+                self->arpegnoteoffin[i][j]--;
               }
             }
-            if (arpegiatingNote[i] != 0) {
+            if (self->arpegiatingNote[i] != 0) {
               playarpegenote(i);
             }
           }
