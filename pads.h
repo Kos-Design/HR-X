@@ -21,7 +21,7 @@ public:
                                {26, 27, 28, 29, 30,  31},
                                {17, 18, 19, 20, 21,  22}
                                };
-  //array should be the same size as all_buttonns
+  //array should be the same size as ALL_BUTTONS
   static constexpr int potsboards[] = {
     2,  1,  9,  5,  4,  3,  8,  7,  6,  14, 13, 11, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,

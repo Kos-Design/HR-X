@@ -1,6 +1,6 @@
 void initextmems() {
   
-  for (int j = 0; j < pbars; j++) {
+  for (int j = 0; j < PBARS; j++) {
     pp.sampler_off_pat[j] = {0,0,0};
     _pe.temp_sampler_partition[j] = {0,0,0};
     for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
@@ -98,14 +98,14 @@ void setupdefaultvalues() {
   }
 
   unplug_notefreq_from_ampL();
-  for (int i = 0; i < fxs_count; i++) {
-    fx[i]->stopdelayline();
+  for (int i = 0; i < FXS_COUNT; i++) {
+    gg.fx[i].stopdelayline();
     delayCords[i]->disconnect();
     delayCordsR[i]->disconnect();
 
   }
   AudioNoInterrupts();
-  for (int i = 0; i < fxs_count; i++) {
+  for (int i = 0; i < FXS_COUNT; i++) {
     delaypostmix[i]->gain(0, 1);
     delaypostmix[i]->gain(1, 1);
     delaypostmixR[i]->gain(0, 1);
@@ -163,7 +163,7 @@ void setupdefaultvalues() {
     _mx.set_dry_mix(i);
   }
   // if MULTIPLEXED_PADS
-  for (int i = 0; i < all_buttonns; i++) {
+  for (int i = 0; i < ALL_BUTTONS; i++) {
     if (!((i <= 11) || (i >= 46))) {
       gg.pot_assignements[i] = i + 128 + 30;
     } else {
@@ -192,20 +192,20 @@ void setupdefaultvalues() {
 /*/
   
 
-  gg.pot_assignements[all_buttonns-10] = 108 ;
-  gg.pot_assignements[all_buttonns-9] = 107 ;
+  gg.pot_assignements[ALL_BUTTONS-10] = 108 ;
+  gg.pot_assignements[ALL_BUTTONS-9] = 107 ;
   */
   //gg.midiknobassigned[111] = 109 ;
   //98 debugcpu
   //pots_assignements are to map onboard buttons to midi notes or ccs
-  //gg.pot_assignements[all_buttonns-5] = 106 ;
-  gg.pot_assignements[all_buttonns-20] = 110 ;
-  gg.pot_assignements[all_buttonns-21] = 109 ;
-  gg.pot_assignements[all_buttonns-19] = 111 ;
+  //gg.pot_assignements[ALL_BUTTONS-5] = 106 ;
+  gg.pot_assignements[ALL_BUTTONS-20] = 110 ;
+  gg.pot_assignements[ALL_BUTTONS-21] = 109 ;
+  gg.pot_assignements[ALL_BUTTONS-19] = 111 ;
 
-  gg.pot_assignements[all_buttonns-12] = 108 ;
-  gg.pot_assignements[all_buttonns-11] = 107 ;
-  gg.pot_assignements[all_buttonns-10] = 106 ;
+  gg.pot_assignements[ALL_BUTTONS-12] = 108 ;
+  gg.pot_assignements[ALL_BUTTONS-11] = 107 ;
+  gg.pot_assignements[ALL_BUTTONS-10] = 106 ;
 
   gg.midiknobassigned[gg.alt_nav[2]] = 125 ;
   gg.midiknobassigned[gg.alt_nav[3]] = 126 ;
@@ -214,8 +214,8 @@ void setupdefaultvalues() {
 
 
 
-  gg.pot_assignements[all_buttonns-4] = 100 ;
-  gg.pot_assignements[all_buttonns-13] = 101 ;
+  gg.pot_assignements[ALL_BUTTONS-4] = 100 ;
+  gg.pot_assignements[ALL_BUTTONS-13] = 101 ;
   //osc toggles
   //midiknobs link a midi cc note to an index from ctl[] 
   gg.midiknobassigned[100] = 116 ;

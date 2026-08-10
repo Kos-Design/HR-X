@@ -1,6 +1,6 @@
 #include "Patterns.h"
 #include "MenuClasses.h"
-#include "ParserLib.h"
+//#include "ParserLib.h"
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
 #include "FilesLister.h"
@@ -46,7 +46,7 @@ void CCEditor::route_navlevel_1(){
 
 void CCEditor::showleditcc() {
           int lavaluecc = 0;
-          int lacellwidth = 128 / pbars;
+          int lacellwidth = 128 / PBARS;
           int lestartyc = 16;
           float lacellratio = (62 - lestartyc) / 127.0;
           int lacellx = 0;
@@ -81,7 +81,7 @@ void CCEditor::showleditcc() {
           }
           canvasBIG.drawRect(0, 16, 128, 64, SSD1306_WHITE);
 
-          for (int j = 0; j < pbars; j++) {
+          for (int j = 0; j < PBARS; j++) {
 
             lavaluecc = (int)pp.cc_partition[sublevels[2]][j];
             lacellx = 1 + j * lacellwidth;
@@ -124,14 +124,14 @@ void CCEditor::headerccedit() {
         }
 
 void CCEditor::showvertlinecursor(int lavertpos) {
-          display.drawLine(lavertpos * (128 / pbars), 16, lavertpos * (128 / pbars), 64,
+          display.drawLine(lavertpos * (128 / PBARS), 16, lavertpos * (128 / PBARS), 64,
                           SSD1306_WHITE);
         }
 
 void CCEditor::editlaccactionpath() {
           if (navlevel == 3) {
 
-            navrange = pbars - 1;
+            navrange = PBARS - 1;
 
             sublevels[4] = (int)pp.cc_partition[sublevels[2]][sublevels[3]];
             headerccedit();
@@ -144,7 +144,7 @@ void CCEditor::editlaccactionpath() {
             headerccedit();
           }
           if (navlevel > 4) {
-            returntonav(3,pbars - 1,sublevels[3]);
+            returntonav(3,PBARS - 1,sublevels[3]);
           }
         }
 
@@ -162,13 +162,13 @@ PatEditRouter::PatEditRouter() {
                     }
 
 void PatEditRouter::homer(){
-          navrange = available_track_types - 1;
+          navrange = TK_TYPES - 1;
           self->track_type = sublevels[navlevelpatedit];
 
           drawPatternRow();
           dolistpatternlineblocks();
           display.setCursor(0, 0);
-          String _t_type[available_track_types] = {"Synth","Sampler"};
+          String _t_type[TK_TYPES] = {"Synth","Sampler"};
           display.print(_t_type[self->track_type]);
 
         }
@@ -209,7 +209,7 @@ void PatEditRouter::doshownoteline() {
           canvasBIG.print(" Pos:");
           canvasBIG.print(sublevels[navlevelpatedit + 3]);
           for (int notelines = note_slct; notelines > note_slct - 12; notelines--) {
-            for (int i = 0; i < pbars; i++) {
+            for (int i = 0; i < PBARS; i++) {
 
               if ((bool)self->_temp_part[i].note && (int)self->_temp_part[i].note == notelines) {
 
@@ -235,7 +235,7 @@ void PatEditRouter::reshift_tracks_display() {
           //6 is max visible lines of 8px in 48px
           for (int i = 0 ; i < 6 ; i++) {
             set_editor_type[self->track_type]((i + sublevels[navlevelpatedit+1])%self->liners_count);
-            for (int j = 0 ; j < pbars ; j++) {
+            for (int j = 0 ; j < PBARS ; j++) {
               self->visible_tracks[i][j] = (bool)(self->_on_part[j].velocity);
             }
           }
@@ -243,7 +243,7 @@ void PatEditRouter::reshift_tracks_display() {
 
 void PatEditRouter::show_lines_events(){
           for (int i = 0 ; i < 6 ; i++) {
-             for (int j = 0 ; j < pbars ; j++) {
+             for (int j = 0 ; j < PBARS ; j++) {
                 canvasBIG.fillRect( 4 * j, 16+(8*i), 4*((int)self->visible_tracks[i][j]), 8*((int)self->visible_tracks[i][j]), SSD1306_WHITE);
             }
           }
@@ -252,7 +252,7 @@ void PatEditRouter::show_lines_events(){
 
 void PatEditRouter::clearevented0(int lapatline) {
 
-          for (int j = 0; j < pbars; j++) {
+          for (int j = 0; j < PBARS; j++) {
             pp.track_cells[lapatline][j] = false;
           }
         }
@@ -260,7 +260,7 @@ void PatEditRouter::clearevented0(int lapatline) {
 void PatEditRouter::refresh_synth_track() {
           clearevented0(0);
           for (int linerrd = 0; linerrd < SYNTH_LINERS_COUNT; linerrd++) {
-            for (int i = 0; i < pbars; i++) {
+            for (int i = 0; i < PBARS; i++) {
               if (pp.synth_partition[linerrd][i].note != 0) {
                 pp.track_cells[Synth][i] = true;
               }
@@ -272,7 +272,7 @@ void PatEditRouter::refresh_flash_track() {
           clearevented0(1);
           for (int linerrd = 0; linerrd < FLASH_LINERS_COUNT; linerrd++) {
 
-            for (int i = 0; i < pbars; i++) {
+            for (int i = 0; i < PBARS; i++) {
 
               if (pp.sampler_partition[linerrd][i].note != 0) {
                 pp.track_cells[Flash][i] = true;
@@ -282,8 +282,8 @@ void PatEditRouter::refresh_flash_track() {
         }
 
 void PatEditRouter::dolistpatternlineblocks() {
-          for (int lapatline = 0; lapatline < available_track_types; lapatline++) {
-            for (int i = 0; i < pbars; i++) {
+          for (int lapatline = 0; lapatline < TK_TYPES; lapatline++) {
+            for (int i = 0; i < PBARS; i++) {
               if (pp.track_cells[lapatline][i]) {
                 canvasBIG.fillRect( 4*i + 1,16 + (8*lapatline) + 1, 2,6, SSD1306_INVERSE);
               }
@@ -302,14 +302,14 @@ int PatEditRouter::grid_start_note() {
         }
 
 void PatEditRouter::terminatenotesinbetween() {
-          for (int i = min(sublevels[navlevelpatedit + 3] + 1,pbars-1); i < sublevels[navlevelpatedit + 4]; i++) {
+          for (int i = min(sublevels[navlevelpatedit + 3] + 1,PBARS-1); i < sublevels[navlevelpatedit + 4]; i++) {
             self->_on_part[i] = {0,0,0};
             self->_off_part[i] = {0,0,0};
           }
         }
 
 void PatEditRouter::sync_temp() {
-          for (int i = 0; i < pbars; i++) {
+          for (int i = 0; i < PBARS; i++) {
             self->_temp_part[i] = self->_on_part[i];
           }
         }
@@ -378,7 +378,7 @@ void PatEditRouter::start_cell_setter() {
 
 void PatEditRouter::draw_velobars(){
           int velobar ;
-          for (int i = 0; i < pbars; i++) {
+          for (int i = 0; i < PBARS; i++) {
             velobar = map(self->_temp_part[i].velocity,0,127,0,16);
             canvasBIG.fillRect((i*(128/32)), 64-velobar,4 ,velobar, SSD1306_WHITE);
           }
@@ -426,25 +426,25 @@ void PatEditRouter::stretch_cell_velocity() {
         }
 
 void PatEditRouter::sanitize_synth_partition(){
-          bool offUsed[SYNTH_LINERS_COUNT][pbars] = {false};
+          bool offUsed[SYNTH_LINERS_COUNT][PBARS] = {false};
           for (int line = 0; line < SYNTH_LINERS_COUNT; line++){
-            for (int onStep = 0; onStep < pbars; onStep++){
+            for (int onStep = 0; onStep < PBARS; onStep++){
               // Skip empty Note On
               if (pp.synth_partition[line][onStep].velocity == 0)
                   continue;
               uint8_t note = pp.synth_partition[line][onStep].note;
-              int latestStep = (onStep + (pbars-1)) & (pbars-1);
-              for (int i = 1; i < pbars; i++){
-                int s = (onStep + i) & (pbars-1);
+              int latestStep = (onStep + (PBARS-1)) & (PBARS-1);
+              for (int i = 1; i < PBARS; i++){
+                int s = (onStep + i) & (PBARS-1);
                 if (pp.synth_partition[line][s].velocity && pp.synth_partition[line][s].note == note) {
-                  latestStep = (s + (pbars-1)) & (pbars-1);
+                  latestStep = (s + (PBARS-1)) & (PBARS-1);
                   break;
                 }
               }
               int foundLine = -1;
               int foundStep = -1;
               bool found = false;
-              int s = (onStep + 1) & (pbars-1);
+              int s = (onStep + 1) & (PBARS-1);
               while (!found) {
                 for (int l = 0; l < SYNTH_LINERS_COUNT; l++) {
                   if (offUsed[l][s])
@@ -460,7 +460,7 @@ void PatEditRouter::sanitize_synth_partition(){
 
                 if (found || s == latestStep)
                     break;
-                s = (s + 1) & (pbars-1);
+                s = (s + 1) & (PBARS-1);
               }
               int targetStep = latestStep;
               while (targetStep != onStep) {
@@ -468,7 +468,7 @@ void PatEditRouter::sanitize_synth_partition(){
                   (found && targetStep == foundStep && line == foundLine))
                   break;
 
-                targetStep = (targetStep + (pbars-1)) & (pbars-1);
+                targetStep = (targetStep + (PBARS-1)) & (PBARS-1);
               }
               if (found){
                 if (foundLine != line || foundStep != targetStep){
@@ -488,7 +488,7 @@ void PatEditRouter::sanitize_synth_partition(){
             }
           }
           for (int line = 0; line < SYNTH_LINERS_COUNT; line++) {
-            for (int step = 0; step < pbars; step++) {
+            for (int step = 0; step < PBARS; step++) {
               if (!offUsed[line][step]) {
                 pp.synth_off_pat[line][step].channel = 0;
                 pp.synth_off_pat[line][step].note = 0;
@@ -499,21 +499,21 @@ void PatEditRouter::sanitize_synth_partition(){
 
 void PatEditRouter::sanitize_sampler_partition(){
 
-          bool offUsed[FLASH_LINERS_COUNT][pbars] = {false};
+          bool offUsed[FLASH_LINERS_COUNT][PBARS] = {false};
 
           for (int line = 0; line < FLASH_LINERS_COUNT; line++) {
-            for (int onStep = 0; onStep < pbars; onStep++){
+            for (int onStep = 0; onStep < PBARS; onStep++){
               // Skip empty Note On
               if (pp.sampler_partition[line][onStep].velocity == 0)
                   continue;
 
               uint8_t note = pp.sampler_partition[line][onStep].note;
-              int latestStep = (onStep + (pbars-1)) & (pbars-1);
+              int latestStep = (onStep + (PBARS-1)) & (PBARS-1);
 
-              for (int i = 1; i < pbars; i++){
-                int s = (onStep + i) & (pbars-1);
+              for (int i = 1; i < PBARS; i++){
+                int s = (onStep + i) & (PBARS-1);
                 if (pp.sampler_partition[line][s].velocity && pp.sampler_partition[line][s].note == note) {
-                  latestStep = (s + (pbars-1)) & (pbars-1);
+                  latestStep = (s + (PBARS-1)) & (PBARS-1);
                   break;
                 }
               }
@@ -521,7 +521,7 @@ void PatEditRouter::sanitize_sampler_partition(){
               int foundStep = -1;
               bool found = false;
 
-              int s = (onStep + 1) & (pbars-1);
+              int s = (onStep + 1) & (PBARS-1);
 
               while (!found) {
                 for (int l = 0; l < FLASH_LINERS_COUNT; l++) {
@@ -538,7 +538,7 @@ void PatEditRouter::sanitize_sampler_partition(){
 
                 if (found || s == latestStep)
                     break;
-                s = (s + 1) & (pbars-1);
+                s = (s + 1) & (PBARS-1);
               }
 
               int targetStep = latestStep;
@@ -547,7 +547,7 @@ void PatEditRouter::sanitize_sampler_partition(){
                     (found && targetStep == foundStep && line == foundLine))
                     break;
 
-                targetStep = (targetStep + (pbars-1)) & (pbars-1);
+                targetStep = (targetStep + (PBARS-1)) & (PBARS-1);
               }
               if (found){
                 if (foundLine != line || foundStep != targetStep) {
@@ -566,7 +566,7 @@ void PatEditRouter::sanitize_sampler_partition(){
             }
           }
           for (int line = 0; line < FLASH_LINERS_COUNT; line++) {
-            for (int step = 0; step < pbars; step++) {
+            for (int step = 0; step < PBARS; step++) {
               if (!offUsed[line][step]) {
                 pp.sampler_off_pat[step].channel = 0;
                 pp.sampler_off_pat[step].note = 0;
@@ -582,7 +582,7 @@ void PatEditRouter::set_cell_at_pos(byte ch_, byte nt_, byte ve_){
           byte laOffpos;
           self->_length_part[sub3] = max((sub4 - sub3) * 4,4);
 
-          laOffpos = (sub3 + (self->_length_part[sub3] / 4))%pbars;
+          laOffpos = (sub3 + (self->_length_part[sub3] / 4))%PBARS;
           self->_off_part[laOffpos] = {ch_,nt_,0};;
           terminatenotesinbetween();
           //off
@@ -641,7 +641,7 @@ void POptionsRouter::clearlapattern() {
         }
 
 void POptionsRouter::clearCCline() {
-          for (int j = 0; j < pbars; j++) {
+          for (int j = 0; j < PBARS; j++) {
             for (int i = 0; i < 128; i++) {
 
               pp.cc_partition[i][j] = 127;
@@ -650,7 +650,7 @@ void POptionsRouter::clearCCline() {
         }
 
 void POptionsRouter::clearsynthpatternline() {
-          for (int j = 0; j < pbars; j++) {
+          for (int j = 0; j < PBARS; j++) {
             for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
 
               pp.synth_partition[i][j] = {0,0,0};
@@ -664,7 +664,7 @@ void POptionsRouter::merge_synth_partition_liners(){
           byte note_encoutered ;
           byte liner_encoutered[SYNTH_LINERS_COUNT] = {0,0,0,0,0,0} ;
 
-          for (int j=0;j<pbars;j++){
+          for (int j=0;j<PBARS;j++){
             note_encoutered = 0 ;
             for (int i=0;i<SYNTH_LINERS_COUNT;i++){
               if(pp.synth_partition[i][j].note !=0 && pp.synth_partition[i][j].velocity !=0){
@@ -684,7 +684,7 @@ void POptionsRouter::merge_synth_partition_liners(){
           }
         }
 void POptionsRouter::clearsamplerpatternline() {
-          for (int j = 0; j < pbars; j++) {
+          for (int j = 0; j < PBARS; j++) {
             for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
 
               pp.sampler_partition[i][j] = {0,0,0};
@@ -811,7 +811,7 @@ void POptionsRouter::doShifterCC() {
 void POptionsRouter::shiftnotesCCup(int leshifter) {
           for (int shifts = 0; shifts < leshifter; shifts++) {
             for (int i = 0; i < 128; i++) {
-              for (int j = 0; j < pbars; j++) {
+              for (int j = 0; j < PBARS; j++) {
 
                 if (((int)pp.cc_partition[i][j] < 127) &&
                     ((int)pp.cc_partition[i][j] > 0)) {
@@ -827,7 +827,7 @@ void POptionsRouter::shiftnotesCCdown(int leshifter) {
 
           for (int shifts = 0; shifts < leshifter; shifts++) {
             for (int i = 0; i < 128; i++) {
-              for (int j = 0; j < pbars; j++) {
+              for (int j = 0; j < PBARS; j++) {
 
                 if ((int)pp.cc_partition[i][j] > 0) {
 
@@ -842,13 +842,13 @@ void POptionsRouter::shiftnotesCCright(int leshifter) {
           byte letempevent1;
           for (int shifts = 0; shifts < leshifter; shifts++) {
             for (int i = 0; i < 128; i++) {
-              for (int j = pbars - 1; j >= 0; j--) {
+              for (int j = PBARS - 1; j >= 0; j--) {
 
-                if (j == pbars - 1) {
-                  letempevent1 = pp.cc_partition[i][pbars - 1];
+                if (j == PBARS - 1) {
+                  letempevent1 = pp.cc_partition[i][PBARS - 1];
                   pp.cc_partition[i][j] = pp.cc_partition[i][j - 1];
                 }
-                if ((j > 0) && (j < pbars - 1)) {
+                if ((j > 0) && (j < PBARS - 1)) {
                   pp.cc_partition[i][j] = pp.cc_partition[i][j - 1];
                 }
 
@@ -866,16 +866,16 @@ void POptionsRouter::shiftnotesCCleft(int leshifter) {
           for (int shifts = 0; shifts < leshifter; shifts++) {
 
             for (int i = 0; i < 128; i++) {
-              for (int j = 0; j < pbars; j++) {
+              for (int j = 0; j < PBARS; j++) {
 
                 if (j == 0) {
                   letempevent1 = pp.cc_partition[i][0];
                   pp.cc_partition[i][j] = pp.cc_partition[i][j + 1];
                 }
-                if ((j > 0) && (j < pbars - 1)) {
+                if ((j > 0) && (j < PBARS - 1)) {
                   pp.cc_partition[i][j] = pp.cc_partition[i][j + 1];
                 }
-                if (j == pbars - 1) {
+                if (j == PBARS - 1) {
                   pp.cc_partition[i][j] = letempevent1;
                 }
               }
@@ -886,7 +886,7 @@ void POptionsRouter::shiftnotesCCleft(int leshifter) {
 void POptionsRouter::shiftnotes1up(int leshifter) {
           for (int shifts = 0; shifts < leshifter; shifts++) {
             for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-              for (int j = 0; j < pbars; j++) {
+              for (int j = 0; j < PBARS; j++) {
                 if (((int)pp.synth_partition[i][j].note < 127) &&
                     ((int)pp.synth_partition[i][j].note > 2)) {
 
@@ -906,7 +906,7 @@ void POptionsRouter::shiftnotes1down(int leshifter) {
           for (int shifts = 0; shifts < leshifter; shifts++) {
 
             for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-              for (int j = 0; j < pbars; j++) {
+              for (int j = 0; j < PBARS; j++) {
 
                 if ((int)pp.synth_partition[i][j].note > 1) {
 
@@ -925,15 +925,15 @@ void POptionsRouter::shiftnotes1right(int leshifter) {
           MidiEventer letempevent1[2];
           for (int shifts = 0; shifts < leshifter; shifts++) {
             for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-              for (int j = pbars - 1; j >= 0; j--) {
+              for (int j = PBARS - 1; j >= 0; j--) {
 
-                if (j == pbars - 1) {
+                if (j == PBARS - 1) {
                     pp.synth_partition[i][j] = pp.synth_partition[i][j - 1];
-                    letempevent1[0] = pp.synth_partition[i][pbars - 1];
-                    letempevent1[1] = pp.synth_off_pat[i][pbars - 1];
+                    letempevent1[0] = pp.synth_partition[i][PBARS - 1];
+                    letempevent1[1] = pp.synth_off_pat[i][PBARS - 1];
                     pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j - 1];
                 }
-                if ((j > 0) && (j < pbars - 1)) {
+                if ((j > 0) && (j < PBARS - 1)) {
                   pp.synth_partition[i][j] = pp.synth_partition[i][j - 1];
                   pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j - 1];
                   
@@ -955,7 +955,7 @@ void POptionsRouter::shiftnotes1left(int leshifter) {
           for (int shifts = 0; shifts < leshifter; shifts++) {
 
             for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-              for (int j = 0; j < pbars; j++) {
+              for (int j = 0; j < PBARS; j++) {
 
                 if (j == 0) {
                   letempevent1[0] = pp.synth_partition[i][0];
@@ -963,12 +963,12 @@ void POptionsRouter::shiftnotes1left(int leshifter) {
                   letempevent1[1] = pp.synth_off_pat[i][0];
                   pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j + 1];
                 }
-                if ((j > 0) && (j < pbars - 1)) {
+                if ((j > 0) && (j < PBARS - 1)) {
                     pp.synth_partition[i][j] = pp.synth_partition[i][j + 1];
                     pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j + 1];
                 }
 
-                if (j == pbars - 1) {
+                if (j == PBARS - 1) {
                     pp.synth_partition[i][j] = letempevent1[0];
                     pp.synth_off_pat[i][j] = letempevent1[1];
                   
@@ -1004,7 +1004,7 @@ void POptionsRouter::shiftnotes2up(int leshifter) {
 
           for (int shifts = 0; shifts < leshifter; shifts++) {
 
-            for (int j = 0; j < pbars; j++) {
+            for (int j = 0; j < PBARS; j++) {
               if (((int)pp.sampler_off_pat[j].note < 127) &&
                   ((int)pp.sampler_off_pat[j].note > 2)) {
                 pp.sampler_off_pat[j].note++;
@@ -1022,7 +1022,7 @@ void POptionsRouter::shiftnotes2up(int leshifter) {
 
 void POptionsRouter::shiftnotes2down(int leshifter) {
           for (int shifts = 0; shifts < leshifter; shifts++) {
-            for (int j = 0; j < pbars; j++) {
+            for (int j = 0; j < PBARS; j++) {
               if ((int)pp.sampler_off_pat[j].note > 1) {
                 pp.sampler_off_pat[j].note--;
               }
@@ -1039,23 +1039,23 @@ void POptionsRouter::shiftnotes2down(int leshifter) {
 void POptionsRouter::shiftnotes2right(int leshifter) {
           MidiEventer letempevent2[2];
           for (int shifts = 0; shifts < leshifter; shifts++) {
-            for (int j = pbars - 1; j >= 0; j--) {
-              if (j == pbars - 1) {
-                letempevent2[1] = pp.sampler_off_pat[pbars - 1];
+            for (int j = PBARS - 1; j >= 0; j--) {
+              if (j == PBARS - 1) {
+                letempevent2[1] = pp.sampler_off_pat[PBARS - 1];
                 pp.sampler_off_pat[j] = pp.sampler_off_pat[j - 1];
               }
-              if ((j > 0) && (j < pbars - 1)) {
+              if ((j > 0) && (j < PBARS - 1)) {
                 pp.sampler_off_pat[j] = pp.sampler_off_pat[j - 1];
               }
               if (j == 0) {
                 pp.sampler_off_pat[j] = letempevent2[1];
               }
               for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
-                if (j == pbars - 1) {
-                  letempevent2[0] = pp.sampler_partition[i][pbars - 1];
+                if (j == PBARS - 1) {
+                  letempevent2[0] = pp.sampler_partition[i][PBARS - 1];
                   pp.sampler_partition[i][j] = pp.sampler_partition[i][j - 1];
                 }
-                if ((j > 0) && (j < pbars - 1)) {
+                if ((j > 0) && (j < PBARS - 1)) {
                     pp.sampler_partition[i][j] = pp.sampler_partition[i][j - 1];
                 }
                 if (j == 0) {
@@ -1071,15 +1071,15 @@ void POptionsRouter::shiftnotes2left(int leshifter) {
   MidiEventer letempevent2[2];
   for (int shifts = 0; shifts < leshifter; shifts++) {
 
-    for (int j = 0; j < pbars; j++) {
+    for (int j = 0; j < PBARS; j++) {
       if (j == 0) {
         letempevent2[1] = pp.sampler_off_pat[0];
         pp.sampler_off_pat[j] = pp.sampler_off_pat[j + 1];
       }
-      if ((j > 0) && (j < pbars - 1)) {
+      if ((j > 0) && (j < PBARS - 1)) {
         pp.sampler_off_pat[j] = pp.sampler_off_pat[j + 1];
       }
-      if (j == pbars - 1) {
+      if (j == PBARS - 1) {
         pp.sampler_off_pat[j] = letempevent2[1];
       }
       for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
@@ -1087,11 +1087,11 @@ void POptionsRouter::shiftnotes2left(int leshifter) {
           letempevent2[0] = pp.sampler_partition[i][0];
           pp.sampler_partition[i][j] = pp.sampler_partition[i][j + 1];
         }
-        if ((j > 0) && (j < pbars - 1)) {
+        if ((j > 0) && (j < PBARS - 1)) {
           pp.sampler_partition[i][j] = pp.sampler_partition[i][j + 1];
         }
 
-        if (j == pbars - 1) {
+        if (j == PBARS - 1) {
           pp.sampler_partition[i][j] = letempevent2[0];
         }
       }
@@ -1279,12 +1279,12 @@ void PatternsMenuRouter::lv1_wrapper(void (*func)()) {
         }
 
 void PatternsMenuRouter::addnoteoff2next(byte lanotee, byte lapos) {
-          if (lapos < pbars - 1) {
+          if (lapos < PBARS - 1) {
             pp.sampler_off_pat[lapos + 1].channel = gg.samplermidichannel;
             pp.sampler_off_pat[lapos + 1].note = lanotee;
             pp.sampler_off_pat[lapos + 1].velocity = 0;
           }
-          if (lapos == pbars - 1) {
+          if (lapos == PBARS - 1) {
             pp.sampler_off_pat[0].channel = gg.samplermidichannel;
             pp.sampler_off_pat[0].note = lanotee;
             pp.sampler_off_pat[0].velocity = 0;
@@ -1293,13 +1293,13 @@ void PatternsMenuRouter::addnoteoff2next(byte lanotee, byte lapos) {
 
 void PatternsMenuRouter::set_ccs() {
           // has to be reinitialized first
-          for (int i = 0; i < pbars; i++) {
+          for (int i = 0; i < PBARS; i++) {
             recorded_ccs[i] = 0 ;
           }
-          for (int i = 0; i < pbars; i++) {
+          for (int i = 0; i < PBARS; i++) {
             for (int j = 0; j < 128; j++) {
               if (pp.cc_partition[j][i] != 127){
-                for (int k = 0; k < pbars; k++) {
+                for (int k = 0; k < PBARS; k++) {
                     if (recorded_ccs[k] == 0 || recorded_ccs[k] == j){
                       recorded_ccs[k] = j ;
                       pots_controllers[k][i][0] = j;
@@ -1335,8 +1335,8 @@ void PatternsMenuRouter::parsepattern_old() {
           locked_fileing = 1 ;
           self->catalog->refresh_files_names();
           // timescaller should be BPM dependant
-          //    latimelineshifter = ((60000/19200)*pbars) ;
-          // (60.0/BPMs)*1000)*pbars) = 1 bar millis
+          //    latimelineshifter = ((60000/19200)*PBARS) ;
+          // (60.0/BPMs)*1000)*PBARS) = 1 bar millis
           const int pat_parser_size = 32000;
           char received_pattern[pat_parser_size];
           byte laccnote;
@@ -1693,12 +1693,12 @@ void PatternsMenuRouter::midifileCC(File &pat_filer,int lecc, int ticker) {
 
 void PatternsMenuRouter::write_midi_info(File &pat_filer) {
           latimeline = 0;
-          // latimelineshifter = ((60000/19200)*pbars) ;
-          // (60.0/BPMs)*1000)*pbars) = 1 bar millis 92 original
+          // latimelineshifter = ((60000/19200)*PBARS) ;
+          // (60.0/BPMs)*1000)*PBARS) = 1 bar millis 92 original
           pat_filer.print("MFile 0 1 19200\nMTrk\n");
           // for (int i = 0 ; i<5 ; i++ ) {
 
-          for (int t = 0; t < pbars; t++) {
+          for (int t = 0; t < PBARS; t++) {
 
             latimeline = (3125 * t);
             for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {

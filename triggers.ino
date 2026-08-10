@@ -85,7 +85,7 @@ byte get_free_synth(byte note) {
 }
 
 bool linerhasevents(byte liner) {
-  for (int i = 0; i < pbars; i++) {
+  for (int i = 0; i < PBARS; i++) {
     if (pp.synth_partition[liner][i].note != 0) {
       return 1;
     }
@@ -543,7 +543,7 @@ void record_synth_notesOff(int liner, byte channel, byte lenote, byte velocity) 
     pp.synth_off_pat[liner][pos] = {channel, lenote, 0};
 
   } else {
-    if (pos == pbars - 1) {
+    if (pos == PBARS - 1) {
       pp.synth_off_pat[liner][0] = {channel, lenote, 0};
     } else {
       pp.synth_off_pat[liner][pos + 1] = {channel, lenote, 0};
@@ -569,7 +569,7 @@ void recordmidinotes2(int liner, byte channel, byte lenote, byte velocity) {
 }
 
 void deactivatelesccsfrompos(int lapos, byte lanote) {
-  for (int i = lapos + 1; i < pbars; i++) {
+  for (int i = lapos + 1; i < PBARS; i++) {
     pp.cc_partition[int(lanote)][i] = 127;
   }
 }
@@ -597,17 +597,17 @@ bool testforaNoteOninbetween(int linei, int lapos0, int lapos2, byte lanotef) {
 }
 
 int anothernOffisonafter(int linei, byte lanotee, int lapos) {
-  for (int i = lapos; i < pbars - 1; i++) {
+  for (int i = lapos; i < PBARS - 1; i++) {
     if (pp.synth_off_pat[linei][i + 1].note == lanotee) {
       // 0 is liner
       return i + 1;
     }
   }
-  return pbars;
+  return PBARS;
 }
 
 int getnextposofevent1Off_synth(int linei, byte lanote, int fromi) {
-  for (int i = fromi + 1; i < pbars; i++) {
+  for (int i = fromi + 1; i < PBARS; i++) {
     if (pp.synth_off_pat[linei][i].note == lanote) {
       return i;
     }
@@ -616,7 +616,7 @@ int getnextposofevent1Off_synth(int linei, byte lanote, int fromi) {
 }
 
 int getnextposofevent1Off_sampler(int linei, byte lanote, int fromi) {
-  for (int i = fromi + 1; i < pbars; i++) {
+  for (int i = fromi + 1; i < PBARS; i++) {
     if (pp.sampler_off_pat[i].note == lanote) {
       return i;
     }
@@ -638,13 +638,13 @@ void tweakfreqlive(int liner, float tune) {
 
 void computelenghtmesureoffline_synth() {
   for (int linei = 0; linei < SYNTH_LINERS_COUNT; linei++) {
-    for (int i = 0; i < pbars; i++) {
+    for (int i = 0; i < PBARS; i++) {
       if (pp.synth_partition[linei][i].note != 0) {
         int laposof = getnextposofevent1Off_synth(linei, pp.synth_partition[linei][i].note, i);
-        if (laposof < pbars - 1) {
+        if (laposof < PBARS - 1) {
           pp.synth_notes_length[linei][i] = (laposof - i) * 4;
         } else {
-          pp.synth_notes_length[linei][i] = (pbars - i) * 4;
+          pp.synth_notes_length[linei][i] = (PBARS - i) * 4;
         }
       }
     }
@@ -653,13 +653,13 @@ void computelenghtmesureoffline_synth() {
 
 void computelenghtmesureoffline_sampler() {
   for (int linei = 0; linei < FLASH_LINERS_COUNT; linei++) {
-    for (int i = 0; i < pbars; i++) {
+    for (int i = 0; i < PBARS; i++) {
       if (pp.sampler_partition[linei][i].note != 0) {
         int laposof = getnextposofevent1Off_sampler(linei, pp.sampler_partition[linei][i].note, i);
-        if (laposof < pbars - 1) {
+        if (laposof < PBARS - 1) {
           pp.flash_notes_length[linei][i] = (laposof - i) * 4;
         } else {
-          pp.flash_notes_length[linei][i] = (pbars - i) * 4;
+          pp.flash_notes_length[linei][i] = (PBARS - i) * 4;
         }
       }
     }
@@ -775,7 +775,7 @@ void MaControlChange(byte channel, byte control, byte value) {
 }
 
 bool noCCrecordlist(byte lanotee) {
-  for (byte i = 0; i < sizeofnoCCrecord; i++) {
+  for (byte i = 0; i < NO_CCREC_SIZE; i++) {
     if (gg.midiknobassigned[lanotee] == noCCrecord[i]) {
       return 1;
     }
@@ -784,7 +784,7 @@ bool noCCrecordlist(byte lanotee) {
 }
 
 void scanfornextcc(byte lecc) {
-  for (int i = tickposition + 1; i < pbars; i++) {
+  for (int i = tickposition + 1; i < PBARS; i++) {
     if (pp.cc_partition[lecc][i] != 127) {
 
       Ccinterpolengh[lecc][0] = tickposition;
@@ -800,13 +800,13 @@ void scanfornextcc(byte lecc) {
 
       Ccinterpolengh[lecc][0] = tickposition;
       Ccinterpolengh[lecc][1] = i;
-      Ccinterpolengh[lecc][2] = i + pbars - tickposition;
+      Ccinterpolengh[lecc][2] = i + PBARS - tickposition;
       activateinterpolatecc[lecc] = 1;
       return;
     }
   }
-  Ccinterpolengh[lecc][0] = pbars;
-  Ccinterpolengh[lecc][1] = pbars;
+  Ccinterpolengh[lecc][0] = PBARS;
+  Ccinterpolengh[lecc][1] = PBARS;
   Ccinterpolengh[lecc][2] = 0;
   activateinterpolatecc[lecc] = 0;
 }
@@ -845,7 +845,7 @@ void continueCCinterpol(byte lecc) {
       // (pp.cc_partition[lecc][tickposition+1] -
       // pp.cc_partition[lecc][tickposition] ))) ;
     } else {
-      interpolcoeff = (((tickposition + pbars - Ccinterpolengh[lecc][0]) *
+      interpolcoeff = (((tickposition + PBARS - Ccinterpolengh[lecc][0]) *
                         gg.millitickinterval) +
                        (millis() - tickerlasttick)) /
                       (laCCduration * 1.0);
@@ -870,8 +870,8 @@ void continueCCinterpol(byte lecc) {
     if (leccinterpolated[lecc] ==
         pp.cc_partition[lecc][Ccinterpolengh[lecc][1]]) {
       activateinterpolatecc[lecc] = 0;
-      Ccinterpolengh[lecc][0] = pbars;
-      Ccinterpolengh[lecc][1] = pbars;
+      Ccinterpolengh[lecc][0] = PBARS;
+      Ccinterpolengh[lecc][1] = PBARS;
       Ccinterpolengh[lecc][2] = 0;
     }
   }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include "Constants.h"
 
 extern bool locked_fileing;
 

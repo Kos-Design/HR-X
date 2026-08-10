@@ -4,7 +4,7 @@
 TriggerMessenger* TriggerMessenger::self = nullptr;
 
 TriggerMessenger::TriggerMessenger() { self = this ;}
-      
+
 void TriggerMessenger::MaNoteOn(uint8_t ch_,uint8_t nt_,uint8_t ve_) {
   MidiEventer msg = {ch_,nt_,ve_};
   self->MaNoteOn(msg);

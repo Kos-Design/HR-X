@@ -28,7 +28,6 @@ void stringize(byte l_index,byte osc_idx,float currentFreq,float targetFreq,byte
   strings1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->noteOn(targetFreq * gg.wavesfreqs[osc_idx],(velocity / 127.0));
 }
 
-static constexpr void (*audio_obj_starter[4])(byte,byte,float,float,byte) = {&waveformize, &FMformize, &drumize, &stringize};
 
 
 void waveform_refresh(byte l_index,byte osc_idx,float currentFreq,byte velocity){
@@ -317,6 +316,8 @@ class SynthLiner {
     }
     
     void activateWavelines() {
+    static constexpr void (*audio_obj_starter[4])(byte,byte,float,float,byte) = {&waveformize, &FMformize, &drumize, &stringize};
+
       //Sample & Hold waveform does not support phase modulation. Attempting to modulate its phase may give random or inconsistent results.
       for (int i = 0; i < OSCS_COUNT; i++) {
         if (gg.audio_obj_type[i]) audio_obj_starter[gg.audio_obj_type[i]-1](this->l_index,i,this->currentFreq,this->targetFreq,this->velocity);

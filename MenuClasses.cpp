@@ -1,4 +1,7 @@
 #include "MenuClasses.h"
+#include <Audio.h>
+
+extern AudioControlSGTL5000 AudioShield;
 
 void SectionHolder::set_home(void (*_cb)()){
     _home = _cb;
@@ -155,7 +158,7 @@ extern DisplayManager dm ;
 
 GlobalMixer* GlobalMixer::self = nullptr;
 
-GlobalMixer::GlobalMixer(AudioControlSGTL5000& shield) : MixShield(shield) {  
+GlobalMixer::GlobalMixer(){  
     self = this; 
     self->home_navrange=11;
     self->relative_navlevel=2;
@@ -324,7 +327,7 @@ void GlobalMixer::setmastersmixlevel(int lebus) {
       switch (lebus) {
         case 0:
           // set mastermixlevel
-          self->MixShield.volume(gg.mixlevelsM[0] / 127.0);
+          AudioShield.volume(gg.mixlevelsM[0] / 127.0);
           //ampL & R level should be 1.0 as they are used by queue recorder
           //ampL.gain(gg.mixlevelsM[0] / 127.0);
           //ampR.gain(gg.mixlevelsM[0] / 127.0);
@@ -344,8 +347,6 @@ void GlobalMixer::setmastersmixlevel(int lebus) {
       }
       //AudioInterrupts();
     }
-
-
 
 void GlobalMixer::wetmixmastercontrols() {
       for (byte i = 0; i < 4; i++) {
@@ -548,6 +549,12 @@ void SequencerClocker::calculatePPQN() {
     return;
   _samplesPerTick = AUDIO_SAMPLE_RATE_EXACT * 60.0 / (_bpm * _PPQN);
 }
+
+extern SequencerClocker clocker;
+
+EXTMEM ClockSink sink;
+
+EXTMEM AudioConnection patchCord_sinker(clocker, 0, sink, 0);
 
 DisplayConsoler::DisplayConsoler(){
     clearing();

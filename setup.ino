@@ -17,11 +17,11 @@ void unplugsynth() {
 
 void unplugfx() {
 
-  for (int i = 0; i < sizeopremixtoM; i++) {
+  for (int i = 0; i < PMIX_DM_SIZE; i++) {
     premixesMto[i]->disconnect();
     premixesMtoR[i]->disconnect();
   }
-  for (int i = 0; i < sizeofxcords; i++) {
+  for (int i = 0; i < FXCORDS_SIZE; i++) {
     fxcording[i]->disconnect();
   }
 }

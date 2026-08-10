@@ -144,11 +144,11 @@ class StereoDualFilter {
 };
 
 int clean_cursor(int pos){
-  if (pos >= pbars ) {
+  if (pos >= PBARS ) {
     pos = 0 ;
     return pos;
   } else if (pos < 0 ) {
-    pos = pbars - 1 ;
+    pos = PBARS - 1 ;
     return pos;
   }
   return pos;

@@ -4,7 +4,7 @@ class SamplerMenuRouter : public SectionHolder {
     public:
         SamplerMenuRouter() {
                     self = this ;
-                    self->home_navrange=sampler_labels_count-1;
+                    self->home_navrange=SP_LABELS_COUNT-1;
                     self->catalog = new FilesLister("SOUNDSET/","SAMPLE#",".RAW",show,self->home_navrange);
                     self->relative_navlevel=1;
                     self->max_navlevel=5;
@@ -43,7 +43,7 @@ class SamplerMenuRouter : public SectionHolder {
         
         static void sampler_nav_zero(){
             reinitsublevels(2);
-            navrange = sampler_labels_count - 1;
+            navrange = SP_LABELS_COUNT - 1;
             display.clearDisplay();
             dolistsamplermenu();
             dm.dodisplay();
@@ -135,7 +135,7 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void dolistsamplermenu() {
-          char samplerlabels[sampler_labels_count][12] = {"Load", "Delete", "Assign", "Mixer"};
+          char samplerlabels[SP_LABELS_COUNT][12] = {"Load", "Delete", "Assign", "Mixer"};
           int startx = 5;
           int starty = 16;
           char *textin = (char *)samplerlabels[sublevels[1]];
@@ -145,12 +145,12 @@ class SamplerMenuRouter : public SectionHolder {
           canvastitle.println(textin);
           canvasBIG.setTextSize(1);
           canvasBIG.fillScreen(SSD1306_BLACK);
-          for (int i = 0; i < sampler_labels_count - 1 - (sublevels[1]); i++) {
+          for (int i = 0; i < SP_LABELS_COUNT - 1 - (sublevels[1]); i++) {
               canvasBIG.setCursor(startx, starty + ((i)*10));
               canvasBIG.println(samplerlabels[sublevels[1] + 1 + i]);
           }
           for (int i = 0; i < sublevels[1]; i++) {
-              canvasBIG.setCursor(startx, (10 * (sampler_labels_count - sublevels[1]) + 6 + ((i)*10)));
+              canvasBIG.setCursor(startx, (10 * (SP_LABELS_COUNT - sublevels[1]) + 6 + ((i)*10)));
               canvasBIG.println(samplerlabels[i]);
           }
         }
@@ -1080,7 +1080,7 @@ class SamplerMenuRouter : public SectionHolder {
         
     private:
         
-        static constexpr void (*_nav_sampler[sampler_labels_count])() = {&dolistLoadSampleMenu, &dolistDelSampleMenu, &dolistAssignSampleMenu, &smixerVpanel};
+        static constexpr void (*_nav_sampler[SP_LABELS_COUNT])() = {&dolistLoadSampleMenu, &dolistDelSampleMenu, &dolistAssignSampleMenu, &smixerVpanel};
         static SamplerMenuRouter* self;
 };
 

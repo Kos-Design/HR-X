@@ -24,7 +24,7 @@ class SettingsMenuRouter : public SectionHolder {
         static constexpr uint8_t settings_labels_count = 17;
         bool noteprint = 0;
 
-        char onboards[all_buttonns][8] = {
+        char onboards[ALL_BUTTONS][8] = {
           "Pot 1",  "Pot 2",  "Pot 3",  "Pot 4",  "Pot 5",  "Pot 6",  "Pot 7",
           "Pot 8",  "Pot 9",  "Fdr 01", "Fdr 02", "Fdr 03", "Pad 01", "Pad 02",
           "Pad 03", "Pad 04", "Pad 05", "Pad 06", "Pad 07", "Pad 08", "Pad 09",
@@ -168,7 +168,7 @@ class SettingsMenuRouter : public SectionHolder {
 
           int selecta = sublevels[2];
           if (navlevel == 2) {
-            navrange = all_buttonns - 1;
+            navrange = ALL_BUTTONS - 1;
             sublevels[3] = gg.pot_assignements[sublevels[2]];
           }
 
@@ -785,7 +785,7 @@ class SettingsMenuRouter : public SectionHolder {
                                                                         &set_tap_note,&set_bpms_interval,&set_chord_mode,&arpegiatorVpanel,&toggle_ext_clock,&toggle_note_spy,
                                                                         &OnBoardVpanel,&set_audio_source,&toggle_midi_out,&Vbuttonspanel,&_ka.show,&set_alternative_rota};
 
-      //static constexpr void (*_nav_fx[sampler_labels_count])() = {&fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one};
+      //static constexpr void (*_nav_fx[SP_LABELS_COUNT])() = {&fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one};
 
   private:
     static SettingsMenuRouter* self;

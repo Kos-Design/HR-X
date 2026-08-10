@@ -190,7 +190,7 @@ class SongEditorRouter : public SectionHolder {
         }
 
         void update_song_player() {
-          if (tickposition == pbars - 1) {
+          if (tickposition == PBARS - 1) {
 
               if (songplayhead < numberofpatonsong - 1) {
                 songplayhead++;

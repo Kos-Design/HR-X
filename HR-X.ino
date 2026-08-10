@@ -1,39 +1,24 @@
+//#include "Constants.h"
+// 
+//#include "/home/kosmin/HR-X/includes/AudioSetup.ino"
+#include <SPI.h>
+#include <Wire.h>
+#include <SD.h>
 
 #include "muxer.h"
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
 #include <Bounce.h>
 #include <Encoder.h>
-#include <play_sd_mp3.h>
-#include <play_sd_flac.h>
-#include "play_partial_sd_raw.h"
+
 #include "Patterns.h"
 #include "Triggers.h"
 #include "pads.h"
 #include "/home/kosmin/HR-X/includes/images.ino"
 #include "/home/kosmin/HR-X/includes/notestofrequency_442.ino"
-#include "/home/kosmin/HR-X/includes/AudioSetup.ino"
-#include "/home/kosmin/HR-X/includes/cablages.ino"
 
-#define MULTIPLEXED_PADS 1
 
-//(6 * AUDIO_BLOCK_SAMPLES)
-#define FLANGE_DELAY_LENGTH 768
-
-//(16 * AUDIO_BLOCK_SAMPLES)
-#define CHORUS_DELAY_LENGTH 2048
-
-// 12800 is for 290 ms at 44.1 kHz
-#define GRANULAR_MEMORY_SIZE 12800
-
-#define SCREEN_WIDTH 128
-#define SCREEN_HEIGHT 64
-#define OLED_RESET -1
-#define SDCARD_CS_PIN 10
-#define SDCARD_MOSI_PIN 7
-#define SDCARD_SCK_PIN 14
-#define MULTIPLEXER_PIN 32
-const byte sizeofnoCCrecord = 11;
+SequencerClocker clocker;
 
 EXTMEM Pattern pp ;
 
@@ -51,7 +36,7 @@ bool patrecord;
 
 // functions that have system or various controls that are ignored for some ops
 //outdated since refactor of ctl[]
-byte noCCrecord[sizeofnoCCrecord] = {3,35,36,37, 38,39,40,41,42,44,1};
+byte noCCrecord[NO_CCREC_SIZE] = {3,35,36,37, 38,39,40,41,42,44,1};
 int tocker ;
 
 int laCCduration;
@@ -88,7 +73,8 @@ String newRecpathR = "SOUNDSET/REC/RECZ00#R.RAW";
 int tickposition;
 bool stoptickernextcycle;
 
-EXTMEM Preset gg ;
+EXTMEM Preset gg;
+EXTMEM BigBuffers bb;
 
 byte oscillator = 0;
 byte cclfoselector = 0 ;
@@ -171,7 +157,7 @@ int sublevels[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 Adafruit_SSD1306 display(128, 64, &Wire2, -1);
 
 DisplayManager dm = DisplayManager();
-GlobalMixer _mx = GlobalMixer(AudioShield);
+GlobalMixer _mx = GlobalMixer();
 
 void returntonav(byte lelevel, byte lanavrange = navrange,byte t_vraipos = rota_true_pos) {
   navlevel = lelevel;

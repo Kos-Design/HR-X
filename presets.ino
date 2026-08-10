@@ -78,7 +78,7 @@ class PresetsMenuRouter : public SectionHolder {
           memcpy(&tmp_WetMixMasters, &gg.WetMixMasters, sizeof(gg.WetMixMasters));
 
           for (int i = 0; i < 3; i++) {
-            fx[i]->route_fx(gg.plugged_fx_type[i]);
+            gg.fx[i].route_fx(gg.fx[i].plugged_fx);
             _fx.avoid_fx_bounce = false ;
           }
 

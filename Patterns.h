@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include "MenuClasses.h"
 #include "FilesLister.h"
+//#include "Constants.h"
 
 extern int tickposition;
 extern bool songplaying;
@@ -138,14 +139,14 @@ enum TrackTypes : uint8_t  {
 };
 
 struct Pattern {
-  int flash_notes_length[16][pbars];
-  int synth_notes_length[6][pbars];
-  uint8_t cc_partition[128][pbars];
-  MidiEventer sampler_partition[16][pbars];
-  MidiEventer synth_partition[6][pbars];
-  MidiEventer synth_off_pat[6][pbars];
-  MidiEventer sampler_off_pat[pbars];
-  bool track_cells[2][pbars] ;
+  int flash_notes_length[16][PBARS];
+  int synth_notes_length[6][PBARS];
+  uint8_t cc_partition[128][PBARS];
+  MidiEventer sampler_partition[16][PBARS];
+  MidiEventer synth_partition[6][PBARS];
+  MidiEventer synth_off_pat[6][PBARS];
+  MidiEventer sampler_off_pat[PBARS];
+  bool track_cells[2][PBARS] ;
 };
 
 extern Pattern pp;
@@ -170,8 +171,8 @@ class PatEditRouter : public SectionHolder {
     public:
         PatEditRouter();
         int *_length_part;
-        MidiEventer temp_sampler_partition[pbars];
-        MidiEventer temp_synth_partition[pbars];
+        MidiEventer temp_sampler_partition[PBARS];
+        MidiEventer temp_synth_partition[PBARS];
         MidiEventer *_on_part;
         MidiEventer *_off_part;
         MidiEventer *_temp_part;
@@ -179,7 +180,7 @@ class PatEditRouter : public SectionHolder {
         byte liners_page = 0;
         byte track_type = 0;
         byte local_line = 0;
-        bool visible_tracks[6][pbars]{};
+        bool visible_tracks[6][PBARS]{};
         bool addinglength = 0;
 
         bool paterning = false ;
