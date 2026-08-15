@@ -31,7 +31,7 @@ class RecorderMenuRouter : public SectionHolder {
         bool just_pressed_rec = false ;
 
         static void show() {
-          _route_nav[navlevel-self->relative_navlevel]();
+          _route_nav[lv.navlevel-self->relative_navlevel]();
         }
 
         static void Load_raw_file() {
@@ -54,13 +54,13 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void startRecording() {
-          if (locked_fileing)
+          if (lv.locked_fileing)
             return;
-          locked_fileing = 1 ;
+          lv.locked_fileing = 1 ;
           if (!self->just_pressed_rec){
             self->just_pressed_rec = true ;
             check_rec_folder_path();
-            tocker = millis();
+            lv.tocker = millis();
 
             newloopedpath = self->catalog->get_new_file_name();
             //self->catalog->get_new_file_name();
@@ -101,7 +101,7 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void auto_stop_rec(){
-          if (millis() - tocker > 10000) {
+          if (millis() - lv.tocker > 10000) {
             self->rec_looping = false ;
             stopRecording();
             
@@ -154,12 +154,12 @@ class RecorderMenuRouter : public SectionHolder {
             if (autoassign) {
               call_loadSampledSound();
             }
-            locked_fileing = 0 ;
+            lv.locked_fileing = 0 ;
         }
 
         static void recordVpanelAction() {
-          if (navlevel == self->relative_navlevel + 2) {
-            byte slct = sublevels[self->relative_navlevel + 1];
+          if (lv.navlevel == self->relative_navlevel + 2) {
+            byte slct = lv.sublevels[self->relative_navlevel + 1];
             if (slct == 0) {
               self->recorderrecord = !self->recorderrecord;
               if (self->recorderrecord) {
@@ -201,18 +201,18 @@ class RecorderMenuRouter : public SectionHolder {
                 }
               }
             }
-            returntonav(self->relative_navlevel + 1, 2 , 0);
+            dm.returntonav(self->relative_navlevel + 1, 2 , 0);
           }
-          if (navlevel > self->relative_navlevel + 1) {
-            returntonav(self->relative_navlevel + 1, 2 , 0);
+          if (lv.navlevel > self->relative_navlevel + 1) {
+            dm.returntonav(self->relative_navlevel + 1, 2 , 0);
           }
         }
 
         static void recordVpanelSelector() {
-          if (navlevel == self->relative_navlevel + 1) {
-            navrange = 2;
+          if (lv.navlevel == self->relative_navlevel + 1) {
+            lv.navrange = 2;
           }
-          byte slct = sublevels[self->relative_navlevel + 1];
+          byte slct = lv.sublevels[self->relative_navlevel + 1];
 
           if (slct == 0) {
             if (!self->recorderrecord) {
@@ -369,13 +369,13 @@ class RecorderMenuRouter : public SectionHolder {
             //set this to false when creating new soundbank or temp
             self->catalog->folders_already_listed = true;
           }
-          navrange = max(self->catalog->folders_counter - 1, 0);
+          lv.navrange = max(self->catalog->folders_counter - 1, 0);
           //
           //Serial.println(self->catalog->folder_selected );
           self->catalog->display_folders_list();
           dm.dodisplay();
           //Serial.println(self->catalog->folder_selected);
-          if (navlevel > self->relative_navlevel+1){
+          if (lv.navlevel > self->relative_navlevel+1){
             String entering_dir = ((String)self->catalog->folder_dir + self->catalog->folder_selected + "/");
             if (SD.exists(entering_dir.c_str())){
               self->catalog->folders_mode = false ;
@@ -392,12 +392,12 @@ class RecorderMenuRouter : public SectionHolder {
             } else {
               Serial.println("error with dir");
               Serial.println(self->catalog->folder_selected);
-              returntonav(self->relative_navlevel,self->home_navrange,0);
+              dm.returntonav(self->relative_navlevel,self->home_navrange,0);
             }
             self->catalog->list_files();
             self->catalog->folders_already_listed = false;
             
-            returntonav(self->relative_navlevel,self->home_navrange,0);
+            dm.returntonav(self->relative_navlevel,self->home_navrange,0);
           }
         }
 
@@ -405,16 +405,16 @@ class RecorderMenuRouter : public SectionHolder {
           dm.clean_title_2_1();
           self->catalog->nav_one(99,1);
 
-          if (navlevel >= self->relative_navlevel + 2) {
+          if (lv.navlevel >= self->relative_navlevel + 2) {
             func();
             scheddule_wave_rebuild(true);
-            returntonav(self->relative_navlevel, self->home_navrange,sublevels[self->relative_navlevel]);
+            dm.returntonav(self->relative_navlevel, self->home_navrange,lv.sublevels[self->relative_navlevel]);
           }
           dm.dodisplay();
         }
 
         static void records_actions(){
-          _nav_recs[sublevels[self->relative_navlevel]%self->rec_labels_count]();
+          _nav_recs[lv.sublevels[self->relative_navlevel]%self->rec_labels_count]();
         }
 
         static void remove_record(){
@@ -482,10 +482,10 @@ class RecorderMenuRouter : public SectionHolder {
           dm.dodisplay();
           int cursor_coords[][4] = {{0,0,18,8},{22,0,9,8},{38,0,9,8},{52,0,9,8},{64,0,9,8},{76,0,9,8},{88,0,14,8},{106,0,14,8},{0,8,128,48},
                                     {23,56,14,8},{40,56,21,8},{64,56,20,8},{88,56,27,8},{116,56,12,8}};
-          display.fillRect(cursor_coords[sublevels[self->relative_navlevel+1]][0], 
-                            cursor_coords[sublevels[self->relative_navlevel+1]][1],
-                            cursor_coords[sublevels[self->relative_navlevel+1]][2],
-                            cursor_coords[sublevels[self->relative_navlevel+1]][3],
+          display.fillRect(cursor_coords[lv.sublevels[self->relative_navlevel+1]][0], 
+                            cursor_coords[lv.sublevels[self->relative_navlevel+1]][1],
+                            cursor_coords[lv.sublevels[self->relative_navlevel+1]][2],
+                            cursor_coords[lv.sublevels[self->relative_navlevel+1]][3],
                             SSD1306_INVERSE);
 
            if (self->wave_selected) {
@@ -495,7 +495,7 @@ class RecorderMenuRouter : public SectionHolder {
           display.setTextSize(1);
           display.setTextColor(SSD1306_INVERSE);
           display.setCursor(60,12);
-          display.print(_legend[sublevels[self->relative_navlevel +1]]);
+          display.print(_legend[lv.sublevels[self->relative_navlevel +1]]);
           display.display();
         }
 
@@ -520,8 +520,8 @@ class RecorderMenuRouter : public SectionHolder {
         }
 
         static void redraw_selection_box(){
-          display.fillRect(sublevels[self->relative_navlevel +2], 8, 
-                              sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
+          display.fillRect(lv.sublevels[self->relative_navlevel +2], 8, 
+                              lv.sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
          
         }
 
@@ -535,7 +535,7 @@ class RecorderMenuRouter : public SectionHolder {
         static void reverseSection(float startPos, float endPos) {
           self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
           self->catalog->tmp_counter++;
-          if (locked_fileing)
+          if (lv.locked_fileing)
           return;
             const uint16_t sampleSize = 2;      // 16-bit RAW
             const uint32_t blockSamples = 512;  // 1024-byte buffer
@@ -549,7 +549,7 @@ class RecorderMenuRouter : public SectionHolder {
                 return;
             }
           
-          locked_fileing = 1 ;
+          lv.locked_fileing = 1 ;
           uint32_t fileSize = src.size();
 
           // Clamp
@@ -611,7 +611,7 @@ class RecorderMenuRouter : public SectionHolder {
 
           src.close();
           dst.close();
-          locked_fileing = 0 ;
+          lv.locked_fileing = 0 ;
           
           /*
           SdFile file;
@@ -628,14 +628,14 @@ class RecorderMenuRouter : public SectionHolder {
         static void pitchSection(float startPos, float endPos, float speed) {
           self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
           self->catalog->tmp_counter++;
-          if (locked_fileing)
+          if (lv.locked_fileing)
           return;
             if (speed <= 0.0f) return;
 
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
-          locked_fileing = 1 ;
+          lv.locked_fileing = 1 ;
 
           const uint32_t BUFFER_SAMPLES = 1024;
           int16_t buffer[BUFFER_SAMPLES];
@@ -729,7 +729,7 @@ class RecorderMenuRouter : public SectionHolder {
           
           src.close();
           dst.close();
-          locked_fileing = 0 ;
+          lv.locked_fileing = 0 ;
 
           self->catalog->move_file(self->get_current_temp_file().c_str(), newloopedpath.c_str());
 
@@ -738,7 +738,7 @@ class RecorderMenuRouter : public SectionHolder {
         static void trimSection(float start_pos = 0.0f, float end_pos = 1.0f) {
           self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
           self->catalog->tmp_counter++;
-          if (locked_fileing)
+          if (lv.locked_fileing)
           return;
             File in = SD.open(newloopedpath.c_str(), FILE_READ);
             if (!in)
@@ -750,7 +750,7 @@ class RecorderMenuRouter : public SectionHolder {
                 in.close();
                 return;
             }
-          locked_fileing = 1 ;
+          lv.locked_fileing = 1 ;
 
             uint32_t fileSize = in.size();
 
@@ -802,14 +802,14 @@ class RecorderMenuRouter : public SectionHolder {
             }
             out.close();
             in.close();
-            locked_fileing = 0 ;
+            lv.locked_fileing = 0 ;
             self->catalog->move_file(self->get_current_temp_file().c_str(), newloopedpath.c_str());
         }
    
         static void normalizeSection(float startPos, float endPos) {
           self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
           self->catalog->tmp_counter++;
-          if (locked_fileing)
+          if (lv.locked_fileing)
           return;
             const uint16_t sampleSize = 2;      // 16-bit mono
             const uint32_t bufferSamples = 512;
@@ -818,7 +818,7 @@ class RecorderMenuRouter : public SectionHolder {
             File src = SD.open(newloopedpath.c_str(), FILE_READ);
             if (!src) return;
             File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
-            locked_fileing = 1 ;
+            lv.locked_fileing = 1 ;
             uint32_t fileSize = src.size();
 
             if (startPos < 0.0f) startPos = 0.0f;
@@ -911,13 +911,13 @@ class RecorderMenuRouter : public SectionHolder {
             }
           src.close();
           dst.close();
-          locked_fileing = 0 ;
+          lv.locked_fileing = 0 ;
           self->catalog->move_file(self->get_current_temp_file().c_str(), newloopedpath.c_str());
         }
 
         static void playSection(){
           PartialPlayerMono.play(newloopedpath.c_str(),self->start_zone,self->end_zone);
-          returntonav(self->relative_navlevel + 1,12,sublevels[self->relative_navlevel + 1]);
+          dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
         }
 
         static void scheddule_wave_rebuild(bool noreturn = 0,bool noreinit = 0){
@@ -927,21 +927,21 @@ class RecorderMenuRouter : public SectionHolder {
           if (!noreinit)
             reinitsublevels(self->relative_navlevel + 1); 
           if (!noreturn)
-            returntonav(self->relative_navlevel + 1,12,sublevels[self->relative_navlevel + 1]);
-          locked_fileing = 0 ; 
+            dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
+          lv.locked_fileing = 0 ; 
         }
 
         static void fadeInSection(float startPos, float endPos) {
           self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
           self->catalog->tmp_counter++;
-          if (locked_fileing)
+          if (lv.locked_fileing)
           return;
 
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
         
           File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
-          locked_fileing = 1 ;
+          lv.locked_fileing = 1 ;
           //const uint16_t sampleSize = 2;
           const uint32_t BUFFER_SAMPLES = 1024;
           int16_t buffer[BUFFER_SAMPLES];
@@ -983,20 +983,20 @@ class RecorderMenuRouter : public SectionHolder {
           }
           src.close();
           dst.close();
-          locked_fileing = 0 ;
+          lv.locked_fileing = 0 ;
           self->catalog->move_file(self->get_current_temp_file().c_str(), newloopedpath.c_str());
         }
 
         static void fadeOutSection(float startPos, float endPos) {
           self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
           self->catalog->tmp_counter++;
-          if (locked_fileing)
+          if (lv.locked_fileing)
           return;
 
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
-          locked_fileing = 1 ;
+          lv.locked_fileing = 1 ;
           const uint32_t BUFFER_SAMPLES = 1024;
           int16_t buffer[BUFFER_SAMPLES];
           uint32_t fileSize = src.size();
@@ -1039,21 +1039,21 @@ class RecorderMenuRouter : public SectionHolder {
           }
           src.close();
           dst.close();
-          locked_fileing = 0 ;
+          lv.locked_fileing = 0 ;
           self->catalog->move_file(self->get_current_temp_file().c_str(), newloopedpath.c_str());
         }
 
         static void start_inputting_pitch(){
-          navrange = 127 ;
+          lv.navrange = 127 ;
           display.setCursor(104,12);
           display.fillRect(104, 12, 30, 10, SSD1306_BLACK);
-          self->pitcher = (sublevels[self->relative_navlevel + 2]/127.0) * 2.0;
+          self->pitcher = (lv.sublevels[self->relative_navlevel + 2]/127.0) * 2.0;
           display.print(self->pitcher);
           dm.dodisplay();
-          if (navlevel >= self->relative_navlevel+3) {
+          if (lv.navlevel >= self->relative_navlevel+3) {
             pitchSection(self->start_zone,self->end_zone,self->pitcher);
             scheddule_wave_rebuild();
-            returntonav(self->relative_navlevel + 1,12,sublevels[self->relative_navlevel + 1]);
+            dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
 
           }
         }
@@ -1061,12 +1061,12 @@ class RecorderMenuRouter : public SectionHolder {
         static void deleteSection(float startPos, float endPos){
           self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
           self->catalog->tmp_counter++;
-          if (locked_fileing)
+          if (lv.locked_fileing)
           return;
           File src = SD.open(newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
-          locked_fileing = 1 ;
+          lv.locked_fileing = 1 ;
           const uint32_t BUFFER_SIZE = 2048;
           uint8_t buffer[BUFFER_SIZE];
           uint32_t fileSize = src.size();
@@ -1105,14 +1105,14 @@ class RecorderMenuRouter : public SectionHolder {
           }
           src.close();
           dst.close();
-          locked_fileing = 0 ;
+          lv.locked_fileing = 0 ;
           self->catalog->move_file(self->get_current_temp_file().c_str(), newloopedpath.c_str());
         }
 
         static void edit_record(){
           make_temp_folders();
-          navrange = 13 ;
-           if (navlevel == self->relative_navlevel+1) {
+          lv.navrange = 13 ;
+           if (lv.navlevel == self->relative_navlevel+1) {
             if (!self->wave_buffed) {
               draw_editor_zones();
               self->wave_buffed = 1 ; 
@@ -1121,106 +1121,106 @@ class RecorderMenuRouter : public SectionHolder {
             }
             select_cursor();
            }
-          if (navlevel == self->relative_navlevel + 2) {
-            if (sublevels[self->relative_navlevel + 1] == 1){
+          if (lv.navlevel == self->relative_navlevel + 2) {
+            if (lv.sublevels[self->relative_navlevel + 1] == 1){
               scheddule_wave_rebuild();
             }
             
             //zoom in
-            if (sublevels[self->relative_navlevel + 1] == 2){
-              zoomRange((sublevels[self->relative_navlevel + 2] / 127.0 ),((sublevels[self->relative_navlevel + 2] + sublevels[self->relative_navlevel + 3] ) / 127.0 ));
+            if (lv.sublevels[self->relative_navlevel + 1] == 2){
+              zoomRange((lv.sublevels[self->relative_navlevel + 2] / 127.0 ),((lv.sublevels[self->relative_navlevel + 2] + lv.sublevels[self->relative_navlevel + 3] ) / 127.0 ));
               self->wave_buffed = 0 ;
               reinitsublevels(self->relative_navlevel + 2);
-              returntonav(self->relative_navlevel + 1,12,sublevels[self->relative_navlevel + 1]);
+              dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
             }
 
             //select
-            if (sublevels[self->relative_navlevel + 1] == 0){
+            if (lv.sublevels[self->relative_navlevel + 1] == 0){
               self->wave_selected = 0;
-              navrange = 127 ;
+              lv.navrange = 127 ;
               display.clearDisplay();
-              display.drawFastVLine(sublevels[self->relative_navlevel +2], 8, 48, SSD1306_INVERSE);
+              display.drawFastVLine(lv.sublevels[self->relative_navlevel +2], 8, 48, SSD1306_INVERSE);
               dm.dodisplay();
             }
             
             //normalize
-            if (sublevels[self->relative_navlevel + 1] == 3){
+            if (lv.sublevels[self->relative_navlevel + 1] == 3){
               normalizeSection(self->start_zone,self->end_zone);
               scheddule_wave_rebuild();
             }
 
             //reverse
-            if (sublevels[self->relative_navlevel + 1] == 4){
+            if (lv.sublevels[self->relative_navlevel + 1] == 4){
               reverseSection(self->start_zone,self->end_zone);
               scheddule_wave_rebuild();
             }
             //pitching
-            if (sublevels[self->relative_navlevel + 1] == 5){
+            if (lv.sublevels[self->relative_navlevel + 1] == 5){
               start_inputting_pitch();
             }
 
             //trim in
-            if (sublevels[self->relative_navlevel + 1] == 9){
+            if (lv.sublevels[self->relative_navlevel + 1] == 9){
               trimSection(self->start_zone,1.0);
               scheddule_wave_rebuild();
             }
             //trim out
-            if (sublevels[self->relative_navlevel + 1] == 10){
+            if (lv.sublevels[self->relative_navlevel + 1] == 10){
               trimSection(0.0,self->end_zone);
               scheddule_wave_rebuild();
             }
             //del selected
-            if (sublevels[self->relative_navlevel + 1] == 11){
+            if (lv.sublevels[self->relative_navlevel + 1] == 11){
               deleteSection(self->start_zone,self->end_zone);
               scheddule_wave_rebuild();
             }
             //keep selected
-            if (sublevels[self->relative_navlevel + 1] == 12){
+            if (lv.sublevels[self->relative_navlevel + 1] == 12){
               trimSection(self->start_zone,self->end_zone);
               scheddule_wave_rebuild();
             }
             //save selected
-            if (sublevels[self->relative_navlevel + 1] == 13){
+            if (lv.sublevels[self->relative_navlevel + 1] == 13){
               Undo();
               scheddule_wave_rebuild();
             }
             //fadein
-            if (sublevels[self->relative_navlevel + 1] == 6){
+            if (lv.sublevels[self->relative_navlevel + 1] == 6){
               fadeInSection(self->start_zone,self->end_zone);
               scheddule_wave_rebuild();
             }
             //fadeout
-            if (sublevels[self->relative_navlevel + 1] == 7){
+            if (lv.sublevels[self->relative_navlevel + 1] == 7){
               fadeOutSection(self->start_zone,self->end_zone);
               scheddule_wave_rebuild();
             }
             
             //playSection
-            if (sublevels[self->relative_navlevel + 1] == 8){
+            if (lv.sublevels[self->relative_navlevel + 1] == 8){
               playSection();
-              returntonav(self->relative_navlevel + 1,12,sublevels[self->relative_navlevel + 1]);
+              dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
             }
 
           }
           //select end
-          if (navlevel == self->relative_navlevel + 3) {
-            if (sublevels[self->relative_navlevel + 1] == 0){
-              navrange = 127 - sublevels[self->relative_navlevel +2] ;
+          if (lv.navlevel == self->relative_navlevel + 3) {
+            if (lv.sublevels[self->relative_navlevel + 1] == 0){
+              lv.navrange = 127 - lv.sublevels[self->relative_navlevel +2] ;
               display.clearDisplay();
               dm.dodisplay();
-              display.fillRect(sublevels[self->relative_navlevel +2], 8, 
-                                sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
+              display.fillRect(lv.sublevels[self->relative_navlevel +2], 8, 
+                                lv.sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
               display.display();
-            //returntonav(self->relative_navlevel + 1, self->home_navrange,0);
+            //dm.returntonav(self->relative_navlevel + 1, self->home_navrange,0);
             }
           
           //5 is pitch
-            if (sublevels[self->relative_navlevel + 1] == 5){
+            if (lv.sublevels[self->relative_navlevel + 1] == 5){
               start_inputting_pitch();
             }
           }
-          if (navlevel > self->relative_navlevel +3 ) {
-              returntonav(self->relative_navlevel + 1,12,sublevels[self->relative_navlevel + 1]);
+          if (lv.navlevel > self->relative_navlevel +3 ) {
+              dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
               self->wave_selected = 1;
               }
         }

@@ -39,7 +39,7 @@ void TriggerMessenger::MaNoteOn(MidiEventer msg) {
   if (self->debugmidion) {
     debugmidi((char *)"NoteOn", msg);
   }
-  if (navlevel)
+  if (lv.navlevel)
     notes_edgecases(msg.note,msg.velocity);
   //printnoteon(channel,msg.note,msg.velocity);
   if ((msg.channel == gg.synthmidichannel) or (gg.synthmidichannel == 0)) {
@@ -58,7 +58,7 @@ void TriggerMessenger::MaNoteOn(MidiEventer msg) {
       larpegeline = incrementarpegiatingNote(msg.note);
       if (larpegeline < SYNTH_LINERS_COUNT) {
         //should not stop tick during arpegio
-        stoptick = 0;
+        lv.stoptick = 0;
         synth_arpegiator_ticker(msg.note, msg.velocity, larpegeline);
       }
     }
@@ -119,7 +119,7 @@ void TriggerMessenger::MaNoteOff(MidiEventer msg) {
     // decrement_pt.arpegiatingNote();
     if (testarpege(msg.note)) {
       if (!retestarpege()) {
-        stoptickernextcycle = 1;
+        lv.stoptickernextcycle = 1;
       }
     }
   }

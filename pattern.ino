@@ -155,9 +155,9 @@ int clean_cursor(int pos){
 }
 
 void advance_tick(){
-  tickposition = clean_cursor(tickposition+1);
-  //TODO : remove tickerlasttick logic
-  tickerlasttick = millis();
+  lv.tickposition = clean_cursor(lv.tickposition+1);
+  //TODO : remove lv.tickerlasttick logic
+  lv.tickerlasttick = millis();
   tick();
 }
 
@@ -167,7 +167,7 @@ void tick() {
   if (gg.arpegiatorOn) {
       _pt.arpegiate_synth();
   }
-  if (patternOn) {
+  if (lv.patternOn) {
     _se.use_pattern();
   }
 

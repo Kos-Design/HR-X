@@ -1,23 +1,18 @@
-//#include "Constants.h"
-// 
-//#include "/home/kosmin/HR-X/includes/AudioSetup.ino"
+
 #include <SPI.h>
 #include <Wire.h>
 #include <SD.h>
-
 #include "muxer.h"
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
 #include <Bounce.h>
 #include <Encoder.h>
-
 #include "Patterns.h"
 #include "Triggers.h"
 #include "pads.h"
-#include "/home/kosmin/HR-X/includes/images.ino"
-#include "/home/kosmin/HR-X/includes/notestofrequency_442.ino"
+#include "Frequencies.h"
 
-
+LiveState lv;
 SequencerClocker clocker;
 
 EXTMEM Pattern pp ;
@@ -26,18 +21,7 @@ EXTMEM Pads Pads;
 Muxer Muxer;
 TriggerMessenger _tt;
 
-bool waveforming = false ;
-bool locked_fileing = 0 ;
-int retroaction = 0;
-bool patternOn;
-bool stoptick = true;
-bool recordCC;
-bool patrecord;
-
-// functions that have system or various controls that are ignored for some ops
-//outdated since refactor of ctl[]
 byte noCCrecord[NO_CCREC_SIZE] = {3,35,36,37, 38,39,40,41,42,44,1};
-int tocker ;
 
 int laCCduration;
 int letempipolate;
@@ -70,23 +54,15 @@ EXTMEM char sampledirpath[99] = {"SOUNDSET/"};
 String newloopedpath = "SOUNDSET/REC/LOOP00#L.RAW";
 String newRecpathL = "SOUNDSET/REC/RECZ00#L.RAW";
 String newRecpathR = "SOUNDSET/REC/RECZ00#R.RAW";
-int tickposition;
-bool stoptickernextcycle;
 
 EXTMEM Preset gg;
 EXTMEM BigBuffers bb;
 
-byte oscillator = 0;
-byte cclfoselector = 0 ;
-//selector for the Fx bus
-byte fidx = 0;
 
 // lenght of the current interpolation
 // from leinterpolstart to [1] interpole target position
 byte Ccinterpolengh[128][3];
 
-bool temp_buff_armed = 0 ;
-int tickerlasttick;
 byte recorded_ccs[32] ;
 byte pots_controllers[32][32][2];
 byte activateinterpolatecc[8];
@@ -144,28 +120,13 @@ const CcCalls ctl[] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel"
 
 constexpr uint16_t CtlCount = sizeof(ctl) / sizeof(ctl[0]);
 
-bool showing_eq = false;
 
-int navlevel = 0;
-int previousnavlevel = 0;
-int navleveloverwrite = 2;
-int navrange = 9;
-int rota_true_pos = 0;
-
-int sublevels[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+//int lv.sublevels[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 Adafruit_SSD1306 display(128, 64, &Wire2, -1);
 
 DisplayManager dm = DisplayManager();
 GlobalMixer _mx = GlobalMixer();
-
-void returntonav(byte lelevel, byte lanavrange = navrange,byte t_vraipos = rota_true_pos) {
-  navlevel = lelevel;
-  rota_true_pos = t_vraipos;
-  myEnc.write(rota_true_pos * 4);
-  navrange = lanavrange;
-  if (navlevel) dm.show();
-}
 
 CCEditor _ce;
 PatEditRouter _pe;
@@ -220,22 +181,22 @@ class MasterClock {
         }
 
         void stopticker() {
-            stoptick = 1;
-            recordCC = 0;
+            lv.stoptick = 1;
+            lv.recordCC = 0;
             self->stop = 1;
-            // if (patrecord) {
+            // if (lv.patrecord) {
             // computelenghtmesureoffline();
-            patternOn = 0;
-            patrecord = 0;
-            // tickposition = 0 ;
+            lv.patternOn = 0;
+            lv.patrecord = 0;
+            // lv.tickposition = 0 ;
         }
 
         void startticker() {
             //TODO: reimplement external midi clock use
             //if (!gg.externalticker) {
-            stoptick = 0;
+            lv.stoptick = 0;
             self->stop = 0;
-            patternOn = 1;
+            lv.patternOn = 1;
         }
 
     private:

@@ -10,177 +10,177 @@ void doposkselector() {
   byte ecart = 14;
   byte knobradius = 7;
   int xcentershifter;
-  // navrange = numberofvbuttonslabels-1 +17+14 ;
+  // lv.navrange = numberofvbuttonslabels-1 +17+14 ;
 
   // transportpanel
-  if (sublevels[navlevelvbuttons] < numberofvbuttonslabels) {
+  if (lv.sublevels[navlevelvbuttons] < numberofvbuttonslabels) {
     canvastitle.fillScreen(SSD1306_BLACK);
     canvasBIG.setTextSize(1);
-    if (gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 + (14 + 17))] !=
+    if (gg.midiknobassigned[(70 + lv.sublevels[navlevelvbuttons] + 1 + (14 + 17))] !=
         0) {
       printassignedmidi(
-          gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 + (14 + 17))]);
+          gg.midiknobassigned[(70 + lv.sublevels[navlevelvbuttons] + 1 + (14 + 17))]);
 
     } else {
       canvasBIG.setCursor(0, 0);
 
-      canvasBIG.print((char *)vbuttonslabels[sublevels[navlevelvbuttons]]);
+      canvasBIG.print((char *)vbuttonslabels[lv.sublevels[navlevelvbuttons]]);
     }
     canvasBIG.setCursor(97, 0);
     canvasBIG.print("CC");
-    canvasBIG.print(70 + sublevels[navlevelvbuttons] + 1 + (14 + 17));
+    canvasBIG.print(70 + lv.sublevels[navlevelvbuttons] + 1 + (14 + 17));
     canvasBIG.setCursor(110, 8);
     canvasBIG.print(0);
-    canvasBIG.drawPixel(ecart * sublevels[navlevelvbuttons] + 6, startyp + 7,
+    canvasBIG.drawPixel(ecart * lv.sublevels[navlevelvbuttons] + 6, startyp + 7,
                         SSD1306_WHITE);
-    canvasBIG.drawPixel(ecart * sublevels[navlevelvbuttons] + 7, startyp + 6,
+    canvasBIG.drawPixel(ecart * lv.sublevels[navlevelvbuttons] + 7, startyp + 6,
                         SSD1306_WHITE);
-    canvasBIG.drawPixel(ecart * sublevels[navlevelvbuttons] + 7, startyp + 7,
+    canvasBIG.drawPixel(ecart * lv.sublevels[navlevelvbuttons] + 7, startyp + 7,
                         SSD1306_WHITE);
   } else {
 
-    if (sublevels[navlevelvbuttons] >= numberofvbuttonslabels &&
-        sublevels[navlevelvbuttons] < numberofvbuttonslabels + 7) {
+    if (lv.sublevels[navlevelvbuttons] >= numberofvbuttonslabels &&
+        lv.sublevels[navlevelvbuttons] < numberofvbuttonslabels + 7) {
       canvasBIG.fillRoundRect(
           108,
-          16 + ((sublevels[navlevelvbuttons] - numberofvbuttonslabels) * 7), 9,
+          16 + ((lv.sublevels[navlevelvbuttons] - numberofvbuttonslabels) * 7), 9,
           6, 1, SSD1306_WHITE);
 
-      if (gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
+      if (gg.midiknobassigned[(70 + lv.sublevels[navlevelvbuttons] + 1 -
                             (numberofvbuttonslabels))] != 0) {
-        printassignedmidi(gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] +
+        printassignedmidi(gg.midiknobassigned[(70 + lv.sublevels[navlevelvbuttons] +
                                             1 - (numberofvbuttonslabels))]);
 
       } else {
         canvasBIG.setCursor(0, 0);
         canvasBIG.print("V.Button ");
-        canvasBIG.print(sublevels[navlevelvbuttons] + 1 -
+        canvasBIG.print(lv.sublevels[navlevelvbuttons] + 1 -
                         (numberofvbuttonslabels));
       }
       canvasBIG.setCursor(97, 0);
       canvasBIG.print("CC");
-      canvasBIG.print(70 + sublevels[navlevelvbuttons] + 1 -
+      canvasBIG.print(70 + lv.sublevels[navlevelvbuttons] + 1 -
                       (numberofvbuttonslabels));
       canvasBIG.setCursor(110, 8);
       canvasBIG.print(0);
 
     } else {
-      if (sublevels[navlevelvbuttons] >= numberofvbuttonslabels + 7 &&
-          sublevels[navlevelvbuttons] < numberofvbuttonslabels + 14) {
+      if (lv.sublevels[navlevelvbuttons] >= numberofvbuttonslabels + 7 &&
+          lv.sublevels[navlevelvbuttons] < numberofvbuttonslabels + 14) {
         canvasBIG.fillRoundRect(
             119,
-            16 + ((sublevels[navlevelvbuttons] - numberofvbuttonslabels - 7) *
+            16 + ((lv.sublevels[navlevelvbuttons] - numberofvbuttonslabels - 7) *
                   7),
             9, 6, 1, SSD1306_WHITE);
-        if (gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
+        if (gg.midiknobassigned[(70 + lv.sublevels[navlevelvbuttons] + 1 -
                               (numberofvbuttonslabels))] != 0) {
-          printassignedmidi(gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] +
+          printassignedmidi(gg.midiknobassigned[(70 + lv.sublevels[navlevelvbuttons] +
                                               1 - (numberofvbuttonslabels))]);
 
         } else {
           canvasBIG.setCursor(0, 0);
           canvasBIG.print("V.Button ");
-          canvasBIG.print(sublevels[navlevelvbuttons] + 1 -
+          canvasBIG.print(lv.sublevels[navlevelvbuttons] + 1 -
                           (numberofvbuttonslabels));
         }
         canvasBIG.setCursor(97, 0);
         canvasBIG.print("CC");
-        canvasBIG.print(70 + sublevels[navlevelvbuttons] + 1 -
+        canvasBIG.print(70 + lv.sublevels[navlevelvbuttons] + 1 -
                         (numberofvbuttonslabels));
         canvasBIG.setCursor(110, 8);
         canvasBIG.print(0);
 
       } else {
 
-        if (sublevels[navlevelvbuttons] >= numberofvbuttonslabels + 14 &&
-            sublevels[navlevelvbuttons] < numberofvbuttonslabels + 14 + 6) {
+        if (lv.sublevels[navlevelvbuttons] >= numberofvbuttonslabels + 14 &&
+            lv.sublevels[navlevelvbuttons] < numberofvbuttonslabels + 14 + 6) {
           xcentershifter =
-              97 - (((knobradius * 2) + 4) * (sublevels[navlevelvbuttons] -
+              97 - (((knobradius * 2) + 4) * (lv.sublevels[navlevelvbuttons] -
                                               numberofvbuttonslabels - 14));
           canvasBIG.drawCircle(xcentershifter, 64 - 9, knobradius - 1,
                                SSD1306_WHITE);
 
-          if (gg.midiknobassigned[(sublevels[navlevelvbuttons] + 1 -
+          if (gg.midiknobassigned[(lv.sublevels[navlevelvbuttons] + 1 -
                                 (numberofvbuttonslabels))] != 0) {
             printassignedmidi(
-                gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
+                gg.midiknobassigned[(70 + lv.sublevels[navlevelvbuttons] + 1 -
                                   (numberofvbuttonslabels))]);
 
           } else {
             canvasBIG.setCursor(0, 0);
             canvasBIG.print("V.Pot ");
-            canvasBIG.print(sublevels[navlevelvbuttons] + 1 -
+            canvasBIG.print(lv.sublevels[navlevelvbuttons] + 1 -
                             (numberofvbuttonslabels + 14));
           }
           canvasBIG.setCursor(97, 0);
           canvasBIG.print("CC");
-          canvasBIG.print(70 + sublevels[navlevelvbuttons] + 1 -
+          canvasBIG.print(70 + lv.sublevels[navlevelvbuttons] + 1 -
                           (numberofvbuttonslabels));
 
           canvasBIG.setCursor(110, 8);
-          canvasBIG.print(gg.vPots[sublevels[navlevelvbuttons] -
+          canvasBIG.print(gg.vPots[lv.sublevels[navlevelvbuttons] -
                                 (numberofvbuttonslabels + 14)]);
         } else {
 
-          if (sublevels[navlevelvbuttons] >= numberofvbuttonslabels + 14 + 6 &&
-              sublevels[navlevelvbuttons] <
+          if (lv.sublevels[navlevelvbuttons] >= numberofvbuttonslabels + 14 + 6 &&
+              lv.sublevels[navlevelvbuttons] <
                   numberofvbuttonslabels + 14 + 6 + 5) {
 
             xcentershifter = 16 + (((knobradius * 2) + 4) *
-                                   (sublevels[navlevelvbuttons] -
+                                   (lv.sublevels[navlevelvbuttons] -
                                     numberofvbuttonslabels - 14 - 6));
             canvasBIG.drawCircle(xcentershifter, 64 - 9 - 16, knobradius - 1,
                                  SSD1306_WHITE);
-            if (gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
+            if (gg.midiknobassigned[(70 + lv.sublevels[navlevelvbuttons] + 1 -
                                   (numberofvbuttonslabels))] != 0) {
               printassignedmidi(
-                  gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
+                  gg.midiknobassigned[(70 + lv.sublevels[navlevelvbuttons] + 1 -
                                     (numberofvbuttonslabels))]);
 
             } else {
               canvasBIG.setCursor(0, 0);
               canvasBIG.print("V.Pot ");
-              canvasBIG.print(sublevels[navlevelvbuttons] + 1 -
+              canvasBIG.print(lv.sublevels[navlevelvbuttons] + 1 -
                               (numberofvbuttonslabels + 14));
             }
             canvasBIG.setCursor(97, 0);
             canvasBIG.print("CC");
-            canvasBIG.print(70 + sublevels[navlevelvbuttons] + 1 -
+            canvasBIG.print(70 + lv.sublevels[navlevelvbuttons] + 1 -
                             (numberofvbuttonslabels));
 
             canvasBIG.setCursor(110, 8);
-            canvasBIG.print(gg.vPots[sublevels[navlevelvbuttons] -
+            canvasBIG.print(gg.vPots[lv.sublevels[navlevelvbuttons] -
                                   (numberofvbuttonslabels + 14)]);
 
           } else {
-            if (sublevels[navlevelvbuttons] >=
+            if (lv.sublevels[navlevelvbuttons] >=
                     numberofvbuttonslabels + 14 + 6 + 5 &&
-                sublevels[navlevelvbuttons] <
+                lv.sublevels[navlevelvbuttons] <
                     numberofvbuttonslabels + 14 + 6 + 5 + 6) {
 
-              if (gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
+              if (gg.midiknobassigned[(70 + lv.sublevels[navlevelvbuttons] + 1 -
                                     (numberofvbuttonslabels))] != 0) {
                 printassignedmidi(
-                    gg.midiknobassigned[(70 + sublevels[navlevelvbuttons] + 1 -
+                    gg.midiknobassigned[(70 + lv.sublevels[navlevelvbuttons] + 1 -
                                       (numberofvbuttonslabels))]);
 
               } else {
                 canvasBIG.setCursor(0, 0);
                 canvasBIG.print("V.Pot ");
-                canvasBIG.print(sublevels[navlevelvbuttons] + 1 -
+                canvasBIG.print(lv.sublevels[navlevelvbuttons] + 1 -
                                 (numberofvbuttonslabels + 14));
               }
               canvasBIG.setCursor(97, 0);
               canvasBIG.print("CC");
-              canvasBIG.print(70 + sublevels[navlevelvbuttons] + 1 -
+              canvasBIG.print(70 + lv.sublevels[navlevelvbuttons] + 1 -
                               (numberofvbuttonslabels));
 
               canvasBIG.setCursor(110, 8);
-              canvasBIG.print(gg.vPots[sublevels[navlevelvbuttons] -
+              canvasBIG.print(gg.vPots[lv.sublevels[navlevelvbuttons] -
                                     (numberofvbuttonslabels + 14)]);
 
               xcentershifter = 97 - (((knobradius * 2) + 4) *
-                                     (sublevels[navlevelvbuttons] -
+                                     (lv.sublevels[navlevelvbuttons] -
                                       numberofvbuttonslabels - 14 - 6 - 5));
               canvasBIG.drawCircle(xcentershifter, 16 + knobradius,
                                    knobradius - 1, SSD1306_WHITE);
@@ -203,70 +203,70 @@ void Vbuttonspanel() {
 
 void actionvbuttons() {
 
-  if (sublevels[navlevelvbuttons] < numberofvbuttonslabels + 14) {
+  if (lv.sublevels[navlevelvbuttons] < numberofvbuttonslabels + 14) {
 
-    if (navlevel == navlevelvbuttons) {
-      navrange = numberofvbuttonslabels - 1 + 17 + 14;
+    if (lv.navlevel == navlevelvbuttons) {
+      lv.navrange = numberofvbuttonslabels - 1 + 17 + 14;
     }
-    if (navlevel == navlevelvbuttons + 1) {
+    if (lv.navlevel == navlevelvbuttons + 1) {
 
-      if (sublevels[navlevelvbuttons] < numberofvbuttonslabels) {
-        int CClaval0 = 70 + (sublevels[navlevelvbuttons] + 1 + (14 + 17));
+      if (lv.sublevels[navlevelvbuttons] < numberofvbuttonslabels) {
+        int CClaval0 = 70 + (lv.sublevels[navlevelvbuttons] + 1 + (14 + 17));
         moncontrollercc((byte)1, (byte)CClaval0, (byte)127);
         // Serial.print("sending cc ");
         // Serial.println(CClaval0);
       }
 
-      if (sublevels[navlevelvbuttons] < numberofvbuttonslabels + 14 &&
-          sublevels[navlevelvbuttons] >= numberofvbuttonslabels) {
+      if (lv.sublevels[navlevelvbuttons] < numberofvbuttonslabels + 14 &&
+          lv.sublevels[navlevelvbuttons] >= numberofvbuttonslabels) {
         int CClaval =
-            70 + (sublevels[navlevelvbuttons] + 1 - (numberofvbuttonslabels));
+            70 + (lv.sublevels[navlevelvbuttons] + 1 - (numberofvbuttonslabels));
         moncontrollercc((byte)1, (byte)CClaval, (byte)127);
         // moncontrollercc( (byte)1,(byte)CClaval, (byte)0);
       }
 
-      returntonav(navlevelvbuttons);
+      dm.returntonav(navlevelvbuttons);
       // Vbuttonspanel();
     }
 
   } else {
 
-    if (navlevel == navlevelvbuttons) {
+    if (lv.navlevel == navlevelvbuttons) {
 
-      navrange = numberofvbuttonslabels - 1 + 17 + 14;
-      sublevels[navlevelvbuttons + 1] =
-          gg.vPots[sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14];
-      sublevels[navlevelvbuttons + 2] =
-          gg.vPots[sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14];
+      lv.navrange = numberofvbuttonslabels - 1 + 17 + 14;
+      lv.sublevels[navlevelvbuttons + 1] =
+          gg.vPots[lv.sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14];
+      lv.sublevels[navlevelvbuttons + 2] =
+          gg.vPots[lv.sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14];
     } else {
 
-      if (navlevel == navlevelvbuttons + 1) {
+      if (lv.navlevel == navlevelvbuttons + 1) {
 
-        navrange = 127;
-        gg.vPots[sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14] =
-            sublevels[navlevelvbuttons + 1];
+        lv.navrange = 127;
+        gg.vPots[lv.sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14] =
+            lv.sublevels[navlevelvbuttons + 1];
 
-        if (sublevels[navlevelvbuttons] > numberofvbuttonslabels + 14) {
+        if (lv.sublevels[navlevelvbuttons] > numberofvbuttonslabels + 14) {
           int CClaval2 =
-              70 + (sublevels[navlevelvbuttons] + 1 - (numberofvbuttonslabels));
+              70 + (lv.sublevels[navlevelvbuttons] + 1 - (numberofvbuttonslabels));
           moncontrollercc((byte)1, (byte)CClaval2,
-                          (byte)(gg.vPots[sublevels[navlevelvbuttons] -
+                          (byte)(gg.vPots[lv.sublevels[navlevelvbuttons] -
                                        numberofvbuttonslabels - 14]));
           // moncontrollercc( (byte)1,(byte)CClaval0, (byte)0);
         }
       }
-      if (navlevel >= navlevelvbuttons + 2) {
-        gg.vPots[sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14] =
-            sublevels[navlevelvbuttons + 1];
-        sublevels[navlevelvbuttons + 2] = sublevels[navlevelvbuttons];
-        // navlevel--;
-        //   navlevel--;
-        // navrange = numberofvbuttonslabels-1 +17+14 ;
-        // rota_true_pos = sublevels[navlevelvbuttons + 2];
-        //  myEnc.write(sublevels[navlevelvbuttons]*4);
-        returntonav(navlevelvbuttons);
-        // Serial.print( "sublevels[1]= ");
-        // Serial.println( sublevels[1]);
+      if (lv.navlevel >= navlevelvbuttons + 2) {
+        gg.vPots[lv.sublevels[navlevelvbuttons] - numberofvbuttonslabels - 14] =
+            lv.sublevels[navlevelvbuttons + 1];
+        lv.sublevels[navlevelvbuttons + 2] = lv.sublevels[navlevelvbuttons];
+        // lv.navlevel--;
+        //   lv.navlevel--;
+        // lv.navrange = numberofvbuttonslabels-1 +17+14 ;
+        // lv.rota_true_pos = lv.sublevels[navlevelvbuttons + 2];
+        //  myEnc.write(lv.sublevels[navlevelvbuttons]*4);
+        dm.returntonav(navlevelvbuttons);
+        // Serial.print( "lv.sublevels[1]= ");
+        // Serial.println( lv.sublevels[1]);
         // Vbuttonspanel();
       }
     }

@@ -3,14 +3,11 @@
 #include <Arduino.h>
 #include "MenuClasses.h"
 #include "FilesLister.h"
-//#include "Constants.h"
 
-extern int tickposition;
 extern bool songplaying;
-extern bool locked_fileing;
+
 extern byte recorded_ccs[32];
 extern byte pots_controllers[32][32][2];
-extern bool stoptickernextcycle;
 
 extern const byte arpeges_types;
 void computelenghtmesureoffline_synth();

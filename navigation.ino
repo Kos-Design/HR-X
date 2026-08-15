@@ -13,21 +13,21 @@ void evalrota() {
   if (rota_enc_count >= 4) {
     rota_old_Pos = rota_enc_new_pos;
     rota_enc_count = 0;
-    rota_true_pos = rota_enc_new_pos / 4;
-    if (rota_true_pos > navrange) {
-      rota_true_pos = 0;
+    lv.rota_true_pos = rota_enc_new_pos / 4;
+    if (lv.rota_true_pos > lv.navrange) {
+      lv.rota_true_pos = 0;
       myEnc.write(0);
     }
-    if (rota_true_pos < 0) {
-      rota_true_pos = navrange;
-      myEnc.write(navrange * 4);
+    if (lv.rota_true_pos < 0) {
+      lv.rota_true_pos = lv.navrange;
+      myEnc.write(lv.navrange * 4);
     }
   }
 
-  if (rota_true_pos != rota_old_vrai_Pos) {
-    rota_old_vrai_Pos = rota_true_pos;
-    sublevels[navlevel] = rota_true_pos;
-    if (!navlevel) {
+  if (lv.rota_true_pos != rota_old_vrai_Pos) {
+    rota_old_vrai_Pos = lv.rota_true_pos;
+    lv.sublevels[lv.navlevel] = lv.rota_true_pos;
+    if (!lv.navlevel) {
       dm.displaymenu();
       return;
     }

@@ -3,8 +3,6 @@
 #include <Arduino.h>
 #include "Constants.h"
 
-extern bool locked_fileing;
-
 class FilesLister{
     static const byte max_displayables = 6; //displayables lines
     public:
@@ -39,7 +37,7 @@ class FilesLister{
         char free_files[99][16];
         String folder_selected;
         bool new_file_mode = 0;
-        //the files list should be responding to shifting in navlevel r_nav and display in r_nav-1(navlevel of the menu instancer)
+        //the files list should be responding to shifting in lv.navlevel r_nav and display in r_nav-1(lv.navlevel of the menu instancer)
         byte r_nav = 2;
         String get_file_name(byte number);
         String get_current_file_path(byte f_index);

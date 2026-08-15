@@ -183,7 +183,7 @@ void setupdefaultvalues() {
   //audio In level
   //gg.midiknobassigned[22] = 97;
 
-  // fidx crossfader
+  // lv.fidx crossfader
   //gg.midiknobassigned[10] = 69;
 
   // 303 pulse
@@ -235,7 +235,7 @@ void setupdefaultvalues() {
 
   //note: WetMixMasterLs[0] is the dry channel
   for (int i = 0; i < OSCS_COUNT; i++) {
-    oscillator = i;
+    lv.oscillator = i;
     call_setwavetypefromlist();
   }
   // USB Line in

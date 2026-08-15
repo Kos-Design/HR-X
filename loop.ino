@@ -15,27 +15,27 @@ void check_pots() {
 
 void printit() {
 
-  Serial.print(" navrange: ");
-  Serial.print(navrange);
-  Serial.print(" navlevel: ");
-  Serial.print(navlevel);
+  Serial.print(" lv.navrange: ");
+  Serial.print(lv.navrange);
+  Serial.print(" lv.navlevel: ");
+  Serial.print(lv.navlevel);
   Serial.print(" sublevel[");
-  Serial.print(navlevel);
+  Serial.print(lv.navlevel);
   Serial.print("]:");
-  Serial.println(sublevels[navlevel]);
+  Serial.println(lv.sublevels[lv.navlevel]);
   Serial.println(" ");
   Serial.print(" s0 = ");
-  Serial.print(sublevels[0]);
+  Serial.print(lv.sublevels[0]);
   Serial.print(" s1 = ");
-  Serial.print(sublevels[1]);
+  Serial.print(lv.sublevels[1]);
   Serial.print(" s2 = ");
-  Serial.print(sublevels[2]);
+  Serial.print(lv.sublevels[2]);
   Serial.print(" s3 = ");
-  Serial.print(sublevels[3]);
+  Serial.print(lv.sublevels[3]);
   Serial.print(" s4 = ");
-  Serial.print(sublevels[4]);
+  Serial.print(lv.sublevels[4]);
   Serial.print(" s5 = ");
-  Serial.println(sublevels[5]);
+  Serial.println(lv.sublevels[5]);
 
 }
 

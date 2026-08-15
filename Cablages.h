@@ -1,12 +1,9 @@
 #pragma once
 
 #include "Constants.h"
-//#include <Arduino.h>
 #include <Audio.h>
 #include "Constants.h"
 #include <SerialFlash.h>
-//dirty way to remove deprecated keyword from AudioCodec library...
-#define register
 #include <play_sd_mp3.h>
 #include <play_sd_flac.h>
 #include "play_partial_sd_raw.h"

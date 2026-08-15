@@ -3,7 +3,7 @@
 
         
 void doConfirmpanel(char *letitlemsg) {
-  navrange = 1;
+  lv.navrange = 1;
   canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setCursor(0, 0);
   canvastitle.setTextSize(1);
@@ -14,14 +14,14 @@ void doConfirmpanel(char *letitlemsg) {
   canvasBIG.setCursor(20, 28);
   // canvasBIG.print((char*)text);
   canvasBIG.print("NO         YES");
-  canvasBIG.drawRect(14 + sublevels[navlevel] * 66, 23,
-                    23 + sublevels[navlevel] * 6, 17, SSD1306_WHITE);
+  canvasBIG.drawRect(14 + lv.sublevels[lv.navlevel] * 66, 23,
+                    23 + lv.sublevels[lv.navlevel] * 6, 17, SSD1306_WHITE);
   dm.dodisplay();
   display.display();
 }
 
 void dodisplayplayhead() {
-  canvasBIG.drawLine(tickposition * 4, 0, tickposition * 4, 64, SSD1306_INVERSE);
+  canvasBIG.drawLine(lv.tickposition * 4, 0, lv.tickposition * 4, 64, SSD1306_INVERSE);
 }
 
 void initializelapleasewaitarray() {

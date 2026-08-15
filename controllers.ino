@@ -118,7 +118,7 @@ float fftGain[NUM_BARS] = {
 };
 
 void UpdateSpectrum(){
-  if (!showing_eq || !fft256.available())
+  if (!lv.showing_eq || !fft256.available())
       return;
   for (int i = 0; i < NUM_BARS; i++) {
         float level = fft256.read(i + 1);

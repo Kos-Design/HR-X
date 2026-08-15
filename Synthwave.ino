@@ -31,12 +31,12 @@ class AdsrMenuRouter : public SectionHolder {
       self->MadsrHold = gg.adsrlevels[Hold];
     }
     static void displayadsrgraph() {
-      navrange = 5 ;
-      if (sublevels[2] == 2) {
-        navleveloverwrite = 2;
+      lv.navrange = 5 ;
+      if (lv.sublevels[2] == 2) {
+        lv.navleveloverwrite = 2;
       }
-      if (sublevels[1] == 0) {
-        navleveloverwrite = 4;
+      if (lv.sublevels[1] == 0) {
+        lv.navleveloverwrite = 4;
       }
       dm.clean_title_1_1();
       canvasBIG.drawLine(2, 61, 2, 18, SSD1306_WHITE);
@@ -75,7 +75,7 @@ class AdsrMenuRouter : public SectionHolder {
       // preparing for next display loop
       dm.clear_buffs();
 
-      switch (sublevels[navleveloverwrite]) {
+      switch (lv.sublevels[lv.navleveloverwrite]) {
       case 0:
         display.fillRect(startx, starty,
                         round(self->MadsrAttackDelay * 10 * linerratio) + 1, 45,
@@ -156,84 +156,84 @@ class AdsrMenuRouter : public SectionHolder {
     }
 
     static void sliceA() {
-      if (navlevel == navleveloverwrite + 1) {
+      if (lv.navlevel == lv.navleveloverwrite + 1) {
         //stuck here until validation of cursor, try using returnto nav
-        sublevels[navlevel + 1] = self->mappedattack;
-        returntonav(navlevel + 1, 5,sublevels[navlevel + 1]);
+        lv.sublevels[lv.navlevel + 1] = self->mappedattack;
+        dm.returntonav(lv.navlevel + 1, 5,lv.sublevels[lv.navlevel + 1]);
       }
 
-      if (navlevel == navleveloverwrite + 2) {
-        navrange = 1024;
+      if (lv.navlevel == lv.navleveloverwrite + 2) {
+        lv.navrange = 1024;
 
 
-        self->mappedattack = sublevels[navleveloverwrite + 2];
+        self->mappedattack = lv.sublevels[lv.navleveloverwrite + 2];
       }
-      if (navlevel == navleveloverwrite + 3) {
-        if (sublevels[1] == 2) {
+      if (lv.navlevel == lv.navleveloverwrite + 3) {
+        if (lv.sublevels[1] == 2) {
           GlobalADSR();
         }
-        returntonav(navleveloverwrite, 5,sublevels[navleveloverwrite]);
+        dm.returntonav(lv.navleveloverwrite, 5,lv.sublevels[lv.navleveloverwrite]);
 
       }
       print_adsr_echo("Attack ",self->mappedattack);
     }
 
     static void sliceDa() {
-      if (navlevel == navleveloverwrite + 1) {
+      if (lv.navlevel == lv.navleveloverwrite + 1) {
 
-        sublevels[navlevel + 1] = self->MadsrAttackDelay;
-        returntonav(navlevel + 1, 5,sublevels[navlevel + 1]);
+        lv.sublevels[lv.navlevel + 1] = self->MadsrAttackDelay;
+        dm.returntonav(lv.navlevel + 1, 5,lv.sublevels[lv.navlevel + 1]);
       }
-      if (navlevel == navleveloverwrite + 2) {
-        navrange = 100;
+      if (lv.navlevel == lv.navleveloverwrite + 2) {
+        lv.navrange = 100;
 
-        self->MadsrAttackDelay = sublevels[navleveloverwrite + 2];
+        self->MadsrAttackDelay = lv.sublevels[lv.navleveloverwrite + 2];
       }
-      if (navlevel == navleveloverwrite + 3) {
-        if (sublevels[1] == 2) {
+      if (lv.navlevel == lv.navleveloverwrite + 3) {
+        if (lv.sublevels[1] == 2) {
           GlobalADSR();
         }
 
-        returntonav(navleveloverwrite, 5,sublevels[navleveloverwrite]);
+        dm.returntonav(lv.navleveloverwrite, 5,lv.sublevels[lv.navleveloverwrite]);
       }
       print_adsr_echo("Attack Delay ",self->MadsrAttackDelay);
     }
 
     static void sliceH() {
-      if (navlevel == navleveloverwrite + 1) {
-        sublevels[navlevel + 1] = self->MadsrHold;
-        returntonav(navlevel + 1, 5,sublevels[navlevel + 1]);
+      if (lv.navlevel == lv.navleveloverwrite + 1) {
+        lv.sublevels[lv.navlevel + 1] = self->MadsrHold;
+        dm.returntonav(lv.navlevel + 1, 5,lv.sublevels[lv.navlevel + 1]);
       }
-      if (navlevel == navleveloverwrite + 2) {
-        navrange = 100;
-        self->MadsrHold = sublevels[navleveloverwrite + 2];
+      if (lv.navlevel == lv.navleveloverwrite + 2) {
+        lv.navrange = 100;
+        self->MadsrHold = lv.sublevels[lv.navleveloverwrite + 2];
       }
-      if (navlevel == navleveloverwrite + 3) {
-        if (sublevels[1] == 2) {
+      if (lv.navlevel == lv.navleveloverwrite + 3) {
+        if (lv.sublevels[1] == 2) {
           GlobalADSR();
         }
 
-        returntonav(navleveloverwrite, 5,sublevels[navleveloverwrite]);
+        dm.returntonav(lv.navleveloverwrite, 5,lv.sublevels[lv.navleveloverwrite]);
       }
       print_adsr_echo("Hold ",self->MadsrHold);
     }
 
     static void sliceD() {
 
-      if (navlevel == navleveloverwrite + 1) {
-        sublevels[navlevel + 1] = self->mappeddecay;
-        returntonav(navlevel + 1, 5,sublevels[navlevel + 1]);
+      if (lv.navlevel == lv.navleveloverwrite + 1) {
+        lv.sublevels[lv.navlevel + 1] = self->mappeddecay;
+        dm.returntonav(lv.navlevel + 1, 5,lv.sublevels[lv.navlevel + 1]);
       }
-      if (navlevel == navleveloverwrite + 2) {
-        navrange = 512;
-        self->mappeddecay = sublevels[navleveloverwrite + 2];
+      if (lv.navlevel == lv.navleveloverwrite + 2) {
+        lv.navrange = 512;
+        self->mappeddecay = lv.sublevels[lv.navleveloverwrite + 2];
       }
-      if (navlevel == navleveloverwrite + 3) {
-        if (sublevels[1] == 2) {
+      if (lv.navlevel == lv.navleveloverwrite + 3) {
+        if (lv.sublevels[1] == 2) {
           GlobalADSR();
         }
 
-        returntonav(navleveloverwrite, 5,sublevels[navleveloverwrite]);
+        dm.returntonav(lv.navleveloverwrite, 5,lv.sublevels[lv.navleveloverwrite]);
       }
 
 
@@ -241,41 +241,41 @@ class AdsrMenuRouter : public SectionHolder {
     }
 
     static void sliceS() {
-      if (navlevel == navleveloverwrite + 1) {
-        sublevels[navlevel + 1] = self->mappedsustain;
-        returntonav(navlevel + 1, 5,sublevels[navlevel + 1]);
+      if (lv.navlevel == lv.navleveloverwrite + 1) {
+        lv.sublevels[lv.navlevel + 1] = self->mappedsustain;
+        dm.returntonav(lv.navlevel + 1, 5,lv.sublevels[lv.navlevel + 1]);
       }
-      if (navlevel == navleveloverwrite + 2) {
-        navrange = 100;
-        self->mappedsustain = sublevels[navleveloverwrite + 2];
+      if (lv.navlevel == lv.navleveloverwrite + 2) {
+        lv.navrange = 100;
+        self->mappedsustain = lv.sublevels[lv.navleveloverwrite + 2];
       }
-      if (navlevel == navleveloverwrite + 3) {
-        if (sublevels[1] == 2) {
+      if (lv.navlevel == lv.navleveloverwrite + 3) {
+        if (lv.sublevels[1] == 2) {
           GlobalADSR();
         }
 
-        returntonav(navleveloverwrite, 5,sublevels[navleveloverwrite]);
+        dm.returntonav(lv.navleveloverwrite, 5,lv.sublevels[lv.navleveloverwrite]);
       }
       print_adsr_echo("Sustain ",self->mappedsustain);
 
     }
 
     static void sliceR() {
-      retroaction = navleveloverwrite ;
-      if (navlevel == navleveloverwrite + 1) {
-        returntonav(navlevel + 1, 5,sublevels[navlevel + 1]);
-        sublevels[navlevel + 1] = self->mappedrelease;
+      lv.retroaction = lv.navleveloverwrite ;
+      if (lv.navlevel == lv.navleveloverwrite + 1) {
+        dm.returntonav(lv.navlevel + 1, 5,lv.sublevels[lv.navlevel + 1]);
+        lv.sublevels[lv.navlevel + 1] = self->mappedrelease;
       }
-      if (navlevel == navleveloverwrite + 2) {
-        navrange = 1024;
-        self->mappedrelease = sublevels[navleveloverwrite + 2];
+      if (lv.navlevel == lv.navleveloverwrite + 2) {
+        lv.navrange = 1024;
+        self->mappedrelease = lv.sublevels[lv.navleveloverwrite + 2];
       }
-      if (navlevel == navleveloverwrite + 3) {
-        if (sublevels[1] == 2) {
+      if (lv.navlevel == lv.navleveloverwrite + 3) {
+        if (lv.sublevels[1] == 2) {
           GlobalADSR();
         }
 
-        returntonav(navleveloverwrite, 5,sublevels[navleveloverwrite]);
+        dm.returntonav(lv.navleveloverwrite, 5,lv.sublevels[lv.navleveloverwrite]);
       }
       print_adsr_echo("Release ",self->mappedrelease);
 
@@ -318,13 +318,13 @@ class GlideMenuRouter : public SectionHolder {
 
         static void show(){
 
-          navrange = self->home_navrange ;
-          if (navlevel == 3 ){
-            navrange = 127;
-            if (!sublevels[self->relative_navlevel]) navrange = 4;
-            *self->glide_params[sublevels[2]] = sublevels[3];
+          lv.navrange = self->home_navrange ;
+          if (lv.navlevel == 3 ){
+            lv.navrange = 127;
+            if (!lv.sublevels[self->relative_navlevel]) lv.navrange = 4;
+            *self->glide_params[lv.sublevels[2]] = lv.sublevels[3];
           }
-          sublevels[3]=*self->glide_params[sublevels[2]];
+          lv.sublevels[3]=*self->glide_params[lv.sublevels[2]];
 
           display.clearDisplay();
           display.setCursor(0,0);
@@ -347,11 +347,11 @@ class GlideMenuRouter : public SectionHolder {
           display.print("Slope:   ");
           display.print((64-gg.glide_slope)/64.0);
           display.display();
-          display.fillRoundRect(0,11+12*sublevels[2], 35, 16, 3, SSD1306_INVERSE);
+          display.fillRoundRect(0,11+12*lv.sublevels[2], 35, 16, 3, SSD1306_INVERSE);
           display.display();
           
-          if (navlevel > 3 ){
-            returntonav(self->relative_navlevel,self->home_navrange,sublevels[2]);
+          if (lv.navlevel > 3 ){
+            dm.returntonav(self->relative_navlevel,self->home_navrange,lv.sublevels[2]);
           }
         }
 
@@ -438,68 +438,68 @@ class Filter303MenuRouter : public SectionHolder {
     }
 
       static void filter_knob_freq(){
-        navrange = 127;
-        gg.le303ffilterzVknobs[0] = sublevels[3];
+        lv.navrange = 127;
+        gg.le303ffilterzVknobs[0] = lv.sublevels[3];
         gg.le303filterzfreq = lround((gg.le303ffilterzVknobs[0] / 127.0) * 14000);
       }
 
       static void filter_knob_res(){
-        navrange = 127;
-        gg.le303ffilterzVknobs[1] = sublevels[3];
+        lv.navrange = 127;
+        gg.le303ffilterzVknobs[1] = lv.sublevels[3];
         gg.le303filterzreso = gg.le303ffilterzVknobs[1];
       }
 
       static void filter_knob_low(){
-        gg.mixle303ffilterzVknobs[0] = sublevels[3];
+        gg.mixle303ffilterzVknobs[0] = lv.sublevels[3];
         gg.le303filterzgainz[0] = gg.mixle303ffilterzVknobs[0];
       }
 
       static void filter_knob_band(){
-        gg.mixle303ffilterzVknobs[1] = sublevels[3];
+        gg.mixle303ffilterzVknobs[1] = lv.sublevels[3];
         gg.le303filterzgainz[1] = gg.mixle303ffilterzVknobs[1];
       }
 
       static void filter_knob_high(){
-        gg.mixle303ffilterzVknobs[2] = sublevels[3];
+        gg.mixle303ffilterzVknobs[2] = lv.sublevels[3];
         gg.le303filterzgainz[2] = gg.mixle303ffilterzVknobs[2];
       }
 
       static void filter_knob_wet(){
-        navrange = 127;
-        gg.le303filterzwet = sublevels[3];
+        lv.navrange = 127;
+        gg.le303filterzwet = lv.sublevels[3];
         // gg.le303filterzwet = (gg.mixle303ffilterzVknobs[2])/127.0 ;
         le303filterzWet();
       }
 
       static void filter_knob_preamp(){
-        navrange = 127;
-        gg.preampleswaves = sublevels[3];
+        lv.navrange = 127;
+        gg.preampleswaves = lv.sublevels[3];
         Wavespreamp303controls();
       }
 
       static void filter_knob_glide(){
-        navrange = 127;
-        set_Portamento_time_ctl(sublevels[3]);
+        lv.navrange = 127;
+        set_Portamento_time_ctl(lv.sublevels[3]);
       }
 
 
       static void le303filterVpanelAction() {
 
-        if (navlevel == 3) {
-          retroaction = sublevels[2];
-          navrange = 127;
-          if (!temp_buff_armed) {
+        if (lv.navlevel == 3) {
+          lv.retroaction = lv.sublevels[2];
+          lv.navrange = 127;
+          if (!lv.temp_buff_armed) {
             set_filter_buff_temp();
-            temp_buff_armed = 1 ;
+            lv.temp_buff_armed = 1 ;
           }
           // AudioNoInterrupts();
-          (filters_pointers[sublevels[2]])();
+          (filters_pointers[lv.sublevels[2]])();
           le303filtercontrols();
 
         }
-        if (navlevel > 3) {
-          temp_buff_armed = 0 ;
-          returntonav(2,7,sublevels[2]);
+        if (lv.navlevel > 3) {
+          lv.temp_buff_armed = 0 ;
+          dm.returntonav(2,7,lv.sublevels[2]);
         }
       }
       static void le303filterVpanel() {
@@ -507,7 +507,7 @@ class Filter303MenuRouter : public SectionHolder {
       //if back from knob and !  : revert from temp ( all or just the changed one ? -> knob validation updates temps )
       // when set temp
       le303filterVpanelAction();
-      if (navlevel == 2 && temp_buff_armed) {
+      if (lv.navlevel == 2 && lv.temp_buff_armed) {
         restore_from_temp();
       }
       int knobradius = 9;
@@ -616,63 +616,63 @@ class Filter303MenuRouter : public SectionHolder {
       int topwbarstart = 16;
       int wbarwidth = 9;
       int wbarwidth2 = 8;
-      if (navlevel == 2) {
-        navrange = 7;
+      if (lv.navlevel == 2) {
+        lv.navrange = 7;
       }
-      int slct = sublevels[2];
+      int slct = lv.sublevels[2];
       // fq
       if (slct == 0) {
-        sublevels[3] = gg.le303ffilterzVknobs[0];
+        lv.sublevels[3] = gg.le303ffilterzVknobs[0];
         canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
                             SSD1306_WHITE);
       }
       // res
       if (slct == 1) {
-        sublevels[3] = gg.le303ffilterzVknobs[1];
+        lv.sublevels[3] = gg.le303ffilterzVknobs[1];
         canvasBIG.drawCircle(centercirclex + 25, centercircley, knobradius - 2,
                             SSD1306_WHITE);
       }
       /*
       // oct
       if (slct == 2) {
-        sublevels[3] = gg.le303ffilterzVknobs[2];
+        lv.sublevels[3] = gg.le303ffilterzVknobs[2];
         canvasBIG.drawCircle(centercirclex + 50, centercircley, knobradius - 2,
                             SSD1306_WHITE);
       }
       */
       // lp
       if (slct == 2) {
-        sublevels[3] = gg.mixle303ffilterzVknobs[0];
+        lv.sublevels[3] = gg.mixle303ffilterzVknobs[0];
         canvasBIG.drawRect(83, topwbarstart, wbarwidth - 4, totbartall,
                           SSD1306_WHITE);
       }
       // bp
       if (slct == 3) {
-        sublevels[3] = gg.mixle303ffilterzVknobs[1];
+        lv.sublevels[3] = gg.mixle303ffilterzVknobs[1];
         canvasBIG.drawRect(100, topwbarstart, wbarwidth - 4, totbartall,
                           SSD1306_WHITE);
       }
       // hp
       if (slct == 4) {
-        sublevels[3] = gg.mixle303ffilterzVknobs[2];
+        lv.sublevels[3] = gg.mixle303ffilterzVknobs[2];
         canvasBIG.drawRect(117, topwbarstart, wbarwidth - 4, totbartall,
                           SSD1306_WHITE);
       }
       // wet
       if (slct == 5) {
-        sublevels[3] = gg.le303filterzwet;
+        lv.sublevels[3] = gg.le303filterzwet;
         canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
                           wbarwidth2 - 4, SSD1306_WHITE);
       }
       
       if (slct == 6) {
-        sublevels[3] = gg.preampleswaves;
+        lv.sublevels[3] = gg.preampleswaves;
         canvasBIG.setCursor(34, 0);
         canvasBIG.print((char)9);
       }
 
       if (slct == 7) {
-        sublevels[3] = gg.portamento_time ;
+        lv.sublevels[3] = gg.portamento_time ;
         canvasBIG.setCursor(100, 8);
         canvasBIG.print((char)9);
       }
@@ -680,12 +680,12 @@ class Filter303MenuRouter : public SectionHolder {
     }
     static void restore_from_temp() {
       for (int i=0; i<8; i++) {
-        sublevels[3] = self->filter_tmp_values[i];
+        lv.sublevels[3] = self->filter_tmp_values[i];
         (filters_pointers[i])();
         le303filtercontrols();
         *self->filter_tmp_pointers[i] = self->filter_tmp_values[i] ;
       }
-        temp_buff_armed = 0 ;
+        lv.temp_buff_armed = 0 ;
     }
 
     static void set_filter_buff_temp() {
@@ -815,11 +815,11 @@ class Mp3PlayerRouter : public SectionHolder {
           self->mp3_continue = self->mp3_looped ;
         }
         static void mp3_player_actions() {
-          if (navlevel == 2) {
-            navrange = 8;
+          if (lv.navlevel == 2) {
+            lv.navrange = 8;
           }
-          if (navlevel >= 3) {
-            switch (sublevels[2]) {
+          if (lv.navlevel >= 3) {
+            switch (lv.sublevels[2]) {
               case 0:
                 //continous_play
                 mp3_player_continous();
@@ -860,7 +860,7 @@ class Mp3PlayerRouter : public SectionHolder {
               break;
 
             }
-            returntonav(2,8,sublevels[2]);
+            dm.returntonav(2,8,lv.sublevels[2]);
           }
         }
         static void get_file_type(){
@@ -976,11 +976,11 @@ class Mp3PlayerRouter : public SectionHolder {
           String _legend[] = {"Play All","Previous","Pause","Play file","Next","Shuffle","Loop","Stop"," "};
           int startyp = 8;
           int ecart = 14;
-          display.fillRect(ecart * (sublevels[navlevel])-3, startyp-2, ecart-1, startyp*1.5, SSD1306_INVERSE);
+          display.fillRect(ecart * (lv.sublevels[lv.navlevel])-3, startyp-2, ecart-1, startyp*1.5, SSD1306_INVERSE);
           display.setCursor(0,20);
           display.setTextSize(1);
           display.setTextColor(SSD1306_INVERSE);
-          display.print(_legend[sublevels[2]]);
+          display.print(_legend[lv.sublevels[2]]);
           display.display();
         }
 
@@ -1030,14 +1030,14 @@ class SynthMenuRouter : public SectionHolder {
                     this->sublevels_address={0,0,0};
                     }
 
-        int unit = (int)gg.wavesfreqs[oscillator] % 10;
-        int tenth     = ((int)(gg.wavesfreqs[oscillator] * 10)) % 10;
-        int hundredth = ((int)(gg.wavesfreqs[oscillator] * 100)) % 10;
+        int unit = (int)gg.wavesfreqs[lv.oscillator] % 10;
+        int tenth     = ((int)(gg.wavesfreqs[lv.oscillator] * 10)) % 10;
+        int hundredth = ((int)(gg.wavesfreqs[lv.oscillator] * 100)) % 10;
         //TODO give default value based on wformtype
         const byte synth_params_count = 8;
 
         static void show() {
-          _route_nav[navlevel-1]();
+          _route_nav[lv.navlevel-1]();
         }
 
         static void route_navlevel_1(){
@@ -1045,56 +1045,56 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void route_navlevel_2(){
-          retroaction = sublevels[1];
-          _nav_synth[sublevels[1]]();
+          lv.retroaction = lv.sublevels[1];
+          _nav_synth[lv.sublevels[1]]();
         }
 
         static void displayoffsetwav() {
           dm.clear_3();
-          if (navlevel == 3) {
-            retroaction = sublevels[2];
-            navrange = self->synth_params_count - 1;
-            sublevels[4] = gg.wave1offset[oscillator];
+          if (lv.navlevel == 3) {
+            lv.retroaction = lv.sublevels[2];
+            lv.navrange = self->synth_params_count - 1;
+            lv.sublevels[4] = gg.wave1offset[lv.oscillator];
           }
-          if (navlevel == 4) {
-            navrange = 127;
-            retroaction = sublevels[3];
-            gg.wave1offset[oscillator] = sublevels[4];
+          if (lv.navlevel == 4) {
+            lv.navrange = 127;
+            lv.retroaction = lv.sublevels[3];
+            gg.wave1offset[lv.oscillator] = lv.sublevels[4];
             for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-              waveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - gg.wave1offset[oscillator]) / 64.0)));
-              FMwaveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - gg.wave1offset[oscillator]) / 64.0)));
+              waveforms1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - gg.wave1offset[lv.oscillator]) / 64.0)));
+              FMwaveforms1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->offset((float)(((64.0 - gg.wave1offset[lv.oscillator]) / 64.0)));
             }
           }
-          if (navlevel >= 5) {
-            returntonav(3,self->synth_params_count-1,sublevels[3]);
+          if (lv.navlevel >= 5) {
+            dm.returntonav(3,self->synth_params_count-1,lv.sublevels[3]);
             return;
           }
           display.setTextSize(1);
           display.setCursor(80, 8);
-          display.print((float)(((64.0 - gg.wave1offset[oscillator]) / 64.0)));
+          display.print((float)(((64.0 - gg.wave1offset[lv.oscillator]) / 64.0)));
 
           draw_synth_params();
           dm.dodisplay();
         }
 
         static void freqbars_panel_selector() {
-          if (navlevel == 4) {
-            retroaction = sublevels[3];
-            switch (sublevels[4]){
+          if (lv.navlevel == 4) {
+            lv.retroaction = lv.sublevels[3];
+            switch (lv.sublevels[4]){
               case 0:
                 display.fillRect(62, 0, 16, 16, SSD1306_INVERSE);
-                self->unit = (int)gg.wavesfreqs[oscillator];
-                sublevels[5]=self->unit;
+                self->unit = (int)gg.wavesfreqs[lv.oscillator];
+                lv.sublevels[5]=self->unit;
               break;
               case 1:
                 display.fillRect(88, 0, 12, 16, SSD1306_INVERSE);
-                self->tenth = ((int)(gg.wavesfreqs[oscillator]* 10)) % 10;
-                sublevels[5]=self->tenth;
+                self->tenth = ((int)(gg.wavesfreqs[lv.oscillator]* 10)) % 10;
+                lv.sublevels[5]=self->tenth;
               break;
               case 2:
                 display.fillRect(100, 0, 12, 16, SSD1306_INVERSE);
-                self->hundredth = ((int)(gg.wavesfreqs[oscillator] * 100)) % 10;
-                sublevels[5]=self->hundredth;
+                self->hundredth = ((int)(gg.wavesfreqs[lv.oscillator] * 100)) % 10;
+                lv.sublevels[5]=self->hundredth;
               break;
             }
           display.display();
@@ -1102,75 +1102,75 @@ class SynthMenuRouter : public SectionHolder {
         }
         static void freqbars_panel_action() {
 
-          navrange = 9;
-          switch (sublevels[4]){
+          lv.navrange = 9;
+          switch (lv.sublevels[4]){
             case 0:
-              self->unit = sublevels[5];
+              self->unit = lv.sublevels[5];
             break;
             case 1:
-              self->tenth = sublevels[5];
+              self->tenth = lv.sublevels[5];
               //Serial.println(self->hundredth);
             break;
             case 2:
-              self->hundredth = sublevels[5];
+              self->hundredth = lv.sublevels[5];
               //Serial.println(self->hundredth);
             break;
           }
 
-          gg.wavesfreqs[oscillator] = (float)(self->unit + self->tenth * 0.1f + self->hundredth * 0.01f);
+          gg.wavesfreqs[lv.oscillator] = (float)(self->unit + self->tenth * 0.1f + self->hundredth * 0.01f);
         }
 
         static void displayfreqbars(){
           dm.clear_3();
           display.setTextSize(2);
           display.setCursor(65, 0);
-          display.println(gg.wavesfreqs[oscillator]);
+          display.println(gg.wavesfreqs[lv.oscillator]);
           draw_synth_params();
           dm.dodisplay();
         }
 
         static void freqbars_panel() {
-          if (navlevel >= 4) {
-            retroaction = sublevels[3];
-            if (navlevel == 4) {
-              navrange = 2;
+          if (lv.navlevel >= 4) {
+            lv.retroaction = lv.sublevels[3];
+            if (lv.navlevel == 4) {
+              lv.navrange = 2;
 
             }
-            if (navlevel == 5) {
-              retroaction = sublevels[4];
+            if (lv.navlevel == 5) {
+              lv.retroaction = lv.sublevels[4];
               freqbars_panel_action();
             }
-            if (navlevel >= 6) {
-              returntonav(4,9,sublevels[4]);
+            if (lv.navlevel >= 6) {
+              dm.returntonav(4,9,lv.sublevels[4]);
             }
             //dm.dodisplay();
           }
           displayfreqbars();
           freqbars_panel_selector();
-          if (navlevel == 3) {
-            retroaction = sublevels[2];
-            navrange = self->synth_params_count - 1;
-            //sublevels[4] = round(gg.wavesfreqs[oscillator]);
+          if (lv.navlevel == 3) {
+            lv.retroaction = lv.sublevels[2];
+            lv.navrange = self->synth_params_count - 1;
+            //lv.sublevels[4] = round(gg.wavesfreqs[lv.oscillator]);
           }
         }
 
         static void displayphasebars() {
           dm.clear_3();
-          if (navlevel == 3) {
-            retroaction = sublevels[2];
-            navrange = self->synth_params_count - 1;
-            sublevels[4] = gg.phaselevelsL[oscillator];
+          if (lv.navlevel == 3) {
+            lv.retroaction = lv.sublevels[2];
+            lv.navrange = self->synth_params_count - 1;
+            lv.sublevels[4] = gg.phaselevelsL[lv.oscillator];
           }
-          if (navlevel >= 4) {
-            if (navlevel == 4) {
-              navrange = 127;
-              retroaction = sublevels[3];
-              gg.phaselevelsL[oscillator] = sublevels[4];
+          if (lv.navlevel >= 4) {
+            if (lv.navlevel == 4) {
+              lv.navrange = 127;
+              lv.retroaction = lv.sublevels[3];
+              gg.phaselevelsL[lv.oscillator] = lv.sublevels[4];
               setphaselevel();
             }
-            if (navlevel >= 5) {
+            if (lv.navlevel >= 5) {
               setphaselevel();
-              returntonav(3,self->synth_params_count-1,sublevels[3]);
+              dm.returntonav(3,self->synth_params_count-1,lv.sublevels[3]);
             }
           }
 
@@ -1178,7 +1178,7 @@ class SynthMenuRouter : public SectionHolder {
 
           display.setCursor(80, 0);
           display.setTextSize(2);
-          display.print(lround((gg.phaselevelsL[oscillator]/127.0)*360));
+          display.print(lround((gg.phaselevelsL[lv.oscillator]/127.0)*360));
           //display.print("°");
           dm.dodisplay();
         }
@@ -1190,7 +1190,7 @@ class SynthMenuRouter : public SectionHolder {
           dm.dodisplay();
           display.setCursor(64, 0);
           display.setTextSize(2);
-          display.println(modulation_labels[gg.FMmodulated[oscillator]]);
+          display.println(modulation_labels[gg.FMmodulated[lv.oscillator]]);
           draw_synth_params();
           dm.dodisplay();
 
@@ -1199,54 +1199,54 @@ class SynthMenuRouter : public SectionHolder {
         static void setfmtophase() {
           for (byte i = 0; i < SYNTH_LINERS_COUNT; i++) {
             //phaseModulation should be based on lfo level
-            FMwaveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->phaseModulation(180);
+            FMwaveforms1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->phaseModulation(180);
           }
         }
 
         static void setfmtofreq() {
           for (byte i = 0; i < SYNTH_LINERS_COUNT; i++) {
             //phaseModulation should be based on lfo level
-            FMwaveforms1[i + (oscillator * SYNTH_LINERS_COUNT)]->frequencyModulation(10);
+            FMwaveforms1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->frequencyModulation(10);
           }
         }
 
         static void wavelineModulatedbool() {
           dm.clear_3();
-          if (navlevel == 3) {
-            retroaction = sublevels[2];
-            navrange = self->synth_params_count - 1;
+          if (lv.navlevel == 3) {
+            lv.retroaction = lv.sublevels[2];
+            lv.navrange = self->synth_params_count - 1;
           }
-          if (navlevel == 4) {
-            navrange = 3;
-            retroaction = sublevels[3];
-            gg.FMmodulated[oscillator] = sublevels[4];
+          if (lv.navlevel == 4) {
+            lv.navrange = 3;
+            lv.retroaction = lv.sublevels[3];
+            gg.FMmodulated[lv.oscillator] = lv.sublevels[4];
           }
-          if (navlevel > 4) {
+          if (lv.navlevel > 4) {
             setwavetypefromlist();
-            returntonav(3,self->synth_params_count-1,sublevels[3]);
+            dm.returntonav(3,self->synth_params_count-1,lv.sublevels[3]);
           }
           displayModulatedbool();
         }
 
         static void displaywaveformicon(){
           dm.clear_3();
-          if (navlevel == 3) {
-            retroaction = sublevels[2];
-            navrange = self->synth_params_count - 1;
-            sublevels[4] = gg.Waveformstyped[oscillator];
+          if (lv.navlevel == 3) {
+            lv.retroaction = lv.sublevels[2];
+            lv.navrange = self->synth_params_count - 1;
+            lv.sublevels[4] = gg.Waveformstyped[lv.oscillator];
           }
-          if (navlevel == 4) {
-            navrange = 11;
-            gg.Waveformstyped[oscillator] = sublevels[4];
-            retroaction = sublevels[3];
+          if (lv.navlevel == 4) {
+            lv.navrange = 11;
+            gg.Waveformstyped[lv.oscillator] = lv.sublevels[4];
+            lv.retroaction = lv.sublevels[3];
           }
-          if (navlevel > 4) {
+          if (lv.navlevel > 4) {
             setwavetypefromlist();
-            if (gg.Waveformstyped[oscillator] == 11) {
-              gg.mixlevelsL[oscillator] = 0;
+            if (gg.Waveformstyped[lv.oscillator] == 11) {
+              gg.mixlevelsL[lv.oscillator] = 0;
               _mx.setwavemixlevel();
             }
-            returntonav(3,self->synth_params_count-1,sublevels[3]);
+            dm.returntonav(3,self->synth_params_count-1,lv.sublevels[3]);
             return;
           }
           const unsigned char *_img[12] = { sinewave, sawtoothwave, reversesawtoothwave, trianglewave,
@@ -1255,48 +1255,48 @@ class SynthMenuRouter : public SectionHolder {
           const char* lelabelw[12] = {"SineWave","SawWave","ReverseSaw" ,"Triangle","V-Triangle","SquareWave",
                               "PulseWave","Arbitrary","SampleHold", "Drum","String", "Wave OFF"};
 
-          display.drawBitmap(74, 20, _img[sublevels[4]], 32, 32, SSD1306_WHITE);
+          display.drawBitmap(74, 20, _img[lv.sublevels[4]], 32, 32, SSD1306_WHITE);
           display.setTextSize(1);
           display.setTextColor(SSD1306_WHITE);
           display.setCursor(64, 0);
-          display.println(lelabelw[sublevels[4]]);
+          display.println(lelabelw[lv.sublevels[4]]);
           display.setCursor(120, 57);
-          display.print(oscillator + 1);
+          display.print(lv.oscillator + 1);
           draw_synth_params();
           dm.dodisplay();
         }
 
         static void displayLFOpanel() {
           dm.clear_3();
-          if (navlevel == 3 ) {
-            retroaction = sublevels[2];
-            navrange = self->synth_params_count - 1;
+          if (lv.navlevel == 3 ) {
+            lv.retroaction = lv.sublevels[2];
+            lv.navrange = self->synth_params_count - 1;
           }
           draw_synth_params();
             dm.dodisplay();
-          if (navlevel >= 4) {
-            sublevels[0] = 1;
-            sublevels[1] = oscillator;
-            sublevels[2] = 0;
-            returntonav(navlevel-2,_lf.sizeofLFOlabels - 1,0);
+          if (lv.navlevel >= 4) {
+            lv.sublevels[0] = 1;
+            lv.sublevels[1] = lv.oscillator;
+            lv.sublevels[2] = 0;
+            dm.returntonav(lv.navlevel-2,_lf.sizeofLFOlabels - 1,0);
           }
         }
 
         static void go_previous(){
           dm.clear_3();
-          if (navlevel == 3) {
-            retroaction = sublevels[2];
-            navrange = self->synth_params_count - 1;
+          if (lv.navlevel == 3) {
+            lv.retroaction = lv.sublevels[2];
+            lv.navrange = self->synth_params_count - 1;
           }
 
-          if (navlevel >= 4) {
-            if (oscillator-1 < 0)
-              oscillator = 2 ;
+          if (lv.navlevel >= 4) {
+            if (lv.oscillator-1 < 0)
+              lv.oscillator = 2 ;
             else
-              oscillator = oscillator-1;
+              lv.oscillator = lv.oscillator-1;
 
-            sublevels[2] = oscillator ;
-            returntonav(navlevel-1,self->synth_params_count-1,sublevels[3]);
+            lv.sublevels[2] = lv.oscillator ;
+            dm.returntonav(lv.navlevel-1,self->synth_params_count-1,lv.sublevels[3]);
             return;
           }
           draw_synth_params();
@@ -1304,14 +1304,14 @@ class SynthMenuRouter : public SectionHolder {
         }
         static void go_next(){
           dm.clear_3();
-          if (navlevel == 3) {
-            retroaction = sublevels[2];
-            navrange = self->synth_params_count - 1;
+          if (lv.navlevel == 3) {
+            lv.retroaction = lv.sublevels[2];
+            lv.navrange = self->synth_params_count - 1;
           }
-          if (navlevel >= 4) {
-            oscillator = (oscillator+1)%3;
-            sublevels[2] = oscillator ;
-            returntonav(navlevel-1,self->synth_params_count-1,sublevels[3]);
+          if (lv.navlevel >= 4) {
+            lv.oscillator = (lv.oscillator+1)%3;
+            lv.sublevels[2] = lv.oscillator ;
+            dm.returntonav(lv.navlevel-1,self->synth_params_count-1,lv.sublevels[3]);
           }
           draw_synth_params();
           dm.dodisplay();
@@ -1324,8 +1324,8 @@ class SynthMenuRouter : public SectionHolder {
         }
 
         static void wavelining() {
-          retroaction = sublevels[3];
-          _synth_params[sublevels[3]]();
+          lv.retroaction = lv.sublevels[3];
+          _synth_params[lv.sublevels[3]]();
         }
 
         static void draw_synth_params() {
@@ -1333,7 +1333,7 @@ class SynthMenuRouter : public SectionHolder {
               "Type", "Mod", "LFO", "Freq", "Offset", "Phase", "<-  ", "  ->"};
           dm.main_panel(wavelineslabels,3,self->synth_params_count);
           canvasBIG.setCursor(120, 57);
-          canvasBIG.print(oscillator + 1);
+          canvasBIG.print(lv.oscillator + 1);
         }
 
         static void dolistsyntmenu() {
@@ -1343,220 +1343,220 @@ class SynthMenuRouter : public SectionHolder {
 
         static void synths_switcher(){
           String titled = "Waveline ";
-          oscillator = sublevels[2]%OSCS_COUNT;
-          String synth_num = oscillator + 1 ;
-          navrange = OSCS_COUNT-1;
+          lv.oscillator = lv.sublevels[2]%OSCS_COUNT;
+          String synth_num = lv.oscillator + 1 ;
+          lv.navrange = OSCS_COUNT-1;
           String leprintlabel = titled + synth_num ;
           wavelinesBG();
-          sublevels[3] = 0;
-          display.fillRect(0+(oscillator%2)*64, 16+(24*(oscillator/2)), 64, 24, SSD1306_INVERSE);
+          lv.sublevels[3] = 0;
+          display.fillRect(0+(lv.oscillator%2)*64, 16+(24*(lv.oscillator/2)), 64, 24, SSD1306_INVERSE);
           dm.printlabel((char*)leprintlabel.c_str());
           display.display();
         }
 
         static void wavesline_selector(){
-          retroaction = sublevels[navlevel-2] ;
-          _waveliners[navlevel-2]();
+          lv.retroaction = lv.sublevels[lv.navlevel-2] ;
+          _waveliners[lv.navlevel-2]();
         }
 
         static void synth_nav_zero() {
-          navrange = self->home_navrange;
+          lv.navrange = self->home_navrange;
           dm.clean_title_2_1();
-          //if (!retroaction)
+          //if (!lv.retroaction)
           //  reinitsublevels(2);
           dolistsyntmenu();
-          retroaction = sublevels[1] ;
+          lv.retroaction = lv.sublevels[1] ;
           dm.dodisplay();
         }
 
         static void plug_no_waves(){
-          gg.mixlevelsL[oscillator] = 0;
+          gg.mixlevelsL[lv.oscillator] = 0;
           for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            wavelinescords[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            stringcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            drumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            FMwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDdrumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDstringcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            modulatecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
+            wavelinescords[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            stringcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            drumcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            FMwavecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDdrumcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDwavecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDstringcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            modulatecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
           }
         }
 
         static void plug_waves(){
           for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            FMwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            stringcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            modulatecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDdrumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDstringcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            drumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            wavelinescords[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
-            if (gg.Waveformstyped[oscillator] == WAVEFORM_ARBITRARY) {
-              waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->arbitraryWaveform(gg.arbitrary_waveforms[oscillator],gg.arbitrary_maxF[oscillator]);
+            FMwavecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            stringcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            modulatecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDdrumcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDstringcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDwavecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            drumcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            wavelinescords[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->connect();
+            if (gg.Waveformstyped[lv.oscillator] == WAVEFORM_ARBITRARY) {
+              waveforms1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->arbitraryWaveform(gg.arbitrary_waveforms[lv.oscillator],gg.arbitrary_maxF[lv.oscillator]);
             }
-            waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->begin(lesformes[gg.Waveformstyped[oscillator]]);
+            waveforms1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->begin(lesformes[gg.Waveformstyped[lv.oscillator]]);
           }
         }
 
         static void plug_moded_waves(){
           for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            wavelinescords[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            modulatecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDdrumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDstringcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            stringcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            drumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            FMwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
-            if (gg.Waveformstyped[oscillator] == WAVEFORM_ARBITRARY) {
-              FMwaveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->arbitraryWaveform(gg.arbitrary_waveforms[oscillator],gg.arbitrary_maxF[oscillator]);
+            wavelinescords[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            modulatecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDdrumcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDstringcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            stringcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            drumcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDwavecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            FMwavecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->connect();
+            if (gg.Waveformstyped[lv.oscillator] == WAVEFORM_ARBITRARY) {
+              FMwaveforms1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->arbitraryWaveform(gg.arbitrary_waveforms[lv.oscillator],gg.arbitrary_maxF[lv.oscillator]);
             }
-            FMwaveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->begin(lesformes[gg.Waveformstyped[oscillator]]);
+            FMwaveforms1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->begin(lesformes[gg.Waveformstyped[lv.oscillator]]);
           }
-          call_restart_lfo(oscillator);
+          call_restart_lfo(lv.oscillator);
         }
 
         static void plug_ampl_moded_waves(){
           for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            wavelinescords[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDdrumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDstringcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            stringcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            drumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            FMwavecords1[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
-            MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
-            modulatecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
-            if (gg.Waveformstyped[oscillator] == WAVEFORM_ARBITRARY) {
-              waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->arbitraryWaveform(gg.arbitrary_waveforms[oscillator],gg.arbitrary_maxF[oscillator]);
+            wavelinescords[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDdrumcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDstringcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            stringcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            drumcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            FMwavecords1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
+            MDwavecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->connect();
+            modulatecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->connect();
+            if (gg.Waveformstyped[lv.oscillator] == WAVEFORM_ARBITRARY) {
+              waveforms1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->arbitraryWaveform(gg.arbitrary_waveforms[lv.oscillator],gg.arbitrary_maxF[lv.oscillator]);
             }
-            waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->begin(lesformes[gg.Waveformstyped[oscillator]]);
+            waveforms1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->begin(lesformes[gg.Waveformstyped[lv.oscillator]]);
           }
-          call_restart_lfo(oscillator);
+          call_restart_lfo(lv.oscillator);
         }
 
         static void plug_strings_waves(){
           for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            wavelinescords[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
-            drumcords1[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
-            FMwavecords1[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
-            modulatecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDdrumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDstringcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            stringcords1[i + (oscillator * SYNTH_LINERS_COUNT)]->connect();
+            wavelinescords[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
+            drumcords1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
+            FMwavecords1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
+            modulatecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDwavecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDdrumcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDstringcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            stringcords1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->connect();
           }
         }
 
         static void plug_ampl_moded_strings(){
           for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            wavelinescords[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
-            drumcords1[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
-            FMwavecords1[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
-            stringcords1[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
-            MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDdrumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDstringcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
-            modulatecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
+            wavelinescords[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
+            drumcords1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
+            FMwavecords1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
+            stringcords1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
+            MDwavecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDdrumcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDstringcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->connect();
+            modulatecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->connect();
           }
         }
 
         static void plug_drum_waves(){
           for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            wavelinescords[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
-            stringcords1[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
-            FMwavecords1[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
-            modulatecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDdrumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDstringcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            drumcords1[i + (oscillator * SYNTH_LINERS_COUNT)]->connect();
+            wavelinescords[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
+            stringcords1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
+            FMwavecords1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
+            modulatecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDwavecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDdrumcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDstringcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            drumcords1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->connect();
           }
         }
 
         static void plug_ampl_moded_drums(){
           for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            wavelinescords[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
-            stringcords1[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
-            FMwavecords1[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
-            drumcords1[i + (oscillator * SYNTH_LINERS_COUNT)]->disconnect();
-            MDwavecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
-            MDstringcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->disconnect();
+            wavelinescords[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
+            stringcords1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
+            FMwavecords1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
+            drumcords1[i + (lv.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
+            MDwavecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
+            MDstringcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->disconnect();
             //TODO: apply to other types too
-            modulatecords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
-            MDdrumcords1[i + (SYNTH_LINERS_COUNT * oscillator)]->connect();
+            modulatecords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->connect();
+            MDdrumcords1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->connect();
           }
         }
 
         static void no_modulation(){
-          byte letype = gg.Waveformstyped[oscillator];
+          byte letype = gg.Waveformstyped[lv.oscillator];
           if (letype < 9) {
-            gg.audio_obj_type[oscillator] = 1; //       9*4 + drums *2 + string *2 + off
+            gg.audio_obj_type[lv.oscillator] = 1; //       9*4 + drums *2 + string *2 + off
             plug_waves();
           }
           else if (letype == 9) {
-            gg.audio_obj_type[oscillator] = 3 ;
+            gg.audio_obj_type[lv.oscillator] = 3 ;
             plug_drum_waves();
           }
           else if (letype == 10) {
-            gg.audio_obj_type[oscillator] = 4 ;
+            gg.audio_obj_type[lv.oscillator] = 4 ;
             plug_strings_waves();
           }
         }
 
         static void freq_modulation(){
-          byte letype = gg.Waveformstyped[oscillator];
+          byte letype = gg.Waveformstyped[lv.oscillator];
           if (letype < 9) {
-            gg.audio_obj_type[oscillator] = 2;
+            gg.audio_obj_type[lv.oscillator] = 2;
             plug_moded_waves();
           }
           //no freq modulation on strings or drums
           else if (letype == 9) {
-            gg.audio_obj_type[oscillator] = 3;
+            gg.audio_obj_type[lv.oscillator] = 3;
             plug_drum_waves();
           }
           else if (letype == 10) {
-            gg.audio_obj_type[oscillator] = 4;
+            gg.audio_obj_type[lv.oscillator] = 4;
             plug_strings_waves();
           }
         }
 
         static void phase_modulation(){
-          byte letype = gg.Waveformstyped[oscillator];
+          byte letype = gg.Waveformstyped[lv.oscillator];
           if (letype < 9) {
-              gg.audio_obj_type[oscillator] = 2;
+              gg.audio_obj_type[lv.oscillator] = 2;
               plug_moded_waves();
             }
             //no phase modulation on strings or drums
             else if (letype == 9) {
-              gg.audio_obj_type[oscillator] = 3;
+              gg.audio_obj_type[lv.oscillator] = 3;
               plug_drum_waves();
             }
             else if (letype == 10) {
-              gg.audio_obj_type[oscillator] = 4;
+              gg.audio_obj_type[lv.oscillator] = 4;
               plug_strings_waves();
           }
         }
 
         static void amplitude_modulation(){
-          byte letype = gg.Waveformstyped[oscillator];
+          byte letype = gg.Waveformstyped[lv.oscillator];
           if (letype < 9) {
-              gg.audio_obj_type[oscillator] = 1;
+              gg.audio_obj_type[lv.oscillator] = 1;
               plug_ampl_moded_waves();
             }
             else if (letype == 9) {
               // amplitude modulated drum
-              gg.audio_obj_type[oscillator] = 3;
-              //36 + (bool)gg.FMmodulated[oscillator];
+              gg.audio_obj_type[lv.oscillator] = 3;
+              //36 + (bool)gg.FMmodulated[lv.oscillator];
               plug_ampl_moded_drums();
             }
             else if (letype == 10) {
               // amplitude modulated string
-              gg.audio_obj_type[oscillator] = 4;
+              gg.audio_obj_type[lv.oscillator] = 4;
               plug_ampl_moded_strings();
             }
-            call_restart_lfo(oscillator);
+            call_restart_lfo(lv.oscillator);
         }
 
         static void setwavetypefromlist() {
@@ -1567,16 +1567,16 @@ class SynthMenuRouter : public SectionHolder {
           // WAVEFORM_PULSE,    WAVEFORM_ARBITRARY,         WAVEFORM_SAMPLE_HOLD};
           // gg.audio_obj_type  9*4 + drums *2 + string *2 + off
           //gg.Waveformstyped + 2*mod + 2*mod*(drum|||string)
-          byte letype = gg.Waveformstyped[oscillator];
+          byte letype = gg.Waveformstyped[lv.oscillator];
           if (letype == 11) {
             // synth line off
             plug_no_waves();
-            gg.audio_obj_type[oscillator] = 0;
+            gg.audio_obj_type[lv.oscillator] = 0;
             AudioInterrupts();
             _mx.setwavemixlevel();
             return;
           }
-          (modulation_pointers[gg.FMmodulated[oscillator]])();
+          (modulation_pointers[gg.FMmodulated[lv.oscillator]])();
           AudioInterrupts();
           _mx.setwavemixlevel();
         }
@@ -1584,7 +1584,7 @@ class SynthMenuRouter : public SectionHolder {
         static void setphaselevel() {
           AudioNoInterrupts();
           for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            waveforms1[i + (SYNTH_LINERS_COUNT * oscillator)]->phase((int)((gg.phaselevelsL[oscillator]/ 127.0) * 360.0));
+            waveforms1[i + (SYNTH_LINERS_COUNT * lv.oscillator)]->phase((int)((gg.phaselevelsL[lv.oscillator]/ 127.0) * 360.0));
           }
           AudioInterrupts();
         }

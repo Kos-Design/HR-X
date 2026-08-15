@@ -16,20 +16,20 @@ class SamplerMenuRouter : public SectionHolder {
         bool assigning_sample_to_note = false ;
 
         static void sampler_nav_two(){
-          if (sublevels[1] == 0) {
+          if (lv.sublevels[1] == 0) {
               display.clearDisplay();
               samplerexplorer();
           }
-          if (sublevels[1] == 1) {
+          if (lv.sublevels[1] == 1) {
               display.clearDisplay();
               Flashsamplerexplorer();
           }
-          if (sublevels[1] == 2) {
+          if (lv.sublevels[1] == 2) {
               display.clearDisplay();
               Assingexplorer();
           }
 
-          if (sublevels[1] == 3) {
+          if (lv.sublevels[1] == 3) {
               smixerVpanel();
           }
         }
@@ -37,13 +37,13 @@ class SamplerMenuRouter : public SectionHolder {
         static void sampler_nav_one(){
           self->assigning_sample_to_note = false ;
           display.clearDisplay();
-          _nav_sampler[sublevels[1]]();
+          _nav_sampler[lv.sublevels[1]]();
           dm.dodisplay();
         }
         
         static void sampler_nav_zero(){
             reinitsublevels(2);
-            navrange = SP_LABELS_COUNT - 1;
+            lv.navrange = SP_LABELS_COUNT - 1;
             display.clearDisplay();
             dolistsamplermenu();
             dm.dodisplay();
@@ -51,20 +51,20 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void show() {
-          _route_nav[navlevel-1]();
+          _route_nav[lv.navlevel-1]();
         }
 
         static void smixerVpanelAction() {
-          if (navlevel == 3) {
-            navrange = 127;
-            gg.smixervknobs[sublevels[2]] = sublevels[3];
+          if (lv.navlevel == 3) {
+            lv.navrange = 127;
+            gg.smixervknobs[lv.sublevels[2]] = lv.sublevels[3];
           }
-          if (navlevel == 2) {
-            navrange = 15;
-            sublevels[3] = gg.smixervknobs[sublevels[2]];
+          if (lv.navlevel == 2) {
+            lv.navrange = 15;
+            lv.sublevels[3] = gg.smixervknobs[lv.sublevels[2]];
           }
-          if (navlevel > 3) {
-            returntonav(2);
+          if (lv.navlevel > 3) {
+            dm.returntonav(2);
           }
         }
 
@@ -78,7 +78,7 @@ class SamplerMenuRouter : public SectionHolder {
           // canvastitle.setCursor(70,0);
           canvasBIG.setTextSize(1);
           canvasBIG.setCursor(0, 0);
-          canvasBIG.print(gg.smixervknobs[sublevels[2]]);
+          canvasBIG.print(gg.smixervknobs[lv.sublevels[2]]);
 
           byte centercirclex;
           byte centercircley;
@@ -89,7 +89,7 @@ class SamplerMenuRouter : public SectionHolder {
           byte yshifter = 46;
           float coeffangle;
           xcentershifter = (knobradius * 2) + 4;
-          byte slct = sublevels[2];
+          byte slct = lv.sublevels[2];
 
           for (int i = 0; i < 8; i++) {
 
@@ -138,19 +138,19 @@ class SamplerMenuRouter : public SectionHolder {
           char samplerlabels[SP_LABELS_COUNT][12] = {"Load", "Delete", "Assign", "Mixer"};
           int startx = 5;
           int starty = 16;
-          char *textin = (char *)samplerlabels[sublevels[1]];
+          char *textin = (char *)samplerlabels[lv.sublevels[1]];
           canvastitle.fillScreen(SSD1306_BLACK);
           canvastitle.setCursor(0, 0);
           canvastitle.setTextSize(2);
           canvastitle.println(textin);
           canvasBIG.setTextSize(1);
           canvasBIG.fillScreen(SSD1306_BLACK);
-          for (int i = 0; i < SP_LABELS_COUNT - 1 - (sublevels[1]); i++) {
+          for (int i = 0; i < SP_LABELS_COUNT - 1 - (lv.sublevels[1]); i++) {
               canvasBIG.setCursor(startx, starty + ((i)*10));
-              canvasBIG.println(samplerlabels[sublevels[1] + 1 + i]);
+              canvasBIG.println(samplerlabels[lv.sublevels[1] + 1 + i]);
           }
-          for (int i = 0; i < sublevels[1]; i++) {
-              canvasBIG.setCursor(startx, (10 * (SP_LABELS_COUNT - sublevels[1]) + 6 + ((i)*10)));
+          for (int i = 0; i < lv.sublevels[1]; i++) {
+              canvasBIG.setCursor(startx, (10 * (SP_LABELS_COUNT - lv.sublevels[1]) + 6 + ((i)*10)));
               canvasBIG.println(samplerlabels[i]);
           }
         }
@@ -166,7 +166,7 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void playsamplepreview() {
-          String playable_file = samplefullpath(sublevels[3],sublevels[4]);
+          String playable_file = samplefullpath(lv.sublevels[3],lv.sublevels[4]);
           if (!test_flash_sample_name(playable_file)){
             playable_file = lower_extension_case(playable_file);
           }
@@ -178,7 +178,7 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void preview_flash_assignee() {
-          String playable_file = (String)Flashsamplename[sublevels[4]];
+          String playable_file = (String)Flashsamplename[lv.sublevels[4]];
           if (!test_flash_sample_name(playable_file)){
             playable_file = lower_extension_case(playable_file);
 
@@ -216,120 +216,120 @@ class SamplerMenuRouter : public SectionHolder {
           dosoundlist();
         }
         static void Assingexplorer() {
-          if (navlevel > 3) {
+          if (lv.navlevel > 3) {
             self->assigning_sample_to_note = false ;
-            if (sublevels[2] == 1) {
+            if (lv.sublevels[2] == 1) {
               Sampleassigner();
               preview_flash_assignee();
             }
-            if (sublevels[2] == 0 && sublevels[3] == 1) {
+            if (lv.sublevels[2] == 0 && lv.sublevels[3] == 1) {
               autoassignsamples();
-              returntonav(2,127,sublevels[2]);
+              dm.returntonav(2,127,lv.sublevels[2]);
             }
-            if (sublevels[2] == 2 && sublevels[3] == 1) {
+            if (lv.sublevels[2] == 2 && lv.sublevels[3] == 1) {
               clearassignedsamples();
-              returntonav(2,127,sublevels[2]);
+              dm.returntonav(2,127,lv.sublevels[2]);
             }
 
-            if (sublevels[2] == 3 && sublevels[3] == 1) {
+            if (lv.sublevels[2] == 3 && lv.sublevels[3] == 1) {
               //saves assigned flash samples to a new folder on SD
               domkdir();
               dosoundlist();
-              returntonav(2,127,sublevels[2]);
+              dm.returntonav(2,127,lv.sublevels[2]);
             }
 
-            if (sublevels[3] == 0) {
-              returntonav(2,127,sublevels[2]);
+            if (lv.sublevels[3] == 0) {
+              dm.returntonav(2,127,lv.sublevels[2]);
             }
           }
 
-          if (navlevel == 3) {
+          if (lv.navlevel == 3) {
             self->assigning_sample_to_note = true ;
-            if (sublevels[2] == 2) {
+            if (lv.sublevels[2] == 2) {
               display.clearDisplay();
               doConfirmClearassign();
             }
-            if (sublevels[2] == 3) {
+            if (lv.sublevels[2] == 3) {
               display.clearDisplay();
               doConfirmmkdir();
             }
-            if (sublevels[2] == 0) {
+            if (lv.sublevels[2] == 0) {
               display.clearDisplay();
               doConfirmautoassign();
             }
-            if (sublevels[2] == 1) {
-              navrange = 127;
+            if (lv.sublevels[2] == 1) {
+              lv.navrange = 127;
               Sampleassigner();
             }
           }
         }
         static void samplerexplorer() {
-          if (navlevel > 3) {
-            if (sublevels[2] == 1) {
+          if (lv.navlevel > 3) {
+            if (lv.sublevels[2] == 1) {
               Sampleassigner();
             }
-            if (sublevels[2] == 2 && sublevels[3] == 1) {
+            if (lv.sublevels[2] == 2 && lv.sublevels[3] == 1) {
               loadSelectedSamples();
-              returntonav(2,3,sublevels[2]);
+              dm.returntonav(2,3,lv.sublevels[2]);
             }
-            if (sublevels[2] == 3 && sublevels[3] == 1) {
+            if (lv.sublevels[2] == 3 && lv.sublevels[3] == 1) {
               initializesamplesselectedlist();
               initializesamplesfoldersselectedlist();
-              returntonav(2,3,sublevels[2]) ;
+              dm.returntonav(2,3,lv.sublevels[2]) ;
             }
 
-            if (sublevels[2] != 0 && sublevels[2] != 1 && sublevels[3] == 0) {
-              returntonav(2,3,sublevels[2]);
+            if (lv.sublevels[2] != 0 && lv.sublevels[2] != 1 && lv.sublevels[3] == 0) {
+              dm.returntonav(2,3,lv.sublevels[2]);
             }
 
-            if (sublevels[2] == 1) {
-              if (!samplesfoldersselected[sublevels[3]]) {
-                samplesfoldersselected[sublevels[3]] = 1;
+            if (lv.sublevels[2] == 1) {
+              if (!samplesfoldersselected[lv.sublevels[3]]) {
+                samplesfoldersselected[lv.sublevels[3]] = 1;
                 numofsamplesfoldersselected++;
               } else {
-                samplesfoldersselected[sublevels[3]] = 0;
+                samplesfoldersselected[lv.sublevels[3]] = 0;
                 numofsamplesfoldersselected--;
               }
-              returntonav(3);
+              dm.returntonav(3);
             }
 
-            if (sublevels[2] == 0) {
+            if (lv.sublevels[2] == 0) {
 
-              if (previousnavlevel != navlevel) {
-                previousnavlevel = navlevel;
-                navrange = sizeofsamplefolder[sublevels[3]] - 1;
+              if (lv.previousnavlevel != lv.navlevel) {
+                lv.previousnavlevel = lv.navlevel;
+                lv.navrange = sizeofsamplefolder[lv.sublevels[3]] - 1;
               }
 
-              if (navlevel > 4) {
-                if (samplesselected[sublevels[3]][sublevels[4]] == 0) {
-                  samplesselected[sublevels[3]][sublevels[4]] = 1;
-                  numberofsamplesselected[sublevels[3]]++;
+              if (lv.navlevel > 4) {
+                if (samplesselected[lv.sublevels[3]][lv.sublevels[4]] == 0) {
+                  samplesselected[lv.sublevels[3]][lv.sublevels[4]] = 1;
+                  numberofsamplesselected[lv.sublevels[3]]++;
                   playsamplepreview();
                 } else {
-                  samplesselected[sublevels[3]][sublevels[4]] = 0;
-                  numberofsamplesselected[sublevels[3]]--;
+                  samplesselected[lv.sublevels[3]][lv.sublevels[4]] = 0;
+                  numberofsamplesselected[lv.sublevels[3]]--;
                 }
-              returntonav(4,navrange,sublevels[4]);
+              dm.returntonav(4,lv.navrange,lv.sublevels[4]);
               }
               showsamplerfilesList();
             }
           }
 
-          if (navlevel == 3) {
+          if (lv.navlevel == 3) {
 
-            if (sublevels[2] == 2) {
+            if (lv.sublevels[2] == 2) {
               display.clearDisplay();
               doConfirmLoadsamples();
             }
 
-            if (sublevels[2] == 3) {
+            if (lv.sublevels[2] == 3) {
               display.clearDisplay();
               doConfirmClearList();
             }
 
-            if ((sublevels[2] == 0 || sublevels[2] == 1) && (sublevels[1] == 0)) {
-              if (previousnavlevel != navlevel) {
-                navrange = sampledirsregistered - 1;
+            if ((lv.sublevels[2] == 0 || lv.sublevels[2] == 1) && (lv.sublevels[1] == 0)) {
+              if (lv.previousnavlevel != lv.navlevel) {
+                lv.navrange = sampledirsregistered - 1;
               }
               showsamplerfolderList();
             }
@@ -337,53 +337,53 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void Flashsamplerexplorer() {
-          if (navlevel > 3) {
+          if (lv.navlevel > 3) {
 
-            if (sublevels[2] == 2 && sublevels[3] == 1) {
+            if (lv.sublevels[2] == 2 && lv.sublevels[3] == 1) {
               DelSelectedFlashSamples();
-              returntonav(2,3,sublevels[2]);
+              dm.returntonav(2,3,lv.sublevels[2]);
             }
-            if (sublevels[2] == 3 && sublevels[3] == 1) {
+            if (lv.sublevels[2] == 3 && lv.sublevels[3] == 1) {
               initializeFlashsamplesselected();
-              returntonav(2,3,sublevels[2]);
+              dm.returntonav(2,3,lv.sublevels[2]);
             }
-            if (sublevels[2] == 1 && sublevels[3] == 1) {
+            if (lv.sublevels[2] == 1 && lv.sublevels[3] == 1) {
               RemoveAllfromFlash();
-              returntonav(2,3,sublevels[2]);
+              dm.returntonav(2,3,lv.sublevels[2]);
             }
-            if (sublevels[2] != 0 && sublevels[3] == 0) {
-              returntonav(2,3,sublevels[2]);
+            if (lv.sublevels[2] != 0 && lv.sublevels[3] == 0) {
+              dm.returntonav(2,3,lv.sublevels[2]);
 
             }
-            if (sublevels[2] == 0) {
-              if (Flashsamplesselected[sublevels[3]] == 0) {
-                Flashsamplesselected[sublevels[3]] = 1;
-                if (SerialFlash.exists((const char *)Flashsamplename[sublevels[3]])) FlashRaw.play((const char *)Flashsamplename[sublevels[3]]);
+            if (lv.sublevels[2] == 0) {
+              if (Flashsamplesselected[lv.sublevels[3]] == 0) {
+                Flashsamplesselected[lv.sublevels[3]] = 1;
+                if (SerialFlash.exists((const char *)Flashsamplename[lv.sublevels[3]])) FlashRaw.play((const char *)Flashsamplename[lv.sublevels[3]]);
                 numberofFlashsamplesselected++;
                 
               } else {
-                Flashsamplesselected[sublevels[3]] = 0;
+                Flashsamplesselected[lv.sublevels[3]] = 0;
                 numberofFlashsamplesselected--;
               }
-              returntonav(3,navrange,sublevels[3]);
+              dm.returntonav(3,lv.navrange,lv.sublevels[3]);
             }
           }
-          if (navlevel == 3) {
-            if (sublevels[2] == 2) {
+          if (lv.navlevel == 3) {
+            if (lv.sublevels[2] == 2) {
               display.clearDisplay();
               doConfirmDelsamples();
             }
-            if (sublevels[2] == 3) {
+            if (lv.sublevels[2] == 3) {
               display.clearDisplay();
               doConfirmClearSelectedFlashList();
             }
-            if (sublevels[2] == 1) {
+            if (lv.sublevels[2] == 1) {
               display.clearDisplay();
               doConfirmRemoveAll();
             }
-            if (sublevels[2] == 0) {
-              if (previousnavlevel != navlevel) {
-                navrange = numberofFlashfiles - 1;
+            if (lv.sublevels[2] == 0) {
+              if (lv.previousnavlevel != lv.navlevel) {
+                lv.navrange = numberofFlashfiles - 1;
               }
 
               showFlashSamplesList();
@@ -537,28 +537,28 @@ class SamplerMenuRouter : public SectionHolder {
           canvastitle.fillScreen(SSD1306_BLACK);
           canvastitle.setTextSize(1);
           canvastitle.setCursor(startx, 0);
-          canvastitle.print((char *)Flashsamplebase[sublevels[navlevel]]);
-          drawtickboxflashtitle(startx - 13, 0, 6, 6, SSD1306_WHITE, sublevels[navlevel]);
+          canvastitle.print((char *)Flashsamplebase[lv.sublevels[lv.navlevel]]);
+          drawtickboxflashtitle(startx - 13, 0, 6, 6, SSD1306_WHITE, lv.sublevels[lv.navlevel]);
           canvasBIG.setTextSize(1);
           canvasBIG.fillScreen(SSD1306_BLACK);
 
-          int maxsizefirstpart = numberofFlashfiles - 1 - (sublevels[navlevel]);
+          int maxsizefirstpart = numberofFlashfiles - 1 - (lv.sublevels[lv.navlevel]);
           if (maxsizefirstpart > 6) {
             maxsizefirstpart = 6;
           }
           for (int i = 0; i < maxsizefirstpart; i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println((char *)Flashsamplebase[sublevels[navlevel] + 1 + i]);
-            drawtickboxflashBIG(startx - 13, starty + ((i)*10), 6, 6, SSD1306_WHITE, sublevels[navlevel] + 1 + i);
+            canvasBIG.println((char *)Flashsamplebase[lv.sublevels[lv.navlevel] + 1 + i]);
+            drawtickboxflashBIG(startx - 13, starty + ((i)*10), 6, 6, SSD1306_WHITE, lv.sublevels[lv.navlevel] + 1 + i);
           }
-          int maxsizelastpart = sublevels[navlevel];
+          int maxsizelastpart = lv.sublevels[lv.navlevel];
           if (maxsizelastpart > 6) {
             maxsizelastpart = 6;
           }
           for (int i = 0; i < maxsizelastpart; i++) {
-            canvasBIG.setCursor(startx, (10 * (numberofFlashfiles - sublevels[navlevel])) + 6 + ((i)*10));
+            canvasBIG.setCursor(startx, (10 * (numberofFlashfiles - lv.sublevels[lv.navlevel])) + 6 + ((i)*10));
             canvasBIG.println((char *)Flashsamplebase[i]);
-            drawtickboxflashBIG(startx - 13, (10 * (numberofFlashfiles - sublevels[navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, i);
+            drawtickboxflashBIG(startx - 13, (10 * (numberofFlashfiles - lv.sublevels[lv.navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, i);
           }
         }
 
@@ -568,28 +568,28 @@ class SamplerMenuRouter : public SectionHolder {
           canvastitle.fillScreen(SSD1306_BLACK);
           canvastitle.setTextSize(1);
           canvastitle.setCursor(startx, 0);
-          canvastitle.print((char *)samplebase[sublevels[3]][sublevels[navlevel]]);
-          drawtickboxincanvastitle(startx - 13, 0, 6, 6, SSD1306_WHITE, sublevels[3], sublevels[navlevel]);
+          canvastitle.print((char *)samplebase[lv.sublevels[3]][lv.sublevels[lv.navlevel]]);
+          drawtickboxincanvastitle(startx - 13, 0, 6, 6, SSD1306_WHITE, lv.sublevels[3], lv.sublevels[lv.navlevel]);
           canvasBIG.setTextSize(1);
           canvasBIG.fillScreen(SSD1306_BLACK);
           int maxsizefirstpart =
-              sizeofsamplefolder[sublevels[3]] - 1 - (sublevels[navlevel]);
+              sizeofsamplefolder[lv.sublevels[3]] - 1 - (lv.sublevels[lv.navlevel]);
           if (maxsizefirstpart > 6) {
             maxsizefirstpart = 6;
           }
           for (int i = 0; i < maxsizefirstpart; i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println((char *)samplebase[sublevels[3]][sublevels[navlevel] + 1 + i]);
-            drawtickboxincanvasBIG(startx - 13, starty + ((i)*10), 6, 6, SSD1306_WHITE, sublevels[3], sublevels[navlevel] + 1 + i);
+            canvasBIG.println((char *)samplebase[lv.sublevels[3]][lv.sublevels[lv.navlevel] + 1 + i]);
+            drawtickboxincanvasBIG(startx - 13, starty + ((i)*10), 6, 6, SSD1306_WHITE, lv.sublevels[3], lv.sublevels[lv.navlevel] + 1 + i);
           }
-          int maxsizelastpart = sublevels[navlevel];
+          int maxsizelastpart = lv.sublevels[lv.navlevel];
           if (maxsizelastpart > 6) {
             maxsizelastpart = 6;
           }
           for (int i = 0; i < maxsizelastpart; i++) {
-            canvasBIG.setCursor(startx, (10 * (sizeofsamplefolder[sublevels[3]] - sublevels[navlevel])) + 6 + ((i)*10));
-            canvasBIG.println((char *)samplebase[sublevels[3]][i]);
-            drawtickboxincanvasBIG(startx - 13, (10 * (sizeofsamplefolder[sublevels[3]] - sublevels[navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, sublevels[3], i);
+            canvasBIG.setCursor(startx, (10 * (sizeofsamplefolder[lv.sublevels[3]] - lv.sublevels[lv.navlevel])) + 6 + ((i)*10));
+            canvasBIG.println((char *)samplebase[lv.sublevels[3]][i]);
+            drawtickboxincanvasBIG(startx - 13, (10 * (sizeofsamplefolder[lv.sublevels[3]] - lv.sublevels[lv.navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, lv.sublevels[3], i);
           }
         }
 
@@ -599,96 +599,96 @@ class SamplerMenuRouter : public SectionHolder {
           canvastitle.fillScreen(SSD1306_BLACK);
           canvastitle.setTextSize(1);
           canvastitle.setCursor(startx, 0);
-          canvastitle.print((char *)samplefoldersregistered[sublevels[navlevel]]);
-          if (sublevels[2] == 1) {
-            drawtickboxfoldertitle(startx - 13, 0, 6, 6, SSD1306_WHITE, sublevels[navlevel]);
+          canvastitle.print((char *)samplefoldersregistered[lv.sublevels[lv.navlevel]]);
+          if (lv.sublevels[2] == 1) {
+            drawtickboxfoldertitle(startx - 13, 0, 6, 6, SSD1306_WHITE, lv.sublevels[lv.navlevel]);
           }
           canvasBIG.setTextSize(1);
           canvasBIG.fillScreen(SSD1306_BLACK);
 
-          int maxsizefirstpart = sampledirsregistered - 1 - (sublevels[navlevel]);
+          int maxsizefirstpart = sampledirsregistered - 1 - (lv.sublevels[lv.navlevel]);
           if (maxsizefirstpart > 6) {
             maxsizefirstpart = 6;
           }
           for (int i = 0; i < maxsizefirstpart; i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println((char *)samplefoldersregistered[sublevels[navlevel] + 1 + i]);
-            if (sublevels[2] == 1) {
-              drawtickboxfolderBIG(startx - 13, starty + ((i)*10), 6, 6, SSD1306_WHITE, sublevels[navlevel] + 1 + i);
+            canvasBIG.println((char *)samplefoldersregistered[lv.sublevels[lv.navlevel] + 1 + i]);
+            if (lv.sublevels[2] == 1) {
+              drawtickboxfolderBIG(startx - 13, starty + ((i)*10), 6, 6, SSD1306_WHITE, lv.sublevels[lv.navlevel] + 1 + i);
             }
           }
-          int maxsizelastpart = sublevels[navlevel];
+          int maxsizelastpart = lv.sublevels[lv.navlevel];
           if (maxsizelastpart > 6) {
             maxsizelastpart = 6;
           }
           for (int i = 0; i < maxsizelastpart; i++) {
-            canvasBIG.setCursor(startx, (10 * (sampledirsregistered - sublevels[navlevel])) + 6 + ((i)*10));
+            canvasBIG.setCursor(startx, (10 * (sampledirsregistered - lv.sublevels[lv.navlevel])) + 6 + ((i)*10));
             canvasBIG.println((char *)samplefoldersregistered[i]);
-            if (sublevels[2] == 1) {
-              //TODO: check if all is ok here, was previousely (10 * (keepcount - sublevels[navlevel])) + 6 + ((i)*10)
-              drawtickboxfolderBIG(startx - 13, (10 * (sublevels[navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, i);
+            if (lv.sublevels[2] == 1) {
+              //TODO: check if all is ok here, was previousely (10 * (keepcount - lv.sublevels[lv.navlevel])) + 6 + ((i)*10)
+              drawtickboxfolderBIG(startx - 13, (10 * (lv.sublevels[lv.navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, i);
             }
           }
         }
 
         static void dolistLoadSampleMenu() {
-          navrange = 4 - 1;
+          lv.navrange = 4 - 1;
           const int sizeofmenuloadsample = 4;
           char menuloadsample[sizeofmenuloadsample][16] = {
               "Select", "Whole pack", "Load Selection", "Clear Selection"};
           int startx = 5;
           int starty = 16;
-          char *textin = (char *)menuloadsample[sublevels[2]];
+          char *textin = (char *)menuloadsample[lv.sublevels[2]];
           dm.clear_buffs_1_1();
           canvastitle.println(textin);
-          for (int i = 0; i < sizeofmenuloadsample - 1 - (sublevels[2]); i++) {
+          for (int i = 0; i < sizeofmenuloadsample - 1 - (lv.sublevels[2]); i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println(menuloadsample[sublevels[2] + 1 + i]);
+            canvasBIG.println(menuloadsample[lv.sublevels[2] + 1 + i]);
           }
-          for (int i = 0; i < sublevels[2]; i++) {
-            canvasBIG.setCursor(startx, (10 * (sizeofmenuloadsample - sublevels[2]) + 6 + ((i)*10)));
+          for (int i = 0; i < lv.sublevels[2]; i++) {
+            canvasBIG.setCursor(startx, (10 * (sizeofmenuloadsample - lv.sublevels[2]) + 6 + ((i)*10)));
             canvasBIG.println(menuloadsample[i]);
           }
         }
 
         static void dolistDelSampleMenu() {
-          navrange = 4 - 1;
+          lv.navrange = 4 - 1;
 
           const int sizeofmenudelsample = 4;
           char menudelsample[sizeofmenudelsample][16] = {
               "Select", "Remove All", "Remove Selected", "Clear Selection"};
           int startx = 5;
           int starty = 16;
-          char *textin = (char *)menudelsample[sublevels[2]];
+          char *textin = (char *)menudelsample[lv.sublevels[2]];
             dm.clear_buffs_1_1();
           canvastitle.println(textin);
-          for (int i = 0; i < sizeofmenudelsample - 1 - (sublevels[2]); i++) {
+          for (int i = 0; i < sizeofmenudelsample - 1 - (lv.sublevels[2]); i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println(menudelsample[sublevels[2] + 1 + i]);
+            canvasBIG.println(menudelsample[lv.sublevels[2] + 1 + i]);
           }
-          for (int i = 0; i < sublevels[2]; i++) {
-            canvasBIG.setCursor(startx, (10 * (sizeofmenudelsample - sublevels[2]) + 6 + ((i)*10)));
+          for (int i = 0; i < lv.sublevels[2]; i++) {
+            canvasBIG.setCursor(startx, (10 * (sizeofmenudelsample - lv.sublevels[2]) + 6 + ((i)*10)));
             canvasBIG.println(menudelsample[i]);
           }
         }
 
         static void dolistAssignSampleMenu() {
-          navrange = 4 - 1;
+          lv.navrange = 4 - 1;
           self->assigning_sample_to_note = false ;
           const int sizeofmenuassignsample = 4;
           char menuassignsample[sizeofmenuassignsample][19] = {
               "Auto-assign", "Individual", "Clear All", "Save assigned"};
           int startx = 5;
           int starty = 16;
-          char *textin = (char *)menuassignsample[sublevels[2]];
+          char *textin = (char *)menuassignsample[lv.sublevels[2]];
             dm.clear_buffs_1_1();
           canvastitle.println(textin);
-          for (int i = 0; i < sizeofmenuassignsample - 1 - (sublevels[2]); i++) {
+          for (int i = 0; i < sizeofmenuassignsample - 1 - (lv.sublevels[2]); i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println(menuassignsample[sublevels[2] + 1 + i]);
+            canvasBIG.println(menuassignsample[lv.sublevels[2] + 1 + i]);
           }
-          for (int i = 0; i < sublevels[2]; i++) {
-            canvasBIG.setCursor(startx, (10 * (sizeofmenuassignsample - sublevels[2]) + 6 + ((i)*10)));
+          for (int i = 0; i < lv.sublevels[2]; i++) {
+            canvasBIG.setCursor(startx, (10 * (sizeofmenuassignsample - lv.sublevels[2]) + 6 + ((i)*10)));
             canvasBIG.println(menuassignsample[i]);
           }
         }
@@ -806,7 +806,7 @@ class SamplerMenuRouter : public SectionHolder {
             Serial.print(elapsed / 1000ul);
             Serial.println(F(" seconds."));
           }
-          returntonav(2,3,sublevels[2]);
+          dm.returntonav(2,3,lv.sublevels[2]);
         }
 
         float eraseBytesPerSecond(const unsigned char *id) {
@@ -978,20 +978,20 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void Sampleassigner() {
-          if (navlevel == 3) {
+          if (lv.navlevel == 3) {
             self->assigning_sample_to_note = true ;
-            navrange = 127;
+            lv.navrange = 127;
             listsamplesassigner();
             dm.dodisplay();
           }
-          if (navlevel == 4) {
-            navrange = numberofFlashfiles - 1;
+          if (lv.navlevel == 4) {
+            lv.navrange = numberofFlashfiles - 1;
             listsamplesassigner2();
             dm.dodisplay();
           }
-          if (navlevel >= 5) {
+          if (lv.navlevel >= 5) {
             samplesetter();
-            returntonav(3,127,sublevels[3]);
+            dm.returntonav(3,127,lv.sublevels[3]);
           }
         }
 
@@ -1000,27 +1000,27 @@ class SamplerMenuRouter : public SectionHolder {
           char *toprint = (char *)"Note";
           canvastitle.println(toprint);
           canvastitle.setCursor(85, 0);
-          canvastitle.println(sublevels[3]);
-          if (gg.Sampleassigned[sublevels[3]] != 0) {
+          canvastitle.println(lv.sublevels[3]);
+          if (gg.Sampleassigned[lv.sublevels[3]] != 0) {
             canvasBIG.setCursor(85, 16);
-            canvasBIG.println(gg.Sampleassigned[sublevels[3]]);
+            canvasBIG.println(gg.Sampleassigned[lv.sublevels[3]]);
             canvasBIG.setCursor(0, 40);
-            canvasBIG.println((char *)Flashsamplebase[gg.Sampleassigned[sublevels[3]]]);
+            canvasBIG.println((char *)Flashsamplebase[gg.Sampleassigned[lv.sublevels[3]]]);
           }
         }
 
-        static void samplesetter() { gg.Sampleassigned[sublevels[3]] = sublevels[4]; }
+        static void samplesetter() { gg.Sampleassigned[lv.sublevels[3]] = lv.sublevels[4]; }
 
         static void listsamplesassigner2() {
           dm.clean_title_2_2();
           char *toprint = (char *)"Note";
           canvastitle.println(toprint);
           canvastitle.setCursor(85, 0);
-          canvastitle.println(sublevels[3]);
+          canvastitle.println(lv.sublevels[3]);
           canvasBIG.setCursor(85, 16);
-          canvasBIG.println(sublevels[4]);
+          canvasBIG.println(lv.sublevels[4]);
           canvasBIG.setCursor(0, 40);
-          canvasBIG.println((char *)Flashsamplebase[sublevels[4]]);
+          canvasBIG.println((char *)Flashsamplebase[lv.sublevels[4]]);
         }
 
         

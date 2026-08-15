@@ -20,7 +20,7 @@ void loop() {
   }
 
   if (_rd.pre_record) {
-    if (millis() - tocker > 500) {
+    if (millis() - lv.tocker > 500) {
       _rd.rec_looping = true ;
       _rd.pre_record = false ;
     }

@@ -15,7 +15,7 @@ class PresetsMenuRouter : public SectionHolder {
         const byte ps_labels_count = 5;
 
         static void route_navlevel(){
-          _nav_presets[sublevels[1]]();
+          _nav_presets[lv.sublevels[1]]();
         }
 
         static void presets_nav_zero(){
@@ -23,7 +23,7 @@ class PresetsMenuRouter : public SectionHolder {
         }
 
         static void show() {
-          _route_nav[navlevel-1]();
+          _route_nav[lv.navlevel-1]();
         }
 
         static void presets_menu() {
@@ -33,9 +33,9 @@ class PresetsMenuRouter : public SectionHolder {
         }
 
         static void write_preset() {
-          if (locked_fileing)
+          if (lv.locked_fileing)
             return;
-          locked_fileing = 1 ;
+          lv.locked_fileing = 1 ;
           FsFile preset_filer;
           if (self->catalog->new_file_mode) {
             String presets_base_path = "PRESETS" ;
@@ -54,14 +54,14 @@ class PresetsMenuRouter : public SectionHolder {
 
           }
           preset_filer.close();
-          locked_fileing = 0 ;
+          lv.locked_fileing = 0 ;
           self->catalog->list_files();
         }
 
         static void read_preset() {
-          if (locked_fileing)
+          if (lv.locked_fileing)
             return;
-          locked_fileing = 1 ;
+          lv.locked_fileing = 1 ;
           FsFile preset_filer = SD.sdfs.open(self->catalog->get_current_file_path(0).c_str(), O_READ);
           if (preset_filer) {
            preset_filer.read((uint8_t*)&gg, sizeof(gg));
@@ -92,14 +92,14 @@ class PresetsMenuRouter : public SectionHolder {
           _mx.set_dry_mix(1);
 
           for (int i = 0; i < OSCS_COUNT; i++) {
-            oscillator = i ;
+            lv.oscillator = i ;
             call_setwavemixlevel();
             call_setwavetypefromlist();
             gg.mixlevelsL[i] = tmp_mixlevelsL[i];
             call_setwavemixlevel();
           }
           for (int i = 0; i < OSCS_COUNT; i++) {
-            oscillator = i ;
+            lv.oscillator = i ;
             call_setwavemixlevel();
             call_setwavetypefromlist();
             gg.mixlevelsL[i] = tmp_mixlevelsL[i];
@@ -112,7 +112,7 @@ class PresetsMenuRouter : public SectionHolder {
             _mx.setmastersmixlevel(i);
           }
           _mx.wetmixmastercontrols();
-          locked_fileing = 0 ;
+          lv.locked_fileing = 0 ;
         }
 
         static void copypreset() {
@@ -141,14 +141,14 @@ class PresetsMenuRouter : public SectionHolder {
 
         static void params_presets(){ 
           //TODO: selection filter to load only some settings
-          returntonav(1, self->home_navrange,sublevels[1]);
+          dm.returntonav(1, self->home_navrange,lv.sublevels[1]);
         }
         
         static void lv1_wrapper(void (*func)()) {
           self->catalog->nav_one(0,1);
-          if (navlevel >= 3) {
+          if (lv.navlevel >= 3) {
             func();
-            returntonav(1, self->home_navrange,sublevels[1]);
+            dm.returntonav(1, self->home_navrange,lv.sublevels[1]);
           }
         }
 

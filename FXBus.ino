@@ -23,7 +23,7 @@ class FxMenuRouter : public SectionHolder {
       bool avoid_fx_bounce = false;
 /*
       static void show() {
-        _nav_fx[sublevels[1]](); 
+        _nav_fx[lv.sublevels[1]](); 
       }
 */
       static void peakingEQ(float freq, float gainDB, float Q, float Fs, double *c) {
@@ -89,16 +89,16 @@ for (int i = 0; i < 5; i++)
       static void dolistMainFxPanel() {
         byte startx = 5;
         byte starty = 16;
-        char *textin = (char *)self->mainmenufxlist[sublevels[navlevel]];
+        char *textin = (char *)self->mainmenufxlist[lv.sublevels[lv.navlevel]];
         dm.clear_buffs_2_1();
         canvastitle.println(textin);
 
-        for (int filer = 0; filer < navrange - (sublevels[navlevel]); filer++) {
+        for (int filer = 0; filer < lv.navrange - (lv.sublevels[lv.navlevel]); filer++) {
           canvasBIG.setCursor(startx, starty + (filer*10));
-          canvasBIG.println(self->mainmenufxlist[sublevels[navlevel] + 1 + filer]);
+          canvasBIG.println(self->mainmenufxlist[lv.sublevels[lv.navlevel] + 1 + filer]);
         }
-        for (int filer = 0; filer < sublevels[navlevel]; filer++) {
-          canvasBIG.setCursor(startx, (10 * (navrange + 1 - sublevels[navlevel])) + 6 + (filer*10));
+        for (int filer = 0; filer < lv.sublevels[lv.navlevel]; filer++) {
+          canvasBIG.setCursor(startx, (10 * (lv.navrange + 1 - lv.sublevels[lv.navlevel])) + 6 + (filer*10));
           canvasBIG.println(self->mainmenufxlist[filer]);
         }
       }
@@ -109,23 +109,23 @@ for (int i = 0; i < 5; i++)
         byte startx = 5;
         byte starty = 16;
         String textin;
-        if (gg.fx[sublevels[1]%FXS_COUNT].plugged_fx != (self->mainmenufxlistsize - 1)) {
-          textin = (String)self->mainmenufxlist[gg.fx[sublevels[1]%FXS_COUNT].plugged_fx];
+        if (gg.fx[lv.sublevels[1]%FXS_COUNT].plugged_fx != (self->mainmenufxlistsize - 1)) {
+          textin = (String)self->mainmenufxlist[gg.fx[lv.sublevels[1]%FXS_COUNT].plugged_fx];
         } else {
-          textin = (String)mainfxlineslist[sublevels[1]%FXS_COUNT];
+          textin = (String)mainfxlineslist[lv.sublevels[1]%FXS_COUNT];
         }
         dm.clear_buffs_2_1();
         canvastitle.println(textin);
-        for (int i = 0; i < FXS_COUNT - 1 - sublevels[1]; i++) {
+        for (int i = 0; i < FXS_COUNT - 1 - lv.sublevels[1]; i++) {
           canvasBIG.setCursor(startx, starty + ((i)*10));
-          if (gg.fx[sublevels[1]%FXS_COUNT + 1 + i].plugged_fx != self->mainmenufxlistsize-1) {
-            canvasBIG.println((String)self->mainmenufxlist[gg.fx[sublevels[1]%FXS_COUNT + 1 + i].plugged_fx]);
+          if (gg.fx[lv.sublevels[1]%FXS_COUNT + 1 + i].plugged_fx != self->mainmenufxlistsize-1) {
+            canvasBIG.println((String)self->mainmenufxlist[gg.fx[lv.sublevels[1]%FXS_COUNT + 1 + i].plugged_fx]);
           } else {
-            canvasBIG.println(mainfxlineslist[sublevels[1]%FXS_COUNT + 1 + i]);
+            canvasBIG.println(mainfxlineslist[lv.sublevels[1]%FXS_COUNT + 1 + i]);
           }
         }
-        for (int i = 0; i < sublevels[1]%FXS_COUNT; i++) {
-          canvasBIG.setCursor(startx, (10 * (FXS_COUNT - (sublevels[1]%FXS_COUNT)) + 6 + ((i)*10)));
+        for (int i = 0; i < lv.sublevels[1]%FXS_COUNT; i++) {
+          canvasBIG.setCursor(startx, (10 * (FXS_COUNT - (lv.sublevels[1]%FXS_COUNT)) + 6 + ((i)*10)));
           if (gg.fx[i].plugged_fx != (self->mainmenufxlistsize - 1)) {
             canvasBIG.println((String)self->mainmenufxlist[gg.fx[i].plugged_fx]);
           } else {
@@ -276,32 +276,32 @@ for (int i = 0; i < 5; i++)
 
       static void displayfxVcontrols(byte fxinstance) {
         //TODO:make switch
-        if (sublevels[2] == 6) {
+        if (lv.sublevels[2] == 6) {
           biquadVpanel(fxinstance);
         }
-        if (sublevels[2] == 7) {
+        if (lv.sublevels[2] == 7) {
           filterVpanel(fxinstance);
         }
-        if (sublevels[2] == 8) {
+        if (lv.sublevels[2] == 8) {
           delayVpanel(fxinstance);
         }
-        if (sublevels[2] == 1) {
+        if (lv.sublevels[2] == 1) {
           reverbVpanel(fxinstance);
         }
-        if (sublevels[2] == 3) {
+        if (lv.sublevels[2] == 3) {
           bitcrusherVpanel(fxinstance);
         }
-        if (sublevels[2] == 2) {
+        if (lv.sublevels[2] == 2) {
           granularVpanel(fxinstance);
         }
-        if (sublevels[2] == 5) {
+        if (lv.sublevels[2] == 5) {
           chorusVpanel(fxinstance);
         }
-        if (sublevels[2] == 4) {
+        if (lv.sublevels[2] == 4) {
           flangerVpanel(fxinstance);
         }
-        if (sublevels[2] == 9 || sublevels[2] == 0) {
-          navlevel--;
+        if (lv.sublevels[2] == 9 || lv.sublevels[2] == 0) {
+          lv.navlevel--;
         }
       }
       static void flangercontrols(byte fx_idx) {
@@ -316,42 +316,42 @@ for (int i = 0; i < 5; i++)
          AudioInterrupts();
       }
       static void flangerVpanelAction(byte fx_idx) {
-        if (navlevel == 4) {
+        if (lv.navlevel == 4) {
           // AudioNoInterrupts();
-          byte slct = sublevels[3];
+          byte slct = lv.sublevels[3];
           // offset
           if (slct == 0) {
-            navrange = 127;
-            gg.fx[fx_idx].flangerVknobs[0] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].flangerVknobs[0] = lv.sublevels[4];
             flangercontrols(fx_idx);
           }
           // depth
           if (slct == 1) {
-            navrange = 127;
-            gg.fx[fx_idx].flangerVknobs[1] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].flangerVknobs[1] = lv.sublevels[4];
             flangercontrols(fx_idx);
             // apply
           }
           // delayRate
           // depth
           if (slct == 2) {
-            navrange = 127;
-            gg.fx[fx_idx].flangerVknobs[2] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].flangerVknobs[2] = lv.sublevels[4];
             flangercontrols(fx_idx);
             // apply
           }
           if (slct == 3) {
-            navrange = 127;
+            lv.navrange = 127;
             set_wet_mix_at_sub4(fx_idx);
           }
         }
-        if (navlevel > 4) {
-          returntonav(3);
+        if (lv.navlevel > 4) {
+          dm.returntonav(3);
         }
       }
 
       static void set_wet_mix_at_sub4(byte i){
-        gg.WetMixMasters[i + 1] = sublevels[4] ;
+        gg.WetMixMasters[i + 1] = lv.sublevels[4] ;
         _mx.wetmixmastercontrols();
       }
 
@@ -363,32 +363,32 @@ for (int i = 0; i < 5; i++)
         byte totbartall = 37;
         byte topwbarstart = 16;
         byte wbarwidth2 = 8;
-        if (navlevel == 3) {
-          navrange = 3;
+        if (lv.navlevel == 3) {
+          lv.navrange = 3;
         }
-        byte slct = sublevels[3];
+        byte slct = lv.sublevels[3];
         // size
         if (slct == 0) {
-          sublevels[4] = gg.fx[fx_idx].flangerVknobs[0];
+          lv.sublevels[4] = gg.fx[fx_idx].flangerVknobs[0];
           canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
-          sublevels[4] = gg.fx[fx_idx].flangerVknobs[1];
+          lv.sublevels[4] = gg.fx[fx_idx].flangerVknobs[1];
           canvasBIG.drawCircle(centercirclex + 40, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
 
         if (slct == 2) {
-          sublevels[4] = gg.fx[fx_idx].flangerVknobs[2];
+          lv.sublevels[4] = gg.fx[fx_idx].flangerVknobs[2];
           canvasBIG.drawCircle(centercirclex + 40 + 40, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
 
         // wet
         if (slct == 3) {
-          sublevels[4] = gg.WetMixMasters[fx_idx+ 1];
+          lv.sublevels[4] = gg.WetMixMasters[fx_idx+ 1];
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -476,23 +476,23 @@ for (int i = 0; i < 5; i++)
       }
 
       static void chorusVpanelAction(byte fx_idx) {
-        if (navlevel == 4) {
+        if (lv.navlevel == 4) {
           // AudioNoInterrupts();
-          byte slct = sublevels[3];
+          byte slct = lv.sublevels[3];
           // fq
           if (slct == 0) {
-            navrange = 127;
-            gg.fx[fx_idx].chorusVknobs = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].chorusVknobs = lv.sublevels[4];
             choruscontrols(fx_idx);
           }
           // res
           if (slct == 1) {
-            navrange = 127;
+            lv.navrange = 127;
             set_wet_mix_at_sub4(fx_idx);
           }
         }
-        if (navlevel > 4) {
-          returntonav(3);
+        if (lv.navlevel > 4) {
+          dm.returntonav(3);
         }
       }
 
@@ -505,20 +505,20 @@ for (int i = 0; i < 5; i++)
         byte totbartall = 37;
         byte topwbarstart = 16;
         byte wbarwidth2 = 8;
-        if (navlevel == 3) {
-          navrange = 1;
+        if (lv.navlevel == 3) {
+          lv.navrange = 1;
         }
-        int slct = sublevels[3];
+        int slct = lv.sublevels[3];
         // size
         if (slct == 0) {
-          sublevels[4] = gg.fx[fx_idx].chorusVknobs;
+          lv.sublevels[4] = gg.fx[fx_idx].chorusVknobs;
           canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
 
         // wet
         if (slct == 1) {
-          sublevels[4] = gg.WetMixMasters[fx_idx + 1];
+          lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
                             wbarwidth2 - 4, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
@@ -627,39 +627,39 @@ for (int i = 0; i < 5; i++)
       }
 
       static void granularVpanelAction(byte fx_idx) {
-        if (navlevel == 4) {
-          byte slct = sublevels[3];
+        if (lv.navlevel == 4) {
+          byte slct = lv.sublevels[3];
           // g leng
           if (slct == 0) {
-            navrange = 127;
-            gg.fx[fx_idx].granularVknobs[0] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].granularVknobs[0] = lv.sublevels[4];
           }
           if (slct == 1) {
-            navrange = 127;
-            gg.fx[fx_idx].granularVknobs[1] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].granularVknobs[1] = lv.sublevels[4];
             granularcontrols(fx_idx);
           }
           // res
           if (slct == 2) {
             gg.fx[fx_idx].granular_freezing = !gg.fx[fx_idx].granular_freezing;
             granular_freeze(fx_idx);
-            returntonav(3);
+            dm.returntonav(3);
           }
           if (slct == 3) {
             gg.fx[fx_idx].granular_shifting = !gg.fx[fx_idx].granular_shifting ;
             granular_pitch_shift(fx_idx);
-            returntonav(3);
+            dm.returntonav(3);
           }
 
           if (slct == 4) {
-            navrange = 127;
+            lv.navrange = 127;
             set_wet_mix_at_sub4(fx_idx);
           }
         }
 
-        if (navlevel > 4) {
+        if (lv.navlevel > 4) {
 
-          returntonav(3);
+          dm.returntonav(3);
         }
       }
 
@@ -671,18 +671,18 @@ for (int i = 0; i < 5; i++)
         const byte totbartall = 37;
         const byte topwbarstart = 16;
         const byte wbarwidth2 = 8;
-        if (navlevel == 3) {
-          navrange = 4;
+        if (lv.navlevel == 3) {
+          lv.navrange = 4;
         }
-        byte slct = sublevels[3];
+        byte slct = lv.sublevels[3];
         // size
         if (slct == 0) {
-          sublevels[4] = gg.fx[fx_idx].granularVknobs[0];
+          lv.sublevels[4] = gg.fx[fx_idx].granularVknobs[0];
           canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
-          sublevels[4] = gg.fx[fx_idx].granularVknobs[1];
+          lv.sublevels[4] = gg.fx[fx_idx].granularVknobs[1];
           canvasBIG.drawCircle(knobradius + 45, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         if (slct == 2) {
@@ -701,7 +701,7 @@ for (int i = 0; i < 5; i++)
         }
         // wet
         if (slct == 4) {
-          sublevels[4] = gg.WetMixMasters[fx_idx + 1] ;
+          lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1] ;
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -797,30 +797,30 @@ for (int i = 0; i < 5; i++)
       }
 
       static void bitcrusherVpanelAction(byte fx_idx) {
-        if (navlevel == 4) {
+        if (lv.navlevel == 4) {
           // AudioNoInterrupts();
-          byte slct = sublevels[3];
+          byte slct = lv.sublevels[3];
           // fq
           if (slct == 0) {
-            navrange = 16;
-            gg.fx[fx_idx].bitcrusherVknobs[0] = sublevels[4];
+            lv.navrange = 16;
+            gg.fx[fx_idx].bitcrusherVknobs[0] = lv.sublevels[4];
             bitcrusherctrl(fx_idx);
           }
           // res
           if (slct == 1) {
-            navrange = 127;
-            gg.fx[fx_idx].bitcrusherVknobs[1] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].bitcrusherVknobs[1] = lv.sublevels[4];
             bitcrusherctrl(fx_idx);
             // apply
           }
 
           if (slct == 2) {
-            navrange = 127;
+            lv.navrange = 127;
             set_wet_mix_at_sub4(fx_idx);
           }
         }
-        if (navlevel > 4) {
-          returntonav(3);
+        if (lv.navlevel > 4) {
+          dm.returntonav(3);
         }
       }
 
@@ -833,24 +833,24 @@ for (int i = 0; i < 5; i++)
         byte totbartall = 37;
         byte topwbarstart = 16;
         byte wbarwidth2 = 8;
-        if (navlevel == 3) {
-          navrange = 2;
+        if (lv.navlevel == 3) {
+          lv.navrange = 2;
         }
-        int slct = sublevels[3];
+        int slct = lv.sublevels[3];
         // size
         if (slct == 0) {
-          sublevels[4] = gg.fx[fx_idx].bitcrusherVknobs[0];
+          lv.sublevels[4] = gg.fx[fx_idx].bitcrusherVknobs[0];
           canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
-          sublevels[4] = gg.fx[fx_idx].bitcrusherVknobs[1];
+          lv.sublevels[4] = gg.fx[fx_idx].bitcrusherVknobs[1];
           canvasBIG.drawCircle(knobradius + 68, centercircley, knobradius - 2, SSD1306_WHITE);
         }
 
         // wet
         if (slct == 2) {
-          sublevels[4] = gg.WetMixMasters[fx_idx + 1] ;
+          lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1] ;
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -923,29 +923,29 @@ for (int i = 0; i < 5; i++)
       }
 
       static void reverbVpanelAction(byte fx_idx) {
-        if (navlevel == 4) {
+        if (lv.navlevel == 4) {
           // AudioNoInterrupts();
-          byte slct = sublevels[3];
+          byte slct = lv.sublevels[3];
           // fq
           if (slct == 0) {
-            navrange = 127;
-            gg.fx[fx_idx].reverbVknobs[0] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].reverbVknobs[0] = lv.sublevels[4];
             freeverbscontrl(fx_idx);
           }
           // res
           //if (slct == 1) {
-          //  navrange = 127;
-          //  gg.fx[fx_idx].reverbVknobs[1] = sublevels[4];
+          //  lv.navrange = 127;
+          //  gg.fx[fx_idx].reverbVknobs[1] = lv.sublevels[4];
           //  freeverbscontrl(fx_idx);
           //}
           if (slct == 1) {
-            navrange = 127;
+            lv.navrange = 127;
             set_wet_mix_at_sub4(fx_idx);
           }
         }
-        if (navlevel > 4) {
+        if (lv.navlevel > 4) {
 
-          returntonav(3);
+          dm.returntonav(3);
         }
       }
 
@@ -957,31 +957,31 @@ for (int i = 0; i < 5; i++)
         byte totbartall = 37;
         byte topwbarstart = 16;
         byte wbarwidth2 = 8;
-        if (navlevel == 3) {
-          navrange = 1;
+        if (lv.navlevel == 3) {
+          lv.navrange = 1;
         }
-        int slct = sublevels[3];
+        int slct = lv.sublevels[3];
         // second
         if (slct == 0) {
-          sublevels[4] = gg.fx[fx_idx].reverbVknobs[0];
+          lv.sublevels[4] = gg.fx[fx_idx].reverbVknobs[0];
           canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp ( disabled , from other freeverb module)
         //if (slct == 1) {
-        //  sublevels[4] = gg.fx[fx_idx].reverbVknobs[1];
+        //  lv.sublevels[4] = gg.fx[fx_idx].reverbVknobs[1];
         //  canvasBIG.drawCircle(knobradius + 68, centercircley, knobradius - 2, SSD1306_WHITE);
         //}
 
         // wet
         if (slct == 1) {
-          sublevels[4] = gg.WetMixMasters[fx_idx + 1];
+          lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
       }
 
       static void reverbVpanel(byte fx_idx) {
-        navrange = 1;
+        lv.navrange = 1;
         reverbVpanelAction(fx_idx);
         byte knobradius = 14;
         byte centercirclex = 25 + knobradius;
@@ -1036,35 +1036,35 @@ for (int i = 0; i < 5; i++)
       }
 
       static void delayVpanelAction(byte fx_idx) {
-        if (navlevel == 4) {
+        if (lv.navlevel == 4) {
           // AudioNoInterrupts();
-          byte slct = sublevels[3];
+          byte slct = lv.sublevels[3];
           // time
           if (slct == 0) {
-            navrange = 127;
-            gg.fx[fx_idx].delayVknobs[0] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].delayVknobs[0] = lv.sublevels[4];
             restartdelayline(fx_idx);
           }
           // timeX
           if (slct == 1) {
-            navrange = 127;
-            gg.fx[fx_idx].delayVknobs[1] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].delayVknobs[1] = lv.sublevels[4];
             restartdelayline(fx_idx);
           }
           // feedback
           if (slct == 2) {
-            navrange = 127;
-            gg.fx[fx_idx].delayVknobs[2] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].delayVknobs[2] = lv.sublevels[4];
             restartdelayline(fx_idx);
           }
           if (slct == 3) {
-            navrange = 127;
-            gg.WetMixMasters[fx_idx + 1] = sublevels[4] ;
+            lv.navrange = 127;
+            gg.WetMixMasters[fx_idx + 1] = lv.sublevels[4] ;
             _mx.wetmixmastercontrols();
           }
         }
-        if (navlevel > 4) {
-          returntonav(3);
+        if (lv.navlevel > 4) {
+          dm.returntonav(3);
         }
       }
 
@@ -1076,29 +1076,29 @@ for (int i = 0; i < 5; i++)
         byte totbartall = 37;
         byte topwbarstart = 16;
         byte wbarwidth2 = 8;
-        if (navlevel == 3) {
-          navrange = 3;
+        if (lv.navlevel == 3) {
+          lv.navrange = 3;
         }
-        byte slct = sublevels[3];
+        byte slct = lv.sublevels[3];
         // size
         if (slct == 0) {
-          sublevels[4] = gg.fx[fx_idx].delayVknobs[0];
+          lv.sublevels[4] = gg.fx[fx_idx].delayVknobs[0];
           canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
-          sublevels[4] = gg.fx[fx_idx].delayVknobs[1];
+          lv.sublevels[4] = gg.fx[fx_idx].delayVknobs[1];
           canvasBIG.drawCircle(centercirclex + 40, centercircley, knobradius - 2, SSD1306_WHITE);
         }
 
         if (slct == 2) {
-          sublevels[4] = gg.fx[fx_idx].delayVknobs[2];
+          lv.sublevels[4] = gg.fx[fx_idx].delayVknobs[2];
           canvasBIG.drawCircle(centercirclex + 40 + 40, centercircley, knobradius - 2, SSD1306_WHITE);
         }
 
         // wet
         if (slct == 3) {
-          sublevels[4] = gg.WetMixMasters[fx_idx + 1];
+          lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -1178,57 +1178,57 @@ for (int i = 0; i < 5; i++)
       }
 
       static void filterVpanelAction(byte fx_idx) {
-        if (navlevel == 3) {
+        if (lv.navlevel == 3) {
           self->filter_lfo_option = gg.fx[fx_idx].LFOonfilterz ;
         }
-        if (navlevel == 4) {
-          byte slct = sublevels[3];
+        if (lv.navlevel == 4) {
+          byte slct = lv.sublevels[3];
           // fq
           if (slct == 0) {
-            navrange = 127;
-            gg.fx[fx_idx].ffilterzVknobs[0] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].ffilterzVknobs[0] = lv.sublevels[4];
           }
           // res
           if (slct == 1) {
-            navrange = 127;
-            gg.fx[fx_idx].ffilterzVknobs[1] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].ffilterzVknobs[1] = lv.sublevels[4];
           }
           // octaves
           if (slct == 2) {
-            navrange = 127;
-            gg.fx[fx_idx].ffilterzVknobs[2] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].ffilterzVknobs[2] = lv.sublevels[4];
           }
           // lowpass
           if (slct == 3) {
-            navrange = 127;
-            gg.fx[fx_idx].mixffilterzVknobs[0] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].mixffilterzVknobs[0] = lv.sublevels[4];
           }
           // bandpass
           if (slct == 4) {
-            navrange = 127;
-            gg.fx[fx_idx].mixffilterzVknobs[1] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].mixffilterzVknobs[1] = lv.sublevels[4];
           }
           // high pass
           if (slct == 5) {
-            navrange = 127;
-            gg.fx[fx_idx].mixffilterzVknobs[2] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].mixffilterzVknobs[2] = lv.sublevels[4];
           }
           if (slct == 6) {
-            //navrange is 3 + 1 for none
-            navrange = OSCS_COUNT;
-            self->filter_lfo_option = sublevels[4];
+            //lv.navrange is 3 + 1 for none
+            lv.navrange = OSCS_COUNT;
+            self->filter_lfo_option = lv.sublevels[4];
             if (self->filter_lfo_option < OSCS_COUNT) {
               gg.fx[fx_idx].LFOonfilterz = self->filter_lfo_option;
             }
           }
           if (slct == 7) {
-            navrange = 127;
+            lv.navrange = 127;
             set_wet_mix_at_sub4(fx_idx);
           }
           filtercontrols(fx_idx);
         }
-        if (navlevel > 4) {
-          returntonav(3);
+        if (lv.navlevel > 4) {
+          dm.returntonav(3);
         }
       }
 
@@ -1261,7 +1261,7 @@ for (int i = 0; i < 5; i++)
         gg.fx[fx_idx].filterzgainz[1] = (gg.fx[fx_idx].mixffilterzVknobs[1]) / 127.0;
         gg.fx[fx_idx].filterzgainz[2] = (gg.fx[fx_idx].mixffilterzVknobs[2]) / 127.0;
         unpluglfoonfilterz(fx_idx);
-        if (sublevels[4] < OSCS_COUNT) {
+        if (lv.sublevels[4] < OSCS_COUNT) {
           lfoonfilterreplug(fx_idx);
         }
         for (int i = 0; i < 3; i++) {
@@ -1387,83 +1387,83 @@ for (int i = 0; i < 5; i++)
         byte wbarwidth = 9;
         int wbarwidth2 = 8;
         byte startlex2 = 67;
-        if (navlevel == 3) {
-          navrange = 8;
+        if (lv.navlevel == 3) {
+          lv.navrange = 8;
         }
-        byte slct = sublevels[3];
+        byte slct = lv.sublevels[3];
         // fq
         if (slct == 0) {
-          sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[0];
+          lv.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[0];
           canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // res
         if (slct == 1) {
-          sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[1];
+          lv.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[1];
           canvasBIG.drawCircle(centercirclex + 25, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // oct
         if (slct == 2) {
-          sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[2];
+          lv.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[2];
           canvasBIG.drawCircle(centercirclex + 50, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // lp
         if (slct == 3) {
-          sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[0];
+          lv.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[0];
           canvasBIG.drawRect(83, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
         }
         // bp
         if (slct == 4) {
-          sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[1];
+          lv.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[1];
           canvasBIG.drawRect(100, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
         }
         // hp
         if (slct == 5) {
-          sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[2];
+          lv.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[2];
           canvasBIG.drawRect(117, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
         }
         // Select LFO
         if (slct == 6) {
-          sublevels[4] = self->filter_lfo_option;
+          lv.sublevels[4] = self->filter_lfo_option;
           canvasBIG.setCursor(64, 8);
           canvasBIG.print((char)9);
         }
         if (slct == 7) {
-          sublevels[4] = gg.WetMixMasters[fx_idx + 1];
+          lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
       }
 
       static void biquadVpanelAction(byte fx_idx) {
-        if (navlevel == 4) {
-          byte slct = sublevels[3];
+        if (lv.navlevel == 4) {
+          byte slct = lv.sublevels[3];
           // stage
           if (slct == 0) {
-            navrange = 3;
-            gg.fx[fx_idx].bqstage = sublevels[4];
+            lv.navrange = 3;
+            gg.fx[fx_idx].bqstage = lv.sublevels[4];
           }
           // mode
           if (slct == 1) {
-            navrange = 6;
-            gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage] = sublevels[4];
+            lv.navrange = 6;
+            gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage] = lv.sublevels[4];
           }
           // freq
           if (slct == 2) {
-            navrange = 127;
-            gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0] = lv.sublevels[4];
             gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] =
                 (((gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0]) / 127.0) * self->bqrange) + 101;
           }
           // slope or Q
           if (slct == 3) {
-            navrange = 127;
-            gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1] = lv.sublevels[4];
             gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage] = 0.001 + 5.0 * ((gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1]) / 127.0);
           }
           // gain
           if (slct == 5) {
-            navrange = 127;
-            gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2] = sublevels[4];
+            lv.navrange = 127;
+            gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2] = lv.sublevels[4];
             gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage] = 100.0 - ((gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2]) / 127.0) * 200.0 ;
           }
           // to avoid setting up a stage unconfigured while browsing
@@ -1471,13 +1471,13 @@ for (int i = 0; i < 5; i++)
             biquadcontrols(fx_idx);
           }
           if (slct == 4) {
-            navrange = 127;
+            lv.navrange = 127;
             set_wet_mix_at_sub4(fx_idx);
           }
         }
-        if (navlevel > 4) {
+        if (lv.navlevel > 4) {
 
-          returntonav(3);
+          dm.returntonav(3);
         }
       }
 
@@ -1562,46 +1562,46 @@ for (int i = 0; i < 5; i++)
         byte totbartall = 37;
         byte topwbarstart = 16;
         byte wbarwidth2 = 7;
-        if (navlevel == 3) {
-          navrange = 4;
+        if (lv.navlevel == 3) {
+          lv.navrange = 4;
           if (gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage] > 3) {
-            navrange = 5;
+            lv.navrange = 5;
           }
         }
-        byte slct = sublevels[3];
+        byte slct = lv.sublevels[3];
         // stage
         if (slct == 0) {
-          sublevels[4] = gg.fx[fx_idx].bqstage;
+          lv.sublevels[4] = gg.fx[fx_idx].bqstage;
           canvasBIG.setCursor(103, 9);
           canvasBIG.print((char)9);
         }
         // mode
         if (slct == 1) {
-          sublevels[4] = gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage];
+          lv.sublevels[4] = gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage];
           canvasBIG.setCursor(29, 8);
           canvasBIG.print((char)9);
         }
         // freq
         if (slct == 2) {
-          sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0];
+          lv.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0];
           canvasBIG.setCursor(20, 36);
           canvasBIG.print((char)9);
         }
         // slope
         if (slct == 3) {
-          sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1];
+          lv.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1];
           canvasBIG.setCursor(60, 36);
           canvasBIG.print((char)9);
         }
         // gain
         if (slct == 5) {
-          sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2];
+          lv.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2];
           canvasBIG.setCursor(89, 36);
           canvasBIG.print((char)9);
         }
 
         if (slct == 4) {
-          sublevels[4] = gg.WetMixMasters[fx_idx + 1];
+          lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
           canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -1652,20 +1652,20 @@ for (int i = 0; i < 5; i++)
       }
 
       static void fx_nav_zero(){
-        if (navlevel < 2) reinitsublevels(2);
+        if (lv.navlevel < 2) reinitsublevels(2);
         self->avoid_fx_bounce = false ;
-        navrange = self->home_navrange;
+        lv.navrange = self->home_navrange;
         display.clearDisplay();
         dolistmainfxlines();
         dm.dodisplay();
-        sublevels[2] = gg.fx[sublevels[1]%FXS_COUNT].plugged_fx ;
+        lv.sublevels[2] = gg.fx[lv.sublevels[1]%FXS_COUNT].plugged_fx ;
       }
 
       static void fx_nav_one(){
-        if (navlevel < 2) reinitsublevels(2);
+        if (lv.navlevel < 2) reinitsublevels(2);
         self->avoid_fx_bounce = false ;
         display.clearDisplay();
-        if (navlevel == 2) navrange = 9;
+        if (lv.navlevel == 2) lv.navrange = 9;
         dolistMainFxPanel();
         dm.dodisplay();
       }
@@ -1674,21 +1674,21 @@ for (int i = 0; i < 5; i++)
         //remember to manage self->avoid_fx_bounce if plugging fx outside of menu
         if (!self->avoid_fx_bounce){
           self->avoid_fx_bounce = true ;
-          gg.fx[sublevels[1]].route_fx(sublevels[2]);
+          gg.fx[lv.sublevels[1]].route_fx(lv.sublevels[2]);
         }
-          displayfxVcontrols(sublevels[1]);
+          displayfxVcontrols(lv.sublevels[1]);
       }
 
       static void MainFxPanel() {
-        //if (sublevels[navlevel] > navrange) reinitsublevels(navlevel);
+        //if (lv.sublevels[lv.navlevel] > lv.navrange) reinitsublevels(lv.navlevel);
 
-        if (navlevel == 1) {
+        if (lv.navlevel == 1) {
           fx_nav_zero();
         }
-        if (navlevel == 2) {
+        if (lv.navlevel == 2) {
           fx_nav_one();
         }
-        if (navlevel > 2) {
+        if (lv.navlevel > 2) {
           fx_nav_two();
         }
       }

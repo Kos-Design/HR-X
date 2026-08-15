@@ -17,17 +17,7 @@ extern const CcCalls ctl[] ;
 class Adafruit_SSD1306;
 class GFXcanvas1;
 extern Adafruit_SSD1306 display;
-extern int navlevel;
-extern int navrange;
 extern const unsigned char menuBG[];
-extern int sublevels[9];
-extern int previousnavlevel;
-
-extern bool patternOn;
-extern bool stoptick;
-extern bool recordCC;
-extern bool patrecord;
-
 struct Preset;
 
 void call_sn_show();
@@ -40,15 +30,9 @@ void call_fx_show();
 void call_sp_show();
 void call_wf_show();
 void call_ps_show();
-void returntonav(byte,byte,byte);
 
-extern int retroaction;
-extern bool temp_buff_armed ;
 extern GFXcanvas1 canvasBIG;
 extern GFXcanvas1 canvastitle;
-extern byte oscillator;
-
-
 extern Preset gg ;
 
 class SectionHolder{
@@ -87,6 +71,8 @@ class DisplayManager{
         void main_panel(const char* const*,int,int);
         void show(void);
         void dodisplay(void);
+        void returntonav(byte lelevel, byte lanavrange = lv.navrange,byte t_vraipos = lv.rota_true_pos);
+
         static void (*root_route[10])();
 
     private:

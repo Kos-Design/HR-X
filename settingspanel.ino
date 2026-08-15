@@ -38,13 +38,13 @@ class SettingsMenuRouter : public SectionHolder {
         bool freezemidicc = 0;
 
         static void show() {
-          if (navlevel == 1) {
+          if (lv.navlevel == 1) {
             self->setting_on_board = false ;
             settings_nav_zero();
           }
 
           // arpegiator has its own panel -> 8 , same for 11 which is OnboardPanel
-          if (navlevel >= 2) {
+          if (lv.navlevel >= 2) {
             settings_nav_one();
           }
         }
@@ -59,13 +59,13 @@ class SettingsMenuRouter : public SectionHolder {
         }
         static void set_alternative_rota(){
 
-          navrange = 3 ;
-          if (navlevel == 3 ){
-            navrange = 127;
-            gg.alt_nav[sublevels[2]]=sublevels[3];
+          lv.navrange = 3 ;
+          if (lv.navlevel == 3 ){
+            lv.navrange = 127;
+            gg.alt_nav[lv.sublevels[2]]=lv.sublevels[3];
           }
           
-          sublevels[3]=gg.alt_nav[sublevels[2]];
+          lv.sublevels[3]=gg.alt_nav[lv.sublevels[2]];
           display.clearDisplay();
           display.setCursor(0,0);
           display.setTextSize(1);
@@ -88,12 +88,12 @@ class SettingsMenuRouter : public SectionHolder {
           display.print("Cancel:   ");
           display.print(gg.alt_nav[3]);
 
-          display.drawRoundRect(56,11+12*sublevels[2], 25, 16, 3, SSD1306_WHITE);
+          display.drawRoundRect(56,11+12*lv.sublevels[2], 25, 16, 3, SSD1306_WHITE);
           display.display();
           
-          if (navlevel > 3 ){
+          if (lv.navlevel > 3 ){
             apply_alt_ctl();
-            returntonav(2,3,sublevels[2]);
+            dm.returntonav(2,3,lv.sublevels[2]);
           }
         }
 
@@ -150,26 +150,26 @@ class SettingsMenuRouter : public SectionHolder {
           dm.clean_title_1_1();
           _tt.debugmidion = 0;
           self->noteprint = 0;
-          navrange = settings_labels_count - 1;
+          lv.navrange = settings_labels_count - 1;
           makesettingslist();
           dm.dodisplay();
         }
 
         static void OnBoardVpanelAction() {
-          if (navlevel > 3) {
-            if (((sublevels[2] <= 11) || (sublevels[2] > 45)) && (navlevel == 4)) {
-              gg.ordered_pots[Pads.potsboards[sublevels[2]]] = gg.pot_assignements[sublevels[2]];
+          if (lv.navlevel > 3) {
+            if (((lv.sublevels[2] <= 11) || (lv.sublevels[2] > 45)) && (lv.navlevel == 4)) {
+              gg.ordered_pots[Pads.potsboards[lv.sublevels[2]]] = gg.pot_assignements[lv.sublevels[2]];
             }
-            returntonav(2);
+            dm.returntonav(2);
           }
         }
 
         static void OnBoardVpanelSelector() {
 
-          int selecta = sublevels[2];
-          if (navlevel == 2) {
-            navrange = ALL_BUTTONS - 1;
-            sublevels[3] = gg.pot_assignements[sublevels[2]];
+          int selecta = lv.sublevels[2];
+          if (lv.navlevel == 2) {
+            lv.navrange = ALL_BUTTONS - 1;
+            lv.sublevels[3] = gg.pot_assignements[lv.sublevels[2]];
           }
 
           if (selecta < 9) {
@@ -206,21 +206,21 @@ class SettingsMenuRouter : public SectionHolder {
 
           canvasBIG.setCursor(8, 24);
           // canvasBIG.setTextSize(1);
-          sprintf(self->ch_lbl_buffer, "%02d", gg.but_channel[sublevels[2]]);
+          sprintf(self->ch_lbl_buffer, "%02d", gg.but_channel[lv.sublevels[2]]);
           canvasBIG.print(self->ch_lbl_buffer);
 
-          if (navlevel == 3) {
-            sublevels[4] = gg.pot_assignements[sublevels[2]];
-            gg.pot_assignements[sublevels[2]] = sublevels[3];
+          if (lv.navlevel == 3) {
+            lv.sublevels[4] = gg.pot_assignements[lv.sublevels[2]];
+            gg.pot_assignements[lv.sublevels[2]] = lv.sublevels[3];
             if (selecta <= 11) {
-              navrange = 127;
+              lv.navrange = 127;
             }
 
             if ((selecta > 11) && (selecta <= 45)) {
-              navrange = 128 + 127;
+              lv.navrange = 128 + 127;
             }
             if (selecta > 45) {
-              navrange = 127;
+              lv.navrange = 127;
             }
           }
 
@@ -229,15 +229,15 @@ class SettingsMenuRouter : public SectionHolder {
           canvastitle.print(self->onboards[selecta]);
 
           canvastitle.setCursor(42, 0);
-          if (gg.pot_assignements[sublevels[2]] <= 128) {
+          if (gg.pot_assignements[lv.sublevels[2]] <= 128) {
             canvastitle.print("CC ");
-            canvastitle.print(gg.pot_assignements[sublevels[2]]);
+            canvastitle.print(gg.pot_assignements[lv.sublevels[2]]);
           } else {
             canvastitle.print("Note ");
-            canvastitle.print(gg.pot_assignements[sublevels[2]] - 128);
+            canvastitle.print(gg.pot_assignements[lv.sublevels[2]] - 128);
             canvastitle.setCursor(90, 0);
             canvastitle.print("V ");
-            canvastitle.print(gg.but_velocity[sublevels[2]]);
+            canvastitle.print(gg.but_velocity[lv.sublevels[2]]);
           }
         }
 
@@ -295,46 +295,46 @@ class SettingsMenuRouter : public SectionHolder {
         
 
         static void arpegiatorVpanelAction() {
-          if (navlevel == 3) {
+          if (lv.navlevel == 3) {
             // AudioNoInterrupts();
-            byte slct = (byte)sublevels[2];
+            byte slct = (byte)lv.sublevels[2];
             // fq
 
             if (slct == 0) {
-              navrange = arpeges_types;
-              gg.arpegiatortype = sublevels[3];
-              // gg.arpegiatortype = sublevels[2];
+              lv.navrange = arpeges_types;
+              gg.arpegiatortype = lv.sublevels[3];
+              // gg.arpegiatortype = lv.sublevels[2];
               _pt.set_arp_type();
             }
             // damp
             if (slct == 1) {
-              navrange = 7;
-              gg.arpegmode = sublevels[3];
+              lv.navrange = 7;
+              gg.arpegmode = lv.sublevels[3];
             }
             if (slct == 2) {
-              navrange = 3 * 6;
-              gg.arpegstartoffset = sublevels[3];
+              lv.navrange = 3 * 6;
+              gg.arpegstartoffset = lv.sublevels[3];
             }
             if (slct == 3) {
-              navrange = 6;
-              gg.arpegnumofnotes = 1 + sublevels[3];
+              lv.navrange = 6;
+              gg.arpegnumofnotes = 1 + lv.sublevels[3];
             }
             if (slct == 4) {
-              navrange = 8;
-              gg.arpeggridC = sublevels[3];
+              lv.navrange = 8;
+              gg.arpeggridC = lv.sublevels[3];
             }
             if (slct == 5) {
-              navrange = 8;
-              gg.arpeggridS = sublevels[3];
+              lv.navrange = 8;
+              gg.arpeggridS = lv.sublevels[3];
             }
             if (slct == 6) {
-              navrange = 8;
-              gg.arpeglengh = sublevels[3];
+              lv.navrange = 8;
+              gg.arpeglengh = lv.sublevels[3];
             }
           }
-          if (navlevel > 3) {
+          if (lv.navlevel > 3) {
 
-            returntonav(2,6,sublevels[2]);
+            dm.returntonav(2,6,lv.sublevels[2]);
 
           }
         }
@@ -348,7 +348,7 @@ class SettingsMenuRouter : public SectionHolder {
           int topwbarstart = 16;
           int wbarwidth2 = 7;
 
-          int slct = sublevels[2];
+          int slct = lv.sublevels[2];
           canvasBIG.drawLine(
               startlex - 2 + slct * ecartl, topwbarstart + totbartall + 2,
               startlex - 2 + slct * ecartl,
@@ -360,40 +360,40 @@ class SettingsMenuRouter : public SectionHolder {
 
           if (slct == 0) {
 
-            sublevels[3] = gg.arpegiatortype;
+            lv.sublevels[3] = gg.arpegiatortype;
           }
           // damp
           if (slct == 1) {
 
-            sublevels[3] = gg.arpegmode;
+            lv.sublevels[3] = gg.arpegmode;
           }
           if (slct == 2) {
 
-            sublevels[3] = gg.arpegstartoffset;
+            lv.sublevels[3] = gg.arpegstartoffset;
           }
           if (slct == 3) {
 
-            sublevels[3] = gg.arpegnumofnotes - 1;
+            lv.sublevels[3] = gg.arpegnumofnotes - 1;
           }
           if (slct == 4) {
 
-            sublevels[3] = gg.arpeggridC;
+            lv.sublevels[3] = gg.arpeggridC;
           }
           if (slct == 5) {
 
-            sublevels[3] = gg.arpeggridS;
+            lv.sublevels[3] = gg.arpeggridS;
           }
           if (slct == 6) {
 
-            sublevels[3] = gg.arpeglengh;
+            lv.sublevels[3] = gg.arpeglengh;
           }
         }
 
         static void arpegiatorVpanel() {
 
           arpegiatorVpanelAction();
-          if (navlevel == 2) {
-            navrange = 6;
+          if (lv.navlevel == 2) {
+            lv.navrange = 6;
           }
 
           byte startlex = 4;
@@ -402,7 +402,7 @@ class SettingsMenuRouter : public SectionHolder {
 
           byte totbartall = 32;
           byte topwbarstart = 16;
-          byte slct = sublevels[2];
+          byte slct = lv.sublevels[2];
           byte wbarwidth2 = 7;
           char lesarpegestype[arpeges_types][12] = {"Ionian",     "Dorian",  "Phrygian", "Lydian",
                                         "Mixolydian", "Aeolian", "Harmonic", "Locrian"};
@@ -493,7 +493,7 @@ class SettingsMenuRouter : public SectionHolder {
           canvasBIG.fillScreen(SSD1306_BLACK);
           int startx = 0;
           int starty = 16;
-          char *textin = (char *)displaysettingslabels[sublevels[1]];
+          char *textin = (char *)displaysettingslabels[lv.sublevels[1]];
 
           canvastitle.fillScreen(SSD1306_BLACK);
           canvastitle.setCursor(0, 0);
@@ -502,7 +502,7 @@ class SettingsMenuRouter : public SectionHolder {
 
           canvastitle.println(textin);
 
-          if (sublevels[1] == 1) {
+          if (lv.sublevels[1] == 1) {
             canvastitle.setCursor(96, 0);
             if (self->freezemidicc) {
               canvastitle.println("On");
@@ -511,17 +511,17 @@ class SettingsMenuRouter : public SectionHolder {
             }
           }
 
-          if (sublevels[1] == 2) {
+          if (lv.sublevels[1] == 2) {
             canvastitle.setCursor(96, 0);
             canvastitle.println(midichlist[gg.synthmidichannel]);
-            sublevels[2] = (int)gg.synthmidichannel;
+            lv.sublevels[2] = (int)gg.synthmidichannel;
           }
-          if (sublevels[1] == 3) {
+          if (lv.sublevels[1] == 3) {
             canvastitle.setCursor(96, 0);
             canvastitle.println(midichlist[gg.samplermidichannel]);
-            sublevels[2] = int(gg.samplermidichannel);
+            lv.sublevels[2] = int(gg.samplermidichannel);
           }
-          if (sublevels[1] == 4) {
+          if (lv.sublevels[1] == 4) {
             canvastitle.setCursor(96, 0);
             if (gg.digitalplay) {
               canvastitle.println("On");
@@ -529,26 +529,26 @@ class SettingsMenuRouter : public SectionHolder {
               canvastitle.println("Off");
             }
           }
-          if (sublevels[1] == 5) {
+          if (lv.sublevels[1] == 5) {
             canvastitle.setCursor(96, 0);
             canvastitle.println(int(gg.tapnote));
-            sublevels[2] = int(gg.tapnote);
+            lv.sublevels[2] = int(gg.tapnote);
           }
-          if (sublevels[1] == 6) {
+          if (lv.sublevels[1] == 6) {
             canvastitle.setCursor(96, 0);
             //canvastitle.println(BPMs, 1);
             canvastitle.println(15000 / gg.millitickinterval, 1);
-            if (navlevel <= 2) {
-              sublevels[2] = gg.millitickinterval;
+            if (lv.navlevel <= 2) {
+              lv.sublevels[2] = gg.millitickinterval;
             }
           }
-          if (sublevels[1] == 7) {
-            sublevels[2] = gg.lasetchord;
+          if (lv.sublevels[1] == 7) {
+            lv.sublevels[2] = gg.lasetchord;
             canvasBIG.setTextSize(1);
             canvasBIG.setCursor(66, 0);
             canvasBIG.println(chordslabels[gg.lasetchord]);
           }
-          if (sublevels[1] == 8) {
+          if (lv.sublevels[1] == 8) {
             canvasBIG.setCursor(96, 0);
             if (gg.arpegiatortype != 8) {
               canvasBIG.print("On");
@@ -556,7 +556,7 @@ class SettingsMenuRouter : public SectionHolder {
               canvasBIG.print("Off");
             }
           }
-          if (sublevels[1] == 9) {
+          if (lv.sublevels[1] == 9) {
             canvastitle.setCursor(96, 0);
             if (gg.externalticker) {
               canvastitle.println("On");
@@ -566,7 +566,7 @@ class SettingsMenuRouter : public SectionHolder {
             canvasBIG.setTextSize(1);
           }
 
-          if (sublevels[1] == 12) {
+          if (lv.sublevels[1] == 12) {
             canvastitle.setCursor(96, 0);
 
             canvastitle.println(audio_source_lbl[self->AudioInSource]);
@@ -574,7 +574,7 @@ class SettingsMenuRouter : public SectionHolder {
             // canvasBIG.setTextSize(1);
           }
 
-          if (sublevels[1] == 13) {
+          if (lv.sublevels[1] == 13) {
             canvastitle.setCursor(96, 0);
             if (gg.SendMidiOut) {
               canvastitle.println("On");
@@ -584,16 +584,16 @@ class SettingsMenuRouter : public SectionHolder {
             // canvasBIG.setTextSize(1);
           }
           
-          for (int filer = 0; filer < settings_labels_count - 1 - (sublevels[1]);
+          for (int filer = 0; filer < settings_labels_count - 1 - (lv.sublevels[1]);
               filer++) {
 
             canvasBIG.setCursor(startx, starty + ((filer)*10));
-            canvasBIG.println(displaysettingslabels[sublevels[1] + 1 + filer]);
+            canvasBIG.println(displaysettingslabels[lv.sublevels[1] + 1 + filer]);
           }
-          for (int filer = 0; filer < sublevels[1]; filer++) {
+          for (int filer = 0; filer < lv.sublevels[1]; filer++) {
 
             canvasBIG.setCursor(
-                startx, (10 * (settings_labels_count - sublevels[1]) + 6 + ((filer)*10)));
+                startx, (10 * (settings_labels_count - lv.sublevels[1]) + 6 + ((filer)*10)));
             canvasBIG.println(displaysettingslabels[filer]);
           }
         }
@@ -602,8 +602,8 @@ class SettingsMenuRouter : public SectionHolder {
           
           canvasBIG.setTextSize(1);
           canvastitle.setTextSize(1);
-          _settings_menu[sublevels[1]]();
-          if (sublevels[1] != 8 && sublevels[1] != 15 && sublevels[1] != 14 && sublevels[1] != 16 && sublevels[1] != 11 ) {
+          _settings_menu[lv.sublevels[1]]();
+          if (lv.sublevels[1] != 8 && lv.sublevels[1] != 15 && lv.sublevels[1] != 14 && lv.sublevels[1] != 16 && lv.sublevels[1] != 11 ) {
             makesettingslist();
             dm.dodisplay();
           }
@@ -670,13 +670,13 @@ class SettingsMenuRouter : public SectionHolder {
 
       //TODO: unused, maybe fit into a menu somewhere
       static void metronomer() {
-        if ((tickposition == 0) || (tickposition == 16)) {
+        if ((lv.tickposition == 0) || (lv.tickposition == 16)) {
           metrodrum1.frequency(540);
           metrodrum1.noteOn();
           // printpattern();
         }
-        if ((tickposition == 4) || (tickposition == 8) || (tickposition == 12) ||
-            (tickposition == 20) || (tickposition == 24) || (tickposition == 28)) {
+        if ((lv.tickposition == 4) || (lv.tickposition == 8) || (lv.tickposition == 12) ||
+            (lv.tickposition == 20) || (lv.tickposition == 24) || (lv.tickposition == 28)) {
 
           // printpattern();
           metrodrum1.frequency(440);
@@ -690,68 +690,68 @@ class SettingsMenuRouter : public SectionHolder {
 
       static void toggle_freeze_midi(){
         self->freezemidicc = !self->freezemidicc;
-        returntonav(1,self->home_navrange,1);
+        dm.returntonav(1,self->home_navrange,1);
       }
 
       static void set_synth_midi_ch(){
-        navrange = 16;
-        gg.synthmidichannel = (byte)sublevels[2];
-        if (navlevel >= 3) {
-          returntonav(1,self->home_navrange,2);
+        lv.navrange = 16;
+        gg.synthmidichannel = (byte)lv.sublevels[2];
+        if (lv.navlevel >= 3) {
+          dm.returntonav(1,self->home_navrange,2);
         }
       }
 
       static void set_sampler_midi_ch(){
-        navrange = 16;
-        gg.samplermidichannel = sublevels[2];
-        if (navlevel >= 3) {
-          returntonav(1,self->home_navrange,3);
+        lv.navrange = 16;
+        gg.samplermidichannel = lv.sublevels[2];
+        if (lv.navlevel >= 3) {
+          dm.returntonav(1,self->home_navrange,3);
         }
       }
       
       static void toggle_digital_analog(){
         gg.digitalplay = !gg.digitalplay;
-        returntonav(1,self->home_navrange,4);
+        dm.returntonav(1,self->home_navrange,4);
       }
       
       
       static void set_tap_note(){
-        navrange = 127;
-        gg.tapnote = byte(sublevels[2]);
-        if (navlevel >= 3 ){
-          returntonav(1,self->home_navrange,5);
+        lv.navrange = 127;
+        gg.tapnote = byte(lv.sublevels[2]);
+        if (lv.navlevel >= 3 ){
+          dm.returntonav(1,self->home_navrange,5);
         }
       }
 
       static void set_bpms_interval(){
-        navrange = 620;
-        gg.millitickinterval = sublevels[2];
+        lv.navrange = 620;
+        gg.millitickinterval = lv.sublevels[2];
         //setbpms();
-        if (navlevel >= 3) {
-          gg.millitickinterval = sublevels[2];
+        if (lv.navlevel >= 3) {
+          gg.millitickinterval = lv.sublevels[2];
           self->setbpms();
           //tempo = gg.millitickinterval;
-          returntonav(1,self->home_navrange,6);
+          dm.returntonav(1,self->home_navrange,6);
         }
       }
 
       static void set_chord_mode(){
-        navrange = 6;
-        gg.lasetchord = sublevels[2];
+        lv.navrange = 6;
+        gg.lasetchord = lv.sublevels[2];
         if (gg.lasetchord < 6) {
           gg.chordson = 1;
         } else {
           gg.chordson = 0;
         }
-        if (navlevel >= 3) {
-          returntonav(1,self->home_navrange,7);
+        if (lv.navlevel >= 3) {
+          dm.returntonav(1,self->home_navrange,7);
         }
       }
 
       static void toggle_ext_clock(){
         //gg.externalticker = !gg.externalticker;
         gg.externalticker = !gg.externalticker;
-        returntonav(1,self->home_navrange,9);
+        dm.returntonav(1,self->home_navrange,9);
       }
 
       static void toggle_note_spy(){
@@ -762,23 +762,23 @@ class SettingsMenuRouter : public SectionHolder {
         } else {
           unplug_notefreq_from_ampL();
         }
-        if (navlevel >= 3) {
-          returntonav(1,self->home_navrange,10);
+        if (lv.navlevel >= 3) {
+          dm.returntonav(1,self->home_navrange,10);
         }
       }
 
       static void set_audio_source(){
-        navrange = 2 ;
-        self->AudioInSource = sublevels[2] ;
-        if (navlevel >= 3) {
+        lv.navrange = 2 ;
+        self->AudioInSource = lv.sublevels[2] ;
+        if (lv.navlevel >= 3) {
           set_in_source();
-          returntonav(1,self->home_navrange,12);
+          dm.returntonav(1,self->home_navrange,12);
         }
       }
 
       static void toggle_midi_out(){
         gg.SendMidiOut = !gg.SendMidiOut ;
-        returntonav(1,self->home_navrange,13);
+        dm.returntonav(1,self->home_navrange,13);
       }
      
       static constexpr void (*_settings_menu[settings_labels_count])() = {&toggle_echo_midi,&toggle_freeze_midi,&set_synth_midi_ch,&set_sampler_midi_ch,&toggle_digital_analog,

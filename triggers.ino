@@ -170,7 +170,7 @@ void initiatearpegesynthliner(byte larpegeline, byte data1, byte data2) {
     }
     _pt.arpegnoteoffin[larpegeline][free_line] = gg.arpeglengh + 1;
     _pt.playingarpegiator[larpegeline][free_line] = data1;
-    if (patrecord) {
+    if (lv.patrecord) {
       recordmidinotes(free_line, gg.synthmidichannel, data1, data2);
     }
     synth_lines[free_line]->liner_on(data1, data2);
@@ -196,7 +196,7 @@ void update_active_lines() {
 void initiateasynthliner(byte data1, byte data2) {
   byte free_line = get_free_synth(data1);
   if (free_line < SYNTH_LINERS_COUNT) {
-    if (patrecord) {
+    if (lv.patrecord) {
       recordmidinotes(free_line, gg.synthmidichannel, data1, data2);
     }
     //printnoteon(0,data1,data2);
@@ -207,7 +207,7 @@ void initiateasynthliner(byte data1, byte data2) {
 void initiateasamplerliner(byte data1, byte data2) {
   byte free_line = get_free_sampler(data1);
   if (free_line < FLASH_LINERS_COUNT) {
-    if (patrecord) {
+    if (lv.patrecord) {
       recordmidinotes(free_line, gg.samplermidichannel, data1, data2);
     }
 
@@ -231,7 +231,7 @@ void synth_used_this_note(byte data1) {
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
     if (data1 == synth_lines[i]->note) {
       synth_lines[i]->liner_off();
-      if (patrecord) 
+      if (lv.patrecord) 
         record_synth_notesOff(i, gg.synthmidichannel, data1, 0);
     }
   }
@@ -453,7 +453,7 @@ void playarpegenote(byte larpegeline) {
   incrementcs(larpegeline);
   byte relativenote;
   byte realnotetoplay;
-  relativenote = all_arpegios[gg.arpegiatortype][_pt.tickgamme[larpegeline]][_pt.ticktriplet[larpegeline]];
+  relativenote = _tt.all_arpegios[gg.arpegiatortype][_pt.tickgamme[larpegeline]][_pt.ticktriplet[larpegeline]];
   // realnotetoplay = (byte)(octave*12 + relativenote) ;
   realnotetoplay = (byte)(_pt.arpegiatingNote[larpegeline] + relativenote);
   if (gg.arpegmode == 4) {
@@ -490,7 +490,7 @@ bool retestarpege() {
 
 bool isalreadysamenoteinpat(byte lenote) {
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-    if (lenote == pp.synth_partition[i][tickposition].note) {
+    if (lenote == pp.synth_partition[i][lv.tickposition].note) {
       return 1;
     }
   }
@@ -506,16 +506,16 @@ int tick_for_that(int tick){
 }
 
 void recordmidinotes(int liner, byte channel, byte lenote, byte velocity) {
-  int pos = tick_for_that(tickposition);
+  int pos = tick_for_that(lv.tickposition);
   synth_start_tpos[liner] = pos;
-  pp.track_cells[Synth][tickposition] = 1;
+  pp.track_cells[Synth][lv.tickposition] = 1;
   pp.synth_partition[liner][pos] = {channel, lenote, velocity};
 }
 
 bool isalreadysameoffinpat(byte lanotee, byte modeselect) {
   if (modeselect == 0) {
     for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-      if (lanotee == pp.synth_off_pat[i][tickposition + 1].note) {
+      if (lanotee == pp.synth_off_pat[i][lv.tickposition + 1].note) {
         return 1;
       }
     }
@@ -529,7 +529,7 @@ bool isalreadysameoffinpat(byte lanotee, byte modeselect) {
   }
   if (modeselect == 2) {
     for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-      if (lanotee == pp.synth_off_pat[i][tickposition].note) {
+      if (lanotee == pp.synth_off_pat[i][lv.tickposition].note) {
         return 1;
       }
     }
@@ -538,7 +538,7 @@ bool isalreadysameoffinpat(byte lanotee, byte modeselect) {
 }
 
 void record_synth_notesOff(int liner, byte channel, byte lenote, byte velocity) {
-  int pos = tick_for_that(tickposition);
+  int pos = tick_for_that(lv.tickposition);
   if (synth_start_tpos[liner] != pos) {
     pp.synth_off_pat[liner][pos] = {channel, lenote, 0};
 
@@ -561,7 +561,7 @@ bool isalreadysameSamplerinpat(byte lenote,int tick) {
 }
 
 void recordmidinotes2(int liner, byte channel, byte lenote, byte velocity) {
-  int pos = tick_for_that(tickposition);
+  int pos = tick_for_that(lv.tickposition);
   if (!isalreadysameSamplerinpat(lenote,pos)) {
     pp.track_cells[Flash][pos] = 1;
     pp.sampler_partition[liner][pos] = {channel,lenote,velocity};
@@ -575,7 +575,7 @@ void deactivatelesccsfrompos(int lapos, byte lanote) {
 }
 
 void recordCCmidinotes(byte channel, byte lanote, byte leccval) {
-  int pos = tick_for_that(tickposition);
+  int pos = tick_for_that(lv.tickposition);
   for (int i = 0 ; i < 32 ; i++){
     if (recorded_ccs[i] == 0 || recorded_ccs[i] == lanote ) {
         recorded_ccs[i] = lanote ;
@@ -706,32 +706,32 @@ void cc_edgecases(byte control, byte value){
   //inside pattern mode
   if (_pe.paterning && control == 19) {
     if (_pe.track_type == 0) {
-      pp.synth_partition[sublevels[2]][sublevels[5]].velocity = value; 
+      pp.synth_partition[lv.sublevels[2]][lv.sublevels[5]].velocity = value; 
     } else if (_pe.track_type == 1) {
-      pp.sampler_partition[sublevels[2]][sublevels[5]].velocity = value; 
+      pp.sampler_partition[lv.sublevels[2]][lv.sublevels[5]].velocity = value; 
     }
   }
 
   if (_st.setting_on_board) {
-    if (navlevel == 2) {
+    if (lv.navlevel == 2) {
       
       if (control == 19)  {
-        gg.but_channel[sublevels[2]] = (gg.but_channel[sublevels[2]] + 1) % 17;
+        gg.but_channel[lv.sublevels[2]] = (gg.but_channel[lv.sublevels[2]] + 1) % 17;
       }
       if (control == 28) {
-        gg.but_channel[sublevels[2]] = (gg.but_channel[sublevels[2]] + 16) % 17;
+        gg.but_channel[lv.sublevels[2]] = (gg.but_channel[lv.sublevels[2]] + 16) % 17;
       }
     }
-    if (navlevel == 3) {
+    if (lv.navlevel == 3) {
       //should be another or check above
       if (control == 19) {
-        gg.but_velocity[sublevels[2]] = value;
+        gg.but_velocity[lv.sublevels[2]] = value;
       }
     }
   }
 
   //inside waveform tracer
-  if (waveforming) {
+  if (lv.waveforming) {
     call_wf_tracer(control,value);
   }
 
@@ -743,18 +743,18 @@ void cc_edgecases(byte control, byte value){
 void notes_edgecases(byte note, byte velo){
   // control is (byte)gg.pot_assignements[11 + paddered]
   //inside sample assigner
-  if (_st.setting_on_board && (navlevel == 2)) helper_onbard();
+  if (_st.setting_on_board && (lv.navlevel == 2)) helper_onbard();
   
-  if (_sp.assigning_sample_to_note) returntonav(3,127,note);
+  if (_sp.assigning_sample_to_note) dm.returntonav(3,127,note);
     //sets the navigation wheel to the captured note position for easier selection when assigning Flashsamples
 }
 
 void helper_onbard(){
-  if (Pads.potsboards[sublevels[2]] >= 0) {
-    gg.muxed_channels[Pads.potsboards[sublevels[2]]] = gg.but_channel[sublevels[2]];
+  if (Pads.potsboards[lv.sublevels[2]] >= 0) {
+    gg.muxed_channels[Pads.potsboards[lv.sublevels[2]]] = gg.but_channel[lv.sublevels[2]];
   }
   if ((paddered != 26) && (paddered != 17)) {
-    returntonav(navlevel,navrange,paddered + 11);
+    dm.returntonav(lv.navlevel,lv.navrange,paddered + 11);
   }
 }
 
@@ -765,11 +765,11 @@ void MaControlChange(byte channel, byte control, byte value) {
     _tt.debugmidi((char *)("ControlChange"), (MidiEventer){channel, control, value});
   }
 
-  if (navlevel)
+  if (lv.navlevel)
     cc_edgecases(control, value);
 
   moncontrollercc(channel, control, value);
-  if ((patrecord || recordCC) && !stoptick && !isignored) {
+  if ((lv.patrecord || lv.recordCC) && !lv.stoptick && !isignored) {
     recordCCmidinotes(channel, control, value);
   }
 }
@@ -784,23 +784,23 @@ bool noCCrecordlist(byte lanotee) {
 }
 
 void scanfornextcc(byte lecc) {
-  for (int i = tickposition + 1; i < PBARS; i++) {
+  for (int i = lv.tickposition + 1; i < PBARS; i++) {
     if (pp.cc_partition[lecc][i] != 127) {
 
-      Ccinterpolengh[lecc][0] = tickposition;
+      Ccinterpolengh[lecc][0] = lv.tickposition;
       Ccinterpolengh[lecc][1] = i;
-      Ccinterpolengh[lecc][2] = i - tickposition;
+      Ccinterpolengh[lecc][2] = i - lv.tickposition;
       activateinterpolatecc[lecc] = 1;
       return;
     }
   }
 
-  for (int i = 0; i < tickposition; i++) {
+  for (int i = 0; i < lv.tickposition; i++) {
     if (pp.cc_partition[lecc][i] != 127) {
 
-      Ccinterpolengh[lecc][0] = tickposition;
+      Ccinterpolengh[lecc][0] = lv.tickposition;
       Ccinterpolengh[lecc][1] = i;
-      Ccinterpolengh[lecc][2] = i + PBARS - tickposition;
+      Ccinterpolengh[lecc][2] = i + PBARS - lv.tickposition;
       activateinterpolatecc[lecc] = 1;
       return;
     }
@@ -817,8 +817,8 @@ void continueCCinterpol(byte lecc) {
   // if next cc is before pat revolution
   if ((Ccinterpolengh[lecc][1] - Ccinterpolengh[lecc][0]) > 0) {
     interpolcoeff =
-        ((((tickposition - Ccinterpolengh[lecc][0]) * gg.millitickinterval) +
-          (millis() - tickerlasttick) + gg.millitickinterval) /
+        ((((lv.tickposition - Ccinterpolengh[lecc][0]) * gg.millitickinterval) +
+          (millis() - lv.tickerlasttick) + gg.millitickinterval) /
          (laCCduration * 1.0));
     letempipolate =
         pp.cc_partition[lecc][Ccinterpolengh[lecc][0]] +
@@ -828,11 +828,11 @@ void continueCCinterpol(byte lecc) {
   // if next cc is after pat revolution
   else {
 
-    if (tickposition > Ccinterpolengh[lecc][0]) {
+    if (lv.tickposition > Ccinterpolengh[lecc][0]) {
 
       interpolcoeff =
-          ((((tickposition - Ccinterpolengh[lecc][0]) * gg.millitickinterval) +
-            (millis() - tickerlasttick)) /
+          ((((lv.tickposition - Ccinterpolengh[lecc][0]) * gg.millitickinterval) +
+            (millis() - lv.tickerlasttick)) /
            (laCCduration * 1.0));
 
       letempipolate = pp.cc_partition[lecc][Ccinterpolengh[lecc][0]] +
@@ -840,14 +840,14 @@ void continueCCinterpol(byte lecc) {
                        (pp.cc_partition[lecc][Ccinterpolengh[lecc][1]] -
                         pp.cc_partition[lecc][Ccinterpolengh[lecc][0]]));
 
-      // leccinterpolated[i] = round(pp.cc_partition[lecc][tickposition] +
-      // (((millis() - tickerlasttick)/(laCCduration*1.0))*
-      // (pp.cc_partition[lecc][tickposition+1] -
-      // pp.cc_partition[lecc][tickposition] ))) ;
+      // leccinterpolated[i] = round(pp.cc_partition[lecc][lv.tickposition] +
+      // (((millis() - lv.tickerlasttick)/(laCCduration*1.0))*
+      // (pp.cc_partition[lecc][lv.tickposition+1] -
+      // pp.cc_partition[lecc][lv.tickposition] ))) ;
     } else {
-      interpolcoeff = (((tickposition + PBARS - Ccinterpolengh[lecc][0]) *
+      interpolcoeff = (((lv.tickposition + PBARS - Ccinterpolengh[lecc][0]) *
                         gg.millitickinterval) +
-                       (millis() - tickerlasttick)) /
+                       (millis() - lv.tickerlasttick)) /
                       (laCCduration * 1.0);
 
       letempipolate = pp.cc_partition[lecc][Ccinterpolengh[lecc][0]] +
@@ -856,12 +856,12 @@ void continueCCinterpol(byte lecc) {
                         pp.cc_partition[lecc][Ccinterpolengh[lecc][0]]));
     }
   }
-  if (tickposition == Ccinterpolengh[lecc][0]) {
-    interpolcoeff = ((millis() - tickerlasttick) / (laCCduration * 1.0));
-    letempipolate = pp.cc_partition[lecc][tickposition] +
+  if (lv.tickposition == Ccinterpolengh[lecc][0]) {
+    interpolcoeff = ((millis() - lv.tickerlasttick) / (laCCduration * 1.0));
+    letempipolate = pp.cc_partition[lecc][lv.tickposition] +
                     (1.0 * interpolcoeff *
                      (pp.cc_partition[lecc][Ccinterpolengh[lecc][1]] -
-                      pp.cc_partition[lecc][tickposition]));
+                      pp.cc_partition[lecc][lv.tickposition]));
   }
 
   if (leccinterpolated[lecc] != letempipolate) {

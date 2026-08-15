@@ -77,20 +77,20 @@ String FilesLister::get_new_tmp_name() {
 }
 
 void FilesLister::deleteFile() {
-  if (locked_fileing)
+  if (lv.locked_fileing)
     return;
-  locked_fileing = 1 ;
+  lv.locked_fileing = 1 ;
   if (SD.exists((char *)(this->get_current_file_path(0)).c_str())) {
     SD.remove((char *)(this->get_current_file_path(0)).c_str());
   }
   this->list_files();
-  locked_fileing = 0 ;
+  lv.locked_fileing = 0 ;
 }
 
 void FilesLister::deleteFileGeneric(const char* _target_file) {
-  if (locked_fileing)
+  if (lv.locked_fileing)
     return;
-  locked_fileing = 1 ;
+  lv.locked_fileing = 1 ;
   if (SD.exists(_target_file)) {
     Serial.println(" ");
     Serial.print("deleting ");
@@ -98,13 +98,13 @@ void FilesLister::deleteFileGeneric(const char* _target_file) {
 
     SD.remove(_target_file);
   }
-  locked_fileing = 0 ;
+  lv.locked_fileing = 0 ;
 }
 
 void FilesLister::copyFile() {
-  if (locked_fileing)
+  if (lv.locked_fileing)
     return;
-  locked_fileing = 1 ;
+  lv.locked_fileing = 1 ;
  File origin_file;
  File target_file;
   String current_pathed = this->get_current_file_path(0) ;
@@ -121,7 +121,7 @@ void FilesLister::copyFile() {
   origin_file.close();
   target_file.close();
   this->list_files();
-  locked_fileing = 0 ;
+  lv.locked_fileing = 0 ;
 }
 
 void FilesLister::move_file(const char* source, const char* dest){
@@ -134,11 +134,11 @@ void FilesLister::copyFileGeneric(const char* _origin_file,const char* _target_f
   if (SD.exists(_origin_file)) {
     if (SD.exists(_target_file)) 
       deleteFileGeneric(_target_file);
-    if (locked_fileing){
+    if (lv.locked_fileing){
       Serial.println("already locked");
       return;
     }
-    locked_fileing = 1 ;
+    lv.locked_fileing = 1 ;
    File origin_file = SD.open(_origin_file, FILE_READ);
    File target_file = SD.open(_target_file, FILE_WRITE);
     size_t n_size;
@@ -148,7 +148,7 @@ void FilesLister::copyFileGeneric(const char* _origin_file,const char* _target_f
     }
   origin_file.close();
   target_file.close();
-  locked_fileing = 0 ;
+  lv.locked_fileing = 0 ;
   } else {
     Serial.println("origin file error");
   }
@@ -163,7 +163,7 @@ void FilesLister::make_temp_folders(){
 
 void FilesLister::nav_zero(){
   dm.clear_buffs();
-  navrange = this->home_navrange;
+  lv.navrange = this->home_navrange;
   this->display_files_list();
   this->home();
   dm.dodisplay();
@@ -171,13 +171,13 @@ void FilesLister::nav_zero(){
 
 void FilesLister::nav_one(byte save_lbl_idx=0,byte lbl_navlevel=1){
   this->new_file_mode = false;
-  if (sublevels[lbl_navlevel] == save_lbl_idx) {
-    navrange = this->files_counter + this->free_counter ;
-    if (sublevels[lbl_navlevel+1] == this->files_counter + this->free_counter){
+  if (lv.sublevels[lbl_navlevel] == save_lbl_idx) {
+    lv.navrange = this->files_counter + this->free_counter ;
+    if (lv.sublevels[lbl_navlevel+1] == this->files_counter + this->free_counter){
       this->new_file_mode = true;
     }
   } else {
-    navrange = max(this->files_counter + this->free_counter - 1, 0);
+    lv.navrange = max(this->files_counter + this->free_counter - 1, 0);
 
   }
 
@@ -228,8 +228,8 @@ void FilesLister::display_files_list() {
   int all_files_count = this->free_counter + this->files_counter ;
 
 
-  if (navlevel == this->r_nav) {
-    this->displayable_offset = sublevels[this->r_nav]  ;
+  if (lv.navlevel == this->r_nav) {
+    this->displayable_offset = lv.sublevels[this->r_nav]  ;
   }
   //% this->files_counter  ;
   refresh_files_names();
@@ -261,11 +261,11 @@ void FilesLister::display_files_list() {
 
 void FilesLister::display_folders_list() {
   dm.clean_title_1_1();
-  if (navlevel == this->r_nav) {
-    this->displayable_offset = sublevels[this->r_nav]  ;
+  if (lv.navlevel == this->r_nav) {
+    this->displayable_offset = lv.sublevels[this->r_nav]  ;
     Serial.println("");
     Serial.print("setted at lvl ");
-    Serial.print(navlevel);
+    Serial.print(lv.navlevel);
   }
   //% this->files_counter  ;
   refresh_folders_names();

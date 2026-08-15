@@ -41,11 +41,11 @@ class WaveformsMenuRouter : public SectionHolder {
         byte *waveform_tracers[3]= {&x_axis_cc,&y_axis_cc,&trace_wave_cc};
 
         static void show() {
-          _route_nav[navlevel-1]();
+          _route_nav[lv.navlevel-1]();
         }
         
         static void waveforms_nav_zero(){
-          waveforming = 0 ;
+          lv.waveforming = 0 ;
           self->catalog->nav_zero();
         }
 
@@ -64,13 +64,13 @@ class WaveformsMenuRouter : public SectionHolder {
         }
         static void WaveformParams(){
           
-          navrange = 2 ;
-          if (navlevel == 3 ){
-            navrange = 127;
-            *self->waveform_tracers[sublevels[2]]=sublevels[3];
+          lv.navrange = 2 ;
+          if (lv.navlevel == 3 ){
+            lv.navrange = 127;
+            *self->waveform_tracers[lv.sublevels[2]]=lv.sublevels[3];
           }
           
-          sublevels[3]=*self->waveform_tracers[sublevels[2]];
+          lv.sublevels[3]=*self->waveform_tracers[lv.sublevels[2]];
           display.clearDisplay();
           display.setCursor(0,0);
           display.setTextSize(1);
@@ -91,13 +91,13 @@ class WaveformsMenuRouter : public SectionHolder {
           display.print("Tracenote: ");
           display.print(self->trace_wave_cc);
           //note 58
-          display.drawRoundRect(62,11+16*sublevels[2], 25, 16, 3, SSD1306_WHITE);
+          display.drawRoundRect(62,11+16*lv.sublevels[2], 25, 16, 3, SSD1306_WHITE);
           //display.drawRoundRect(62,11+16, 25, 16, 3, SSD1306_WHITE);
           //display.drawRoundRect(62,11+16 +16, 25, 16, 3, SSD1306_WHITE);
           display.display();
           
-          if (navlevel > 3 ){
-            returntonav(2,2,sublevels[2]);
+          if (lv.navlevel > 3 ){
+            dm.returntonav(2,2,lv.sublevels[2]);
           }
         }
 
@@ -192,9 +192,9 @@ class WaveformsMenuRouter : public SectionHolder {
           if (la_val > 0) {
             self->w_cursor_x = map(la_val, 0, 127, 0, 255);
             //gg.arbitrary_waveforms[self->widx][self->w_cursor_x] = map(self->cw_change, 0, 127, -32768, 32767);
-            sublevels[2]=self->w_cursor_x;
-            rota_true_pos = self->w_cursor_x;
-            myEnc.write(rota_true_pos * 4);
+            lv.sublevels[2]=self->w_cursor_x;
+            lv.rota_true_pos = self->w_cursor_x;
+            myEnc.write(lv.rota_true_pos * 4);
             set_array_at_cursor();
           }
         }
@@ -212,33 +212,33 @@ class WaveformsMenuRouter : public SectionHolder {
         }
 
         static void WaveformEditer() {
-          waveforming = 1;
-          navrange = 255;
+          lv.waveforming = 1;
+          lv.navrange = 255;
           dm.clean_title_1();
           
-          if (navlevel > 3) {
+          if (lv.navlevel > 3) {
             self->trace_waveform = 0 ;
             
             smooth_w_graph();
-            returntonav(2,255,sublevels[2]);
+            dm.returntonav(2,255,lv.sublevels[2]);
           }
-          if (navlevel == 3) {
+          if (lv.navlevel == 3) {
             self->trace_waveform = 1 ;
-            self->cw_change = map(sublevels[3],0,255,0,127);
+            self->cw_change = map(lv.sublevels[3],0,255,0,127);
             set_array_at_cursor();
           }
           if (self->trace_waveform) {
             set_array_at_cursor();
             self->w_cursor_y = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x], -32768, 32767, 63, 0);
           }
-          if (navlevel == 2) {
-            self->w_cursor_x=sublevels[2];
+          if (lv.navlevel == 2) {
+            self->w_cursor_x=lv.sublevels[2];
             self->w_cursor_y = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x], -32768, 32767, 63, 0);
-            sublevels[3] = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x],-32768, 32767, 0, 255 ) ;
+            lv.sublevels[3] = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x],-32768, 32767, 0, 255 ) ;
           }
-          canvasBIG.drawCircle(sublevels[2]/2, self->w_cursor_y, 2, SSD1306_WHITE);
+          canvasBIG.drawCircle(lv.sublevels[2]/2, self->w_cursor_y, 2, SSD1306_WHITE);
           draw_wave_graph();
-          //canvastitle.print(gg.arbitrary_waveforms[self->widx][sublevels[2]]);
+          //canvastitle.print(gg.arbitrary_waveforms[self->widx][lv.sublevels[2]]);
           dm.dodisplay();
           //smooth_w_bounds();
         }
@@ -255,18 +255,18 @@ class WaveformsMenuRouter : public SectionHolder {
           else
             self->widx = self->widx-1;
       
-          returntonav(1,wf_labels_count-1,sublevels[1]);
+          dm.returntonav(1,wf_labels_count-1,lv.sublevels[1]);
         }
 
         static void go_next(){
           self->widx = (self->widx+1)%3;
-          returntonav(1,wf_labels_count-1,sublevels[1]);
+          dm.returntonav(1,wf_labels_count-1,lv.sublevels[1]);
         }
 
         static void writewaveform() {
-          if (locked_fileing)
+          if (lv.locked_fileing)
             return;
-          locked_fileing = 1 ;
+          lv.locked_fileing = 1 ;
           File waveform_file ;
           if (self->catalog->new_file_mode) {
             waveform_file = SD.open(self->catalog->get_new_file_name().c_str(), FILE_WRITE);
@@ -281,7 +281,7 @@ class WaveformsMenuRouter : public SectionHolder {
           }
           waveform_file.close();
           self->catalog->list_files();
-          locked_fileing = 0 ;
+          lv.locked_fileing = 0 ;
         }
 
         static void writewaveforms(File &filer) {
@@ -297,17 +297,17 @@ class WaveformsMenuRouter : public SectionHolder {
         }
 
         static void parsewaveformfile() {
-          if (locked_fileing)
+          if (lv.locked_fileing)
             return;
-          locked_fileing = 1 ;
+          lv.locked_fileing = 1 ;
           File target_waveform = SD.open(self->catalog->get_current_file_path(0).c_str(), FILE_READ);
           target_waveform.read((byte *)gg.arbitrary_waveforms[self->widx], sizeof(gg.arbitrary_waveforms[self->widx]));
           target_waveform.close();
-          locked_fileing = 0 ;
+          lv.locked_fileing = 0 ;
         }
         
         static void wforms_actions(){
-          _nav_wforms[sublevels[1]]();
+          _nav_wforms[lv.sublevels[1]]();
             
         }
         static void remove_wform(){
@@ -328,9 +328,9 @@ class WaveformsMenuRouter : public SectionHolder {
 
         static void lv1_wrapper(void (*func)()) {
           self->catalog->nav_one(0,1);
-          if (navlevel >= 3) {
+          if (lv.navlevel >= 3) {
             func();
-            returntonav(1, self->wf_labels_count - 1,sublevels[1]);
+            dm.returntonav(1, self->wf_labels_count - 1,lv.sublevels[1]);
           }
         }
 
