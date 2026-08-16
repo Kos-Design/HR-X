@@ -21,11 +21,11 @@ class FxMenuRouter : public SectionHolder {
       uint16_t filterzrange = 14000;
       uint8_t filter_lfo_option = 3 ;
       bool avoid_fx_bounce = false;
-/*
+      /*
       static void show() {
         _nav_fx[lv.sublevels[1]](); 
       }
-*/
+      */
       static void peakingEQ(float freq, float gainDB, float Q, float Fs, double *c) {
 
           float A = powf(10.0f, gainDB / 40.0f);
@@ -1652,7 +1652,7 @@ for (int i = 0; i < 5; i++)
       }
 
       static void fx_nav_zero(){
-        if (lv.navlevel < 2) reinitsublevels(2);
+        if (lv.navlevel < 2) dm.reinitsublevels(2);
         self->avoid_fx_bounce = false ;
         lv.navrange = self->home_navrange;
         display.clearDisplay();
@@ -1662,7 +1662,7 @@ for (int i = 0; i < 5; i++)
       }
 
       static void fx_nav_one(){
-        if (lv.navlevel < 2) reinitsublevels(2);
+        if (lv.navlevel < 2) dm.reinitsublevels(2);
         self->avoid_fx_bounce = false ;
         display.clearDisplay();
         if (lv.navlevel == 2) lv.navrange = 9;
@@ -1680,7 +1680,7 @@ for (int i = 0; i < 5; i++)
       }
 
       static void MainFxPanel() {
-        //if (lv.sublevels[lv.navlevel] > lv.navrange) reinitsublevels(lv.navlevel);
+        //if (lv.sublevels[lv.navlevel] > lv.navrange) dm.reinitsublevels(lv.navlevel);
 
         if (lv.navlevel == 1) {
           fx_nav_zero();

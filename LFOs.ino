@@ -350,7 +350,7 @@ class LFOMenuRouter : public SectionHolder {
         static void lfo_zero(){
             lv.navrange = OSCS_COUNT-1;
             //TODO:remove maybe
-            reinitsublevels(2);
+            dm.reinitsublevels(2);
 
             LFOlineBG();
 

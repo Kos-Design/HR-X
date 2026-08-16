@@ -1,5 +1,4 @@
 
-int paddered;
 
 
 //checking one pot per loop as it is fast as long as we call it often

@@ -1,8 +1,9 @@
+#include "SamplerMenu.h"
+#include "WaveEditorMenu.h"
 
+SamplerMenuRouter* SamplerMenuRouter::self = nullptr;
 
-class SamplerMenuRouter : public SectionHolder {
-    public:
-        SamplerMenuRouter() {
+SamplerMenuRouter::SamplerMenuRouter() {
                     self = this ;
                     self->home_navrange=SP_LABELS_COUNT-1;
                     self->catalog = new FilesLister("SOUNDSET/","SAMPLE#",".RAW",show,self->home_navrange);
@@ -10,26 +11,8 @@ class SamplerMenuRouter : public SectionHolder {
                     self->max_navlevel=5;
                     self->sublevels_address={7,0,0};
                     }
-        FilesLister *catalog;
-        String newmkdirpath = "SOUNDSET/MABANK01" ;
-        const byte FlashChipSelect = 6;
-        bool assigning_sample_to_note = false ;
-        char samplefoldersregistered[99][SP_NAME_MAX]{};
-        char sampledirpath[99] = {"SOUNDSET/"};
-        char samplebase[99][999][9]{};
-        int sizeofsamplefolder[99]{};
-        int sampledirsregistered = 0;
-        bool samplesselected[99][999]{};
-        int numberofsamplesselected[99]{};
-        bool samplesfoldersselected[99]{};
-        int numofsamplesfoldersselected = 0;
-        char Flashsamplebase[999][9]{};
-        bool Flashsamplesselected[999]{};
-        int numberofFlashsamplesselected = 0;
-        int numberofFlashfiles = 0;
-        
 
-        static void sampler_nav_two(){
+void SamplerMenuRouter::sampler_nav_two(){
           if (lv.sublevels[1] == 0) {
               display.clearDisplay();
               samplerexplorer();
@@ -48,15 +31,15 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void sampler_nav_one(){
-          self->assigning_sample_to_note = false ;
+void SamplerMenuRouter::sampler_nav_one(){
+          lv.assigning_sample_to_note = false ;
           display.clearDisplay();
           _nav_sampler[lv.sublevels[1]]();
           dm.dodisplay();
         }
         
-        static void sampler_nav_zero(){
-            reinitsublevels(2);
+void SamplerMenuRouter::sampler_nav_zero(){
+            dm.reinitsublevels(2);
             lv.navrange = SP_LABELS_COUNT - 1;
             display.clearDisplay();
             dolistsamplermenu();
@@ -64,11 +47,11 @@ class SamplerMenuRouter : public SectionHolder {
             display.display();
         }
 
-        static void show() {
+void SamplerMenuRouter::show() {
           _route_nav[lv.navlevel-1]();
         }
 
-        static void smixerVpanelAction() {
+void SamplerMenuRouter::smixerVpanelAction() {
           if (lv.navlevel == 3) {
             lv.navrange = 127;
             gg.smixervknobs[lv.sublevels[2]] = lv.sublevels[3];
@@ -82,41 +65,41 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void clearsizeofsamplefolder() {
+void SamplerMenuRouter::clearsizeofsamplefolder() {
           for (int i = 0; i < 99; i++) {
             self->sizeofsamplefolder[i] = 0;
           }
         }
-        static void initializesamplebase() {
+void SamplerMenuRouter::initializesamplebase() {
           for (int i = 0; i < 99; i++) {
             batchclearsamplebase(i);
           }
         }
 
-        static void batchclearsamplebase(int lefolder) {
+void SamplerMenuRouter::batchclearsamplebase(int lefolder) {
           for (int i = 0; i < 999; i++) {
             clearsamplebase(lefolder, i);
           }
         }
 
-        static void clearsamplebase(int lefolder, int lefile) {
+void SamplerMenuRouter::clearsamplebase(int lefolder, int lefile) {
           for (int i = 0; i < 9; i++) {
             self->samplebase[lefolder][lefile][i] = (char)'\0';
           }
         }
 
-        String lower_extension_case(String f_name){
+String SamplerMenuRouter::lower_extension_case(String f_name){
           char named[50];  // Ensure the array is large enough
           strcpy(named, f_name.c_str());
           named[strlen(named) - 4] = '\0';
           return (String)named + ".raw";
         }
 
-        bool test_flash_sample_name(String f_s_name){
+bool SamplerMenuRouter::test_flash_sample_name(String f_s_name){
           return SerialFlash.exists(f_s_name.c_str());
         }
 
-        static void listSoundset() {
+void SamplerMenuRouter::listSoundset() {
 
           File sounddir = SD.open("SOUNDSET/");
 
@@ -139,7 +122,7 @@ class SamplerMenuRouter : public SectionHolder {
           sounddir.close();
         }
 
-        static void smixerVpanel() {
+void SamplerMenuRouter::smixerVpanel() {
 
           smixerVpanelAction();
 
@@ -205,7 +188,7 @@ class SamplerMenuRouter : public SectionHolder {
           dm.dodisplay();
         }
 
-        static void dolistsamplermenu() {
+void SamplerMenuRouter::dolistsamplermenu() {
           char samplerlabels[SP_LABELS_COUNT][12] = {"Load", "Delete", "Assign", "Mixer"};
           int startx = 5;
           int starty = 16;
@@ -226,20 +209,20 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
         
-        String samplefullpath(int lefolder, int lefile){
+String SamplerMenuRouter::samplefullpath(int lefolder, int lefile){
           String based = self->samplebase[lefolder][lefile];
           String folded = self->samplefoldersregistered[lefolder] ;
           return "SOUNDSET/" + folded + "/" + based +".RAW";
         }
 
-        static void addtofolderix(char *lepathtoadd, int ix) {
+void SamplerMenuRouter::addtofolderix(char *lepathtoadd, int ix) {
 
           for (int i = 0; i < (int)strlen((char *)lepathtoadd); i++) {
             self->samplefoldersregistered[ix][i] = (char)(lepathtoadd[i]);
           }
         }
 
-        static void setupsamplefoldersregistered() {
+void SamplerMenuRouter::setupsamplefoldersregistered() {
           for (int i = 0; i < 99; i++) {
             for (int j = 0; j < SP_NAME_MAX; j++) {
               self->samplefoldersregistered[i][j] = (char)'\0';
@@ -248,7 +231,7 @@ class SamplerMenuRouter : public SectionHolder {
           self->samplefoldersregistered[0][0] = (char)("/"[0]);
           self->sampledirsregistered++;
         }
-        static void setlefilenamed(int lefolder, int lefile, char *lefname) {
+void SamplerMenuRouter::setlefilenamed(int lefolder, int lefile, char *lefname) {
           int fnamesize = strlen((char *)lefname);         
           for (int i = 0; i < fnamesize; i++) {
             if (i < fnamesize - 4) {
@@ -258,7 +241,7 @@ class SamplerMenuRouter : public SectionHolder {
           self->samplebase[lefolder][lefile][fnamesize - 4] = (char)'\0';
         }
 
-        static void playsamplepreview() {
+void SamplerMenuRouter::playsamplepreview() {
           String playable_file = self->samplefullpath(lv.sublevels[3],lv.sublevels[4]);
           if (!self->test_flash_sample_name(playable_file)){
             playable_file = self->lower_extension_case(playable_file);
@@ -270,7 +253,7 @@ class SamplerMenuRouter : public SectionHolder {
           playRawR.play(playable_file.c_str());
         }
 
-        static void preview_flash_assignee() {
+void SamplerMenuRouter::preview_flash_assignee() {
           String playable_file = (String)bb.Flashsamplename[lv.sublevels[4]];
           if (!self->test_flash_sample_name(playable_file)){
             playable_file = self->lower_extension_case(playable_file);
@@ -282,7 +265,7 @@ class SamplerMenuRouter : public SectionHolder {
           FlashRaw.play(playable_file.c_str());
         }
 
-        static void copybacklaflashfile(int leflashfile) {
+void SamplerMenuRouter::copybacklaflashfile(int leflashfile) {
           SerialFlashFile originflashfile = SerialFlash.open((const char *)bb.Flashsamplename[leflashfile]);
           String new_name = self->newmkdirpath + "/" + (String)bb.Flashsamplename[leflashfile];
           File mynewsample = SD.open(new_name.c_str(), FILE_WRITE);
@@ -295,22 +278,39 @@ class SamplerMenuRouter : public SectionHolder {
           mynewsample.close();
         }
 
-        static void copyflashtoSD() {
-          for (int i = 0; i < 128; i++) {
-            if (gg.Sampleassigned[i] != 0) {
-              copybacklaflashfile(gg.Sampleassigned[i]);
-            }
-          }
-        }
-        static void domkdir() {
-          self->newmkdirpath = get_new_dir_name("SOUNDSET/MABANK") ;
+void SamplerMenuRouter::copyflashtoSD() {
+  for (int i = 0; i < 128; i++) {
+    if (gg.Sampleassigned[i] != 0) {
+      copybacklaflashfile(gg.Sampleassigned[i]);
+    }
+  }
+}
+String SamplerMenuRouter::make_full_dir_name(byte number,String base_path_dir) {
+  char formatted_number[4] ;
+  sprintf(formatted_number,"%02d",number);
+  return(String)(base_path_dir + (String)formatted_number);
+}
+
+
+String SamplerMenuRouter::get_new_dir_name(String base_path_dir) {
+  byte file_number = 0 ;
+  String new_path = base_path_dir + "00";
+  while (SD.exists(new_path.c_str())) {
+    new_path = self->make_full_dir_name(file_number,base_path_dir);
+    file_number++;
+  }
+  return new_path ;
+}
+
+void SamplerMenuRouter::domkdir() {
+          self->newmkdirpath = self->get_new_dir_name("SOUNDSET/MABANK") ;
           self->catalog->make_sub_folder("SOUNDSET", self->newmkdirpath.c_str());
           copyflashtoSD();
           dosoundlist();
         }
-        static void Assingexplorer() {
+void SamplerMenuRouter::Assingexplorer() {
           if (lv.navlevel > 3) {
-            self->assigning_sample_to_note = false ;
+            lv.assigning_sample_to_note = false ;
             if (lv.sublevels[2] == 1) {
               Sampleassigner();
               preview_flash_assignee();
@@ -337,7 +337,7 @@ class SamplerMenuRouter : public SectionHolder {
           }
 
           if (lv.navlevel == 3) {
-            self->assigning_sample_to_note = true ;
+            lv.assigning_sample_to_note = true ;
             if (lv.sublevels[2] == 2) {
               display.clearDisplay();
               doConfirmClearassign();
@@ -356,7 +356,7 @@ class SamplerMenuRouter : public SectionHolder {
             }
           }
         }
-        static void samplerexplorer() {
+void SamplerMenuRouter::samplerexplorer() {
           if (lv.navlevel > 3) {
             if (lv.sublevels[2] == 1) {
               Sampleassigner();
@@ -429,7 +429,7 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void Flashsamplerexplorer() {
+void SamplerMenuRouter::Flashsamplerexplorer() {
           if (lv.navlevel > 3) {
 
             if (lv.sublevels[2] == 2 && lv.sublevels[3] == 1) {
@@ -487,20 +487,20 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void showsamplerfolderList() {
+void SamplerMenuRouter::showsamplerfolderList() {
           drawSamplerFoldersList();
           dm.dodisplay();
         }
-        static void showsamplerfilesList() {
+void SamplerMenuRouter::showsamplerfilesList() {
           drawsamplerfilesList();
           dm.dodisplay();
         }
-        static void showFlashSamplesList() {
+void SamplerMenuRouter::showFlashSamplesList() {
           drawFlashSamplesList();
           dm.dodisplay();
         }
 
-        static void drawtickboxflashBIG(int lestartx, int lestarty, int lasizex, int lasizey,
+void SamplerMenuRouter::drawtickboxflashBIG(int lestartx, int lestarty, int lasizex, int lasizey,
                                 typeof(SSD1306_WHITE) lacolor, int lefile) {
           if (self->Flashsamplesselected[lefile] == 1) {
             canvasBIG.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
@@ -508,7 +508,7 @@ class SamplerMenuRouter : public SectionHolder {
             canvasBIG.drawRect(lestartx, lestarty, lasizex, lasizey, lacolor);
           }
         }
-        static void drawtickboxflashtitle(int lestartx, int lestarty, int lasizex, int lasizey,
+void SamplerMenuRouter::drawtickboxflashtitle(int lestartx, int lestarty, int lasizex, int lasizey,
                                   typeof(SSD1306_WHITE) lacolor, int lefile) {
           if (self->Flashsamplesselected[lefile] == 1) {
             canvastitle.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
@@ -517,7 +517,7 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void drawtickboxfolderBIG(int lestartx, int lestarty, int lasizex, int lasizey,
+void SamplerMenuRouter::drawtickboxfolderBIG(int lestartx, int lestarty, int lasizex, int lasizey,
                                   typeof(SSD1306_WHITE) lacolor, int lefolder) {
           if (self->samplesfoldersselected[lefolder]) {
             canvasBIG.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
@@ -525,7 +525,7 @@ class SamplerMenuRouter : public SectionHolder {
             canvasBIG.drawRect(lestartx, lestarty, lasizex, lasizey, lacolor);
           }
         }
-        static void drawtickboxfoldertitle(int lestartx, int lestarty, int lasizex,
+void SamplerMenuRouter::drawtickboxfoldertitle(int lestartx, int lestarty, int lasizex,
                                     int lasizey, typeof(SSD1306_WHITE) lacolor,
                                     int lefolder) {
           if (self->samplesfoldersselected[lefolder]) {
@@ -535,7 +535,7 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void drawtickboxincanvasBIG(int lestartx, int lestarty, int lasizex,
+void SamplerMenuRouter::drawtickboxincanvasBIG(int lestartx, int lestarty, int lasizex,
                                     int lasizey, typeof(SSD1306_WHITE) lacolor,
                                     int lefolder, int lefile) {
           if (self->samplesselected[lefolder][lefile] == 1) {
@@ -544,7 +544,7 @@ class SamplerMenuRouter : public SectionHolder {
             canvasBIG.drawRect(lestartx, lestarty, lasizex, lasizey, lacolor);
           }
         }
-        static void drawtickboxincanvastitle(int lestartx, int lestarty, int lasizex,
+void SamplerMenuRouter::drawtickboxincanvastitle(int lestartx, int lestarty, int lasizex,
                                       int lasizey, typeof(SSD1306_WHITE) lacolor,
                                       int lefolder, int lefile) {
           if (self->samplesselected[lefolder][lefile] == 1) {
@@ -554,7 +554,7 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void addtoFlashsamplelist(char *lesample) {
+void SamplerMenuRouter::addtoFlashsamplelist(char *lesample) {
           // files on the flashchip have to be uppercase
           for (int i = 0; i < 13; i++) {
             bb.Flashsamplename[self->numberofFlashfiles][i] =
@@ -567,12 +567,12 @@ class SamplerMenuRouter : public SectionHolder {
           self->numberofFlashfiles++;
         }
 
-        static void rebuildflashsamplesnames() {
+void SamplerMenuRouter::rebuildflashsamplesnames() {
           initializeFlashsamplename();
           listFlashfiles();
         }
 
-        static void initializeFlashsamplename() {
+void SamplerMenuRouter::initializeFlashsamplename() {
           self->numberofFlashfiles = 0;
           for (int i = 0; i < 999; i++) {
             clearFlashsamplename(i);
@@ -580,39 +580,39 @@ class SamplerMenuRouter : public SectionHolder {
           initializeFlashsamplebase();
         }
 
-        static void clearFlashsamplename(int lefile) {
+void SamplerMenuRouter::clearFlashsamplename(int lefile) {
           for (int i = 0; i < 13; i++) {
             bb.Flashsamplename[lefile][i] = (char)'\0';
           }
         }
 
-        static void initializeFlashsamplebase() {
+void SamplerMenuRouter::initializeFlashsamplebase() {
           for (int i = 0; i < 999; i++) {
             clearFlashsamplebase(i);
           }
         }
 
-        static void clearFlashsamplebase(int lefile) {
+void SamplerMenuRouter::clearFlashsamplebase(int lefile) {
           for (int i = 0; i < 9; i++) {
             self->Flashsamplebase[lefile][i] = (char)'\0';
           }
         }
 
-        static void initializesamplesfoldersselectedlist() {
+void SamplerMenuRouter::initializesamplesfoldersselectedlist() {
           self->numofsamplesfoldersselected = 0;
           for (int i = 0; i < 99; i++) {
             self->samplesfoldersselected[i] = 0;
           }
         }
 
-        static void initializeFlashsamplesselected() {
+void SamplerMenuRouter::initializeFlashsamplesselected() {
           self->numberofFlashsamplesselected = 0;
           for (int i = 0; i < 999; i++) {
             self->Flashsamplesselected[i] = 0;
           }
         }
 
-        static void initializesamplesselectedlist() {
+void SamplerMenuRouter::initializesamplesselectedlist() {
 
           for (int i = 0; i < 99; i++) {
             clearsamplesselectedlist(i);
@@ -620,13 +620,13 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void clearsamplesselectedlist(int lefolder) {
+void SamplerMenuRouter::clearsamplesselectedlist(int lefolder) {
           for (int i = 0; i < 999; i++) {
             self->samplesselected[lefolder][i] = 0;
           }
         }
 
-        static void drawFlashSamplesList() {
+void SamplerMenuRouter::drawFlashSamplesList() {
 
           int startx = 15;
           int starty = 16;
@@ -658,7 +658,7 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void drawsamplerfilesList() {
+void SamplerMenuRouter::drawsamplerfilesList() {
           int startx = 15;
           int starty = 16;
           canvastitle.fillScreen(SSD1306_BLACK);
@@ -689,7 +689,7 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void drawSamplerFoldersList() {
+void SamplerMenuRouter::drawSamplerFoldersList() {
           int startx = 15;
           int starty = 16;
           canvastitle.fillScreen(SSD1306_BLACK);
@@ -727,7 +727,7 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void dolistLoadSampleMenu() {
+void SamplerMenuRouter::dolistLoadSampleMenu() {
           lv.navrange = 4 - 1;
           const int sizeofmenuloadsample = 4;
           char menuloadsample[sizeofmenuloadsample][16] = {
@@ -747,7 +747,7 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void dolistDelSampleMenu() {
+void SamplerMenuRouter::dolistDelSampleMenu() {
           lv.navrange = 4 - 1;
 
           const int sizeofmenudelsample = 4;
@@ -768,9 +768,9 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void dolistAssignSampleMenu() {
+void SamplerMenuRouter::dolistAssignSampleMenu() {
           lv.navrange = 4 - 1;
-          self->assigning_sample_to_note = false ;
+          lv.assigning_sample_to_note = false ;
           const int sizeofmenuassignsample = 4;
           char menuassignsample[sizeofmenuassignsample][19] = {
               "Auto-assign", "Individual", "Clear All", "Save assigned"};
@@ -789,12 +789,12 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void autoassignsamples() {
+void SamplerMenuRouter::autoassignsamples() {
           Doautoassign();
           return;
         }
 
-        static void Doautoassign() {
+void SamplerMenuRouter::Doautoassign() {
           for (int i = 0; i < self->numberofFlashfiles - 1; i++) {
             if (i + 4 < 128) {
               gg.Sampleassigned[i + 4] = i;
@@ -804,58 +804,58 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void clearassignedsamples() {
+void SamplerMenuRouter::clearassignedsamples() {
           doclearassign();
           return;
         }
 
-        static void doclearassign() {
+void SamplerMenuRouter::doclearassign() {
           for (int i = 0; i < 128; i++) {
             gg.Sampleassigned[i] = 0;
           }
         }
 
-        static void doConfirmmkdir() {
+void SamplerMenuRouter::doConfirmmkdir() {
           char messageconfirm[32] = "Make dir ?";
-          doConfirmpanel((char *)messageconfirm);
+          dm.doConfirmpanel((char *)messageconfirm);
 
         }
-        static void doConfirmClearassign() {
+void SamplerMenuRouter::doConfirmClearassign() {
           char messageconfirm[32] = "Clear selection ?";
-          doConfirmpanel((char *)messageconfirm);
+          dm.doConfirmpanel((char *)messageconfirm);
 
         }
 
-        static void doConfirmClearList() {
+void SamplerMenuRouter::doConfirmClearList() {
           char messageconfirm[32] = "Clear selection ?";
-          doConfirmpanel((char *)messageconfirm);
+          dm.doConfirmpanel((char *)messageconfirm);
 
         }
-        static void doConfirmautoassign() {
+void SamplerMenuRouter::doConfirmautoassign() {
           char messageconfirm[32] = "Confirm autoassign ?";
-          doConfirmpanel((char *)messageconfirm);
+          dm.doConfirmpanel((char *)messageconfirm);
         }
 
-        static void doConfirmDelsamples() {
+void SamplerMenuRouter::doConfirmDelsamples() {
           char messageconfirm[32] = "Confirm Delete ?";
-          doConfirmpanel((char *)messageconfirm);
+          dm.doConfirmpanel((char *)messageconfirm);
         }
-        static void doConfirmClearSelectedFlashList() {
+void SamplerMenuRouter::doConfirmClearSelectedFlashList() {
           // same
           doConfirmClearList();
         }
-        static void doConfirmRemoveAll() {
+void SamplerMenuRouter::doConfirmRemoveAll() {
           // same
           doConfirmDelsamples();
         }
 
-        static void doConfirmLoadsamples() {
+void SamplerMenuRouter::doConfirmLoadsamples() {
           char messageconfirm[32] = "Confirm Loading ?";
-          doConfirmpanel((char *)messageconfirm);
+          dm.doConfirmpanel((char *)messageconfirm);
         }
 
-        static void RemoveAllfromFlash() {
-          initializeconsolemsg();
+void SamplerMenuRouter::RemoveAllfromFlash() {
+          dm.initializeconsolemsg();
           consoler.wipe();
           //SerialFlash.quickFormat();
           unsigned long startMillis = millis();
@@ -885,7 +885,7 @@ class SamplerMenuRouter : public SectionHolder {
                 Serial.print(".");
                 consoler.print(".");
                 consoler.refresh();
-                //pseudoconsole(" . ",0);
+                //dm.pseudoconsole(" . ",0);
                 dotcount = dotcount + 1;
                 if (dotcount >= 30) {
                   consoler.print(".");
@@ -905,7 +905,7 @@ class SamplerMenuRouter : public SectionHolder {
           dm.returntonav(2,3,lv.sublevels[2]);
         }
 
-        float eraseBytesPerSecond(const unsigned char *id) {
+float SamplerMenuRouter::eraseBytesPerSecond(const unsigned char *id) {
           if (id[0] == 0x20)
             return 152000.0; // Micron
           if (id[0] == 0x01)
@@ -917,13 +917,13 @@ class SamplerMenuRouter : public SectionHolder {
           return 320000.0;   // guess?
         }
 
-        static void DelSelectedFlashSamples() {
-          initializeconsolemsg();
+void SamplerMenuRouter::DelSelectedFlashSamples() {
+          dm.initializeconsolemsg();
           for (int j = 0; j < 999; j++) {
-            //pleasewait(j, 999);
+            //dm.pleasewait(j, 999);
             if (self->Flashsamplesselected[j] == 1) {
               if (SerialFlash.exists((const char *)bb.Flashsamplename[j])) {
-                pseudoconsole((const char *)bb.Flashsamplename[j]);
+                dm.pseudoconsole((const char *)bb.Flashsamplename[j]);
                 SerialFlash.remove((const char *)bb.Flashsamplename[j]);
               }
             }
@@ -932,7 +932,7 @@ class SamplerMenuRouter : public SectionHolder {
           rebuildflashsamplesnames();
         }
 
-        static void addfolderstoselectionset() {
+void SamplerMenuRouter::addfolderstoselectionset() {
           if (self->numofsamplesfoldersselected > 0) {
             for (int i = 0; i < 99; i++) {
               if (self->samplesfoldersselected[i]) {
@@ -944,19 +944,19 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void loadSelectedSamples() {
-          initializeconsolemsg();
+void SamplerMenuRouter::loadSelectedSamples() {
+          dm.initializeconsolemsg();
           unsigned long lengthz;
           File currentsample;
           SerialFlashFile currentFlashfile;
           addfolderstoselectionset();
           delay(100);
           if (!SerialFlash.begin(self->FlashChipSelect)) {
-            pseudoconsole((char *)"Unable to access SPI Flash chip");
+            dm.pseudoconsole((char *)"Unable to access SPI Flash chip");
           }
 
           for (int i = 0; i < 99; i++) {
-            //pleasewait(i, 99);
+            //dm.pleasewait(i, 99);
             for (int j = 0; j < 999; j++) {
               if (self->samplesselected[i][j]) {
                 currentsample = SD.open(self->samplefullpath(i,j).c_str());
@@ -970,7 +970,7 @@ class SamplerMenuRouter : public SectionHolder {
                   continue;
                 }
                 lengthz = currentsample.size();
-                pseudoconsole(currentflashname);
+                dm.pseudoconsole(currentflashname);
                 if (SerialFlash.exists(currentflashname)) continue; 
 
                 if (SerialFlash.create(currentflashname, lengthz)) {
@@ -1002,15 +1002,15 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
 
-        static void loadSampledSound() {
+void SamplerMenuRouter::loadSampledSound() {
           unsigned long lengthz;
           File currentsample;
           SerialFlashFile currentFlashfile;
           delay(1);
           if (!SerialFlash.begin(self->FlashChipSelect)) {
-            pseudoconsole("Unable to access SPI Flash chip");
+            dm.pseudoconsole("Unable to access SPI Flash chip");
           }
-          currentsample = SD.open(newloopedpath.c_str());
+          currentsample = SD.open(_rd.newloopedpath.c_str());
           const char *currentflashname = currentsample.name();
           lengthz = currentsample.size();
           
@@ -1041,11 +1041,11 @@ class SamplerMenuRouter : public SectionHolder {
         
         }
 
-        static void listFlashfiles() {
+void SamplerMenuRouter::listFlashfiles() {
           initializeFlashsamplename();
           initializeFlashsamplebase();
           if (!SerialFlash.begin(self->FlashChipSelect)) {
-            pseudoconsole((char *)"Unable to access SPI Flash chip");
+            dm.pseudoconsole((char *)"Unable to access SPI Flash chip");
           }
           char filename[13];
           uint32_t filesize;
@@ -1055,7 +1055,7 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         //unused
-        static void getavailablespace() {
+void SamplerMenuRouter::getavailablespace() {
           long laspace = 0;
           SerialFlashFile lefile;
           for (int i = 0; i < self->numberofFlashfiles; i++) {
@@ -1073,9 +1073,9 @@ class SamplerMenuRouter : public SectionHolder {
           //float freespace = ((laspace / 16777216.0) * 100);
         }
 
-        static void Sampleassigner() {
+void SamplerMenuRouter::Sampleassigner() {
           if (lv.navlevel == 3) {
-            self->assigning_sample_to_note = true ;
+            lv.assigning_sample_to_note = true ;
             lv.navrange = 127;
             listsamplesassigner();
             dm.dodisplay();
@@ -1091,7 +1091,7 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void listsamplesassigner() {
+void SamplerMenuRouter::listsamplesassigner() {
           dm.clean_title_2_2();
           char *toprint = (char *)"Note";
           canvastitle.println(toprint);
@@ -1105,9 +1105,9 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void samplesetter() { gg.Sampleassigned[lv.sublevels[3]] = lv.sublevels[4]; }
+void SamplerMenuRouter::samplesetter() { gg.Sampleassigned[lv.sublevels[3]] = lv.sublevels[4]; }
 
-        static void listsamplesassigner2() {
+void SamplerMenuRouter::listsamplesassigner2() {
           dm.clean_title_2_2();
           char *toprint = (char *)"Note";
           canvastitle.println(toprint);
@@ -1121,7 +1121,7 @@ class SamplerMenuRouter : public SectionHolder {
 
         
 
-        static void listSoundsetsubdir(int ledir) {
+void SamplerMenuRouter::listSoundsetsubdir(int ledir) {
           if (SD.exists((char *)self->sampledirpath)) {
             File susudir = SD.open((char *)self->sampledirpath);
             while (true) {
@@ -1152,7 +1152,7 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void makesoundsetfullpathfromchars(int eldir) {
+void SamplerMenuRouter::makesoundsetfullpathfromchars(int eldir) {
           for (int i = 9; i < (int)(strlen((char *)self->samplefoldersregistered[eldir]) + 9);i++) {
             self->sampledirpath[i] = self->samplefoldersregistered[eldir][i - 9];
           }
@@ -1160,7 +1160,7 @@ class SamplerMenuRouter : public SectionHolder {
           self->sampledirpath[lelast] = (char)'/';
           self->sampledirpath[lelast + 1] = (char)'\0';
         }
-        static void voidsampledirpath() {
+void SamplerMenuRouter::voidsampledirpath() {
           for (int i = 0; i < 99; i++) {
             self->sampledirpath[i] = (char)'\0';
           }
@@ -1169,7 +1169,7 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
 
-        static void dosoundlist() {
+void SamplerMenuRouter::dosoundlist() {
           initializeFlashsamplesselected();
           initializesamplesfoldersselectedlist();
           rebuildflashsamplesnames();
@@ -1180,22 +1180,10 @@ class SamplerMenuRouter : public SectionHolder {
           initializesamplebase();
           listSoundset();
           for (int i = 1; i < self->sampledirsregistered; i++) {
-            //pleasewait(i, self->sampledirsregistered);
+            //dm.pleasewait(i, self->sampledirsregistered);
             voidsampledirpath();
             makesoundsetfullpathfromchars(i);
             listSoundsetsubdir(i);
           }
         }
-//TODO: refactor nav routing after using fileslister
-        static constexpr void (*_route_nav[7])() = {&sampler_nav_zero, &sampler_nav_one, &sampler_nav_two, 
-                                                    &sampler_nav_two, &sampler_nav_two,&sampler_nav_two, &sampler_nav_two};
-                                    
-        
-    private:
-        
-        static constexpr void (*_nav_sampler[SP_LABELS_COUNT])() = {&dolistLoadSampleMenu, &dolistDelSampleMenu, &dolistAssignSampleMenu, &smixerVpanel};
-        static SamplerMenuRouter* self;
-};
 
-SamplerMenuRouter* SamplerMenuRouter::self = nullptr;
-EXTMEM SamplerMenuRouter _sp;

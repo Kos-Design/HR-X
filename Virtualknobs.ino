@@ -219,7 +219,7 @@ class VirtualKnobs : public SectionHolder {
 
           if (lv.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT) {
             int CClaval0 = 70 + (lv.sublevels[self->relative_navlevel] + 1 + (14 + 17));
-            moncontrollercc((byte)1, (byte)CClaval0, (byte)127);
+            _tt.moncontrollercc((byte)1, (byte)CClaval0, (byte)127);
             // Serial.print("sending cc ");
             // Serial.println(CClaval0);
           }
@@ -228,7 +228,7 @@ class VirtualKnobs : public SectionHolder {
               lv.sublevels[self->relative_navlevel] >= VBUT_LBL_COUNT) {
             int CClaval =
                 70 + (lv.sublevels[self->relative_navlevel] + 1 - (VBUT_LBL_COUNT));
-            moncontrollercc((byte)1, (byte)CClaval, (byte)127);
+            _tt.moncontrollercc((byte)1, (byte)CClaval, (byte)127);
             // moncontrollercc( (byte)1,(byte)CClaval, (byte)0);
           }
 
@@ -256,7 +256,7 @@ class VirtualKnobs : public SectionHolder {
             if (lv.sublevels[self->relative_navlevel] > VBUT_LBL_COUNT + 14) {
               int CClaval2 =
                   70 + (lv.sublevels[self->relative_navlevel] + 1 - (VBUT_LBL_COUNT));
-              moncontrollercc((byte)1, (byte)CClaval2,
+              _tt.moncontrollercc((byte)1, (byte)CClaval2,
                               (byte)(gg.vPots[lv.sublevels[self->relative_navlevel] -
                                           VBUT_LBL_COUNT - 14]));
               // moncontrollercc( (byte)1,(byte)CClaval0, (byte)0);

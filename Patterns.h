@@ -5,125 +5,11 @@
 #include "FilesLister.h"
 
 
-void computelenghtmesureoffline_synth();
-void computelenghtmesureoffline_sampler();
 void call_refresh_flash_track();
 void shutlineroff(byte,byte);
 void playarpegenote(byte);
 void closeallenvelopes();
 void call_stopallnotes();
-
-/*class MidiPlayer{
-  public:
-    MidiPlayer();
-
-    bool begin(FsFile &file);
-
-    void stop();
-
-    void reset();
-
-    // Returns true if one or more events were emitted
-    bool update(uint32_t currentTick);
-
-    bool isPlaying() const { return playing; }
-
-    //----------------------------------
-    // MIDI information
-    //----------------------------------
-
-    uint16_t bpm = 120;
-
-    uint16_t ppqn = 96;
-
-    uint8_t numerator = 4;
-
-    uint8_t denominator = 4;
-
-    uint32_t stepTicks = 24;
-
-  protected:
-
-    //----------------------------------
-    // User callbacks
-    //----------------------------------
-
-    virtual void noteOn(uint8_t ch,
-                        uint8_t note,
-                        uint8_t vel) {}
-
-    virtual void noteOff(uint8_t ch,
-                         uint8_t note,
-                         uint8_t vel) {}
-
-    virtual void controlChange(uint8_t ch,
-                               uint8_t cc,
-                               uint8_t value) {}
-
-  private:
-
-    //----------------------------------
-    // File
-    //----------------------------------
-
-    FsFile *f = nullptr;
-
-    uint32_t trackEnd = 0;
-
-    bool playing = false;
-
-    bool eof = false;
-
-    //----------------------------------
-    // Timing
-    //----------------------------------
-
-    uint32_t currentEventTick = 0;
-
-    uint32_t nextEventTick = 0;
-
-    //----------------------------------
-    // Pending event
-    //----------------------------------
-
-    uint8_t eventType = 0;
-
-    uint8_t eventChannel = 0;
-
-    uint8_t eventData1 = 0;
-
-    uint8_t eventData2 = 0;
-
-    //----------------------------------
-    // MIDI parser
-    //----------------------------------
-
-    uint8_t runningStatus = 0;
-
-    bool readHeader();
-
-    bool readTrack();
-
-    bool readNextEvent();
-
-    bool parseMeta();
-
-    bool parseSysEx();
-
-    //----------------------------------
-    // Helpers
-    //----------------------------------
-
-    uint8_t read8();
-
-    uint16_t read16();
-
-    uint32_t read32();
-
-    uint32_t readVar();
-
-    void skip(uint32_t bytes);
-};*/
 
 enum TrackTypes : uint8_t  {
     Synth,
@@ -142,6 +28,34 @@ struct Pattern {
 };
 
 extern Pattern pp;
+
+class MasterClock {
+    public:
+
+        MasterClock();
+
+        bool stop = 1 ;
+
+        static void click();
+        void dispatch_ticks();
+        void attach_16(void (*cb)());
+        void attach_long(void (*cb)());
+        void attach_24(void (*cb)());
+        void attach_3(void (*cb)());
+        void stopticker();
+        void startticker();
+
+    private:
+
+        volatile uint32_t tick96 = 0;
+        void (*_callback_24)() = nullptr;
+        void (*_callback_3)() = nullptr;
+        void (*_callback_16)() = nullptr;
+        void (*_callback_long)() = nullptr;
+        static MasterClock* self;
+};
+
+extern MasterClock Tocker;
 
 class CCEditor : public SectionHolder {
   public:
@@ -190,6 +104,11 @@ class PatEditRouter : public SectionHolder {
         static void refresh_flash_track();
         static void dolistpatternlineblocks();
         int grid_start_note();
+
+        int getnextposofevent1Off_synth(int linei, byte lanote, int fromi);
+        int getnextposofevent1Off_sampler(int linei, byte lanote, int fromi);
+        static void computelenghtmesureoffline_synth();
+        static void computelenghtmesureoffline_sampler();
         static void terminatenotesinbetween();
         static void sync_temp();
         static void drawCursorCol();
@@ -311,3 +230,5 @@ class PatternsMenuRouter : public SectionHolder {
   private:
       static PatternsMenuRouter* self;
 };
+
+extern PatternsMenuRouter _pt;

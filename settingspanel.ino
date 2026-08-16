@@ -1,16 +1,5 @@
 
 
-/*
-//TODO: implement in notespy
-void notefreqloop() {
-  if (notefreq1.available()) {
-    float notep = notefreq1.read();
-    float probz = notefreq1.probability();
-    //  pseudoconsole("Note: %3.2f | Probability: %.2f\n", notep, probz);
-  }
-}
-*/
-
 class SettingsMenuRouter : public SectionHolder {
     public:
         SettingsMenuRouter() {
@@ -34,12 +23,11 @@ class SettingsMenuRouter : public SectionHolder {
           "But 15", "But 16", "But 17", "But 18", "Cfd",    "Jk X",   "Jk Y"};
 
         char ch_lbl_buffer[4];
-        bool setting_on_board = false ;
-        bool freezemidicc = 0;
+
 
         static void show() {
           if (lv.navlevel == 1) {
-            self->setting_on_board = false ;
+            lv.setting_on_board = false ;
             settings_nav_zero();
           }
 
@@ -97,6 +85,17 @@ class SettingsMenuRouter : public SectionHolder {
           }
         }
 
+        /*
+        //TODO: implement in notespy
+        void notefreqloop() {
+          if (notefreq1.available()) {
+            float notep = notefreq1.read();
+            float probz = notefreq1.probability();
+            //  dm.pseudoconsole("Note: %3.2f | Probability: %.2f\n", notep, probz);
+          }
+        }
+        */
+
         static void set_in_source(){
           switch (self->AudioInSource) {
             case 0 :
@@ -146,7 +145,7 @@ class SettingsMenuRouter : public SectionHolder {
         };
 
         static void settings_nav_zero(){
-          reinitsublevels(2);
+          dm.reinitsublevels(2);
           dm.clean_title_1_1();
           _tt.debugmidion = 0;
           self->noteprint = 0;
@@ -242,7 +241,7 @@ class SettingsMenuRouter : public SectionHolder {
         }
 
         static void OnBoardVpanel() {
-          self->setting_on_board = true ;
+          lv.setting_on_board = true ;
           OnBoardVpanelAction();
           display.clearDisplay();
           dm.clear_buffs();
@@ -504,7 +503,7 @@ class SettingsMenuRouter : public SectionHolder {
 
           if (lv.sublevels[1] == 1) {
             canvastitle.setCursor(96, 0);
-            if (self->freezemidicc) {
+            if (lv.freezemidicc) {
               canvastitle.println("On");
             } else {
               canvastitle.println("Off");
@@ -689,7 +688,7 @@ class SettingsMenuRouter : public SectionHolder {
       }
 
       static void toggle_freeze_midi(){
-        self->freezemidicc = !self->freezemidicc;
+        lv.freezemidicc = !lv.freezemidicc;
         dm.returntonav(1,self->home_navrange,1);
       }
 

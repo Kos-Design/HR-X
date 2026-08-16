@@ -21,7 +21,69 @@ int previousTp;
 char leparsed[3];
 unsigned long latimeline;
 
-extern DisplayManager dm ;
+MasterClock* MasterClock::self = nullptr;
+
+MasterClock::MasterClock() {self = this;}
+
+void MasterClock::click() {
+            self->tick96++;
+            //if (!(self->tick96 % 2))
+            //self->dispatch_ticks();
+        }
+
+void MasterClock::dispatch_ticks() {
+            
+            if ((tick96 % 8) == 0 && _callback_3){
+                _callback_3();
+            }
+            if ((tick96 % 96*4) == 0 && _callback_long){
+                _callback_long();
+            }
+            if ((tick96 % 2) == 0 && _callback_16){
+                _callback_16();
+            }
+            if (!self->stop) {
+                if ((tick96 % 24) == 0 && _callback_24){
+                    _callback_24();
+                }
+            }
+        }
+
+void MasterClock::attach_16(void (*cb)()) {
+            _callback_16 = cb;
+        }
+
+void MasterClock::attach_long(void (*cb)()) {
+            _callback_long = cb;
+        }
+
+void MasterClock::attach_24(void (*cb)()) {
+            _callback_24 = cb;
+        }
+
+void MasterClock::attach_3(void (*cb)()) {
+            _callback_3 = cb;
+        }
+
+void MasterClock::stopticker() {
+            lv.stoptick = 1;
+            lv.recordCC = 0;
+            self->stop = 1;
+            // if (lv.patrecord) {
+            // computelenghtmesureoffline();
+            lv.patternOn = 0;
+            lv.patrecord = 0;
+            // lv.tickposition = 0 ;
+        }
+
+void MasterClock::startticker() {
+    //TODO: reimplement external midi clock use
+    //if (!gg.externalticker) {
+    lv.stoptick = 0;
+    self->stop = 0;
+    lv.patternOn = 1;
+}
+
 
 CCEditor* CCEditor::self = nullptr;
 
@@ -576,35 +638,83 @@ void PatEditRouter::sanitize_sampler_partition(){
         }
 
 void PatEditRouter::set_cell_at_pos(byte ch_, byte nt_, byte ve_){
-          byte sub3 = lv.sublevels[navlevelpatedit + 3];
-          byte sub4 = lv.sublevels[navlevelpatedit + 4];
-          self->_on_part[sub3] = {ch_,nt_,ve_};
-          byte laOffpos;
-          self->_length_part[sub3] = max((sub4 - sub3) * 4,4);
+  byte sub3 = lv.sublevels[navlevelpatedit + 3];
+  byte sub4 = lv.sublevels[navlevelpatedit + 4];
+  self->_on_part[sub3] = {ch_,nt_,ve_};
+  byte laOffpos;
+  self->_length_part[sub3] = max((sub4 - sub3) * 4,4);
 
-          laOffpos = (sub3 + (self->_length_part[sub3] / 4))%PBARS;
-          self->_off_part[laOffpos] = {ch_,nt_,0};
-          terminatenotesinbetween();
-          //off
-          if (!ve_){
+  laOffpos = (sub3 + (self->_length_part[sub3] / 4))%PBARS;
+  self->_off_part[laOffpos] = {ch_,nt_,0};
+  terminatenotesinbetween();
+  //off
+  if (!ve_){
 
-            self->_on_part[sub3] = {0,0,0};
-            self->_length_part[sub3] = 0 ;
-          }
-          _sanitizer[self->track_type]();
-        }
+    self->_on_part[sub3] = {0,0,0};
+    self->_length_part[sub3] = 0 ;
+  }
+  _sanitizer[self->track_type]();
+}
 
 void PatEditRouter::set_cell_velocity() {
-          lv.previousnavlevel = lv.navlevel;
-          byte sub3 = lv.sublevels[navlevelpatedit + 3];
-          byte sub4 = lv.sublevels[navlevelpatedit + 4] ;
-          set_cell_at_pos(((int[2]){gg.synthmidichannel,gg.samplermidichannel})[self->track_type],lv.sublevels[navlevelpatedit + 2],self->_temp_part[sub3].velocity);
-          if (!self->_temp_part[sub3].velocity){
-            set_cell_at_pos(0,0,0);
-          }
-          _refresher[self->track_type]();
-          dm.returntonav(navlevelpatedit + 3,31,sub4);
+  lv.previousnavlevel = lv.navlevel;
+  byte sub3 = lv.sublevels[navlevelpatedit + 3];
+  byte sub4 = lv.sublevels[navlevelpatedit + 4] ;
+  set_cell_at_pos(((int[2]){gg.synthmidichannel,gg.samplermidichannel})[self->track_type],lv.sublevels[navlevelpatedit + 2],self->_temp_part[sub3].velocity);
+  if (!self->_temp_part[sub3].velocity){
+    set_cell_at_pos(0,0,0);
+  }
+  _refresher[self->track_type]();
+  dm.returntonav(navlevelpatedit + 3,31,sub4);
+}
+
+void PatEditRouter::computelenghtmesureoffline_synth() {
+  for (int linei = 0; linei < SYNTH_LINERS_COUNT; linei++) {
+    for (int i = 0; i < PBARS; i++) {
+      if (pp.synth_partition[linei][i].note != 0) {
+        int laposof = self->getnextposofevent1Off_synth(linei, pp.synth_partition[linei][i].note, i);
+        if (laposof < PBARS - 1) {
+          pp.synth_notes_length[linei][i] = (laposof - i) * 4;
+        } else {
+          pp.synth_notes_length[linei][i] = (PBARS - i) * 4;
         }
+      }
+    }
+  }
+}
+
+int PatEditRouter::getnextposofevent1Off_synth(int linei, byte lanote, int fromi) {
+  for (int i = fromi + 1; i < PBARS; i++) {
+    if (pp.synth_off_pat[linei][i].note == lanote) {
+      return i;
+    }
+  }
+  return (fromi + 1);
+}
+
+int PatEditRouter::getnextposofevent1Off_sampler(int linei, byte lanote, int fromi) {
+  for (int i = fromi + 1; i < PBARS; i++) {
+    if (pp.sampler_off_pat[i].note == lanote) {
+      return i;
+    }
+  }
+  return (fromi + 1);
+}
+
+void PatEditRouter::computelenghtmesureoffline_sampler() {
+  for (int linei = 0; linei < FLASH_LINERS_COUNT; linei++) {
+    for (int i = 0; i < PBARS; i++) {
+      if (pp.sampler_partition[linei][i].note != 0) {
+        int laposof = self->getnextposofevent1Off_sampler(linei, pp.sampler_partition[linei][i].note, i);
+        if (laposof < PBARS - 1) {
+          pp.flash_notes_length[linei][i] = (laposof - i) * 4;
+        } else {
+          pp.flash_notes_length[linei][i] = (PBARS - i) * 4;
+        }
+      }
+    }
+  }
+}
 
 void PatEditRouter::refresh_patterns(){
           _refresher[self->track_type]();

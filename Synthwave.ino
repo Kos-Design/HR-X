@@ -1363,7 +1363,7 @@ class SynthMenuRouter : public SectionHolder {
           lv.navrange = self->home_navrange;
           dm.clean_title_2_1();
           //if (!lv.retroaction)
-          //  reinitsublevels(2);
+          //  dm.reinitsublevels(2);
           dolistsyntmenu();
           lv.retroaction = lv.sublevels[1] ;
           dm.dodisplay();

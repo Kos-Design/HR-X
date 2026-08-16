@@ -47,13 +47,19 @@ struct LiveState {
     bool temp_buff_armed = 0 ;
     int tickerlasttick = 0;
     int tickposition = 0;
-    bool stoptickernextcycle;
+    bool stoptickernextcycle = 0;
 
     byte oscillator = 0;
     byte cclfoselector = 0 ;
     //selector for the Fx bus
     byte fidx = 0;
     float BPMs = (60000.0 / 115) / 4.0;
+    bool setting_on_board = false ;
+    bool freezemidicc = 0;
+    bool knobsetting = false ;
+    bool assigning_sample_to_note = false ;
+    int paddered = 0;
+
 };
 
 extern LiveState lv;

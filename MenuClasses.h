@@ -59,6 +59,20 @@ class DisplayManager{
         void clear_3(void);
         void clean_title_2(void);
         void clean_title_2_1(void);
+        void doConfirmpanel(char *letitlemsg);
+
+        void dodisplayplayhead();
+        void initializelapleasewaitarray();
+        void shiftlapleasewaitarray();
+        void setlapleasewaitarray(int consoleline, char *lemsg);
+        void pleasewait(float lewait, float letotwait);
+        void pseudoconsole(const char *lemsg,bool new_lines=true);
+        void initializeconsolemsg() ;
+        void shiftconsolemsgarray();
+        void setleconsolemsg(int consoleline, char *lemsg);
+        void printnoteon(byte channel, byte data1, byte data2);
+        void print_memory_usage();
+        void reinitsublevels(byte fromlei);
         void clean_title_1_1(void);
         void clean_title_1_2(void);
         void clean_title_2_2(void);
@@ -76,6 +90,8 @@ class DisplayManager{
         void _displayleBGimg(const unsigned char *img);
         void _setupscreen_ILI(void);
 };
+
+extern DisplayManager dm;
 
 class GlobalMixer : public SectionHolder {
     public:
@@ -99,6 +115,7 @@ class GlobalMixer : public SectionHolder {
         static GlobalMixer* self;
         
 };
+extern GlobalMixer _mx;
 
 class SequencerClocker : public AudioStream {
     public:
@@ -154,3 +171,6 @@ private:
     uint8_t cursorX;
     uint8_t cursorY;
 };
+
+extern DisplayConsoler consoler;
+

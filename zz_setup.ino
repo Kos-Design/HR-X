@@ -5,6 +5,7 @@ void setupSD() {
     consoler.println((char *)"initialization SD failed!");
     return;
   }
+  //Serial.println(CtlCount);
   _rd.clear_temp_files();
   _sp.initializesamplesselectedlist();
   consoler.println((char *)"Scanning Samples");
@@ -44,21 +45,14 @@ void call_allfxcontrolled(){
 void call_rd_show(){
   _rd.show();
 }
-void call_set_pt_offset(int valz){
-  _pt.catalog->displayable_offset = valz ;
-}
+
 void call_setwavetypefromlist(){
   _sn.setwavetypefromlist();
 }
 void call_setwavemixlevel(){
   _mx.setwavemixlevel();
 }
-void call_dosoundlist(){
-  _sp.dosoundlist();
-}
-void call_loadSampledSound(){
-  _sp.loadSampledSound();
-}
+
 void call_wf_show(){
   _wf.show();
 }
@@ -84,13 +78,6 @@ void call_lf_show(){
   _lf.show();
 }
 
-void call_wf_tracer(byte control,byte value){
-  _wf.set_tracer(control,value);
-}
-
-String get_pattern_name_from_pt(int p_index) {
-  return _pt.catalog->get_file_name(_pt.catalog->files_indexed[p_index]);
-}
 void call_st_onboardPanel(){
   _st.OnBoardVpanel();
 }
@@ -99,10 +86,6 @@ void call_set_bpms(){
 }
 void call_refresh_flash_track(){
   _pe.refresh_flash_track();
-}
-
-void call_songeditor(){
-  _se.Songmodepanel();
 }
 
 void setup() {
@@ -131,7 +114,7 @@ void setup() {
   gg.fx[0].f_index = 0;
   gg.fx[1].f_index = 1;
   gg.fx[2].f_index = 2;
-  initializeconsolemsg();
+  dm.initializeconsolemsg();
   dm.setupscreen();
   consoler.wipe();
   consoler.println((char *)"initializing...");
@@ -840,7 +823,7 @@ void cancel_pushed_ctl(byte cc_val){
   }
   if (!lv.navlevel) {
     dm.displaymenu();
-    reinitsublevels(1);
+    dm.reinitsublevels(1);
     return;
   }
   lv.sublevels[lv.navlevel] = 0;

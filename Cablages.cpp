@@ -1,15 +1,4 @@
-//#include "Constants.h"
 #include "Cablages.h"
-/*#include <Arduino.h>
-#include <Audio.h>
-#include <SD.h>
-#include "Constants.h"
-#include <SerialFlash.h>
-#include <play_sd_mp3.h>
-#include <play_sd_flac.h>
-#include "play_partial_sd_raw.h"
-#include <SPI.h>
-#include <Wire.h>*/
 
 EXTMEM AudioPlaySerialflashRaw  FlashSampler1;  //xy=1731.8833312988281,20
 EXTMEM AudioPlaySerialflashRaw  FlashSampler2;  //xy=1731.8833312988281,60

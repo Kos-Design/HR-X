@@ -66,7 +66,7 @@ class PresetsMenuRouter : public SectionHolder {
           if (preset_filer) {
            preset_filer.read((uint8_t*)&gg, sizeof(gg));
           } else {
-            pseudoconsole("Error with preset file");
+            dm.pseudoconsole("Error with preset file");
             return ;
           }
           preset_filer.close();

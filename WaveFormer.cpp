@@ -1,8 +1,11 @@
+#include "WaveFormer.h"
+#include <Encoder.h>
 
-class WaveformsMenuRouter : public SectionHolder {
-    public:
-       
-        WaveformsMenuRouter() {
+extern Encoder myEnc;
+
+WaveformsMenuRouter* WaveformsMenuRouter::self = nullptr;
+
+WaveformsMenuRouter::WaveformsMenuRouter() {
           self = this;
           self->home_navrange=self->wf_labels_count-1;
           self->catalog = new FilesLister("WAVEFORM/","WFORM-",".TXT",wforms_menu,self->home_navrange);
@@ -11,45 +14,16 @@ class WaveformsMenuRouter : public SectionHolder {
           self->sublevels_address={8,0,0};
         }
 
-        FilesLister *catalog;
-        static constexpr uint8_t fake_gauss_kernel[17] = {
-              0,   2,   5,  11,
-            22,  40,  66, 100,
-            140, 185, 220, 240,
-            250, 253, 254, 255,
-            255
-        };
-        static const byte wf_labels_count = 8;
-        static const byte wfn_size = 6; //displayables lines
-        static const byte max_blur = 32 ;
-
-        int cw_change = 64;
-        int w_cursor_y = 32;
-        int w_cursor_x = 0;
-        String wforms_names[wfn_size];
-        byte wforms_indexes[99];
-        byte wforms_count = 0 ;
-        byte widx = 0 ;
-
-        byte wforms_names_offset = 0 ;
-        byte trace_wave_cc = 58 ;
-        byte x_axis_cc = 17 ;
-        byte y_axis_cc = 18 ;
-        bool trace_waveform = false;
-
-
-        byte *waveform_tracers[3]= {&x_axis_cc,&y_axis_cc,&trace_wave_cc};
-
-        static void show() {
+void WaveformsMenuRouter::show() {
           _route_nav[lv.navlevel-1]();
         }
         
-        static void waveforms_nav_zero(){
+void WaveformsMenuRouter::waveforms_nav_zero(){
           lv.waveforming = 0 ;
           self->catalog->nav_zero();
         }
 
-        static void set_tracer(byte control,byte value){
+void WaveformsMenuRouter::set_tracer(byte control,byte value){
           if (control == self->trace_wave_cc) {
             self->trace_waveform = !self->trace_waveform;
           }
@@ -62,7 +36,7 @@ class WaveformsMenuRouter : public SectionHolder {
             }
           }
         }
-        static void WaveformParams(){
+void WaveformsMenuRouter::WaveformParams(){
           
           lv.navrange = 2 ;
           if (lv.navlevel == 3 ){
@@ -101,14 +75,14 @@ class WaveformsMenuRouter : public SectionHolder {
           }
         }
 
-        static void set_y_cursor_value(byte la_val){
+void WaveformsMenuRouter::set_y_cursor_value(byte la_val){
           if (la_val > 0) {
             self->cw_change = la_val;
             self->w_cursor_y = 64 - map(self->cw_change, 0, 127, 0, 64);
           }
         }
 
-        static void blur_w_graph_region(int16_t *arr, int index, uint8_t intensity) {
+void WaveformsMenuRouter::blur_w_graph_region(int16_t *arr, int index, uint8_t intensity) {
             int range = (intensity / 255.0)*self->max_blur;
             int temp[2 * self->max_blur + 1];
 
@@ -160,7 +134,7 @@ class WaveformsMenuRouter : public SectionHolder {
             }
         }
 
-        static void blur_w_graph_boundary( int16_t *arr,int range) {
+void WaveformsMenuRouter::blur_w_graph_boundary( int16_t *arr,int range) {
           for (int i = 1; i < range; i++)  {
               // 255 at edge, 0 at end of range
               int pull = ((range - i) * 255) / range;
@@ -174,21 +148,21 @@ class WaveformsMenuRouter : public SectionHolder {
           arr[255] = 0;
         }
 
-        static void smooth_w_bounds(){
+void WaveformsMenuRouter::smooth_w_bounds(){
           blur_w_graph_boundary(gg.arbitrary_waveforms[self->widx], 32);
         }
 
-        static void smooth_w_graph(){
+void WaveformsMenuRouter::smooth_w_graph(){
           blur_w_graph_region(gg.arbitrary_waveforms[self->widx], self->w_cursor_x, 64);
         }
 
-        static void set_array_at_cursor(int c_pos_w=self->w_cursor_x){
+void WaveformsMenuRouter::set_array_at_cursor(int c_pos_w){
           int w_graph_y = map(self->cw_change, 0, 127, -32768, 32767);
           gg.arbitrary_waveforms[self->widx][c_pos_w] = w_graph_y;
           gg.arbitrary_waveforms[self->widx][(c_pos_w-1)%256] = w_graph_y;
         }
 
-        static void set_x_cursor_value(byte la_val){
+void WaveformsMenuRouter::set_x_cursor_value(byte la_val){
           if (la_val > 0) {
             self->w_cursor_x = map(la_val, 0, 127, 0, 255);
             //gg.arbitrary_waveforms[self->widx][self->w_cursor_x] = map(self->cw_change, 0, 127, -32768, 32767);
@@ -199,7 +173,7 @@ class WaveformsMenuRouter : public SectionHolder {
           }
         }
 
-        static void draw_wave_graph(){
+void WaveformsMenuRouter::draw_wave_graph(){
           int16_t y1;
           int16_t y2;
           for (int i = 0; i < 128; i++) {
@@ -211,7 +185,7 @@ class WaveformsMenuRouter : public SectionHolder {
           }
         }
 
-        static void WaveformEditer() {
+void WaveformsMenuRouter::WaveformEditer() {
           lv.waveforming = 1;
           lv.navrange = 255;
           dm.clean_title_1();
@@ -243,13 +217,13 @@ class WaveformsMenuRouter : public SectionHolder {
           //smooth_w_bounds();
         }
 
-        static void wforms_menu() {
+void WaveformsMenuRouter::wforms_menu() {
           const char* waveformsmenulabels[] = {
               "Save", "Load", "Copy", "Delete", "Edit", "-->", "<--","Params"};
           dm.main_panel(waveformsmenulabels, 1, wf_labels_count);
         }
 
-        static void go_previous(){
+void WaveformsMenuRouter::go_previous(){
           if (self->widx-1 < 0)
             self->widx = 2 ;
           else
@@ -258,12 +232,12 @@ class WaveformsMenuRouter : public SectionHolder {
           dm.returntonav(1,wf_labels_count-1,lv.sublevels[1]);
         }
 
-        static void go_next(){
+void WaveformsMenuRouter::go_next(){
           self->widx = (self->widx+1)%3;
           dm.returntonav(1,wf_labels_count-1,lv.sublevels[1]);
         }
 
-        static void writewaveform() {
+void WaveformsMenuRouter::writewaveform() {
           if (lv.locked_fileing)
             return;
           lv.locked_fileing = 1 ;
@@ -284,19 +258,19 @@ class WaveformsMenuRouter : public SectionHolder {
           lv.locked_fileing = 0 ;
         }
 
-        static void writewaveforms(File &filer) {
+void WaveformsMenuRouter::writewaveforms(File &filer) {
           filer.write((byte *)gg.arbitrary_waveforms[self->widx], sizeof(gg.arbitrary_waveforms[self->widx]));
         }
 
-        static void copywaveform() {
+void WaveformsMenuRouter::copywaveform() {
           self->catalog->copyFile();
         }
 
-        static void deletewaveform() {
+void WaveformsMenuRouter::deletewaveform() {
           self->catalog->deleteFile();
         }
 
-        static void parsewaveformfile() {
+void WaveformsMenuRouter::parsewaveformfile() {
           if (lv.locked_fileing)
             return;
           lv.locked_fileing = 1 ;
@@ -306,27 +280,27 @@ class WaveformsMenuRouter : public SectionHolder {
           lv.locked_fileing = 0 ;
         }
         
-        static void wforms_actions(){
+void WaveformsMenuRouter::wforms_actions(){
           _nav_wforms[lv.sublevels[1]]();
             
         }
-        static void remove_wform(){
+void WaveformsMenuRouter::remove_wform(){
           lv1_wrapper(self->deletewaveform);
         }
 
-        static void duplicate_wform(){
+void WaveformsMenuRouter::duplicate_wform(){
           lv1_wrapper(self->copywaveform);
         }
 
-        static void load_wform(){
+void WaveformsMenuRouter::load_wform(){
           lv1_wrapper(self->parsewaveformfile);
         }
 
-        static void save_wform(){
+void WaveformsMenuRouter::save_wform(){
           lv1_wrapper(self->writewaveform);         
         } 
 
-        static void lv1_wrapper(void (*func)()) {
+void WaveformsMenuRouter::lv1_wrapper(void (*func)()) {
           self->catalog->nav_one(0,1);
           if (lv.navlevel >= 3) {
             func();
@@ -334,15 +308,5 @@ class WaveformsMenuRouter : public SectionHolder {
           }
         }
 
-        static constexpr void (*_route_nav[7])() = {&waveforms_nav_zero, &wforms_actions, &wforms_actions,
-                                    &wforms_actions, &wforms_actions, &wforms_actions, &wforms_actions};
-        
-        static constexpr void  (*_nav_wforms[8])() = {&save_wform, &load_wform, &duplicate_wform,&remove_wform,
-                                                                    &WaveformEditer ,&go_next,&go_previous,&WaveformParams};
-  
-    private:
-        static WaveformsMenuRouter* self;
-};
 
-WaveformsMenuRouter* WaveformsMenuRouter::self = nullptr;
-WaveformsMenuRouter _wf;
+

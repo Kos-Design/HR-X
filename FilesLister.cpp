@@ -1,8 +1,6 @@
 
 #include "FilesLister.h"
 #include "MenuClasses.h"
-void reinitsublevels(byte);
-extern DisplayManager dm ;
 
 FilesLister::FilesLister(const char *main_folder, const char *base_filename, const char *file_extension, void (*menu_labels_method)(), byte navranger) : 
                  basenamer(base_filename),

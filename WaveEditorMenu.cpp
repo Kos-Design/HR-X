@@ -1,17 +1,10 @@
+#include "WaveEditorMenu.h"
+#include "SamplerMenu.h"
 
-File frec;
-File frec2;
-File looper;
 
-int modeL = 0;
-int modeR = 0;
-bool autoassign = 0;
-// 0=stopped, 1=recording,
-bool modestereo = 0;
+RecorderMenuRouter* RecorderMenuRouter::self = nullptr;
 
-class RecorderMenuRouter : public SectionHolder {
-    public:
-        RecorderMenuRouter() {
+RecorderMenuRouter::RecorderMenuRouter() {
                     self = this;
                     self->home_navrange=self->rec_labels_count - 1;
                     self->catalog = new FilesLister("SOUNDSET/REC/","LOOP","#L.RAW",recorder_menu,self->home_navrange);
@@ -20,33 +13,24 @@ class RecorderMenuRouter : public SectionHolder {
                     self->sublevels_address={7,3,0};
                     }
                     
-        FilesLister *catalog;
-        const byte rec_labels_count = 6;
-        float pitcher = 1.0;
-        bool recorderstop = false ;
-        bool recorderrecord = false ;
-        bool recorderplay = false ;
-        bool rec_looping = false ;
-        bool pre_record = false ;
-        bool just_pressed_rec = false ;
 
-        static void show() {
+void RecorderMenuRouter::show() {
           _route_nav[lv.navlevel-self->relative_navlevel]();
         }
 
-        static void Load_raw_file() {
+void RecorderMenuRouter::Load_raw_file() {
           clear_temp_files();
-          newRecpathL = self->catalog->get_current_file_path(0);
-          newloopedpath = newRecpathL ;
-          Serial.println(newloopedpath);
+          self->newRecpathL = self->catalog->get_current_file_path(0);
+          self->newloopedpath = self->newRecpathL ;
+          Serial.println(self->newloopedpath);
 
           //TODO if stereo
-          //newRecpathR = newRecpathL ;
+          //self->newRecpathR = self->newRecpathL ;
         }
 
 
 
-        static void startRecording() {
+void RecorderMenuRouter::startRecording() {
           if (lv.locked_fileing)
             return;
           lv.locked_fileing = 1 ;
@@ -55,10 +39,10 @@ class RecorderMenuRouter : public SectionHolder {
             check_rec_folder_path();
             lv.tocker = millis();
 
-            newloopedpath = self->catalog->get_new_file_name();
+            self->newloopedpath = self->catalog->get_new_file_name();
             //self->catalog->get_new_file_name();
-            looper = SD.open(newloopedpath.c_str(), FILE_WRITE);
-            if (looper) {
+            self->looper = SD.open(self->newloopedpath.c_str(), FILE_WRITE);
+            if (self->looper) {
               //AudioNoInterrupts();
               queue1.begin();
               self->pre_record = true;
@@ -78,22 +62,8 @@ class RecorderMenuRouter : public SectionHolder {
           }
         }
 
-        static void stopRecordingR() {
-          // frec2 = SD.open("RECORDR.RAW", FILE_WRITE);
-          queue2.end();
-          // queue2.end();
-          if (modeR == 1) {
-            while (queue2.available() > 0) {
-              frec2.write((byte *)queue2.readBuffer(), 256);
-              queue2.freeBuffer();
-            }
-            frec2.close();
-            modeR = 0;
-            queue2.clear();
-          }
-        }
 
-        static void auto_stop_rec(){
+void RecorderMenuRouter::auto_stop_rec(){
           if (millis() - lv.tocker > 10000) {
             self->rec_looping = false ;
             stopRecording();
@@ -101,7 +71,7 @@ class RecorderMenuRouter : public SectionHolder {
           }
         }
 
-        static void continue_looper() {
+void RecorderMenuRouter::continue_looper() {
           if (queue1.available() >= 2) {
             byte rec_buffer[512];
             memcpy(rec_buffer, queue1.readBuffer(), 256);
@@ -110,7 +80,7 @@ class RecorderMenuRouter : public SectionHolder {
             queue1.freeBuffer();
             // write all 512 bytes to the SD card
             //elapsedMicros usec = 0;
-            looper.write(rec_buffer, 512);
+            self->looper.write(rec_buffer, 512);
             // Uncomment these lines to see how long SD writes
             // are taking.  A pair of audio blocks arrives every
             // 5802 microseconds, so hopefully most of the writes
@@ -126,31 +96,31 @@ class RecorderMenuRouter : public SectionHolder {
           auto_stop_rec();
         }
 
-        static void stopRecording() {
+void RecorderMenuRouter::stopRecording() {
           
-            if (looper) {
+            if (self->looper) {
             //AudioNoInterrupts();
             queue1.end();
             while (queue1.available() > 0) {
-              looper.write((byte *)queue1.readBuffer(), 256);
+              self->looper.write((byte *)queue1.readBuffer(), 256);
               queue1.freeBuffer();
             }
-            looper.close();
+            self->looper.close();
             queue1.clear();
             //AudioInterrupts();
             clear_temp_files();
 
-            call_dosoundlist();
+            _sp.dosoundlist();
             }
             self->just_pressed_rec = false ;
             self->pre_record = false;
-            if (autoassign) {
-              call_loadSampledSound();
+            if (self->autoassign) {
+             _sp.loadSampledSound();
             }
             lv.locked_fileing = 0 ;
         }
 
-        static void recordVpanelAction() {
+void RecorderMenuRouter::recordVpanelAction() {
           if (lv.navlevel == self->relative_navlevel + 2) {
             byte slct = lv.sublevels[self->relative_navlevel + 1];
             if (slct == 0) {
@@ -201,7 +171,7 @@ class RecorderMenuRouter : public SectionHolder {
           }
         }
 
-        static void recordVpanelSelector() {
+void RecorderMenuRouter::recordVpanelSelector() {
           if (lv.navlevel == self->relative_navlevel + 1) {
             lv.navrange = 2;
           }
@@ -233,7 +203,7 @@ class RecorderMenuRouter : public SectionHolder {
           }
         }
 
-        static void recordVpanel() {
+void RecorderMenuRouter::recordVpanel() {
           recordVpanelAction();
           display.clearDisplay();
           dm.clear_buffs();
@@ -279,29 +249,29 @@ class RecorderMenuRouter : public SectionHolder {
           dm.dodisplay();
         }
 
-        static void playrecordsd() {
-            //Serial.println(newloopedpath);
+void RecorderMenuRouter::playrecordsd() {
+            //Serial.println(self->newloopedpath);
           
-          if (SD.exists(newloopedpath.c_str())) {
+          if (SD.exists(self->newloopedpath.c_str())) {
             AudioNoInterrupts();
-            playRawL.play(newloopedpath.c_str());
-            if (modestereo) {
-              playRawR.play(newRecpathR.c_str());
+            playRawL.play(self->newloopedpath.c_str());
+            if (self->modestereo) {
+              playRawR.play(self->newRecpathR.c_str());
             } else {
-              playRawR.play(newloopedpath.c_str());
+              playRawR.play(self->newloopedpath.c_str());
             }
             AudioInterrupts();
           }
         }
 
-        static void playrecordsd_pathed(const char* lepath) {
+void RecorderMenuRouter::playrecordsd_pathed(const char* lepath) {
             //Serial.print(lepath);
 
           if (SD.exists(lepath)) {
             AudioNoInterrupts();
             playRawL.play(lepath);
-            if (modestereo) {
-              playRawR.play(newRecpathR.c_str());
+            if (self->modestereo) {
+              playRawR.play(self->newRecpathR.c_str());
             } else {
               playRawR.play(lepath);
             }
@@ -314,41 +284,41 @@ class RecorderMenuRouter : public SectionHolder {
           }
         }
 
-        static void stopplayrecordsd() {
+void RecorderMenuRouter::stopplayrecordsd() {
           //AudioNoInterrupts();
           playRawL.stop();
           playRawR.stop();
           //AudioInterrupts();
         }
 
-        static void check_rec_folder_path(){
+void RecorderMenuRouter::check_rec_folder_path(){
           if (!(SD.exists(((String)"SOUNDSET/REC").c_str()))) 
             self->catalog->make_sub_folder("SOUNDSET", "REC");
         }
 
-        static void deleteRec() {
+void RecorderMenuRouter::deleteRec() {
           self->catalog->deleteFile();
         }
 
-        static void recorder_menu() {
+void RecorderMenuRouter::recorder_menu() {
           self->catalog->folders_mode = false ;
           scheddule_wave_rebuild(1,1);
           const char* Recmenulabels[] = {"Record", "Load", "Delete", "Params","Edit","../"};
           dm.main_panel(Recmenulabels,1,self->rec_labels_count);
         }
 
-        static void rec_params(){
+void RecorderMenuRouter::rec_params(){
           dm.clean_title_2_1();
           display.setCursor(0,0);
           display.print("Placeholder");
           dm.dodisplay();
         }
 
-        static void rec_nav_zero(){
+void RecorderMenuRouter::rec_nav_zero(){
           self->catalog->nav_zero();
         }
         
-        static void drawFoldersList(){
+void RecorderMenuRouter::drawFoldersList(){
           
           self->catalog->folders_mode = true ;
           //self->catalog->folder_dir = "SOUNDSET/" ;
@@ -394,7 +364,7 @@ class RecorderMenuRouter : public SectionHolder {
           }
         }
 
-        static void lv1_wrapper(void (*func)()) {
+void RecorderMenuRouter::lv1_wrapper(void (*func)()) {
           dm.clean_title_2_1();
           self->catalog->nav_one(99,1);
 
@@ -406,69 +376,65 @@ class RecorderMenuRouter : public SectionHolder {
           dm.dodisplay();
         }
 
-        static void records_actions(){
+void RecorderMenuRouter::records_actions(){
           _nav_recs[lv.sublevels[self->relative_navlevel]%self->rec_labels_count]();
         }
 
-        static void remove_record(){
+void RecorderMenuRouter::remove_record(){
           lv1_wrapper(self->deleteRec);
         }
 
-        static void load_record(){
+void RecorderMenuRouter::load_record(){
           lv1_wrapper(self->Load_raw_file);
         }
 
-        static void drawWaveform(
-                  float startPos = 0.0f,
-                  float endPos   = 1.0f,
-                  uint16_t width = 128,
-                  uint16_t height = 48){
-            File wave_file = SD.open(newloopedpath.c_str(), FILE_READ);
-            if (!wave_file)
-                return;
+void RecorderMenuRouter::drawWaveform(float startPos,float endPos, uint16_t width, uint16_t height){
+    File wave_file = SD.open(self->newloopedpath.c_str(), FILE_READ);
+    if (!wave_file)
+        return;
 
-            uint32_t totalSamples = wave_file.size() / 2; // 16-bit mono
-            uint32_t firstSample = (uint32_t)(startPos * totalSamples);
-            uint32_t lastSample  = (uint32_t)(endPos   * totalSamples);
-            uint32_t visibleSamples = lastSample - firstSample;
+    uint32_t totalSamples = wave_file.size() / 2; // 16-bit mono
+    uint32_t firstSample = (uint32_t)(startPos * totalSamples);
+    uint32_t lastSample  = (uint32_t)(endPos   * totalSamples);
+    uint32_t visibleSamples = lastSample - firstSample;
 
-            if (visibleSamples == 0)
-                return;
+    if (visibleSamples == 0)
+        return;
 
-            for (uint16_t x = 0; x < width; x++)
-            {
-                uint32_t start = firstSample +
-                    ((uint64_t)x * visibleSamples) / width;
+    for (uint16_t x = 0; x < width; x++)
+    {
+        uint32_t start = firstSample +
+            ((uint64_t)x * visibleSamples) / width;
 
-                uint32_t end = firstSample +
-                    ((uint64_t)(x + 1) * visibleSamples) / width;
+        uint32_t end = firstSample +
+            ((uint64_t)(x + 1) * visibleSamples) / width;
 
-                if (end <= start)
-                    end = start + 1;
+        if (end <= start)
+            end = start + 1;
 
-                wave_file.seek(start * 2);
+        wave_file.seek(start * 2);
 
-                int16_t minSample = 32767;
-                int16_t maxSample = -32768;
+        int16_t minSample = 32767;
+        int16_t maxSample = -32768;
 
-                for (uint32_t i = start; i < end; i++)
-                {
-                    int16_t sample_selected;
-                    wave_file.read((uint8_t *)&sample_selected, sizeof(sample_selected));
-                    if (sample_selected < minSample) minSample = sample_selected;
-                    if (sample_selected > maxSample) maxSample = sample_selected;
-                }
-
-                int yTop = map(maxSample, 32767, -32768, 0, height - 1);
-                int yBottom = map(minSample, 32767, -32768, 0, height - 1);
-
-                canvasBIG.drawFastVLine(x, yTop + 8, yBottom - yTop + 1, SSD1306_WHITE);
-                
-            }
-            wave_file.close();
+        for (uint32_t i = start; i < end; i++)
+        {
+            int16_t sample_selected;
+            wave_file.read((uint8_t *)&sample_selected, sizeof(sample_selected));
+            if (sample_selected < minSample) minSample = sample_selected;
+            if (sample_selected > maxSample) maxSample = sample_selected;
         }
 
-        static void select_cursor() {
+        int yTop = map(maxSample, 32767, -32768, 0, height - 1);
+        int yBottom = map(minSample, 32767, -32768, 0, height - 1);
+
+        canvasBIG.drawFastVLine(x, yTop + 8, yBottom - yTop + 1, SSD1306_WHITE);
+        
+    }
+    wave_file.close();
+}
+
+void RecorderMenuRouter::select_cursor() {
           String _legend[] = {"Select","Zoom Out","Zoom In","Normalize","Reverse","Pitch x","Fade In","Fade Out","Preview","Del before","Del after","Del zone","Keep zone","Undo"," "};
 
           display.clearDisplay();
@@ -492,7 +458,7 @@ class RecorderMenuRouter : public SectionHolder {
           display.display();
         }
 
-        static void draw_editor_zones(){
+void RecorderMenuRouter::draw_editor_zones(){
           dm.clean_title_1_1();
           canvastitle.print("Slt");
           canvastitle.print(" -  +");
@@ -512,28 +478,28 @@ class RecorderMenuRouter : public SectionHolder {
           canvasBIG.print((char)14);// Undo
         }
 
-        static void redraw_selection_box(){
+void RecorderMenuRouter::redraw_selection_box(){
           display.fillRect(lv.sublevels[self->relative_navlevel +2], 8, 
                               lv.sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
          
         }
 
-        static void zoomRange(float subStart,float subEnd) {
+void RecorderMenuRouter::zoomRange(float subStart,float subEnd) {
           if (!self->wave_selected) return ;
           float zone_width = self->end_zone - self->start_zone;
           self->end_zone = self->start_zone + subEnd * zone_width;
           self->start_zone = self->start_zone + subStart * zone_width;
         }
 
-        static void reverseSection(float startPos, float endPos) {
-          self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+void RecorderMenuRouter::reverseSection(float startPos, float endPos) {
+          self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
           self->catalog->tmp_counter++;
           if (lv.locked_fileing)
           return;
             const uint16_t sampleSize = 2;      // 16-bit RAW
             const uint32_t blockSamples = 512;  // 1024-byte buffer
             uint8_t buffer[blockSamples * sampleSize];
-            File src = SD.open(newloopedpath.c_str(), FILE_READ);
+            File src = SD.open(self->newloopedpath.c_str(), FILE_READ);
             if (!src) return;
             //should get new temp name
             File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
@@ -609,23 +575,23 @@ class RecorderMenuRouter : public SectionHolder {
           /*
           SdFile file;
           file.open(self->get_current_temp_file().c_str(), O_READ);
-          file.rename(newloopedpath.c_str());
+          file.rename(self->newloopedpath.c_str());
           */
-          self->catalog->move_file(self->get_current_temp_file().c_str(), newloopedpath.c_str());
+          self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
           //self->catalog->tmp_counter++;
-          //self->catalog->copyFileGeneric(self->get_current_temp_file().c_str(),newloopedpath.c_str());
+          //self->catalog->copyFileGeneric(self->get_current_temp_file().c_str(),self->newloopedpath.c_str());
           //self->catalog->deleteFileGeneric(self->get_current_temp_file().c_str());
           //self->catalog->tmp_counter--;
         }
         
-        static void pitchSection(float startPos, float endPos, float speed) {
-          self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+void RecorderMenuRouter::pitchSection(float startPos, float endPos, float speed) {
+          self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
           self->catalog->tmp_counter++;
           if (lv.locked_fileing)
           return;
             if (speed <= 0.0f) return;
 
-          File src = SD.open(newloopedpath.c_str(), FILE_READ);
+          File src = SD.open(self->newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
           lv.locked_fileing = 1 ;
@@ -724,16 +690,16 @@ class RecorderMenuRouter : public SectionHolder {
           dst.close();
           lv.locked_fileing = 0 ;
 
-          self->catalog->move_file(self->get_current_temp_file().c_str(), newloopedpath.c_str());
+          self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
 
         }
 
-        static void trimSection(float start_pos = 0.0f, float end_pos = 1.0f) {
-          self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+void RecorderMenuRouter::trimSection(float start_pos, float end_pos) {
+          self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
           self->catalog->tmp_counter++;
           if (lv.locked_fileing)
           return;
-            File in = SD.open(newloopedpath.c_str(), FILE_READ);
+            File in = SD.open(self->newloopedpath.c_str(), FILE_READ);
             if (!in)
                 return;
 
@@ -796,11 +762,11 @@ class RecorderMenuRouter : public SectionHolder {
             out.close();
             in.close();
             lv.locked_fileing = 0 ;
-            self->catalog->move_file(self->get_current_temp_file().c_str(), newloopedpath.c_str());
+            self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
         }
    
-        static void normalizeSection(float startPos, float endPos) {
-          self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+void RecorderMenuRouter::normalizeSection(float startPos, float endPos) {
+          self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
           self->catalog->tmp_counter++;
           if (lv.locked_fileing)
           return;
@@ -808,7 +774,7 @@ class RecorderMenuRouter : public SectionHolder {
             const uint32_t bufferSamples = 512;
             int16_t buffer[bufferSamples];
 
-            File src = SD.open(newloopedpath.c_str(), FILE_READ);
+            File src = SD.open(self->newloopedpath.c_str(), FILE_READ);
             if (!src) return;
             File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
             lv.locked_fileing = 1 ;
@@ -905,32 +871,32 @@ class RecorderMenuRouter : public SectionHolder {
           src.close();
           dst.close();
           lv.locked_fileing = 0 ;
-          self->catalog->move_file(self->get_current_temp_file().c_str(), newloopedpath.c_str());
+          self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
         }
 
-        static void playSection(){
-          PartialPlayerMono.play(newloopedpath.c_str(),self->start_zone,self->end_zone);
+void RecorderMenuRouter::playSection(){
+          PartialPlayerMono.play(self->newloopedpath.c_str(),self->start_zone,self->end_zone);
           dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
         }
 
-        static void scheddule_wave_rebuild(bool noreturn = 0,bool noreinit = 0){
+void RecorderMenuRouter::scheddule_wave_rebuild(bool noreturn,bool noreinit){
           self->end_zone = 1.0;
           self->start_zone = 0.0 ;
           self->wave_buffed = 0 ;
           if (!noreinit)
-            reinitsublevels(self->relative_navlevel + 1); 
+            dm.reinitsublevels(self->relative_navlevel + 1); 
           if (!noreturn)
             dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
           lv.locked_fileing = 0 ; 
         }
 
-        static void fadeInSection(float startPos, float endPos) {
-          self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+void RecorderMenuRouter::fadeInSection(float startPos, float endPos) {
+          self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
           self->catalog->tmp_counter++;
           if (lv.locked_fileing)
           return;
 
-          File src = SD.open(newloopedpath.c_str(), FILE_READ);
+          File src = SD.open(self->newloopedpath.c_str(), FILE_READ);
           if (!src) return;
         
           File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
@@ -977,16 +943,16 @@ class RecorderMenuRouter : public SectionHolder {
           src.close();
           dst.close();
           lv.locked_fileing = 0 ;
-          self->catalog->move_file(self->get_current_temp_file().c_str(), newloopedpath.c_str());
+          self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
         }
 
-        static void fadeOutSection(float startPos, float endPos) {
-          self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+void RecorderMenuRouter::fadeOutSection(float startPos, float endPos) {
+          self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
           self->catalog->tmp_counter++;
           if (lv.locked_fileing)
           return;
 
-          File src = SD.open(newloopedpath.c_str(), FILE_READ);
+          File src = SD.open(self->newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
           lv.locked_fileing = 1 ;
@@ -1033,10 +999,10 @@ class RecorderMenuRouter : public SectionHolder {
           src.close();
           dst.close();
           lv.locked_fileing = 0 ;
-          self->catalog->move_file(self->get_current_temp_file().c_str(), newloopedpath.c_str());
+          self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
         }
 
-        static void start_inputting_pitch(){
+void RecorderMenuRouter::start_inputting_pitch(){
           lv.navrange = 127 ;
           display.setCursor(104,12);
           display.fillRect(104, 12, 30, 10, SSD1306_BLACK);
@@ -1051,12 +1017,12 @@ class RecorderMenuRouter : public SectionHolder {
           }
         }
 
-        static void deleteSection(float startPos, float endPos){
-          self->catalog->copyFileGeneric(newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+void RecorderMenuRouter::deleteSection(float startPos, float endPos){
+          self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
           self->catalog->tmp_counter++;
           if (lv.locked_fileing)
           return;
-          File src = SD.open(newloopedpath.c_str(), FILE_READ);
+          File src = SD.open(self->newloopedpath.c_str(), FILE_READ);
           if (!src) return;
           File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
           lv.locked_fileing = 1 ;
@@ -1099,10 +1065,10 @@ class RecorderMenuRouter : public SectionHolder {
           src.close();
           dst.close();
           lv.locked_fileing = 0 ;
-          self->catalog->move_file(self->get_current_temp_file().c_str(), newloopedpath.c_str());
+          self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
         }
 
-        static void edit_record(){
+void RecorderMenuRouter::edit_record(){
           make_temp_folders();
           lv.navrange = 13 ;
            if (lv.navlevel == self->relative_navlevel+1) {
@@ -1123,7 +1089,7 @@ class RecorderMenuRouter : public SectionHolder {
             if (lv.sublevels[self->relative_navlevel + 1] == 2){
               zoomRange((lv.sublevels[self->relative_navlevel + 2] / 127.0 ),((lv.sublevels[self->relative_navlevel + 2] + lv.sublevels[self->relative_navlevel + 3] ) / 127.0 ));
               self->wave_buffed = 0 ;
-              reinitsublevels(self->relative_navlevel + 2);
+              dm.reinitsublevels(self->relative_navlevel + 2);
               dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
             }
 
@@ -1218,26 +1184,26 @@ class RecorderMenuRouter : public SectionHolder {
               }
         }
 
-        static void redo(){
+void RecorderMenuRouter::redo(){
 
-        }
+}
 
-        String get_current_temp_file(){
-          return (self->catalog->get_full_tmp_file_path(max(self->catalog->tmp_counter-1,0))); 
-        }
+String RecorderMenuRouter::get_current_temp_file(){
+  return (self->catalog->get_full_tmp_file_path(max(self->catalog->tmp_counter-1,0))); 
+}
 
-        static void Undo(){
-          if (SD.exists(self->get_current_temp_file().c_str())){
-            //make first temp if none only
-            self->catalog->move_file(self->get_current_temp_file().c_str(), newloopedpath.c_str());
-            self->catalog->tmp_counter--;
-          } else {
-            Serial.println(" no bkp yet");
-          }
-          scheddule_wave_rebuild();
-        }
+void RecorderMenuRouter::Undo(){
+  if (SD.exists(self->get_current_temp_file().c_str())){
+    //make first temp if none only
+    self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
+    self->catalog->tmp_counter--;
+  } else {
+    Serial.println(" no bkp yet");
+  }
+  scheddule_wave_rebuild();
+}
 
-        static void clear_temp_files(){
+void RecorderMenuRouter::clear_temp_files(){
           if (SD.exists(self->catalog->tmp_folder)) {
             File opened_dir = SD.open((const char*)self->catalog->tmp_folder);
             while (true) {
@@ -1256,28 +1222,9 @@ class RecorderMenuRouter : public SectionHolder {
           self->catalog->tmp_counter = 0;
         }
 
-        static void make_temp_folders(){
+void RecorderMenuRouter::make_temp_folders(){
           self->catalog->make_temp_folders();
         }
 
-        bool temp_ops ;
-        float previous_offset = 0.0f ;
-        float start_zone = 0.0f ;
-        float end_zone = 1.0f ; 
-        bool wave_buffed = 0 ;
-        bool wave_selected = 0 ;
-        static constexpr void (*_route_nav[9])() = {&rec_nav_zero, &records_actions, &records_actions,
-                                    &records_actions, &records_actions,&records_actions, &records_actions,
-                                    &records_actions, &records_actions};
-        
-        static constexpr void  (*_nav_recs[6])() = {&recordVpanel, &load_record, &remove_record, &rec_params, &edit_record, &drawFoldersList};
-        
-
-  private:
-    static RecorderMenuRouter* self;
-};
-
-RecorderMenuRouter* RecorderMenuRouter::self = nullptr;
-RecorderMenuRouter _rd;
-       
+    
         

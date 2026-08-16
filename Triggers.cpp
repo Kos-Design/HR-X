@@ -1,9 +1,92 @@
 #include "MenuClasses.h"
 #include "Triggers.h"
 #include "Patterns.h"
-void cc_edgecases(byte,byte);
-void moncontrollercc(byte , byte , byte );
-int tick_for_that(int);
+#include "Voices.h"
+#include "pads.h"
+#include "KnobAssigner.h"
+#include "WaveFormer.h"
+
+
+extern Pads Pads;
+Arpegiator::Arpegiator() { }
+
+void Arpegiator::initiatearpegesynthliner(byte larpegeline, byte data1, byte data2) {
+  byte free_line = _tt.get_free_synth(data1);
+  if (free_line < SYNTH_LINERS_COUNT) {
+    for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+      if (data1 == _pt.calledarpegenote[i][0]) {
+        _pt.arpegnoteoffin[i][free_line] = gg.arpeglengh + 1;
+        _pt.playingarpegiator[i][free_line] = data1;
+      }
+    }
+    _pt.arpegnoteoffin[larpegeline][free_line] = gg.arpeglengh + 1;
+    _pt.playingarpegiator[larpegeline][free_line] = data1;
+    if (lv.patrecord) {
+      md.recordmidinotes(free_line, gg.synthmidichannel, data1, data2);
+    }
+    synth_lines[free_line]->liner_on(data1, data2);
+  }
+}
+
+MidiRecorder::MidiRecorder() { }
+
+void MidiRecorder::record_synth_notesOff(int liner, byte channel, byte lenote, byte velocity) {
+  int pos = this->tick_for_that(lv.tickposition);
+  if (synth_start_tpos[liner] != pos) {
+    pp.synth_off_pat[liner][pos] = {channel, lenote, 0};
+
+  } else {
+    if (pos == PBARS - 1) {
+      pp.synth_off_pat[liner][0] = {channel, lenote, 0};
+    } else {
+      pp.synth_off_pat[liner][pos + 1] = {channel, lenote, 0};
+    }
+  }
+}
+int  MidiRecorder::tick_for_that(int tick){
+  tick -= 1 ;
+  if (tick < 0 ){
+    tick = 31 ;
+  }
+  return tick ;
+}
+void MidiRecorder::recordmidinotes(int liner, byte channel, byte lenote, byte velocity) {
+  int pos = this->tick_for_that(lv.tickposition);
+  synth_start_tpos[liner] = pos;
+  pp.track_cells[Synth][lv.tickposition] = 1;
+  pp.synth_partition[liner][pos] = {channel, lenote, velocity};
+}
+
+bool MidiRecorder::isalreadysameSamplerinpat(byte lenote,int tick) {
+  for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+    if (lenote == pp.sampler_partition[i][tick].note) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+void MidiRecorder::recordmidinotes2(int liner, byte channel, byte lenote, byte velocity) {
+  int pos = this->tick_for_that(lv.tickposition);
+  if (!isalreadysameSamplerinpat(lenote,pos)) {
+    pp.track_cells[Flash][pos] = 1;
+    pp.sampler_partition[liner][pos] = {channel,lenote,velocity};
+  }
+}
+
+void MidiRecorder::recordCCmidinotes(byte channel, byte lanote, byte leccval) {
+  int pos = this->tick_for_that(lv.tickposition);
+  for (int i = 0 ; i < 32 ; i++){
+    if (bb.recorded_ccs[i] == 0 || bb.recorded_ccs[i] == lanote ) {
+        bb.recorded_ccs[i] = lanote ;
+        bb.pots_controllers[i][pos][0] = lanote;
+        bb.pots_controllers[i][pos][0] = leccval;
+        break;
+    }
+  }
+  pp.cc_partition[lanote][pos] = leccval;
+}
+
 TriggerMessenger* TriggerMessenger::self = nullptr;
 
 TriggerMessenger::TriggerMessenger() { self = this ;}
@@ -21,25 +104,14 @@ void TriggerMessenger::MaControlChange(byte channel, byte control, byte value) {
   }
 
   if (lv.navlevel)
-    cc_edgecases(control, value);
+    self->cc_edgecases(control, value);
 
-  moncontrollercc(channel, control, value);
+  self->moncontrollercc(channel, control, value);
   if ((lv.patrecord || lv.recordCC) && !lv.stoptick && !isignored) {
-    self->recordCCmidinotes(channel, control, value);
+    md.recordCCmidinotes(channel, control, value);
   }
 }
-void TriggerMessenger::recordCCmidinotes(byte channel, byte lanote, byte leccval) {
-  int pos = tick_for_that(lv.tickposition);
-  for (int i = 0 ; i < 32 ; i++){
-    if (bb.recorded_ccs[i] == 0 || bb.recorded_ccs[i] == lanote ) {
-        bb.recorded_ccs[i] = lanote ;
-        bb.pots_controllers[i][pos][0] = lanote;
-        bb.pots_controllers[i][pos][0] = leccval;
-        break;
-    }
-  }
-  pp.cc_partition[lanote][pos] = leccval;
-}
+
 bool TriggerMessenger::noCCrecordlist(byte lanotee) {
   for (byte i = 0; i < NO_CCREC_SIZE; i++) {
     if (gg.midiknobassigned[lanotee] == noCCrecord[i]) {
@@ -80,7 +152,7 @@ void TriggerMessenger::MaNoteOn(MidiEventer msg) {
   }
   if (lv.navlevel)
     notes_edgecases(msg.note,msg.velocity);
-  //printnoteon(channel,msg.note,msg.velocity);
+  //dm.printnoteon(channel,msg.note,msg.velocity);
   if ((msg.channel == gg.synthmidichannel) or (gg.synthmidichannel == 0)) {
     if (!gg.arpegiatorOn) {
       if (!gg.chordson) {
@@ -104,7 +176,7 @@ void TriggerMessenger::MaNoteOn(MidiEventer msg) {
   }
 
   if ((msg.channel == gg.samplermidichannel) or (gg.samplermidichannel == 0)) {
-    //printnoteon(channel, msg.note, msg.velocity);
+    //dm.printnoteon(channel, msg.note, msg.velocity);
     if (!gg.chordson) {
       initiateasamplerliner(msg.note, msg.velocity);
     } else {
@@ -164,11 +236,131 @@ void TriggerMessenger::MaNoteOff(MidiEventer msg) {
   }
 }
 
+void TriggerMessenger::moncontrollercc(byte channel, byte control, byte value) {
+  if (value < 128) {
+    if (gg.midiknobassigned[control] != 0 && !lv.freezemidicc) {
+      if (gg.SendMidiOut) {
+        //uint8_t statusByte = static_cast<uint8_t>(0xB0 | channel);
+        //MidiUSB.sendMIDI({0x0B, statusByte, control, value});
+        //MidiUSB.flush();
+        usbMIDI.sendControlChange(control,value,channel);
+        usbMIDI.send_now();
+        
+      }
+      ctl[gg.midiknobassigned[control]].tweaker(value);
+      // AudioInterrupts();
+    }
+  }
+}
+
+void TriggerMessenger::cc_edgecases(byte control, byte value){
+
+  //inside Knobs Setter panel
+  if (lv.knobsetting){
+    _ka.learn_midi(control);
+  }
+  //set this control == 19 optional in settings 
+  
+  //inside pattern mode
+  if (_pe.paterning && control == 19) {
+    if (_pe.track_type == 0) {
+      pp.synth_partition[lv.sublevels[2]][lv.sublevels[5]].velocity = value; 
+    } else if (_pe.track_type == 1) {
+      pp.sampler_partition[lv.sublevels[2]][lv.sublevels[5]].velocity = value; 
+    }
+  }
+
+  if (lv.setting_on_board) {
+    if (lv.navlevel == 2) {
+      
+      if (control == 19)  {
+        gg.but_channel[lv.sublevels[2]] = (gg.but_channel[lv.sublevels[2]] + 1) % 17;
+      }
+      if (control == 28) {
+        gg.but_channel[lv.sublevels[2]] = (gg.but_channel[lv.sublevels[2]] + 16) % 17;
+      }
+    }
+    if (lv.navlevel == 3) {
+      //should be another or check above
+      if (control == 19) {
+        gg.but_velocity[lv.sublevels[2]] = value;
+      }
+    }
+  }
+
+  //inside waveform tracer
+  if (lv.waveforming) {
+    _wf.set_tracer(control,value);
+  }
+
+  if (!lv.songplaying && !_tt.noCCrecordlist(control) && !_tt.debugmidion) {
+    dm.show();
+  }
+}
+
+void TriggerMessenger::notes_edgecases(byte note, byte velo){
+  // control is (byte)gg.pot_assignements[11 + lv.paddered]
+  //inside sample assigner
+  if (lv.setting_on_board && (lv.navlevel == 2)) helper_onbard();
+  
+  if (lv.assigning_sample_to_note) dm.returntonav(3,127,note);
+    //sets the navigation wheel to the captured note position for easier selection when assigning Flashsamples
+}
+
+void TriggerMessenger::helper_onbard(){
+  if (Pads.potsboards[lv.sublevels[2]] >= 0) {
+    gg.muxed_channels[Pads.potsboards[lv.sublevels[2]]] = gg.but_channel[lv.sublevels[2]];
+  }
+  if ((lv.paddered != 26) && (lv.paddered != 17)) {
+    dm.returntonav(lv.navlevel,lv.navrange,lv.paddered + 11);
+  }
+}
+
 void TriggerMessenger::inittapstime() {
           for (int i = 0; i < 5; i++) {
             tapstime[i] = 0;
           }
         }
+
+byte TriggerMessenger::get_free_synth(byte note) {
+  for (byte i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    if (!enveloppesL[i]->isActive()) {
+      return i;
+    }
+  }
+  return SYNTH_LINERS_COUNT;
+}
+
+byte TriggerMessenger::get_free_sampler(byte note) {
+  for (byte i = 0; i < FLASH_LINERS_COUNT; i++) {
+    if (!(FlashSampler[i]->isPlaying() )) {
+      return i;
+    } 
+  }
+  return 0;
+}
+
+void TriggerMessenger::initiateasynthliner(byte data1, byte data2) {
+  byte free_line = self->get_free_synth(data1);
+  if (free_line < SYNTH_LINERS_COUNT) {
+    if (lv.patrecord) {
+      md.recordmidinotes(free_line, gg.synthmidichannel, data1, data2);
+    }
+    //dm.printnoteon(0,data1,data2);
+    synth_lines[free_line]->liner_on(data1, data2);
+  }
+}
+
+void TriggerMessenger::initiateasamplerliner(byte data1, byte data2) {
+  byte free_line = self->get_free_sampler(data1);
+  if (free_line < FLASH_LINERS_COUNT) {
+    if (lv.patrecord) {
+      md.recordmidinotes(free_line, gg.samplermidichannel, data1, data2);
+    }
+
+    flash_lines[free_line]->liner_on(data1, data2);
+  }
+}
 
 void TriggerMessenger::starttaptap() {
           tapstarted = 1;
