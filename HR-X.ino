@@ -13,6 +13,8 @@
 #include "Frequencies.h"
 
 LiveState lv;
+EXTMEM Preset gg;
+EXTMEM BigBuffers bb;
 SequencerClocker clocker;
 
 EXTMEM Pattern pp ;
@@ -21,57 +23,15 @@ EXTMEM Pads Pads;
 Muxer Muxer;
 TriggerMessenger _tt;
 
-byte noCCrecord[NO_CCREC_SIZE] = {3,35,36,37, 38,39,40,41,42,44,1};
-
-int laCCduration;
-int letempipolate;
-float interpolcoeff;
-EXTMEM byte leccinterpolated[128];
-
-float BPMs = (60000.0 / gg.millitickinterval) / 4.0;
-
-char consolemsg[10][32];
-char pleasewaitarray[10][32];
-int navlevelvbuttons = 2;
-const int numberofvbuttonslabels = 8;
-byte vbuttonsCC[numberofvbuttonslabels + 14 + 17];
-const byte ssnamsize = 26;
-EXTMEM char samplefoldersregistered[99][ssnamsize];
-EXTMEM char samplebase[99][999][9];
-EXTMEM int sizeofsamplefolder[99];
-EXTMEM int sampledirsregistered = 0;
-EXTMEM bool samplesselected[99][999];
-EXTMEM int numberofsamplesselected[99];
-EXTMEM bool samplesfoldersselected[99];
-EXTMEM int numofsamplesfoldersselected = 0;
-EXTMEM char Flashsamplename[999][13];
-EXTMEM char Flashsamplebase[999][9];
-EXTMEM bool Flashsamplesselected[999];
-int numberofFlashsamplesselected = 0;
-int numberofFlashfiles = 0;
-
-EXTMEM char sampledirpath[99] = {"SOUNDSET/"};
 String newloopedpath = "SOUNDSET/REC/LOOP00#L.RAW";
 String newRecpathL = "SOUNDSET/REC/RECZ00#L.RAW";
 String newRecpathR = "SOUNDSET/REC/RECZ00#R.RAW";
-
-EXTMEM Preset gg;
-EXTMEM BigBuffers bb;
-
-
-// lenght of the current interpolation
-// from leinterpolstart to [1] interpole target position
-byte Ccinterpolengh[128][3];
-
-byte recorded_ccs[32] ;
-byte pots_controllers[32][32][2];
-byte activateinterpolatecc[8];
 
 EXTMEM GFXcanvas1 canvasBIG(128, 64);
 EXTMEM GFXcanvas1 canvastitle(128, 16);
 EXTMEM Bounce clicked = Bounce(32, 100);
 EXTMEM Encoder myEnc(30, 31);
-//placeholder
+
 #if MULTIPLEXED_PADS
 Bounce Backb = Bounce( 99, 5 );
 #else
@@ -119,9 +79,6 @@ const CcCalls ctl[] = {{"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel"
                       };
 
 constexpr uint16_t CtlCount = sizeof(ctl) / sizeof(ctl[0]);
-
-
-//int lv.sublevels[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 Adafruit_SSD1306 display(128, 64, &Wire2, -1);
 

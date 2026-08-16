@@ -1,6 +1,9 @@
 #include "MenuClasses.h"
 #include "Triggers.h"
-
+#include "Patterns.h"
+void cc_edgecases(byte,byte);
+void moncontrollercc(byte , byte , byte );
+int tick_for_that(int);
 TriggerMessenger* TriggerMessenger::self = nullptr;
 
 TriggerMessenger::TriggerMessenger() { self = this ;}
@@ -8,6 +11,42 @@ TriggerMessenger::TriggerMessenger() { self = this ;}
 void TriggerMessenger::MaNoteOn(uint8_t ch_,uint8_t nt_,uint8_t ve_) {
   MidiEventer msg = {ch_,nt_,ve_};
   self->MaNoteOn(msg);
+}
+
+void TriggerMessenger::MaControlChange(byte channel, byte control, byte value) {
+  bool isignored = self->noCCrecordlist(control);
+
+  if (self->debugmidion) {
+    self->debugmidi((char *)("ControlChange"), (MidiEventer){channel, control, value});
+  }
+
+  if (lv.navlevel)
+    cc_edgecases(control, value);
+
+  moncontrollercc(channel, control, value);
+  if ((lv.patrecord || lv.recordCC) && !lv.stoptick && !isignored) {
+    self->recordCCmidinotes(channel, control, value);
+  }
+}
+void TriggerMessenger::recordCCmidinotes(byte channel, byte lanote, byte leccval) {
+  int pos = tick_for_that(lv.tickposition);
+  for (int i = 0 ; i < 32 ; i++){
+    if (bb.recorded_ccs[i] == 0 || bb.recorded_ccs[i] == lanote ) {
+        bb.recorded_ccs[i] = lanote ;
+        bb.pots_controllers[i][pos][0] = lanote;
+        bb.pots_controllers[i][pos][0] = leccval;
+        break;
+    }
+  }
+  pp.cc_partition[lanote][pos] = leccval;
+}
+bool TriggerMessenger::noCCrecordlist(byte lanotee) {
+  for (byte i = 0; i < NO_CCREC_SIZE; i++) {
+    if (gg.midiknobassigned[lanotee] == noCCrecord[i]) {
+      return 1;
+    }
+  }
+  return 0;
 }
 
 void TriggerMessenger::debugmidi(char *typemsg = (char *)"midi ", MidiEventer msg = {0,0,0}) {

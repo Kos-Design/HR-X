@@ -583,7 +583,7 @@ void PatEditRouter::set_cell_at_pos(byte ch_, byte nt_, byte ve_){
           self->_length_part[sub3] = max((sub4 - sub3) * 4,4);
 
           laOffpos = (sub3 + (self->_length_part[sub3] / 4))%PBARS;
-          self->_off_part[laOffpos] = {ch_,nt_,0};;
+          self->_off_part[laOffpos] = {ch_,nt_,0};
           terminatenotesinbetween();
           //off
           if (!ve_){
@@ -628,13 +628,13 @@ POptionsRouter::POptionsRouter() {
                     }
 
 void POptionsRouter::clearlapattern() {
-          if (!targetNOsynth || songplaying) {
+          if (!targetNOsynth || lv.songplaying) {
             clearsynthpatternline();
           }
-          if (!targetNOsampler || songplaying) {
+          if (!targetNOsampler || lv.songplaying) {
             clearsamplerpatternline();
           }
-          if (!targetNOcc || songplaying) {
+          if (!targetNOcc || lv.songplaying) {
             clearCCline();
           }
           // cc as well
@@ -1294,16 +1294,16 @@ void PatternsMenuRouter::addnoteoff2next(byte lanotee, byte lapos) {
 void PatternsMenuRouter::set_ccs() {
           // has to be reinitialized first
           for (int i = 0; i < PBARS; i++) {
-            recorded_ccs[i] = 0 ;
+            bb.recorded_ccs[i] = 0 ;
           }
           for (int i = 0; i < PBARS; i++) {
             for (int j = 0; j < 128; j++) {
               if (pp.cc_partition[j][i] != 127){
                 for (int k = 0; k < PBARS; k++) {
-                    if (recorded_ccs[k] == 0 || recorded_ccs[k] == j){
-                      recorded_ccs[k] = j ;
-                      pots_controllers[k][i][0] = j;
-                      pots_controllers[k][i][1] = pp.cc_partition[j][i];
+                    if (bb.recorded_ccs[k] == 0 || bb.recorded_ccs[k] == j){
+                      bb.recorded_ccs[k] = j ;
+                      bb.pots_controllers[k][i][0] = j;
+                      bb.pots_controllers[k][i][1] = pp.cc_partition[j][i];
                     }
                 }
               }
@@ -1336,7 +1336,7 @@ void PatternsMenuRouter::parsepattern_old() {
           self->catalog->refresh_files_names();
           // timescaller should be BPM dependant
           //    latimelineshifter = ((60000/19200)*PBARS) ;
-          // (60.0/BPMs)*1000)*PBARS) = 1 bar millis
+          // (60.0/lv.BPMs)*1000)*PBARS) = 1 bar millis
           const int pat_parser_size = 32000;
           char received_pattern[pat_parser_size];
           byte laccnote;
@@ -1694,7 +1694,7 @@ void PatternsMenuRouter::midifileCC(File &pat_filer,int lecc, int ticker) {
 void PatternsMenuRouter::write_midi_info(File &pat_filer) {
           latimeline = 0;
           // latimelineshifter = ((60000/19200)*PBARS) ;
-          // (60.0/BPMs)*1000)*PBARS) = 1 bar millis 92 original
+          // (60.0/lv.BPMs)*1000)*PBARS) = 1 bar millis 92 original
           pat_filer.print("MFile 0 1 19200\nMTrk\n");
           // for (int i = 0 ; i<5 ; i++ ) {
 
@@ -1756,7 +1756,7 @@ void PatternsMenuRouter::writelemidi() {
 
 
 void PatternsMenuRouter::set_arp_type(){
-  if (gg.arpegiatortype < arpeges_types) {
+  if (gg.arpegiatortype < ARP_TYPES) {
     gg.arpegiatorOn = 1;
     //metro0.reset();
   } else {

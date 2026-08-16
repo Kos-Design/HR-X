@@ -8,19 +8,19 @@ void setuphubusb() {
 
   midi1.setHandleNoteOn(_tt.MaNoteOn);
   midi1.setHandleNoteOff(_tt.MaNoteOff);
-  midi1.setHandleControlChange(MaControlChange);
+  midi1.setHandleControlChange(_tt.MaControlChange);
 
   midi2.setHandleNoteOn(_tt.MaNoteOn);
   midi2.setHandleNoteOff(_tt.MaNoteOff);
-  midi2.setHandleControlChange(MaControlChange);
+  midi2.setHandleControlChange(_tt.MaControlChange);
 
   midi3.setHandleNoteOn(_tt.MaNoteOn);
   midi3.setHandleNoteOff(_tt.MaNoteOff);
-  midi3.setHandleControlChange(MaControlChange);
+  midi3.setHandleControlChange(_tt.MaControlChange);
 
   usbMIDI.setHandleNoteOn(_tt.MaNoteOn);
   usbMIDI.setHandleNoteOff(_tt.MaNoteOff);
-  usbMIDI.setHandleControlChange(MaControlChange);
+  usbMIDI.setHandleControlChange(_tt.MaControlChange);
   usbMIDI.setHandleClock(_sg.midi_clock_accumulator);
   /*
   TODO:
@@ -52,7 +52,7 @@ void check_pads() {
   //if multiplexed condition || 36 is the cancel button when in multiplexed mode, should not trigger another note or control.
   if ((padder.pad_result[2] == 1) && (paddered != 36)) {
     if (cc_note_num < 0) {
-      MaControlChange(chan_received,(byte)gg.pot_assignements[11 + paddered], 64);
+      _tt.MaControlChange(chan_received,(byte)gg.pot_assignements[11 + paddered], 64);
     }
     else {
       _tt.MaNoteOn((MidiEventer){chan_received, (byte)cc_note_num, gg.but_velocity[11 + paddered]});
@@ -574,18 +574,7 @@ void deactivatelesccsfrompos(int lapos, byte lanote) {
   }
 }
 
-void recordCCmidinotes(byte channel, byte lanote, byte leccval) {
-  int pos = tick_for_that(lv.tickposition);
-  for (int i = 0 ; i < 32 ; i++){
-    if (recorded_ccs[i] == 0 || recorded_ccs[i] == lanote ) {
-        recorded_ccs[i] = lanote ;
-        pots_controllers[i][pos][0] = lanote;
-        pots_controllers[i][pos][0] = leccval;
-        break;
-    }
-  }
-  pp.cc_partition[lanote][pos] = leccval;
-}
+
 
 bool testforaNoteOninbetween(int linei, int lapos0, int lapos2, byte lanotef) {
   for (int i = lapos0; i < lapos2; i++) {
@@ -735,7 +724,7 @@ void cc_edgecases(byte control, byte value){
     call_wf_tracer(control,value);
   }
 
-  if (!songplaying && !noCCrecordlist(control) && !_tt.debugmidion) {
+  if (!lv.songplaying && !_tt.noCCrecordlist(control) && !_tt.debugmidion) {
     dm.show();
   }
 }
@@ -755,135 +744,5 @@ void helper_onbard(){
   }
   if ((paddered != 26) && (paddered != 17)) {
     dm.returntonav(lv.navlevel,lv.navrange,paddered + 11);
-  }
-}
-
-void MaControlChange(byte channel, byte control, byte value) {
-  bool isignored = noCCrecordlist(control);
-
-  if (_tt.debugmidion) {
-    _tt.debugmidi((char *)("ControlChange"), (MidiEventer){channel, control, value});
-  }
-
-  if (lv.navlevel)
-    cc_edgecases(control, value);
-
-  moncontrollercc(channel, control, value);
-  if ((lv.patrecord || lv.recordCC) && !lv.stoptick && !isignored) {
-    recordCCmidinotes(channel, control, value);
-  }
-}
-
-bool noCCrecordlist(byte lanotee) {
-  for (byte i = 0; i < NO_CCREC_SIZE; i++) {
-    if (gg.midiknobassigned[lanotee] == noCCrecord[i]) {
-      return 1;
-    }
-  }
-  return 0;
-}
-
-void scanfornextcc(byte lecc) {
-  for (int i = lv.tickposition + 1; i < PBARS; i++) {
-    if (pp.cc_partition[lecc][i] != 127) {
-
-      Ccinterpolengh[lecc][0] = lv.tickposition;
-      Ccinterpolengh[lecc][1] = i;
-      Ccinterpolengh[lecc][2] = i - lv.tickposition;
-      activateinterpolatecc[lecc] = 1;
-      return;
-    }
-  }
-
-  for (int i = 0; i < lv.tickposition; i++) {
-    if (pp.cc_partition[lecc][i] != 127) {
-
-      Ccinterpolengh[lecc][0] = lv.tickposition;
-      Ccinterpolengh[lecc][1] = i;
-      Ccinterpolengh[lecc][2] = i + PBARS - lv.tickposition;
-      activateinterpolatecc[lecc] = 1;
-      return;
-    }
-  }
-  Ccinterpolengh[lecc][0] = PBARS;
-  Ccinterpolengh[lecc][1] = PBARS;
-  Ccinterpolengh[lecc][2] = 0;
-  activateinterpolatecc[lecc] = 0;
-}
-
-void continueCCinterpol(byte lecc) {
-
-  laCCduration = Ccinterpolengh[lecc][2] * gg.millitickinterval;
-  // if next cc is before pat revolution
-  if ((Ccinterpolengh[lecc][1] - Ccinterpolengh[lecc][0]) > 0) {
-    interpolcoeff =
-        ((((lv.tickposition - Ccinterpolengh[lecc][0]) * gg.millitickinterval) +
-          (millis() - lv.tickerlasttick) + gg.millitickinterval) /
-         (laCCduration * 1.0));
-    letempipolate =
-        pp.cc_partition[lecc][Ccinterpolengh[lecc][0]] +
-        (interpolcoeff * (pp.cc_partition[lecc][Ccinterpolengh[lecc][1]] -
-                          pp.cc_partition[lecc][Ccinterpolengh[lecc][0]]));
-  }
-  // if next cc is after pat revolution
-  else {
-
-    if (lv.tickposition > Ccinterpolengh[lecc][0]) {
-
-      interpolcoeff =
-          ((((lv.tickposition - Ccinterpolengh[lecc][0]) * gg.millitickinterval) +
-            (millis() - lv.tickerlasttick)) /
-           (laCCduration * 1.0));
-
-      letempipolate = pp.cc_partition[lecc][Ccinterpolengh[lecc][0]] +
-                      (1.0 * interpolcoeff *
-                       (pp.cc_partition[lecc][Ccinterpolengh[lecc][1]] -
-                        pp.cc_partition[lecc][Ccinterpolengh[lecc][0]]));
-
-      // leccinterpolated[i] = round(pp.cc_partition[lecc][lv.tickposition] +
-      // (((millis() - lv.tickerlasttick)/(laCCduration*1.0))*
-      // (pp.cc_partition[lecc][lv.tickposition+1] -
-      // pp.cc_partition[lecc][lv.tickposition] ))) ;
-    } else {
-      interpolcoeff = (((lv.tickposition + PBARS - Ccinterpolengh[lecc][0]) *
-                        gg.millitickinterval) +
-                       (millis() - lv.tickerlasttick)) /
-                      (laCCduration * 1.0);
-
-      letempipolate = pp.cc_partition[lecc][Ccinterpolengh[lecc][0]] +
-                      (1.0 * interpolcoeff *
-                       (pp.cc_partition[lecc][Ccinterpolengh[lecc][1]] -
-                        pp.cc_partition[lecc][Ccinterpolengh[lecc][0]]));
-    }
-  }
-  if (lv.tickposition == Ccinterpolengh[lecc][0]) {
-    interpolcoeff = ((millis() - lv.tickerlasttick) / (laCCduration * 1.0));
-    letempipolate = pp.cc_partition[lecc][lv.tickposition] +
-                    (1.0 * interpolcoeff *
-                     (pp.cc_partition[lecc][Ccinterpolengh[lecc][1]] -
-                      pp.cc_partition[lecc][lv.tickposition]));
-  }
-
-  if (leccinterpolated[lecc] != letempipolate) {
-    leccinterpolated[lecc] = letempipolate;
-    moncontrollercc((byte)1, (byte)lecc, leccinterpolated[lecc]);
-    if (leccinterpolated[lecc] ==
-        pp.cc_partition[lecc][Ccinterpolengh[lecc][1]]) {
-      activateinterpolatecc[lecc] = 0;
-      Ccinterpolengh[lecc][0] = PBARS;
-      Ccinterpolengh[lecc][1] = PBARS;
-      Ccinterpolengh[lecc][2] = 0;
-    }
-  }
-}
-
-
-void checkall128cc() {
-
-  for (int i = 0; i < 128; i++) {
-    //if (activateinterpolatecc[i]) {
-      continueCCinterpol(i);
-
-    //}
   }
 }

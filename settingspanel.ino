@@ -287,9 +287,9 @@ class SettingsMenuRouter : public SectionHolder {
 
         static void setbpms() {
           //clocker.setDivision(4);
-          //  BPMs = (60000.0/gg.millitickinterval)/4.0 ;
-          BPMs = 15000 / gg.millitickinterval;
-          clocker.setBPM(BPMs);
+          //  lv.BPMs = (60000.0/gg.millitickinterval)/4.0 ;
+          lv.BPMs = 15000 / gg.millitickinterval;
+          clocker.setBPM(lv.BPMs);
         }
         
         
@@ -301,7 +301,7 @@ class SettingsMenuRouter : public SectionHolder {
             // fq
 
             if (slct == 0) {
-              lv.navrange = arpeges_types;
+              lv.navrange = ARP_TYPES;
               gg.arpegiatortype = lv.sublevels[3];
               // gg.arpegiatortype = lv.sublevels[2];
               _pt.set_arp_type();
@@ -404,11 +404,11 @@ class SettingsMenuRouter : public SectionHolder {
           byte topwbarstart = 16;
           byte slct = lv.sublevels[2];
           byte wbarwidth2 = 7;
-          char lesarpegestype[arpeges_types][12] = {"Ionian",     "Dorian",  "Phrygian", "Lydian",
+          char lesarpegestype[ARP_TYPES][12] = {"Ionian",     "Dorian",  "Phrygian", "Lydian",
                                         "Mixolydian", "Aeolian", "Harmonic", "Locrian"};
               dm.clean_title_1();
           canvastitle.print("Arpegiator ");
-          if (gg.arpegiatortype < arpeges_types) {
+          if (gg.arpegiatortype < ARP_TYPES) {
             canvastitle.print((char *)lesarpegestype[gg.arpegiatortype]);
           } else {
             canvastitle.print("disabled");
@@ -536,7 +536,7 @@ class SettingsMenuRouter : public SectionHolder {
           }
           if (lv.sublevels[1] == 6) {
             canvastitle.setCursor(96, 0);
-            //canvastitle.println(BPMs, 1);
+            //canvastitle.println(lv.BPMs, 1);
             canvastitle.println(15000 / gg.millitickinterval, 1);
             if (lv.navlevel <= 2) {
               lv.sublevels[2] = gg.millitickinterval;
@@ -783,7 +783,7 @@ class SettingsMenuRouter : public SectionHolder {
      
       static constexpr void (*_settings_menu[settings_labels_count])() = {&toggle_echo_midi,&toggle_freeze_midi,&set_synth_midi_ch,&set_sampler_midi_ch,&toggle_digital_analog,
                                                                         &set_tap_note,&set_bpms_interval,&set_chord_mode,&arpegiatorVpanel,&toggle_ext_clock,&toggle_note_spy,
-                                                                        &OnBoardVpanel,&set_audio_source,&toggle_midi_out,&Vbuttonspanel,&_ka.show,&set_alternative_rota};
+                                                                        &OnBoardVpanel,&set_audio_source,&toggle_midi_out,&_vk.Vbuttonspanel,&_ka.show,&set_alternative_rota};
 
       //static constexpr void (*_nav_fx[SP_LABELS_COUNT])() = {&fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one};
 

@@ -171,7 +171,7 @@ void tick() {
     _se.use_pattern();
   }
 
-  if (songplaying) {
+  if (lv.songplaying) {
     _se.update_song_player();
   }
 

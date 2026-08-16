@@ -34,6 +34,7 @@ struct LiveState {
     bool stoptick = true;
     bool recordCC = 0;
     bool patrecord = 0;
+    bool songplaying = 0;
 
     bool showing_eq = false;
 
@@ -44,15 +45,15 @@ struct LiveState {
     int rota_true_pos = 0;
 
     bool temp_buff_armed = 0 ;
-    int tickerlasttick;
-    int tickposition;
+    int tickerlasttick = 0;
+    int tickposition = 0;
     bool stoptickernextcycle;
 
     byte oscillator = 0;
     byte cclfoselector = 0 ;
     //selector for the Fx bus
     byte fidx = 0;
-
+    float BPMs = (60000.0 / 115) / 4.0;
 };
 
 extern LiveState lv;
@@ -61,7 +62,15 @@ struct BigBuffers {
     short granularMemory[FXS_COUNT][GRANULAR_MEMORY_SIZE]{};
     short chorusdelayline[FXS_COUNT][CHORUS_DELAY_LENGTH]{};
     short flangedelay[FXS_COUNT][FLANGE_DELAY_LENGTH]{};
+    char Flashsamplename[999][13]{};
+    char consolemsg[10][32]{};
+    char pleasewaitarray[10][32]{};
+    byte pots_controllers[32][32][2]{};
+    byte recorded_ccs[32]{};
+
 };
+
+extern BigBuffers bb;
 
 class FxBus {
   public:
@@ -220,6 +229,8 @@ struct Preset {
     uint8_t vPots[17];
 
 };
+
+extern Preset gg ;
 
 
 const unsigned char menuBG[] = {
@@ -507,9 +518,6 @@ const unsigned char sinewave[] PROGMEM = {
     0x80, 0x00, 0x81, 0x01, 0x80, 0x00, 0x41, 0x01, 0x80, 0x00, 0x22, 0x01,
     0x80, 0x00, 0x1c, 0x01, 0x80, 0x00, 0x00, 0x01, 0xc0, 0x00, 0x00, 0x03,
     0x60, 0x00, 0x00, 0x06, 0x3f, 0xff, 0xff, 0xfc};
-
-//ok these are not images but anway...
-const byte arpeges_types = 8 ;
 
 const byte leschords[6][12][3] PROGMEM = {{{0, 4, 7},
                                            {1, 5, 8},

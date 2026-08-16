@@ -22,13 +22,50 @@ void DisplayManager::returntonav(byte lelevel, byte lanavrange, byte t_vraipos) 
   lv.navrange = lanavrange;
   if (lv.navlevel) show();
 }
-
+void DisplayManager::drawtransport() {
+  // startxp= 0 ;
+  int startyp = 8;
+  // for (int i = 0 ; i < 8 ; i++ ) {
+  int starx = 1;
+  int ecart = 14;
+  // canvasBIG.drawRoundRect(i*16, startyp-2, 16, 11, 2, SSD1306_WHITE);
+  //}
+  // cuestart
+  canvasBIG.setCursor(starx + 1, startyp);
+  canvasBIG.drawLine(starx + 2, startyp + 1, starx + 2, startyp + 5,
+                     SSD1306_WHITE);
+  canvasBIG.print(">");
+  // exit
+  canvasBIG.setCursor(starx + ecart * 7, startyp);
+  canvasBIG.print((char)8);
+  // backward
+  canvasBIG.setCursor(starx + ecart * 1, startyp);
+  canvasBIG.print((char)27);
+  // canvasBIG.setCursor(5+48,55);
+  // stop
+  canvasBIG.fillRect(starx + ecart * 2, startyp + 1, 5, 5, SSD1306_WHITE);
+  // play
+  canvasBIG.setCursor(starx + ecart * 3, startyp);
+  canvasBIG.print((char)16);
+  // forward
+  canvasBIG.setCursor(starx + ecart * 4, startyp);
+  canvasBIG.print((char)26);
+  // record
+  canvasBIG.setCursor(starx + ecart * 5, startyp);
+  canvasBIG.print((char)4);
+  // music
+  canvasBIG.setCursor(starx + ecart * 6, startyp + 1);
+  canvasBIG.print((char)14);
+}
 void DisplayManager::setupscreen(){
-            if (ILI_128x64) {
-                _setupscreen_ILI();
-            }
-        }
-
+  if (ILI_128x64) {
+      _setupscreen_ILI();
+  }
+}
+void DisplayManager::printassignedmidi(int lemidiassknob) {
+  canvasBIG.setCursor(0, 0);
+  canvasBIG.print((char *)ctl[lemidiassknob].name);
+}
 void DisplayManager::displayleBGimg(const unsigned char *img) {_displayleBGimg(img);}
 
 void DisplayManager::printlabel(char *toprint) {

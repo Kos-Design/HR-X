@@ -29,6 +29,7 @@ class TriggerMessenger {
       bool taptap_on = true;
       bool debugmidion = 0;
       bool tapstarted = 0;
+      byte noCCrecord[NO_CCREC_SIZE] = {3,35,36,37, 38,39,40,41,42,44,1};
 
       // C Ionian     { C maj;  D min;  E min;  F maj;  G maj;  A min;  B dim  }
       // const chord ionian[7]     = {{0, maj},    {2, minor}, {4, minor}, {5, maj},
@@ -81,7 +82,7 @@ class TriggerMessenger {
           leschords[0][6], leschords[0][8], leschords[1][10]};
       // const chord *all_chords[8] = {ionian, dorian, phrygian, lydian, mixolydian,
       // aeolian, harmonic, locrian};
-      const byte **all_arpegios[arpeges_types] = {
+      const byte **all_arpegios[ARP_TYPES] = {
           event_ionian,     event_dorian,  event_phrygian, event_lydian,
           event_mixolydian, event_aeolian, event_harmonic, event_locrian};
 
@@ -92,6 +93,10 @@ class TriggerMessenger {
       static void MaNoteOff(uint8_t ch_,uint8_t nt_,uint8_t ve_);
 
       void MaNoteOff(MidiEventer msg);
+
+      static void MaControlChange(byte channel, byte control, byte value);
+      void recordCCmidinotes(byte channel, byte lanote, byte leccval);
+      bool noCCrecordlist(byte lanotee);
       void taptap();
       void inittapstime();
       void starttaptap();

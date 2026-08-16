@@ -17,7 +17,7 @@ class FxMenuRouter : public SectionHolder {
 
       const int bqrange = 20000;
       
-      double coeffs[STAGES_BQ][5];
+      double coeffs[STAGES_BQ][5]{};
       uint16_t filterzrange = 14000;
       uint8_t filter_lfo_option = 3 ;
       bool avoid_fx_bounce = false;

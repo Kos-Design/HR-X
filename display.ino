@@ -27,20 +27,20 @@ void dodisplayplayhead() {
 void initializelapleasewaitarray() {
   for (int i = 0; i < 10; i++) {
     for (int j = 0; j < 32; j++) {
-      pleasewaitarray[i][j] = (char)'\0';
+      bb.pleasewaitarray[i][j] = (char)'\0';
     }
   }
 }
 
 void shiftlapleasewaitarray() {
   for (int i = 9; i > 0; i--) {
-    setlapleasewaitarray(i, (char *)pleasewaitarray[i - 1]);
+    setlapleasewaitarray(i, (char *)bb.pleasewaitarray[i - 1]);
   }
 }
 
 void setlapleasewaitarray(int consoleline, char *lemsg) {
   for (int i = 0; i < 32; i++) {
-    pleasewaitarray[consoleline][i] = lemsg[i];
+    bb.pleasewaitarray[consoleline][i] = lemsg[i];
   }
 }
 
@@ -75,7 +75,7 @@ void pseudoconsole(const char *lemsg,bool new_lines=true) {
   display.setTextSize(1);
   display.setCursor(0, 0);
   for (int i = 0; i < 10; i++) {
-    display.println((char *)consolemsg[i]);
+    display.println((char *)bb.consolemsg[i]);
   }
   display.display();
 }
@@ -83,20 +83,20 @@ void pseudoconsole(const char *lemsg,bool new_lines=true) {
 void initializeconsolemsg() {
   for (int i = 0; i < 10; i++) {
     for (int j = 0; j < 32; j++) {
-      consolemsg[i][j] = (char)'\0';
+      bb.consolemsg[i][j] = (char)'\0';
     }
   }
 }
 
 void shiftconsolemsgarray() {
   for (int i = 9; i > 0; i--) {
-    setleconsolemsg(i, (char *)consolemsg[i - 1]);
+    setleconsolemsg(i, (char *)bb.consolemsg[i - 1]);
   }
 }
 
 void setleconsolemsg(int consoleline, char *lemsg) {
   for (int i = 0; i < 32; i++) {
-    consolemsg[consoleline][i] = lemsg[i];
+    bb.consolemsg[consoleline][i] = lemsg[i];
   }
 }
 

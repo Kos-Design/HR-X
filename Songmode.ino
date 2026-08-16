@@ -8,7 +8,6 @@ class PatternsMenuRouter;
 //extern SongMenuRouter* self;
 
 extern PatternsMenuRouter _pt;
-bool songplaying;
 
 const byte navSongmenu = 1;
 
@@ -35,8 +34,8 @@ class SongEditorRouter : public SectionHolder {
         //changing_ccs[32][32][2] cc,val
         void light_cc_change() {
           for (int i = 0; i < 32; i++) {
-            if (recorded_ccs[i] != 0 && pots_controllers[i][lv.tickposition][1] != 127){
-              moncontrollercc(1, pots_controllers[i][lv.tickposition][0], pots_controllers[i][lv.tickposition][1]);
+            if (bb.recorded_ccs[i] != 0 && bb.pots_controllers[i][lv.tickposition][1] != 127){
+              moncontrollercc(1, bb.pots_controllers[i][lv.tickposition][0], bb.pots_controllers[i][lv.tickposition][1]);
             }
 
           }
@@ -77,19 +76,19 @@ class SongEditorRouter : public SectionHolder {
           //if (!gg.externalticker) {
             //metro0.reset();
           //}
-          songplaying = 1;
+          lv.songplaying = 1;
           loadsongpattern();
           Tocker.startticker();
         }
 
         void stopdasong() {
-          songplaying = 0;
+          lv.songplaying = 0;
           songplayhead = 0;
           Tocker.stopticker();
         }
 
         void pausedasong() {
-          songplaying = 0;
+          lv.songplaying = 0;
           Tocker.stopticker();
         }
         void showplayheadprogress() {
@@ -138,7 +137,7 @@ class SongEditorRouter : public SectionHolder {
           display.clearDisplay();
           dm.clear_buffs();
           canvasBIG.setTextSize(1);
-          drawtransport();
+          dm.drawtransport();
         }
 
         void showsongcell() {
@@ -305,7 +304,7 @@ class SongEditorRouter : public SectionHolder {
           showsongnavarrows();
           dm.dodisplay();
           songgridposselector();
-          if (songplaying) {
+          if (lv.songplaying) {
             showplayheadprogress();
           }
           dm.dodisplay();

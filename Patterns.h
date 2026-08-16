@@ -4,12 +4,7 @@
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
-extern bool songplaying;
 
-extern byte recorded_ccs[32];
-extern byte pots_controllers[32][32][2];
-
-extern const byte arpeges_types;
 void computelenghtmesureoffline_synth();
 void computelenghtmesureoffline_sampler();
 void call_refresh_flash_track();

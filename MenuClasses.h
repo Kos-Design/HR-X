@@ -11,14 +11,10 @@ struct CcCalls {
     void (*tweaker)(byte);
 };
 
-
-
 extern const CcCalls ctl[] ;
 class Adafruit_SSD1306;
 class GFXcanvas1;
 extern Adafruit_SSD1306 display;
-extern const unsigned char menuBG[];
-struct Preset;
 
 void call_sn_show();
 void call_lf_show();
@@ -33,7 +29,6 @@ void call_ps_show();
 
 extern GFXcanvas1 canvasBIG;
 extern GFXcanvas1 canvastitle;
-extern Preset gg ;
 
 class SectionHolder{
     public:
@@ -68,6 +63,8 @@ class DisplayManager{
         void clean_title_1_2(void);
         void clean_title_2_2(void);
         void clean_title_1(void);
+        void drawtransport();
+        void printassignedmidi(int lemidiassknob);
         void main_panel(const char* const*,int,int);
         void show(void);
         void dodisplay(void);

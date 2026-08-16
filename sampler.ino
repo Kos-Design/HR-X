@@ -14,6 +14,20 @@ class SamplerMenuRouter : public SectionHolder {
         String newmkdirpath = "SOUNDSET/MABANK01" ;
         const byte FlashChipSelect = 6;
         bool assigning_sample_to_note = false ;
+        char samplefoldersregistered[99][SP_NAME_MAX]{};
+        char sampledirpath[99] = {"SOUNDSET/"};
+        char samplebase[99][999][9]{};
+        int sizeofsamplefolder[99]{};
+        int sampledirsregistered = 0;
+        bool samplesselected[99][999]{};
+        int numberofsamplesselected[99]{};
+        bool samplesfoldersselected[99]{};
+        int numofsamplesfoldersselected = 0;
+        char Flashsamplebase[999][9]{};
+        bool Flashsamplesselected[999]{};
+        int numberofFlashsamplesselected = 0;
+        int numberofFlashfiles = 0;
+        
 
         static void sampler_nav_two(){
           if (lv.sublevels[1] == 0) {
@@ -66,6 +80,63 @@ class SamplerMenuRouter : public SectionHolder {
           if (lv.navlevel > 3) {
             dm.returntonav(2);
           }
+        }
+
+        static void clearsizeofsamplefolder() {
+          for (int i = 0; i < 99; i++) {
+            self->sizeofsamplefolder[i] = 0;
+          }
+        }
+        static void initializesamplebase() {
+          for (int i = 0; i < 99; i++) {
+            batchclearsamplebase(i);
+          }
+        }
+
+        static void batchclearsamplebase(int lefolder) {
+          for (int i = 0; i < 999; i++) {
+            clearsamplebase(lefolder, i);
+          }
+        }
+
+        static void clearsamplebase(int lefolder, int lefile) {
+          for (int i = 0; i < 9; i++) {
+            self->samplebase[lefolder][lefile][i] = (char)'\0';
+          }
+        }
+
+        String lower_extension_case(String f_name){
+          char named[50];  // Ensure the array is large enough
+          strcpy(named, f_name.c_str());
+          named[strlen(named) - 4] = '\0';
+          return (String)named + ".raw";
+        }
+
+        bool test_flash_sample_name(String f_s_name){
+          return SerialFlash.exists(f_s_name.c_str());
+        }
+
+        static void listSoundset() {
+
+          File sounddir = SD.open("SOUNDSET/");
+
+          while (true) {
+            File soundentry = sounddir.openNextFile();
+
+            if (!soundentry) {
+
+              break;
+            }
+
+            if (soundentry.isDirectory()) {
+              
+              addtofolderix((char *)soundentry.name(), self->sampledirsregistered);
+              //addtofullsamplerfolderpath(self->sampledirsregistered,(char *)soundentry.name());
+              self->sampledirsregistered++;
+            }
+            soundentry.close();
+          }
+          sounddir.close();
         }
 
         static void smixerVpanel() {
@@ -155,20 +226,42 @@ class SamplerMenuRouter : public SectionHolder {
           }
         }
         
+        String samplefullpath(int lefolder, int lefile){
+          String based = self->samplebase[lefolder][lefile];
+          String folded = self->samplefoldersregistered[lefolder] ;
+          return "SOUNDSET/" + folded + "/" + based +".RAW";
+        }
+
+        static void addtofolderix(char *lepathtoadd, int ix) {
+
+          for (int i = 0; i < (int)strlen((char *)lepathtoadd); i++) {
+            self->samplefoldersregistered[ix][i] = (char)(lepathtoadd[i]);
+          }
+        }
+
+        static void setupsamplefoldersregistered() {
+          for (int i = 0; i < 99; i++) {
+            for (int j = 0; j < SP_NAME_MAX; j++) {
+              self->samplefoldersregistered[i][j] = (char)'\0';
+            }
+          }
+          self->samplefoldersregistered[0][0] = (char)("/"[0]);
+          self->sampledirsregistered++;
+        }
         static void setlefilenamed(int lefolder, int lefile, char *lefname) {
           int fnamesize = strlen((char *)lefname);         
           for (int i = 0; i < fnamesize; i++) {
             if (i < fnamesize - 4) {
-              samplebase[lefolder][lefile][i] = lefname[i];
+              self->samplebase[lefolder][lefile][i] = lefname[i];
             }
           }
-          samplebase[lefolder][lefile][fnamesize - 4] = (char)'\0';
+          self->samplebase[lefolder][lefile][fnamesize - 4] = (char)'\0';
         }
 
         static void playsamplepreview() {
-          String playable_file = samplefullpath(lv.sublevels[3],lv.sublevels[4]);
-          if (!test_flash_sample_name(playable_file)){
-            playable_file = lower_extension_case(playable_file);
+          String playable_file = self->samplefullpath(lv.sublevels[3],lv.sublevels[4]);
+          if (!self->test_flash_sample_name(playable_file)){
+            playable_file = self->lower_extension_case(playable_file);
           }
           if (!SD.exists(playable_file.c_str())){
             return;
@@ -178,20 +271,20 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void preview_flash_assignee() {
-          String playable_file = (String)Flashsamplename[lv.sublevels[4]];
-          if (!test_flash_sample_name(playable_file)){
-            playable_file = lower_extension_case(playable_file);
+          String playable_file = (String)bb.Flashsamplename[lv.sublevels[4]];
+          if (!self->test_flash_sample_name(playable_file)){
+            playable_file = self->lower_extension_case(playable_file);
 
           }
-          if (!test_flash_sample_name(playable_file)){
+          if (!self->test_flash_sample_name(playable_file)){
             return;
           }
           FlashRaw.play(playable_file.c_str());
         }
 
         static void copybacklaflashfile(int leflashfile) {
-          SerialFlashFile originflashfile = SerialFlash.open((const char *)Flashsamplename[leflashfile]);
-          String new_name = self->newmkdirpath + "/" + (String)Flashsamplename[leflashfile];
+          SerialFlashFile originflashfile = SerialFlash.open((const char *)bb.Flashsamplename[leflashfile]);
+          String new_name = self->newmkdirpath + "/" + (String)bb.Flashsamplename[leflashfile];
           File mynewsample = SD.open(new_name.c_str(), FILE_WRITE);
           size_t n_size;
           uint8_t buf[64];
@@ -283,12 +376,12 @@ class SamplerMenuRouter : public SectionHolder {
             }
 
             if (lv.sublevels[2] == 1) {
-              if (!samplesfoldersselected[lv.sublevels[3]]) {
-                samplesfoldersselected[lv.sublevels[3]] = 1;
-                numofsamplesfoldersselected++;
+              if (!self->samplesfoldersselected[lv.sublevels[3]]) {
+                self->samplesfoldersselected[lv.sublevels[3]] = 1;
+                self->numofsamplesfoldersselected++;
               } else {
-                samplesfoldersselected[lv.sublevels[3]] = 0;
-                numofsamplesfoldersselected--;
+                self->samplesfoldersselected[lv.sublevels[3]] = 0;
+                self->numofsamplesfoldersselected--;
               }
               dm.returntonav(3);
             }
@@ -297,17 +390,17 @@ class SamplerMenuRouter : public SectionHolder {
 
               if (lv.previousnavlevel != lv.navlevel) {
                 lv.previousnavlevel = lv.navlevel;
-                lv.navrange = sizeofsamplefolder[lv.sublevels[3]] - 1;
+                lv.navrange = self->sizeofsamplefolder[lv.sublevels[3]] - 1;
               }
 
               if (lv.navlevel > 4) {
-                if (samplesselected[lv.sublevels[3]][lv.sublevels[4]] == 0) {
-                  samplesselected[lv.sublevels[3]][lv.sublevels[4]] = 1;
-                  numberofsamplesselected[lv.sublevels[3]]++;
+                if (self->samplesselected[lv.sublevels[3]][lv.sublevels[4]] == 0) {
+                  self->samplesselected[lv.sublevels[3]][lv.sublevels[4]] = 1;
+                  self->numberofsamplesselected[lv.sublevels[3]]++;
                   playsamplepreview();
                 } else {
-                  samplesselected[lv.sublevels[3]][lv.sublevels[4]] = 0;
-                  numberofsamplesselected[lv.sublevels[3]]--;
+                  self->samplesselected[lv.sublevels[3]][lv.sublevels[4]] = 0;
+                  self->numberofsamplesselected[lv.sublevels[3]]--;
                 }
               dm.returntonav(4,lv.navrange,lv.sublevels[4]);
               }
@@ -329,7 +422,7 @@ class SamplerMenuRouter : public SectionHolder {
 
             if ((lv.sublevels[2] == 0 || lv.sublevels[2] == 1) && (lv.sublevels[1] == 0)) {
               if (lv.previousnavlevel != lv.navlevel) {
-                lv.navrange = sampledirsregistered - 1;
+                lv.navrange = self->sampledirsregistered - 1;
               }
               showsamplerfolderList();
             }
@@ -355,15 +448,18 @@ class SamplerMenuRouter : public SectionHolder {
               dm.returntonav(2,3,lv.sublevels[2]);
 
             }
+            //if (!test_flash_sample_name(playable_file)){
+            //  playable_file = lower_extension_case(playable_file);
+            //}
             if (lv.sublevels[2] == 0) {
-              if (Flashsamplesselected[lv.sublevels[3]] == 0) {
-                Flashsamplesselected[lv.sublevels[3]] = 1;
-                if (SerialFlash.exists((const char *)Flashsamplename[lv.sublevels[3]])) FlashRaw.play((const char *)Flashsamplename[lv.sublevels[3]]);
-                numberofFlashsamplesselected++;
+              if (self->Flashsamplesselected[lv.sublevels[3]] == 0) {
+                self->Flashsamplesselected[lv.sublevels[3]] = 1;
+                if (SerialFlash.exists((const char *)bb.Flashsamplename[lv.sublevels[3]])) FlashRaw.play((const char *)bb.Flashsamplename[lv.sublevels[3]]);
+                self->numberofFlashsamplesselected++;
                 
               } else {
-                Flashsamplesselected[lv.sublevels[3]] = 0;
-                numberofFlashsamplesselected--;
+                self->Flashsamplesselected[lv.sublevels[3]] = 0;
+                self->numberofFlashsamplesselected--;
               }
               dm.returntonav(3,lv.navrange,lv.sublevels[3]);
             }
@@ -383,7 +479,7 @@ class SamplerMenuRouter : public SectionHolder {
             }
             if (lv.sublevels[2] == 0) {
               if (lv.previousnavlevel != lv.navlevel) {
-                lv.navrange = numberofFlashfiles - 1;
+                lv.navrange = self->numberofFlashfiles - 1;
               }
 
               showFlashSamplesList();
@@ -406,7 +502,7 @@ class SamplerMenuRouter : public SectionHolder {
 
         static void drawtickboxflashBIG(int lestartx, int lestarty, int lasizex, int lasizey,
                                 typeof(SSD1306_WHITE) lacolor, int lefile) {
-          if (Flashsamplesselected[lefile] == 1) {
+          if (self->Flashsamplesselected[lefile] == 1) {
             canvasBIG.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
           } else {
             canvasBIG.drawRect(lestartx, lestarty, lasizex, lasizey, lacolor);
@@ -414,7 +510,7 @@ class SamplerMenuRouter : public SectionHolder {
         }
         static void drawtickboxflashtitle(int lestartx, int lestarty, int lasizex, int lasizey,
                                   typeof(SSD1306_WHITE) lacolor, int lefile) {
-          if (Flashsamplesselected[lefile] == 1) {
+          if (self->Flashsamplesselected[lefile] == 1) {
             canvastitle.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
           } else {
             canvastitle.drawRect(lestartx, lestarty, lasizex, lasizey, lacolor);
@@ -423,7 +519,7 @@ class SamplerMenuRouter : public SectionHolder {
 
         static void drawtickboxfolderBIG(int lestartx, int lestarty, int lasizex, int lasizey,
                                   typeof(SSD1306_WHITE) lacolor, int lefolder) {
-          if (samplesfoldersselected[lefolder]) {
+          if (self->samplesfoldersselected[lefolder]) {
             canvasBIG.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
           } else {
             canvasBIG.drawRect(lestartx, lestarty, lasizex, lasizey, lacolor);
@@ -432,7 +528,7 @@ class SamplerMenuRouter : public SectionHolder {
         static void drawtickboxfoldertitle(int lestartx, int lestarty, int lasizex,
                                     int lasizey, typeof(SSD1306_WHITE) lacolor,
                                     int lefolder) {
-          if (samplesfoldersselected[lefolder]) {
+          if (self->samplesfoldersselected[lefolder]) {
             canvastitle.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
           } else {
             canvastitle.drawRect(lestartx, lestarty, lasizex, lasizey, lacolor);
@@ -442,7 +538,7 @@ class SamplerMenuRouter : public SectionHolder {
         static void drawtickboxincanvasBIG(int lestartx, int lestarty, int lasizex,
                                     int lasizey, typeof(SSD1306_WHITE) lacolor,
                                     int lefolder, int lefile) {
-          if (samplesselected[lefolder][lefile] == 1) {
+          if (self->samplesselected[lefolder][lefile] == 1) {
             canvasBIG.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
           } else {
             canvasBIG.drawRect(lestartx, lestarty, lasizex, lasizey, lacolor);
@@ -451,7 +547,7 @@ class SamplerMenuRouter : public SectionHolder {
         static void drawtickboxincanvastitle(int lestartx, int lestarty, int lasizex,
                                       int lasizey, typeof(SSD1306_WHITE) lacolor,
                                       int lefolder, int lefile) {
-          if (samplesselected[lefolder][lefile] == 1) {
+          if (self->samplesselected[lefolder][lefile] == 1) {
             canvastitle.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
           } else {
             canvastitle.drawRect(lestartx, lestarty, lasizex, lasizey, lacolor);
@@ -461,14 +557,14 @@ class SamplerMenuRouter : public SectionHolder {
         static void addtoFlashsamplelist(char *lesample) {
           // files on the flashchip have to be uppercase
           for (int i = 0; i < 13; i++) {
-            Flashsamplename[numberofFlashfiles][i] =
+            bb.Flashsamplename[self->numberofFlashfiles][i] =
                 toupper((unsigned char)(lesample[i]));
             if (i < (int)(strlen((char *)lesample) - 4)) {
-              Flashsamplebase[numberofFlashfiles][i] =
+              self->Flashsamplebase[self->numberofFlashfiles][i] =
                   toupper((unsigned char)(lesample[i]));
             }
           }
-          numberofFlashfiles++;
+          self->numberofFlashfiles++;
         }
 
         static void rebuildflashsamplesnames() {
@@ -477,7 +573,7 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void initializeFlashsamplename() {
-          numberofFlashfiles = 0;
+          self->numberofFlashfiles = 0;
           for (int i = 0; i < 999; i++) {
             clearFlashsamplename(i);
           }
@@ -486,7 +582,7 @@ class SamplerMenuRouter : public SectionHolder {
 
         static void clearFlashsamplename(int lefile) {
           for (int i = 0; i < 13; i++) {
-            Flashsamplename[lefile][i] = (char)'\0';
+            bb.Flashsamplename[lefile][i] = (char)'\0';
           }
         }
 
@@ -498,21 +594,21 @@ class SamplerMenuRouter : public SectionHolder {
 
         static void clearFlashsamplebase(int lefile) {
           for (int i = 0; i < 9; i++) {
-            Flashsamplebase[lefile][i] = (char)'\0';
+            self->Flashsamplebase[lefile][i] = (char)'\0';
           }
         }
 
         static void initializesamplesfoldersselectedlist() {
-          numofsamplesfoldersselected = 0;
+          self->numofsamplesfoldersselected = 0;
           for (int i = 0; i < 99; i++) {
-            samplesfoldersselected[i] = 0;
+            self->samplesfoldersselected[i] = 0;
           }
         }
 
         static void initializeFlashsamplesselected() {
-          numberofFlashsamplesselected = 0;
+          self->numberofFlashsamplesselected = 0;
           for (int i = 0; i < 999; i++) {
-            Flashsamplesselected[i] = 0;
+            self->Flashsamplesselected[i] = 0;
           }
         }
 
@@ -520,13 +616,13 @@ class SamplerMenuRouter : public SectionHolder {
 
           for (int i = 0; i < 99; i++) {
             clearsamplesselectedlist(i);
-            numberofsamplesselected[i] = 0;
+            self->numberofsamplesselected[i] = 0;
           }
         }
 
         static void clearsamplesselectedlist(int lefolder) {
           for (int i = 0; i < 999; i++) {
-            samplesselected[lefolder][i] = 0;
+            self->samplesselected[lefolder][i] = 0;
           }
         }
 
@@ -537,18 +633,18 @@ class SamplerMenuRouter : public SectionHolder {
           canvastitle.fillScreen(SSD1306_BLACK);
           canvastitle.setTextSize(1);
           canvastitle.setCursor(startx, 0);
-          canvastitle.print((char *)Flashsamplebase[lv.sublevels[lv.navlevel]]);
+          canvastitle.print((char *)self->Flashsamplebase[lv.sublevels[lv.navlevel]]);
           drawtickboxflashtitle(startx - 13, 0, 6, 6, SSD1306_WHITE, lv.sublevels[lv.navlevel]);
           canvasBIG.setTextSize(1);
           canvasBIG.fillScreen(SSD1306_BLACK);
 
-          int maxsizefirstpart = numberofFlashfiles - 1 - (lv.sublevels[lv.navlevel]);
+          int maxsizefirstpart = self->numberofFlashfiles - 1 - (lv.sublevels[lv.navlevel]);
           if (maxsizefirstpart > 6) {
             maxsizefirstpart = 6;
           }
           for (int i = 0; i < maxsizefirstpart; i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println((char *)Flashsamplebase[lv.sublevels[lv.navlevel] + 1 + i]);
+            canvasBIG.println((char *)self->Flashsamplebase[lv.sublevels[lv.navlevel] + 1 + i]);
             drawtickboxflashBIG(startx - 13, starty + ((i)*10), 6, 6, SSD1306_WHITE, lv.sublevels[lv.navlevel] + 1 + i);
           }
           int maxsizelastpart = lv.sublevels[lv.navlevel];
@@ -556,9 +652,9 @@ class SamplerMenuRouter : public SectionHolder {
             maxsizelastpart = 6;
           }
           for (int i = 0; i < maxsizelastpart; i++) {
-            canvasBIG.setCursor(startx, (10 * (numberofFlashfiles - lv.sublevels[lv.navlevel])) + 6 + ((i)*10));
-            canvasBIG.println((char *)Flashsamplebase[i]);
-            drawtickboxflashBIG(startx - 13, (10 * (numberofFlashfiles - lv.sublevels[lv.navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, i);
+            canvasBIG.setCursor(startx, (10 * (self->numberofFlashfiles - lv.sublevels[lv.navlevel])) + 6 + ((i)*10));
+            canvasBIG.println((char *)self->Flashsamplebase[i]);
+            drawtickboxflashBIG(startx - 13, (10 * (self->numberofFlashfiles - lv.sublevels[lv.navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, i);
           }
         }
 
@@ -568,18 +664,18 @@ class SamplerMenuRouter : public SectionHolder {
           canvastitle.fillScreen(SSD1306_BLACK);
           canvastitle.setTextSize(1);
           canvastitle.setCursor(startx, 0);
-          canvastitle.print((char *)samplebase[lv.sublevels[3]][lv.sublevels[lv.navlevel]]);
+          canvastitle.print((char *)self->samplebase[lv.sublevels[3]][lv.sublevels[lv.navlevel]]);
           drawtickboxincanvastitle(startx - 13, 0, 6, 6, SSD1306_WHITE, lv.sublevels[3], lv.sublevels[lv.navlevel]);
           canvasBIG.setTextSize(1);
           canvasBIG.fillScreen(SSD1306_BLACK);
           int maxsizefirstpart =
-              sizeofsamplefolder[lv.sublevels[3]] - 1 - (lv.sublevels[lv.navlevel]);
+              self->sizeofsamplefolder[lv.sublevels[3]] - 1 - (lv.sublevels[lv.navlevel]);
           if (maxsizefirstpart > 6) {
             maxsizefirstpart = 6;
           }
           for (int i = 0; i < maxsizefirstpart; i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println((char *)samplebase[lv.sublevels[3]][lv.sublevels[lv.navlevel] + 1 + i]);
+            canvasBIG.println((char *)self->samplebase[lv.sublevels[3]][lv.sublevels[lv.navlevel] + 1 + i]);
             drawtickboxincanvasBIG(startx - 13, starty + ((i)*10), 6, 6, SSD1306_WHITE, lv.sublevels[3], lv.sublevels[lv.navlevel] + 1 + i);
           }
           int maxsizelastpart = lv.sublevels[lv.navlevel];
@@ -587,9 +683,9 @@ class SamplerMenuRouter : public SectionHolder {
             maxsizelastpart = 6;
           }
           for (int i = 0; i < maxsizelastpart; i++) {
-            canvasBIG.setCursor(startx, (10 * (sizeofsamplefolder[lv.sublevels[3]] - lv.sublevels[lv.navlevel])) + 6 + ((i)*10));
-            canvasBIG.println((char *)samplebase[lv.sublevels[3]][i]);
-            drawtickboxincanvasBIG(startx - 13, (10 * (sizeofsamplefolder[lv.sublevels[3]] - lv.sublevels[lv.navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, lv.sublevels[3], i);
+            canvasBIG.setCursor(startx, (10 * (self->sizeofsamplefolder[lv.sublevels[3]] - lv.sublevels[lv.navlevel])) + 6 + ((i)*10));
+            canvasBIG.println((char *)self->samplebase[lv.sublevels[3]][i]);
+            drawtickboxincanvasBIG(startx - 13, (10 * (self->sizeofsamplefolder[lv.sublevels[3]] - lv.sublevels[lv.navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, lv.sublevels[3], i);
           }
         }
 
@@ -599,20 +695,20 @@ class SamplerMenuRouter : public SectionHolder {
           canvastitle.fillScreen(SSD1306_BLACK);
           canvastitle.setTextSize(1);
           canvastitle.setCursor(startx, 0);
-          canvastitle.print((char *)samplefoldersregistered[lv.sublevels[lv.navlevel]]);
+          canvastitle.print((char *)self->samplefoldersregistered[lv.sublevels[lv.navlevel]]);
           if (lv.sublevels[2] == 1) {
             drawtickboxfoldertitle(startx - 13, 0, 6, 6, SSD1306_WHITE, lv.sublevels[lv.navlevel]);
           }
           canvasBIG.setTextSize(1);
           canvasBIG.fillScreen(SSD1306_BLACK);
 
-          int maxsizefirstpart = sampledirsregistered - 1 - (lv.sublevels[lv.navlevel]);
+          int maxsizefirstpart = self->sampledirsregistered - 1 - (lv.sublevels[lv.navlevel]);
           if (maxsizefirstpart > 6) {
             maxsizefirstpart = 6;
           }
           for (int i = 0; i < maxsizefirstpart; i++) {
             canvasBIG.setCursor(startx, starty + ((i)*10));
-            canvasBIG.println((char *)samplefoldersregistered[lv.sublevels[lv.navlevel] + 1 + i]);
+            canvasBIG.println((char *)self->samplefoldersregistered[lv.sublevels[lv.navlevel] + 1 + i]);
             if (lv.sublevels[2] == 1) {
               drawtickboxfolderBIG(startx - 13, starty + ((i)*10), 6, 6, SSD1306_WHITE, lv.sublevels[lv.navlevel] + 1 + i);
             }
@@ -622,8 +718,8 @@ class SamplerMenuRouter : public SectionHolder {
             maxsizelastpart = 6;
           }
           for (int i = 0; i < maxsizelastpart; i++) {
-            canvasBIG.setCursor(startx, (10 * (sampledirsregistered - lv.sublevels[lv.navlevel])) + 6 + ((i)*10));
-            canvasBIG.println((char *)samplefoldersregistered[i]);
+            canvasBIG.setCursor(startx, (10 * (self->sampledirsregistered - lv.sublevels[lv.navlevel])) + 6 + ((i)*10));
+            canvasBIG.println((char *)self->samplefoldersregistered[i]);
             if (lv.sublevels[2] == 1) {
               //TODO: check if all is ok here, was previousely (10 * (keepcount - lv.sublevels[lv.navlevel])) + 6 + ((i)*10)
               drawtickboxfolderBIG(startx - 13, (10 * (lv.sublevels[lv.navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, i);
@@ -699,7 +795,7 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void Doautoassign() {
-          for (int i = 0; i < numberofFlashfiles - 1; i++) {
+          for (int i = 0; i < self->numberofFlashfiles - 1; i++) {
             if (i + 4 < 128) {
               gg.Sampleassigned[i + 4] = i;
             } else {
@@ -825,10 +921,10 @@ class SamplerMenuRouter : public SectionHolder {
           initializeconsolemsg();
           for (int j = 0; j < 999; j++) {
             //pleasewait(j, 999);
-            if (Flashsamplesselected[j] == 1) {
-              if (SerialFlash.exists((const char *)Flashsamplename[j])) {
-                pseudoconsole((const char *)Flashsamplename[j]);
-                SerialFlash.remove((const char *)Flashsamplename[j]);
+            if (self->Flashsamplesselected[j] == 1) {
+              if (SerialFlash.exists((const char *)bb.Flashsamplename[j])) {
+                pseudoconsole((const char *)bb.Flashsamplename[j]);
+                SerialFlash.remove((const char *)bb.Flashsamplename[j]);
               }
             }
           }
@@ -837,11 +933,11 @@ class SamplerMenuRouter : public SectionHolder {
         }
 
         static void addfolderstoselectionset() {
-          if (numofsamplesfoldersselected > 0) {
+          if (self->numofsamplesfoldersselected > 0) {
             for (int i = 0; i < 99; i++) {
-              if (samplesfoldersselected[i]) {
+              if (self->samplesfoldersselected[i]) {
                 for (int j = 0; j < 999; j++) {
-                  samplesselected[i][j] = 1;
+                  self->samplesselected[i][j] = 1;
                 }
               }
             }
@@ -862,8 +958,8 @@ class SamplerMenuRouter : public SectionHolder {
           for (int i = 0; i < 99; i++) {
             //pleasewait(i, 99);
             for (int j = 0; j < 999; j++) {
-              if (samplesselected[i][j]) {
-                currentsample = SD.open(samplefullpath(i,j).c_str());
+              if (self->samplesselected[i][j]) {
+                currentsample = SD.open(self->samplefullpath(i,j).c_str());
                 //was break instead of continue
                 if (!currentsample) continue;
                 const char *currentflashname = currentsample.name();
@@ -962,8 +1058,8 @@ class SamplerMenuRouter : public SectionHolder {
         static void getavailablespace() {
           long laspace = 0;
           SerialFlashFile lefile;
-          for (int i = 0; i < numberofFlashfiles; i++) {
-            lefile = SerialFlash.open((char *)Flashsamplename[i]);
+          for (int i = 0; i < self->numberofFlashfiles; i++) {
+            lefile = SerialFlash.open((char *)bb.Flashsamplename[i]);
             if (lefile) {
               if (lefile.size() > 536900000) {
                 laspace += lefile.size() - 536900000;
@@ -985,7 +1081,7 @@ class SamplerMenuRouter : public SectionHolder {
             dm.dodisplay();
           }
           if (lv.navlevel == 4) {
-            lv.navrange = numberofFlashfiles - 1;
+            lv.navrange = self->numberofFlashfiles - 1;
             listsamplesassigner2();
             dm.dodisplay();
           }
@@ -1005,7 +1101,7 @@ class SamplerMenuRouter : public SectionHolder {
             canvasBIG.setCursor(85, 16);
             canvasBIG.println(gg.Sampleassigned[lv.sublevels[3]]);
             canvasBIG.setCursor(0, 40);
-            canvasBIG.println((char *)Flashsamplebase[gg.Sampleassigned[lv.sublevels[3]]]);
+            canvasBIG.println((char *)self->Flashsamplebase[gg.Sampleassigned[lv.sublevels[3]]]);
           }
         }
 
@@ -1020,14 +1116,14 @@ class SamplerMenuRouter : public SectionHolder {
           canvasBIG.setCursor(85, 16);
           canvasBIG.println(lv.sublevels[4]);
           canvasBIG.setCursor(0, 40);
-          canvasBIG.println((char *)Flashsamplebase[lv.sublevels[4]]);
+          canvasBIG.println((char *)self->Flashsamplebase[lv.sublevels[4]]);
         }
 
         
 
         static void listSoundsetsubdir(int ledir) {
-          if (SD.exists((char *)sampledirpath)) {
-            File susudir = SD.open((char *)sampledirpath);
+          if (SD.exists((char *)self->sampledirpath)) {
+            File susudir = SD.open((char *)self->sampledirpath);
             while (true) {
               File subentry = susudir.openNextFile();
               if (!subentry) {
@@ -1041,18 +1137,35 @@ class SamplerMenuRouter : public SectionHolder {
                   shorter_name[i-fnamesize+11] = new_namer[i];
                 }
                 shorter_name[11] = (char)'\0';
-                String full_file = (String)sampledirpath + subentry.name();
-                String full_new_file = (String)sampledirpath + (String)shorter_name;
+                String full_file = (String)self->sampledirpath + subentry.name();
+                String full_new_file = (String)self->sampledirpath + (String)shorter_name;
                 SD.rename(full_file.c_str(), full_new_file.c_str());
                 continue;
               }
               if (!subentry.isDirectory()) {
-                  setlefilenamed(ledir, sizeofsamplefolder[ledir], (char*)subentry.name());
-                (sizeofsamplefolder[ledir])++;
+                  setlefilenamed(ledir, self->sizeofsamplefolder[ledir], (char*)subentry.name());
+                (self->sizeofsamplefolder[ledir])++;
               }
               subentry.close();
             }
             susudir.close();
+          }
+        }
+
+        static void makesoundsetfullpathfromchars(int eldir) {
+          for (int i = 9; i < (int)(strlen((char *)self->samplefoldersregistered[eldir]) + 9);i++) {
+            self->sampledirpath[i] = self->samplefoldersregistered[eldir][i - 9];
+          }
+          int lelast = (int)strlen((char *)self->sampledirpath);
+          self->sampledirpath[lelast] = (char)'/';
+          self->sampledirpath[lelast + 1] = (char)'\0';
+        }
+        static void voidsampledirpath() {
+          for (int i = 0; i < 99; i++) {
+            self->sampledirpath[i] = (char)'\0';
+          }
+          for (int i = 0; i < 9; i++) {
+            self->sampledirpath[i] = (char)("SOUNDSET/"[i]);
           }
         }
 
@@ -1061,13 +1174,13 @@ class SamplerMenuRouter : public SectionHolder {
           initializesamplesfoldersselectedlist();
           rebuildflashsamplesnames();
           clearsizeofsamplefolder();
-          sampledirsregistered = 0;
+          self->sampledirsregistered = 0;
           setupsamplefoldersregistered();
 
           initializesamplebase();
           listSoundset();
-          for (int i = 1; i < sampledirsregistered; i++) {
-            //pleasewait(i, sampledirsregistered);
+          for (int i = 1; i < self->sampledirsregistered; i++) {
+            //pleasewait(i, self->sampledirsregistered);
             voidsampledirpath();
             makesoundsetfullpathfromchars(i);
             listSoundsetsubdir(i);
@@ -1085,4 +1198,4 @@ class SamplerMenuRouter : public SectionHolder {
 };
 
 SamplerMenuRouter* SamplerMenuRouter::self = nullptr;
-SamplerMenuRouter _sp;
+EXTMEM SamplerMenuRouter _sp;

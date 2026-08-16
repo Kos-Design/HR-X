@@ -8,7 +8,7 @@ byte muxer_ch_active = 1;
 void check_pots() {
   int c_change = Muxer.read_val(muxer_ch_active);
   if (c_change >= 0 && muxer_ch_active !=9) {
-    MaControlChange(gg.muxed_channels[muxer_ch_active], (byte)gg.ordered_pots[muxer_ch_active], (byte)((c_change / 1024.0) * 127));
+    _tt.MaControlChange(gg.muxed_channels[muxer_ch_active], (byte)gg.ordered_pots[muxer_ch_active], (byte)((c_change / 1024.0) * 127));
   }
   muxer_ch_active = (muxer_ch_active+1)%15; // mux_ch 16 is broken (pot in 9 as well)
 }

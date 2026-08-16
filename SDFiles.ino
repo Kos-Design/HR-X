@@ -38,70 +38,7 @@ String get_new_dir_name(String base_path_dir) {
 }
 
 
-void clearsizeofsamplefolder() {
-  for (int i = 0; i < 99; i++) {
-    sizeofsamplefolder[i] = 0;
-  }
-}
 
-void voidsampledirpath() {
-  for (int i = 0; i < 99; i++) {
-    sampledirpath[i] = (char)'\0';
-  }
-  for (int i = 0; i < 9; i++) {
-    sampledirpath[i] = (char)("SOUNDSET/"[i]);
-  }
-}
-
-void makesoundsetfullpathfromchars(int eldir) {
-  for (int i = 9; i < (int)(strlen((char *)samplefoldersregistered[eldir]) + 9);
-       i++) {
-    sampledirpath[i] = samplefoldersregistered[eldir][i - 9];
-  }
-  int lelast = (int)strlen((char *)sampledirpath);
-  sampledirpath[lelast] = (char)'/';
-  sampledirpath[lelast + 1] = (char)'\0';
-}
-
-String lower_extension_case(String f_name){
-  char named[50];  // Ensure the array is large enough
-  strcpy(named, f_name.c_str());
-  named[strlen(named) - 4] = '\0';
-  return (String)named + ".raw";
-}
-
-bool test_flash_sample_name(String f_s_name){
-  return SerialFlash.exists(f_s_name.c_str());
-}
-
-void listSoundset() {
-
-  File sounddir = SD.open("SOUNDSET/");
-
-  while (true) {
-    File soundentry = sounddir.openNextFile();
-
-    if (!soundentry) {
-
-      break;
-    }
-
-    if (soundentry.isDirectory()) {
-      
-      addtofolderix((char *)soundentry.name(), sampledirsregistered);
-      //addtofullsamplerfolderpath(sampledirsregistered,(char *)soundentry.name());
-      sampledirsregistered++;
-    }
-    soundentry.close();
-  }
-  sounddir.close();
-}
-
-String samplefullpath(int lefolder, int lefile){
-  String based = samplebase[lefolder][lefile];
-  String folded = samplefoldersregistered[lefolder] ;
-  return "SOUNDSET/" + folded + "/" + based +".RAW";
-}
 /*
 struct FileEntry
 {
@@ -145,39 +82,6 @@ void clearsamplefullpath(int lefolder, int lefile) {
   }
 }
 */
-void initializesamplebase() {
-  for (int i = 0; i < 99; i++) {
-    batchclearsamplebase(i);
-  }
-}
 
-void batchclearsamplebase(int lefolder) {
-  for (int i = 0; i < 999; i++) {
-    clearsamplebase(lefolder, i);
-  }
-}
-
-void clearsamplebase(int lefolder, int lefile) {
-  for (int i = 0; i < 9; i++) {
-    samplebase[lefolder][lefile][i] = (char)'\0';
-  }
-}
-
-void addtofolderix(char *lepathtoadd, int ix) {
-
-  for (int i = 0; i < (int)strlen((char *)lepathtoadd); i++) {
-    samplefoldersregistered[ix][i] = (char)(lepathtoadd[i]);
-  }
-}
-
-void setupsamplefoldersregistered() {
-  for (int i = 0; i < 99; i++) {
-    for (int j = 0; j < ssnamsize; j++) {
-      samplefoldersregistered[i][j] = (char)'\0';
-    }
-  }
-  samplefoldersregistered[0][0] = (char)("/"[0]);
-  sampledirsregistered++;
-}
 
 

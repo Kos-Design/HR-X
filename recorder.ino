@@ -44,14 +44,7 @@ class RecorderMenuRouter : public SectionHolder {
           //newRecpathR = newRecpathL ;
         }
 
-        byte getrecdir() {
-          for (byte i = 0; i < sampledirsregistered; i++) {
-            if (strcmp(samplefoldersregistered[i], "REC") == 0)
-              return i;
-            }
-          check_rec_folder_path();
-          return sampledirsregistered;
-        }
+
 
         static void startRecording() {
           if (lv.locked_fileing)

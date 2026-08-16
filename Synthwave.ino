@@ -1002,7 +1002,7 @@ class Mp3PlayerRouter : public SectionHolder {
 
         static void mp3_player_panel() {
           dm.clear_3();
-          drawtransport();
+          dm.drawtransport();
           mp3_player_actions();
           dm.dodisplay();
           transport_selector();

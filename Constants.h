@@ -35,3 +35,7 @@
 #define SP_LABELS_COUNT 4
 #define PBARS 32
 #define ALL_FX_TYPES 10
+#define SP_NAME_MAX 26
+#define ARP_TYPES 8
+#define VBUT_LBL_COUNT 8
+

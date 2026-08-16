@@ -379,11 +379,7 @@ class FlashLiner {
         Flashmixer[int(l_index / 4)]->gain(l_index - 4 * int(l_index / 4),(gg.smixervknobs[l_index] / 127.0));
       }
       */
-      playable_file = (String)Flashsamplename[gg.Sampleassigned[(int)(data1)]];
-      if (!test_flash_sample_name(playable_file)){
-        playable_file = lower_extension_case(playable_file);
-      }
-
+      playable_file = (String)bb.Flashsamplename[gg.Sampleassigned[(int)(data1)]];
       FlashSampler[l_index]->play(playable_file.c_str());
       
       //playRaw(playable_file.c_str());

@@ -53,7 +53,7 @@ void loopusbHub() {
         break;
 
         case 0xB0:
-          MaControlChange(channel_midi,rx.byte2,rx.byte3);
+          _tt.MaControlChange(channel_midi,rx.byte2,rx.byte3);
         break;
 
         default:

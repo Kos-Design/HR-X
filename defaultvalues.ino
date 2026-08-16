@@ -17,16 +17,16 @@ void initextmems() {
     }
 
     for (int i = 0; i < 128; i++) {
-      if (!j) leccinterpolated[i] = 0;
+      
       pp.cc_partition[i][j] = 127;
     }
   }
   for (int i = 0; i < 32; i++) {
     for (int j = 0; j < 32; j++) {
-      pots_controllers[i][j][0] = 0;
-      pots_controllers[i][j][1] = 0;
+      bb.pots_controllers[i][j][0] = 0;
+      bb.pots_controllers[i][j][1] = 0;
     }
-    recorded_ccs[i] = 0 ;
+    bb.recorded_ccs[i] = 0 ;
   }
 }
 

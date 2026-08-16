@@ -1,5 +1,4 @@
 #include "Presets.h"
-extern BigBuffers bb;
 
 FxBus::FxBus() {}
     
