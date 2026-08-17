@@ -2,7 +2,7 @@
 #include "Constants.h"
 #include "Cablages.h"
 //#include "MenuClasses.h"
-class FilesLister;
+//class FilesLister;
 
 struct MidiEventer{
     byte channel;

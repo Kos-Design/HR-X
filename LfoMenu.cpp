@@ -1,7 +1,9 @@
+#include "LfoMenu.h"
 
-class LFOMenuRouter : public SectionHolder {
-    public:
-        LFOMenuRouter() {
+
+LFOMenuRouter* LFOMenuRouter::self = nullptr;
+
+LFOMenuRouter::LFOMenuRouter() {
                     self = this;
                     self->home_navrange=2;
                     self->relative_navlevel=1;
@@ -9,16 +11,12 @@ class LFOMenuRouter : public SectionHolder {
                     self->sublevels_address={1,0,0};
                     }
 
-        int unit = (int)gg.LFOHz[lv.cclfoselector] % 10;
-        int tenth     = ((int)(gg.LFOHz[lv.cclfoselector] * 10)) % 10;
-        int hundredth = ((int)(gg.LFOHz[lv.cclfoselector] * 100)) % 10;
-        const byte sizeofLFOlabels = 9;
-
-        static void show() {
+      
+void LFOMenuRouter::show() {
           _nav_lfo[lv.navlevel-1]();
         }
 
-        static void applyLFOrmicon(int lesinthy) {
+void LFOMenuRouter::applyLFOrmicon(int lesinthy) {
           // displaywaveformicon(lv.sublevels[4],(char*)"SineWave",sinewave, lesynthi,
           // WAVEFORM_SINE);
           if (lv.navlevel > 3) {
@@ -30,7 +28,7 @@ class LFOMenuRouter : public SectionHolder {
           }
         }
 
-        static void LFOrmType() {
+void LFOMenuRouter::LFOrmType() {
           int leLFO=lv.cclfoselector;
           if (lv.navlevel == 2){
             lv.sublevels[3] = gg.LFOformstype[leLFO];
@@ -82,12 +80,13 @@ class LFOMenuRouter : public SectionHolder {
           }
           if (lv.navlevel >= 4) {
             gg.LFOformstype[leLFO] = lv.sublevels[3];
-            call_restart_lfo(leLFO);
+           
+            restartLFO(leLFO%OSCS_COUNT);
             gobacktolfoparams();
           }
         }
 
-        static void displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int leLFO, typeof(WAVEFORM_SINE) wavetype) {
+void LFOMenuRouter::displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int leLFO, typeof(WAVEFORM_SINE) wavetype) {
 
           canvasBIG.drawBitmap(70, 20, img, 32, 32, SSD1306_WHITE);
           canvastitle.setTextSize(1); // Draw 1X-scale text
@@ -97,7 +96,7 @@ class LFOMenuRouter : public SectionHolder {
           // dm.dodisplay();
         }
 
-        static void doLFObool() {
+void LFOMenuRouter::doLFObool() {
           int leLFO=lv.cclfoselector;
           if (lv.navlevel == 3) {
             gg.LFOsync[leLFO] = !gg.LFOsync[leLFO] ;
@@ -116,19 +115,19 @@ class LFOMenuRouter : public SectionHolder {
           }
         }
 
-        static void gobacktolfoparams() { dm.returntonav(2); }
+void LFOMenuRouter::gobacktolfoparams() { dm.returntonav(2); }
 
-        static void doLFOparamdisplayval(int laval) {
+void LFOMenuRouter::doLFOparamdisplayval(int laval) {
           
         }
 
-        static void draw_lfo_val(float laval) {
+void LFOMenuRouter::draw_lfo_val(float laval) {
           canvastitle.setCursor(80, 0);
           canvastitle.setTextSize(2);
           canvastitle.print(laval);
         }
 
-        static void doLFOlevel() {
+void LFOMenuRouter::doLFOlevel() {
           int leLFO=lv.cclfoselector;
           if (lv.navlevel == 3) {
             lv.navrange = 127;
@@ -142,7 +141,7 @@ class LFOMenuRouter : public SectionHolder {
           draw_lfo_val(gg.LFOlevel[leLFO] / 127.0);
         }
 
-        static void doLFOoffset() {
+void LFOMenuRouter::doLFOoffset() {
           int leLFO=lv.cclfoselector;
           if (lv.navlevel == 3) {
             lv.navrange = 127;
@@ -157,7 +156,7 @@ class LFOMenuRouter : public SectionHolder {
           draw_lfo_val((64.0 - gg.LFOoffset[leLFO]) / 64.0);
         }
 
-        static void doLFOphase() {
+void LFOMenuRouter::doLFOphase() {
           int leLFO=lv.cclfoselector;
           if (lv.navlevel == 3) {
             lv.navrange = 127;
@@ -175,7 +174,7 @@ class LFOMenuRouter : public SectionHolder {
           canvastitle.print((gg.LFOphase[leLFO]/127.0)*360);
         }
 
-        static void freqbars_panel_selector() {
+void LFOMenuRouter::freqbars_panel_selector() {
           if (lv.navlevel == 3) {
             lv.retroaction = lv.sublevels[2];
             switch (lv.sublevels[3]){
@@ -198,7 +197,7 @@ class LFOMenuRouter : public SectionHolder {
           display.display();
           }
         }
-        static void freqbars_panel_action() {
+void LFOMenuRouter::freqbars_panel_action() {
 
           lv.navrange = 9;
           switch (lv.sublevels[3]){
@@ -218,7 +217,7 @@ class LFOMenuRouter : public SectionHolder {
           gg.LFOHz[lv.cclfoselector] = (float)(self->unit + self->tenth * 0.1f + self->hundredth * 0.01f);
         }
 
-        static void displayfreqbars(){
+void LFOMenuRouter::displayfreqbars(){
           //dm.clear_3();
           display.setTextSize(2);
           display.setCursor(65, 0);
@@ -227,7 +226,7 @@ class LFOMenuRouter : public SectionHolder {
           //dm.dodisplay();
         }
 
-        static void freqbars_panel() {
+void LFOMenuRouter::freqbars_panel() {
           if (lv.navlevel >= 3) {
             lv.retroaction = lv.sublevels[2];
             if (lv.navlevel == 3) {
@@ -253,7 +252,7 @@ class LFOMenuRouter : public SectionHolder {
 
 
 
-        static void dolistLFOparams() {
+void LFOMenuRouter::dolistLFOparams() {
           const char* LFOlabels[] = {"Type",  "Level",  "Sync",
                                                 "Freq",  "Offset", "Phase",
                                                 "Synth", "<-  ",   "  ->"};
@@ -261,12 +260,12 @@ class LFOMenuRouter : public SectionHolder {
 
         }
 
-        static void doLFOallcontrols(byte leLFO) {
+void LFOMenuRouter::doLFOallcontrols(byte leLFO) {
           restartLFO(leLFO);
           LFOwaveforms1[leLFO]->phase((gg.LFOphase[leLFO]/127.0)*360);
           LFOwaveforms1[leLFO]->offset((float)(((64 - gg.LFOoffset[leLFO]) / 64.0)));
         }
-        static void go_to_synth(){
+void LFOMenuRouter::go_to_synth(){
           if (lv.navlevel >= 3) {
             lv.sublevels[0] = 0;
             lv.sublevels[2] = lv.sublevels[1];
@@ -276,7 +275,7 @@ class LFOMenuRouter : public SectionHolder {
           }
         }
        
-        static void go_previous(){
+void LFOMenuRouter::go_previous(){
           if (lv.navlevel >= 3) {
             if (lv.cclfoselector-1 < 0)
               lv.cclfoselector = 2 ;
@@ -287,14 +286,14 @@ class LFOMenuRouter : public SectionHolder {
             dm.returntonav(lv.navlevel-1,self->sizeofLFOlabels-1,lv.sublevels[2]);
             }
         }
-        static void go_next(){
+void LFOMenuRouter::go_next(){
           if (lv.navlevel >= 3) {
             lv.cclfoselector = (lv.cclfoselector+1)%3;
             lv.sublevels[1] = lv.cclfoselector ;
             dm.returntonav(lv.navlevel-1,self->sizeofLFOlabels-1,lv.sublevels[2]);
             }
         }
-        static void restartLFO(int leLFO=lv.cclfoselector) {
+void LFOMenuRouter::restartLFO(int leLFO) {
           AudioNoInterrupts();
           if (gg.LFOsync[leLFO]) {
             float syncher = 1.0 ;
@@ -322,7 +321,7 @@ class LFOMenuRouter : public SectionHolder {
 
           AudioInterrupts();
         }
-        static void LFOlining() {
+void LFOMenuRouter::LFOlining() {
           lv.navrange = 8;
           dm.clean_title_2_1();
           dolistLFOparams();
@@ -332,7 +331,7 @@ class LFOMenuRouter : public SectionHolder {
           dm.dodisplay();
         }
 
-        static void printLFObanner(int startx, int starty, int leLFO=lv.cclfoselector) {
+void LFOMenuRouter::printLFObanner(int startx, int starty, int leLFO) {
             display.fillRect(startx, starty, 64, 24, SSD1306_INVERSE);
             dm.printlabel((char*)"LFO ");
             display.setCursor(116, 0);
@@ -340,14 +339,14 @@ class LFOMenuRouter : public SectionHolder {
             display.display();
         }
 
-        static void LFOlineBG() {
+void LFOMenuRouter::LFOlineBG() {
             display.clearDisplay();
             display.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
 
             display.display();
         }
 
-        static void lfo_zero(){
+void LFOMenuRouter::lfo_zero(){
             lv.navrange = OSCS_COUNT-1;
             //TODO:remove maybe
             dm.reinitsublevels(2);
@@ -376,23 +375,3 @@ class LFOMenuRouter : public SectionHolder {
             }
         }
        
-    private:
-
-        static constexpr void (*_route_nav[9])() = {
-            &LFOrmType,
-            &doLFOlevel,
-            &doLFObool,
-            &freqbars_panel,
-            &doLFOoffset,
-            &doLFOphase,
-            &go_to_synth,
-            &go_previous,
-            &go_next
-        };
-        static constexpr void (*_nav_lfo[7])() = {&lfo_zero, &LFOlining,&LFOlining,&LFOlining,
-                          &LFOlining,&LFOlining,&LFOlining};
-        static LFOMenuRouter* self;
-};
-
-LFOMenuRouter* LFOMenuRouter::self = nullptr;
-LFOMenuRouter _lf;

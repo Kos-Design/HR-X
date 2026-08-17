@@ -1236,7 +1236,8 @@ for (int i = 0; i < 5; i++)
         if (gg.fx[fx_idx].LFOonfilterz < OSCS_COUNT) {
           LFOtoFilterz[((FXS_COUNT * fx_idx) + gg.fx[fx_idx].LFOonfilterz)]->connect();
           LFOtoFilterzR[((FXS_COUNT * fx_idx) + gg.fx[fx_idx].LFOonfilterz)]->connect();
-          call_restart_lfo(gg.fx[fx_idx].LFOonfilterz);
+        
+          _lf.restartLFO((gg.fx[fx_idx].LFOonfilterz)%OSCS_COUNT);
         }
 
       }

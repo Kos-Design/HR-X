@@ -54,18 +54,7 @@ void setupSD() {
 void call_sn_show(){
   _sn.show();
 }
-void call_ad_show(){
-  _ad.show();
-}
-void call_fl_show(){
-  _ft.show();
-}
-void call_mx_show(){
-  _mx.show();
-}
-void call_restart_lfo(int lelfo) {
-  _lf.restartLFO(lelfo%OSCS_COUNT);
-};
+
 void call_allfxcontrolled(){
   _fx.allfxcontrolled();
 }

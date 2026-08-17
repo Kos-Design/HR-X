@@ -18,6 +18,8 @@
 #include "WaveFormer.h"
 #include <USBHost_t36.h>
 #include "SettingsMenu.h"
+#include "SynthMenu.h"
+#include "LfoMenu.h"
 
 USBHost myusb;
 USBHub hub1(myusb);
@@ -41,6 +43,11 @@ VirtualKnobs _vk;
 SettingsMenuRouter _st;
 PresetsMenuRouter _ps;
 EXTMEM Pattern pp ;
+LFOMenuRouter _lf;
+GlideMenuRouter _gd;
+Filter303MenuRouter _ft;
+Mp3PlayerRouter _mp;
+SynthMenuRouter _sn;
 KnobAssigner _ka;
 RecorderMenuRouter _rd;
 SongEditorRouter _se = SongEditorRouter();

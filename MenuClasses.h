@@ -1,3 +1,4 @@
+#include "FilesLister.h"
 #pragma once
 #include "Presets.h"
 
@@ -5,7 +6,7 @@
 #include <Audio.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_GFX.h>
-
+class FilesLister;
 struct CcCalls {
     const char *name;
     void (*tweaker)(byte);
