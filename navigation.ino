@@ -46,7 +46,7 @@ void evalinputs() {
   }
 
   bool backed = false;
-  backed = Pads.get_back();
+  backed = Padded.get_back();
 
   if (backed || (!MULTIPLEXED_PADS && Backb.fallingEdge()))  {
     cancel_pushed_ctl(0);

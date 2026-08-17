@@ -1,4 +1,31 @@
 
+void unplugsynth() {
+
+  // unplugfx();
+  for (int i = 0; i < SYNTH_LINERS_COUNT*OSCS_COUNT; i++) {
+
+    FMwavecords1[i]->disconnect();
+    modulatecords1[i]->disconnect();
+    stringcords1[i]->disconnect();
+    MDdrumcords1[i]->disconnect();
+    drumcords1[i]->disconnect();
+    MDstringcords1[i]->disconnect();
+    MDwavecords1[i]->disconnect();
+    wavelinescords[i]->disconnect();
+  }
+}
+
+void unplugfx() {
+
+  for (int i = 0; i < PMIX_DM_SIZE; i++) {
+    premixesMto[i]->disconnect();
+    premixesMtoR[i]->disconnect();
+  }
+  for (int i = 0; i < FXCORDS_SIZE; i++) {
+    fxcording[i]->disconnect();
+  }
+}
+
 void setupSD() {
   const int chipSelect = 10;
   if (!(SD.begin(chipSelect))) {
@@ -49,9 +76,6 @@ void call_rd_show(){
 void call_setwavetypefromlist(){
   _sn.setwavetypefromlist();
 }
-void call_setwavemixlevel(){
-  _mx.setwavemixlevel();
-}
 
 void call_wf_show(){
   _wf.show();
@@ -81,12 +105,7 @@ void call_lf_show(){
 void call_st_onboardPanel(){
   _st.OnBoardVpanel();
 }
-void call_set_bpms(){
-  _st.setbpms();
-}
-void call_refresh_flash_track(){
-  _pe.refresh_flash_track();
-}
+
 
 void setup() {
 
@@ -138,7 +157,7 @@ void setup() {
   delay(100);
   setupSD();
   consoler.println((char *)"SD Card OK !");
-  Pads.begin();
+  Padded.begin();
   consoler.println((char *)"Setting up I/O");
   
   pinMode(MULTIPLEXER_PIN, INPUT_PULLUP);
@@ -163,7 +182,7 @@ void setup() {
   _st.set_in_source();
   AudioShield.volume(1.0);
   _rd.playrecordsd_pathed("SOUNDSET/REC/LOOP22#L.RAW");
-  Tocker.attach_24(advance_tick);
+  Tocker.attach_24(_tt.advance_tick);
   Tocker.attach_long(once_in_a_while);
   //clocker.attach_3(fairly_often);
   Tocker.attach_16(at_a_paced_rate);
@@ -258,7 +277,7 @@ void ArbitraryMaxF_ctl(byte cc_value){
 
 void Filter303_ctl(byte cc_value){
   gg.le303filterzwet = cc_value;
-  _ft.le303filterzWet();
+  _mx.le303filterzWet();
 }
 
 void CutOffTweak_ctl(byte cc_value){
@@ -332,7 +351,7 @@ void StartTicking_Trigger_ctl(byte cc_value){
 }
 
 void StopTicking_Trigger_ctl(byte cc_value){
-  stopallnotes();
+  _tt.stopallnotes();
   Tocker.stopticker();
   if (_rd.recorderrecord) {
     _rd.recorderrecord = 0;
@@ -476,7 +495,7 @@ void AdsrRelease_ctl(byte cc_value){
 void Filter303_Knob1_ctl(byte cc_value){
   gg.mixle303ffilterzVknobs[0] = cc_value;
   gg.le303filterzgainz[0] = cc_value;
-  _ft.le303filtercontrols();
+  _mx.le303filtercontrols();
   // gg.le303filterzgainz[0]
   //  gg.mixle303ffilterzVknobs[0]
 }
@@ -484,13 +503,13 @@ void Filter303_Knob1_ctl(byte cc_value){
 void Filter303_Knob2_ctl(byte cc_value){
   gg.mixle303ffilterzVknobs[1] = cc_value;
   gg.le303filterzgainz[1] = cc_value ;
-  _ft.le303filtercontrols();
+  _mx.le303filtercontrols();
 }
 
 void Filter303_Knob3_ctl(byte cc_value){
   gg.mixle303ffilterzVknobs[2] = cc_value;
   gg.le303filterzgainz[2] = cc_value ;
-  _ft.le303filtercontrols();
+  _mx.le303filtercontrols();
 }
      
 void FXBusSelector_ctl(byte cc_value){
@@ -647,7 +666,7 @@ void AudioInVolume_ctl(byte cc_value){
 void SetBPMs_ctl(byte cc_value){
   // bpms
   gg.millitickinterval = map(cc_value, 0, 127, 250, 63);
-  _st.setbpms();
+  _pt.setbpms();
 }
 
 void SaveToNewPattern_Trigger_ctl(byte cc_value){
@@ -794,15 +813,15 @@ void turn_off_stereo(byte cc_value){
 }
 
 void adjust_osc_timee_ctl(byte cc_val) {
-  oscillisc_timee = map(cc_val,0,127, 4, 16);
+  gg.oscilloscope_tscale = map(cc_val,0,127, 4, 16);
 }
 
 void adjust_osc_framerate_ctl(byte cc_val) {
-  osc_framerate = map(cc_val,0,127, 8, 42);
+  gg.osc_framerate = map(cc_val,0,127, 8, 42);
 }
 
 void adjust_osc_refresher_period_ctl(byte cc_val) {
-  osc_refresher_period = 1 + (cc_val / 2) ; 
+  gg.osc_refresher_period = 1 + (cc_val / 2) ; 
 }
 
 void adjust_rota_decrease_ctl(byte cc_val){
@@ -849,14 +868,11 @@ void adjust_waveEditor_pitch_ctl(byte cc_val) {
 }
 
 void spectro_Toggle_ctl(byte unused_cc){
-  showing_oscilloscope = !showing_oscilloscope;
-  stop_spectro();
-  if (showing_oscilloscope) start_spectro();
+  lv.showing_oscilloscope = !lv.showing_oscilloscope;
+  dm.stop_spectro();
+  if (lv.showing_oscilloscope) dm.start_spectro();
 }
 
 void eq_display_Toggle_ctl(byte cc_value){
   lv.showing_eq = !lv.showing_eq ;
-}
-void call_stopallnotes(){
-  stopallnotes();
 }

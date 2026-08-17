@@ -43,7 +43,7 @@ void SongEditorRouter::use_pattern(){
 
           }
           if (pp.sampler_off_pat[lv.tickposition].note != 0) {
-            shutlineroff(gg.samplermidichannel,pp.sampler_off_pat[lv.tickposition].note);
+            _tt.shutlineroff(gg.samplermidichannel,pp.sampler_off_pat[lv.tickposition].note);
               //flash_lines[i]->liner_off();
             }
           for (int i = 0; i < FLASH_LINERS_COUNT; i++) {

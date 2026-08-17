@@ -6,21 +6,6 @@
 #include "FilesLister.h"
 #include "Triggers.h"
 
-const int navlevelpatedit = 2;
-const byte sizeofpatternlistlabels = 8;
-const byte sizeofoptionspattern = 6;
-const char optionspatternlabels[6][12] = {
-    "Transpose", "Shift", "Clear", "Target", "Smooth CC","Merge Pat"};
-
-bool targetNOsampler;
-bool targetNOsynth;
-bool targetNOcc;
-bool interpolOn = 1;
-short letempspattern;
-int previousTp;
-char leparsed[3];
-unsigned long latimeline;
-
 MasterClock* MasterClock::self = nullptr;
 
 MasterClock::MasterClock() {self = this;}
@@ -217,15 +202,16 @@ PatEditRouter* PatEditRouter::self = nullptr;
 
 PatEditRouter::PatEditRouter() {
                     self = this;
-                    this->home_navrange=3;
-                    this->relative_navlevel=2;
-                    this->max_navlevel=5;
-                    this->sublevels_address={4,7,0};
+                    self->home_navrange=3;
+                    self->relative_navlevel=2;
+                    self->max_navlevel=5;
+                    self->sublevels_address={4,7,0};
                     }
+
 
 void PatEditRouter::homer(){
           lv.navrange = TK_TYPES - 1;
-          self->track_type = lv.sublevels[navlevelpatedit];
+          self->track_type = lv.sublevels[self->relative_navlevel];
 
           drawPatternRow();
           dolistpatternlineblocks();
@@ -253,7 +239,7 @@ void PatEditRouter::set_editor_to_sampler(byte liner = self->local_line){
 
 void PatEditRouter::show() {
           dm.clear_3();
-          cell_events[lv.navlevel-navlevelpatedit]();
+          cell_events[lv.navlevel-self->relative_navlevel]();
           dm.dodisplay();
         }
 
@@ -263,13 +249,13 @@ void PatEditRouter::doshownoteline() {
           byte left_spacer = 0;
           byte top_spacer = 16;
           int ncell_x_length = 4;
-          byte note_slct = lv.sublevels[navlevelpatedit + 2];
+          byte note_slct = lv.sublevels[self->relative_navlevel + 2];
           int ncell_y;
           canvasBIG.setCursor(0, 0);
           canvasBIG.print("Note:");
-          canvasBIG.print(lv.sublevels[navlevelpatedit + 2]);
+          canvasBIG.print(lv.sublevels[self->relative_navlevel + 2]);
           canvasBIG.print(" Pos:");
-          canvasBIG.print(lv.sublevels[navlevelpatedit + 3]);
+          canvasBIG.print(lv.sublevels[self->relative_navlevel + 3]);
           for (int notelines = note_slct; notelines > note_slct - 12; notelines--) {
             for (int i = 0; i < PBARS; i++) {
 
@@ -290,13 +276,13 @@ void PatEditRouter::doshownoteline() {
 
 void PatEditRouter::drawPatternRow() {
           // rows of audio sources : synth, sampler, others
-          canvasBIG.drawFastHLine(0, 16 + lv.sublevels[navlevelpatedit] * 8 + 3, 128, SSD1306_WHITE);
+          canvasBIG.drawFastHLine(0, 16 + lv.sublevels[self->relative_navlevel] * 8 + 3, 128, SSD1306_WHITE);
         }
 
 void PatEditRouter::reshift_tracks_display() {
           //6 is max visible lines of 8px in 48px
           for (int i = 0 ; i < 6 ; i++) {
-            set_editor_type[self->track_type]((i + lv.sublevels[navlevelpatedit+1])%self->liners_count);
+            set_editor_type[self->track_type]((i + lv.sublevels[self->relative_navlevel+1])%self->liners_count);
             for (int j = 0 ; j < PBARS ; j++) {
               self->visible_tracks[i][j] = (bool)(self->_on_part[j].velocity);
             }
@@ -364,7 +350,7 @@ int PatEditRouter::grid_start_note() {
         }
 
 void PatEditRouter::terminatenotesinbetween() {
-          for (int i = min(lv.sublevels[navlevelpatedit + 3] + 1,PBARS-1); i < lv.sublevels[navlevelpatedit + 4]; i++) {
+          for (int i = min(lv.sublevels[self->relative_navlevel + 3] + 1,PBARS-1); i < lv.sublevels[self->relative_navlevel + 4]; i++) {
             self->_on_part[i] = {0,0,0};
             self->_off_part[i] = {0,0,0};
           }
@@ -384,12 +370,12 @@ void PatEditRouter::drawCursorCol() {
 void PatEditRouter::track_selector() {
           reshift_tracks_display();
           lv.navrange = self->liners_count - 1;
-          self->local_line = lv.sublevels[navlevelpatedit+1];
+          self->local_line = lv.sublevels[self->relative_navlevel+1];
           set_editor_type[self->track_type](self->local_line);
           show_track_header();
           show_lines_events();
           dm.dodisplay();
-          lv.sublevels[navlevelpatedit + 2] = self->grid_start_note();
+          lv.sublevels[self->relative_navlevel + 2] = self->grid_start_note();
         }
 
 void PatEditRouter::show_track_header(){
@@ -414,9 +400,9 @@ void PatEditRouter::note_selector() {
           //canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
           draw_velobars();
           dm.dodisplay();
-          lv.sublevels[navlevelpatedit + 3] = lv.tickposition;
-          if (lv.sublevels[navlevelpatedit+2] == 0 ){
-            lv.sublevels[navlevelpatedit + 2] = self->grid_start_note();
+          lv.sublevels[self->relative_navlevel + 3] = lv.tickposition;
+          if (lv.sublevels[self->relative_navlevel+2] == 0 ){
+            lv.sublevels[self->relative_navlevel + 2] = self->grid_start_note();
           }
         }
 
@@ -428,14 +414,14 @@ void PatEditRouter::start_cell_setter() {
           display.clearDisplay();
           lv.navrange = 31;
           canvasBIG.fillRect(0, 32,127,64-32, SSD1306_BLACK);
-          lv.sublevels[navlevelpatedit + 4] = lv.sublevels[navlevelpatedit + 3];
+          lv.sublevels[self->relative_navlevel + 4] = lv.sublevels[self->relative_navlevel + 3];
           sync_temp();
           doshownoteline();
           canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_WHITE);
           drawCursorCol();
           draw_velobars();
           dm.dodisplay();
-          lv.retroaction = lv.sublevels[navlevelpatedit + 2] ;
+          lv.retroaction = lv.sublevels[self->relative_navlevel + 2] ;
         }
 
 void PatEditRouter::draw_velobars(){
@@ -449,22 +435,22 @@ void PatEditRouter::draw_velobars(){
 void PatEditRouter::stretch_cell_length() {
           self->paterning = false ;
 
-          byte note_we_found = self->_on_part[lv.sublevels[navlevelpatedit + 3]].velocity;
+          byte note_we_found = self->_on_part[lv.sublevels[self->relative_navlevel + 3]].velocity;
           if (note_we_found) {
             //delete previous key if present
             set_cell_at_pos(0,0,0);
             dm.returntonav(lv.navlevel-1,127,note_we_found);
           } else {
             self->addinglength = 1;
-            self->_temp_part[lv.sublevels[navlevelpatedit + 3]].channel = ((int[2]){gg.synthmidichannel,gg.samplermidichannel})[self->track_type];
-            self->_temp_part[lv.sublevels[navlevelpatedit + 3]].note = (byte)lv.sublevels[navlevelpatedit + 2];
-            self->_temp_part[lv.sublevels[navlevelpatedit + 3]].velocity = (byte)64;
+            self->_temp_part[lv.sublevels[self->relative_navlevel + 3]].channel = ((int[2]){gg.synthmidichannel,gg.samplermidichannel})[self->track_type];
+            self->_temp_part[lv.sublevels[self->relative_navlevel + 3]].note = (byte)lv.sublevels[self->relative_navlevel + 2];
+            self->_temp_part[lv.sublevels[self->relative_navlevel + 3]].velocity = (byte)64;
 
             lv.navrange = 31;
-            self->_length_part[lv.sublevels[navlevelpatedit + 3]] = max( (lv.sublevels[navlevelpatedit + 4] - lv.sublevels[navlevelpatedit + 3]) * 4,4);
+            self->_length_part[lv.sublevels[self->relative_navlevel + 3]] = max( (lv.sublevels[self->relative_navlevel + 4] - lv.sublevels[self->relative_navlevel + 3]) * 4,4);
             _refresher[self->track_type]();
             display.clearDisplay();
-            lv.sublevels[navlevelpatedit + 5] = self->_temp_part[lv.sublevels[navlevelpatedit + 3]].velocity;
+            lv.sublevels[self->relative_navlevel + 5] = self->_temp_part[lv.sublevels[self->relative_navlevel + 3]].velocity;
             //doshownoteline2();
             doshownoteline();
             canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_INVERSE);
@@ -479,7 +465,7 @@ void PatEditRouter::stretch_cell_velocity() {
           self->paterning = true ;
 
           self->addinglength = 0;
-          self->_temp_part[lv.sublevels[navlevelpatedit + 3]].velocity = lv.sublevels[navlevelpatedit + 5];
+          self->_temp_part[lv.sublevels[self->relative_navlevel + 3]].velocity = lv.sublevels[self->relative_navlevel + 5];
           display.clearDisplay();
           doshownoteline();
           canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_INVERSE);
@@ -638,8 +624,8 @@ void PatEditRouter::sanitize_sampler_partition(){
         }
 
 void PatEditRouter::set_cell_at_pos(byte ch_, byte nt_, byte ve_){
-  byte sub3 = lv.sublevels[navlevelpatedit + 3];
-  byte sub4 = lv.sublevels[navlevelpatedit + 4];
+  byte sub3 = lv.sublevels[self->relative_navlevel + 3];
+  byte sub4 = lv.sublevels[self->relative_navlevel + 4];
   self->_on_part[sub3] = {ch_,nt_,ve_};
   byte laOffpos;
   self->_length_part[sub3] = max((sub4 - sub3) * 4,4);
@@ -658,14 +644,14 @@ void PatEditRouter::set_cell_at_pos(byte ch_, byte nt_, byte ve_){
 
 void PatEditRouter::set_cell_velocity() {
   lv.previousnavlevel = lv.navlevel;
-  byte sub3 = lv.sublevels[navlevelpatedit + 3];
-  byte sub4 = lv.sublevels[navlevelpatedit + 4] ;
-  set_cell_at_pos(((int[2]){gg.synthmidichannel,gg.samplermidichannel})[self->track_type],lv.sublevels[navlevelpatedit + 2],self->_temp_part[sub3].velocity);
+  byte sub3 = lv.sublevels[self->relative_navlevel + 3];
+  byte sub4 = lv.sublevels[self->relative_navlevel + 4] ;
+  set_cell_at_pos(((int[2]){gg.synthmidichannel,gg.samplermidichannel})[self->track_type],lv.sublevels[self->relative_navlevel + 2],self->_temp_part[sub3].velocity);
   if (!self->_temp_part[sub3].velocity){
     set_cell_at_pos(0,0,0);
   }
   _refresher[self->track_type]();
-  dm.returntonav(navlevelpatedit + 3,31,sub4);
+  dm.returntonav(self->relative_navlevel + 3,31,sub4);
 }
 
 void PatEditRouter::computelenghtmesureoffline_synth() {
@@ -729,22 +715,20 @@ POptionsRouter* POptionsRouter::self = nullptr;
 
 POptionsRouter::POptionsRouter() {
                     self = this;
-                    this->home_navrange=3;
-                    this->relative_navlevel=2;
-                    this->max_navlevel=5;
-                    this->sublevels_address={4,0,0};
-                    //home method not really used yet
-                    //this->set_home(call_fx_mainpanel);
+                    self->home_navrange = sizeofoptionspattern - 1;
+                    self->relative_navlevel=2;
+                    self->max_navlevel=5;
+                    self->sublevels_address={4,0,0};
                     }
 
 void POptionsRouter::clearlapattern() {
-          if (!targetNOsynth || lv.songplaying) {
+          if (!self->targetNOsynth || lv.songplaying) {
             clearsynthpatternline();
           }
-          if (!targetNOsampler || lv.songplaying) {
+          if (!self->targetNOsampler || lv.songplaying) {
             clearsamplerpatternline();
           }
-          if (!targetNOcc || lv.songplaying) {
+          if (!self->targetNOcc || lv.songplaying) {
             clearCCline();
           }
           // cc as well
@@ -809,7 +793,7 @@ void POptionsRouter::optionspattern() {
           // char optionspatternlabels[sizeofoptionspattern][12] = {"Transpose","Shift",
           // "Clear", "Target" };
           if (lv.navlevel == 2) {
-            lv.navrange = sizeofoptionspattern - 1;
+            lv.navrange = self->home_navrange;
             optionspatterndisplays();
 
             if (lv.sublevels[2] == 1) {
@@ -824,18 +808,18 @@ void POptionsRouter::optionspattern() {
 
             if (lv.sublevels[2] == 4) {
               // lv.navrange = 14 ;
-              interpolOn = !interpolOn;
-              dm.returntonav(2, sizeofoptionspattern - 1,lv.sublevels[2]);
+              self->interpolOn = !self->interpolOn;
+              dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
             }
             if (lv.sublevels[2] == 5) {
               // lv.navrange = 14 ;
               merge_synth_partition_liners();
-              dm.returntonav(2, sizeofoptionspattern - 1,lv.sublevels[2]);
+              dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
             }
             if (lv.sublevels[2] == 2) {
               // lv.navrange = 14 ;
               clearlapattern();
-              dm.returntonav(2, sizeofoptionspattern - 1,lv.sublevels[2]);
+              dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
             }
 
             if (lv.sublevels[2] == 0) {
@@ -860,32 +844,32 @@ void POptionsRouter::optionspattern() {
               doShifter();
             }
 
-            dm.returntonav(2, sizeofoptionspattern - 1,lv.sublevels[2]);
+            dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
 
             
           }
         }
 
 void POptionsRouter::dotranspose() {
-          if (!targetNOsynth) {
+          if (!self->targetNOsynth) {
             dotransposesynth();
           }
-          if (!targetNOsampler) {
+          if (!self->targetNOsampler) {
             dotransposesampler();
           }
-          if (!targetNOcc) {
+          if (!self->targetNOcc) {
             dotransposeCC();
           }
         }
 
 void POptionsRouter::doShifter() {
-          if (!targetNOsynth) {
+          if (!self->targetNOsynth) {
             doShiftersynth();
           }
-          if (!targetNOsampler) {
+          if (!self->targetNOsampler) {
             doShiftersampler();
           }
-          if (!targetNOcc) {
+          if (!self->targetNOcc) {
             doShifterCC();
           }
         }
@@ -1096,7 +1080,7 @@ void POptionsRouter::dotransposesampler() {
 
             shiftnotes2up(abs(lv.sublevels[3] - 7));
           }
-          call_refresh_flash_track();
+          _pe.refresh_flash_track();
         }
 
 void POptionsRouter::doShiftersampler() {
@@ -1107,7 +1091,7 @@ void POptionsRouter::doShiftersampler() {
 
             shiftnotes2right(abs(lv.sublevels[3] - 16));
           }
-          call_refresh_flash_track();
+          _pe.refresh_flash_track();
         }
 
 void POptionsRouter::shiftnotes2up(int leshifter) {
@@ -1270,50 +1254,50 @@ void POptionsRouter::showlestargetdisplays() {
           case 0:
             canvasBIG.print("All");
 
-            targetNOsampler = 0;
-            targetNOsynth = 0;
-            targetNOcc = 0;
+            self->targetNOsampler = 0;
+            self->targetNOsynth = 0;
+            self->targetNOcc = 0;
             break;
           case 1:
             // canvasBIG.setTextSize(1);
             canvasBIG.print("Synth");
-            targetNOsampler = 1;
-            targetNOsynth = 0;
-            targetNOcc = 1;
+            self->targetNOsampler = 1;
+            self->targetNOsynth = 0;
+            self->targetNOcc = 1;
             break;
           case 2:
             canvasBIG.print("Sampler");
-            targetNOsampler = 0;
-            targetNOsynth = 1;
-            targetNOcc = 1;
+            self->targetNOsampler = 0;
+            self->targetNOsynth = 1;
+            self->targetNOcc = 1;
             break;
           case 3:
             canvasBIG.print("CCs");
-            targetNOsampler = 1;
-            targetNOsynth = 1;
-            targetNOcc = 0;
+            self->targetNOsampler = 1;
+            self->targetNOsynth = 1;
+            self->targetNOcc = 0;
             break;
           case 4:
             canvasBIG.println("Synth");
             canvasBIG.print(" + CCs");
 
-            targetNOsampler = 1;
-            targetNOsynth = 0;
-            targetNOcc = 0;
+            self->targetNOsampler = 1;
+            self->targetNOsynth = 0;
+            self->targetNOcc = 0;
             break;
           case 5:
             canvasBIG.println("Sampler");
             canvasBIG.print(" + CCs");
-            targetNOsampler = 0;
-            targetNOsynth = 1;
-            targetNOcc = 0;
+            self->targetNOsampler = 0;
+            self->targetNOsynth = 1;
+            self->targetNOcc = 0;
             break;
           case 6:
             canvasBIG.println("Sampler");
             canvasBIG.print("Synth");
-            targetNOsampler = 0;
-            targetNOsynth = 0;
-            targetNOcc = 1;
+            self->targetNOsampler = 0;
+            self->targetNOsynth = 0;
+            self->targetNOcc = 1;
             break;
           default:
             break;
@@ -1329,7 +1313,7 @@ void POptionsRouter::optionspatterndisplays() {
           if (lv.sublevels[2] == 4) {
             canvasBIG.setCursor(0, 16);
             canvasBIG.setTextSize(2);
-            if (interpolOn) {
+            if (self->interpolOn) {
               canvasBIG.print("On");
             } else {
               canvasBIG.print("Off");
@@ -1438,290 +1422,12 @@ void PatternsMenuRouter::parsepattern() {
           
           lv.locked_fileing = 0 ;
 }
-void PatternsMenuRouter::parsepattern_old() {
-  /*
-          if (lv.locked_fileing)
-            return;
-          lv.locked_fileing = 1 ;
-          self->catalog->refresh_files_names();
-          // timescaller should be BPM dependant
-          //    latimelineshifter = ((60000/19200)*PBARS) ;
-          // (60.0/lv.BPMs)*1000)*PBARS) = 1 bar millis
-          const int pat_parser_size = 32000;
-          char received_pattern[pat_parser_size];
-          byte laccnote;
-          byte parsedchannel;
-          int letimescaler = 3125;
-          File lepatternfile = SD.open(self->catalog->get_current_file_path(0).c_str());
-          if (lepatternfile) {
-            for (int i = 0; i < pat_parser_size; i++) {
-              received_pattern[i] = lepatternfile.read();
-            }
-            Parser parserp((byte *)received_pattern, pat_parser_size);
-            parserp.Reset();
-            letempspattern = 0;
-            int lenint = 0;
-
-            previousTp = 5;
-            leparsed[2] = (char)'\0';
-            leparsed[1] = (char)'1';
-            leparsed[0] = (char)'1';
-            //TODO dumb way to trigger, looking for f to find 'Off' string...
-            if (parserp.Search('f')) {
-              parserp.Reset();
-              lenint = 0;
-
-              for (int k = 0; k < 128; k++) {
-                while (!(leparsed[0] == (char)'O' && leparsed[1] == (char)'f')) {
-                  parserp.JumpTo(Parser::IsDigit);
-                  letempspattern = round((parserp.Read_Int32() / letimescaler));
-
-                  if (letempspattern > 31) {
-                    leparsed[1] = (char)'z';
-                    leparsed[0] = (char)'z';
-                    break;
-                  }
-
-                  parserp.JumpTo(Parser::IsLetter);
-                  for (int i = 0; i < 2; i++) {
-                    leparsed[i] = parserp.Read_Char();
-                  }
-                  if ((leparsed[0] == (char)'O' && leparsed[1] == (char)'n') ||
-                      (leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
-                    leparsed[1] = (char)'z';
-                    leparsed[0] = (char)'z';
-
-                    parserp.SkipUntil(parserp.IsNewLine);
-                  }
-                }
-
-                if (leparsed[0] == (char)'O' && leparsed[1] == (char)'n') {
-                  leparsed[1] = (char)'z';
-                  leparsed[0] = (char)'z';
-                  break;
-                }
-                if (leparsed[0] == (char)'P' && leparsed[1] == (char)'a') {
-                  leparsed[1] = (char)'z';
-                  leparsed[0] = (char)'z';
-                  break;
-                }
-                if (letempspattern == previousTp) {
-                  lenint++;
-                  if ((lenint > SYNTH_LINERS_COUNT + FLASH_LINERS_COUNT - 1) ||
-                      (leparsed[0] == (char)'O' && leparsed[1] == (char)'n') ||
-                      (leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
-                    // parserp.SkipUntil(parserp.IsNewLine);
-                    letempspattern = round((parserp.Read_Int32() / letimescaler));
-                    lenint = 0;
-                  }
-                } else {
-                  lenint = 0;
-                  previousTp = letempspattern;
-                }
-                if (letempspattern > 31) {
-                  leparsed[1] = (char)'z';
-                  leparsed[0] = (char)'z';
-                  break;
-                }
-
-                parserp.JumpTo(Parser::IsDigit);
-
-                parsedchannel = parserp.Read_Int32();
-                // not sure why I was using parsedchannel == 0 ||
-                if (parsedchannel == gg.samplermidichannel) {
-                  leparsed[1] = (char)'z';
-                  leparsed[0] = (char)'z';
-                  break;
-                }
-
-                pp.synth_off_pat[lenint][letempspattern][0] = parsedchannel;
-                parserp.JumpTo(Parser::IsDigit);
-                pp.synth_off_pat[lenint][letempspattern][1] = parserp.Read_Int32();
-                parserp.JumpTo(Parser::IsDigit);
-                pp.synth_off_pat[lenint][letempspattern][2] = parserp.Read_Int32();
-                pp.synth_off_pat[lenint][letempspattern][2] = 0;
-                pp.track_cells[Synth][letempspattern] = 1;
-                leparsed[1] = (char)'z';
-                leparsed[0] = (char)'z';
-                parserp.SkipUntil(parserp.IsNewLine);
-              }
-            }
-
-            parserp.Reset();
-            letempspattern = 0;
-            previousTp = 5;
-            leparsed[1] = (char)'z';
-            leparsed[0] = (char)'z';
-            //TODO dumb way to trigger, looking for n to find 'On' string...
-            if (parserp.Search('n')) {
-              parserp.Reset();
-              lenint = 0;
-
-              for (int k = 0; k < 128; k++) {
-                while (!(leparsed[0] == (char)'O' && leparsed[1] == (char)'n')) {
-                  parserp.JumpTo(Parser::IsDigit);
-                  letempspattern = round((parserp.Read_Int32() / letimescaler));
-                  if (letempspattern > 31) {
-                    break;
-                  }
-
-                  parserp.JumpTo(Parser::IsLetter);
-                  for (int i = 0; i < 2; i++) {
-                    leparsed[i] = parserp.Read_Char();
-                  }
-                  if ((leparsed[0] == (char)'O' && leparsed[1] == (char)'f') ||
-                      (leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
-                    leparsed[1] = (char)'z';
-                    leparsed[0] = (char)'z';
-
-                    parserp.SkipUntil(parserp.IsNewLine);
-                  }
-                }
-
-                if (leparsed[0] == (char)'O' && leparsed[1] == (char)'f') {
-                  break;
-                }
-                if (leparsed[0] == (char)'P' && leparsed[1] == (char)'a') {
-                  break;
-                }
-                if (letempspattern == previousTp) {
-                  lenint++;
-                  if ((lenint > SYNTH_LINERS_COUNT + FLASH_LINERS_COUNT - 1) ||
-                      (leparsed[0] == (char)'O' && leparsed[1] == (char)'f') ||
-                      (leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
-                    // parserp.SkipUntil(parserp.IsNewLine);
-                    letempspattern = round((parserp.Read_Int32() / letimescaler));
-                    lenint = 0;
-                  }
-                } else {
-                  lenint = 0;
-                  previousTp = letempspattern;
-                }
-                if (letempspattern > 31) {
-                  break;
-                }
-
-                parserp.JumpTo(Parser::IsDigit);
-
-                parsedchannel = parserp.Read_Int32();
-                //
-                //if (parsedchannel == 0) {
-                //  break;
-                //}
-                if (parsedchannel == gg.synthmidichannel) {
-                  pp.synth_partition[lenint][letempspattern].channel = parsedchannel;
-                  parserp.JumpTo(Parser::IsDigit);
-                  pp.synth_partition[lenint][letempspattern].note = parserp.Read_Int32();
-                  parserp.JumpTo(Parser::IsDigit);
-                  pp.synth_partition[lenint][letempspattern].velocity = parserp.Read_Int32();
-                }
-                if (parsedchannel == gg.samplermidichannel) {
-
-                  pp.sampler_partition[lenint][letempspattern].channel = parsedchannel;
-                  parserp.JumpTo(Parser::IsDigit);
-                  pp.sampler_partition[lenint][letempspattern].note = parserp.Read_Int32();
-                  parserp.JumpTo(Parser::IsDigit);
-                  pp.sampler_partition[lenint][letempspattern].velocity = parserp.Read_Int32();
-                  addnoteoff2next(pp.sampler_partition[lenint][letempspattern].note, letempspattern);
-                  pp.track_cells[Flash][letempspattern] = 1;
-                }
-
-                pp.track_cells[Synth][letempspattern] = 1;
-                leparsed[1] = (char)'z';
-                leparsed[0] = (char)'z';
-                parserp.SkipUntil(parserp.IsNewLine);
-
-              }
-            }
-
-            parserp.Reset();
-            letempspattern = 0;
-            previousTp = 5;
-            leparsed[1] = (char)'z';
-            leparsed[0] = (char)'z';
-            //TODO dumb way to trigger, looking for a to find 'Pa' string...
-            if (parserp.Search('a')) {
-              parserp.Reset();
-              lenint = 0;
-              bool keep_looping ;
-              for (int ittr = 0 ; ittr < 128 ; ittr++ ) {
-                keep_looping = true ;
-                while (keep_looping && !(leparsed[0] == (char)'P' && leparsed[1] == (char)'a')) {
-                  parserp.JumpTo(Parser::IsDigit);
-                  letempspattern = round((parserp.Read_Int32() / letimescaler));
-                  if (letempspattern > 31) {
-                    keep_looping = false ;
-                  }
-
-                  parserp.JumpTo(Parser::IsLetter);
-                  for (int i = 0; i < 2; i++) {
-                    leparsed[i] = parserp.Read_Char();
-                  }
-                  if ((leparsed[0] == (char)'O' && leparsed[1] == (char)'f') ||
-                      (leparsed[0] == (char)'O' && leparsed[1] == (char)'n')) {
-                    leparsed[1] = (char)'z';
-                    leparsed[0] = (char)'z';
-                    parserp.SkipUntil(parserp.IsNewLine);
-                  }
-                }
-
-                if ((leparsed[0] == (char)'O' && leparsed[1] == (char)'f') ||
-                    (leparsed[0] == (char)'O' && leparsed[1] == (char)'n')) {
-                  break;
-                }
-
-                if (letempspattern == previousTp) {
-                  lenint++;
-                  if ((lenint > SYNTH_LINERS_COUNT - 1) ||
-                      (leparsed[0] == (char)'O' && leparsed[1] == (char)'f') ||
-                      (leparsed[0] == (char)'O' && leparsed[1] == (char)'n')) {
-                    leparsed[1] = (char)'z';
-                    leparsed[0] = (char)'z';
-                    parserp.SkipUntil(parserp.IsNewLine);
-                    letempspattern = round((parserp.Read_Int32() / letimescaler));
-                    lenint = 0;
-                  }
-                } else {
-                  lenint = 0;
-                  previousTp = letempspattern;
-                }
-                if (letempspattern > 31) {
-                  break;
-                }
-                parserp.JumpTo(Parser::IsDigit);
-                // skip channel as we dont care
-                if (parserp.Read_Int32() == 0) {
-                  break;
-                }
-                parserp.JumpTo(Parser::IsDigit);
-                laccnote = parserp.Read_Int32();
-                parserp.JumpTo(Parser::IsDigit);
-                pp.cc_partition[laccnote][letempspattern] = parserp.Read_Int32();
-                leparsed[1] = (char)'z';
-                leparsed[0] = (char)'z';
-                parserp.SkipUntil(parserp.IsNewLine);
-              }
-            }
-            parserp.Reset();
-
-            letempspattern = 0;
-            leparsed[1] = (char)'z';
-            leparsed[0] = (char)'z';
-            lenint = 0;
-
-            lepatternfile.close();
-            _pe.refresh_patterns();
-            set_ccs();
-          }
-          lv.locked_fileing = 0 ;
-          */
-        }
 
 void PatternsMenuRouter::doPatternsmenu() {
           const char* patternlistlabels[] = {
               "Edit", "Save", "Load", "Copy", "Delete", "Params", "Clear", "C-Edit"};
           
-          dm.main_panel(patternlistlabels,1,sizeofpatternlistlabels);
+          dm.main_panel(patternlistlabels,1,self->home_navrange);
         }
 
 void PatternsMenuRouter::deletepattern() {
@@ -1743,102 +1449,7 @@ void PatternsMenuRouter::copypattern() {
           self->catalog->list_files();
         }
 
-void PatternsMenuRouter::midifileliner(File &pat_filer,int liner, int ticker) {
 
-          pat_filer.print(latimeline);
-          pat_filer.print(" On ch=");
-          int leintc = (int)pp.synth_partition[liner][ticker].channel;
-          pat_filer.print(leintc);
-          pat_filer.print(" n=");
-          int leintn = (int)pp.synth_partition[liner][ticker].note;
-          pat_filer.print(leintn);
-          pat_filer.print(" v=");
-          int leintv = (int)pp.synth_partition[liner][ticker].velocity;
-          pat_filer.print(leintv);
-          pat_filer.print("\n");
-        }
-
-void PatternsMenuRouter::midifilelinerSampler(File &pat_filer,int liner, int ticker) {
-
-          pat_filer.print(latimeline);
-          pat_filer.print(" On ch=");
-          int leintc = (int)pp.sampler_partition[liner][ticker].channel;
-          pat_filer.print(leintc);
-          pat_filer.print(" n=");
-          int leintn = (int)pp.sampler_partition[liner][ticker].note;
-          pat_filer.print(leintn);
-          pat_filer.print(" v=");
-          int leintv = (int)pp.sampler_partition[liner][ticker].velocity;
-          pat_filer.print(leintv);
-          pat_filer.print("\n");
-        }
-
-void PatternsMenuRouter::midifilelinerOff(File &pat_filer, int liner, int ticker) {
-          pat_filer.print(latimeline);
-          pat_filer.print(" Off ch=");
-          int leintc = (int)pp.synth_off_pat[liner][ticker].channel;
-          pat_filer.print(leintc);
-          pat_filer.print(" n=");
-          int leintn = (int)pp.synth_off_pat[liner][ticker].note;
-          pat_filer.print(leintn);
-          pat_filer.print(" v=");
-          int leintv = (int)pp.synth_off_pat[liner][ticker].velocity;
-          pat_filer.print(leintv);
-          pat_filer.print("\n");
-        }
-
-void PatternsMenuRouter::midifileCC(File &pat_filer,int lecc, int ticker) {
-          pat_filer.print(latimeline);
-          pat_filer.print(" Par ch=");
-          int leintc = (int)gg.synthmidichannel;
-          pat_filer.print(leintc);
-          pat_filer.print(" c=");
-          int leintn = lecc;
-          pat_filer.print(leintn);
-          pat_filer.print(" v=");
-          int leintv = (int)pp.cc_partition[lecc][ticker];
-          pat_filer.print(leintv);
-          pat_filer.print("\n");
-        }
-
-void PatternsMenuRouter::write_midi_info(File &pat_filer) {
-          latimeline = 0;
-          // latimelineshifter = ((60000/19200)*PBARS) ;
-          // (60.0/lv.BPMs)*1000)*PBARS) = 1 bar millis 92 original
-          pat_filer.print("MFile 0 1 19200\nMTrk\n");
-          // for (int i = 0 ; i<5 ; i++ ) {
-
-          for (int t = 0; t < PBARS; t++) {
-
-            latimeline = (3125 * t);
-            for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
-              if (pp.synth_off_pat[j][t].note != 0) {
-                midifilelinerOff(pat_filer,j, t);
-              }
-            }
-            for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
-              if (pp.synth_partition[j][t].note != 0) {
-                midifileliner(pat_filer,j, t);
-              }
-            }
-            for (int j = 0; j < FLASH_LINERS_COUNT; j++) {
-              if (pp.sampler_partition[j][t].note != 0) {
-                midifilelinerSampler(pat_filer,j, t);
-              }
-            }
-
-            for (int j = 0; j < 128; j++) {
-              if (pp.cc_partition[j][t] != 127) {
-                midifileCC(pat_filer,j, t);
-              }
-            }
-          }
-
-          //}
-          pat_filer.print(100000);
-          pat_filer.print(" Meta TrkEnd\n");
-          pat_filer.print("TrkEnd\n");
-        }
 
 void PatternsMenuRouter::writelemidi() {
           if (lv.locked_fileing)
@@ -1880,9 +1491,15 @@ void PatternsMenuRouter::set_arp_type(){
       }
       self->arpegiatingNote[i] = 0;
     }
-    //_tt.stopallnotes();
-    call_stopallnotes();
+    _tt.stopallnotes();
   }
+}
+
+void PatternsMenuRouter::setbpms() {
+  //clocker.setDivision(4);
+  //  lv.BPMs = (60000.0/gg.millitickinterval)/4.0 ;
+  lv.BPMs = 15000 / gg.millitickinterval;
+  clocker.setBPM(lv.BPMs);
 }
 
 void PatternsMenuRouter::arpegiate_synth() {
@@ -1890,7 +1507,7 @@ void PatternsMenuRouter::arpegiate_synth() {
             self->calledarpegenote[i][0] = 0;
             for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
               if (self->arpegnoteoffin[i][j] == 1) {
-                shutlineroff(gg.synthmidichannel,self->playingarpegiator[i][j]);
+                _tt.shutlineroff(gg.synthmidichannel,self->playingarpegiator[i][j]);
                 self->arpegnoteoffin[i][j] = 0;
                 self->playingarpegiator[i][j] = 0;
               }
@@ -1899,11 +1516,11 @@ void PatternsMenuRouter::arpegiate_synth() {
               }
             }
             if (self->arpegiatingNote[i] != 0) {
-              playarpegenote(i);
+              ap.playarpegenote(i);
             }
           }
           if (lv.stoptickernextcycle) {
-            closeallenvelopes();
+              _tt.stopallnotes();
             if (lv.patternOn != 1) {
               lv.stoptick = 1;
             }

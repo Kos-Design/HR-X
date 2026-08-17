@@ -49,19 +49,17 @@ void FxBus::stopdelayline() {
     }
 
 void FxBus::unplug_fx_line() {
-      AudioNoInterrupts();
-      premixesMto[premixesMto_index]->disconnect();
-      premixesMtoR[premixesMto_index]->disconnect();
-      fxcording[fxcording_index]->disconnect();
-      fxcording[fxcording_index + 1]->disconnect();
-      premixesMto_index = 1000;
-      fxcording_index = 1000;
-      stopdelayline();
-      delayCords[f_index]->disconnect();
-      delayCordsR[f_index]->disconnect();
-      AudioInterrupts();
-      plugged_fx = ALL_FX_TYPES-1;
-    }
-
-
+  AudioNoInterrupts();
+  premixesMto[premixesMto_index]->disconnect();
+  premixesMtoR[premixesMto_index]->disconnect();
+  fxcording[fxcording_index]->disconnect();
+  fxcording[fxcording_index + 1]->disconnect();
+  premixesMto_index = 1000;
+  fxcording_index = 1000;
+  stopdelayline();
+  delayCords[f_index]->disconnect();
+  delayCordsR[f_index]->disconnect();
+  AudioInterrupts();
+  plugged_fx = ALL_FX_TYPES-1;
+}
 

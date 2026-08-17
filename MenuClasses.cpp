@@ -1,7 +1,7 @@
 #include "MenuClasses.h"
 #include <Audio.h>
 #include <Encoder.h>
-
+//#include "Presets.h"
 extern Encoder myEnc;
 
 extern AudioControlSGTL5000 AudioShield;
@@ -15,6 +15,7 @@ void DisplayManager::display_home() {
         Serial.println("ILI_128x64 detected");
     }
 }
+
 void DisplayManager::returntonav(byte lelevel, byte lanavrange, byte t_vraipos) {
   lv.navlevel = lelevel;
   lv.rota_true_pos = t_vraipos;
@@ -246,6 +247,92 @@ void DisplayManager::main_panel(const char* const* menulabels, int lvl, int menu
   }
 }
 
+void DisplayManager::display_oscilloscope(){
+  dm.clear_buffs();
+  for (int x = 0; x < 128; x++) {
+
+    int index = (lv.queue_shift + x) & 127;
+
+    //int y = map(bb.rolling_queue_buff[index], -32768, 32767, 63, 0);
+    //dirty scalling
+    int y = map(bb.rolling_queue_buff[index], -32768/4, 32767/4, 0, 63);
+
+    if (x > 0)
+        canvasBIG.drawLine(
+            x - 1, lv.last_y_peak,
+            x, y,
+            SSD1306_WHITE);
+
+    lv.last_y_peak = y;
+  }
+  display.clearDisplay();
+
+  dm.dodisplay();
+}
+
+void DisplayManager::stop_spectro(){
+  queue1.end();
+  queue1.clear();
+}
+
+void DisplayManager::start_spectro(){
+  queue1.begin();
+}
+
+void DisplayManager::oscilloscope_loop() {
+    if (!lv.showing_oscilloscope) return;
+    while (queue1.available()) {
+
+        int16_t *samples = queue1.readBuffer();
+
+        for (int i = 0; i < 128; i += gg.oscilloscope_tscale) {
+
+            bb.rolling_queue_buff[lv.queue_shift] = samples[i];
+            lv.queue_shift = (lv.queue_shift + 1) & 127;
+        }
+
+        queue1.freeBuffer();
+    }
+
+    if (lv.frameTimer >= gg.osc_framerate) {
+
+        display_oscilloscope();
+
+        lv.frameTimer = 0;
+    }
+}
+
+void DisplayManager::UpdateSpectrum(){
+  if (!lv.showing_eq || !fft256.available())
+      return;
+  for (int i = 0; i < NUM_BARS; i++) {
+        float level = fft256.read(i + 1);
+        level *= fftGain[i];
+        // simple smoothing
+        eqRawBars[i] = eqRawBars[i] * 0.75f + level * 0.25f;
+        int h = eqRawBars[i] * 80.0f;
+        if (h > 63) h = 63;
+        if (h < 0)  h = 0;
+        eqBars[i] = h;
+    }
+    DrawSpectrum64();
+}
+
+void DisplayManager::DrawSpectrum64(){
+    display.clearDisplay();
+
+    for (int i = 0; i < 64; i++)
+    {
+        int h = eqBars[i];
+        display.drawFastVLine(
+            i * 2,
+            SCREEN_HEIGHT - h,
+            h,
+            WHITE);
+    }
+
+    display.display();
+}
 void DisplayManager::clear_buffs(){
             canvasBIG.fillScreen(SSD1306_BLACK);
             canvastitle.fillScreen(SSD1306_BLACK);
@@ -558,7 +645,13 @@ void GlobalMixer::restore_wmixer_from_temp() {
           }
            lv.temp_buff_armed = 0 ;
         }
-
+void GlobalMixer::le303filterzWet() {
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    les303wet[i]->gain(0, gg.le303filterzwet / 127.0);
+    les303wet[i]->gain(1, (1 - (gg.le303filterzwet / 127.0)));
+  }
+}
+    
 void GlobalMixer::set_wmixer_buff_temp() {
           //Serial.println("buffing");
           for (int i=0; i<12; i++) {
@@ -667,14 +760,29 @@ void GlobalMixer::actionwmixer(byte vknob) {
         }
         
 void GlobalMixer::setwavemixlevel() {
-        // AudioNoInterrupts();
-          for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
-            Wavesmix[j]->gain(lv.oscillator, gg.mixlevelsL[lv.oscillator]/127.0);
-          }
-        // AudioInterrupts();
+// AudioNoInterrupts();
+  for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
+    Wavesmix[j]->gain(lv.oscillator, gg.mixlevelsL[lv.oscillator]/127.0);
+  }
+// AudioInterrupts();
 
-        }
-        
+}
+void GlobalMixer::Wavespreamp303controls() {
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    Wavespreamp303[i]->gain((gg.preampleswaves / 127.0)*2);
+  }
+}       
+
+void GlobalMixer::setle303filterpass(int linei) {
+  les303passes[linei]->gain(0,gg.le303filterzgainz[0]/127.0);
+  les303passes[linei]->gain(1,gg.le303filterzgainz[1]/127.0);
+  les303passes[linei]->gain(2,gg.le303filterzgainz[2]/127.0);
+}
+void GlobalMixer::le303filtercontrols() {
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    setle303filterpass(i);
+  }
+}
 void GlobalMixer::actionwmixerM(int lebus) {
 
           if (lv.navlevel == 2) {
@@ -735,7 +843,6 @@ void SequencerClocker::calculatePPQN() {
   _samplesPerTick = AUDIO_SAMPLE_RATE_EXACT * 60.0 / (_bpm * _PPQN);
 }
 
-extern SequencerClocker clocker;
 
 EXTMEM ClockSink sink;
 

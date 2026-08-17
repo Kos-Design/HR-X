@@ -2,12 +2,15 @@
 #include "Triggers.h"
 #include "Patterns.h"
 #include "Voices.h"
+#include "SongsMenu.h"
 #include "pads.h"
 #include "KnobAssigner.h"
 #include "WaveFormer.h"
 
+void call_setwavetypefromlist();
+void call_allfxcontrolled();
+extern Pads Padded;
 
-extern Pads Pads;
 Arpegiator::Arpegiator() { }
 
 void Arpegiator::initiatearpegesynthliner(byte larpegeline, byte data1, byte data2) {
@@ -27,6 +30,271 @@ void Arpegiator::initiatearpegesynthliner(byte larpegeline, byte data1, byte dat
     synth_lines[free_line]->liner_on(data1, data2);
   }
 }
+void Arpegiator::playarpegenote(byte larpegeline) {
+  if (_pt.arpegemptyticks[larpegeline] > 0) {
+    decrementcrementns(larpegeline);
+    return;
+  }
+  incrementcs(larpegeline);
+  byte relativenote;
+  byte realnotetoplay;
+  relativenote = _tt.all_arpegios[gg.arpegiatortype][_pt.tickgamme[larpegeline]][_pt.ticktriplet[larpegeline]];
+  // realnotetoplay = (byte)(octave*12 + relativenote) ;
+  realnotetoplay = (byte)(_pt.arpegiatingNote[larpegeline] + relativenote);
+  if (gg.arpegmode == 4) {
+    arpegioticker(larpegeline);
+  }
+  _pt.calledarpegenote[larpegeline][0] = realnotetoplay;
+  initiatearpegesynthliner(larpegeline, realnotetoplay, _pt.calledarpegenote[larpegeline][1]);
+  // initiateasynthliner(realnotetoplay, _pt.calledarpegenote[larpegeline][1] );
+  if (gg.arpegmode != 4) {
+    arpegioticker(larpegeline);
+  }
+}
+
+void Arpegiator::decrementgamme(byte larpegeline) {
+
+  if (_pt.tickgamme[larpegeline] > (int)(gg.arpegstartoffset / 6)) {
+    _pt.tickgamme[larpegeline]--;
+  } else {
+    _pt.tickgamme[larpegeline] = gg.arpegnumofnotes - 1;
+  }
+}
+
+void Arpegiator::allarpegeoffs() {
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    _pt.calledarpegenote[i][0] = 0;
+    _pt.calledarpegenote[i][1] = 0;
+    for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
+      _pt.playingarpegiator[i][j] = 0;
+      _pt.arpegnoteoffin[i][j] = 0;
+    }
+    _pt.arpegiatingNote[i] = 0;
+  }
+  _tt.stopallnotes();
+
+}
+
+byte Arpegiator::incrementarpegiatingNote(byte lanote) {
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    if (_pt.arpegiatingNote[i] == 0) {
+      _pt.arpegiatingNote[i] = lanote;
+      return i;
+    }
+  }
+  return SYNTH_LINERS_COUNT;
+}
+
+bool Arpegiator::decrementarpegiatingNote() {
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    if (_pt.arpegiatingNote[i] != 0) {
+      _pt.arpegiatingNote[i] = 0;
+      return 1;
+    }
+  }
+  return 0;
+}
+
+void Arpegiator::randomdirtest(byte larpegeline) {
+  byte lerandom = (byte)random(0, 101);
+  if (lerandom > 50) {
+    _pt.tripletdirection[larpegeline] = !_pt.tripletdirection[larpegeline];
+    // ticklagamme(larpegeline);
+  }
+  if (gg.arpegmode == 4) {
+    randomgammedirtest(larpegeline);
+  }
+}
+
+void Arpegiator::randomgammedirtest(byte larpegeline) {
+  byte lerandom = (byte)random(0, 101);
+  if (lerandom > 50) {
+
+    decrementgamme(larpegeline);
+  } else {
+    ticklagamme(larpegeline);
+  }
+}
+
+void Arpegiator::tickarpegedown(byte larpegeline) {
+  if (_pt.ticktriplet[larpegeline] > 0) {
+    _pt.ticktriplet[larpegeline]--;
+  } else {
+    _pt.ticktriplet[larpegeline] = 2;
+    if (gg.arpegmode == 1 || gg.arpegmode == 5 || gg.arpegmode == 4) {
+      decrementgamme(larpegeline);
+    }
+    if (gg.arpegmode == 3) {
+      ticklagamme(larpegeline);
+      _pt.tripletdirection[larpegeline] = 1;
+      _pt.ticktriplet[larpegeline] = 0;
+    }
+    if (gg.arpegmode == 2) {
+      _pt.tripletdirection[larpegeline] = 1;
+      _pt.ticktriplet[larpegeline] = 0;
+    }
+    if (gg.arpegmode == 5) {
+      _pt.tripletdirection[larpegeline] = 1;
+      _pt.ticktriplet[larpegeline] = 0;
+    }
+    if (gg.arpegmode == 6) {
+      _pt.tripletdirection[larpegeline] = 1;
+      _pt.ticktriplet[larpegeline] = 0;
+    }
+    if (gg.arpegmode == 4) {
+      randomdirtest(larpegeline);
+      // randomgammedirtest(larpegeline);
+    }
+    if (gg.arpegmode == 7) {
+      randomdirtest(larpegeline);
+      randomgammedirtest(larpegeline);
+    }
+  }
+}
+
+void Arpegiator::tickarpege(byte larpegeline) {
+  _pt.ticktriplet[larpegeline]++;
+  if (_pt.ticktriplet[larpegeline] > 2) {
+    _pt.ticktriplet[larpegeline] = 0;
+    if (gg.arpegmode == 0 || gg.arpegmode == 2 || gg.arpegmode == 3 || gg.arpegmode == 4) {
+      ticklagamme(larpegeline);
+    }
+    if (gg.arpegmode == 3) {
+      _pt.tripletdirection[larpegeline] = 0;
+
+      _pt.ticktriplet[larpegeline] = 2;
+    }
+    if (gg.arpegmode == 2) {
+      _pt.tripletdirection[larpegeline] = 0;
+
+      _pt.ticktriplet[larpegeline] = 2;
+    }
+    if (gg.arpegmode == 5) {
+      _pt.tripletdirection[larpegeline] = 0;
+
+      _pt.ticktriplet[larpegeline] = 2;
+    }
+    if (gg.arpegmode == 6) {
+      _pt.tripletdirection[larpegeline] = 0;
+
+      _pt.ticktriplet[larpegeline] = 2;
+      decrementgamme(larpegeline);
+    }
+    if (gg.arpegmode == 4) {
+      randomdirtest(larpegeline);
+      //
+    }
+    if (gg.arpegmode == 7) {
+      randomdirtest(larpegeline);
+      randomgammedirtest(larpegeline);
+    }
+  }
+}
+
+void Arpegiator::synth_arpegiator_ticker(byte data1, byte data2, byte larpegeline) {
+  // for (int i = 0 ; i < SYNTH_LINERS_COUNT ; i++ ) {
+  // if (_pt.arpegiatingNote[larpegeline] == data1 ) {
+  // for (int i = 0 ; i < SYNTH_LINERS_COUNT ; i++ ) {
+  _pt.calledarpegenote[larpegeline][1] = data2;
+  _pt.calledarpegenote[larpegeline][0] = 0;
+  // }
+  if (gg.arpegstartoffset > 0) {
+    _pt.tickgamme[larpegeline] = (byte)((int)(gg.arpegstartoffset / 3.0));
+    _pt.ticktriplet[larpegeline] = (byte)((int)(gg.arpegstartoffset % 3));
+  } else {
+    _pt.tickgamme[larpegeline] = 0;
+    _pt.ticktriplet[larpegeline] = 0;
+  }
+  _pt.arpegemptyticks[larpegeline] = gg.arpeggridS;
+  _pt.arpegnotestick[larpegeline] = 0;
+
+  // if (gg.arpegstartoffset) {
+  //  for (int i = 0 ; i < gg.arpegstartoffset ; i++ ) {
+  //  tickarpege(larpegeline) ;
+  //  }
+  // }
+  if (gg.arpegmode == 1 || gg.arpegmode == 5 || gg.arpegmode == 6) {
+    _pt.tickgamme[larpegeline] = 6;
+  }
+
+  if (gg.arpegmode == 0 || gg.arpegmode == 3 || gg.arpegmode == 5) {
+    _pt.ticktriplet[larpegeline] = 0;
+  }
+  if (gg.arpegmode == 1 || gg.arpegmode == 2 || gg.arpegmode == 6) {
+    _pt.tripletdirection[larpegeline] = 0;
+    _pt.ticktriplet[larpegeline] = 2;
+  }
+
+  // printarparams();
+}
+// modes 0 up , 1 down, 2 up-down , 3 down-up, 4 random
+void Arpegiator::arpegioticker(byte larpegeline) {
+  switch ((int)_pt.tripletdirection[larpegeline]) {
+  case 0:
+    // up
+    tickarpegedown(larpegeline);
+    break;
+  case 1:
+    // down
+    tickarpege(larpegeline);
+    break;
+
+  default:
+    break;
+  }
+}
+
+void Arpegiator::ticklatriplet(byte larpegeline) {
+  _pt.ticktriplet[larpegeline]++;
+  if (_pt.ticktriplet[larpegeline] > 2) {
+    _pt.ticktriplet[larpegeline] = 0;
+    ticklagamme(larpegeline);
+  }
+}
+
+void Arpegiator::ticklagamme(byte larpegeline) {
+  if (gg.arpegmode == 4) {
+    randomdirtest(larpegeline);
+  }
+  _pt.tickgamme[larpegeline]++;
+  if (_pt.tickgamme[larpegeline] > gg.arpegnumofnotes - 1) {
+    _pt.tickgamme[larpegeline] = int(gg.arpegstartoffset / 6);
+  }
+}
+
+void Arpegiator::incrementcs(byte larpegeline) {
+  if (_pt.arpegnotestick[larpegeline] < gg.arpeggridC) {
+    _pt.arpegnotestick[larpegeline]++;
+  } else {
+    _pt.arpegemptyticks[larpegeline] = gg.arpeggridS;
+    _pt.arpegnotestick[larpegeline] = 0;
+  }
+}
+
+void Arpegiator::decrementcrementns(byte larpegeline) {
+  if (_pt.arpegemptyticks[larpegeline] > 0) {
+    _pt.arpegemptyticks[larpegeline]--;
+  }
+}
+
+bool Arpegiator::testarpege(byte lanote) {
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    if (_pt.arpegiatingNote[i] == lanote) {
+      _pt.arpegiatingNote[i] = 0;
+      return 1;
+    }
+  }
+  return 0;
+}
+
+bool Arpegiator::retestarpege() {
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    if (_pt.arpegiatingNote[i] != 0) {
+      return 1;
+    }
+  }
+  return 0;
+}
 
 MidiRecorder::MidiRecorder() { }
 
@@ -43,12 +311,12 @@ void MidiRecorder::record_synth_notesOff(int liner, byte channel, byte lenote, b
     }
   }
 }
-int  MidiRecorder::tick_for_that(int tick){
-  tick -= 1 ;
-  if (tick < 0 ){
-    tick = 31 ;
+int  MidiRecorder::tick_for_that(int ticko){
+  ticko -= 1 ;
+  if (ticko < 0 ){
+    ticko = 31 ;
   }
-  return tick ;
+  return ticko ;
 }
 void MidiRecorder::recordmidinotes(int liner, byte channel, byte lenote, byte velocity) {
   int pos = this->tick_for_that(lv.tickposition);
@@ -57,9 +325,9 @@ void MidiRecorder::recordmidinotes(int liner, byte channel, byte lenote, byte ve
   pp.synth_partition[liner][pos] = {channel, lenote, velocity};
 }
 
-bool MidiRecorder::isalreadysameSamplerinpat(byte lenote,int tick) {
+bool MidiRecorder::isalreadysameSamplerinpat(byte lenote,int ticko) {
   for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
-    if (lenote == pp.sampler_partition[i][tick].note) {
+    if (lenote == pp.sampler_partition[i][ticko].note) {
       return 1;
     }
   }
@@ -96,6 +364,45 @@ void TriggerMessenger::MaNoteOn(uint8_t ch_,uint8_t nt_,uint8_t ve_) {
   self->MaNoteOn(msg);
 }
 
+int TriggerMessenger::clean_cursor(int pos){
+  if (pos >= PBARS ) {
+    pos = 0 ;
+    return pos;
+  } else if (pos < 0 ) {
+    pos = PBARS - 1 ;
+    return pos;
+  }
+  return pos;
+}
+
+void TriggerMessenger::advance_tick(){
+  lv.tickposition = self->clean_cursor(lv.tickposition+1);
+  //TODO : remove lv.tickerlasttick logic
+  lv.tickerlasttick = millis();
+  self->tick();
+}
+
+void TriggerMessenger::tick() {
+
+  if (gg.arpegiatorOn) {
+      _pt.arpegiate_synth();
+  }
+  if (lv.patternOn) {
+    _se.use_pattern();
+  }
+
+  if (lv.songplaying) {
+    _se.update_song_player();
+  }
+
+}
+
+
+void TriggerMessenger::Mytickmidi() {
+  //Serial.println("ext click");
+  advance_tick();
+}
+
 void TriggerMessenger::MaControlChange(byte channel, byte control, byte value) {
   bool isignored = self->noCCrecordlist(control);
 
@@ -111,7 +418,13 @@ void TriggerMessenger::MaControlChange(byte channel, byte control, byte value) {
     md.recordCCmidinotes(channel, control, value);
   }
 }
-
+void TriggerMessenger::stopallnotes() {
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    if (synth_lines[i]->note) {
+      MaNoteOff(gg.synthmidichannel, synth_lines[i]->note, 0);
+    }
+  }
+}
 bool TriggerMessenger::noCCrecordlist(byte lanotee) {
   for (byte i = 0; i < NO_CCREC_SIZE; i++) {
     if (gg.midiknobassigned[lanotee] == noCCrecord[i]) {
@@ -138,6 +451,20 @@ void TriggerMessenger::debugmidi(char *typemsg = (char *)"midi ", MidiEventer ms
 
   dm.dodisplay();
 }
+void TriggerMessenger::setchordnotes(byte absolutenote, byte lachord) {
+  byte relativenote = ((absolutenote + 12) % 12);
+  for (int i = 0; i < 3; i++) {
+    chordnotes[i] = leschords[lachord][relativenote][i];
+  }
+}
+
+void TriggerMessenger::setchordnotesOff(byte absolutenote, byte lachord) {
+  byte relativenote = ((absolutenote + 12) % 12);
+  for (int i = 0; i < 3; i++) {
+    chordnotesoff[i] = leschords[lachord][relativenote][i];
+  }
+}
+
 
 void TriggerMessenger::MaNoteOn(MidiEventer msg) {
   byte larpegeline;
@@ -166,11 +493,11 @@ void TriggerMessenger::MaNoteOn(MidiEventer msg) {
         }
       }
     } else {
-      larpegeline = incrementarpegiatingNote(msg.note);
+      larpegeline = ap.incrementarpegiatingNote(msg.note);
       if (larpegeline < SYNTH_LINERS_COUNT) {
         //should not stop tick during arpegio
         lv.stoptick = 0;
-        synth_arpegiator_ticker(msg.note, msg.velocity, larpegeline);
+        ap.synth_arpegiator_ticker(msg.note, msg.velocity, larpegeline);
       }
     }
   }
@@ -197,6 +524,36 @@ void TriggerMessenger::MaNoteOn(MidiEventer msg) {
     //usbMIDI.send((uint8_t)0x09, (uint8_t)msg.note, (uint8_t)msg.velocity, (uint8_t)msg.channel,(uint8_t)0);
     usbMIDI.sendNoteOn(msg.note, msg.velocity, msg.channel);
     usbMIDI.send_now();
+  }
+}
+
+void TriggerMessenger::synth_used_this_note(byte data1) {
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    if (data1 == synth_lines[i]->note) {
+      synth_lines[i]->liner_off();
+      if (lv.patrecord) 
+        md.record_synth_notesOff(i, gg.synthmidichannel, data1, 0);
+    }
+  }
+}
+
+void TriggerMessenger::MaProgramchange(byte channel, byte data1) {
+  if (self->debugmidion) {
+    self->debugmidi((char *)"ProgramChange", (MidiEventer){channel, data1, 0});
+  }
+  /*
+  int leprogchanged = (int)(data1);
+  if (leprogchanged < _ps.catalog->files_counter) {
+    _ps.catalog->displayable_offset = leprogchanged ;
+    _ps.catalog->refresh_files_names();
+    _ps.read_preset();
+  }*/
+}
+void TriggerMessenger::flash_used_this_note(byte data1) {
+  for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+    if (data1 == flash_lines[i]->note) {
+      flash_lines[i]->liner_off();
+    }
   }
 }
 
@@ -228,13 +585,22 @@ void TriggerMessenger::MaNoteOff(MidiEventer msg) {
     }
   } else {
     // decrement_pt.arpegiatingNote();
-    if (testarpege(msg.note)) {
-      if (!retestarpege()) {
+    if (ap.testarpege(msg.note)) {
+      if (!ap.retestarpege()) {
         lv.stoptickernextcycle = 1;
       }
     }
   }
 }
+void TriggerMessenger::shutlineroff(byte chan,byte data1) {
+
+    if ((chan == gg.synthmidichannel) or ( gg.synthmidichannel == 0)) 
+      synth_used_this_note(data1);
+      
+    if ((chan == gg.samplermidichannel) or ( gg.samplermidichannel == 0)) 
+      flash_used_this_note(data1);
+}
+
 
 void TriggerMessenger::moncontrollercc(byte channel, byte control, byte value) {
   if (value < 128) {
@@ -293,7 +659,7 @@ void TriggerMessenger::cc_edgecases(byte control, byte value){
     _wf.set_tracer(control,value);
   }
 
-  if (!lv.songplaying && !_tt.noCCrecordlist(control) && !_tt.debugmidion) {
+  if (!lv.songplaying && !self->noCCrecordlist(control) && !self->debugmidion) {
     dm.show();
   }
 }
@@ -308,8 +674,8 @@ void TriggerMessenger::notes_edgecases(byte note, byte velo){
 }
 
 void TriggerMessenger::helper_onbard(){
-  if (Pads.potsboards[lv.sublevels[2]] >= 0) {
-    gg.muxed_channels[Pads.potsboards[lv.sublevels[2]]] = gg.but_channel[lv.sublevels[2]];
+  if (Padded.potsboards[lv.sublevels[2]] >= 0) {
+    gg.muxed_channels[Padded.potsboards[lv.sublevels[2]]] = gg.but_channel[lv.sublevels[2]];
   }
   if ((lv.paddered != 26) && (lv.paddered != 17)) {
     dm.returntonav(lv.navlevel,lv.navrange,lv.paddered + 11);
@@ -369,10 +735,20 @@ void TriggerMessenger::starttaptap() {
 
 void TriggerMessenger::resettaptap() {
 
-          tapstarted = 0;
-          numberoftaps = 0;
-          inittapstime();
-        }
+  tapstarted = 0;
+  numberoftaps = 0;
+  inittapstime();
+}
+
+void TriggerMessenger::dotapaverage() {
+  int tottaptime = 0;
+  for (int i = 0; i < numberoftaps; i++) {
+    tottaptime += (tapstime[i] - starttaptime);
+  }
+  tapaverage = tottaptime / numberoftaps;
+  gg.millitickinterval = round(tapaverage / 10.0);
+  _pt.setbpms();
+}
 
 void TriggerMessenger::taptap() {
   if (!tapstarted) {
@@ -384,5 +760,151 @@ void TriggerMessenger::taptap() {
   if (millis() - starttaptime > 2000 || numberoftaps >= 4) {
     dotapaverage();
     resettaptap();
+  }
+}
+
+PresetsMenuRouter* PresetsMenuRouter::self = nullptr;
+
+PresetsMenuRouter::PresetsMenuRouter() {
+          self = this;
+          self->catalog = new FilesLister("PRESETS/SYNTH/","SYNSET",".TXT",presets_menu,self->ps_labels_count-1);
+
+        }
+
+void PresetsMenuRouter::route_navlevel(){
+          _nav_presets[lv.sublevels[1]]();
+        }
+
+void PresetsMenuRouter::presets_nav_zero(){
+          self->catalog->nav_zero();
+        }
+
+void PresetsMenuRouter::show() {
+          _route_nav[lv.navlevel-1]();
+        }
+
+void PresetsMenuRouter::presets_menu() {
+          const char* presetmenulabels[] = {
+              "Save", "Load", "Copy", "Delete", "Params"};
+          dm.main_panel(presetmenulabels,1,self->ps_labels_count);
+        }
+
+void PresetsMenuRouter::write_preset() {
+          if (lv.locked_fileing)
+            return;
+          lv.locked_fileing = 1 ;
+          FsFile preset_filer;
+          if (self->catalog->new_file_mode) {
+            String presets_base_path = "PRESETS" ;
+            String presets_sub_path = "SYNTH" ;
+            self->catalog->make_sub_folder("PRESETS", "SYNTH");
+            String new_preset_name = self->catalog->get_new_file_name() ;
+            preset_filer = SD.sdfs.open(new_preset_name.c_str(), O_WRITE | O_CREAT | O_TRUNC);
+          } else {
+            const char* overwritee = self->catalog->get_current_file_path(0).c_str();
+            self->catalog->deleteFile();
+            preset_filer = SD.sdfs.open(overwritee, O_WRITE | O_CREAT | O_TRUNC);
+          }
+          if (preset_filer) {
+            preset_filer.write((uint8_t*)&gg, sizeof(gg));
+            preset_filer.close();
+
+          }
+          preset_filer.close();
+          lv.locked_fileing = 0 ;
+          self->catalog->list_files();
+        }
+
+void PresetsMenuRouter::read_preset() {
+          if (lv.locked_fileing)
+            return;
+          lv.locked_fileing = 1 ;
+          FsFile preset_filer = SD.sdfs.open(self->catalog->get_current_file_path(0).c_str(), O_READ);
+          if (preset_filer) {
+           preset_filer.read((uint8_t*)&gg, sizeof(gg));
+          } else {
+            dm.pseudoconsole("Error with preset file");
+            return ;
+          }
+          preset_filer.close();
+          byte tmp_mixlevelsM[4];
+          byte tmp_mixlevelsL[OSCS_COUNT];
+          byte tmp_WetMixMasters[4];
+          memcpy(&tmp_mixlevelsM, &gg.mixlevelsM, sizeof(gg.mixlevelsM));
+          memcpy(&tmp_mixlevelsL, &gg.mixlevelsL, sizeof(gg.mixlevelsL));
+          memcpy(&tmp_WetMixMasters, &gg.WetMixMasters, sizeof(gg.WetMixMasters));
+
+          for (int i = 0; i < 3; i++) {
+            gg.fx[i].route_fx(gg.fx[i].plugged_fx);
+            lv.avoid_fx_bounce = false ;
+          }
+
+          _pt.setbpms();
+          _ad.ApplyADSR();
+          call_allfxcontrolled();
+          _mx.le303filterzWet();
+          _mx.Wavespreamp303controls();
+          _mx.le303filtercontrols();
+          _mx.set_dry_mix(0);
+          _mx.set_dry_mix(1);
+
+          for (int i = 0; i < OSCS_COUNT; i++) {
+            lv.oscillator = i ;
+            _mx.setwavemixlevel();
+            call_setwavetypefromlist();
+            gg.mixlevelsL[i] = tmp_mixlevelsL[i];
+            _mx.setwavemixlevel();
+          }
+          for (int i = 0; i < OSCS_COUNT; i++) {
+            lv.oscillator = i ;
+            _mx.setwavemixlevel();
+            call_setwavetypefromlist();
+            gg.mixlevelsL[i] = tmp_mixlevelsL[i];
+            _mx.setwavemixlevel();
+          }
+          for (int i = 0; i < 4; i++) {
+            gg.WetMixMasters[i] = tmp_WetMixMasters[i];
+            gg.mixlevelsM[i] = tmp_mixlevelsM[i];
+            //_mx.setmastersmixlevel ignores 4th iteration (3)
+            _mx.setmastersmixlevel(i);
+          }
+          _mx.wetmixmastercontrols();
+          lv.locked_fileing = 0 ;
+        }
+
+void PresetsMenuRouter::copypreset() {
+          self->catalog->copyFile();
+        }
+
+void PresetsMenuRouter::deletepreset() {
+          self->catalog->deleteFile();
+        }
+
+void PresetsMenuRouter::remove_preset(){
+          lv1_wrapper(self->deletepreset);
+        }
+
+void PresetsMenuRouter::duplicate_preset(){
+          lv1_wrapper(self->copypreset);
+        }
+
+void PresetsMenuRouter::load_preset(){
+          lv1_wrapper(self->read_preset);
+        }
+
+void PresetsMenuRouter::save_preset(){
+          lv1_wrapper(self->write_preset);         
+        }
+
+void PresetsMenuRouter::params_presets(){ 
+          //TODO: selection filter to load only some settings
+          dm.returntonav(1, self->ps_labels_count-1,lv.sublevels[1]);
+        }
+        
+void PresetsMenuRouter::lv1_wrapper(void (*func)()) {
+  self->catalog->nav_one(0,1);
+  if (lv.navlevel >= 3) {
+    func();
+    dm.returntonav(1, self->ps_labels_count-1,lv.sublevels[1]);
   }
 }

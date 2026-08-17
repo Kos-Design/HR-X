@@ -20,7 +20,6 @@ class FxMenuRouter : public SectionHolder {
       double coeffs[STAGES_BQ][5]{};
       uint16_t filterzrange = 14000;
       uint8_t filter_lfo_option = 3 ;
-      bool avoid_fx_bounce = false;
       /*
       static void show() {
         _nav_fx[lv.sublevels[1]](); 
@@ -1653,7 +1652,7 @@ for (int i = 0; i < 5; i++)
 
       static void fx_nav_zero(){
         if (lv.navlevel < 2) dm.reinitsublevels(2);
-        self->avoid_fx_bounce = false ;
+        lv.avoid_fx_bounce = false ;
         lv.navrange = self->home_navrange;
         display.clearDisplay();
         dolistmainfxlines();
@@ -1663,7 +1662,7 @@ for (int i = 0; i < 5; i++)
 
       static void fx_nav_one(){
         if (lv.navlevel < 2) dm.reinitsublevels(2);
-        self->avoid_fx_bounce = false ;
+        lv.avoid_fx_bounce = false ;
         display.clearDisplay();
         if (lv.navlevel == 2) lv.navrange = 9;
         dolistMainFxPanel();
@@ -1671,9 +1670,9 @@ for (int i = 0; i < 5; i++)
       }
 
       static void fx_nav_two(){
-        //remember to manage self->avoid_fx_bounce if plugging fx outside of menu
-        if (!self->avoid_fx_bounce){
-          self->avoid_fx_bounce = true ;
+        //remember to manage lv.avoid_fx_bounce if plugging fx outside of menu
+        if (!lv.avoid_fx_bounce){
+          lv.avoid_fx_bounce = true ;
           gg.fx[lv.sublevels[1]].route_fx(lv.sublevels[2]);
         }
           displayfxVcontrols(lv.sublevels[1]);

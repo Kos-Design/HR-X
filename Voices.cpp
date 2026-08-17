@@ -1,6 +1,6 @@
 #include "Voices.h"
 #include "Frequencies.h"
-#include "Presets.h"
+#include "MenuClasses.h"
 
 void waveformize(byte l_index,byte osc_idx,float currentFreq,float targetFreq,byte velocity){
   waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->amplitude(velocity / 127.0);

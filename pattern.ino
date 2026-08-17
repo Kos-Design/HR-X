@@ -143,40 +143,6 @@ class StereoDualFilter {
     AudioConnection& patchOutR2;
 };
 
-int clean_cursor(int pos){
-  if (pos >= PBARS ) {
-    pos = 0 ;
-    return pos;
-  } else if (pos < 0 ) {
-    pos = PBARS - 1 ;
-    return pos;
-  }
-  return pos;
-}
-
-void advance_tick(){
-  lv.tickposition = clean_cursor(lv.tickposition+1);
-  //TODO : remove lv.tickerlasttick logic
-  lv.tickerlasttick = millis();
-  tick();
-}
-
-//should be set after _pt & _se
-void tick() {
-
-  if (gg.arpegiatorOn) {
-      _pt.arpegiate_synth();
-  }
-  if (lv.patternOn) {
-    _se.use_pattern();
-  }
-
-  if (lv.songplaying) {
-    _se.update_song_player();
-  }
-
-}
-
 
 
 StereoDualFilter stereoWidth( mixerWAll,

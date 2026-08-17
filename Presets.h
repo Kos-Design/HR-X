@@ -1,5 +1,8 @@
+//#include "MenuClasses.h"
 #include "Constants.h"
 #include "Cablages.h"
+//#include "MenuClasses.h"
+class FilesLister;
 
 struct MidiEventer{
     byte channel;
@@ -35,20 +38,16 @@ struct LiveState {
     bool recordCC = 0;
     bool patrecord = 0;
     bool songplaying = 0;
-
     bool showing_eq = false;
-
     int navlevel = 0;
     int previousnavlevel = 0;
     int navleveloverwrite = 2;
     int navrange = 9;
     int rota_true_pos = 0;
-
     bool temp_buff_armed = 0 ;
     int tickerlasttick = 0;
     int tickposition = 0;
     bool stoptickernextcycle = 0;
-
     byte oscillator = 0;
     byte cclfoselector = 0 ;
     //selector for the Fx bus
@@ -59,21 +58,28 @@ struct LiveState {
     bool knobsetting = false ;
     bool assigning_sample_to_note = false ;
     int paddered = 0;
-
+    elapsedMillis frameTimer;
+    uint8_t queue_shift = 0;
+    int last_y_peak ;
+    bool showing_oscilloscope = false ;
+    bool avoid_fx_bounce = false;
+    //checking one pot per loop as it is fast as long as we call it often
+    uint8_t muxer_ch_active = 1;
 };
 
 extern LiveState lv;
 
 struct BigBuffers {
+    //avoid floats for some reason
     short granularMemory[FXS_COUNT][GRANULAR_MEMORY_SIZE]{};
     short chorusdelayline[FXS_COUNT][CHORUS_DELAY_LENGTH]{};
     short flangedelay[FXS_COUNT][FLANGE_DELAY_LENGTH]{};
+    int16_t rolling_queue_buff[128]{};
     char Flashsamplename[999][13]{};
     char consolemsg[10][32]{};
     char pleasewaitarray[10][32]{};
-    byte pots_controllers[32][32][2]{};
-    byte recorded_ccs[32]{};
-
+    uint8_t pots_controllers[32][32][2]{};
+    uint8_t recorded_ccs[32]{};
 };
 
 extern BigBuffers bb;
@@ -234,10 +240,13 @@ struct Preset {
     // virtual pots available for keyboardless control
     uint8_t vPots[17];
 
+    uint8_t oscilloscope_tscale = 8;
+    uint8_t osc_framerate = 33 ;
+    uint8_t osc_refresher_period = 3 ;
+
 };
 
 extern Preset gg ;
-
 
 const unsigned char menuBG[] = {
     // 'menuBG', 128x64px
@@ -602,4 +611,6 @@ const byte leschords[6][12][3] PROGMEM = {{{0, 4, 7},
 const int lesformes[9] PROGMEM = {
     WAVEFORM_SINE,     WAVEFORM_SAWTOOTH,          WAVEFORM_SAWTOOTH_REVERSE,
     WAVEFORM_TRIANGLE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SQUARE,
-    WAVEFORM_PULSE,    WAVEFORM_ARBITRARY,         WAVEFORM_SAMPLE_HOLD};
+    WAVEFORM_PULSE,    WAVEFORM_ARBITRARY,         WAVEFORM_SAMPLE_HOLD
+};
+

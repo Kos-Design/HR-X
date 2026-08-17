@@ -4,13 +4,6 @@
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
-
-void call_refresh_flash_track();
-void shutlineroff(byte,byte);
-void playarpegenote(byte);
-void closeallenvelopes();
-void call_stopallnotes();
-
 enum TrackTypes : uint8_t  {
     Synth,
     Flash
@@ -140,6 +133,14 @@ extern PatEditRouter _pe;
 class POptionsRouter : public SectionHolder {
     public:
         POptionsRouter();
+        static constexpr byte sizeofoptionspattern = 6;
+        static constexpr char optionspatternlabels[sizeofoptionspattern][12] = {
+            "Transpose", "Shift", "Clear", "Target", "Smooth CC","Merge Pat"};
+        bool targetNOsampler = 0;
+        bool targetNOsynth = 0;
+        bool targetNOcc = 0;
+        bool interpolOn = 1;
+
         static void clearlapattern();
         static void clearCCline();
         static void clearsynthpatternline();
@@ -181,6 +182,8 @@ class PatternsMenuRouter : public SectionHolder {
   public:
         PatternsMenuRouter();
         FilesLister *catalog;
+        static constexpr byte sizeofpatternlistlabels = 8;
+
         byte arpegnoteoffin[SYNTH_LINERS_COUNT][SYNTH_LINERS_COUNT];
         byte playingarpegiator[SYNTH_LINERS_COUNT][SYNTH_LINERS_COUNT];
         byte calledarpegenote[SYNTH_LINERS_COUNT][2];
@@ -190,7 +193,7 @@ class PatternsMenuRouter : public SectionHolder {
         byte arpegnotestick[SYNTH_LINERS_COUNT];
         byte arpegemptyticks[SYNTH_LINERS_COUNT];
         bool tripletdirection[SYNTH_LINERS_COUNT];
-
+        static void setbpms();
         static void route_navlevel();
         static void show();
         static void pattern_nav_zero();
@@ -202,15 +205,10 @@ class PatternsMenuRouter : public SectionHolder {
         static void addnoteoff2next(byte lanotee, byte lapos);
         static void set_ccs();
         static void parsepattern();
-        static void parsepattern_old();
         static void doPatternsmenu();
         static void deletepattern();
         static void copypattern();
-        static void midifileliner(File &pat_filer,int liner, int ticker);
-        static void midifilelinerSampler(File &pat_filer,int liner, int ticker);
-        static void midifilelinerOff(File &pat_filer, int liner, int ticker);
-        static void midifileCC(File &pat_filer,int lecc, int ticker);
-        static void write_midi_info(File &pat_filer);
+
         static void writelemidi();
         static void arpegiate_synth();
         static void set_arp_type();

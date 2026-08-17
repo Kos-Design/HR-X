@@ -38,4 +38,5 @@
 #define SP_NAME_MAX 26
 #define ARP_TYPES 8
 #define VBUT_LBL_COUNT 8
+#define NUM_BARS 64
 

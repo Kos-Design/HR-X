@@ -22,3 +22,31 @@ class KnobAssigner : public SectionHolder {
 };
 
 extern KnobAssigner _ka;
+
+class AdsrMenuRouter : public SectionHolder {
+  public:
+    AdsrMenuRouter();
+    static void show();
+    static void ApplyADSR();
+    static void displayadsrgraph();
+    static void SetADSR();
+    static void GlobalADSR();
+    static void print_adsr_echo(String titre, int niveau);
+    static void sliceA();
+    static void sliceDa();
+    static void sliceH();
+    static void sliceD();
+    static void sliceS();
+    static void sliceR();
+    int mappedattack = 5;
+    int mappeddecay = 50;
+    int mappedrelease = 60;
+    int mappedsustain = 100; // divide by 100 to float
+    int MadsrAttackDelay = 0;
+    int MadsrHold = 0;
+  private:
+    
+    static AdsrMenuRouter* self;
+};
+
+extern AdsrMenuRouter _ad;

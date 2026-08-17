@@ -1,31 +1,435 @@
 
+#include "SettingsMenu.h"
+#include "Triggers.h"
+#include "pads.h"
+#include "Patterns.h"
 
-class SettingsMenuRouter : public SectionHolder {
-    public:
-        SettingsMenuRouter() {
+extern Pads Padded;
+
+
+VirtualKnobs* VirtualKnobs::self = nullptr;
+
+VirtualKnobs::VirtualKnobs() { 
+            self = this;  
+            self->home_navrange=VBUT_LBL_COUNT;
+            self->relative_navlevel=2;
+            self->max_navlevel=5;
+            //self->sublevels_address={9,0,0};
+        }
+
+void VirtualKnobs::doposkselector() {
+      char vbuttonslabels[VBUT_LBL_COUNT][12] = {
+          "CuePlay",    "Backward -1", "Stop",   "Play",
+          "Forward +1", "Record",      "Thingy", "Exit"};
+      byte startyp = 8;
+      byte ecart = 14;
+      byte knobradius = 7;
+      int xcentershifter;
+      // lv.navrange = VBUT_LBL_COUNT-1 +17+14 ;
+
+      // transportpanel
+      if (lv.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT) {
+        canvastitle.fillScreen(SSD1306_BLACK);
+        canvasBIG.setTextSize(1);
+        if (gg.midiknobassigned[(70 + lv.sublevels[self->relative_navlevel] + 1 + (14 + 17))] !=
+            0) {
+          dm.printassignedmidi(
+              gg.midiknobassigned[(70 + lv.sublevels[self->relative_navlevel] + 1 + (14 + 17))]);
+
+        } else {
+          canvasBIG.setCursor(0, 0);
+
+          canvasBIG.print((char *)vbuttonslabels[lv.sublevels[self->relative_navlevel]]);
+        }
+        canvasBIG.setCursor(97, 0);
+        canvasBIG.print("CC");
+        canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 + (14 + 17));
+        canvasBIG.setCursor(110, 8);
+        canvasBIG.print(0);
+        canvasBIG.drawPixel(ecart * lv.sublevels[self->relative_navlevel] + 6, startyp + 7,
+                            SSD1306_WHITE);
+        canvasBIG.drawPixel(ecart * lv.sublevels[self->relative_navlevel] + 7, startyp + 6,
+                            SSD1306_WHITE);
+        canvasBIG.drawPixel(ecart * lv.sublevels[self->relative_navlevel] + 7, startyp + 7,
+                            SSD1306_WHITE);
+      } else {
+
+        if (lv.sublevels[self->relative_navlevel] >= VBUT_LBL_COUNT &&
+            lv.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT + 7) {
+          canvasBIG.fillRoundRect(
+              108,
+              16 + ((lv.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT) * 7), 9,
+              6, 1, SSD1306_WHITE);
+
+          if (gg.midiknobassigned[(70 + lv.sublevels[self->relative_navlevel] + 1 -
+                                (VBUT_LBL_COUNT))] != 0) {
+            dm.printassignedmidi(gg.midiknobassigned[(70 + lv.sublevels[self->relative_navlevel] +
+                                                1 - (VBUT_LBL_COUNT))]);
+
+          } else {
+            canvasBIG.setCursor(0, 0);
+            canvasBIG.print("V.Button ");
+            canvasBIG.print(lv.sublevels[self->relative_navlevel] + 1 -
+                            (VBUT_LBL_COUNT));
+          }
+          canvasBIG.setCursor(97, 0);
+          canvasBIG.print("CC");
+          canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 -
+                          (VBUT_LBL_COUNT));
+          canvasBIG.setCursor(110, 8);
+          canvasBIG.print(0);
+
+        } else {
+          if (lv.sublevels[self->relative_navlevel] >= VBUT_LBL_COUNT + 7 &&
+              lv.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT + 14) {
+            canvasBIG.fillRoundRect(
+                119,
+                16 + ((lv.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 7) *
+                      7),
+                9, 6, 1, SSD1306_WHITE);
+            if (gg.midiknobassigned[(70 + lv.sublevels[self->relative_navlevel] + 1 -
+                                  (VBUT_LBL_COUNT))] != 0) {
+              dm.printassignedmidi(gg.midiknobassigned[(70 + lv.sublevels[self->relative_navlevel] +
+                                                  1 - (VBUT_LBL_COUNT))]);
+
+            } else {
+              canvasBIG.setCursor(0, 0);
+              canvasBIG.print("V.Button ");
+              canvasBIG.print(lv.sublevels[self->relative_navlevel] + 1 -
+                              (VBUT_LBL_COUNT));
+            }
+            canvasBIG.setCursor(97, 0);
+            canvasBIG.print("CC");
+            canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 -
+                            (VBUT_LBL_COUNT));
+            canvasBIG.setCursor(110, 8);
+            canvasBIG.print(0);
+
+          } else {
+
+            if (lv.sublevels[self->relative_navlevel] >= VBUT_LBL_COUNT + 14 &&
+                lv.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT + 14 + 6) {
+              xcentershifter =
+                  97 - (((knobradius * 2) + 4) * (lv.sublevels[self->relative_navlevel] -
+                                                  VBUT_LBL_COUNT - 14));
+              canvasBIG.drawCircle(xcentershifter, 64 - 9, knobradius - 1,
+                                  SSD1306_WHITE);
+
+              if (gg.midiknobassigned[(lv.sublevels[self->relative_navlevel] + 1 -
+                                    (VBUT_LBL_COUNT))] != 0) {
+                dm.printassignedmidi(
+                    gg.midiknobassigned[(70 + lv.sublevels[self->relative_navlevel] + 1 -
+                                      (VBUT_LBL_COUNT))]);
+
+              } else {
+                canvasBIG.setCursor(0, 0);
+                canvasBIG.print("V.Pot ");
+                canvasBIG.print(lv.sublevels[self->relative_navlevel] + 1 -
+                                (VBUT_LBL_COUNT + 14));
+              }
+              canvasBIG.setCursor(97, 0);
+              canvasBIG.print("CC");
+              canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 -
+                              (VBUT_LBL_COUNT));
+
+              canvasBIG.setCursor(110, 8);
+              canvasBIG.print(gg.vPots[lv.sublevels[self->relative_navlevel] -
+                                    (VBUT_LBL_COUNT + 14)]);
+            } else {
+
+              if (lv.sublevels[self->relative_navlevel] >= VBUT_LBL_COUNT + 14 + 6 &&
+                  lv.sublevels[self->relative_navlevel] <
+                      VBUT_LBL_COUNT + 14 + 6 + 5) {
+
+                xcentershifter = 16 + (((knobradius * 2) + 4) *
+                                      (lv.sublevels[self->relative_navlevel] -
+                                        VBUT_LBL_COUNT - 14 - 6));
+                canvasBIG.drawCircle(xcentershifter, 64 - 9 - 16, knobradius - 1,
+                                    SSD1306_WHITE);
+                if (gg.midiknobassigned[(70 + lv.sublevels[self->relative_navlevel] + 1 -
+                                      (VBUT_LBL_COUNT))] != 0) {
+                  dm.printassignedmidi(
+                      gg.midiknobassigned[(70 + lv.sublevels[self->relative_navlevel] + 1 -
+                                        (VBUT_LBL_COUNT))]);
+
+                } else {
+                  canvasBIG.setCursor(0, 0);
+                  canvasBIG.print("V.Pot ");
+                  canvasBIG.print(lv.sublevels[self->relative_navlevel] + 1 -
+                                  (VBUT_LBL_COUNT + 14));
+                }
+                canvasBIG.setCursor(97, 0);
+                canvasBIG.print("CC");
+                canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 -
+                                (VBUT_LBL_COUNT));
+
+                canvasBIG.setCursor(110, 8);
+                canvasBIG.print(gg.vPots[lv.sublevels[self->relative_navlevel] -
+                                      (VBUT_LBL_COUNT + 14)]);
+
+              } else {
+                if (lv.sublevels[self->relative_navlevel] >=
+                        VBUT_LBL_COUNT + 14 + 6 + 5 &&
+                    lv.sublevels[self->relative_navlevel] <
+                        VBUT_LBL_COUNT + 14 + 6 + 5 + 6) {
+
+                  if (gg.midiknobassigned[(70 + lv.sublevels[self->relative_navlevel] + 1 -
+                                        (VBUT_LBL_COUNT))] != 0) {
+                    dm.printassignedmidi(
+                        gg.midiknobassigned[(70 + lv.sublevels[self->relative_navlevel] + 1 -
+                                          (VBUT_LBL_COUNT))]);
+
+                  } else {
+                    canvasBIG.setCursor(0, 0);
+                    canvasBIG.print("V.Pot ");
+                    canvasBIG.print(lv.sublevels[self->relative_navlevel] + 1 -
+                                    (VBUT_LBL_COUNT + 14));
+                  }
+                  canvasBIG.setCursor(97, 0);
+                  canvasBIG.print("CC");
+                  canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 -
+                                  (VBUT_LBL_COUNT));
+
+                  canvasBIG.setCursor(110, 8);
+                  canvasBIG.print(gg.vPots[lv.sublevels[self->relative_navlevel] -
+                                        (VBUT_LBL_COUNT + 14)]);
+
+                  xcentershifter = 97 - (((knobradius * 2) + 4) *
+                                        (lv.sublevels[self->relative_navlevel] -
+                                          VBUT_LBL_COUNT - 14 - 6 - 5));
+                  canvasBIG.drawCircle(xcentershifter, 16 + knobradius,
+                                      knobradius - 1, SSD1306_WHITE);
+                }
+              }
+            }
+          }
+        }
+      }
+      canvasBIG.setCursor(65, 0);
+      canvasBIG.print(lv.BPMs, 1);
+    }
+
+void VirtualKnobs::Vbuttonspanel() {
+      self->actionvbuttons();
+      self->displayonscreenbuttons();
+      self->doposkselector();
+      dm.dodisplay();
+    }
+
+void VirtualKnobs::actionvbuttons() {
+
+      if (lv.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT + 14) {
+
+        if (lv.navlevel == self->relative_navlevel) {
+          lv.navrange = VBUT_LBL_COUNT - 1 + 17 + 14;
+        }
+        if (lv.navlevel == self->relative_navlevel + 1) {
+
+          if (lv.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT) {
+            int CClaval0 = 70 + (lv.sublevels[self->relative_navlevel] + 1 + (14 + 17));
+            _tt.moncontrollercc((byte)1, (byte)CClaval0, (byte)127);
+            // Serial.print("sending cc ");
+            // Serial.println(CClaval0);
+          }
+
+          if (lv.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT + 14 &&
+              lv.sublevels[self->relative_navlevel] >= VBUT_LBL_COUNT) {
+            int CClaval =
+                70 + (lv.sublevels[self->relative_navlevel] + 1 - (VBUT_LBL_COUNT));
+            _tt.moncontrollercc((byte)1, (byte)CClaval, (byte)127);
+            // moncontrollercc( (byte)1,(byte)CClaval, (byte)0);
+          }
+
+          dm.returntonav(self->relative_navlevel);
+          // Vbuttonspanel();
+        }
+
+      } else {
+
+        if (lv.navlevel == self->relative_navlevel) {
+
+          lv.navrange = VBUT_LBL_COUNT - 1 + 17 + 14;
+          lv.sublevels[self->relative_navlevel + 1] =
+              gg.vPots[lv.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14];
+          lv.sublevels[self->relative_navlevel + 2] =
+              gg.vPots[lv.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14];
+        } else {
+
+          if (lv.navlevel == self->relative_navlevel + 1) {
+
+            lv.navrange = 127;
+            gg.vPots[lv.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14] =
+                lv.sublevels[self->relative_navlevel + 1];
+
+            if (lv.sublevels[self->relative_navlevel] > VBUT_LBL_COUNT + 14) {
+              int CClaval2 =
+                  70 + (lv.sublevels[self->relative_navlevel] + 1 - (VBUT_LBL_COUNT));
+              _tt.moncontrollercc((byte)1, (byte)CClaval2,
+                              (byte)(gg.vPots[lv.sublevels[self->relative_navlevel] -
+                                          VBUT_LBL_COUNT - 14]));
+              // moncontrollercc( (byte)1,(byte)CClaval0, (byte)0);
+            }
+          }
+          if (lv.navlevel >= self->relative_navlevel + 2) {
+            gg.vPots[lv.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14] =
+                lv.sublevels[self->relative_navlevel + 1];
+            lv.sublevels[self->relative_navlevel + 2] = lv.sublevels[self->relative_navlevel];
+            // lv.navlevel--;
+            //   lv.navlevel--;
+            // lv.navrange = VBUT_LBL_COUNT-1 +17+14 ;
+            // lv.rota_true_pos = lv.sublevels[self->relative_navlevel + 2];
+            //  myEnc.write(lv.sublevels[self->relative_navlevel]*4);
+            dm.returntonav(self->relative_navlevel);
+            // Serial.print( "lv.sublevels[1]= ");
+            // Serial.println( lv.sublevels[1]);
+            // Vbuttonspanel();
+          }
+        }
+      }
+    }
+
+void VirtualKnobs::displayonscreenbuttons() {
+
+  byte centercirclex;
+  byte centercircley;
+  byte xcentershifter;
+  byte knobradius = 7;
+  // angleofknob = (0.3*360.0)-90 ;
+
+  byte trianglepointx;
+  byte trianglepointy;
+
+  float coeffangle;
+  display.clearDisplay();
+
+  canvasBIG.fillScreen(SSD1306_BLACK);
+  canvasBIG.setCursor(0, 0);
+  canvasBIG.setTextSize(1);
+
+  for (int i = 0; i < 8; i++) {
+    // canvasBIG.drawLine(0, 52, 128, 52, SSD1306_WHITE) ;
+    canvasBIG.drawRoundRect(108, 16 + (i * 7), 9, 6, 1, SSD1306_WHITE);
+  }
+
+  for (int i = 0; i < 8; i++) {
+
+    canvasBIG.drawRoundRect(119, 16 + (i * 7), 9, 6, 1, SSD1306_WHITE);
+  }
+  for (int i = 0; i < 6; i++) {
+
+    coeffangle = (6.2831 - ((float)gg.vPots[16 - i] / 127.0) * 6.2831) + 3.1416;
+
+    // Serial.print(i);
+    // Serial.print(" ");
+    // Serial.print(gg.vPots[16-i]/127.0);
+    //   Serial.print(" angle ");
+    // Serial.println(angleofknob);
+
+    xcentershifter = (knobradius * 2) + 4;
+    centercirclex = knobradius + (xcentershifter * i);
+    centercircley = 16 + knobradius;
+
+    canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
+                        SSD1306_WHITE);
+
+    trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
+    trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
+
+    display.drawLine(centercirclex, centercircley, trianglepointx,
+                    trianglepointy, SSD1306_WHITE);
+  }
+  centercircley += 19 - (knobradius / 2);
+  for (int i = 0; i < 5; i++) {
+
+    //  float coeffangle = ((float)gg.vPots[6+i]/127.0)*0.05 ;
+    // angleofknob = ((360.0 * coeffangle ) - 45.0 );
+    coeffangle = (6.2831 - ((float)gg.vPots[6 + i] / 127.0) * 6.2831) + 3.1416;
+
+    xcentershifter = (knobradius * 2) + 4;
+    centercirclex = knobradius + (xcentershifter * i);
+
+    trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle)))) +
+                    knobradius + 2;
+    trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
+
+    canvasBIG.drawCircle(centercirclex + knobradius + 2, centercircley,
+                        knobradius, SSD1306_WHITE);
+    display.drawLine(centercirclex + knobradius + 2, centercircley,
+                    trianglepointx, trianglepointy, SSD1306_WHITE);
+  }
+  centercircley += 16;
+  for (int i = 0; i < 6; i++) {
+    xcentershifter = (knobradius * 2) + 4;
+    centercirclex = knobradius + (xcentershifter * i);
+
+    // float coeffangle = ((float)gg.vPots[5-i]/127.0)*0.05 ;
+    coeffangle = (6.2831 - ((float)gg.vPots[5 - i] / 127.0) * 6.2831) + 3.1416;
+
+    trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
+    trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
+
+    canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
+                        SSD1306_WHITE);
+
+    display.drawLine(centercirclex, centercircley, trianglepointx,
+                    trianglepointy, SSD1306_WHITE);
+  }
+
+  dm.drawtransport();
+  // maison - cursor upsidedown (char)127)
+  // ç (char)128
+  // fleche haut bas (char)18
+  // sortede s bizarre (char)21
+  // ankh (char)12
+  // sorte de rond (char) 9
+  // porte percee  (char)8
+  // trefle (char)5
+  // fleche hautbas underscoree  (char)23
+  // fleche droite (char)26
+  // fleche droitegauche (char)29
+  // rien  (char)32
+
+  // u trema  (char)129)
+  // sorte de rectangle petit (char200
+  // !! doublexclamation(char)19
+  // pi (char)20
+  // rien (char)13
+  // rien (char)10
+  // rondplein (char)7
+  // losange  (char)4
+  // face unhappy  (char)1
+  // fleche bas (char)25
+  // sortede L (char)28
+  // cursor bas  (char)31
+
+  // megastar (char)15)
+  // playbutton (char)16
+  // play backward button (char)17
+  // underscore (char)22
+  // music double  (char)14
+  // male (char)11
+  // pique  (char)6
+  // coeur (char)3
+  // face happy (char)2
+  // fleche haut (char)24
+  // fleche gauche  (char)27
+  // cursor haut  (char)30
+}
+
+
+SettingsMenuRouter* SettingsMenuRouter::self = nullptr;
+
+
+SettingsMenuRouter::SettingsMenuRouter() {
                     self = this;
                     self->home_navrange=settings_labels_count - 1;
                     self->relative_navlevel=2;
                     self->max_navlevel=5;
                     self->sublevels_address={5,0,0};
                     }
-                    
-        static constexpr uint8_t settings_labels_count = 17;
-        bool noteprint = 0;
+                  
 
-        char onboards[ALL_BUTTONS][8] = {
-          "Pot 1",  "Pot 2",  "Pot 3",  "Pot 4",  "Pot 5",  "Pot 6",  "Pot 7",
-          "Pot 8",  "Pot 9",  "Fdr 01", "Fdr 02", "Fdr 03", "Pad 01", "Pad 02",
-          "Pad 03", "Pad 04", "Pad 05", "Pad 06", "Pad 07", "Pad 08", "Pad 09",
-          "Pad 10", "Pad 11", "Pad 12", "Pad 13", "Pad 14", "Pad 15", "Pad 16",
-          "But 01", "But 02", "But 03", "But 04", "But 05", "But 06", "But 07",
-          "But 08", "But 09", "But 10", "But 11", "But 12", "But 13", "But 14",
-          "But 15", "But 16", "But 17", "But 18", "Cfd",    "Jk X",   "Jk Y"};
-
-        char ch_lbl_buffer[4];
-
-
-        static void show() {
+void SettingsMenuRouter::show() {
           if (lv.navlevel == 1) {
             lv.setting_on_board = false ;
             settings_nav_zero();
@@ -37,7 +441,7 @@ class SettingsMenuRouter : public SectionHolder {
           }
         }
 
-        static void apply_alt_ctl(){
+void SettingsMenuRouter::apply_alt_ctl(){
           //TODO implement learn midi
           for (int i = 0; i < 4; i++) {
             _ka.set_midi_cc_to_ctl(_ka.find_assigned_knob(gg.alt_nav[i]),0);
@@ -45,7 +449,7 @@ class SettingsMenuRouter : public SectionHolder {
             _ka.set_midi_cc_to_ctl(gg.alt_nav[i],123+i);
           }
         }
-        static void set_alternative_rota(){
+void SettingsMenuRouter::set_alternative_rota(){
 
           lv.navrange = 3 ;
           if (lv.navlevel == 3 ){
@@ -96,7 +500,7 @@ class SettingsMenuRouter : public SectionHolder {
         }
         */
 
-        static void set_in_source(){
+void SettingsMenuRouter::set_in_source(){
           switch (self->AudioInSource) {
             case 0 :
               AudioShield.inputSelect(AUDIO_INPUT_MIC);
@@ -144,7 +548,7 @@ class SettingsMenuRouter : public SectionHolder {
           8410.07, 8910.16, 9439.99, 10001.32, 10596.03, 11226.10, 11893.64, 12600.87
         };
 
-        static void settings_nav_zero(){
+void SettingsMenuRouter::settings_nav_zero(){
           dm.reinitsublevels(2);
           dm.clean_title_1_1();
           _tt.debugmidion = 0;
@@ -154,16 +558,16 @@ class SettingsMenuRouter : public SectionHolder {
           dm.dodisplay();
         }
 
-        static void OnBoardVpanelAction() {
+void SettingsMenuRouter::OnBoardVpanelAction() {
           if (lv.navlevel > 3) {
             if (((lv.sublevels[2] <= 11) || (lv.sublevels[2] > 45)) && (lv.navlevel == 4)) {
-              gg.ordered_pots[Pads.potsboards[lv.sublevels[2]]] = gg.pot_assignements[lv.sublevels[2]];
+              gg.ordered_pots[Padded.potsboards[lv.sublevels[2]]] = gg.pot_assignements[lv.sublevels[2]];
             }
             dm.returntonav(2);
           }
         }
 
-        static void OnBoardVpanelSelector() {
+void SettingsMenuRouter::OnBoardVpanelSelector() {
 
           int selecta = lv.sublevels[2];
           if (lv.navlevel == 2) {
@@ -240,7 +644,7 @@ class SettingsMenuRouter : public SectionHolder {
           }
         }
 
-        static void OnBoardVpanel() {
+void SettingsMenuRouter::OnBoardVpanel() {
           lv.setting_on_board = true ;
           OnBoardVpanelAction();
           display.clearDisplay();
@@ -284,16 +688,11 @@ class SettingsMenuRouter : public SectionHolder {
           dm.dodisplay();
         }
 
-        static void setbpms() {
-          //clocker.setDivision(4);
-          //  lv.BPMs = (60000.0/gg.millitickinterval)/4.0 ;
-          lv.BPMs = 15000 / gg.millitickinterval;
-          clocker.setBPM(lv.BPMs);
-        }
+
         
         
 
-        static void arpegiatorVpanelAction() {
+void SettingsMenuRouter::arpegiatorVpanelAction() {
           if (lv.navlevel == 3) {
             // AudioNoInterrupts();
             byte slct = (byte)lv.sublevels[2];
@@ -338,7 +737,7 @@ class SettingsMenuRouter : public SectionHolder {
           }
         }
 
-        static void arpegiatorVpanelSelector() {
+void SettingsMenuRouter::arpegiatorVpanelSelector() {
           byte startlex = 4;
 
           byte ecartl = 19;
@@ -388,7 +787,7 @@ class SettingsMenuRouter : public SectionHolder {
           }
         }
 
-        static void arpegiatorVpanel() {
+void SettingsMenuRouter::arpegiatorVpanel() {
 
           arpegiatorVpanelAction();
           if (lv.navlevel == 2) {
@@ -465,7 +864,7 @@ class SettingsMenuRouter : public SectionHolder {
 
 
 
-        static void makesettingslist() {
+void SettingsMenuRouter::makesettingslist() {
           char audio_source_lbl[3][5]= {"Mic","Line","Off"};
           char chordslabels[7][12] = {"Major", "Minor", "Diminished", "Augmented",
                                       "Sus2",  "Sus4",  "None"};
@@ -597,7 +996,7 @@ class SettingsMenuRouter : public SectionHolder {
           }
         }
 
-        static void settings_nav_one(){
+void SettingsMenuRouter::settings_nav_one(){
           
           canvasBIG.setTextSize(1);
           canvastitle.setTextSize(1);
@@ -609,7 +1008,7 @@ class SettingsMenuRouter : public SectionHolder {
           
         }
 
-        byte getnotefromfreq(float lafreq) {
+byte SettingsMenuRouter::getnotefromfreq(float lafreq) {
           for (int i = 0; i < 9 * 12; i++) {
             if (lafreq == freqtonotes[i]) {
               return i;
@@ -622,7 +1021,7 @@ class SettingsMenuRouter : public SectionHolder {
           return 0 ;
         }
 
-        byte getclosestnote(byte lei, float lafreq) {
+byte SettingsMenuRouter::getclosestnote(byte lei, float lafreq) {
           if (lei > 0) {
             if (abs(lafreq - freqtonotes[lei]) <= abs(lafreq - freqtonotes[lei - 1])) {
               return lei;
@@ -634,7 +1033,7 @@ class SettingsMenuRouter : public SectionHolder {
           }
         }
 
-        static void printlanote() {
+void SettingsMenuRouter::printlanote() {
           if (notefreq1.available()) {
             float notep = notefreq1.read();
             float probz = notefreq1.probability();
@@ -668,7 +1067,7 @@ class SettingsMenuRouter : public SectionHolder {
         }
 
       //TODO: unused, maybe fit into a menu somewhere
-      static void metronomer() {
+void SettingsMenuRouter::metronomer() {
         if ((lv.tickposition == 0) || (lv.tickposition == 16)) {
           metrodrum1.frequency(540);
           metrodrum1.noteOn();
@@ -683,16 +1082,16 @@ class SettingsMenuRouter : public SectionHolder {
         }
       }
 
-      static void toggle_echo_midi(){
+void SettingsMenuRouter::toggle_echo_midi(){
         _tt.debugmidion = !_tt.debugmidion;
       }
 
-      static void toggle_freeze_midi(){
+void SettingsMenuRouter::toggle_freeze_midi(){
         lv.freezemidicc = !lv.freezemidicc;
         dm.returntonav(1,self->home_navrange,1);
       }
 
-      static void set_synth_midi_ch(){
+void SettingsMenuRouter::set_synth_midi_ch(){
         lv.navrange = 16;
         gg.synthmidichannel = (byte)lv.sublevels[2];
         if (lv.navlevel >= 3) {
@@ -700,7 +1099,7 @@ class SettingsMenuRouter : public SectionHolder {
         }
       }
 
-      static void set_sampler_midi_ch(){
+void SettingsMenuRouter::set_sampler_midi_ch(){
         lv.navrange = 16;
         gg.samplermidichannel = lv.sublevels[2];
         if (lv.navlevel >= 3) {
@@ -708,13 +1107,13 @@ class SettingsMenuRouter : public SectionHolder {
         }
       }
       
-      static void toggle_digital_analog(){
+void SettingsMenuRouter::toggle_digital_analog(){
         gg.digitalplay = !gg.digitalplay;
         dm.returntonav(1,self->home_navrange,4);
       }
       
       
-      static void set_tap_note(){
+void SettingsMenuRouter::set_tap_note(){
         lv.navrange = 127;
         gg.tapnote = byte(lv.sublevels[2]);
         if (lv.navlevel >= 3 ){
@@ -722,19 +1121,19 @@ class SettingsMenuRouter : public SectionHolder {
         }
       }
 
-      static void set_bpms_interval(){
+void SettingsMenuRouter::set_bpms_interval(){
         lv.navrange = 620;
         gg.millitickinterval = lv.sublevels[2];
         //setbpms();
         if (lv.navlevel >= 3) {
           gg.millitickinterval = lv.sublevels[2];
-          self->setbpms();
+          _pt.setbpms();
           //tempo = gg.millitickinterval;
           dm.returntonav(1,self->home_navrange,6);
         }
       }
 
-      static void set_chord_mode(){
+void SettingsMenuRouter::set_chord_mode(){
         lv.navrange = 6;
         gg.lasetchord = lv.sublevels[2];
         if (gg.lasetchord < 6) {
@@ -747,26 +1146,31 @@ class SettingsMenuRouter : public SectionHolder {
         }
       }
 
-      static void toggle_ext_clock(){
+void SettingsMenuRouter::toggle_ext_clock(){
         //gg.externalticker = !gg.externalticker;
         gg.externalticker = !gg.externalticker;
         dm.returntonav(1,self->home_navrange,9);
       }
-
-      static void toggle_note_spy(){
+void SettingsMenuRouter::unplug_notefreq_from_ampL(){
+  Notespy_cable.disconnect();
+}
+void SettingsMenuRouter::replug_notefreq_from_ampL(){
+  Notespy_cable.connect();
+}
+void SettingsMenuRouter::toggle_note_spy(){
         self->noteprint = !self->noteprint;
         if (self->noteprint) {
-          replug_notefreq_from_ampL();
+          self->replug_notefreq_from_ampL();
           notefreq1.begin(.15);
         } else {
-          unplug_notefreq_from_ampL();
+          self->unplug_notefreq_from_ampL();
         }
         if (lv.navlevel >= 3) {
           dm.returntonav(1,self->home_navrange,10);
         }
       }
 
-      static void set_audio_source(){
+void SettingsMenuRouter::set_audio_source(){
         lv.navrange = 2 ;
         self->AudioInSource = lv.sublevels[2] ;
         if (lv.navlevel >= 3) {
@@ -775,20 +1179,8 @@ class SettingsMenuRouter : public SectionHolder {
         }
       }
 
-      static void toggle_midi_out(){
+void SettingsMenuRouter::toggle_midi_out(){
         gg.SendMidiOut = !gg.SendMidiOut ;
         dm.returntonav(1,self->home_navrange,13);
       }
      
-      static constexpr void (*_settings_menu[settings_labels_count])() = {&toggle_echo_midi,&toggle_freeze_midi,&set_synth_midi_ch,&set_sampler_midi_ch,&toggle_digital_analog,
-                                                                        &set_tap_note,&set_bpms_interval,&set_chord_mode,&arpegiatorVpanel,&toggle_ext_clock,&toggle_note_spy,
-                                                                        &OnBoardVpanel,&set_audio_source,&toggle_midi_out,&_vk.Vbuttonspanel,&_ka.show,&set_alternative_rota};
-
-      //static constexpr void (*_nav_fx[SP_LABELS_COUNT])() = {&fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one};
-
-  private:
-    static SettingsMenuRouter* self;
-};
-
-SettingsMenuRouter* SettingsMenuRouter::self = nullptr;
-SettingsMenuRouter _st;

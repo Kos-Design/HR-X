@@ -30,12 +30,7 @@ void initextmems() {
   }
 }
 
-void unplug_notefreq_from_ampL(){
-  Notespy_cable.disconnect();
-}
-void replug_notefreq_from_ampL(){
-  Notespy_cable.connect();
-}
+
 
 void loadsynthdefaults() {
 
@@ -71,9 +66,9 @@ void loadsynthdefaults() {
   mixerWL5to8.gain(1, .25);
   mixerWL5to8.gain(2, 0.0);
   mixerWL5to8.gain(3, 0.0);
-  _ft.le303filterzWet();
+  _mx.le303filterzWet();
 
-  _ft.le303filtercontrols();
+  _mx.le303filtercontrols();
   AudioInterrupts();
 }
 
@@ -97,7 +92,7 @@ void setupdefaultvalues() {
     //}
   }
 
-  unplug_notefreq_from_ampL();
+  _st.unplug_notefreq_from_ampL();
   for (int i = 0; i < FXS_COUNT; i++) {
     gg.fx[i].stopdelayline();
     delayCords[i]->disconnect();
@@ -167,7 +162,7 @@ void setupdefaultvalues() {
     if (!((i <= 11) || (i >= 46))) {
       gg.pot_assignements[i] = i + 128 + 30;
     } else {
-      gg.pot_assignements[i] = gg.ordered_pots[Pads.potsboards[i]];
+      gg.pot_assignements[i] = gg.ordered_pots[Padded.potsboards[i]];
     }
   }
 

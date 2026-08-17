@@ -16,16 +16,30 @@
 #include "SamplerMenu.h"
 #include "WaveEditorMenu.h"
 #include "WaveFormer.h"
+#include <USBHost_t36.h>
+#include "SettingsMenu.h"
+
+USBHost myusb;
+USBHub hub1(myusb);
+USBHub hub2(myusb);
+USBHub hub3(myusb);
+MIDIDevice midi1(myusb);
+MIDIDevice midi2(myusb);
+MIDIDevice midi3(myusb);
 
 FlashLiner *flash_lines[FLASH_LINERS_COUNT] = {nullptr};
 SynthLiner *synth_lines[SYNTH_LINERS_COUNT] = {nullptr};
 LiveState lv;
 EXTMEM Preset gg;
+AdsrMenuRouter _ad;
 EXTMEM BigBuffers bb;
 SequencerClocker clocker;
 ActiveLinesRegister _rg;
 Arpegiator ap;
 MidiRecorder md;
+VirtualKnobs _vk;        
+SettingsMenuRouter _st;
+PresetsMenuRouter _ps;
 EXTMEM Pattern pp ;
 KnobAssigner _ka;
 RecorderMenuRouter _rd;
@@ -33,7 +47,7 @@ SongEditorRouter _se = SongEditorRouter();
 SongMenuRouter _sg;
 EXTMEM SamplerMenuRouter _sp;
 WaveformsMenuRouter _wf;
-EXTMEM Pads Pads;
+EXTMEM Pads Padded;
 Muxer Muxer;
 TriggerMessenger _tt;
 

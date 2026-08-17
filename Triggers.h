@@ -1,18 +1,6 @@
 #pragma once
 
 #include "MenuClasses.h"
-bool retestarpege();
-
-extern DisplayManager dm ;
-void synth_arpegiator_ticker(uint8_t, uint8_t, uint8_t);
-void notes_edgecases(uint8_t,uint8_t);
-
-void setchordnotes(uint8_t,uint8_t);
-void setchordnotesOff(uint8_t,uint8_t);
-void shutlineroff(uint8_t,uint8_t);
-byte incrementarpegiatingNote(uint8_t);
-bool testarpege(uint8_t);
-void dotapaverage();
 
 class MidiRecorder {
     public:
@@ -22,8 +10,8 @@ class MidiRecorder {
         void recordmidinotes(int liner, byte channel, byte lenote, byte velocity);
         void recordCCmidinotes(byte channel, byte lanote, byte leccval);
 
-        bool isalreadysameSamplerinpat(byte lenote,int tick);
-        int tick_for_that(int tick);
+        bool isalreadysameSamplerinpat(byte lenote,int ticko);
+        int tick_for_that(int ticko);
         void recordmidinotes2(int liner, byte channel, byte lenote, byte velocity);
       void record_synth_notesOff(int liner, byte channel, byte lenote, byte velocity);
 };
@@ -109,21 +97,31 @@ class TriggerMessenger {
         void MaNoteOff(MidiEventer msg);
 
         static void MaControlChange(byte channel, byte control, byte value);
+        static void MaProgramchange(byte channel, byte data1);
 
+        static void advance_tick();
+        void tick();
+        int clean_cursor(int pos);
         void moncontrollercc(byte channel, byte control, byte value);
-
+        void shutlineroff(byte chan,byte data1);
         void cc_edgecases(byte control, byte value);
         void notes_edgecases(byte note, byte velo);
-
+        void setchordnotes(byte absolutenote, byte lachord);
+        void setchordnotesOff(byte absolutenote, byte lachord);
         void helper_onbard();
         bool noCCrecordlist(byte lanotee);
         void taptap();
+        void dotapaverage();
+        void synth_used_this_note(byte data1);
+        void flash_used_this_note(byte data1);
+        void stopallnotes();
         byte get_free_synth(byte note);
         byte get_free_sampler(byte note);
         void initiateasynthliner(byte data1, byte data2);
         void initiateasamplerliner(byte data1, byte data2);
         void inittapstime();
         void starttaptap();
+        static void Mytickmidi();
         void resettaptap();
         void debugmidi(char *, MidiEventer);
     private:
@@ -133,7 +131,55 @@ extern TriggerMessenger _tt;
 
 class Arpegiator {
     public:
-      Arpegiator();
-      void initiatearpegesynthliner(byte larpegeline, byte data1, byte data2);
+        Arpegiator();
+        void initiatearpegesynthliner(byte larpegeline, byte data1, byte data2);
+        void playarpegenote(byte larpegeline);
+        bool testarpege(byte lanote);
+        bool retestarpege();
+        void decrementgamme(byte larpegeline);
+        void randomdirtest(byte larpegeline);
+        void randomgammedirtest(byte larpegeline);
+        void tickarpegedown(byte larpegeline);
+        void tickarpege(byte larpegeline);
+        void synth_arpegiator_ticker(byte data1, byte data2, byte larpegeline);
+        void arpegioticker(byte larpegeline);
+        void ticklatriplet(byte larpegeline);
+        void ticklagamme(byte larpegeline);
+        void incrementcs(byte larpegeline);
+        void decrementcrementns(byte larpegeline);
+
+        void allarpegeoffs();
+        byte incrementarpegiatingNote(byte lanote);
+        bool decrementarpegiatingNote();
 };
+
 extern Arpegiator ap;
+
+class PresetsMenuRouter {
+    public:
+        PresetsMenuRouter();
+        FilesLister *catalog;
+        static constexpr byte ps_labels_count = 5;
+
+        static void route_navlevel();
+        static void presets_nav_zero();
+        static void show();
+        static void presets_menu();
+        static void write_preset();
+        static void read_preset();
+        static void copypreset();
+        static void deletepreset();
+        static void remove_preset();
+        static void duplicate_preset();
+        static void load_preset();
+        static void save_preset();
+        static void params_presets();
+        static void lv1_wrapper(void (*func)());
+        //arbitrary depth of 5, don't go further
+        static constexpr void (*_route_nav[5])() = {&presets_nav_zero, &route_navlevel, &route_navlevel, &route_navlevel, &route_navlevel};
+        static constexpr void (*_nav_presets[5])() = {&save_preset,&load_preset,&duplicate_preset,&remove_preset,&params_presets};
+  private:
+    static PresetsMenuRouter* self;
+};
+
+extern PresetsMenuRouter _ps;

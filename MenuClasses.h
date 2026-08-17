@@ -47,6 +47,33 @@ class SectionHolder{
 class DisplayManager{
     public:
         bool ILI_128x64 = true;
+        float eqRawBars[NUM_BARS]{};
+        uint8_t eqBars[NUM_BARS]{};
+        float fftGain[NUM_BARS] = {
+            15.0f,17.7f,45.82f,58.825f,
+            65.2f,92.575f,98.6f,106.92f,
+            
+            117.12f,127.255f,136.5f,
+            144.71f,151.9f,157.95f,
+            
+            163.15f,167.25f,180.0f,181.47f,
+            181.94f,181.44f,180.0f, 193.8f,
+
+            200.5f, 206.9f, 213.0f, 218.8f,
+            224.3f, 229.5f, 234.4f, 239.0f,
+
+            243.2f, 247.1f, 250.6f, 253.8f,
+            256.6f, 259.0f, 260.9f, 262.5f,
+
+            263.6f, 264.3f, 264.6f, 264.5f,
+            263.9f, 262.9f, 261.5f, 259.7f,
+
+            240.0f, 249.6f, 259.3f, 269.3f,
+            279.5f, 289.8f, 300.3f, 311.1f,
+            
+            322.0f, 333.1f, 344.4f, 355.9f,
+            367.5f, 379.4f, 391.4f, 403.6f
+        };
         void display_home(void);
         void setupscreen(void);
         void displayleBGimg(const unsigned char *img);
@@ -60,7 +87,12 @@ class DisplayManager{
         void clean_title_2(void);
         void clean_title_2_1(void);
         void doConfirmpanel(char *letitlemsg);
-
+        void display_oscilloscope();
+        void stop_spectro();
+        void start_spectro();
+        void oscilloscope_loop();
+        void UpdateSpectrum();
+        void DrawSpectrum64();
         void dodisplayplayhead();
         void initializelapleasewaitarray();
         void shiftlapleasewaitarray();
@@ -108,6 +140,10 @@ class GlobalMixer : public SectionHolder {
         static void actionwmixer(byte vknob);
         static void actionwmixerM(int lebus);
         static void setwavemixlevel();
+        static void le303filterzWet();
+        static void Wavespreamp303controls();
+        static void setle303filterpass(int linei);
+        static void le303filtercontrols();
 
     private:
         byte *wmixer_tmp_pointers[12];
@@ -136,6 +172,8 @@ class SequencerClocker : public AudioStream {
         void (*_callback_96)() = nullptr;
 };
 
+extern SequencerClocker clocker;
+
 class ClockSink : public AudioStream {
     public:
         ClockSink() : AudioStream(1, inputQueueArray) {}
@@ -148,7 +186,7 @@ class ClockSink : public AudioStream {
 
 
 class DisplayConsoler : public Print {
-public:
+  public:
     DisplayConsoler();
 
     void clearing();
@@ -156,7 +194,7 @@ public:
     void wipe();
     size_t write(uint8_t c) override;
 
-private:
+  private:
     void newLine();
     void scroll();
     void drawChar(char c);
