@@ -1,7 +1,6 @@
 #pragma once
-
 #include "MenuClasses.h"
-#include "KnobAssigner.h"
+#include "FilesLister.h"
 
 class GlideMenuRouter : public SectionHolder {
   public:
@@ -14,8 +13,7 @@ class GlideMenuRouter : public SectionHolder {
             "ReversePitchAttack"
         };
 
-        uint8_t *glide_params[4] = {reinterpret_cast<uint8_t*>(&gg.glideMode),&gg.portamento_time,&gg.portamento_height,&gg.glide_slope};
-
+        static uint8_t *glide_params[4];
         static void show();
   private:
     
@@ -54,16 +52,12 @@ class Filter303MenuRouter : public SectionHolder {
   private:
     static constexpr void (*filters_pointers[8])() = {&filter_knob_freq, &filter_knob_res, &filter_knob_low, &filter_knob_band, &filter_knob_high,
                                             &filter_knob_wet, &filter_knob_preamp, &filter_knob_glide};
-                    byte *filter_tmp_pointers[8] = { &gg.le303ffilterzVknobs[0], &gg.le303ffilterzVknobs[1], &gg.mixle303ffilterzVknobs[0], &gg.mixle303ffilterzVknobs[1], &gg.mixle303ffilterzVknobs[2],
-                                              &gg.le303filterzwet, &gg.preampleswaves, &gg.portamento_time };
-
-                    byte filter_tmp_values[8] = {gg.le303ffilterzVknobs[0],gg.le303ffilterzVknobs[1],gg.mixle303ffilterzVknobs[0],gg.mixle303ffilterzVknobs[1],gg.mixle303ffilterzVknobs[2],
-                                          gg.le303filterzwet,gg.preampleswaves,gg.portamento_time };
+                    static byte *filter_tmp_pointers[8];
+                    static byte filter_tmp_values[8];
     static Filter303MenuRouter* self;
 };
 
 extern Filter303MenuRouter _ft;
-
 
 class Mp3PlayerRouter : public SectionHolder {
     public:
@@ -104,13 +98,12 @@ class Mp3PlayerRouter : public SectionHolder {
 
 extern Mp3PlayerRouter _mp;
 
-
 class SynthMenuRouter : public SectionHolder {
     public:
         SynthMenuRouter();
-        int unit = (int)gg.wavesfreqs[lv.oscillator] % 10;
-        int tenth     = ((int)(gg.wavesfreqs[lv.oscillator] * 10)) % 10;
-        int hundredth = ((int)(gg.wavesfreqs[lv.oscillator] * 100)) % 10;
+        int unit = 1;
+        int tenth = 0;
+        int hundredth = 0;
         //TODO give default value based on wformtype
         const byte synth_params_count = 8;
 
@@ -152,7 +145,8 @@ class SynthMenuRouter : public SectionHolder {
         static void amplitude_modulation();
         static void setwavetypefromlist();
         static void setphaselevel();
-        static constexpr void (*_nav_synth[SN_MENU_LABELS_COUNT])() = {&wavesline_selector,&_mx.show, &_ad.show, &_mp.mp3_player_panel, &_ft.show,&_gd.show};
+
+        static void (*_nav_synth[SN_MENU_LABELS_COUNT])();
         static constexpr void (*_waveliners[6])() = {&synths_switcher,&wavelining, &wavelining, &wavelining,&wavelining, &wavelining};
         static constexpr void (*modulation_pointers[4])() = {&no_modulation,&freq_modulation,&phase_modulation,&amplitude_modulation};
 

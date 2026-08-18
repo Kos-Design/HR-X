@@ -1,16 +1,16 @@
 #include "FxMenu.h"
 #include "LfoMenu.h"
+#include "Presets.h"
 
 FxMenuRouter* FxMenuRouter::self = nullptr;
 
-
 FxMenuRouter::FxMenuRouter() {
-                      self = this ;
-                      self->home_navrange=2;
-                      self->relative_navlevel=1;
-                      self->max_navlevel=5;
-                      self->sublevels_address={6,0,0};
-                      }
+  self = this ;
+  self->home_navrange=2;
+  self->relative_navlevel=1;
+  self->max_navlevel=5;
+  self->sublevels_address={6,0,0};
+}
       
       /*
 void FxMenuRouter::show() {

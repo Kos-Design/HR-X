@@ -2,8 +2,6 @@
 
 #include "MenuClasses.h"
 
-
-
 class FxMenuRouter : public SectionHolder {
   public:
       FxMenuRouter();

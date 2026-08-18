@@ -3,9 +3,6 @@
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
-
-
-
 class SamplerMenuRouter : public SectionHolder {
     public:
         SamplerMenuRouter();
@@ -58,19 +55,19 @@ class SamplerMenuRouter : public SectionHolder {
         static void showsamplerfilesList();
         static void showFlashSamplesList();
         static void drawtickboxflashBIG(int lestartx, int lestarty, int lasizex, int lasizey,
-                                typeof(SSD1306_WHITE) lacolor, int lefile);
+                                int lacolor, int lefile);
         static void drawtickboxflashtitle(int lestartx, int lestarty, int lasizex, int lasizey,
-                                  typeof(SSD1306_WHITE) lacolor, int lefile);
+                                  int lacolor, int lefile);
         static void drawtickboxfolderBIG(int lestartx, int lestarty, int lasizex, int lasizey,
-                                  typeof(SSD1306_WHITE) lacolor, int lefolder);
+                                  int lacolor, int lefolder);
         static void drawtickboxfoldertitle(int lestartx, int lestarty, int lasizex,
-                                    int lasizey, typeof(SSD1306_WHITE) lacolor,
+                                    int lasizey, int lacolor,
                                     int lefolder);
         static void drawtickboxincanvasBIG(int lestartx, int lestarty, int lasizex,
-                                    int lasizey, typeof(SSD1306_WHITE) lacolor,
+                                    int lasizey, int lacolor,
                                     int lefolder, int lefile);
         static void drawtickboxincanvastitle(int lestartx, int lestarty, int lasizex,
-                                      int lasizey, typeof(SSD1306_WHITE) lacolor,
+                                      int lasizey, int lacolor,
                                       int lefolder, int lefile);
         static void addtoFlashsamplelist(char *lesample);
         static void rebuildflashsamplesnames();

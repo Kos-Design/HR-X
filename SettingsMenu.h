@@ -1,8 +1,6 @@
 #pragma once
 
 #include "MenuClasses.h"
-#include "KnobAssigner.h"
-
 
 class VirtualKnobs : public SectionHolder {
   public:
@@ -102,10 +100,7 @@ class SettingsMenuRouter : public SectionHolder {
       static void toggle_note_spy();
       static void set_audio_source();
       static void toggle_midi_out();
-      static constexpr void (*_settings_menu[settings_labels_count])() = {&toggle_echo_midi,&toggle_freeze_midi,&set_synth_midi_ch,&set_sampler_midi_ch,&toggle_digital_analog,
-                                                                        &set_tap_note,&set_bpms_interval,&set_chord_mode,&arpegiatorVpanel,&toggle_ext_clock,&toggle_note_spy,
-                                                                        &OnBoardVpanel,&set_audio_source,&toggle_midi_out,&_vk.Vbuttonspanel,&_ka.show,&set_alternative_rota};
-
+      static void (*_settings_menu[settings_labels_count])();
       //static constexpr void (*_nav_fx[SP_LABELS_COUNT])() = {&fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one};
 
   private:

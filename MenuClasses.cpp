@@ -1,5 +1,4 @@
 #include "MenuClasses.h"
-#include <Audio.h>
 #include <Encoder.h>
 #include "pads.h"
 #include <Bounce.h>
@@ -13,6 +12,8 @@
 #include "SongsMenu.h"
 #include "LfoMenu.h"
 #include "Patterns.h"
+#include "Functions.h"
+#include "Presets.h"
 
 extern Encoder myEnc;
 extern Bounce clicked;

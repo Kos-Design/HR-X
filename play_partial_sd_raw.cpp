@@ -24,7 +24,6 @@
  * THE SOFTWARE.
  */
 
-#include <Arduino.h>
 #include "play_partial_sd_raw.h"
 #include "spi_interrupt.h"
 

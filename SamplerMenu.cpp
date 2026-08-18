@@ -1,5 +1,6 @@
 #include "SamplerMenu.h"
 #include "WaveEditorMenu.h"
+#include "Presets.h"
 
 SamplerMenuRouter* SamplerMenuRouter::self = nullptr;
 
@@ -501,7 +502,7 @@ void SamplerMenuRouter::showFlashSamplesList() {
         }
 
 void SamplerMenuRouter::drawtickboxflashBIG(int lestartx, int lestarty, int lasizex, int lasizey,
-                                typeof(SSD1306_WHITE) lacolor, int lefile) {
+                                int lacolor, int lefile) {
           if (self->Flashsamplesselected[lefile] == 1) {
             canvasBIG.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
           } else {
@@ -509,7 +510,7 @@ void SamplerMenuRouter::drawtickboxflashBIG(int lestartx, int lestarty, int lasi
           }
         }
 void SamplerMenuRouter::drawtickboxflashtitle(int lestartx, int lestarty, int lasizex, int lasizey,
-                                  typeof(SSD1306_WHITE) lacolor, int lefile) {
+                                  int lacolor, int lefile) {
           if (self->Flashsamplesselected[lefile] == 1) {
             canvastitle.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
           } else {
@@ -518,7 +519,7 @@ void SamplerMenuRouter::drawtickboxflashtitle(int lestartx, int lestarty, int la
         }
 
 void SamplerMenuRouter::drawtickboxfolderBIG(int lestartx, int lestarty, int lasizex, int lasizey,
-                                  typeof(SSD1306_WHITE) lacolor, int lefolder) {
+                                  int lacolor, int lefolder) {
           if (self->samplesfoldersselected[lefolder]) {
             canvasBIG.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
           } else {
@@ -526,7 +527,7 @@ void SamplerMenuRouter::drawtickboxfolderBIG(int lestartx, int lestarty, int las
           }
         }
 void SamplerMenuRouter::drawtickboxfoldertitle(int lestartx, int lestarty, int lasizex,
-                                    int lasizey, typeof(SSD1306_WHITE) lacolor,
+                                    int lasizey, int lacolor,
                                     int lefolder) {
           if (self->samplesfoldersselected[lefolder]) {
             canvastitle.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
@@ -536,7 +537,7 @@ void SamplerMenuRouter::drawtickboxfoldertitle(int lestartx, int lestarty, int l
         }
 
 void SamplerMenuRouter::drawtickboxincanvasBIG(int lestartx, int lestarty, int lasizex,
-                                    int lasizey, typeof(SSD1306_WHITE) lacolor,
+                                    int lasizey, int lacolor,
                                     int lefolder, int lefile) {
           if (self->samplesselected[lefolder][lefile] == 1) {
             canvasBIG.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
@@ -545,7 +546,7 @@ void SamplerMenuRouter::drawtickboxincanvasBIG(int lestartx, int lestarty, int l
           }
         }
 void SamplerMenuRouter::drawtickboxincanvastitle(int lestartx, int lestarty, int lasizex,
-                                      int lasizey, typeof(SSD1306_WHITE) lacolor,
+                                      int lasizey, int lacolor,
                                       int lefolder, int lefile) {
           if (self->samplesselected[lefolder][lefile] == 1) {
             canvastitle.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);

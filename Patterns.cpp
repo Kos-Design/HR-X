@@ -1,10 +1,7 @@
 #include "Patterns.h"
-#include "MenuClasses.h"
-//#include "ParserLib.h"
-#include <Adafruit_SSD1306.h>
-#include <Adafruit_GFX.h>
-#include "FilesLister.h"
 #include "Triggers.h"
+#include "Functions.h"
+#include "Presets.h"
 
 MasterClock* MasterClock::self = nullptr;
 
@@ -1493,13 +1490,6 @@ void PatternsMenuRouter::set_arp_type(){
     }
     _tt.stopallnotes();
   }
-}
-
-void PatternsMenuRouter::setbpms() {
-  //clocker.setDivision(4);
-  //  lv.BPMs = (60000.0/gg.millitickinterval)/4.0 ;
-  lv.BPMs = 15000 / gg.millitickinterval;
-  clocker.setBPM(lv.BPMs);
 }
 
 void PatternsMenuRouter::arpegiate_synth() {

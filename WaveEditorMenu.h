@@ -3,8 +3,6 @@
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
-
-
 class RecorderMenuRouter : public SectionHolder {
     public:
         RecorderMenuRouter();

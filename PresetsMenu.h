@@ -1,6 +1,6 @@
 #pragma once
 #include "MenuClasses.h"
-
+#include "FilesLister.h"
 
 class PresetsMenuRouter {
     public:
@@ -16,6 +16,7 @@ class PresetsMenuRouter {
         static void read_preset();
         static void copypreset();
         static void deletepreset();
+        static void setbpms();
         static void remove_preset();
         static void duplicate_preset();
         static void load_preset();

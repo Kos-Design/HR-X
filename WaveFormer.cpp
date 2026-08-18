@@ -1,5 +1,6 @@
 #include "WaveFormer.h"
 #include <Encoder.h>
+#include "Presets.h"
 
 extern Encoder myEnc;
 

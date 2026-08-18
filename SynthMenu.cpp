@@ -1,6 +1,8 @@
 #include "SynthMenu.h"
 #include "Voices.h"
 #include "LfoMenu.h"
+#include "KnobAssigner.h"
+#include "Presets.h"
 
 GlideMenuRouter* GlideMenuRouter::self = nullptr;
 
@@ -10,7 +12,6 @@ GlideMenuRouter::GlideMenuRouter() {
   self->relative_navlevel=2;
   self->max_navlevel=5;
   self->sublevels_address={0,0,0};
-  
 }
 
 void GlideMenuRouter::show(){
@@ -50,6 +51,8 @@ void GlideMenuRouter::show(){
     dm.returntonav(self->relative_navlevel,self->home_navrange,lv.sublevels[2]);
   }
 }
+
+uint8_t *GlideMenuRouter::glide_params[4] = {reinterpret_cast<uint8_t*>(&gg.glideMode),&gg.portamento_time,&gg.portamento_height,&gg.glide_slope};
 
 Filter303MenuRouter* Filter303MenuRouter::self = nullptr;
 
@@ -358,6 +361,12 @@ void Filter303MenuRouter::set_filter_buff_temp() {
 void Filter303MenuRouter::show(){
   le303filterVpanel();
 }
+
+byte *Filter303MenuRouter::filter_tmp_pointers[8] = { &gg.le303ffilterzVknobs[0], &gg.le303ffilterzVknobs[1], &gg.mixle303ffilterzVknobs[0], &gg.mixle303ffilterzVknobs[1], &gg.mixle303ffilterzVknobs[2],
+                                              &gg.le303filterzwet, &gg.preampleswaves, &gg.portamento_time };
+
+byte Filter303MenuRouter::filter_tmp_values[8] = {gg.le303ffilterzVknobs[0],gg.le303ffilterzVknobs[1],gg.mixle303ffilterzVknobs[0],gg.mixle303ffilterzVknobs[1],gg.mixle303ffilterzVknobs[2],
+                                          gg.le303filterzwet,gg.preampleswaves,gg.portamento_time };
 
 Mp3PlayerRouter* Mp3PlayerRouter::self = nullptr;
 
@@ -1196,5 +1205,8 @@ void SynthMenuRouter::setphaselevel() {
           AudioInterrupts();
         }
 
-
-
+void (*SynthMenuRouter::_nav_synth[SN_MENU_LABELS_COUNT])() = {&wavesline_selector,&_mx.show, &_ad.show, &_mp.mp3_player_panel, &_ft.show,&_gd.show};
+        /*  static void (*root_route[10])();
+                          void (*SynthMenuRouter::_nav_synth[SN_MENU_LABELS_COUNT])() = {&wavesline_selector,&_mx.show, &_ad.show, &_mp.mp3_player_panel, &_ft.show,&_gd.show};
+                                    */
+       //static constexpr void (*_nav_synth[SN_MENU_LABELS_COUNT])() = {&wavesline_selector,&_mx.show, &_ad.show, &_mp.mp3_player_panel, &_ft.show,&_gd.show};

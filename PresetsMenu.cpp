@@ -1,9 +1,9 @@
 #include "PresetsMenu.h"
-#include "Patterns.h"
-#include "KnobAssigner.h"
 #include "KnobAssigner.h"
 #include "FxMenu.h"
 #include "SynthMenu.h"
+#include "Presets.h"
+
 
 PresetsMenuRouter* PresetsMenuRouter::self = nullptr;
 
@@ -30,6 +30,13 @@ void PresetsMenuRouter::presets_menu() {
               "Save", "Load", "Copy", "Delete", "Params"};
           dm.main_panel(presetmenulabels,1,self->ps_labels_count);
         }
+
+void PresetsMenuRouter::setbpms() {
+  //clocker.setDivision(4);
+  //  lv.BPMs = (60000.0/gg.millitickinterval)/4.0 ;
+  lv.BPMs = 15000 / gg.millitickinterval;
+  clocker.setBPM(lv.BPMs);
+}
 
 void PresetsMenuRouter::write_preset() {
           if (lv.locked_fileing)
@@ -81,7 +88,7 @@ void PresetsMenuRouter::read_preset() {
             lv.avoid_fx_bounce = false ;
           }
 
-          _pt.setbpms();
+          setbpms();
           _ad.ApplyADSR();
           _fx.allfxcontrolled();
           _mx.le303filterzWet();

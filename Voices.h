@@ -1,34 +1,33 @@
 #pragma once
 #include "Constants.h"
-#include <Arduino.h>
 
-void waveformize(byte l_index,byte osc_idx,float currentFreq,float targetFreq,byte velocity);
-void FMformize(byte l_index,byte osc_idx,float currentFreq,float targetFreq,byte velocity);
-void drumize(byte l_index,byte osc_idx,float currentFreq,float targetFreq,byte velocity);
-void stringize(byte l_index,byte osc_idx,float currentFreq,float targetFreq,byte velocity);
-void waveform_refresh(byte l_index,byte osc_idx,float currentFreq,byte velocity);
-void FMform_refresh(byte l_index,byte osc_idx,float currentFreq,byte velocity);
-void drum_refresh(byte l_index,byte osc_idx,float currentFreq,byte velocity);
+void waveformize(uint8_t l_index,uint8_t osc_idx,float currentFreq,float targetFreq,uint8_t velocity);
+void FMformize(uint8_t l_index,uint8_t osc_idx,float currentFreq,float targetFreq,uint8_t velocity);
+void drumize(uint8_t l_index,uint8_t osc_idx,float currentFreq,float targetFreq,uint8_t velocity);
+void stringize(uint8_t l_index,uint8_t osc_idx,float currentFreq,float targetFreq,uint8_t velocity);
+void waveform_refresh(uint8_t l_index,uint8_t osc_idx,float currentFreq,uint8_t velocity);
+void FMform_refresh(uint8_t l_index,uint8_t osc_idx,float currentFreq,uint8_t velocity);
+void drum_refresh(uint8_t l_index,uint8_t osc_idx,float currentFreq,uint8_t velocity);
 
 class SynthLiner {
   public:
-    byte l_index = 0 ;
-    bool activated = 0 ;
-    byte note = 0 ;
-    byte previous_note = 0 ;
-    byte velocity = 0 ;
-    byte sloper_step = 0;
+    int totalUpdates = 0;
+    int currentUpdate = 0;
+    float startFreq = 0.0;    
     float targetFreq = 0.0;
     float currentFreq = 0.0;
     float steps = 0.0 ;
+    uint8_t note = 0 ;
+    uint8_t previous_note = 0 ;
+    uint8_t velocity = 0 ;
+    uint8_t l_index = 0 ;
+    uint8_t sloper_step = 0;
+    bool activated = 0 ;
     bool f303 = 0 ;
-    int totalUpdates = 0;
-    int currentUpdate = 0;
-    float startFreq = 0.0;
 
-    SynthLiner(byte line_index = 0 );
+    SynthLiner(uint8_t line_index = 0 );
 
-    void liner_on(byte data1, byte data2);
+    void liner_on(uint8_t data1, uint8_t data2);
     void update_line_old();
     void update_line();
     void setPortamentoTime();
@@ -36,7 +35,7 @@ class SynthLiner {
     void activateWavelines();
     void refreshWavelines();
     void liner_off();
-    static constexpr void (*audio_obj_refresher[3])(byte,byte,float,byte) = {&waveform_refresh, &FMform_refresh, &drum_refresh};
+    static constexpr void (*audio_obj_refresher[3])(uint8_t,uint8_t,float,uint8_t) = {&waveform_refresh, &FMform_refresh, &drum_refresh};
 
 };
 
@@ -44,16 +43,13 @@ extern SynthLiner *synth_lines[SYNTH_LINERS_COUNT];
 
 class FlashLiner {
   public:
-    FlashLiner(byte line_index = 0 );
+    FlashLiner(uint8_t line_index = 0 );
 
-    byte l_index = 0 ;
+    uint8_t l_index = 0 ;
     bool activated = 0 ;
-    byte note = 0 ;
-    byte velocity = 0 ;
-
-    String playable_file = "";
-
-    void liner_on(byte data1, byte data2);
+    uint8_t note = 0 ;
+    uint8_t velocity = 0 ;
+    void liner_on(uint8_t data1, uint8_t data2);
     void liner_off();
 };
 

@@ -2,20 +2,18 @@
 
 #include "MenuClasses.h"
 
-
-
 class LFOMenuRouter : public SectionHolder {
     public:
         LFOMenuRouter();
-        int unit = (int)gg.LFOHz[lv.cclfoselector] % 10;
-        int tenth     = ((int)(gg.LFOHz[lv.cclfoselector] * 10)) % 10;
-        int hundredth = ((int)(gg.LFOHz[lv.cclfoselector] * 100)) % 10;
+        int unit = 1;
+        int tenth = 0;
+        int hundredth = 0;
         const byte sizeofLFOlabels = 9;
 
         static void show();
         static void applyLFOrmicon(int lesinthy);
         static void LFOrmType();
-        static void displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int leLFO, typeof(WAVEFORM_SINE) wavetype);
+        static void displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int leLFO, int wavetype);
         static void doLFObool();
         static void gobacktolfoparams();
         static void doLFOparamdisplayval(int laval);
@@ -32,9 +30,9 @@ class LFOMenuRouter : public SectionHolder {
         static void go_to_synth();
         static void go_previous();
         static void go_next();
-        static void restartLFO(int leLFO=lv.cclfoselector);
+        static void restartLFO(int leLFO);
         static void LFOlining();
-        static void printLFObanner(int startx, int starty, int leLFO=lv.cclfoselector);
+        static void printLFObanner(int startx, int starty, int leLFO);
         static void LFOlineBG();
         static void lfo_zero();
     private:

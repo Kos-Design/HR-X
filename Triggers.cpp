@@ -8,6 +8,10 @@
 #include "WaveFormer.h"
 #include "muxer.h"
 #include "SynthMenu.h"
+#include "Functions.h"
+#include "Presets.h"
+#include "Cablages.h"
+#include "PresetsMenu.h"
 
 Arpegiator::Arpegiator() { }
 
@@ -776,7 +780,7 @@ void TriggerMessenger::dotapaverage() {
   }
   tapaverage = tottaptime / numberoftaps;
   gg.millitickinterval = round(tapaverage / 10.0);
-  _pt.setbpms();
+  _ps.setbpms();
 }
 
 void TriggerMessenger::taptap() {

@@ -2,6 +2,8 @@
 
 #include "MenuClasses.h"
 
+extern const CcCalls ctl[] ;
+
 void fairly_often();
 void at_a_paced_rate();
 void once_in_a_while();
@@ -17,7 +19,6 @@ void unplugsynth();
 void unplugfx();
 void setupSD();
 void setup();
-
 void Volume_ctl(byte cc_value);
 void SynthVolume_ctl(byte cc_value);
 void SDPlayerVolume_ctl(byte cc_value);

@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 
 #define MULTIPLEXED_PADS 1
 
@@ -40,3 +41,30 @@
 #define VBUT_LBL_COUNT 8
 #define NUM_BARS 64
 
+struct MidiEventer{
+    uint8_t channel;
+    uint8_t note;
+    uint8_t velocity;
+};
+
+enum TrackTypes : uint8_t  {
+    Synth,
+    Flash
+};
+
+enum GlideMode : uint8_t {
+    Off,
+    Portamento,
+    ReversePortamento,
+    PitchAttack,
+    ReversePitchAttack
+};
+
+enum ADSR : uint8_t  {
+    AttackDelay,
+    Attack,
+    Hold,
+    Decay,
+    Sustain,
+    Release
+};

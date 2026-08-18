@@ -1,6 +1,8 @@
 #include "Voices.h"
 #include "Frequencies.h"
 #include "MenuClasses.h"
+#include "Presets.h"
+
 
 void waveformize(byte l_index,byte osc_idx,float currentFreq,float targetFreq,byte velocity){
   waveforms1[l_index + (osc_idx * SYNTH_LINERS_COUNT)]->amplitude(velocity / 127.0);
@@ -228,8 +230,7 @@ void FlashLiner::liner_on(byte data1, byte data2) {
     Flashmixer[int(l_index / 4)]->gain(l_index - 4 * int(l_index / 4),(gg.smixervknobs[l_index] / 127.0));
     }
     */
-    playable_file = (String)bb.Flashsamplename[gg.Sampleassigned[(int)(data1)]];
-    FlashSampler[l_index]->play(playable_file.c_str());
+    FlashSampler[l_index]->play((const char*)bb.Flashsamplename[gg.Sampleassigned[(int)(data1)]]);
 
     //playRaw(playable_file.c_str());
     activated=true;

@@ -1,5 +1,6 @@
 #include "WaveEditorMenu.h"
 #include "SamplerMenu.h"
+#include "Presets.h"
 
 
 RecorderMenuRouter* RecorderMenuRouter::self = nullptr;

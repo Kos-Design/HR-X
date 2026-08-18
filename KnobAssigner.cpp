@@ -1,4 +1,6 @@
 #include "KnobAssigner.h"
+#include "Functions.h"
+#include "Presets.h"
 
 KnobAssigner* KnobAssigner::self = nullptr;
 

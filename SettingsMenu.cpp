@@ -3,6 +3,9 @@
 #include "Triggers.h"
 #include "pads.h"
 #include "Patterns.h"
+#include "Presets.h"
+#include "KnobAssigner.h"
+#include "PresetsMenu.h"
 
 VirtualKnobs* VirtualKnobs::self = nullptr;
 
@@ -1124,7 +1127,7 @@ void SettingsMenuRouter::set_bpms_interval(){
         //setbpms();
         if (lv.navlevel >= 3) {
           gg.millitickinterval = lv.sublevels[2];
-          _pt.setbpms();
+          _ps.setbpms();
           //tempo = gg.millitickinterval;
           dm.returntonav(1,self->home_navrange,6);
         }
@@ -1177,7 +1180,17 @@ void SettingsMenuRouter::set_audio_source(){
       }
 
 void SettingsMenuRouter::toggle_midi_out(){
-        gg.SendMidiOut = !gg.SendMidiOut ;
-        dm.returntonav(1,self->home_navrange,13);
-      }
+  gg.SendMidiOut = !gg.SendMidiOut ;
+  dm.returntonav(1,self->home_navrange,13);
+}
+
+void (*SettingsMenuRouter::_settings_menu[settings_labels_count])() = {&toggle_echo_midi,&toggle_freeze_midi,&set_synth_midi_ch,&set_sampler_midi_ch,&toggle_digital_analog,
+                                                                        &set_tap_note,&set_bpms_interval,&set_chord_mode,&arpegiatorVpanel,&toggle_ext_clock,&toggle_note_spy,
+                                                                        &OnBoardVpanel,&set_audio_source,&toggle_midi_out,&_vk.Vbuttonspanel,&_ka.show,&set_alternative_rota};
+
      
+
+     /*static void (*root_route[10])();
+void (*DisplayManager::root_route[10])() = {&_sn.show,&_lf.show,&_rd.show,&_sg.show,&_pt.show,
+                                    &_st.show,&_fx.MainFxPanel,&_sp.show,&_wf.show,&_ps.show};
+*/

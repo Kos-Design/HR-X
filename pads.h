@@ -1,9 +1,9 @@
-#include <Arduino.h>
-#ifndef PADS_H
-#define PADS_H
+#pragma once
+#include <stdint.h>
+class Adafruit_Keypad;
 
 struct PadResult {
-  byte pad_result[3];
+  uint8_t pad_result[3];
 };
 
 class Pads {
@@ -14,6 +14,21 @@ public:
   bool get_back();
   int check_cancel_pad(char bitter, bool state);
   void pads_to_note();
+  static Adafruit_Keypad customKeypad;
+  bool back_pressed = false;
+  static constexpr uint8_t kROWS = 6; // rows
+  static constexpr uint8_t kCOLS = 6; // columns
+  // define the symbols on the buttons of the keypads
+  static constexpr char kkeys[kROWS][kCOLS] = {
+    {'1', '2', '3', 'A', 'E', 'F'}, {'4', '5', '6', 'B', 'G', 'H'},
+    {'7', '8', '9', 'C', 'I', 'J'}, {'*', '0', '#', 'D', 'K', 'L'},
+    {'M', 'N', 'O', 'P', 'Q', 'R'}, {'S', 'T', 'U', 'V', 'W', 'X'}};
+
+  static constexpr uint8_t colPins[kCOLS] = {26, 27, 28,
+                       29, 33, 34}; // connect to the row pinouts of the keypad
+  static constexpr uint8_t rowPins[kROWS] = {38, 37, 35, 36,
+                       39, 40}; // connect to the column pinouts of the keypad
+
   static constexpr uint8_t arranged_buttons[6][6] = {{1,  5,  9,  13, 32,  23},
                                {2,  6,  10, 14, 33,  24},
                                {3,  7,  11, 15, 34,  25},
@@ -29,5 +44,3 @@ public:
 };
 
 extern Pads Padded; 
-
-#endif

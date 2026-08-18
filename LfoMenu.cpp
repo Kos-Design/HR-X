@@ -1,5 +1,5 @@
 #include "LfoMenu.h"
-
+#include "Presets.h"
 
 LFOMenuRouter* LFOMenuRouter::self = nullptr;
 
@@ -86,7 +86,7 @@ void LFOMenuRouter::LFOrmType() {
           }
         }
 
-void LFOMenuRouter::displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int leLFO, typeof(WAVEFORM_SINE) wavetype) {
+void LFOMenuRouter::displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int leLFO, int wavetype) {
 
           canvasBIG.drawBitmap(70, 20, img, 32, 32, SSD1306_WHITE);
           canvastitle.setTextSize(1); // Draw 1X-scale text
@@ -342,36 +342,17 @@ void LFOMenuRouter::printLFObanner(int startx, int starty, int leLFO) {
 void LFOMenuRouter::LFOlineBG() {
             display.clearDisplay();
             display.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
-
+            byte lfi = lv.sublevels[1];
+            //display.fillRect(0+(lfi%2)*64, 16+(24*(lfi/2)), 64, 24, SSD1306_INVERSE);
             display.display();
+            printLFObanner((lfi%2)*64, 16+(24*(lfi/2)), lfi+1);
+
         }
 
 void LFOMenuRouter::lfo_zero(){
             lv.navrange = OSCS_COUNT-1;
             //TODO:remove maybe
             dm.reinitsublevels(2);
-
             LFOlineBG();
-
-            switch (lv.sublevels[1]) {
-            case 0:
-            printLFObanner(0, 16, 1);
-            break;
-
-            case 1:
-            printLFObanner(64, 16, 2);
-            break;
-
-            case 2:
-            printLFObanner(0, 40, 3);
-            break;
-
-            case 3:
-            printLFObanner(64, 40, 4);
-            break;
-
-            default:
-            break;
-            }
         }
        

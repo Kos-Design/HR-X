@@ -1,13 +1,7 @@
 #pragma once
 
-#include <Arduino.h>
 #include "MenuClasses.h"
 #include "FilesLister.h"
-
-enum TrackTypes : uint8_t  {
-    Synth,
-    Flash
-};
 
 struct Pattern {
   int flash_notes_length[16][PBARS];
@@ -193,7 +187,6 @@ class PatternsMenuRouter : public SectionHolder {
         byte arpegnotestick[SYNTH_LINERS_COUNT];
         byte arpegemptyticks[SYNTH_LINERS_COUNT];
         bool tripletdirection[SYNTH_LINERS_COUNT];
-        static void setbpms();
         static void route_navlevel();
         static void show();
         static void pattern_nav_zero();

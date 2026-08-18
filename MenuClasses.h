@@ -1,24 +1,58 @@
-#include "FilesLister.h"
 #pragma once
-#include "Presets.h"
-
-#include <Arduino.h>
 #include <Audio.h>
 #include <Adafruit_SSD1306.h>
-#include <Adafruit_GFX.h>
-class FilesLister;
+#include "Constants.h"
+
 struct CcCalls {
     const char *name;
     void (*tweaker)(byte);
 };
 
-extern const CcCalls ctl[] ;
-class Adafruit_SSD1306;
-class GFXcanvas1;
 extern Adafruit_SSD1306 display;
-
 extern GFXcanvas1 canvasBIG;
 extern GFXcanvas1 canvastitle;
+
+struct LiveState {
+    int sublevels[9]{};
+    int retroaction = 0;
+    int tocker = 0;
+    bool waveforming = false ;
+    bool locked_fileing = 0 ;
+    bool patternOn = 0;
+    bool stoptick = true;
+    bool recordCC = 0;
+    bool patrecord = 0;
+    bool songplaying = 0;
+    bool showing_eq = false;
+    int navlevel = 0;
+    int previousnavlevel = 0;
+    int navleveloverwrite = 2;
+    int navrange = 9;
+    int rota_true_pos = 0;
+    bool temp_buff_armed = 0 ;
+    int tickerlasttick = 0;
+    int tickposition = 0;
+    bool stoptickernextcycle = 0;
+    byte oscillator = 0;
+    byte cclfoselector = 0 ;
+    //selector for the Fx bus
+    byte fidx = 0;
+    float BPMs = (60000.0 / 115) / 4.0;
+    bool setting_on_board = false ;
+    bool freezemidicc = 0;
+    bool knobsetting = false ;
+    bool assigning_sample_to_note = false ;
+    int paddered = 0;
+    elapsedMillis frameTimer;
+    uint8_t queue_shift = 0;
+    int last_y_peak ;
+    bool showing_oscilloscope = false ;
+    bool avoid_fx_bounce = false;
+    //checking one pot per loop as it is fast as long as we call it often
+    uint8_t muxer_ch_active = 1;
+};
+
+extern LiveState lv;
 
 class SectionHolder{
     public:
