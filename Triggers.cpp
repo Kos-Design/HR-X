@@ -6,10 +6,8 @@
 #include "pads.h"
 #include "KnobAssigner.h"
 #include "WaveFormer.h"
-
-void call_setwavetypefromlist();
-void call_allfxcontrolled();
-extern Pads Padded;
+#include "muxer.h"
+#include "SynthMenu.h"
 
 Arpegiator::Arpegiator() { }
 
@@ -30,6 +28,7 @@ void Arpegiator::initiatearpegesynthliner(byte larpegeline, byte data1, byte dat
     synth_lines[free_line]->liner_on(data1, data2);
   }
 }
+
 void Arpegiator::playarpegenote(byte larpegeline) {
   if (_pt.arpegemptyticks[larpegeline] > 0) {
     decrementcrementns(larpegeline);
@@ -464,8 +463,38 @@ void TriggerMessenger::setchordnotesOff(byte absolutenote, byte lachord) {
     chordnotesoff[i] = leschords[lachord][relativenote][i];
   }
 }
+void TriggerMessenger::update_active_lines() {
+  for (int i = 0; i < _rg.synth_lines_active; i++) {
+    _ft.pseudo303(i);
+    _rg.active_synths[i]->update_line();
+  }
+}
+void TriggerMessenger::check_pots() {
+  int c_change = muxer.read_val(lv.muxer_ch_active);
+  if (c_change >= 0 && lv.muxer_ch_active !=9) {
+    _tt.MaControlChange(gg.muxed_channels[lv.muxer_ch_active], (byte)gg.ordered_pots[lv.muxer_ch_active], (byte)((c_change / 1024.0) * 127));
+  }
+  lv.muxer_ch_active = (lv.muxer_ch_active+1)%15; // mux_ch 16 is broken (pot in 9 as well)
+}
 
-
+void TriggerMessenger::check_pads() {
+  PadResult padder = Padded.padloop();
+  lv.paddered = Padded.arranged_buttons[padder.pad_result[0]][padder.pad_result[1]];
+  byte chan_received = gg.but_channel[11 + lv.paddered];
+  int cc_note_num = gg.pot_assignements[11 + lv.paddered] - 128;
+  //if multiplexed condition || 36 is the cancel button when in multiplexed mode, should not trigger another note or control.
+  if ((padder.pad_result[2] == 1) && (lv.paddered != 36)) {
+    if (cc_note_num < 0) {
+      MaControlChange(chan_received,(byte)gg.pot_assignements[11 + lv.paddered], 64);
+    }
+    else {
+      MaNoteOn((MidiEventer){chan_received, (byte)cc_note_num, gg.but_velocity[11 + lv.paddered]});
+    }
+  }
+  else if ((padder.pad_result[2] == 0) && (lv.paddered != 36) && (cc_note_num > 0)) {
+    MaNoteOff(chan_received, cc_note_num, 0);
+  }
+}
 void TriggerMessenger::MaNoteOn(MidiEventer msg) {
   byte larpegeline;
   int lachordon;
@@ -760,151 +789,5 @@ void TriggerMessenger::taptap() {
   if (millis() - starttaptime > 2000 || numberoftaps >= 4) {
     dotapaverage();
     resettaptap();
-  }
-}
-
-PresetsMenuRouter* PresetsMenuRouter::self = nullptr;
-
-PresetsMenuRouter::PresetsMenuRouter() {
-          self = this;
-          self->catalog = new FilesLister("PRESETS/SYNTH/","SYNSET",".TXT",presets_menu,self->ps_labels_count-1);
-
-        }
-
-void PresetsMenuRouter::route_navlevel(){
-          _nav_presets[lv.sublevels[1]]();
-        }
-
-void PresetsMenuRouter::presets_nav_zero(){
-          self->catalog->nav_zero();
-        }
-
-void PresetsMenuRouter::show() {
-          _route_nav[lv.navlevel-1]();
-        }
-
-void PresetsMenuRouter::presets_menu() {
-          const char* presetmenulabels[] = {
-              "Save", "Load", "Copy", "Delete", "Params"};
-          dm.main_panel(presetmenulabels,1,self->ps_labels_count);
-        }
-
-void PresetsMenuRouter::write_preset() {
-          if (lv.locked_fileing)
-            return;
-          lv.locked_fileing = 1 ;
-          FsFile preset_filer;
-          if (self->catalog->new_file_mode) {
-            String presets_base_path = "PRESETS" ;
-            String presets_sub_path = "SYNTH" ;
-            self->catalog->make_sub_folder("PRESETS", "SYNTH");
-            String new_preset_name = self->catalog->get_new_file_name() ;
-            preset_filer = SD.sdfs.open(new_preset_name.c_str(), O_WRITE | O_CREAT | O_TRUNC);
-          } else {
-            const char* overwritee = self->catalog->get_current_file_path(0).c_str();
-            self->catalog->deleteFile();
-            preset_filer = SD.sdfs.open(overwritee, O_WRITE | O_CREAT | O_TRUNC);
-          }
-          if (preset_filer) {
-            preset_filer.write((uint8_t*)&gg, sizeof(gg));
-            preset_filer.close();
-
-          }
-          preset_filer.close();
-          lv.locked_fileing = 0 ;
-          self->catalog->list_files();
-        }
-
-void PresetsMenuRouter::read_preset() {
-          if (lv.locked_fileing)
-            return;
-          lv.locked_fileing = 1 ;
-          FsFile preset_filer = SD.sdfs.open(self->catalog->get_current_file_path(0).c_str(), O_READ);
-          if (preset_filer) {
-           preset_filer.read((uint8_t*)&gg, sizeof(gg));
-          } else {
-            dm.pseudoconsole("Error with preset file");
-            return ;
-          }
-          preset_filer.close();
-          byte tmp_mixlevelsM[4];
-          byte tmp_mixlevelsL[OSCS_COUNT];
-          byte tmp_WetMixMasters[4];
-          memcpy(&tmp_mixlevelsM, &gg.mixlevelsM, sizeof(gg.mixlevelsM));
-          memcpy(&tmp_mixlevelsL, &gg.mixlevelsL, sizeof(gg.mixlevelsL));
-          memcpy(&tmp_WetMixMasters, &gg.WetMixMasters, sizeof(gg.WetMixMasters));
-
-          for (int i = 0; i < 3; i++) {
-            gg.fx[i].route_fx(gg.fx[i].plugged_fx);
-            lv.avoid_fx_bounce = false ;
-          }
-
-          _pt.setbpms();
-          _ad.ApplyADSR();
-          call_allfxcontrolled();
-          _mx.le303filterzWet();
-          _mx.Wavespreamp303controls();
-          _mx.le303filtercontrols();
-          _mx.set_dry_mix(0);
-          _mx.set_dry_mix(1);
-
-          for (int i = 0; i < OSCS_COUNT; i++) {
-            lv.oscillator = i ;
-            _mx.setwavemixlevel();
-            call_setwavetypefromlist();
-            gg.mixlevelsL[i] = tmp_mixlevelsL[i];
-            _mx.setwavemixlevel();
-          }
-          for (int i = 0; i < OSCS_COUNT; i++) {
-            lv.oscillator = i ;
-            _mx.setwavemixlevel();
-            call_setwavetypefromlist();
-            gg.mixlevelsL[i] = tmp_mixlevelsL[i];
-            _mx.setwavemixlevel();
-          }
-          for (int i = 0; i < 4; i++) {
-            gg.WetMixMasters[i] = tmp_WetMixMasters[i];
-            gg.mixlevelsM[i] = tmp_mixlevelsM[i];
-            //_mx.setmastersmixlevel ignores 4th iteration (3)
-            _mx.setmastersmixlevel(i);
-          }
-          _mx.wetmixmastercontrols();
-          lv.locked_fileing = 0 ;
-        }
-
-void PresetsMenuRouter::copypreset() {
-          self->catalog->copyFile();
-        }
-
-void PresetsMenuRouter::deletepreset() {
-          self->catalog->deleteFile();
-        }
-
-void PresetsMenuRouter::remove_preset(){
-          lv1_wrapper(self->deletepreset);
-        }
-
-void PresetsMenuRouter::duplicate_preset(){
-          lv1_wrapper(self->copypreset);
-        }
-
-void PresetsMenuRouter::load_preset(){
-          lv1_wrapper(self->read_preset);
-        }
-
-void PresetsMenuRouter::save_preset(){
-          lv1_wrapper(self->write_preset);         
-        }
-
-void PresetsMenuRouter::params_presets(){ 
-          //TODO: selection filter to load only some settings
-          dm.returntonav(1, self->ps_labels_count-1,lv.sublevels[1]);
-        }
-        
-void PresetsMenuRouter::lv1_wrapper(void (*func)()) {
-  self->catalog->nav_one(0,1);
-  if (lv.navlevel >= 3) {
-    func();
-    dm.returntonav(1, self->ps_labels_count-1,lv.sublevels[1]);
   }
 }

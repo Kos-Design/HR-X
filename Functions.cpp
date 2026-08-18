@@ -1,3 +1,445 @@
+#include "Functions.h"
+#include "WaveEditorMenu.h"
+#include <USBHost_t36.h>
+#include "SettingsMenu.h"
+#include "SynthMenu.h"
+#include "LfoMenu.h"
+#include "Triggers.h"
+#include "Patterns.h"
+#include "WaveFormer.h"
+#include "Patterns.h"
+#include "SamplerMenu.h"
+#include "SongsMenu.h"
+#include "Voices.h"
+#include "muxer.h"
+#include "pads.h"
+#include "FxMenu.h"
+#include "PresetsMenu.h"
+#include <Encoder.h>
+
+extern Encoder myEnc;
+extern USBHost myusb;
+extern USBHub hub1;
+extern USBHub hub2;
+extern USBHub hub3;
+extern MIDIDevice midi1;
+extern MIDIDevice midi2;
+extern MIDIDevice midi3;
+
+void initextmems() {
+  
+  for (int j = 0; j < PBARS; j++) {
+    pp.sampler_off_pat[j] = {0,0,0};
+    _pe.temp_sampler_partition[j] = {0,0,0};
+    for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+      pp.flash_notes_length[i][j] = 0;
+      pp.sampler_partition[i][j] = {0,0,0};
+    }
+    pp.track_cells[0][j] = 0;
+    pp.track_cells[1][j] = 0;
+    _pe.temp_synth_partition[j] = {0,0,0};
+    for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+      pp.synth_notes_length[i][j] = 0;
+      pp.synth_partition[i][j] = {0,0,0};
+      pp.synth_off_pat[i][j] = {0,0,0};
+    }
+
+    for (int i = 0; i < 128; i++) {
+      
+      pp.cc_partition[i][j] = 127;
+    }
+  }
+  for (int i = 0; i < 32; i++) {
+    for (int j = 0; j < 32; j++) {
+      bb.pots_controllers[i][j][0] = 0;
+      bb.pots_controllers[i][j][1] = 0;
+    }
+    bb.recorded_ccs[i] = 0 ;
+  }
+}
+
+void loadsynthdefaults() {
+
+  AudioNoInterrupts();
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    enveloppesL[i]->delay(gg.adsrlevels[AttackDelay]);
+    enveloppesL[i]->attack(gg.adsrlevels[Attack]);
+    // enveloppesL[i]->hold(gg.adsrlevels[2]);
+    enveloppesL[i]->decay(gg.adsrlevels[Decay]);
+    enveloppesL[i]->sustain(gg.adsrlevels[Sustain]);
+    enveloppesL[i]->release(gg.adsrlevels[Release]);
+    //enveloppesL[i]->releaseNoteOn(20);
+  }
+
+  //ch 0 is the sum of signals sent to fx should stay at 1
+  FXBusL.gain(0,1.0);
+  FXBusR.gain(0,1.0);
+  //1 = dry flash
+  FXBusL.gain(1,1.0);
+  FXBusR.gain(1,1.0);
+  //2 = dry synth
+  FXBusL.gain(2,1.0);
+  FXBusR.gain(2,1.0);
+  //3 = dry others ( IN, metro, SDWav)
+  FXBusL.gain(3,1.0);
+  FXBusR.gain(3,1.0);
+
+  mixerWL1to4.gain(0, .25);
+  mixerWL1to4.gain(1, .25);
+  mixerWL1to4.gain(2, .25);
+  mixerWL1to4.gain(3, .25);
+  mixerWL5to8.gain(0, .25);
+  mixerWL5to8.gain(1, .25);
+  mixerWL5to8.gain(2, 0.0);
+  mixerWL5to8.gain(3, 0.0);
+  _mx.le303filterzWet();
+
+  _mx.le303filtercontrols();
+  AudioInterrupts();
+}
+
+void setupdefaultvalues() {
+  _ft.initialize303group();
+  ampL.gain(1.0);
+  ampR.gain(1.0);
+  // ADSR & synths
+  loadsynthdefaults();
+
+
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    for (int j = 0; j < OSCS_COUNT; j++) {
+      Wavesmix[i]->gain(j, gg.mixlevelsL[j]/127.0);
+    }
+  }
+
+  for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+    //for (int j = 0; j < 4; j++) {
+      Flashmixer[int(i / 4)]->gain(i - 4 * int(i / 4),1.0);
+    //}
+  }
+
+  _st.unplug_notefreq_from_ampL();
+  for (int i = 0; i < FXS_COUNT; i++) {
+    gg.fx[i].stopdelayline();
+    delayCords[i]->disconnect();
+    delayCordsR[i]->disconnect();
+
+  }
+  AudioNoInterrupts();
+  for (int i = 0; i < FXS_COUNT; i++) {
+    delaypostmix[i]->gain(0, 1);
+    delaypostmix[i]->gain(1, 1);
+    delaypostmixR[i]->gain(0, 1);
+    delaypostmixR[i]->gain(1, 1);
+    delayfeedbackmix[i]->gain(0, 1);
+    delayfeedbackmix[i]->gain(1, 0);
+    delayfeedbackmixR[i]->gain(0, 1);
+    delayfeedbackmixR[i]->gain(1, 0);
+    //loop of 4 channels, not OSCS_COUNT
+    for (int j = 0; j < 4; j++) {
+      lesdelays[i]->disable(2 * j);
+      lesdelays[i]->disable(2 * j + 1);
+      lesdelaysR[i]->disable(2 * j);
+      lesdelaysR[i]->disable(2 * j + 1);
+
+      delaypremix[i * 2]->gain(j, 0);
+      delaypremix[i * 2 + 1]->gain(j, 0);
+      delaypremixR[i * 2]->gain(j, 0);
+      delaypremixR[i * 2 + 1]->gain(j, 0);
+
+    }
+    AudioInterrupts();
+  }
+  //mixed others wet
+  MasterL1.gain(0, 0);
+  MasterR1.gain(0, 0);
+  //nothing
+  MasterL1.gain(1, 0);
+  MasterR1.gain(1, 0);
+  //synth wet
+  MasterL1.gain(2, 0);
+  MasterR1.gain(2, 0);
+  //flash wet
+  MasterL1.gain(3, 0);
+  MasterR1.gain(3, 0);
+  // Wavplayer
+  MasterL.gain(0, 1.0);
+  MasterR.gain(0, 1.0);
+  //metrodrum
+  MasterL.gain(1, 0);
+  MasterR.gain(1, 0);
+  //Input
+  MasterL.gain(2, 1.0);
+  MasterR.gain(2, 1.0);
+  //PlayRaw
+  MasterL.gain(3, 1.0);
+  MasterR.gain(3, 1.0);
+
+  WetMixMasterL.gain(0, 1);
+  WetMixMasterR.gain(0, 1);
+
+
+  //needed to level fxBus & gg.wetins
+  for (int i = 0; i < 3; i++) {
+    _mx.set_dry_mix(i);
+  }
+  // if MULTIPLEXED_PADS
+  for (int i = 0; i < ALL_BUTTONS; i++) {
+    if (!((i <= 11) || (i >= 46))) {
+      gg.pot_assignements[i] = i + 128 + 30;
+    } else {
+      gg.pot_assignements[i] = gg.ordered_pots[Padded.potsboards[i]];
+    }
+  }
+
+  // Volume
+  gg.midiknobassigned[11] = 1;
+  gg.midiknobassigned[12] = 2;
+  //gg.midiknobassigned[13] = 3;
+  // FX Wet
+  gg.midiknobassigned[20] = 5;
+  //in levels
+  gg.midiknobassigned[21] = 89;
+  gg.midiknobassigned[22] = 118;
+  //audio In level
+  //gg.midiknobassigned[22] = 97;
+
+  // lv.fidx crossfader
+  //gg.midiknobassigned[10] = 69;
+
+  // 303 pulse
+  //gg.midiknobassigned[23] = 20;
+  //gg.midiknobassigned[24] = 21;
+ /*
+  
+
+  gg.pot_assignements[ALL_BUTTONS-10] = 108 ;
+  gg.pot_assignements[ALL_BUTTONS-9] = 107 ;
+  */
+  //gg.midiknobassigned[111] = 109 ;
+  //98 debugcpu
+  //pots_assignements are to map onboard buttons to midi notes or ccs
+  //gg.pot_assignements[ALL_BUTTONS-5] = 106 ;
+  gg.pot_assignements[ALL_BUTTONS-20] = 110 ;
+  gg.pot_assignements[ALL_BUTTONS-21] = 109 ;
+  gg.pot_assignements[ALL_BUTTONS-19] = 111 ;
+
+  gg.pot_assignements[ALL_BUTTONS-12] = 108 ;
+  gg.pot_assignements[ALL_BUTTONS-11] = 107 ;
+  gg.pot_assignements[ALL_BUTTONS-10] = 106 ;
+
+  gg.midiknobassigned[gg.alt_nav[2]] = 125 ;
+  gg.midiknobassigned[gg.alt_nav[3]] = 126 ;
+  gg.midiknobassigned[gg.alt_nav[0]] = 123 ;
+  gg.midiknobassigned[gg.alt_nav[1]] = 124 ;
+
+
+
+  gg.pot_assignements[ALL_BUTTONS-4] = 100 ;
+  gg.pot_assignements[ALL_BUTTONS-13] = 101 ;
+  //osc toggles
+  //midiknobs link a midi cc note to an index from ctl[] 
+  gg.midiknobassigned[100] = 116 ;
+  gg.midiknobassigned[101] = 117 ;
+  //gg.midiknobassigned[106] = 98;
+  //granular fx toggle
+  //gg.midiknobassigned[100] = 78;
+    //phase
+  //gg.midiknobassigned[17] = 76;
+  //gg.midiknobassigned[18] = 77;
+  //gg.midiknobassigned[19] = 81;
+
+ // gg.midiknobassigned[14] = 93;
+ // gg.midiknobassigned[15] = 94;
+ // gg.midiknobassigned[16] = 95;
+
+
+  //note: WetMixMasterLs[0] is the dry channel
+  for (int i = 0; i < OSCS_COUNT; i++) {
+    lv.oscillator = i;
+    _sn.setwavetypefromlist();
+  }
+  // USB Line in
+  InMixL.gain(0, 1.0);
+  InMixR.gain(0, 1.0);
+  // LineIn
+  InMixL.gain(1,1.0);
+  InMixR.gain(1, 1.0);
+  //mp3 player
+  InMixL.gain(2, 1.0);
+  InMixR.gain(2, 1.0);
+  InMixL.gain(3, 0.0);
+  InMixR.gain(3, 0.0);
+  
+  sd_mixerL.gain(0, 1.0);
+  sd_mixerR.gain(0, 1.0);
+
+  sd_mixerL.gain(1, 1.0);
+  sd_mixerR.gain(1, 1.0);
+
+  sd_mixerL.gain(2, 1.0);
+  sd_mixerR.gain(2, 1.0);
+
+  sd_mixerL.gain(3, 0.0);
+  sd_mixerR.gain(3, 0.0);
+
+  LineInPreAmpL.gain(1.0);
+  LineInPreAmpR.gain(1.0);
+}
+
+void fairly_often() {
+  //set them all on a separate cycle if possible
+  control_me();
+  dm.UpdateSpectrum();
+  Tocker.dispatch_ticks();
+}
+
+void at_a_paced_rate() {
+  _tt.update_active_lines();
+}
+
+void once_in_a_while(){
+  if (_mp.mp3_continue){
+    refresh_mp3_player();
+  }
+}
+
+void refresh_mp3_player(){
+  if (!playFlac1.isPlaying() && !playMp31.isPlaying()) {  
+    _mp.mp3_player_next();
+    _mp.mp3_player_play();
+  }
+}
+
+void loopusbHub() {
+
+  //works without .Task() but task seems to do other things too
+  myusb.Task();
+  //for multi devices in hub or devices with multiple IDs
+  //TODO: check notes, may double trigger
+  midi1.read();
+  //if (!midi1){
+    midi2.read();
+    //if (!midi2){
+       midi3.read();
+    //}
+  usbMIDI.read();
+  //usbmidi ??
+  //}
+  // needed to handle usbMIDI.read() for msgs from pc or front usb
+  /*
+  midiEventPacket_t rx;
+  do {
+    rx = usbMIDI.read();
+    if (rx.header != 0) {
+      uint8_t status_midi  = rx.byte1;
+      uint8_t type_midi    = status_midi & 0xF0;
+      uint8_t channel_midi = (status_midi & 0x0F) + 1;
+      //if (status_midi == 0xF8) _sg.midi_clock_accumulator();
+      if (status_midi == 0xF2){
+        uint8_t songpos_midi = rx.byte2 | (rx.byte3 << 7);
+        //4 seems to be pos 0 on ardour
+        if (songpos_midi == 4 ) _sg.x_ = 0 ;
+        //Serial.println(songpos_midi);
+      } 
+      switch(type_midi){
+        case 0x90:
+          MaNoteOn(channel_midi,rx.byte2,rx.byte3);
+          //rec_test(0,rx.byte1,rx.byte2,rx.byte3);
+          //song.send_to_wire(0,rx.byte1,rx.byte2,rx.byte3);
+        break;
+
+        case 0x80:
+          //rec_test(1,rx.byte1,rx.byte2,rx.byte3);
+          //song.send_to_wire(1,rx.byte1,rx.byte2,rx.byte3);
+          _tt.MaNoteOff(channel_midi,rx.byte2,rx.byte3);
+        break;
+
+        case 0xB0:
+          _tt.MaControlChange(channel_midi,rx.byte2,rx.byte3);
+        break;
+
+        default:
+        break;
+      }
+    }
+  } while (rx.header != 0);
+  */
+}
+
+void control_me(){
+  if (_st.noteprint)
+    _st.printlanote();    
+  if (MULTIPLEXED_PADS){
+    _tt.check_pads();
+    _tt.check_pots();
+  }
+  dm.evalinputs();
+  dm.evalrota(); 
+}
+
+void loop() {
+
+  loopusbHub();
+  if (millis() % 3 == 0) {
+   fairly_often();
+  } else if (millis() % gg.osc_refresher_period == 0) {
+    dm.oscilloscope_loop();
+  }
+
+  if (_rd.pre_record) {
+    if (millis() - lv.tocker > 500) {
+      _rd.rec_looping = true ;
+      _rd.pre_record = false ;
+    }
+  }
+  if ( _rd.rec_looping && (millis() % 2 == 0)) {
+    _rd.continue_looper();
+  }
+}
+
+
+void setuphubusb() {
+
+  myusb.begin();
+
+  midi1.setHandleNoteOn(_tt.MaNoteOn);
+  midi1.setHandleNoteOff(_tt.MaNoteOff);
+  midi1.setHandleControlChange(_tt.MaControlChange);
+
+  midi2.setHandleNoteOn(_tt.MaNoteOn);
+  midi2.setHandleNoteOff(_tt.MaNoteOff);
+  midi2.setHandleControlChange(_tt.MaControlChange);
+
+  midi3.setHandleNoteOn(_tt.MaNoteOn);
+  midi3.setHandleNoteOff(_tt.MaNoteOff);
+  midi3.setHandleControlChange(_tt.MaControlChange);
+
+  usbMIDI.setHandleNoteOn(_tt.MaNoteOn);
+  usbMIDI.setHandleNoteOff(_tt.MaNoteOff);
+  usbMIDI.setHandleControlChange(_tt.MaControlChange);
+  usbMIDI.setHandleClock(_sg.midi_clock_accumulator);
+  /*
+  TODO:
+  void myAfterTouchPoly(byte channel, byte note, byte velocity)
+  void myProgramChange(byte channel, byte program)
+  void myAfterTouch(byte channel, byte pressure)
+  void myPitchChange(byte channel, int pitch)
+  void mySystemExclusiveChunk(const byte *data, uint16_t length, bool last)
+  void mySystemExclusive(byte *data, unsigned int length)
+  void myTimeCodeQuarterFrame(byte data)
+  void mySongPosition(uint16_t beats)
+  void mySongSelect(byte songNumber)
+  void myTuneRequest()
+  void myClock()
+  void myStart()
+  void myContinue()
+  void myStop()
+  void myActiveSensing()
+  void mySystemReset()
+  void myRealTimeSystem(byte realtimebyte)
+  */
+}
 
 void unplugsynth() {
 
@@ -51,51 +493,6 @@ void setupSD() {
   _mp.count_mp3s();
 }
 
-void call_sn_show(){
-  _sn.show();
-}
-
-void call_allfxcontrolled(){
-  _fx.allfxcontrolled();
-}
-void call_rd_show(){
-  _rd.show();
-}
-
-void call_setwavetypefromlist(){
-  _sn.setwavetypefromlist();
-}
-
-void call_wf_show(){
-  _wf.show();
-}
-void call_ps_show(){
-  _ps.show();
-}
-void call_sp_show(){
-  _sp.show();
-}
-void call_fx_show(){
-  _fx.MainFxPanel();
-}
-void call_st_show(){
-  _st.show();
-}
-void call_sg_show(){
-  _sg.show();
-}
-void call_pt_show(){
-  _pt.show();
-}
-void call_lf_show(){
-  _lf.show();
-}
-
-void call_st_onboardPanel(){
-  _st.OnBoardVpanel();
-}
-
-
 void setup() {
 
   // consoler.println((char*)"initializing...");
@@ -106,13 +503,13 @@ void setup() {
   unplugsynth();
   unplugfx();
   for (int i=0;i<OSCS_COUNT;i++) {
-  _fx.unpluglfoonfilterz(i);
+    _fx.unpluglfoonfilterz(i);
   }
   delay(500);
   // metrodrum1.frequency(100);
   // metrodrum1.length(50);
-  init_synth_liners();
-  init_flash_liners();
+  _rg.init_synth_liners();
+  _rg.init_flash_liners();
   // metrodrum1.pitchMod(0.9);
   AudioInterrupts();
 
@@ -163,7 +560,7 @@ void setup() {
   consoler.println((char *)"starting muxer");
   consoler.refresh();
 
-  Muxer.start();
+  muxer.start();
   //queue1.begin();
   AudioMemory(1200);
   AudioShield.volume(0.0);
@@ -185,6 +582,7 @@ void setup() {
   consoler.refresh();
 
 }
+
 
 void Volume_ctl(byte cc_value){
   // audioShield.volume(1.0);
@@ -816,13 +1214,13 @@ void adjust_osc_refresher_period_ctl(byte cc_val) {
 void adjust_rota_decrease_ctl(byte cc_val){
   int this_rota = myEnc.read();
   myEnc.write(this_rota-4);
-  evalrota(); 
+  dm.evalrota(); 
 }
 
 void rota_increase_ctl(byte cc_val){
   int this_rota = myEnc.read();
   myEnc.write(this_rota+4);
-  evalrota() ;
+  dm.evalrota() ;
 }
 
 void cancel_pushed_ctl(byte cc_val){

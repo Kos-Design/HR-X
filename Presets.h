@@ -1,3 +1,4 @@
+#pragma once
 //#include "MenuClasses.h"
 #include "Constants.h"
 #include "Cablages.h"

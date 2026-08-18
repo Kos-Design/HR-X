@@ -59,6 +59,18 @@ void ActiveLinesRegister::remove_inactive_synth(SynthLiner *snth){
     }
 }
 
+void ActiveLinesRegister::init_synth_liners(){
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    synth_lines[i] = new SynthLiner(i);
+  }
+}
+
+void ActiveLinesRegister::init_flash_liners(){
+  for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+    flash_lines[i] = new FlashLiner(i);
+  }
+}
+
 SynthLiner::SynthLiner(byte line_index ) : l_index(line_index) { }
 
 void SynthLiner::liner_on(byte data1, byte data2) {

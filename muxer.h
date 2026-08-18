@@ -9,7 +9,7 @@ public:
   int get_raw(int iterer);
   int read_val(int iterer);
 
-private:
 };
+extern Muxer muxer;
 
 #endif

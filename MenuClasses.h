@@ -17,17 +17,6 @@ class Adafruit_SSD1306;
 class GFXcanvas1;
 extern Adafruit_SSD1306 display;
 
-void call_sn_show();
-void call_lf_show();
-void call_rd_show();
-void call_sg_show();
-void call_pt_show();
-void call_st_show();
-void call_fx_show();
-void call_sp_show();
-void call_wf_show();
-void call_ps_show();
-
 extern GFXcanvas1 canvasBIG;
 extern GFXcanvas1 canvastitle;
 
@@ -75,6 +64,12 @@ class DisplayManager{
             322.0f, 333.1f, 344.4f, 355.9f,
             367.5f, 379.4f, 391.4f, 403.6f
         };
+
+        int rota_enc_new_pos = 0;
+        int rota_enc_count = 0;
+        int rota_old_Pos = -999;
+        int rota_old_vrai_Pos = 0;
+
         void display_home(void);
         void setupscreen(void);
         void displayleBGimg(const unsigned char *img);
@@ -86,6 +81,7 @@ class DisplayManager{
         void clear_buffs_2_2(void);
         void clear_3(void);
         void clean_title_2(void);
+        void printit();
         void clean_title_2_1(void);
         void doConfirmpanel(char *letitlemsg);
         void display_oscilloscope();
@@ -111,6 +107,11 @@ class DisplayManager{
         void clean_title_2_2(void);
         void clean_title_1(void);
         void drawtransport();
+
+
+        // rotaencoder library increments 4 steps for 1 and keeps absolute count
+        void evalrota();
+        void evalinputs();
         void printassignedmidi(int lemidiassknob);
         void main_panel(const char* const*,int,int);
         void show(void);

@@ -4,9 +4,6 @@
 #include "pads.h"
 #include "Patterns.h"
 
-extern Pads Padded;
-
-
 VirtualKnobs* VirtualKnobs::self = nullptr;
 
 VirtualKnobs::VirtualKnobs() { 

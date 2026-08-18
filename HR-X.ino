@@ -14,12 +14,15 @@
 #include "KnobAssigner.h"
 #include "SongsMenu.h"
 #include "SamplerMenu.h"
+#include "PresetsMenu.h"
 #include "WaveEditorMenu.h"
 #include "WaveFormer.h"
 #include <USBHost_t36.h>
 #include "SettingsMenu.h"
 #include "SynthMenu.h"
 #include "LfoMenu.h"
+#include "FxMenu.h"
+#include "Functions.h"
 
 USBHost myusb;
 USBHub hub1(myusb);
@@ -55,8 +58,9 @@ SongMenuRouter _sg;
 EXTMEM SamplerMenuRouter _sp;
 WaveformsMenuRouter _wf;
 EXTMEM Pads Padded;
-Muxer Muxer;
+Muxer muxer;
 TriggerMessenger _tt;
+FxMenuRouter _fx;
 
 EXTMEM GFXcanvas1 canvasBIG(128, 64);
 EXTMEM GFXcanvas1 canvastitle(128, 16);
@@ -123,3 +127,27 @@ PatternsMenuRouter _pt;
 MasterClock Tocker;
 
 DisplayConsoler consoler;
+
+StereoDualFilter stereoWidth( mixerWAll,
+
+    MasterL1,
+    MasterR1,
+    FXBusL,
+    FXBusR,
+
+    stereoFilterL,
+    stereoFilterR,
+
+    stereoPatch1,
+    stereoPatch2,
+    stereoPatch3,
+    stereoPatch4,
+    stereoPatch5,
+    stereoPatch6
+);
+
+/*
+stereoWidth.connect();
+stereoWidth.setCutoff(1800,1950);
+stereoWidth.setResonance(0.7f,0.8f);
+*/

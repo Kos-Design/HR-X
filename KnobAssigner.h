@@ -50,3 +50,53 @@ class AdsrMenuRouter : public SectionHolder {
 };
 
 extern AdsrMenuRouter _ad;
+
+class StereoDualFilter {
+  public:
+
+    StereoDualFilter(
+        AudioStream& input,
+        AudioStream& outL,
+        AudioStream& outR,
+        AudioStream& outL2,
+        AudioStream& outR2,
+
+        AudioFilterStateVariable& filterL,
+        AudioFilterStateVariable& filterR,
+
+        AudioConnection& p1,
+        AudioConnection& p2,
+        AudioConnection& p3,
+        AudioConnection& p4,
+        AudioConnection& p5,
+        AudioConnection& p6);
+        
+    bool stereo_toggled = false ;
+
+    void disconnect_standard();
+    void reconnect_standard();
+    void connect();
+    void disconnect();
+    void setCutoff(float left,float right);
+    void setResonance(float left,float right);
+  private:
+
+    AudioStream& mInput;
+
+    AudioStream& mOutL;
+    AudioStream& mOutR;
+    AudioStream& mOutL2;
+    AudioStream& mOutR2;
+
+    AudioFilterStateVariable& mFilterL;
+    AudioFilterStateVariable& mFilterR;
+
+    AudioConnection& patchInL;
+    AudioConnection& patchInR;
+    AudioConnection& patchOutL;
+    AudioConnection& patchOutR;
+    AudioConnection& patchOutL2;
+    AudioConnection& patchOutR2;
+};
+
+extern StereoDualFilter stereoWidth;

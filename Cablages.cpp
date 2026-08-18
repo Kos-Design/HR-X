@@ -1199,4 +1199,19 @@ EXTMEM AudioConnection          sd_mix_mp3R(playMp31, 1, sd_mixerR, 1);
 EXTMEM AudioConnection          sd_mix_flacL(playFlac1, 0, sd_mixerL, 2);
 EXTMEM AudioConnection          sd_mix_flacR(playFlac1, 1, sd_mixerR, 2);
 
+AudioFilterStateVariable stereoFilterL;
+AudioFilterStateVariable stereoFilterR;
+
+// Optional modulation
+AudioSynthWaveform stereoLFOL;
+AudioSynthWaveform stereoLFOR;
+
+AudioConnection stereoPatch1;
+AudioConnection stereoPatch2;
+AudioConnection stereoPatch3;
+AudioConnection stereoPatch4;
+AudioConnection stereoPatch5;
+AudioConnection stereoPatch6;
+AudioConnection lfo_stereoL(stereoLFOL,0,stereoFilterL,1);
+AudioConnection lfo_stereoR(stereoLFOR,0,stereoFilterR,1);
 

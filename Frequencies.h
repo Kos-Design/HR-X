@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <Arduino.h>
 
+//EXTMEM and floats do not get along well
 const float notestofreq[128]{
   8.2129616380,
   8.7013297508,

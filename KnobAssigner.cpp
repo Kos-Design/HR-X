@@ -389,3 +389,93 @@ void AdsrMenuRouter::sliceR() {
 
     }
 
+StereoDualFilter::StereoDualFilter(
+        AudioStream& input,
+        AudioStream& outL,
+        AudioStream& outR,
+        AudioStream& outL2,
+        AudioStream& outR2,
+
+        AudioFilterStateVariable& filterL,
+        AudioFilterStateVariable& filterR,
+
+        AudioConnection& p1,
+        AudioConnection& p2,
+        AudioConnection& p3,
+        AudioConnection& p4,
+        AudioConnection& p5,
+        AudioConnection& p6)
+
+        :
+
+        mInput(input),
+        mOutL(outL),
+        mOutR(outR),
+        mOutL2(outL2),
+        mOutR2(outR2),
+
+        mFilterL(filterL),
+        mFilterR(filterR),
+
+        patchInL(p1),
+        patchInR(p2),
+        patchOutL(p3),
+        patchOutR(p4),
+        patchOutL2(p5),
+        patchOutR2(p6){ 
+
+}
+
+void StereoDualFilter::disconnect_standard(){
+  patchCord150.disconnect();
+  patchCord151.disconnect();
+  patchCord148.disconnect();
+  patchCord149.disconnect();
+}
+
+void StereoDualFilter::reconnect_standard(){
+  patchCord150.connect();
+  patchCord151.connect();
+  patchCord148.connect();
+  patchCord149.connect();
+}
+
+void StereoDualFilter::connect(){
+  disconnect_standard();
+  stereoLFOL.begin(0.4, 0.025, WAVEFORM_SINE);
+  stereoLFOR.begin(0.4, 0.025, WAVEFORM_SINE);
+  stereoLFOL.phase(180);
+
+  patchInL.connect(mInput,0,mFilterL,0);
+  patchInR.connect(mInput,0,mFilterR,0);
+  
+  patchOutL.connect(mFilterL,0,mOutL,2);
+  patchOutR.connect(mFilterR,0,mOutR,2);
+  patchOutL2.connect(mFilterL,0,mOutL2,2);
+  patchOutR2.connect(mFilterR,0,mOutR2,2);
+}
+
+void StereoDualFilter::disconnect(){
+  patchInL.disconnect();
+  patchInR.disconnect();
+
+  patchOutL.disconnect();
+  patchOutR.disconnect();
+  patchOutL2.disconnect();
+  patchOutR2.disconnect();
+  reconnect_standard();
+}
+
+void StereoDualFilter::setCutoff(float left,float right) {
+  mFilterL.frequency(left);
+  mFilterR.frequency(right);
+  mFilterR.octaveControl(2.5);
+  mFilterL.octaveControl(2.5);
+}
+
+void StereoDualFilter::setResonance(float left,float right)  {
+    mFilterL.resonance(left);
+    mFilterR.resonance(right);
+}
+
+

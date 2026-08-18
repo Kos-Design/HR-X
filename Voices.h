@@ -66,7 +66,8 @@ class ActiveLinesRegister {
 
       void add_active_synth(SynthLiner *snth);
       void remove_inactive_synth(SynthLiner *snth);
-
+      void init_synth_liners();
+      void init_flash_liners();
       SynthLiner *active_synths[SYNTH_LINERS_COUNT];
 };
 

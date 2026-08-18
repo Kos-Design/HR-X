@@ -1,10 +1,25 @@
 #include "MenuClasses.h"
 #include <Audio.h>
 #include <Encoder.h>
-//#include "Presets.h"
-extern Encoder myEnc;
+#include "pads.h"
+#include <Bounce.h>
+#include "SamplerMenu.h"
+#include "SynthMenu.h"
+#include "PresetsMenu.h"
+#include "WaveEditorMenu.h"
+#include "WaveFormer.h"
+#include "FxMenu.h"
+#include "SettingsMenu.h"
+#include "SongsMenu.h"
+#include "LfoMenu.h"
+#include "Patterns.h"
 
-extern AudioControlSGTL5000 AudioShield;
+extern Encoder myEnc;
+extern Bounce clicked;
+extern Bounce Backb;
+
+void cancel_pushed_ctl(byte);
+void validate_pushed_ctl(byte);
 
 void SectionHolder::set_home(void (*_cb)()){
     _home = _cb;
@@ -214,6 +229,83 @@ void DisplayManager::printlabel(char *toprint) {
     display.println(toprint);
 }
 
+
+void DisplayManager::evalrota() {
+  rota_enc_new_pos = myEnc.read();
+  if (rota_enc_new_pos != rota_old_Pos) {
+    rota_enc_count++;
+  }
+
+  if (rota_enc_count >= 4) {
+    rota_old_Pos = rota_enc_new_pos;
+    rota_enc_count = 0;
+    lv.rota_true_pos = rota_enc_new_pos / 4;
+    if (lv.rota_true_pos > lv.navrange) {
+      lv.rota_true_pos = 0;
+      myEnc.write(0);
+    }
+    if (lv.rota_true_pos < 0) {
+      lv.rota_true_pos = lv.navrange;
+      myEnc.write(lv.navrange * 4);
+    }
+  }
+
+  if (lv.rota_true_pos != rota_old_vrai_Pos) {
+    rota_old_vrai_Pos = lv.rota_true_pos;
+    lv.sublevels[lv.navlevel] = lv.rota_true_pos;
+    if (!lv.navlevel) {
+      dm.displaymenu();
+      return;
+    }
+    dm.show();
+    printit();
+  }
+}
+void DisplayManager::printit() {
+
+  Serial.print(" lv.navrange: ");
+  Serial.print(lv.navrange);
+  Serial.print(" lv.navlevel: ");
+  Serial.print(lv.navlevel);
+  Serial.print(" sublevel[");
+  Serial.print(lv.navlevel);
+  Serial.print("]:");
+  Serial.println(lv.sublevels[lv.navlevel]);
+  Serial.println(" ");
+  Serial.print(" s0 = ");
+  Serial.print(lv.sublevels[0]);
+  Serial.print(" s1 = ");
+  Serial.print(lv.sublevels[1]);
+  Serial.print(" s2 = ");
+  Serial.print(lv.sublevels[2]);
+  Serial.print(" s3 = ");
+  Serial.print(lv.sublevels[3]);
+  Serial.print(" s4 = ");
+  Serial.print(lv.sublevels[4]);
+  Serial.print(" s5 = ");
+  Serial.println(lv.sublevels[5]);
+
+}
+
+void DisplayManager::evalinputs() {
+
+  clicked.update();
+  if (!MULTIPLEXED_PADS) {
+    Backb.update();
+  }
+
+  bool backed = false;
+  backed = Padded.get_back();
+
+  if (backed || (!MULTIPLEXED_PADS && Backb.fallingEdge()))  {
+    cancel_pushed_ctl(0);
+  }
+  if (clicked.fallingEdge()) {
+    validate_pushed_ctl(0);
+    //printit();
+  }
+}
+
 void DisplayManager::displaymenu() {
   char menus_lbl[10][11] = {"WaveSynth", "LFOs", "CoolEditor", "Song", "Pattern", "Settings",
               "MainFX", "Sampler", "Waveformer", "Presets"};
@@ -399,8 +491,8 @@ void DisplayManager::show(){
             root_route[lv.sublevels[0]]();
         }
 
-void (*DisplayManager::root_route[10])() = {&call_sn_show,&call_lf_show,&call_rd_show,&call_sg_show,&call_pt_show,
-                                    &call_st_show,&call_fx_show,&call_sp_show,&call_wf_show,&call_ps_show};
+void (*DisplayManager::root_route[10])() = {&_sn.show,&_lf.show,&_rd.show,&_sg.show,&_pt.show,
+                                    &_st.show,&_fx.MainFxPanel,&_sp.show,&_wf.show,&_ps.show};
 
 
 void DisplayManager::_displayleBGimg(const unsigned char *img) {

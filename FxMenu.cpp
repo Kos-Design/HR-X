@@ -1,31 +1,23 @@
+#include "FxMenu.h"
+#include "LfoMenu.h"
 
-class FxMenuRouter : public SectionHolder {
-  public:
-      FxMenuRouter() {
+FxMenuRouter* FxMenuRouter::self = nullptr;
+
+
+FxMenuRouter::FxMenuRouter() {
                       self = this ;
                       self->home_navrange=2;
                       self->relative_navlevel=1;
                       self->max_navlevel=5;
                       self->sublevels_address={6,0,0};
                       }
-      static const byte mainmenufxlistsize = 10;
-
-      char mainmenufxlist[mainmenufxlistsize][12] = {
-        "Multiply", "Reverb", "Granular", "BitCrusher", "Flanger",
-        "Chorus",   "Biquad", "Filter",   "Delay",      "None"
-      };
-
-      const int bqrange = 20000;
       
-      double coeffs[STAGES_BQ][5]{};
-      uint16_t filterzrange = 14000;
-      uint8_t filter_lfo_option = 3 ;
       /*
-      static void show() {
+void FxMenuRouter::show() {
         _nav_fx[lv.sublevels[1]](); 
       }
       */
-      static void peakingEQ(float freq, float gainDB, float Q, float Fs, double *c) {
+void FxMenuRouter::peakingEQ(float freq, float gainDB, float Q, float Fs, double *c) {
 
           float A = powf(10.0f, gainDB / 40.0f);
           float w0 = 2.0f * PI * freq / Fs;
@@ -65,27 +57,11 @@ class FxMenuRouter : public SectionHolder {
         }
       }
       
-      static void prepare_coeffs(byte fx_idx){
-        peakingEQ(gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage], gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage], gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage], AUDIO_SAMPLE_RATE, self->coeffs[gg.fx[fx_idx].bqstage]);       
-        Serial.println("before set:");
-for (int i = 0; i < 5; i++)
-    Serial.println(self->coeffs[gg.fx[fx_idx].bqstage][i], 12);
-        
-        Serial.println("");
-        Serial.print("biquad: ");
-        Serial.print(fx_idx);
-        Serial.print("stage: ");
-        Serial.print(gg.fx[fx_idx].bqstage);
-        Serial.print("gain: ");
-        Serial.print(gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage]);
-        Serial.print(" freq: ");
-        Serial.print(gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage]);
-        Serial.print(" slope: ");
-        Serial.print(gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
-        
+void FxMenuRouter::prepare_coeffs(byte fx_idx){
+        peakingEQ(gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage], gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage], gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage], AUDIO_SAMPLE_RATE, self->coeffs[gg.fx[fx_idx].bqstage]); 
       }
 
-      static void dolistMainFxPanel() {
+void FxMenuRouter::dolistMainFxPanel() {
         byte startx = 5;
         byte starty = 16;
         char *textin = (char *)self->mainmenufxlist[lv.sublevels[lv.navlevel]];
@@ -102,7 +78,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void dolistmainfxlines() {
+void FxMenuRouter::dolistmainfxlines() {
 
         char mainfxlineslist[FXS_COUNT][12] = {"FX Line1", "FX Line2", "FX Line3"};
         byte startx = 5;
@@ -133,7 +109,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void biquadcontrols(byte fx_idx) {
+void FxMenuRouter::biquadcontrols(byte fx_idx) {
         // AudioNoInterrupts();
         switch (gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage]) {
         
@@ -214,7 +190,7 @@ for (int i = 0; i < 5; i++)
         // AudioInterrupts();
       }
            
-      static void delayfeedback(byte fx_idx, float lesmallfloat) {
+void FxMenuRouter::delayfeedback(byte fx_idx, float lesmallfloat) {
         // delay feedback
         if (lesmallfloat <= 0.1) {
 
@@ -232,7 +208,7 @@ for (int i = 0; i < 5; i++)
         // restartdelayline(fx_idx);
       }
 
-      static void delaytimingselect(int fx_idx, int leselecta) {
+void FxMenuRouter::delaytimingselect(int fx_idx, int leselecta) {
         int leselectee = map(leselecta, 0, 127, 0, 7);
 
         for (int j = 0; j < 4; j++) {
@@ -252,7 +228,7 @@ for (int i = 0; i < 5; i++)
         // restartdelayline(fx_idx);
       }
 
-      static void restartdelayline(int fx_idx) {
+void FxMenuRouter::restartdelayline(int fx_idx) {
 
         gg.fx[fx_idx].delaymultiplier = gg.fx[fx_idx].delayVknobs[1] + 1;
         delaytimingselect(fx_idx, gg.fx[fx_idx].delayVknobs[0]);
@@ -267,13 +243,13 @@ for (int i = 0; i < 5; i++)
         }
       }
       
-      static void changebiquadfreqvalue(byte fx_idx, int valub) {
+void FxMenuRouter::changebiquadfreqvalue(byte fx_idx, int valub) {
         // valub range 1024
         gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] = valub * 3;
         biquadcontrols(fx_idx);
       }
 
-      static void displayfxVcontrols(byte fxinstance) {
+void FxMenuRouter::displayfxVcontrols(byte fxinstance) {
         //TODO:make switch
         if (lv.sublevels[2] == 6) {
           biquadVpanel(fxinstance);
@@ -303,7 +279,7 @@ for (int i = 0; i < 5; i++)
           lv.navlevel--;
         }
       }
-      static void flangercontrols(byte fx_idx) {
+void FxMenuRouter::flangercontrols(byte fx_idx) {
         gg.fx[fx_idx].flangeoffset =
             round((gg.fx[fx_idx].flangerVknobs[0] / 127.0) * FLANGE_DELAY_LENGTH / 4);
         gg.fx[fx_idx].flangedepth =
@@ -314,7 +290,7 @@ for (int i = 0; i < 5; i++)
         flangeR[fx_idx]->voices(gg.fx[fx_idx].flangeoffset, gg.fx[fx_idx].flangedepth, gg.fx[fx_idx].flangefreq);
          AudioInterrupts();
       }
-      static void flangerVpanelAction(byte fx_idx) {
+void FxMenuRouter::flangerVpanelAction(byte fx_idx) {
         if (lv.navlevel == 4) {
           // AudioNoInterrupts();
           byte slct = lv.sublevels[3];
@@ -349,12 +325,12 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void set_wet_mix_at_sub4(byte i){
+void FxMenuRouter::set_wet_mix_at_sub4(byte i){
         gg.WetMixMasters[i + 1] = lv.sublevels[4] ;
         _mx.wetmixmastercontrols();
       }
 
-      static void flangerVpanelSelector(byte fx_idx) {
+void FxMenuRouter::flangerVpanelSelector(byte fx_idx) {
         byte knobradius = 11;
         byte centercirclex = 15 + knobradius;
         byte centercircley = 16 + knobradius;
@@ -393,7 +369,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void flangerVpanel(byte fx_idx) {
+void FxMenuRouter::flangerVpanel(byte fx_idx) {
 
         flangerVpanelAction(fx_idx);
         byte knobradius = 11;
@@ -468,13 +444,13 @@ for (int i = 0; i < 5; i++)
         dm.dodisplay();
       }
 
-      static void choruscontrols(byte fx_idx) {
+void FxMenuRouter::choruscontrols(byte fx_idx) {
         gg.fx[fx_idx].chorusvoices = round((gg.fx[fx_idx].chorusVknobs / 127.0) * 8) ;
         chorus[fx_idx]->voices(gg.fx[fx_idx].chorusvoices);
         chorusR[fx_idx]->voices(gg.fx[fx_idx].chorusvoices);
       }
 
-      static void chorusVpanelAction(byte fx_idx) {
+void FxMenuRouter::chorusVpanelAction(byte fx_idx) {
         if (lv.navlevel == 4) {
           // AudioNoInterrupts();
           byte slct = lv.sublevels[3];
@@ -495,7 +471,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void chorusVpanelSelector(byte fx_idx) {
+void FxMenuRouter::chorusVpanelSelector(byte fx_idx) {
 
         byte knobradius = 16;
         byte centercirclex = 48 + knobradius;
@@ -524,7 +500,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void chorusVpanel(byte fx_idx) {
+void FxMenuRouter::chorusVpanel(byte fx_idx) {
 
         chorusVpanelAction(fx_idx);
         byte knobradius = 16;
@@ -574,7 +550,7 @@ for (int i = 0; i < 5; i++)
         dm.dodisplay();
       }
 
-      static void granular_pitch_shift(byte fx_idx){
+void FxMenuRouter::granular_pitch_shift(byte fx_idx){
         // up to 1/3 of GRANULAR_MEMORY_SIZE in ms equivalent !!!
         //float leratio = (gg.fx[fx_idx].granularVknobs[1] / 127.0) * 3.0;
         int maxgrain = (int)(0.027 * GRANULAR_MEMORY_SIZE );// up to (GRANULAR_MEMORY_SIZE / 290) ms if grain is 12800 so ratio of 0.027 of GRANULAR_MEMORY_SIZE
@@ -599,7 +575,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void granular_freeze(byte fx_idx){
+void FxMenuRouter::granular_freeze(byte fx_idx){
         int maxgrain = (int)(0.027 * GRANULAR_MEMORY_SIZE );// up to (GRANULAR_MEMORY_SIZE / 290) ms if grain is 12800 so ratio of 0.027 of GRANULAR_MEMORY_SIZE
         float legrainleng = 0.75*map(gg.fx[fx_idx].granularVknobs[0],0,127,1,maxgrain) ;
         if (gg.fx[fx_idx].granular_freezing) {
@@ -619,13 +595,13 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void granularcontrols(byte fx_idx) {
+void FxMenuRouter::granularcontrols(byte fx_idx) {
         float g_speed = 0.125 + (map(gg.fx[fx_idx].granularVknobs[1],0,127,0,7875)/1000.0);
         granular[fx_idx]->setSpeed(g_speed);
         granularR[fx_idx]->setSpeed(g_speed);
       }
 
-      static void granularVpanelAction(byte fx_idx) {
+void FxMenuRouter::granularVpanelAction(byte fx_idx) {
         if (lv.navlevel == 4) {
           byte slct = lv.sublevels[3];
           // g leng
@@ -662,7 +638,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void granularVpanelSelector(byte fx_idx) {
+void FxMenuRouter::granularVpanelSelector(byte fx_idx) {
         const byte knobradius = 13;
         byte centercirclex = 10 + knobradius;
         byte centercircley = 16 + knobradius;
@@ -706,7 +682,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void granularVpanel(byte fx_idx) {
+void FxMenuRouter::granularVpanel(byte fx_idx) {
 
         granularVpanelAction(fx_idx);
         const byte knobradius = 13;
@@ -788,14 +764,14 @@ for (int i = 0; i < 5; i++)
         dm.dodisplay();
       }
 
-      static void bitcrusherctrl(byte fx_idx) {
+void FxMenuRouter::bitcrusherctrl(byte fx_idx) {
         bitcrusher[fx_idx]->bits(gg.fx[fx_idx].bitcrusherVknobs[0]);
         bitcrusher[fx_idx]->sampleRate(round((gg.fx[fx_idx].bitcrusherVknobs[1] / 127.0) * 44100));
         bitcrusherR[fx_idx]->bits(gg.fx[fx_idx].bitcrusherVknobs[0]);
         bitcrusherR[fx_idx]->sampleRate(round((gg.fx[fx_idx].bitcrusherVknobs[1] / 127.0) * 44100));
       }
 
-      static void bitcrusherVpanelAction(byte fx_idx) {
+void FxMenuRouter::bitcrusherVpanelAction(byte fx_idx) {
         if (lv.navlevel == 4) {
           // AudioNoInterrupts();
           byte slct = lv.sublevels[3];
@@ -823,7 +799,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void bitcrusherVpanelSelector(byte fx_idx) {
+void FxMenuRouter::bitcrusherVpanelSelector(byte fx_idx) {
 
         byte knobradius = 14;
         byte centercirclex = 25 + knobradius;
@@ -855,7 +831,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void bitcrusherVpanel(byte fx_idx) {
+void FxMenuRouter::bitcrusherVpanel(byte fx_idx) {
 
         bitcrusherVpanelAction(fx_idx);
         byte knobradius = 14;
@@ -911,7 +887,7 @@ for (int i = 0; i < 5; i++)
         dm.dodisplay();
       }
 
-      static void freeverbscontrl(byte fx_idx) {
+void FxMenuRouter::freeverbscontrl(byte fx_idx) {
         //AudioNoInterrupts();
         //other reverb type, disabled for noisy noise
         //freeverbs[fx_idx]->roomsize(gg.fx[fx_idx].reverbVknobs[0] / 127.0);
@@ -921,7 +897,7 @@ for (int i = 0; i < 5; i++)
         //AudioInterrupts();
       }
 
-      static void reverbVpanelAction(byte fx_idx) {
+void FxMenuRouter::reverbVpanelAction(byte fx_idx) {
         if (lv.navlevel == 4) {
           // AudioNoInterrupts();
           byte slct = lv.sublevels[3];
@@ -948,7 +924,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void reverbVpanelSelector(byte fx_idx) {
+void FxMenuRouter::reverbVpanelSelector(byte fx_idx) {
         byte knobradius = 14;
         byte centercirclex = 25 + knobradius;
         byte centercircley = 16 + knobradius;
@@ -979,7 +955,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void reverbVpanel(byte fx_idx) {
+void FxMenuRouter::reverbVpanel(byte fx_idx) {
         lv.navrange = 1;
         reverbVpanelAction(fx_idx);
         byte knobradius = 14;
@@ -1034,7 +1010,7 @@ for (int i = 0; i < 5; i++)
         dm.dodisplay();
       }
 
-      static void delayVpanelAction(byte fx_idx) {
+void FxMenuRouter::delayVpanelAction(byte fx_idx) {
         if (lv.navlevel == 4) {
           // AudioNoInterrupts();
           byte slct = lv.sublevels[3];
@@ -1067,7 +1043,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void delayVpanelSelector(byte fx_idx) {
+void FxMenuRouter::delayVpanelSelector(byte fx_idx) {
         byte knobradius = 11;
         byte centercirclex = 15 + knobradius;
         byte centercircley = 16 + knobradius;
@@ -1103,7 +1079,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void delayVpanel(byte fx_idx) {
+void FxMenuRouter::delayVpanel(byte fx_idx) {
 
         delayVpanelAction(fx_idx);
         byte knobradius = 11;
@@ -1176,7 +1152,7 @@ for (int i = 0; i < 5; i++)
         dm.dodisplay();
       }
 
-      static void filterVpanelAction(byte fx_idx) {
+void FxMenuRouter::filterVpanelAction(byte fx_idx) {
         if (lv.navlevel == 3) {
           self->filter_lfo_option = gg.fx[fx_idx].LFOonfilterz ;
         }
@@ -1231,7 +1207,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void lfoonfilterreplug(byte fx_idx) {
+void FxMenuRouter::lfoonfilterreplug(byte fx_idx) {
         unpluglfoonfilterz(fx_idx);
         if (gg.fx[fx_idx].LFOonfilterz < OSCS_COUNT) {
           LFOtoFilterz[((FXS_COUNT * fx_idx) + gg.fx[fx_idx].LFOonfilterz)]->connect();
@@ -1242,7 +1218,7 @@ for (int i = 0; i < 5; i++)
 
       }
 
-      static void unpluglfoonfilterz(byte fx_idx) {
+void FxMenuRouter::unpluglfoonfilterz(byte fx_idx) {
         //each line has 3 lfo linked to a filter
         for (int i = 0; i < FXS_COUNT; i++) {
           LFOtoFilterz[fx_idx*FXS_COUNT+i]->disconnect();
@@ -1250,7 +1226,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void filtercontrols(byte fx_idx) {
+void FxMenuRouter::filtercontrols(byte fx_idx) {
         gg.fx[fx_idx].filterzfreq = (gg.fx[fx_idx].ffilterzVknobs[0] / 127.0) * self->filterzrange;
         gg.fx[fx_idx].filterzreso = ((gg.fx[fx_idx].ffilterzVknobs[1]) / 127.0) * 5;
         if (gg.fx[fx_idx].filterzreso < 0.7) {
@@ -1275,7 +1251,7 @@ for (int i = 0; i < 5; i++)
         filterzR[fx_idx]->resonance(gg.fx[fx_idx].filterzreso);
         filterzR[fx_idx]->octaveControl(gg.fx[fx_idx].filterzoctv);
       }
-      static void filterVpanel(byte fx_idx) {
+void FxMenuRouter::filterVpanel(byte fx_idx) {
         char LFOnamelist[4][6] = {"LFO1", "LFO2", "LFO3", "None"};
         filterVpanelAction(fx_idx);
         byte knobradius = 9;
@@ -1377,7 +1353,7 @@ for (int i = 0; i < 5; i++)
         dm.dodisplay();
       }
 
-      static void filterVpanelSelector(byte fx_idx) {
+void FxMenuRouter::filterVpanelSelector(byte fx_idx) {
 
         byte knobradius = 9;
         byte centercirclex = 5 + knobradius;
@@ -1434,7 +1410,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void biquadVpanelAction(byte fx_idx) {
+void FxMenuRouter::biquadVpanelAction(byte fx_idx) {
         if (lv.navlevel == 4) {
           byte slct = lv.sublevels[3];
           // stage
@@ -1481,7 +1457,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void biquadVpanel(byte fx_idx) {
+void FxMenuRouter::biquadVpanel(byte fx_idx) {
         char bqtypeLabels[7][12] = {"Low Pass", "High Pass", "Band Pass",
                                     "Notch",    "LowShelf",  "High Shelf","Param EQ"};
         biquadVpanelAction(fx_idx);
@@ -1557,7 +1533,7 @@ for (int i = 0; i < 5; i++)
         dm.dodisplay();
       }
 
-      static void biquadVpanelSelector(byte fx_idx) {
+void FxMenuRouter::biquadVpanelSelector(byte fx_idx) {
         byte startlex2 = 67;
         byte totbartall = 37;
         byte topwbarstart = 16;
@@ -1607,7 +1583,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void allfxcontrolled() {
+void FxMenuRouter::allfxcontrolled() {
         for (int i = 0; i < 3; i++) {
           switch(gg.fx[i].plugged_fx){
             case 0:
@@ -1651,7 +1627,7 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      static void fx_nav_zero(){
+void FxMenuRouter::fx_nav_zero(){
         if (lv.navlevel < 2) dm.reinitsublevels(2);
         lv.avoid_fx_bounce = false ;
         lv.navrange = self->home_navrange;
@@ -1661,7 +1637,7 @@ for (int i = 0; i < 5; i++)
         lv.sublevels[2] = gg.fx[lv.sublevels[1]%FXS_COUNT].plugged_fx ;
       }
 
-      static void fx_nav_one(){
+void FxMenuRouter::fx_nav_one(){
         if (lv.navlevel < 2) dm.reinitsublevels(2);
         lv.avoid_fx_bounce = false ;
         display.clearDisplay();
@@ -1670,7 +1646,7 @@ for (int i = 0; i < 5; i++)
         dm.dodisplay();
       }
 
-      static void fx_nav_two(){
+void FxMenuRouter::fx_nav_two(){
         //remember to manage lv.avoid_fx_bounce if plugging fx outside of menu
         if (!lv.avoid_fx_bounce){
           lv.avoid_fx_bounce = true ;
@@ -1679,7 +1655,7 @@ for (int i = 0; i < 5; i++)
           displayfxVcontrols(lv.sublevels[1]);
       }
 
-      static void MainFxPanel() {
+void FxMenuRouter::MainFxPanel() {
         //if (lv.sublevels[lv.navlevel] > lv.navrange) dm.reinitsublevels(lv.navlevel);
 
         if (lv.navlevel == 1) {
@@ -1693,12 +1669,4 @@ for (int i = 0; i < 5; i++)
         }
       }
 
-      //static constexpr void (*_nav_fx[5])() = {&fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one};
-
-  private:
-    static FxMenuRouter* self;
-};
-
-FxMenuRouter* FxMenuRouter::self = nullptr;
-FxMenuRouter _fx;
 

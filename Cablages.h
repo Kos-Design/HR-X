@@ -1103,3 +1103,18 @@ extern AudioConnection          sd_mix_flacL;
 extern AudioConnection          sd_mix_flacR;
 
 
+extern AudioFilterStateVariable stereoFilterL;
+extern AudioFilterStateVariable stereoFilterR;
+
+// Optional modulation
+extern AudioSynthWaveform stereoLFOL;
+extern AudioSynthWaveform stereoLFOR;
+
+extern AudioConnection stereoPatch1;
+extern AudioConnection stereoPatch2;
+extern AudioConnection stereoPatch3;
+extern AudioConnection stereoPatch4;
+extern AudioConnection stereoPatch5;
+extern AudioConnection stereoPatch6;
+extern AudioConnection lfo_stereoL;
+extern AudioConnection lfo_stereoR;
