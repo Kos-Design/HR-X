@@ -222,7 +222,7 @@ void FilesLister::make_sub_folder(const char *base_folder, const char *subfoldee
 void FilesLister::display_files_list() {
   dm.clean_title_1_1();
   //TODO: dangerous use of global
-  canvasBIG.setCursor(left_margin,0);
+  dm.canvasBIG.setCursor(left_margin,0);
   int all_files_count = this->free_counter + this->files_counter ;
 
 
@@ -231,30 +231,30 @@ void FilesLister::display_files_list() {
   }
   //% this->files_counter  ;
   refresh_files_names();
-  canvastitle.setCursor(left_margin, 0);
+  dm.canvastitle.setCursor(left_margin, 0);
   //activate new_file_mode from instancer file actions selector
   if (this->displayable_offset == all_files_count && this->new_file_mode) {
-    canvastitle.print("New()");
+    dm.canvastitle.print("New()");
   } else {
-    canvastitle.print(this->files_displayable[0]);
+    dm.canvastitle.print(this->files_displayable[0]);
   }
   
   if (this->displayable_offset == all_files_count) {
     //if cursor is on new(), the size-1 elements are displayed below.
     for (int i = 0; i < max_displayables-1; i++) {
-      canvasBIG.setCursor(left_margin, (v_spacer * (all_files_count - this->displayable_offset)) + top_margin + ((i)*v_spacer));
-      canvasBIG.println(this->files_displayable[i]);
+      dm.canvasBIG.setCursor(left_margin, (v_spacer * (all_files_count - this->displayable_offset)) + top_margin + ((i)*v_spacer));
+      dm.canvasBIG.println(this->files_displayable[i]);
     }
   } else {
     //rest of indexes after title (refresh_names handles list population)
     for (int i = 0; i < max_displayables - 1 ; i++) {
-      canvasBIG.setCursor(left_margin, top_margin + i*v_spacer);
-      canvasBIG.println(this->files_displayable[1 + i]);
+      dm.canvasBIG.setCursor(left_margin, top_margin + i*v_spacer);
+      dm.canvasBIG.println(this->files_displayable[1 + i]);
     }
   }
   //dirty patch to hide overflowing extensions
-  canvasBIG.fillRect(0, 0, 30, 64, SSD1306_BLACK);
-  canvastitle.fillRect(0, 0, 30, 64, SSD1306_BLACK);
+  dm.canvasBIG.fillRect(0, 0, 30, 64, SSD1306_BLACK);
+  dm.canvastitle.fillRect(0, 0, 30, 64, SSD1306_BLACK);
 }
 
 void FilesLister::display_folders_list() {
@@ -271,11 +271,11 @@ void FilesLister::display_folders_list() {
 
        // strncpy(this->folder_selected, this->folders_displayable[0], 15);
         //this->folder_selected[15] = '\0';                 
-  canvastitle.setCursor(left_margin, 0);
-  canvastitle.print(this->folders_displayable[0]);
+  dm.canvastitle.setCursor(left_margin, 0);
+  dm.canvastitle.print(this->folders_displayable[0]);
   for (int i = 0; i < max_displayables - 1 ; i++) {
-    canvasBIG.setCursor(left_margin, top_margin + i*v_spacer);
-    canvasBIG.println(this->folders_displayable[1 + i]);
+    dm.canvasBIG.setCursor(left_margin, top_margin + i*v_spacer);
+    dm.canvasBIG.println(this->folders_displayable[1 + i]);
   }
   
 }

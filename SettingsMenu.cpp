@@ -29,34 +29,34 @@ void VirtualKnobs::doposkselector() {
 
       // transportpanel
       if (lv.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT) {
-        canvastitle.fillScreen(SSD1306_BLACK);
-        canvasBIG.setTextSize(1);
+        dm.canvastitle.fillScreen(SSD1306_BLACK);
+        dm.canvasBIG.setTextSize(1);
         if (gg.midiknobassigned[(70 + lv.sublevels[self->relative_navlevel] + 1 + (14 + 17))] !=
             0) {
           dm.printassignedmidi(
               gg.midiknobassigned[(70 + lv.sublevels[self->relative_navlevel] + 1 + (14 + 17))]);
 
         } else {
-          canvasBIG.setCursor(0, 0);
+          dm.canvasBIG.setCursor(0, 0);
 
-          canvasBIG.print((char *)vbuttonslabels[lv.sublevels[self->relative_navlevel]]);
+          dm.canvasBIG.print((char *)vbuttonslabels[lv.sublevels[self->relative_navlevel]]);
         }
-        canvasBIG.setCursor(97, 0);
-        canvasBIG.print("CC");
-        canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 + (14 + 17));
-        canvasBIG.setCursor(110, 8);
-        canvasBIG.print(0);
-        canvasBIG.drawPixel(ecart * lv.sublevels[self->relative_navlevel] + 6, startyp + 7,
+        dm.canvasBIG.setCursor(97, 0);
+        dm.canvasBIG.print("CC");
+        dm.canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 + (14 + 17));
+        dm.canvasBIG.setCursor(110, 8);
+        dm.canvasBIG.print(0);
+        dm.canvasBIG.drawPixel(ecart * lv.sublevels[self->relative_navlevel] + 6, startyp + 7,
                             SSD1306_WHITE);
-        canvasBIG.drawPixel(ecart * lv.sublevels[self->relative_navlevel] + 7, startyp + 6,
+        dm.canvasBIG.drawPixel(ecart * lv.sublevels[self->relative_navlevel] + 7, startyp + 6,
                             SSD1306_WHITE);
-        canvasBIG.drawPixel(ecart * lv.sublevels[self->relative_navlevel] + 7, startyp + 7,
+        dm.canvasBIG.drawPixel(ecart * lv.sublevels[self->relative_navlevel] + 7, startyp + 7,
                             SSD1306_WHITE);
       } else {
 
         if (lv.sublevels[self->relative_navlevel] >= VBUT_LBL_COUNT &&
             lv.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT + 7) {
-          canvasBIG.fillRoundRect(
+          dm.canvasBIG.fillRoundRect(
               108,
               16 + ((lv.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT) * 7), 9,
               6, 1, SSD1306_WHITE);
@@ -67,22 +67,22 @@ void VirtualKnobs::doposkselector() {
                                                 1 - (VBUT_LBL_COUNT))]);
 
           } else {
-            canvasBIG.setCursor(0, 0);
-            canvasBIG.print("V.Button ");
-            canvasBIG.print(lv.sublevels[self->relative_navlevel] + 1 -
+            dm.canvasBIG.setCursor(0, 0);
+            dm.canvasBIG.print("V.Button ");
+            dm.canvasBIG.print(lv.sublevels[self->relative_navlevel] + 1 -
                             (VBUT_LBL_COUNT));
           }
-          canvasBIG.setCursor(97, 0);
-          canvasBIG.print("CC");
-          canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 -
+          dm.canvasBIG.setCursor(97, 0);
+          dm.canvasBIG.print("CC");
+          dm.canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 -
                           (VBUT_LBL_COUNT));
-          canvasBIG.setCursor(110, 8);
-          canvasBIG.print(0);
+          dm.canvasBIG.setCursor(110, 8);
+          dm.canvasBIG.print(0);
 
         } else {
           if (lv.sublevels[self->relative_navlevel] >= VBUT_LBL_COUNT + 7 &&
               lv.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT + 14) {
-            canvasBIG.fillRoundRect(
+            dm.canvasBIG.fillRoundRect(
                 119,
                 16 + ((lv.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 7) *
                       7),
@@ -93,17 +93,17 @@ void VirtualKnobs::doposkselector() {
                                                   1 - (VBUT_LBL_COUNT))]);
 
             } else {
-              canvasBIG.setCursor(0, 0);
-              canvasBIG.print("V.Button ");
-              canvasBIG.print(lv.sublevels[self->relative_navlevel] + 1 -
+              dm.canvasBIG.setCursor(0, 0);
+              dm.canvasBIG.print("V.Button ");
+              dm.canvasBIG.print(lv.sublevels[self->relative_navlevel] + 1 -
                               (VBUT_LBL_COUNT));
             }
-            canvasBIG.setCursor(97, 0);
-            canvasBIG.print("CC");
-            canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 -
+            dm.canvasBIG.setCursor(97, 0);
+            dm.canvasBIG.print("CC");
+            dm.canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 -
                             (VBUT_LBL_COUNT));
-            canvasBIG.setCursor(110, 8);
-            canvasBIG.print(0);
+            dm.canvasBIG.setCursor(110, 8);
+            dm.canvasBIG.print(0);
 
           } else {
 
@@ -112,7 +112,7 @@ void VirtualKnobs::doposkselector() {
               xcentershifter =
                   97 - (((knobradius * 2) + 4) * (lv.sublevels[self->relative_navlevel] -
                                                   VBUT_LBL_COUNT - 14));
-              canvasBIG.drawCircle(xcentershifter, 64 - 9, knobradius - 1,
+              dm.canvasBIG.drawCircle(xcentershifter, 64 - 9, knobradius - 1,
                                   SSD1306_WHITE);
 
               if (gg.midiknobassigned[(lv.sublevels[self->relative_navlevel] + 1 -
@@ -122,18 +122,18 @@ void VirtualKnobs::doposkselector() {
                                       (VBUT_LBL_COUNT))]);
 
               } else {
-                canvasBIG.setCursor(0, 0);
-                canvasBIG.print("V.Pot ");
-                canvasBIG.print(lv.sublevels[self->relative_navlevel] + 1 -
+                dm.canvasBIG.setCursor(0, 0);
+                dm.canvasBIG.print("V.Pot ");
+                dm.canvasBIG.print(lv.sublevels[self->relative_navlevel] + 1 -
                                 (VBUT_LBL_COUNT + 14));
               }
-              canvasBIG.setCursor(97, 0);
-              canvasBIG.print("CC");
-              canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 -
+              dm.canvasBIG.setCursor(97, 0);
+              dm.canvasBIG.print("CC");
+              dm.canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 -
                               (VBUT_LBL_COUNT));
 
-              canvasBIG.setCursor(110, 8);
-              canvasBIG.print(gg.vPots[lv.sublevels[self->relative_navlevel] -
+              dm.canvasBIG.setCursor(110, 8);
+              dm.canvasBIG.print(gg.vPots[lv.sublevels[self->relative_navlevel] -
                                     (VBUT_LBL_COUNT + 14)]);
             } else {
 
@@ -144,7 +144,7 @@ void VirtualKnobs::doposkselector() {
                 xcentershifter = 16 + (((knobradius * 2) + 4) *
                                       (lv.sublevels[self->relative_navlevel] -
                                         VBUT_LBL_COUNT - 14 - 6));
-                canvasBIG.drawCircle(xcentershifter, 64 - 9 - 16, knobradius - 1,
+                dm.canvasBIG.drawCircle(xcentershifter, 64 - 9 - 16, knobradius - 1,
                                     SSD1306_WHITE);
                 if (gg.midiknobassigned[(70 + lv.sublevels[self->relative_navlevel] + 1 -
                                       (VBUT_LBL_COUNT))] != 0) {
@@ -153,18 +153,18 @@ void VirtualKnobs::doposkselector() {
                                         (VBUT_LBL_COUNT))]);
 
                 } else {
-                  canvasBIG.setCursor(0, 0);
-                  canvasBIG.print("V.Pot ");
-                  canvasBIG.print(lv.sublevels[self->relative_navlevel] + 1 -
+                  dm.canvasBIG.setCursor(0, 0);
+                  dm.canvasBIG.print("V.Pot ");
+                  dm.canvasBIG.print(lv.sublevels[self->relative_navlevel] + 1 -
                                   (VBUT_LBL_COUNT + 14));
                 }
-                canvasBIG.setCursor(97, 0);
-                canvasBIG.print("CC");
-                canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 -
+                dm.canvasBIG.setCursor(97, 0);
+                dm.canvasBIG.print("CC");
+                dm.canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 -
                                 (VBUT_LBL_COUNT));
 
-                canvasBIG.setCursor(110, 8);
-                canvasBIG.print(gg.vPots[lv.sublevels[self->relative_navlevel] -
+                dm.canvasBIG.setCursor(110, 8);
+                dm.canvasBIG.print(gg.vPots[lv.sublevels[self->relative_navlevel] -
                                       (VBUT_LBL_COUNT + 14)]);
 
               } else {
@@ -180,24 +180,24 @@ void VirtualKnobs::doposkselector() {
                                           (VBUT_LBL_COUNT))]);
 
                   } else {
-                    canvasBIG.setCursor(0, 0);
-                    canvasBIG.print("V.Pot ");
-                    canvasBIG.print(lv.sublevels[self->relative_navlevel] + 1 -
+                    dm.canvasBIG.setCursor(0, 0);
+                    dm.canvasBIG.print("V.Pot ");
+                    dm.canvasBIG.print(lv.sublevels[self->relative_navlevel] + 1 -
                                     (VBUT_LBL_COUNT + 14));
                   }
-                  canvasBIG.setCursor(97, 0);
-                  canvasBIG.print("CC");
-                  canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 -
+                  dm.canvasBIG.setCursor(97, 0);
+                  dm.canvasBIG.print("CC");
+                  dm.canvasBIG.print(70 + lv.sublevels[self->relative_navlevel] + 1 -
                                   (VBUT_LBL_COUNT));
 
-                  canvasBIG.setCursor(110, 8);
-                  canvasBIG.print(gg.vPots[lv.sublevels[self->relative_navlevel] -
+                  dm.canvasBIG.setCursor(110, 8);
+                  dm.canvasBIG.print(gg.vPots[lv.sublevels[self->relative_navlevel] -
                                         (VBUT_LBL_COUNT + 14)]);
 
                   xcentershifter = 97 - (((knobradius * 2) + 4) *
                                         (lv.sublevels[self->relative_navlevel] -
                                           VBUT_LBL_COUNT - 14 - 6 - 5));
-                  canvasBIG.drawCircle(xcentershifter, 16 + knobradius,
+                  dm.canvasBIG.drawCircle(xcentershifter, 16 + knobradius,
                                       knobradius - 1, SSD1306_WHITE);
                 }
               }
@@ -205,8 +205,8 @@ void VirtualKnobs::doposkselector() {
           }
         }
       }
-      canvasBIG.setCursor(65, 0);
-      canvasBIG.print(lv.BPMs, 1);
+      dm.canvasBIG.setCursor(65, 0);
+      dm.canvasBIG.print(lv.BPMs, 1);
     }
 
 void VirtualKnobs::Vbuttonspanel() {
@@ -278,7 +278,7 @@ void VirtualKnobs::actionvbuttons() {
             //   lv.navlevel--;
             // lv.navrange = VBUT_LBL_COUNT-1 +17+14 ;
             // lv.rota_true_pos = lv.sublevels[self->relative_navlevel + 2];
-            //  myEnc.write(lv.sublevels[self->relative_navlevel]*4);
+            //  dm.myEnc.write(lv.sublevels[self->relative_navlevel]*4);
             dm.returntonav(self->relative_navlevel);
             // Serial.print( "lv.sublevels[1]= ");
             // Serial.println( lv.sublevels[1]);
@@ -300,20 +300,20 @@ void VirtualKnobs::displayonscreenbuttons() {
   byte trianglepointy;
 
   float coeffangle;
-  display.clearDisplay();
+  dm.clearDisplay();
 
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvasBIG.setCursor(0, 0);
-  canvasBIG.setTextSize(1);
+  dm.canvasBIG.fillScreen(SSD1306_BLACK);
+  dm.canvasBIG.setCursor(0, 0);
+  dm.canvasBIG.setTextSize(1);
 
   for (int i = 0; i < 8; i++) {
-    // canvasBIG.drawLine(0, 52, 128, 52, SSD1306_WHITE) ;
-    canvasBIG.drawRoundRect(108, 16 + (i * 7), 9, 6, 1, SSD1306_WHITE);
+    // dm.canvasBIG.drawLine(0, 52, 128, 52, SSD1306_WHITE) ;
+    dm.canvasBIG.drawRoundRect(108, 16 + (i * 7), 9, 6, 1, SSD1306_WHITE);
   }
 
   for (int i = 0; i < 8; i++) {
 
-    canvasBIG.drawRoundRect(119, 16 + (i * 7), 9, 6, 1, SSD1306_WHITE);
+    dm.canvasBIG.drawRoundRect(119, 16 + (i * 7), 9, 6, 1, SSD1306_WHITE);
   }
   for (int i = 0; i < 6; i++) {
 
@@ -329,13 +329,13 @@ void VirtualKnobs::displayonscreenbuttons() {
     centercirclex = knobradius + (xcentershifter * i);
     centercircley = 16 + knobradius;
 
-    canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
+    dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
                         SSD1306_WHITE);
 
     trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
     trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
 
-    display.drawLine(centercirclex, centercircley, trianglepointx,
+    dm.drawLine(centercirclex, centercircley, trianglepointx,
                     trianglepointy, SSD1306_WHITE);
   }
   centercircley += 19 - (knobradius / 2);
@@ -352,9 +352,9 @@ void VirtualKnobs::displayonscreenbuttons() {
                     knobradius + 2;
     trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
 
-    canvasBIG.drawCircle(centercirclex + knobradius + 2, centercircley,
+    dm.canvasBIG.drawCircle(centercirclex + knobradius + 2, centercircley,
                         knobradius, SSD1306_WHITE);
-    display.drawLine(centercirclex + knobradius + 2, centercircley,
+    dm.drawLine(centercirclex + knobradius + 2, centercircley,
                     trianglepointx, trianglepointy, SSD1306_WHITE);
   }
   centercircley += 16;
@@ -368,10 +368,10 @@ void VirtualKnobs::displayonscreenbuttons() {
     trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
     trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
 
-    canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
+    dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
                         SSD1306_WHITE);
 
-    display.drawLine(centercirclex, centercircley, trianglepointx,
+    dm.drawLine(centercirclex, centercircley, trianglepointx,
                     trianglepointy, SSD1306_WHITE);
   }
 
@@ -458,30 +458,30 @@ void SettingsMenuRouter::set_alternative_rota(){
           }
           
           lv.sublevels[3]=gg.alt_nav[lv.sublevels[2]];
-          display.clearDisplay();
-          display.setCursor(0,0);
-          display.setTextSize(1);
+          dm.clearDisplay();
+          dm.setCursor(0,0);
+          dm.setTextSize(1);
          
-          display.print("Set Nav Controls");
-          display.println(" ");
-          display.println(" ");
-          display.print("Increase: ");
-          display.print(gg.alt_nav[0]);
+          dm.print("Set Nav Controls");
+          dm.println(" ");
+          dm.println(" ");
+          dm.print("Increase: ");
+          dm.print(gg.alt_nav[0]);
 
-          display.setCursor(0, 28);
-          display.print("Decrease: ");
-          display.print(gg.alt_nav[1]);
+          dm.setCursor(0, 28);
+          dm.print("Decrease: ");
+          dm.print(gg.alt_nav[1]);
 
-          display.setCursor(0, 40);
-          display.print("Validate: ");
-          display.print(gg.alt_nav[2]);
+          dm.setCursor(0, 40);
+          dm.print("Validate: ");
+          dm.print(gg.alt_nav[2]);
 
-          display.setCursor(0, 52);
-          display.print("Cancel:   ");
-          display.print(gg.alt_nav[3]);
+          dm.setCursor(0, 52);
+          dm.print("Cancel:   ");
+          dm.print(gg.alt_nav[3]);
 
-          display.drawRoundRect(56,11+12*lv.sublevels[2], 25, 16, 3, SSD1306_WHITE);
-          display.display();
+          dm.drawRoundRect(56,11+12*lv.sublevels[2], 25, 16, 3, SSD1306_WHITE);
+          dm.display();
           
           if (lv.navlevel > 3 ){
             apply_alt_ctl();
@@ -576,41 +576,41 @@ void SettingsMenuRouter::OnBoardVpanelSelector() {
           }
 
           if (selecta < 9) {
-            canvasBIG.drawRoundRect((selecta % 3) * 7 + 22, (selecta / 3) * 7 + 10, 9,
+            dm.canvasBIG.drawRoundRect((selecta % 3) * 7 + 22, (selecta / 3) * 7 + 10, 9,
                                     9., 7, SSD1306_WHITE);
           }
           if ((selecta >= 9) && (selecta < 12)) {
-            canvasBIG.drawRoundRect(46 + ((selecta - 9) * 8), 10, 8, 23, 3,
+            dm.canvasBIG.drawRoundRect(46 + ((selecta - 9) * 8), 10, 8, 23, 3,
                                     SSD1306_WHITE);
           }
           if ((selecta > 11) && (selecta < 28)) {
-            canvasBIG.drawRect(((selecta - 12) % 4) * 13 + 70,
+            dm.canvasBIG.drawRect(((selecta - 12) % 4) * 13 + 70,
                               (((selecta - 12) / 4) % 4) * 13 + 10, 14, 14,
                               SSD1306_WHITE);
           }
           if ((selecta > 27) && (selecta < 46)) {
-            canvasBIG.drawRoundRect(((selecta - 28) % 9) * 7 + 5,
+            dm.canvasBIG.drawRoundRect(((selecta - 28) % 9) * 7 + 5,
                                     ((selecta - 28) / 9) * 7 + 33, 9, 9, 9,
                                     SSD1306_WHITE);
           }
           if (selecta == 46) {
-            canvasBIG.drawRoundRect(16, 51, 34, 8, 3, SSD1306_WHITE);
+            dm.canvasBIG.drawRoundRect(16, 51, 34, 8, 3, SSD1306_WHITE);
           }
           if (selecta == 47) {
-            canvasBIG.setCursor(57, 52);
-            canvasBIG.setTextSize(1);
-            canvasBIG.print("X");
+            dm.canvasBIG.setCursor(57, 52);
+            dm.canvasBIG.setTextSize(1);
+            dm.canvasBIG.print("X");
           }
           if (selecta == 48) {
-            canvasBIG.setCursor(57, 52);
-            canvasBIG.setTextSize(1);
-            canvasBIG.print("Y");
+            dm.canvasBIG.setCursor(57, 52);
+            dm.canvasBIG.setTextSize(1);
+            dm.canvasBIG.print("Y");
           }
 
-          canvasBIG.setCursor(8, 24);
-          // canvasBIG.setTextSize(1);
+          dm.canvasBIG.setCursor(8, 24);
+          // dm.canvasBIG.setTextSize(1);
           sprintf(self->ch_lbl_buffer, "%02d", gg.but_channel[lv.sublevels[2]]);
-          canvasBIG.print(self->ch_lbl_buffer);
+          dm.canvasBIG.print(self->ch_lbl_buffer);
 
           if (lv.navlevel == 3) {
             lv.sublevels[4] = gg.pot_assignements[lv.sublevels[2]];
@@ -627,62 +627,62 @@ void SettingsMenuRouter::OnBoardVpanelSelector() {
             }
           }
 
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(1);
-          canvastitle.print(self->onboards[selecta]);
+          dm.canvastitle.setCursor(0, 0);
+          dm.canvastitle.setTextSize(1);
+          dm.canvastitle.print(self->onboards[selecta]);
 
-          canvastitle.setCursor(42, 0);
+          dm.canvastitle.setCursor(42, 0);
           if (gg.pot_assignements[lv.sublevels[2]] <= 128) {
-            canvastitle.print("CC ");
-            canvastitle.print(gg.pot_assignements[lv.sublevels[2]]);
+            dm.canvastitle.print("CC ");
+            dm.canvastitle.print(gg.pot_assignements[lv.sublevels[2]]);
           } else {
-            canvastitle.print("Note ");
-            canvastitle.print(gg.pot_assignements[lv.sublevels[2]] - 128);
-            canvastitle.setCursor(90, 0);
-            canvastitle.print("V ");
-            canvastitle.print(gg.but_velocity[lv.sublevels[2]]);
+            dm.canvastitle.print("Note ");
+            dm.canvastitle.print(gg.pot_assignements[lv.sublevels[2]] - 128);
+            dm.canvastitle.setCursor(90, 0);
+            dm.canvastitle.print("V ");
+            dm.canvastitle.print(gg.but_velocity[lv.sublevels[2]]);
           }
         }
 
 void SettingsMenuRouter::OnBoardVpanel() {
           lv.setting_on_board = true ;
           OnBoardVpanelAction();
-          display.clearDisplay();
+          dm.clearDisplay();
           dm.clear_buffs();
 
           // channel label
-          canvasBIG.setCursor(8, 14);
-          canvasBIG.print("Ch");
+          dm.canvasBIG.setCursor(8, 14);
+          dm.canvasBIG.print("Ch");
 
           // frame
-          canvasBIG.drawRoundRect(2, 9, 124, 55, 2, SSD1306_WHITE);
+          dm.canvasBIG.drawRoundRect(2, 9, 124, 55, 2, SSD1306_WHITE);
 
           // pads
           for (int i = 0; i < 16; i++) {
-            canvasBIG.fillRect((i % 4) * 13 + 72, ((i / 4) % 4) * 13 + 12, 10, 10,
+            dm.canvasBIG.fillRect((i % 4) * 13 + 72, ((i / 4) % 4) * 13 + 12, 10, 10,
                               SSD1306_WHITE);
           }
 
           // switches
           for (int i = 0; i < 18; i++) {
-            canvasBIG.drawRoundRect((i % 9) * 7 + 7, (i / 9) * 7 + 35, 5, 5, 4,
+            dm.canvasBIG.drawRoundRect((i % 9) * 7 + 7, (i / 9) * 7 + 35, 5, 5, 4,
                                     SSD1306_WHITE);
           }
           // faders
-          canvasBIG.drawRoundRect(48, 12, 4, 19, 2, SSD1306_WHITE);
-          canvasBIG.drawRoundRect(56, 12, 4, 19, 2, SSD1306_WHITE);
-          canvasBIG.drawRoundRect(64, 12, 4, 19, 2, SSD1306_WHITE);
+          dm.canvasBIG.drawRoundRect(48, 12, 4, 19, 2, SSD1306_WHITE);
+          dm.canvasBIG.drawRoundRect(56, 12, 4, 19, 2, SSD1306_WHITE);
+          dm.canvasBIG.drawRoundRect(64, 12, 4, 19, 2, SSD1306_WHITE);
 
           // pots
           for (int i = 0; i < 9; i++) {
-            canvasBIG.drawRoundRect((i % 3) * 7 + 24, (i / 3) * 7 + 12, 5, 5, 4,
+            dm.canvasBIG.drawRoundRect((i % 3) * 7 + 24, (i / 3) * 7 + 12, 5, 5, 4,
                                     SSD1306_WHITE);
           }
           // joystick
-          canvasBIG.drawCircle(59, 55, 5, SSD1306_WHITE);
+          dm.canvasBIG.drawCircle(59, 55, 5, SSD1306_WHITE);
 
           // crossfader
-          canvasBIG.drawRoundRect(18, 53, 30, 4, 2, SSD1306_WHITE);
+          dm.canvasBIG.drawRoundRect(18, 53, 30, 4, 2, SSD1306_WHITE);
 
           OnBoardVpanelSelector();
           dm.dodisplay();
@@ -747,11 +747,11 @@ void SettingsMenuRouter::arpegiatorVpanelSelector() {
           int wbarwidth2 = 7;
 
           int slct = lv.sublevels[2];
-          canvasBIG.drawLine(
+          dm.canvasBIG.drawLine(
               startlex - 2 + slct * ecartl, topwbarstart + totbartall + 2,
               startlex - 2 + slct * ecartl,
               topwbarstart + totbartall + 1 + wbarwidth2 + 3 - 1, SSD1306_WHITE);
-          canvasBIG.drawLine(startlex - 2 + 1 + slct * ecartl,
+          dm.canvasBIG.drawLine(startlex - 2 + 1 + slct * ecartl,
                             topwbarstart + totbartall + wbarwidth2 + 4,
                             wbarwidth2 + 3 + startlex - 4 + slct * ecartl,
                             topwbarstart + totbartall + wbarwidth2 + 4, SSD1306_WHITE);
@@ -805,11 +805,11 @@ void SettingsMenuRouter::arpegiatorVpanel() {
           char lesarpegestype[ARP_TYPES][12] = {"Ionian",     "Dorian",  "Phrygian", "Lydian",
                                         "Mixolydian", "Aeolian", "Harmonic", "Locrian"};
               dm.clean_title_1();
-          canvastitle.print("Arpegiator ");
+          dm.canvastitle.print("Arpegiator ");
           if (gg.arpegiatortype < ARP_TYPES) {
-            canvastitle.print((char *)lesarpegestype[gg.arpegiatortype]);
+            dm.canvastitle.print((char *)lesarpegestype[gg.arpegiatortype]);
           } else {
-            canvastitle.print("disabled");
+            dm.canvastitle.print("disabled");
           }
           float letype = gg.arpegiatortype / 8.0;
           float legridC = gg.arpeggridC / 8.0;
@@ -830,13 +830,13 @@ void SettingsMenuRouter::arpegiatorVpanel() {
           char lesarpegesmodes[8][12] = {"Up forward", "Down back",  "Up down f.",
                                         "Down up f.", "Mozart",     "Down up b.",
                                         "Up down b.", "Mandalorian"};
-          canvasBIG.setCursor(0, 8);
-          canvasBIG.print((char *)lesbarlabels[slct]);
-          canvasBIG.print(" = ");
+          dm.canvasBIG.setCursor(0, 8);
+          dm.canvasBIG.print((char *)lesbarlabels[slct]);
+          dm.canvasBIG.print(" = ");
           if (slct == 1) {
-            canvasBIG.print((char *)lesarpegesmodes[gg.arpegmode]);
+            dm.canvasBIG.print((char *)lesarpegesmodes[gg.arpegmode]);
           } else {
-            canvasBIG.print(arpegiovalues[slct]);
+            dm.canvasBIG.print(arpegiovalues[slct]);
           }
           // type
           // lengh of notes ( function of grid )
@@ -846,16 +846,16 @@ void SettingsMenuRouter::arpegiatorVpanel() {
           // Ng grid  consecutive on
           // Ns grid spaces
           for (int i = 0; i < 7; i++) {
-            canvasBIG.drawRoundRect(startlex + i * ecartl, topwbarstart, wbarwidth2,
+            dm.canvasBIG.drawRoundRect(startlex + i * ecartl, topwbarstart, wbarwidth2,
                                     totbartall, 2, SSD1306_WHITE);
-            canvasBIG.fillRect(
+            dm.canvasBIG.fillRect(
                 startlex + i * ecartl,
                 topwbarstart + 2 +
                     ((totbartall - 7) - (lesarparams[i] * (totbartall - 7))),
                 wbarwidth2, 3, SSD1306_WHITE);
-            canvasBIG.setCursor(startlex + 1 + i * ecartl,
+            dm.canvasBIG.setCursor(startlex + 1 + i * ecartl,
                                 topwbarstart + totbartall + 2);
-            canvasBIG.print(lesbarlabels[i][0]);
+            dm.canvasBIG.print(lesbarlabels[i][0]);
           }
 
           arpegiatorVpanelSelector();
@@ -887,119 +887,119 @@ void SettingsMenuRouter::makesettingslist() {
                                                                 "Virtual Knobs",
                                                                 "Knobs Setter",
                                                                 "Nav Config"};
-          display.clearDisplay();
-          canvasBIG.fillScreen(SSD1306_BLACK);
+          dm.clearDisplay();
+          dm.canvasBIG.fillScreen(SSD1306_BLACK);
           int startx = 0;
           int starty = 16;
           char *textin = (char *)displaysettingslabels[lv.sublevels[1]];
 
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.setCursor(0, 0);
+          dm.canvastitle.fillScreen(SSD1306_BLACK);
+          dm.canvastitle.setCursor(0, 0);
 
-          canvastitle.setTextSize(1);
+          dm.canvastitle.setTextSize(1);
 
-          canvastitle.println(textin);
+          dm.canvastitle.println(textin);
 
           if (lv.sublevels[1] == 1) {
-            canvastitle.setCursor(96, 0);
+            dm.canvastitle.setCursor(96, 0);
             if (lv.freezemidicc) {
-              canvastitle.println("On");
+              dm.canvastitle.println("On");
             } else {
-              canvastitle.println("Off");
+              dm.canvastitle.println("Off");
             }
           }
 
           if (lv.sublevels[1] == 2) {
-            canvastitle.setCursor(96, 0);
-            canvastitle.println(midichlist[gg.synthmidichannel]);
+            dm.canvastitle.setCursor(96, 0);
+            dm.canvastitle.println(midichlist[gg.synthmidichannel]);
             lv.sublevels[2] = (int)gg.synthmidichannel;
           }
           if (lv.sublevels[1] == 3) {
-            canvastitle.setCursor(96, 0);
-            canvastitle.println(midichlist[gg.samplermidichannel]);
+            dm.canvastitle.setCursor(96, 0);
+            dm.canvastitle.println(midichlist[gg.samplermidichannel]);
             lv.sublevels[2] = int(gg.samplermidichannel);
           }
           if (lv.sublevels[1] == 4) {
-            canvastitle.setCursor(96, 0);
+            dm.canvastitle.setCursor(96, 0);
             if (gg.digitalplay) {
-              canvastitle.println("On");
+              dm.canvastitle.println("On");
             } else {
-              canvastitle.println("Off");
+              dm.canvastitle.println("Off");
             }
           }
           if (lv.sublevels[1] == 5) {
-            canvastitle.setCursor(96, 0);
-            canvastitle.println(int(gg.tapnote));
+            dm.canvastitle.setCursor(96, 0);
+            dm.canvastitle.println(int(gg.tapnote));
             lv.sublevels[2] = int(gg.tapnote);
           }
           if (lv.sublevels[1] == 6) {
-            canvastitle.setCursor(96, 0);
-            //canvastitle.println(lv.BPMs, 1);
-            canvastitle.println(15000 / gg.millitickinterval, 1);
+            dm.canvastitle.setCursor(96, 0);
+            //dm.canvastitle.println(lv.BPMs, 1);
+            dm.canvastitle.println(15000 / gg.millitickinterval, 1);
             if (lv.navlevel <= 2) {
               lv.sublevels[2] = gg.millitickinterval;
             }
           }
           if (lv.sublevels[1] == 7) {
             lv.sublevels[2] = gg.lasetchord;
-            canvasBIG.setTextSize(1);
-            canvasBIG.setCursor(66, 0);
-            canvasBIG.println(chordslabels[gg.lasetchord]);
+            dm.canvasBIG.setTextSize(1);
+            dm.canvasBIG.setCursor(66, 0);
+            dm.canvasBIG.println(chordslabels[gg.lasetchord]);
           }
           if (lv.sublevels[1] == 8) {
-            canvasBIG.setCursor(96, 0);
+            dm.canvasBIG.setCursor(96, 0);
             if (gg.arpegiatortype != 8) {
-              canvasBIG.print("On");
+              dm.canvasBIG.print("On");
             } else {
-              canvasBIG.print("Off");
+              dm.canvasBIG.print("Off");
             }
           }
           if (lv.sublevels[1] == 9) {
-            canvastitle.setCursor(96, 0);
+            dm.canvastitle.setCursor(96, 0);
             if (gg.externalticker) {
-              canvastitle.println("On");
+              dm.canvastitle.println("On");
             } else {
-              canvastitle.println("Off");
+              dm.canvastitle.println("Off");
             }
-            canvasBIG.setTextSize(1);
+            dm.canvasBIG.setTextSize(1);
           }
 
           if (lv.sublevels[1] == 12) {
-            canvastitle.setCursor(96, 0);
+            dm.canvastitle.setCursor(96, 0);
 
-            canvastitle.println(audio_source_lbl[self->AudioInSource]);
+            dm.canvastitle.println(audio_source_lbl[self->AudioInSource]);
 
-            // canvasBIG.setTextSize(1);
+            // dm.canvasBIG.setTextSize(1);
           }
 
           if (lv.sublevels[1] == 13) {
-            canvastitle.setCursor(96, 0);
+            dm.canvastitle.setCursor(96, 0);
             if (gg.SendMidiOut) {
-              canvastitle.println("On");
+              dm.canvastitle.println("On");
             } else {
-              canvastitle.println("Off");
+              dm.canvastitle.println("Off");
             }
-            // canvasBIG.setTextSize(1);
+            // dm.canvasBIG.setTextSize(1);
           }
           
           for (int filer = 0; filer < settings_labels_count - 1 - (lv.sublevels[1]);
               filer++) {
 
-            canvasBIG.setCursor(startx, starty + ((filer)*10));
-            canvasBIG.println(displaysettingslabels[lv.sublevels[1] + 1 + filer]);
+            dm.canvasBIG.setCursor(startx, starty + ((filer)*10));
+            dm.canvasBIG.println(displaysettingslabels[lv.sublevels[1] + 1 + filer]);
           }
           for (int filer = 0; filer < lv.sublevels[1]; filer++) {
 
-            canvasBIG.setCursor(
+            dm.canvasBIG.setCursor(
                 startx, (10 * (settings_labels_count - lv.sublevels[1]) + 6 + ((filer)*10)));
-            canvasBIG.println(displaysettingslabels[filer]);
+            dm.canvasBIG.println(displaysettingslabels[filer]);
           }
         }
 
 void SettingsMenuRouter::settings_nav_one(){
           
-          canvasBIG.setTextSize(1);
-          canvastitle.setTextSize(1);
+          dm.canvasBIG.setTextSize(1);
+          dm.canvastitle.setTextSize(1);
           _settings_menu[lv.sublevels[1]]();
           if (lv.sublevels[1] != 8 && lv.sublevels[1] != 15 && lv.sublevels[1] != 14 && lv.sublevels[1] != 16 && lv.sublevels[1] != 11 ) {
             makesettingslist();
@@ -1038,29 +1038,29 @@ void SettingsMenuRouter::printlanote() {
             float notep = notefreq1.read();
             float probz = notefreq1.probability();
             byte lanotenumber;
-            display.clearDisplay();
-            canvastitle.fillScreen(SSD1306_BLACK);
-            canvasBIG.fillScreen(SSD1306_BLACK);
-            canvastitle.setCursor(0, 0);
-            canvastitle.setTextSize(2);
-            canvastitle.print("Fq:");
-            canvastitle.print(notep, 1);
+            dm.clearDisplay();
+            dm.canvastitle.fillScreen(SSD1306_BLACK);
+            dm.canvasBIG.fillScreen(SSD1306_BLACK);
+            dm.canvastitle.setCursor(0, 0);
+            dm.canvastitle.setTextSize(2);
+            dm.canvastitle.print("Fq:");
+            dm.canvastitle.print(notep, 1);
             lanotenumber = self->getnotefromfreq(notep);
-            canvastitle.setTextSize(1);
-            canvastitle.print(" Hz");
-            canvasBIG.setTextSize(2);
-            canvasBIG.setCursor(0, 16);
+            dm.canvastitle.setTextSize(1);
+            dm.canvastitle.print(" Hz");
+            dm.canvasBIG.setTextSize(2);
+            dm.canvasBIG.setCursor(0, 16);
 
-            canvasBIG.print((char *)self->usnotes[(lanotenumber % 12)]);
-            canvasBIG.print(int(lanotenumber / 12.0));
-            canvasBIG.print(" (");
-            canvasBIG.print((char *)self->eunotes[(lanotenumber % 12)]);
-            canvasBIG.print(int(lanotenumber / 12.0));
-            canvasBIG.print(")");
-            canvasBIG.setTextSize(1);
-            canvasBIG.setCursor(0, 16 + 16);
-            canvasBIG.print(probz * 100.0);
-            canvasBIG.print("% ");
+            dm.canvasBIG.print((char *)self->usnotes[(lanotenumber % 12)]);
+            dm.canvasBIG.print(int(lanotenumber / 12.0));
+            dm.canvasBIG.print(" (");
+            dm.canvasBIG.print((char *)self->eunotes[(lanotenumber % 12)]);
+            dm.canvasBIG.print(int(lanotenumber / 12.0));
+            dm.canvasBIG.print(")");
+            dm.canvasBIG.setTextSize(1);
+            dm.canvasBIG.setCursor(0, 16 + 16);
+            dm.canvasBIG.print(probz * 100.0);
+            dm.canvasBIG.print("% ");
 
             dm.dodisplay();
           }

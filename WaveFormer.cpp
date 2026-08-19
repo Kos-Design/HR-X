@@ -1,8 +1,6 @@
 #include "WaveFormer.h"
-#include <Encoder.h>
 #include "Presets.h"
 
-extern Encoder myEnc;
 
 WaveformsMenuRouter* WaveformsMenuRouter::self = nullptr;
 
@@ -46,30 +44,30 @@ void WaveformsMenuRouter::WaveformParams(){
           }
           
           lv.sublevels[3]=*self->waveform_tracers[lv.sublevels[2]];
-          display.clearDisplay();
-          display.setCursor(0,0);
-          display.setTextSize(1);
+          dm.clearDisplay();
+          dm.setCursor(0,0);
+          dm.setTextSize(1);
           //println adds new line each iteration!!!
-          display.print("Params");
-          display.println(" ");
-          display.println(" ");
-          display.print("X-Axis CC: ");
+          dm.print("Params");
+          dm.println(" ");
+          dm.println(" ");
+          dm.print("X-Axis CC: ");
           //17
-          display.print(self->x_axis_cc);
-          display.println(" ");
-          display.println(" ");
-          display.print("Y-Axis CC: ");
-          display.print(self->y_axis_cc);
+          dm.print(self->x_axis_cc);
+          dm.println(" ");
+          dm.println(" ");
+          dm.print("Y-Axis CC: ");
+          dm.print(self->y_axis_cc);
           //18
-          display.println(" ");
-          display.println(" ");
-          display.print("Tracenote: ");
-          display.print(self->trace_wave_cc);
+          dm.println(" ");
+          dm.println(" ");
+          dm.print("Tracenote: ");
+          dm.print(self->trace_wave_cc);
           //note 58
-          display.drawRoundRect(62,11+16*lv.sublevels[2], 25, 16, 3, SSD1306_WHITE);
-          //display.drawRoundRect(62,11+16, 25, 16, 3, SSD1306_WHITE);
-          //display.drawRoundRect(62,11+16 +16, 25, 16, 3, SSD1306_WHITE);
-          display.display();
+          dm.drawRoundRect(62,11+16*lv.sublevels[2], 25, 16, 3, SSD1306_WHITE);
+          //dm.drawRoundRect(62,11+16, 25, 16, 3, SSD1306_WHITE);
+          //dm.drawRoundRect(62,11+16 +16, 25, 16, 3, SSD1306_WHITE);
+          dm.display();
           
           if (lv.navlevel > 3 ){
             dm.returntonav(2,2,lv.sublevels[2]);
@@ -169,7 +167,7 @@ void WaveformsMenuRouter::set_x_cursor_value(byte la_val){
             //gg.arbitrary_waveforms[self->widx][self->w_cursor_x] = map(self->cw_change, 0, 127, -32768, 32767);
             lv.sublevels[2]=self->w_cursor_x;
             lv.rota_true_pos = self->w_cursor_x;
-            myEnc.write(lv.rota_true_pos * 4);
+            dm.myEnc.write(lv.rota_true_pos * 4);
             set_array_at_cursor();
           }
         }
@@ -181,7 +179,7 @@ void WaveformsMenuRouter::draw_wave_graph(){
             if ((i * 2) + 2 < 256) {
               y1 = map(gg.arbitrary_waveforms[self->widx][i * 2], -32768, 32767, 63, 0);
               y2 = map(gg.arbitrary_waveforms[self->widx][(i * 2) + 2], -32768, 32767, 63, 0);
-              canvasBIG.drawLine(i, y1, i + 1, y2, SSD1306_WHITE);
+              dm.canvasBIG.drawLine(i, y1, i + 1, y2, SSD1306_WHITE);
             }
           }
         }
@@ -211,9 +209,9 @@ void WaveformsMenuRouter::WaveformEditer() {
             self->w_cursor_y = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x], -32768, 32767, 63, 0);
             lv.sublevels[3] = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x],-32768, 32767, 0, 255 ) ;
           }
-          canvasBIG.drawCircle(lv.sublevels[2]/2, self->w_cursor_y, 2, SSD1306_WHITE);
+          dm.canvasBIG.drawCircle(lv.sublevels[2]/2, self->w_cursor_y, 2, SSD1306_WHITE);
           draw_wave_graph();
-          //canvastitle.print(gg.arbitrary_waveforms[self->widx][lv.sublevels[2]]);
+          //dm.canvastitle.print(gg.arbitrary_waveforms[self->widx][lv.sublevels[2]]);
           dm.dodisplay();
           //smooth_w_bounds();
         }

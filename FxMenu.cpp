@@ -66,15 +66,15 @@ void FxMenuRouter::dolistMainFxPanel() {
         byte starty = 16;
         char *textin = (char *)self->mainmenufxlist[lv.sublevels[lv.navlevel]];
         dm.clear_buffs_2_1();
-        canvastitle.println(textin);
+        dm.canvastitle.println(textin);
 
         for (int filer = 0; filer < lv.navrange - (lv.sublevels[lv.navlevel]); filer++) {
-          canvasBIG.setCursor(startx, starty + (filer*10));
-          canvasBIG.println(self->mainmenufxlist[lv.sublevels[lv.navlevel] + 1 + filer]);
+          dm.canvasBIG.setCursor(startx, starty + (filer*10));
+          dm.canvasBIG.println(self->mainmenufxlist[lv.sublevels[lv.navlevel] + 1 + filer]);
         }
         for (int filer = 0; filer < lv.sublevels[lv.navlevel]; filer++) {
-          canvasBIG.setCursor(startx, (10 * (lv.navrange + 1 - lv.sublevels[lv.navlevel])) + 6 + (filer*10));
-          canvasBIG.println(self->mainmenufxlist[filer]);
+          dm.canvasBIG.setCursor(startx, (10 * (lv.navrange + 1 - lv.sublevels[lv.navlevel])) + 6 + (filer*10));
+          dm.canvasBIG.println(self->mainmenufxlist[filer]);
         }
       }
 
@@ -90,21 +90,21 @@ void FxMenuRouter::dolistmainfxlines() {
           textin = (String)mainfxlineslist[lv.sublevels[1]%FXS_COUNT];
         }
         dm.clear_buffs_2_1();
-        canvastitle.println(textin);
+        dm.canvastitle.println(textin);
         for (int i = 0; i < FXS_COUNT - 1 - lv.sublevels[1]; i++) {
-          canvasBIG.setCursor(startx, starty + ((i)*10));
+          dm.canvasBIG.setCursor(startx, starty + ((i)*10));
           if (gg.fx[lv.sublevels[1]%FXS_COUNT + 1 + i].plugged_fx != self->mainmenufxlistsize-1) {
-            canvasBIG.println((String)self->mainmenufxlist[gg.fx[lv.sublevels[1]%FXS_COUNT + 1 + i].plugged_fx]);
+            dm.canvasBIG.println((String)self->mainmenufxlist[gg.fx[lv.sublevels[1]%FXS_COUNT + 1 + i].plugged_fx]);
           } else {
-            canvasBIG.println(mainfxlineslist[lv.sublevels[1]%FXS_COUNT + 1 + i]);
+            dm.canvasBIG.println(mainfxlineslist[lv.sublevels[1]%FXS_COUNT + 1 + i]);
           }
         }
         for (int i = 0; i < lv.sublevels[1]%FXS_COUNT; i++) {
-          canvasBIG.setCursor(startx, (10 * (FXS_COUNT - (lv.sublevels[1]%FXS_COUNT)) + 6 + ((i)*10)));
+          dm.canvasBIG.setCursor(startx, (10 * (FXS_COUNT - (lv.sublevels[1]%FXS_COUNT)) + 6 + ((i)*10)));
           if (gg.fx[i].plugged_fx != (self->mainmenufxlistsize - 1)) {
-            canvasBIG.println((String)self->mainmenufxlist[gg.fx[i].plugged_fx]);
+            dm.canvasBIG.println((String)self->mainmenufxlist[gg.fx[i].plugged_fx]);
           } else {
-            canvasBIG.println(mainfxlineslist[i]);
+            dm.canvasBIG.println(mainfxlineslist[i]);
           }
         }
       }
@@ -345,27 +345,27 @@ void FxMenuRouter::flangerVpanelSelector(byte fx_idx) {
         // size
         if (slct == 0) {
           lv.sublevels[4] = gg.fx[fx_idx].flangerVknobs[0];
-          canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
+          dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
           lv.sublevels[4] = gg.fx[fx_idx].flangerVknobs[1];
-          canvasBIG.drawCircle(centercirclex + 40, centercircley, knobradius - 2,
+          dm.canvasBIG.drawCircle(centercirclex + 40, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
 
         if (slct == 2) {
           lv.sublevels[4] = gg.fx[fx_idx].flangerVknobs[2];
-          canvasBIG.drawCircle(centercirclex + 40 + 40, centercircley, knobradius - 2,
+          dm.canvasBIG.drawCircle(centercirclex + 40 + 40, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
 
         // wet
         if (slct == 3) {
           lv.sublevels[4] = gg.WetMixMasters[fx_idx+ 1];
-          canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
-          canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
+          dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
+          dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
       }
 
@@ -385,61 +385,61 @@ void FxMenuRouter::flangerVpanel(byte fx_idx) {
         byte barsize;
         byte startlex2 = 67;
             dm.clean_title_1();
-        canvastitle.print("Flanger ");
-        canvastitle.print(fx_idx + 1);
+        dm.canvastitle.print("Flanger ");
+        dm.canvastitle.print(fx_idx + 1);
         //  gg.fx[fx_idx].flangerVknobs[0] ;
         // float dephtflange = gg.fx[fx_idx].flangerVknobs[1]/127.0 ;
         // float freqflange = gg.fx[fx_idx].flangerVknobs[2]/127.0 ;
         // voices(gg.fx[fx_idx].flangeoffset, gg.fx[fx_idx].flangedepth, flangefreq);
         // Roomsize
         coeffangle = (6.2831 - (gg.fx[fx_idx].flangerVknobs[0] / 127.0) * 6.2831) + 3.1416;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
+        dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
+        dm.canvasBIG.setTextSize(1);
 
-        canvasBIG.print(round((gg.fx[fx_idx].flangerVknobs[0] / 127.0) * FLANGE_DELAY_LENGTH / 4));
-        // canvasBIG.setCursor(centercirclex-knobradius+1, 8);
-        canvasBIG.setCursor(centercirclex - knobradius - 6, centercircley + knobradius + 4 + 10);
-        canvasBIG.print("Offset");
+        dm.canvasBIG.print(round((gg.fx[fx_idx].flangerVknobs[0] / 127.0) * FLANGE_DELAY_LENGTH / 4));
+        // dm.canvasBIG.setCursor(centercirclex-knobradius+1, 8);
+        dm.canvasBIG.setCursor(centercirclex - knobradius - 6, centercircley + knobradius + 4 + 10);
+        dm.canvasBIG.print("Offset");
 
         // damping
         coeffangle = (6.2831 - (gg.fx[fx_idx].flangerVknobs[1] / 127.0) * 6.2831) + 3.1416;
         centercirclex = centercirclex + 40;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.print(
+        dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
+        dm.canvasBIG.setTextSize(1);
+        dm.canvasBIG.print(
             round((gg.fx[fx_idx].flangerVknobs[1] / 127.0) * FLANGE_DELAY_LENGTH / 4));
-        // canvasBIG.setCursor(centercirclex-knobradius+1, 8);
-        canvasBIG.setCursor(centercirclex - knobradius - 2, centercircley + knobradius + 4 + 10);
-        canvasBIG.print("Depth");
+        // dm.canvasBIG.setCursor(centercirclex-knobradius+1, 8);
+        dm.canvasBIG.setCursor(centercirclex - knobradius - 2, centercircley + knobradius + 4 + 10);
+        dm.canvasBIG.print("Depth");
 
         coeffangle =
             (6.2831 - (gg.fx[fx_idx].flangerVknobs[2] / 127.0) * 6.2831) + 3.1416;
         centercirclex = centercirclex + 40;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.print(((gg.fx[fx_idx].flangerVknobs[2] / 127.0) * 2), 2);
-        canvasBIG.setCursor(centercirclex - knobradius - 2, centercircley + knobradius + 4 + 10);
-        // canvasBIG.setCursor(centercirclex-knobradius+1, 8);
-        canvasBIG.print("Delay");
+        dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
+        dm.canvasBIG.setTextSize(1);
+        dm.canvasBIG.print(((gg.fx[fx_idx].flangerVknobs[2] / 127.0) * 2), 2);
+        dm.canvasBIG.setCursor(centercirclex - knobradius - 2, centercircley + knobradius + 4 + 10);
+        // dm.canvasBIG.setCursor(centercirclex-knobradius+1, 8);
+        dm.canvasBIG.print("Delay");
 
         // wetbar
         barsize = round((gg.WetMixMasters[fx_idx + 1] /127.0) * (totbartall - 4));
-        canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
-        canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
-        canvasBIG.setCursor(startlex2 - 6, 0);
-        canvasBIG.print("Wet:");
+        dm.canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
+        dm.canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(startlex2 - 6, 0);
+        dm.canvasBIG.print("Wet:");
         flangerVpanelSelector(fx_idx);
         dm.dodisplay();
       }
@@ -487,16 +487,16 @@ void FxMenuRouter::chorusVpanelSelector(byte fx_idx) {
         // size
         if (slct == 0) {
           lv.sublevels[4] = gg.fx[fx_idx].chorusVknobs;
-          canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
+          dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
 
         // wet
         if (slct == 1) {
           lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
-          canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
+          dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
                             wbarwidth2 - 4, SSD1306_WHITE);
-          canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
+          dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
       }
 
@@ -516,34 +516,34 @@ void FxMenuRouter::chorusVpanel(byte fx_idx) {
         byte barsize;
         byte startlex2 = 67;
             dm.clean_title_1();
-        canvastitle.print("Chorus ");
-        canvastitle.print(fx_idx + 1);
+        dm.canvastitle.print("Chorus ");
+        dm.canvastitle.print(fx_idx + 1);
 
         float leroomsize = gg.fx[fx_idx].chorusVknobs / 127.0;
         // Roomsize
         coeffangle = (6.2831 - (leroomsize)*6.2831) + 3.1416;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx,
+        dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx,
                           ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 5,
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 5,
                             centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.print(round((gg.fx[fx_idx].chorusVknobs / 127.0) * 8));
-        canvasBIG.setCursor(centercirclex - knobradius - 1, 8);
-        canvasBIG.print("Voices");
+        dm.canvasBIG.setTextSize(1);
+        dm.canvasBIG.print(round((gg.fx[fx_idx].chorusVknobs / 127.0) * 8));
+        dm.canvasBIG.setCursor(centercirclex - knobradius - 1, 8);
+        dm.canvasBIG.print("Voices");
 
         // wetbar
         barsize =
             round((gg.WetMixMasters[fx_idx + 1]/127.0) *
                   (totbartall - 4));
-        canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall,
+        dm.canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall,
                                 wbarwidth2, 2, SSD1306_WHITE);
-        canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4,
+        dm.canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4,
                           SSD1306_WHITE);
-        canvasBIG.setCursor(startlex2 - 6, 0);
-        canvasBIG.print("Wet:");
+        dm.canvasBIG.setCursor(startlex2 - 6, 0);
+        dm.canvasBIG.print("Wet:");
 
         chorusVpanelSelector(fx_idx);
 
@@ -653,32 +653,32 @@ void FxMenuRouter::granularVpanelSelector(byte fx_idx) {
         // size
         if (slct == 0) {
           lv.sublevels[4] = gg.fx[fx_idx].granularVknobs[0];
-          canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
+          dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
           lv.sublevels[4] = gg.fx[fx_idx].granularVknobs[1];
-          canvasBIG.drawCircle(knobradius + 45, centercircley, knobradius - 2, SSD1306_WHITE);
+          dm.canvasBIG.drawCircle(knobradius + 45, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         if (slct == 2) {
           if (!gg.fx[fx_idx].granular_freezing) {
-            canvasBIG.drawRoundRect(82, 18, 128 - 80 - 4, 20 - 4, 2, SSD1306_WHITE);
+            dm.canvasBIG.drawRoundRect(82, 18, 128 - 80 - 4, 20 - 4, 2, SSD1306_WHITE);
           } else {
-            canvasBIG.drawRoundRect(82, 18, 128 - 80 - 4, 20 - 4, 2, SSD1306_BLACK);
+            dm.canvasBIG.drawRoundRect(82, 18, 128 - 80 - 4, 20 - 4, 2, SSD1306_BLACK);
           }
         }
         if (slct == 3) {
           if (!gg.fx[fx_idx].granular_shifting) {
-            canvasBIG.drawRoundRect(82, 18 + 20 + 4, 128 - 80 - 4, 20 - 4, 2, SSD1306_WHITE);
+            dm.canvasBIG.drawRoundRect(82, 18 + 20 + 4, 128 - 80 - 4, 20 - 4, 2, SSD1306_WHITE);
           } else {
-            canvasBIG.drawRoundRect(82, 18 + 20 + 4, 128 - 80 - 4, 20 - 4, 2, SSD1306_BLACK);
+            dm.canvasBIG.drawRoundRect(82, 18 + 20 + 4, 128 - 80 - 4, 20 - 4, 2, SSD1306_BLACK);
           }
         }
         // wet
         if (slct == 4) {
           lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1] ;
-          canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
-          canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
+          dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
+          dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
       }
 
@@ -700,66 +700,66 @@ void FxMenuRouter::granularVpanel(byte fx_idx) {
         float leratio = 0.125 + (map(gg.fx[fx_idx].granularVknobs[1],0,127,0,7875)/1000.0);
 
             dm.clean_title_1();
-        canvastitle.print("Granular ");
-        canvastitle.print(fx_idx + 1);
+        dm.canvastitle.print("Granular ");
+        dm.canvastitle.print(fx_idx + 1);
         float grain_speed = gg.fx[fx_idx].granularVknobs[1] / 127.0;
         float grain_size = gg.fx[fx_idx].granularVknobs[0] / 127.0;
         // grain_size
         coeffangle = (6.2831 - (grain_size)*6.2831) + 3.1416;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx,
+        dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx,
                           ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 1,
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1,
                             centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.setTextColor(SSD1306_WHITE);
-        canvasBIG.print(legrainleng);
-        canvasBIG.setCursor(centercirclex - knobradius + 1, 8);
-        canvasBIG.print("Grain");
+        dm.canvasBIG.setTextSize(1);
+        dm.canvasBIG.setTextColor(SSD1306_WHITE);
+        dm.canvasBIG.print(legrainleng);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1, 8);
+        dm.canvasBIG.print("Grain");
         // grain_speed
         coeffangle = (6.2831 - (grain_speed)*6.2831) + 3.1416;
         centercirclex = knobradius + 45;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.print(leratio, 1);
-        canvasBIG.setCursor(centercirclex - knobradius + 1, 8);
-        canvasBIG.print("Ratio");
+        dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
+        dm.canvasBIG.setTextSize(1);
+        dm.canvasBIG.print(leratio, 1);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1, 8);
+        dm.canvasBIG.print("Ratio");
         if (!gg.fx[fx_idx].granular_freezing) {
-          canvasBIG.drawRoundRect(80, 16, 128 - 80, 20, 2, SSD1306_WHITE);
-          canvasBIG.setTextColor(SSD1306_WHITE);
-          canvasBIG.setCursor(87, 16 + 6);
-          canvasBIG.print("Freeze");
+          dm.canvasBIG.drawRoundRect(80, 16, 128 - 80, 20, 2, SSD1306_WHITE);
+          dm.canvasBIG.setTextColor(SSD1306_WHITE);
+          dm.canvasBIG.setCursor(87, 16 + 6);
+          dm.canvasBIG.print("Freeze");
         } else {
-          canvasBIG.fillRoundRect(80, 16, 128 - 80, 20, 2, SSD1306_WHITE);
-          canvasBIG.setCursor(87, 16 + 6);
-          canvasBIG.setTextColor(SSD1306_BLACK);
-          canvasBIG.print("Freeze");
-          canvasBIG.setTextColor(SSD1306_WHITE);
+          dm.canvasBIG.fillRoundRect(80, 16, 128 - 80, 20, 2, SSD1306_WHITE);
+          dm.canvasBIG.setCursor(87, 16 + 6);
+          dm.canvasBIG.setTextColor(SSD1306_BLACK);
+          dm.canvasBIG.print("Freeze");
+          dm.canvasBIG.setTextColor(SSD1306_WHITE);
         }
         if (!gg.fx[fx_idx].granular_shifting) {
-          canvasBIG.drawRoundRect(80, 16 + 20 + 4, 128 - 80, 20, 2, SSD1306_WHITE);
-          canvasBIG.setCursor(87, 6 + 16 + 20 + 4);
-          canvasBIG.setTextColor(SSD1306_WHITE);
-          canvasBIG.print("Pitch");
+          dm.canvasBIG.drawRoundRect(80, 16 + 20 + 4, 128 - 80, 20, 2, SSD1306_WHITE);
+          dm.canvasBIG.setCursor(87, 6 + 16 + 20 + 4);
+          dm.canvasBIG.setTextColor(SSD1306_WHITE);
+          dm.canvasBIG.print("Pitch");
         } else {
-          canvasBIG.fillRoundRect(80, 16 + 20 + 4, 128 - 80, 20, 2, SSD1306_WHITE);
-          canvasBIG.setCursor(87, 6 + 16 + 20 + 4);
-          canvasBIG.setTextColor(SSD1306_BLACK);
-          canvasBIG.print("Pitch");
-          canvasBIG.setTextColor(SSD1306_WHITE);
+          dm.canvasBIG.fillRoundRect(80, 16 + 20 + 4, 128 - 80, 20, 2, SSD1306_WHITE);
+          dm.canvasBIG.setCursor(87, 6 + 16 + 20 + 4);
+          dm.canvasBIG.setTextColor(SSD1306_BLACK);
+          dm.canvasBIG.print("Pitch");
+          dm.canvasBIG.setTextColor(SSD1306_WHITE);
         }
         // wetbar
         barsize = round(((gg.WetMixMasters[fx_idx + 1]/127.0) * (totbartall - 4)));
-        canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
-        canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
-        canvasBIG.setCursor(startlex2 - 6, 0);
-        canvasBIG.print("Wet:");
+        dm.canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
+        dm.canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(startlex2 - 6, 0);
+        dm.canvasBIG.print("Wet:");
         granularVpanelSelector(fx_idx);
         dm.dodisplay();
       }
@@ -815,19 +815,19 @@ void FxMenuRouter::bitcrusherVpanelSelector(byte fx_idx) {
         // size
         if (slct == 0) {
           lv.sublevels[4] = gg.fx[fx_idx].bitcrusherVknobs[0];
-          canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
+          dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
           lv.sublevels[4] = gg.fx[fx_idx].bitcrusherVknobs[1];
-          canvasBIG.drawCircle(knobradius + 68, centercircley, knobradius - 2, SSD1306_WHITE);
+          dm.canvasBIG.drawCircle(knobradius + 68, centercircley, knobradius - 2, SSD1306_WHITE);
         }
 
         // wet
         if (slct == 2) {
           lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1] ;
-          canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
-          canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
+          dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
+          dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
       }
 
@@ -847,42 +847,42 @@ void FxMenuRouter::bitcrusherVpanel(byte fx_idx) {
         byte barsize;
         byte startlex2 = 67;
             dm.clean_title_1();
-        canvastitle.print("Bitcrusher ");
-        canvastitle.print(fx_idx + 1);
+        dm.canvastitle.print("Bitcrusher ");
+        dm.canvastitle.print(fx_idx + 1);
         float lesamperate = gg.fx[fx_idx].bitcrusherVknobs[1] / 127.0;
         float lebitsz = gg.fx[fx_idx].bitcrusherVknobs[0] / 16.0;
         // Roomsize
         coeffangle = (6.2831 - (lebitsz)*6.2831) + 3.1416;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 5, centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
+        dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 5, centercircley + knobradius + 4);
+        dm.canvasBIG.setTextSize(1);
 
-        canvasBIG.print(lebitsz * 16, 0);
-        canvasBIG.setCursor(centercirclex - knobradius + 1, 8);
-        canvasBIG.print("Bits");
+        dm.canvasBIG.print(lebitsz * 16, 0);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1, 8);
+        dm.canvasBIG.print("Bits");
 
         // damping
         coeffangle = (6.2831 - (lesamperate)*6.2831) + 3.1416;
         centercirclex = knobradius + 68;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 2, centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.print(lesamperate * 44100, 0);
-        canvasBIG.setCursor(centercirclex - knobradius, 8);
-        canvasBIG.print("S.Rate");
+        dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 2, centercircley + knobradius + 4);
+        dm.canvasBIG.setTextSize(1);
+        dm.canvasBIG.print(lesamperate * 44100, 0);
+        dm.canvasBIG.setCursor(centercirclex - knobradius, 8);
+        dm.canvasBIG.print("S.Rate");
 
         // wetbar
         barsize = round(((gg.WetMixMasters[fx_idx + 1]/127.0) * (totbartall - 4)));
-        canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
-        canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
-        canvasBIG.setCursor(startlex2 - 6, 0);
-        canvasBIG.print("Wet:");
+        dm.canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
+        dm.canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(startlex2 - 6, 0);
+        dm.canvasBIG.print("Wet:");
         bitcrusherVpanelSelector(fx_idx);
         dm.dodisplay();
       }
@@ -939,19 +939,19 @@ void FxMenuRouter::reverbVpanelSelector(byte fx_idx) {
         // second
         if (slct == 0) {
           lv.sublevels[4] = gg.fx[fx_idx].reverbVknobs[0];
-          canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
+          dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp ( disabled , from other freeverb module)
         //if (slct == 1) {
         //  lv.sublevels[4] = gg.fx[fx_idx].reverbVknobs[1];
-        //  canvasBIG.drawCircle(knobradius + 68, centercircley, knobradius - 2, SSD1306_WHITE);
+        //  dm.canvasBIG.drawCircle(knobradius + 68, centercircley, knobradius - 2, SSD1306_WHITE);
         //}
 
         // wet
         if (slct == 1) {
           lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
-          canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
-          canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
+          dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
+          dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
       }
 
@@ -971,41 +971,41 @@ void FxMenuRouter::reverbVpanel(byte fx_idx) {
         byte barsize;
         byte startlex2 = 67;
             dm.clean_title_1();
-        canvastitle.print("Reverb ");
-        canvastitle.print(fx_idx + 1);
+        dm.canvastitle.print("Reverb ");
+        dm.canvastitle.print(fx_idx + 1);
         //float ledamping = gg.fx[fx_idx].reverbVknobs[1] / 127.0;
         float leroomsize = gg.fx[fx_idx].reverbVknobs[0] / 127.0;
         // Roomsize
         coeffangle = (6.2831 - (leroomsize)*6.2831) + 3.1416;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.print(leroomsize*10, 2);
-        canvasBIG.setCursor(centercirclex - knobradius + 1, 8);
-        canvasBIG.print("Seconds");
+        dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
+        dm.canvasBIG.setTextSize(1);
+        dm.canvasBIG.print(leroomsize*10, 2);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1, 8);
+        dm.canvasBIG.print("Seconds");
 
         // damping
         //coeffangle = (6.2831 - (ledamping)*6.2831) + 3.1416;
         //centercirclex = knobradius + 68;
-        //canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        //dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         //ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         //ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        //canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
-        //canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
-        //canvasBIG.setTextSize(1);
-        //canvasBIG.print(ledamping, 2);
-        //canvasBIG.setCursor(centercirclex - knobradius + 1, 8);
-        //canvasBIG.print("Damping");
+        //dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+        //dm.canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
+        //dm.canvasBIG.setTextSize(1);
+        //dm.canvasBIG.print(ledamping, 2);
+        //dm.canvasBIG.setCursor(centercirclex - knobradius + 1, 8);
+        //dm.canvasBIG.print("Damping");
 
         // wetbar
         barsize = round((gg.WetMixMasters[fx_idx + 1]/127.0) * (totbartall - 4));
-        canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
-        canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
-        canvasBIG.setCursor(startlex2 - 6, 0);
-        canvasBIG.print("Wet:");
+        dm.canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
+        dm.canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(startlex2 - 6, 0);
+        dm.canvasBIG.print("Wet:");
         reverbVpanelSelector(fx_idx);
         dm.dodisplay();
       }
@@ -1058,24 +1058,24 @@ void FxMenuRouter::delayVpanelSelector(byte fx_idx) {
         // size
         if (slct == 0) {
           lv.sublevels[4] = gg.fx[fx_idx].delayVknobs[0];
-          canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
+          dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
           lv.sublevels[4] = gg.fx[fx_idx].delayVknobs[1];
-          canvasBIG.drawCircle(centercirclex + 40, centercircley, knobradius - 2, SSD1306_WHITE);
+          dm.canvasBIG.drawCircle(centercirclex + 40, centercircley, knobradius - 2, SSD1306_WHITE);
         }
 
         if (slct == 2) {
           lv.sublevels[4] = gg.fx[fx_idx].delayVknobs[2];
-          canvasBIG.drawCircle(centercirclex + 40 + 40, centercircley, knobradius - 2, SSD1306_WHITE);
+          dm.canvasBIG.drawCircle(centercirclex + 40 + 40, centercircley, knobradius - 2, SSD1306_WHITE);
         }
 
         // wet
         if (slct == 3) {
           lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
-          canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
-          canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
+          dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
+          dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
       }
 
@@ -1095,58 +1095,58 @@ void FxMenuRouter::delayVpanel(byte fx_idx) {
         byte barsize;
         byte startlex2 = 67;
             dm.clean_title_1();
-        canvastitle.print("Delay ");
-        canvastitle.print(fx_idx + 1);
+        dm.canvastitle.print("Delay ");
+        dm.canvastitle.print(fx_idx + 1);
         float delaytime = gg.fx[fx_idx].delayVknobs[0] / 127.0;
         float dephtflange = gg.fx[fx_idx].delayVknobs[1] / 127.0;
         float freqflange = gg.fx[fx_idx].delayVknobs[2] / 127.0;
 
         // Tsel
         coeffangle = (6.2831 - (delaytime)*6.2831) + 3.1416;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.print(round((gg.fx[fx_idx].delayVknobs[0] / 127.0) * 7));
-        // canvasBIG.setCursor(centercirclex-knobradius+1, 8);
-        canvasBIG.setCursor(centercirclex - knobradius - 6, centercircley + knobradius + 4 + 10);
-        canvasBIG.print("TSel");
+        dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
+        dm.canvasBIG.setTextSize(1);
+        dm.canvasBIG.print(round((gg.fx[fx_idx].delayVknobs[0] / 127.0) * 7));
+        // dm.canvasBIG.setCursor(centercirclex-knobradius+1, 8);
+        dm.canvasBIG.setCursor(centercirclex - knobradius - 6, centercircley + knobradius + 4 + 10);
+        dm.canvasBIG.print("TSel");
 
         // TimeX
         coeffangle = (6.2831 - (dephtflange)*6.2831) + 3.1416;
         centercirclex = centercirclex + 40;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.print(gg.fx[fx_idx].delayVknobs[1]);
-        // canvasBIG.setCursor(centercirclex-knobradius+1, 8);
-        canvasBIG.setCursor(centercirclex - knobradius - 2, centercircley + knobradius + 4 + 10);
-        canvasBIG.print("TimeX");
+        dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
+        dm.canvasBIG.setTextSize(1);
+        dm.canvasBIG.print(gg.fx[fx_idx].delayVknobs[1]);
+        // dm.canvasBIG.setCursor(centercirclex-knobradius+1, 8);
+        dm.canvasBIG.setCursor(centercirclex - knobradius - 2, centercircley + knobradius + 4 + 10);
+        dm.canvasBIG.print("TimeX");
         //feedback
         coeffangle = (6.2831 - (freqflange)*6.2831) + 3.1416;
         centercirclex = centercirclex + 40;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.print(((gg.fx[fx_idx].delayVknobs[2] / 127.0)), 2);
-        canvasBIG.setCursor(centercirclex - knobradius - 2, centercircley + knobradius + 4 + 10);
-        // canvasBIG.setCursor(centercirclex-knobradius+1, 8);
-        canvasBIG.print("Fback");
+        dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
+        dm.canvasBIG.setTextSize(1);
+        dm.canvasBIG.print(((gg.fx[fx_idx].delayVknobs[2] / 127.0)), 2);
+        dm.canvasBIG.setCursor(centercirclex - knobradius - 2, centercircley + knobradius + 4 + 10);
+        // dm.canvasBIG.setCursor(centercirclex-knobradius+1, 8);
+        dm.canvasBIG.print("Fback");
 
         // wetbar
         barsize = round(((gg.WetMixMasters[fx_idx + 1]/127.0) * (totbartall - 4)));
-        canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
-        canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
-        canvasBIG.setCursor(startlex2 - 6, 0);
-        canvasBIG.print("Wet:");
+        dm.canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
+        dm.canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(startlex2 - 6, 0);
+        dm.canvasBIG.print("Wet:");
         delayVpanelSelector(fx_idx);
 
         dm.dodisplay();
@@ -1269,86 +1269,86 @@ void FxMenuRouter::filterVpanel(byte fx_idx) {
         byte startlex2 = 67;
 
             dm.clean_title_1();
-        canvastitle.print("Filter ");
-        canvastitle.print(fx_idx + 1);
-        canvastitle.setCursor(0, 8);
+        dm.canvastitle.print("Filter ");
+        dm.canvastitle.print(fx_idx + 1);
+        dm.canvastitle.setCursor(0, 8);
         // reflect lebq
-        canvastitle.print("Ctrl: ");
-        canvastitle.print((char *)LFOnamelist[self->filter_lfo_option]);
+        dm.canvastitle.print("Ctrl: ");
+        dm.canvastitle.print((char *)LFOnamelist[self->filter_lfo_option]);
 
         // bqfreq
         coeffangle = (6.2831 - (gg.fx[fx_idx].ffilterzVknobs[0] / 127.0) * 6.2831) + 3.1416;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 4, centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.print("FQ");
+        dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 4, centercircley + knobradius + 4);
+        dm.canvasBIG.setTextSize(1);
+        dm.canvasBIG.print("FQ");
         if (gg.fx[fx_idx].filterzfreq < 1000) {
-          canvasBIG.setCursor(centercirclex - knobradius + 1, 24);
-          canvasBIG.print(gg.fx[fx_idx].filterzfreq, 0);
+          dm.canvasBIG.setCursor(centercirclex - knobradius + 1, 24);
+          dm.canvasBIG.print(gg.fx[fx_idx].filterzfreq, 0);
         }
         if ((round(gg.fx[fx_idx].filterzfreq) < 9900) && (gg.fx[fx_idx].filterzfreq >= 1000)) {
-          canvasBIG.setCursor(centercirclex - knobradius - 1, 24);
-          canvasBIG.print(round(gg.fx[fx_idx].filterzfreq) / 1000.0, 1);
-          canvasBIG.print("k");
+          dm.canvasBIG.setCursor(centercirclex - knobradius - 1, 24);
+          dm.canvasBIG.print(round(gg.fx[fx_idx].filterzfreq) / 1000.0, 1);
+          dm.canvasBIG.print("k");
         }
         if (gg.fx[fx_idx].filterzfreq >= 9900) {
-          canvasBIG.setCursor(centercirclex - knobradius - 5, 24);
-          canvasBIG.print(gg.fx[fx_idx].filterzfreq / 1000.0, 1);
-          canvasBIG.print("k");
+          dm.canvasBIG.setCursor(centercirclex - knobradius - 5, 24);
+          dm.canvasBIG.print(gg.fx[fx_idx].filterzfreq / 1000.0, 1);
+          dm.canvasBIG.print("k");
         }
 
         // resonnance
         coeffangle = (6.2831 - (gg.fx[fx_idx].ffilterzVknobs[1] / 127.0) * 6.2831) + 3.1416;
         centercirclex = knobradius + 30;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.print("Res");
-        canvasBIG.setCursor(centercirclex - knobradius + 2, 24);
-        canvasBIG.print(gg.fx[fx_idx].filterzreso, 1);
+        dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
+        dm.canvasBIG.setTextSize(1);
+        dm.canvasBIG.print("Res");
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 2, 24);
+        dm.canvasBIG.print(gg.fx[fx_idx].filterzreso, 1);
 
         // octave
         coeffangle = (6.2831 - (gg.fx[fx_idx].ffilterzVknobs[2] / 127.0) * 6.2831) + 3.1416;
         centercirclex = knobradius + 55;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.print("Oct");
-        canvasBIG.setCursor(centercirclex - knobradius + 1, 24);
-        canvasBIG.print(gg.fx[fx_idx].filterzoctv, 1);
+        dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx, ftVcursorpointy, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1, centercircley + knobradius + 4);
+        dm.canvasBIG.setTextSize(1);
+        dm.canvasBIG.print("Oct");
+        dm.canvasBIG.setCursor(centercirclex - knobradius + 1, 24);
+        dm.canvasBIG.print(gg.fx[fx_idx].filterzoctv, 1);
 
         barsize = round((gg.fx[fx_idx].filterzgainz[0] * (totbartall - 4)));
-        canvasBIG.drawRoundRect(81, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
-        canvasBIG.fillRect(81 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
-        canvasBIG.setCursor(81, totbartall + topwbarstart + 4);
-        canvasBIG.print("LP");
+        dm.canvasBIG.drawRoundRect(81, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
+        dm.canvasBIG.fillRect(81 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(81, totbartall + topwbarstart + 4);
+        dm.canvasBIG.print("LP");
 
         barsize = round((gg.fx[fx_idx].filterzgainz[1] * (totbartall - 4)));
-        canvasBIG.drawRoundRect(98, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
-        canvasBIG.fillRect(98 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
-        canvasBIG.setCursor(97, totbartall + topwbarstart + 4);
-        canvasBIG.print("BP");
+        dm.canvasBIG.drawRoundRect(98, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
+        dm.canvasBIG.fillRect(98 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(97, totbartall + topwbarstart + 4);
+        dm.canvasBIG.print("BP");
 
         barsize = round((gg.fx[fx_idx].filterzgainz[2] * (totbartall - 4)));
-        canvasBIG.drawRoundRect(115, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
-        canvasBIG.fillRect(115 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
-        canvasBIG.setCursor(114, totbartall + topwbarstart + 4);
-        canvasBIG.print("HP");
+        dm.canvasBIG.drawRoundRect(115, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
+        dm.canvasBIG.fillRect(115 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(114, totbartall + topwbarstart + 4);
+        dm.canvasBIG.print("HP");
 
         barsize = round(((gg.WetMixMasters[fx_idx + 1]/127.0) * (totbartall - 4)));
-        canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
-        canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
-        canvasBIG.setCursor(startlex2 - 6, 0);
-        canvasBIG.print("Wet:");
+        dm.canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
+        dm.canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(startlex2 - 6, 0);
+        dm.canvasBIG.print("Wet:");
         filterVpanelSelector(fx_idx);
         dm.dodisplay();
       }
@@ -1370,43 +1370,43 @@ void FxMenuRouter::filterVpanelSelector(byte fx_idx) {
         // fq
         if (slct == 0) {
           lv.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[0];
-          canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
+          dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // res
         if (slct == 1) {
           lv.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[1];
-          canvasBIG.drawCircle(centercirclex + 25, centercircley, knobradius - 2, SSD1306_WHITE);
+          dm.canvasBIG.drawCircle(centercirclex + 25, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // oct
         if (slct == 2) {
           lv.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[2];
-          canvasBIG.drawCircle(centercirclex + 50, centercircley, knobradius - 2, SSD1306_WHITE);
+          dm.canvasBIG.drawCircle(centercirclex + 50, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // lp
         if (slct == 3) {
           lv.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[0];
-          canvasBIG.drawRect(83, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
+          dm.canvasBIG.drawRect(83, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
         }
         // bp
         if (slct == 4) {
           lv.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[1];
-          canvasBIG.drawRect(100, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
+          dm.canvasBIG.drawRect(100, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
         }
         // hp
         if (slct == 5) {
           lv.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[2];
-          canvasBIG.drawRect(117, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
+          dm.canvasBIG.drawRect(117, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
         }
         // Select LFO
         if (slct == 6) {
           lv.sublevels[4] = self->filter_lfo_option;
-          canvasBIG.setCursor(64, 8);
-          canvasBIG.print((char)9);
+          dm.canvasBIG.setCursor(64, 8);
+          dm.canvasBIG.print((char)9);
         }
         if (slct == 7) {
           lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
-          canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, SSD1306_WHITE);
-          canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
+          dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, SSD1306_WHITE);
+          dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
       }
 
@@ -1474,61 +1474,61 @@ void FxMenuRouter::biquadVpanel(byte fx_idx) {
         byte wbarwidth = 9;
         byte barsize = round((gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2] / 127.0) * (totbartall - 4));
             dm.clean_title_1();
-        canvastitle.print("Biquad ");
-        canvastitle.print(fx_idx + 1);
-        canvastitle.setCursor(107, 8);
+        dm.canvastitle.print("Biquad ");
+        dm.canvastitle.print(fx_idx + 1);
+        dm.canvastitle.setCursor(107, 8);
         // reflect lebq
-        canvastitle.print("s:");
-        canvastitle.print(gg.fx[fx_idx].bqstage + 1);
+        dm.canvastitle.print("s:");
+        dm.canvastitle.print(gg.fx[fx_idx].bqstage + 1);
 
-        canvastitle.setCursor(0, 8);
-        canvastitle.print("mode: ");
-        canvastitle.print((char *)bqtypeLabels[gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage]]);
+        dm.canvastitle.setCursor(0, 8);
+        dm.canvastitle.print("mode: ");
+        dm.canvastitle.print((char *)bqtypeLabels[gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage]]);
         // bqfreq
         coeffangle = (6.2831 - (gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0] / 127.0) * 6.2831) + 3.1416;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         bqVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         bqVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, bqVcursorpointx, bqVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius, centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.print("Freq.");
+        dm.canvasBIG.drawLine(centercirclex, centercircley, bqVcursorpointx, bqVcursorpointy, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - knobradius, centercircley + knobradius + 4);
+        dm.canvasBIG.setTextSize(1);
+        dm.canvasBIG.print("Freq.");
         if (gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] < 1000) {
-          canvasBIG.setCursor(centercirclex - knobradius + 4, 18);
+          dm.canvasBIG.setCursor(centercirclex - knobradius + 4, 18);
         }
         if ((gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] < 10000) && (gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] >= 1000)) {
-          canvasBIG.setCursor(centercirclex - knobradius + 2, 18);
+          dm.canvasBIG.setCursor(centercirclex - knobradius + 2, 18);
         }
         if (gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] >= 10000) {
-          canvasBIG.setCursor(centercirclex - knobradius - 2, 18);
+          dm.canvasBIG.setCursor(centercirclex - knobradius - 2, 18);
         }
-        canvasBIG.print(gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage], 0);
+        dm.canvasBIG.print(gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage], 0);
         // bqslope
         coeffangle = (6.2831 - (gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1] / 127.0) * 6.2831) + 3.1416;
         centercirclex = knobradius + 50;
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         bqVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         bqVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        canvasBIG.drawLine(centercirclex, centercircley, bqVcursorpointx, bqVcursorpointy, SSD1306_WHITE);
-        canvasBIG.setCursor(centercirclex - knobradius, centercircley + knobradius + 4);
-        canvasBIG.setTextSize(1);
-        canvasBIG.print("Slope");
-        canvasBIG.setCursor(centercirclex - knobradius, 18);
-        canvasBIG.print(gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
+        dm.canvasBIG.drawLine(centercirclex, centercircley, bqVcursorpointx, bqVcursorpointy, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - knobradius, centercircley + knobradius + 4);
+        dm.canvasBIG.setTextSize(1);
+        dm.canvasBIG.print("Slope");
+        dm.canvasBIG.setCursor(centercirclex - knobradius, 18);
+        dm.canvasBIG.print(gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
         // gain if  setLowShelf or sethighShelf
         if (gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage] > 3) {
-          canvasBIG.drawRoundRect(95, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
-          canvasBIG.fillRect(95 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
-          canvasBIG.setCursor(90, totbartall + topwbarstart + 4);
-          canvasBIG.print("Gain");
-          canvasBIG.setCursor(90, 18);
-          canvasBIG.print(gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage]);
+          dm.canvasBIG.drawRoundRect(95, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
+          dm.canvasBIG.fillRect(95 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
+          dm.canvasBIG.setCursor(90, totbartall + topwbarstart + 4);
+          dm.canvasBIG.print("Gain");
+          dm.canvasBIG.setCursor(90, 18);
+          dm.canvasBIG.print(gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage]);
         }
         barsize = round(((gg.WetMixMasters[fx_idx + 1]/127.0) * (totbartall + 13 - 4)));
-        canvasBIG.drawRoundRect(topwbarstart - 12 + startlex2 + 4, 0, totbartall + 13, wbarwidth2, 2, SSD1306_WHITE);
-        canvasBIG.fillRect((topwbarstart - 12 + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
-        canvasBIG.setCursor(startlex2 - 6, 0);
-        canvasBIG.print("Wet:");
+        dm.canvasBIG.drawRoundRect(topwbarstart - 12 + startlex2 + 4, 0, totbartall + 13, wbarwidth2, 2, SSD1306_WHITE);
+        dm.canvasBIG.fillRect((topwbarstart - 12 + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(startlex2 - 6, 0);
+        dm.canvasBIG.print("Wet:");
         biquadVpanelSelector(fx_idx);
         dm.dodisplay();
       }
@@ -1548,38 +1548,38 @@ void FxMenuRouter::biquadVpanelSelector(byte fx_idx) {
         // stage
         if (slct == 0) {
           lv.sublevels[4] = gg.fx[fx_idx].bqstage;
-          canvasBIG.setCursor(103, 9);
-          canvasBIG.print((char)9);
+          dm.canvasBIG.setCursor(103, 9);
+          dm.canvasBIG.print((char)9);
         }
         // mode
         if (slct == 1) {
           lv.sublevels[4] = gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage];
-          canvasBIG.setCursor(29, 8);
-          canvasBIG.print((char)9);
+          dm.canvasBIG.setCursor(29, 8);
+          dm.canvasBIG.print((char)9);
         }
         // freq
         if (slct == 2) {
           lv.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0];
-          canvasBIG.setCursor(20, 36);
-          canvasBIG.print((char)9);
+          dm.canvasBIG.setCursor(20, 36);
+          dm.canvasBIG.print((char)9);
         }
         // slope
         if (slct == 3) {
           lv.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1];
-          canvasBIG.setCursor(60, 36);
-          canvasBIG.print((char)9);
+          dm.canvasBIG.setCursor(60, 36);
+          dm.canvasBIG.print((char)9);
         }
         // gain
         if (slct == 5) {
           lv.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2];
-          canvasBIG.setCursor(89, 36);
-          canvasBIG.print((char)9);
+          dm.canvasBIG.setCursor(89, 36);
+          dm.canvasBIG.print((char)9);
         }
 
         if (slct == 4) {
           lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
-          canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
-          canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
+          dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
+          dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
       }
 
@@ -1631,7 +1631,7 @@ void FxMenuRouter::fx_nav_zero(){
         if (lv.navlevel < 2) dm.reinitsublevels(2);
         lv.avoid_fx_bounce = false ;
         lv.navrange = self->home_navrange;
-        display.clearDisplay();
+        dm.clearDisplay();
         dolistmainfxlines();
         dm.dodisplay();
         lv.sublevels[2] = gg.fx[lv.sublevels[1]%FXS_COUNT].plugged_fx ;
@@ -1640,7 +1640,7 @@ void FxMenuRouter::fx_nav_zero(){
 void FxMenuRouter::fx_nav_one(){
         if (lv.navlevel < 2) dm.reinitsublevels(2);
         lv.avoid_fx_bounce = false ;
-        display.clearDisplay();
+        dm.clearDisplay();
         if (lv.navlevel == 2) lv.navrange = 9;
         dolistMainFxPanel();
         dm.dodisplay();

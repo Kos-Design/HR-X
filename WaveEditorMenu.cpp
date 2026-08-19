@@ -180,25 +180,25 @@ void RecorderMenuRouter::recordVpanelSelector() {
 
           if (slct == 0) {
             if (!self->recorderrecord) {
-              canvasBIG.drawRoundRect(82, 18, 128 - 80 - 4, 20 - 4, 2, SSD1306_WHITE);
+              dm.canvasBIG.drawRoundRect(82, 18, 128 - 80 - 4, 20 - 4, 2, SSD1306_WHITE);
             } else {
-              canvasBIG.drawRoundRect(82, 18, 128 - 80 - 4, 20 - 4, 2, SSD1306_BLACK);
+              dm.canvasBIG.drawRoundRect(82, 18, 128 - 80 - 4, 20 - 4, 2, SSD1306_BLACK);
             }
           }
 
           if (slct == 1) {
             if (!playRawL.isPlaying()) {
-              canvasBIG.drawRoundRect(2, 18, 128 - 90 - 4, 20 - 4, 2, SSD1306_WHITE);
+              dm.canvasBIG.drawRoundRect(2, 18, 128 - 90 - 4, 20 - 4, 2, SSD1306_WHITE);
             } else {
-              canvasBIG.drawRoundRect(2, 18, 128 - 90 - 4, 20 - 4, 2, SSD1306_BLACK);
+              dm.canvasBIG.drawRoundRect(2, 18, 128 - 90 - 4, 20 - 4, 2, SSD1306_BLACK);
             }
           }
           if (slct == 2) {
             if (!self->recorderstop) {
-              canvasBIG.drawRoundRect(2, 18 + 20 + 4, 128 - 90 - 4, 20 - 4, 2,
+              dm.canvasBIG.drawRoundRect(2, 18 + 20 + 4, 128 - 90 - 4, 20 - 4, 2,
                                       SSD1306_WHITE);
             } else {
-              canvasBIG.drawRoundRect(2, 18 + 20 + 4, 128 - 90 - 4, 20 - 4, 2,
+              dm.canvasBIG.drawRoundRect(2, 18 + 20 + 4, 128 - 90 - 4, 20 - 4, 2,
                                       SSD1306_BLACK);
             }
           }
@@ -206,43 +206,43 @@ void RecorderMenuRouter::recordVpanelSelector() {
 
 void RecorderMenuRouter::recordVpanel() {
           recordVpanelAction();
-          display.clearDisplay();
+          dm.clearDisplay();
           dm.clear_buffs();
           if (!self->recorderrecord) {
-            canvasBIG.drawRoundRect(80, 16, 128 - 80, 20, 2, SSD1306_WHITE);
-            canvasBIG.setTextColor(SSD1306_WHITE);
-            canvasBIG.setCursor(87, 16 + 6);
-            canvasBIG.print("Rec.");
+            dm.canvasBIG.drawRoundRect(80, 16, 128 - 80, 20, 2, SSD1306_WHITE);
+            dm.canvasBIG.setTextColor(SSD1306_WHITE);
+            dm.canvasBIG.setCursor(87, 16 + 6);
+            dm.canvasBIG.print("Rec.");
           } else {
-            canvasBIG.fillRoundRect(80, 16, 128 - 80, 20, 2, SSD1306_WHITE);
-            canvasBIG.setCursor(87, 16 + 6);
-            canvasBIG.setTextColor(SSD1306_BLACK);
-            canvasBIG.print("Rec.");
-            canvasBIG.setTextColor(SSD1306_WHITE);
+            dm.canvasBIG.fillRoundRect(80, 16, 128 - 80, 20, 2, SSD1306_WHITE);
+            dm.canvasBIG.setCursor(87, 16 + 6);
+            dm.canvasBIG.setTextColor(SSD1306_BLACK);
+            dm.canvasBIG.print("Rec.");
+            dm.canvasBIG.setTextColor(SSD1306_WHITE);
           }
           if (!playRawL.isPlaying()) {
-            canvasBIG.drawRoundRect(0, 16, 128 - 90, 20, 2, SSD1306_WHITE);
-            canvasBIG.setTextColor(SSD1306_WHITE);
-            canvasBIG.setCursor(7, 16 + 6);
-            canvasBIG.print("Play");
+            dm.canvasBIG.drawRoundRect(0, 16, 128 - 90, 20, 2, SSD1306_WHITE);
+            dm.canvasBIG.setTextColor(SSD1306_WHITE);
+            dm.canvasBIG.setCursor(7, 16 + 6);
+            dm.canvasBIG.print("Play");
           } else {
-            canvasBIG.fillRoundRect(0, 16, 128 - 90, 20, 2, SSD1306_WHITE);
-            canvasBIG.setCursor(7, 16 + 6);
-            canvasBIG.setTextColor(SSD1306_BLACK);
-            canvasBIG.print("Play");
-            canvasBIG.setTextColor(SSD1306_WHITE);
+            dm.canvasBIG.fillRoundRect(0, 16, 128 - 90, 20, 2, SSD1306_WHITE);
+            dm.canvasBIG.setCursor(7, 16 + 6);
+            dm.canvasBIG.setTextColor(SSD1306_BLACK);
+            dm.canvasBIG.print("Play");
+            dm.canvasBIG.setTextColor(SSD1306_WHITE);
           }
           if (!self->recorderstop) {
-            canvasBIG.drawRoundRect(0, 16 + 20 + 4, 128 - 90, 20, 2, SSD1306_WHITE);
-            canvasBIG.setCursor(7, 6 + 16 + 20 + 4);
-            canvasBIG.setTextColor(SSD1306_WHITE);
-            canvasBIG.print("Stop");
+            dm.canvasBIG.drawRoundRect(0, 16 + 20 + 4, 128 - 90, 20, 2, SSD1306_WHITE);
+            dm.canvasBIG.setCursor(7, 6 + 16 + 20 + 4);
+            dm.canvasBIG.setTextColor(SSD1306_WHITE);
+            dm.canvasBIG.print("Stop");
           } else {
-            canvasBIG.fillRoundRect(0, 16 + 20 + 4, 128 - 90, 20, 2, SSD1306_WHITE);
-            canvasBIG.setCursor(7, 6 + 16 + 20 + 4);
-            canvasBIG.setTextColor(SSD1306_BLACK);
-            canvasBIG.print("Stop");
-            canvasBIG.setTextColor(SSD1306_WHITE);
+            dm.canvasBIG.fillRoundRect(0, 16 + 20 + 4, 128 - 90, 20, 2, SSD1306_WHITE);
+            dm.canvasBIG.setCursor(7, 6 + 16 + 20 + 4);
+            dm.canvasBIG.setTextColor(SSD1306_BLACK);
+            dm.canvasBIG.print("Stop");
+            dm.canvasBIG.setTextColor(SSD1306_WHITE);
           }
 
           recordVpanelSelector();
@@ -310,8 +310,8 @@ void RecorderMenuRouter::recorder_menu() {
 
 void RecorderMenuRouter::rec_params(){
           dm.clean_title_2_1();
-          display.setCursor(0,0);
-          display.print("Placeholder");
+          dm.setCursor(0,0);
+          dm.print("Placeholder");
           dm.dodisplay();
         }
 
@@ -429,7 +429,7 @@ void RecorderMenuRouter::drawWaveform(float startPos,float endPos, uint16_t widt
         int yTop = map(maxSample, 32767, -32768, 0, height - 1);
         int yBottom = map(minSample, 32767, -32768, 0, height - 1);
 
-        canvasBIG.drawFastVLine(x, yTop + 8, yBottom - yTop + 1, SSD1306_WHITE);
+        dm.canvasBIG.drawFastVLine(x, yTop + 8, yBottom - yTop + 1, SSD1306_WHITE);
         
     }
     wave_file.close();
@@ -438,11 +438,11 @@ void RecorderMenuRouter::drawWaveform(float startPos,float endPos, uint16_t widt
 void RecorderMenuRouter::select_cursor() {
           String _legend[] = {"Select","Zoom Out","Zoom In","Normalize","Reverse","Pitch x","Fade In","Fade Out","Preview","Del before","Del after","Del zone","Keep zone","Undo"," "};
 
-          display.clearDisplay();
+          dm.clearDisplay();
           dm.dodisplay();
           int cursor_coords[][4] = {{0,0,18,8},{22,0,9,8},{38,0,9,8},{52,0,9,8},{64,0,9,8},{76,0,9,8},{88,0,14,8},{106,0,14,8},{0,8,128,48},
                                     {23,56,14,8},{40,56,21,8},{64,56,20,8},{88,56,27,8},{116,56,12,8}};
-          display.fillRect(cursor_coords[lv.sublevels[self->relative_navlevel+1]][0], 
+          dm.fillRect(cursor_coords[lv.sublevels[self->relative_navlevel+1]][0], 
                             cursor_coords[lv.sublevels[self->relative_navlevel+1]][1],
                             cursor_coords[lv.sublevels[self->relative_navlevel+1]][2],
                             cursor_coords[lv.sublevels[self->relative_navlevel+1]][3],
@@ -451,36 +451,36 @@ void RecorderMenuRouter::select_cursor() {
            if (self->wave_selected) {
             redraw_selection_box();
           } 
-          //display.fillRect(80,16, 38, 10, SSD1306_INVERSE);
-          display.setTextSize(1);
-          display.setTextColor(SSD1306_INVERSE);
-          display.setCursor(60,12);
-          display.print(_legend[lv.sublevels[self->relative_navlevel +1]]);
-          display.display();
+          //dm.fillRect(80,16, 38, 10, SSD1306_INVERSE);
+          dm.setTextSize(1);
+          dm.setTextColor(SSD1306_INVERSE);
+          dm.setCursor(60,12);
+          dm.print(_legend[lv.sublevels[self->relative_navlevel +1]]);
+          dm.display();
         }
 
 void RecorderMenuRouter::draw_editor_zones(){
           dm.clean_title_1_1();
-          canvastitle.print("Slt");
-          canvastitle.print(" -  +");
-          //canvastitle.print(" Play");
-          canvastitle.print(" A");//amplify
-          canvastitle.print(" R");//reverse
-          canvastitle.print(" P");//Pitch
-          canvastitle.print(" Fi");//fade In
-          canvastitle.print(" Fo");//fade out
-          //canvasBIG.drawFastHLine(0, 10, 128, SSD1306_WHITE);
-          //canvasBIG.drawFastHLine(0, 53, 128, SSD1306_WHITE);
-          canvasBIG.setCursor(0,57);
-          canvasBIG.print("Cut In");//trim from start of zone to eof
-          canvasBIG.print(" Out");// trim from begining to end of zone
-          canvasBIG.print(" Del");// remove selected zone
-          canvasBIG.print(" Trim");// keep only selected zone
-          canvasBIG.print((char)14);// Undo
+          dm.canvastitle.print("Slt");
+          dm.canvastitle.print(" -  +");
+          //dm.canvastitle.print(" Play");
+          dm.canvastitle.print(" A");//amplify
+          dm.canvastitle.print(" R");//reverse
+          dm.canvastitle.print(" P");//Pitch
+          dm.canvastitle.print(" Fi");//fade In
+          dm.canvastitle.print(" Fo");//fade out
+          //dm.canvasBIG.drawFastHLine(0, 10, 128, SSD1306_WHITE);
+          //dm.canvasBIG.drawFastHLine(0, 53, 128, SSD1306_WHITE);
+          dm.canvasBIG.setCursor(0,57);
+          dm.canvasBIG.print("Cut In");//trim from start of zone to eof
+          dm.canvasBIG.print(" Out");// trim from begining to end of zone
+          dm.canvasBIG.print(" Del");// remove selected zone
+          dm.canvasBIG.print(" Trim");// keep only selected zone
+          dm.canvasBIG.print((char)14);// Undo
         }
 
 void RecorderMenuRouter::redraw_selection_box(){
-          display.fillRect(lv.sublevels[self->relative_navlevel +2], 8, 
+          dm.fillRect(lv.sublevels[self->relative_navlevel +2], 8, 
                               lv.sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
          
         }
@@ -1005,10 +1005,10 @@ void RecorderMenuRouter::fadeOutSection(float startPos, float endPos) {
 
 void RecorderMenuRouter::start_inputting_pitch(){
           lv.navrange = 127 ;
-          display.setCursor(104,12);
-          display.fillRect(104, 12, 30, 10, SSD1306_BLACK);
+          dm.setCursor(104,12);
+          dm.fillRect(104, 12, 30, 10, SSD1306_BLACK);
           self->pitcher = (lv.sublevels[self->relative_navlevel + 2]/127.0) * 2.0;
-          display.print(self->pitcher);
+          dm.print(self->pitcher);
           dm.dodisplay();
           if (lv.navlevel >= self->relative_navlevel+3) {
             pitchSection(self->start_zone,self->end_zone,self->pitcher);
@@ -1098,8 +1098,8 @@ void RecorderMenuRouter::edit_record(){
             if (lv.sublevels[self->relative_navlevel + 1] == 0){
               self->wave_selected = 0;
               lv.navrange = 127 ;
-              display.clearDisplay();
-              display.drawFastVLine(lv.sublevels[self->relative_navlevel +2], 8, 48, SSD1306_INVERSE);
+              dm.clearDisplay();
+              dm.drawFastVLine(lv.sublevels[self->relative_navlevel +2], 8, 48, SSD1306_INVERSE);
               dm.dodisplay();
             }
             
@@ -1166,11 +1166,11 @@ void RecorderMenuRouter::edit_record(){
           if (lv.navlevel == self->relative_navlevel + 3) {
             if (lv.sublevels[self->relative_navlevel + 1] == 0){
               lv.navrange = 127 - lv.sublevels[self->relative_navlevel +2] ;
-              display.clearDisplay();
+              dm.clearDisplay();
               dm.dodisplay();
-              display.fillRect(lv.sublevels[self->relative_navlevel +2], 8, 
+              dm.fillRect(lv.sublevels[self->relative_navlevel +2], 8, 
                                 lv.sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
-              display.display();
+              dm.display();
             //dm.returntonav(self->relative_navlevel + 1, self->home_navrange,0);
             }
           

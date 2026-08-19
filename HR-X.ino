@@ -1,27 +1,22 @@
 
-#include <SPI.h>
-#include <Wire.h>
-#include "muxer.h"
-#include <Adafruit_SSD1306.h>
-#include <Adafruit_GFX.h>
-#include "Voices.h"
 #include <Bounce.h>
-#include <Encoder.h>
+#include <USBHost_t36.h>
+#include "Voices.h"
 #include "Patterns.h"
 #include "Triggers.h"
-#include "pads.h"
-#include "KnobAssigner.h"
 #include "SongsMenu.h"
 #include "SamplerMenu.h"
 #include "PresetsMenu.h"
+#include "KnobAssigner.h"
 #include "WaveEditorMenu.h"
-#include "WaveFormer.h"
-#include <USBHost_t36.h>
 #include "SettingsMenu.h"
+#include "WaveFormer.h"
+#include "Functions.h"
 #include "SynthMenu.h"
 #include "LfoMenu.h"
 #include "FxMenu.h"
-#include "Functions.h"
+#include "pads.h"
+#include "muxer.h"
 
 USBHost myusb;
 USBHub hub1(myusb);
@@ -61,10 +56,7 @@ Muxer muxer;
 TriggerMessenger _tt;
 FxMenuRouter _fx;
 
-EXTMEM GFXcanvas1 canvasBIG(128, 64);
-EXTMEM GFXcanvas1 canvastitle(128, 16);
 EXTMEM Bounce clicked = Bounce(32, 100);
-EXTMEM Encoder myEnc(30, 31);
 
 #if MULTIPLEXED_PADS
 Bounce Backb = Bounce( 99, 5 );
@@ -72,7 +64,6 @@ Bounce Backb = Bounce( 99, 5 );
 Bounce Backb = Bounce( 33, 5 );
 #endif
 
-Adafruit_SSD1306 display(128, 64, &Wire2, -1);
 
 DisplayManager dm;
 GlobalMixer _mx;

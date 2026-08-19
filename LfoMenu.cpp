@@ -88,11 +88,11 @@ void LFOMenuRouter::LFOrmType() {
 
 void LFOMenuRouter::displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int leLFO, int wavetype) {
 
-          canvasBIG.drawBitmap(70, 20, img, 32, 32, SSD1306_WHITE);
-          canvastitle.setTextSize(1); // Draw 1X-scale text
-          canvastitle.setTextColor(SSD1306_WHITE);
-          canvastitle.setCursor(64, 8);
-          canvastitle.println(lelabelw);
+          dm.canvasBIG.drawBitmap(70, 20, img, 32, 32, SSD1306_WHITE);
+          dm.canvastitle.setTextSize(1); // Draw 1X-scale text
+          dm.canvastitle.setTextColor(SSD1306_WHITE);
+          dm.canvastitle.setCursor(64, 8);
+          dm.canvastitle.println(lelabelw);
           // dm.dodisplay();
         }
 
@@ -102,14 +102,14 @@ void LFOMenuRouter::doLFObool() {
             gg.LFOsync[leLFO] = !gg.LFOsync[leLFO] ;
             restartLFO(leLFO);
           }
-          display.setCursor(55, 0);
-          display.setTextSize(2);
+          dm.setCursor(55, 0);
+          dm.setTextSize(2);
           if (gg.LFOsync[leLFO]) {
-            display.print("Active");
+            dm.print("Active");
           } else {
-            display.print("Off");
+            dm.print("Off");
           }
-          display.display();
+          dm.display();
           if (lv.navlevel >= 4) {
             dm.returntonav(2, 2);
           }
@@ -122,9 +122,9 @@ void LFOMenuRouter::doLFOparamdisplayval(int laval) {
         }
 
 void LFOMenuRouter::draw_lfo_val(float laval) {
-          canvastitle.setCursor(80, 0);
-          canvastitle.setTextSize(2);
-          canvastitle.print(laval);
+          dm.canvastitle.setCursor(80, 0);
+          dm.canvastitle.setTextSize(2);
+          dm.canvastitle.print(laval);
         }
 
 void LFOMenuRouter::doLFOlevel() {
@@ -169,9 +169,9 @@ void LFOMenuRouter::doLFOphase() {
           if (lv.navlevel >= 4) {
             gobacktolfoparams();
           }
-          canvastitle.setCursor(80, 0);
-          canvastitle.setTextSize(2);
-          canvastitle.print((gg.LFOphase[leLFO]/127.0)*360);
+          dm.canvastitle.setCursor(80, 0);
+          dm.canvastitle.setTextSize(2);
+          dm.canvastitle.print((gg.LFOphase[leLFO]/127.0)*360);
         }
 
 void LFOMenuRouter::freqbars_panel_selector() {
@@ -179,22 +179,22 @@ void LFOMenuRouter::freqbars_panel_selector() {
             lv.retroaction = lv.sublevels[2];
             switch (lv.sublevels[3]){
               case 0:
-                display.fillRect(62, 0, 16, 16, SSD1306_INVERSE);
+                dm.fillRect(62, 0, 16, 16, SSD1306_INVERSE);
                 self->unit = (int)gg.LFOHz[lv.cclfoselector];
                 lv.sublevels[4]=self->unit;
               break;
               case 1:
-                display.fillRect(88, 0, 12, 16, SSD1306_INVERSE);
+                dm.fillRect(88, 0, 12, 16, SSD1306_INVERSE);
                 self->tenth = ((int)(gg.LFOHz[lv.cclfoselector]* 10)) % 10;
                 lv.sublevels[4]=self->tenth;
               break;
               case 2:
-                display.fillRect(100, 0, 12, 16, SSD1306_INVERSE);
+                dm.fillRect(100, 0, 12, 16, SSD1306_INVERSE);
                 self->hundredth = ((int)(gg.LFOHz[lv.cclfoselector] * 100)) % 10;
                 lv.sublevels[4]=self->hundredth;
               break;
             }
-          display.display();
+          dm.display();
           }
         }
 void LFOMenuRouter::freqbars_panel_action() {
@@ -219,9 +219,9 @@ void LFOMenuRouter::freqbars_panel_action() {
 
 void LFOMenuRouter::displayfreqbars(){
           //dm.clear_3();
-          display.setTextSize(2);
-          display.setCursor(65, 0);
-          display.println(gg.LFOHz[lv.cclfoselector]);
+          dm.setTextSize(2);
+          dm.setCursor(65, 0);
+          dm.println(gg.LFOHz[lv.cclfoselector]);
           //dolistLFOparams();
           //dm.dodisplay();
         }
@@ -326,25 +326,25 @@ void LFOMenuRouter::LFOlining() {
           dm.clean_title_2_1();
           dolistLFOparams();
           _route_nav[lv.sublevels[2]]();
-          canvasBIG.setCursor(122, 58);
-          canvasBIG.print(lv.cclfoselector + 1);
+          dm.canvasBIG.setCursor(122, 58);
+          dm.canvasBIG.print(lv.cclfoselector + 1);
           dm.dodisplay();
         }
 
 void LFOMenuRouter::printLFObanner(int startx, int starty, int leLFO) {
-            display.fillRect(startx, starty, 64, 24, SSD1306_INVERSE);
+            dm.fillRect(startx, starty, 64, 24, SSD1306_INVERSE);
             dm.printlabel((char*)"LFO ");
-            display.setCursor(116, 0);
-            display.print(leLFO);
-            display.display();
+            dm.setCursor(116, 0);
+            dm.print(leLFO);
+            dm.display();
         }
 
 void LFOMenuRouter::LFOlineBG() {
-            display.clearDisplay();
-            display.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
+            dm.clearDisplay();
+            dm.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
             byte lfi = lv.sublevels[1];
-            //display.fillRect(0+(lfi%2)*64, 16+(24*(lfi/2)), 64, 24, SSD1306_INVERSE);
-            display.display();
+            //dm.fillRect(0+(lfi%2)*64, 16+(24*(lfi/2)), 64, 24, SSD1306_INVERSE);
+            dm.display();
             printLFObanner((lfi%2)*64, 16+(24*(lfi/2)), lfi+1);
 
         }

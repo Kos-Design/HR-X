@@ -85,7 +85,7 @@ void SynthLiner::liner_on(byte data1, byte data2) {
     this->velocity=data2;
     this->f303=1;
 
-    this->targetFreq = notestofreq[this->note];
+    this->targetFreq = bb.notestofreq[this->note];
     int note_diff = ((this->note + (64 - gg.portamento_height)) % 127 + 127) % 127;
     switch (gg.glideMode) {
     case Off:
@@ -94,24 +94,24 @@ void SynthLiner::liner_on(byte data1, byte data2) {
 
     case Portamento:
     if (gg.portamento_time)  {
-        this->currentFreq = notestofreq[this->previous_note];
+        this->currentFreq = bb.notestofreq[this->previous_note];
         }
     break;
 
     case ReversePortamento:
         if (gg.portamento_time)  {
-        this->targetFreq = notestofreq[this->previous_note];
-        this->currentFreq = notestofreq[this->note];
+        this->targetFreq = bb.notestofreq[this->previous_note];
+        this->currentFreq = bb.notestofreq[this->note];
         }
     break;
 
     case PitchAttack:
-        this->currentFreq = notestofreq[note_diff];
+        this->currentFreq = bb.notestofreq[note_diff];
     break;
 
     case ReversePitchAttack:
         this->currentFreq = this->targetFreq;
-        this->targetFreq = notestofreq[note_diff];
+        this->targetFreq = bb.notestofreq[note_diff];
     break;
 
     }

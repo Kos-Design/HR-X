@@ -14,10 +14,9 @@
 #include "pads.h"
 #include "FxMenu.h"
 #include "PresetsMenu.h"
-#include <Encoder.h>
 #include "KnobAssigner.h"
+#include "Frequencies.h"
 
-extern Encoder myEnc;
 extern USBHost myusb;
 extern USBHub hub1;
 extern USBHub hub2;
@@ -27,7 +26,156 @@ extern MIDIDevice midi2;
 extern MIDIDevice midi3;
 
 void initextmems() {
-  
+
+  float tmparray[128] = {
+    8.2129616380,
+    8.7013297508,
+    9.2187377429,
+    9.7669124151,
+    10.3476832497,
+    10.9629885152,
+    11.6148817357,
+    12.3055385443,
+    13.0372639439,
+    13.8125000000,
+    14.6338339908,
+    15.5040070423,
+    16.4259232760,
+    17.4026595017,
+    18.4374754857,
+    19.5338248303,
+    20.6953664994,
+    21.9259770303,
+    23.2297634714,
+    24.6110770886,
+    26.0745278878,
+    27.6250000000,
+    29.2676679817,
+    31.0080140845,
+    32.8518465520,
+    34.8053190033,
+    36.8749509714,
+    39.0676496606,
+    41.3907329987,
+    43.8519540606,
+    46.4595269428,
+    49.2221541773,
+    52.1490557757,
+    55.2500000000,
+    58.5353359634,
+    62.0160281691,
+    65.7036931039,
+    69.6106380067,
+    73.7499019429,
+    78.1352993211,
+    82.7814659974,
+    87.7039081212,
+    92.9190538855,
+    98.4443083545,
+    104.2981115513,
+    110.5000000000,
+    117.0706719267,
+    124.0320563382,
+    131.4073862078,
+    139.2212760134,
+    147.4998038858,
+    156.2705986422,
+    165.5629319949,
+    175.4078162425,
+    185.8381077711,
+    196.8886167090,
+    208.5962231027,
+    221.0000000000,
+    234.1413438534,
+    248.0641126764,
+    262.8147724156,
+    278.4425520268,
+    294.9996077716,
+    312.5411972845,
+    331.1258639897,
+    350.8156324850,
+    371.6762155421,
+    393.7772334180,
+    417.1924462053,
+    442.0000000000,
+    468.2826877068,
+    496.1282253527,
+    525.6295448312,
+    556.8851040535,
+    589.9992155432,
+    625.0823945689,
+    662.2517279795,
+    701.6312649699,
+    743.3524310843,
+    787.5544668361,
+    834.3848924106,
+    884.0000000000,
+    936.5653754136,
+    992.2564507055,
+    1051.2590896624,
+    1113.7702081071,
+    1179.9984310863,
+    1250.1647891378,
+    1324.5034559590,
+    1403.2625299399,
+    1486.7048621686,
+    1575.1089336721,
+    1668.7697848212,
+    1768.0000000000,
+    1873.1307508272,
+    1984.5129014110,
+    2102.5181793248,
+    2227.5404162141,
+    2359.9968621726,
+    2500.3295782756,
+    2649.0069119180,
+    2806.5250598798,
+    2973.4097243371,
+    3150.2178673442,
+    3337.5395696425,
+    3536.0000000000,
+    3746.2615016545,
+    3969.0258028219,
+    4205.0363586496,
+    4455.0808324283,
+    4719.9937243452,
+    5000.6591565513,
+    5298.0138238359,
+    5613.0501197596,
+    5946.8194486743,
+    6300.4357346885,
+    6675.0791392849,
+    7072.0000000000,
+    7492.5230033089,
+    7938.0516056439,
+    8410.0727172992,
+    8910.1616648565,
+    9439.9874486905,
+    10001.3183131025,
+    10596.0276476719,
+    11226.1002395191,
+    11893.6388973485,
+    12600.8714693770
+
+  };
+
+  memset(bb.granularMemory, 0, sizeof(bb.granularMemory));
+  memset(bb.chorusdelayline, 0, sizeof(bb.chorusdelayline));
+  memset(bb.flangedelay, 0, sizeof(bb.flangedelay));
+  memset(bb.rolling_queue_buff, 0, sizeof(bb.rolling_queue_buff));
+  memset(bb.Flashsamplename, 0, sizeof(bb.Flashsamplename));
+  memset(bb.consolemsg, 0, sizeof(bb.consolemsg));
+  memset(bb.pleasewaitarray, 0, sizeof(bb.pleasewaitarray));
+  memset(bb.pots_controllers, 0, sizeof(bb.pots_controllers));
+  memset(bb.recorded_ccs, 0, sizeof(bb.recorded_ccs));
+
+  memcpy(bb.notestofreq, tmparray, sizeof(bb.notestofreq));
+  _sp.doclearassign();
+  memset(gg.midiknobassigned, 0, sizeof(gg.midiknobassigned));
+  memset(gg.arbitrary_waveforms, 0, sizeof(gg.arbitrary_waveforms));
+  memset(gg.pot_assignements, 0, sizeof(gg.pot_assignements));
+  memset(gg.vPots, 0, sizeof(gg.vPots));
+
   for (int j = 0; j < PBARS; j++) {
     pp.sampler_off_pat[j] = {0,0,0};
     _pe.temp_sampler_partition[j] = {0,0,0};
@@ -56,6 +204,12 @@ void initextmems() {
     }
     bb.recorded_ccs[i] = 0 ;
   }
+  gg.fx[0] = FxBus();
+  gg.fx[0].f_index = 0;
+  gg.fx[1] = FxBus();
+  gg.fx[1].f_index = 1;
+  gg.fx[2] = FxBus();
+  gg.fx[2].f_index = 2;
 }
 
 void loadsynthdefaults() {
@@ -516,9 +670,7 @@ void setup() {
   initextmems();
   // setupmemtest();
   Serial.begin(9600);
-  gg.fx[0].f_index = 0;
-  gg.fx[1].f_index = 1;
-  gg.fx[2].f_index = 2;
+
   dm.initializeconsolemsg();
   dm.setupscreen();
   consoler.wipe();
@@ -548,9 +700,7 @@ void setup() {
   
   pinMode(MULTIPLEXER_PIN, INPUT_PULLUP);
   
-  for (int i = 0; i < 128; i++) {
-    gg.midiknobassigned[i] = 0;
-  }
+
   consoler.println((char *)"I/O Set !");
   consoler.println((char *)"Loading Defaults");
   Tocker.stopticker();
@@ -1212,14 +1362,14 @@ void adjust_osc_refresher_period_ctl(byte cc_val) {
 }
 
 void adjust_rota_decrease_ctl(byte cc_val){
-  int this_rota = myEnc.read();
-  myEnc.write(this_rota-4);
+  int this_rota = dm.myEnc.read();
+  dm.myEnc.write(this_rota-4);
   dm.evalrota(); 
 }
 
 void rota_increase_ctl(byte cc_val){
-  int this_rota = myEnc.read();
-  myEnc.write(this_rota+4);
+  int this_rota = dm.myEnc.read();
+  dm.myEnc.write(this_rota+4);
   dm.evalrota() ;
 }
 
@@ -1236,7 +1386,7 @@ void cancel_pushed_ctl(byte cc_val){
   if (lv.retroaction) {
     lv.sublevels[lv.navlevel] = lv.retroaction ;
     lv.rota_true_pos = lv.retroaction;
-    myEnc.write(lv.retroaction * 4);
+    dm.myEnc.write(lv.retroaction * 4);
     lv.retroaction = 0;
   }
   dm.show();
@@ -1246,7 +1396,7 @@ void cancel_pushed_ctl(byte cc_val){
 void validate_pushed_ctl(byte cc_val){
   lv.navlevel++;
   lv.rota_true_pos = lv.sublevels[lv.navlevel];
-  myEnc.write(lv.sublevels[lv.navlevel] * 4);
+  dm.myEnc.write(lv.sublevels[lv.navlevel] * 4);
   dm.show();
 }
 

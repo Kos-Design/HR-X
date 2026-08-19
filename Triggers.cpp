@@ -439,18 +439,18 @@ bool TriggerMessenger::noCCrecordlist(byte lanotee) {
 
 void TriggerMessenger::debugmidi(char *typemsg = (char *)"midi ", MidiEventer msg = {0,0,0}) {
 
-  display.clearDisplay();
-  canvastitle.fillScreen(SSD1306_BLACK);
-  canvasBIG.fillScreen(SSD1306_BLACK);
-  canvastitle.setCursor(0, 0);
-  canvastitle.setTextSize(1);
-  canvastitle.print(typemsg);
-  canvastitle.print(", c:");
-  canvastitle.print(msg.channel);
-  canvastitle.print(", n:");
-  canvastitle.print(msg.note);
-  canvastitle.print(", v:");
-  canvastitle.print(msg.velocity);
+  dm.clearDisplay();
+  dm.canvastitle.fillScreen(SSD1306_BLACK);
+  dm.canvasBIG.fillScreen(SSD1306_BLACK);
+  dm.canvastitle.setCursor(0, 0);
+  dm.canvastitle.setTextSize(1);
+  dm.canvastitle.print(typemsg);
+  dm.canvastitle.print(", c:");
+  dm.canvastitle.print(msg.channel);
+  dm.canvastitle.print(", n:");
+  dm.canvastitle.print(msg.note);
+  dm.canvastitle.print(", v:");
+  dm.canvastitle.print(msg.velocity);
 
   dm.dodisplay();
 }

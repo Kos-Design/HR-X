@@ -1,16 +1,13 @@
 #pragma once
 #include <Audio.h>
-#include <Adafruit_SSD1306.h>
 #include "Constants.h"
+#include <Encoder.h>
+#include <Adafruit_SSD1306.h>
 
 struct CcCalls {
     const char *name;
     void (*tweaker)(byte);
 };
-
-extern Adafruit_SSD1306 display;
-extern GFXcanvas1 canvasBIG;
-extern GFXcanvas1 canvastitle;
 
 struct LiveState {
     int sublevels[9]{};
@@ -68,11 +65,16 @@ class SectionHolder{
         void (*_home)() = nullptr;
 };
 
-class DisplayManager{
+class DisplayManager : public Adafruit_SSD1306 {
+
     public:
         bool ILI_128x64 = true;
         float eqRawBars[NUM_BARS]{};
         uint8_t eqBars[NUM_BARS]{};
+
+        static GFXcanvas1 canvasBIG;
+        static GFXcanvas1 canvastitle;
+        static Encoder myEnc;
         float fftGain[NUM_BARS] = {
             15.0f,17.7f,45.82f,58.825f,
             65.2f,92.575f,98.6f,106.92f,
@@ -103,7 +105,7 @@ class DisplayManager{
         int rota_enc_count = 0;
         int rota_old_Pos = -999;
         int rota_old_vrai_Pos = 0;
-
+        DisplayManager();
         void display_home(void);
         void setupscreen(void);
         void displayleBGimg(const unsigned char *img);
@@ -187,6 +189,7 @@ class GlobalMixer : public SectionHolder {
         static GlobalMixer* self;
         
 };
+
 extern GlobalMixer _mx;
 
 class SequencerClocker : public AudioStream {
@@ -219,7 +222,6 @@ class ClockSink : public AudioStream {
     private:
     audio_block_t *inputQueueArray[1];
 };
-
 
 class DisplayConsoler : public Print {
   public:

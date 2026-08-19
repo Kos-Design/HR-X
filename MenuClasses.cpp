@@ -1,5 +1,4 @@
 #include "MenuClasses.h"
-#include <Encoder.h>
 #include "pads.h"
 #include <Bounce.h>
 #include "SamplerMenu.h"
@@ -14,8 +13,8 @@
 #include "Patterns.h"
 #include "Functions.h"
 #include "Presets.h"
+#include <Wire.h>
 
-extern Encoder myEnc;
 extern Bounce clicked;
 extern Bounce Backb;
 
@@ -26,11 +25,19 @@ void SectionHolder::set_home(void (*_cb)()){
     _home = _cb;
 }
 
+DisplayManager::DisplayManager() : Adafruit_SSD1306(128, 64, &Wire2, -1){};
+
+GFXcanvas1 DisplayManager::canvasBIG(128, 64);
+GFXcanvas1 DisplayManager::canvastitle(128, 16);
+Encoder DisplayManager::myEnc(30, 31);
+
 void DisplayManager::display_home() {
     if (ILI_128x64) {
         Serial.println("ILI_128x64 detected");
     }
 }
+
+  
 
 void DisplayManager::returntonav(byte lelevel, byte lanavrange, byte t_vraipos) {
   lv.navlevel = lelevel;
@@ -65,39 +72,39 @@ void DisplayManager::setlapleasewaitarray(int consoleline, char *lemsg) {
 }
 
 void DisplayManager::pleasewait(float lewait, float letotwait) {
-  display.clearDisplay();
-  display.setTextSize(2);
-  display.setCursor(6, 0);
-  display.print("Processing");
+  clearDisplay();
+  setTextSize(2);
+  setCursor(6, 0);
+  print("Processing");
   if (letotwait > 0) {
-    display.setCursor(4, 20);
-    display.setTextSize(2);
-    display.print("[");
-    display.setTextSize(1);
-    display.setCursor(7 + 4, 23);
+    setCursor(4, 20);
+    setTextSize(2);
+    print("[");
+    setTextSize(1);
+    setCursor(7 + 4, 23);
     for (int i = 0; i < int(18.0 * (lewait / letotwait)); i++) {
-      display.print("-");
+      print("-");
     }
-    display.setCursor(115, 20);
-    display.setTextSize(2);
-    display.print("]");
+    setCursor(115, 20);
+    setTextSize(2);
+    print("]");
   }
-  display.setCursor(20, 50);
-  display.setTextSize(1);
-  display.print("(Please Wait)");
-  display.display();
+  setCursor(20, 50);
+  setTextSize(1);
+  print("(Please Wait)");
+  display();
 }
 
 void DisplayManager::pseudoconsole(const char *lemsg,bool new_lines) {
   if (new_lines) shiftconsolemsgarray();
   setleconsolemsg(0, (char *)lemsg);
-  display.clearDisplay();
-  display.setTextSize(1);
-  display.setCursor(0, 0);
+  clearDisplay();
+  setTextSize(1);
+  setCursor(0, 0);
   for (int i = 0; i < 10; i++) {
-    display.println((char *)bb.consolemsg[i]);
+    println((char *)bb.consolemsg[i]);
   }
-  display.display();
+  display();
 }
 
 void DisplayManager::initializeconsolemsg() {
@@ -167,7 +174,7 @@ void DisplayManager::doConfirmpanel(char *letitlemsg) {
   canvasBIG.drawRect(14 + lv.sublevels[lv.navlevel] * 66, 23,
                     23 + lv.sublevels[lv.navlevel] * 6, 17, SSD1306_WHITE);
   dm.dodisplay();
-  display.display();
+  display();
 }
 
 void DisplayManager::reinitsublevels(byte fromlei) {
@@ -224,10 +231,10 @@ void DisplayManager::printassignedmidi(int lemidiassknob) {
 void DisplayManager::displayleBGimg(const unsigned char *img) {_displayleBGimg(img);}
 
 void DisplayManager::printlabel(char *toprint) {
-    display.setTextSize(2);
-    display.setTextColor(SSD1306_WHITE);
-    display.setCursor(0, 0);
-    display.println(toprint);
+    setTextSize(2);
+    setTextColor(SSD1306_WHITE);
+    setCursor(0, 0);
+    println(toprint);
 }
 
 
@@ -315,9 +322,9 @@ void DisplayManager::displaymenu() {
       lv.navrange = 9;
       displayleBGimg(menuBG);
   }
-  display.drawRoundRect(5 + (lv.sublevels[0]%5)*24, 17+((lv.sublevels[0]/5)*24), 21, 21, 3, SSD1306_WHITE);
+  drawRoundRect(5 + (lv.sublevels[0]%5)*24, 17+((lv.sublevels[0]/5)*24), 21, 21, 3, SSD1306_WHITE);
   printlabel(menus_lbl[lv.sublevels[0]]);
-  display.display();
+  display();
 }
 
 void DisplayManager::main_panel(const char* const* menulabels, int lvl, int menu_lbls_count) {
@@ -358,7 +365,7 @@ void DisplayManager::display_oscilloscope(){
 
     lv.last_y_peak = y;
   }
-  display.clearDisplay();
+  clearDisplay();
 
   dm.dodisplay();
 }
@@ -412,19 +419,19 @@ void DisplayManager::UpdateSpectrum(){
 }
 
 void DisplayManager::DrawSpectrum64(){
-    display.clearDisplay();
+    clearDisplay();
 
     for (int i = 0; i < 64; i++)
     {
         int h = eqBars[i];
-        display.drawFastVLine(
+        drawFastVLine(
             i * 2,
             SCREEN_HEIGHT - h,
             h,
             WHITE);
     }
 
-    display.display();
+    display();
 }
 void DisplayManager::clear_buffs(){
             canvasBIG.fillScreen(SSD1306_BLACK);
@@ -450,7 +457,7 @@ void DisplayManager::clear_buffs_2_2(){
         }
 void DisplayManager::clear_3(){
             clear_buffs();
-            display.clearDisplay();
+            clearDisplay();
         }
 
 void DisplayManager::clean_title_2(){
@@ -497,26 +504,26 @@ void (*DisplayManager::root_route[10])() = {&_sn.show,&_lf.show,&_rd.show,&_sg.s
 
 
 void DisplayManager::_displayleBGimg(const unsigned char *img) {
-            display.clearDisplay();
-            display.drawBitmap(0, 0, img, 128, 64, SSD1306_WHITE);
+            clearDisplay();
+            drawBitmap(0, 0, img, 128, 64, SSD1306_WHITE);
         }
 
 void DisplayManager::_setupscreen_ILI() {
-    if (!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+    if (!begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
         Serial.println(F("Screen SSD1306 allocation failed"));
         return;
     }
-    display.display();
-    display.setCursor(0, 0);
-    display.setTextSize(1.5);
-    display.setTextColor(SSD1306_WHITE);
-    display.clearDisplay();
+    display();
+    setCursor(0, 0);
+    setTextSize(1.5);
+    setTextColor(SSD1306_WHITE);
+    clearDisplay();
 }
 
 void DisplayManager::dodisplay() {
-  display.drawBitmap(0, 0, canvasBIG.getBuffer(), 128, 64, SSD1306_WHITE);
-  display.drawBitmap(0, 0, canvastitle.getBuffer(), 128, 16, SSD1306_WHITE);
-  display.display();
+  drawBitmap(0, 0, canvasBIG.getBuffer(), 128, 64, SSD1306_WHITE);
+  drawBitmap(0, 0, canvastitle.getBuffer(), 128, 16, SSD1306_WHITE);
+  display();
 }
 
 extern DisplayManager dm ;
@@ -585,13 +592,13 @@ void GlobalMixer::showmixerwaves() {
         actionwmixer(lv.sublevels[2] - 9);
       }
 
-      display.clearDisplay();
-      canvastitle.fillScreen(SSD1306_BLACK);
-      canvasBIG.fillScreen(SSD1306_BLACK);
-      // canvastitle.setCursor(70,0);
-      canvasBIG.setTextSize(1);
-      canvasBIG.setCursor(0, 0);
-      canvasBIG.print((char *)masterfulllabels[lv.sublevels[2]]);
+      dm.clearDisplay();
+      dm.canvastitle.fillScreen(SSD1306_BLACK);
+      dm.canvasBIG.fillScreen(SSD1306_BLACK);
+      // dm.canvastitle.setCursor(70,0);
+      dm.canvasBIG.setTextSize(1);
+      dm.canvasBIG.setCursor(0, 0);
+      dm.canvasBIG.print((char *)masterfulllabels[lv.sublevels[2]]);
 
       byte centercirclex;
       byte centercircley;
@@ -608,81 +615,81 @@ void GlobalMixer::showmixerwaves() {
         coeffangle = (6.2831 - (gg.mixlevelsM[i] / 127.0) * 6.2831) + 3.1416;
         centercirclex = knobradius + (xcentershifter * i);
         centercircley = 16 + knobradius;
-        canvastitle.setCursor(centercirclex - 5, 8);
-        canvastitle.setTextSize(1);
-        canvastitle.print((char)masterfulllabels[i][0]);
-        canvastitle.print((char)masterfulllabels[i][2]);
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvastitle.setCursor(centercirclex - 5, 8);
+        dm.canvastitle.setTextSize(1);
+        dm.canvastitle.print((char)masterfulllabels[i][0]);
+        dm.canvastitle.print((char)masterfulllabels[i][2]);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        display.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
+        dm.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
       }
 
       if (slct < 3) {
         centercirclex = knobradius + (xcentershifter * slct);
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
-        canvastitle.setCursor(95, 0);
-        canvastitle.print((gg.mixlevelsM[slct] / 127.0) * 100.0, 1);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
+        dm.canvastitle.setCursor(95, 0);
+        dm.canvastitle.print((gg.mixlevelsM[slct] / 127.0) * 100.0, 1);
       }
 
       for (int i = 0; i < 3; i++) {
         coeffangle = (6.2831 - (gg.WetMixMasters[i + 1]/127.0) * 6.2831) + 3.1416;
         centercirclex = knobradius + (xcentershifter * i) + 5 + (xcentershifter * 3);
         centercircley = 16 + knobradius;
-        canvastitle.setCursor(centercirclex - 8, 8);
-        canvastitle.setTextSize(1);
-        canvastitle.print((char *)masterfulllabels[i + 3]);
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvastitle.setCursor(centercirclex - 8, 8);
+        dm.canvastitle.setTextSize(1);
+        dm.canvastitle.print((char *)masterfulllabels[i + 3]);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        display.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
+        dm.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
       }
 
       if (slct > 2 && slct < 6) {
         centercirclex = knobradius + (xcentershifter * (slct - 3)) + 5 + (xcentershifter * 3);
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
-        canvastitle.setCursor(95, 0);
-        canvastitle.print((gg.WetMixMasters[slct - 3 + 1]/127.0) * 100.0, 1);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
+        dm.canvastitle.setCursor(95, 0);
+        dm.canvastitle.print((gg.WetMixMasters[slct - 3 + 1]/127.0) * 100.0, 1);
       }
 
       for (int i = 0; i < 3; i++) {
         coeffangle = (6.2831 - (gg.wetins[i] / 127.0) * 6.2831) + 3.1416;
         centercirclex = knobradius + (xcentershifter * i);
         centercircley = yshifter + knobradius;
-        canvasBIG.setCursor(centercirclex - 7, centercircley - (2 + knobradius * 2));
-        canvasBIG.print("Ws");
-        canvasBIG.print(i);
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - 7, centercircley - (2 + knobradius * 2));
+        dm.canvasBIG.print("Ws");
+        dm.canvasBIG.print(i);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        display.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
+        dm.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
       }
 
       if (slct > 5 && slct < 9) {
         centercirclex = knobradius + (xcentershifter * (slct - 6));
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
-        canvastitle.setCursor(95, 0);
-        canvastitle.print((gg.wetins[slct - 6] / 127.0) * 100.0, 1);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
+        dm.canvastitle.setCursor(95, 0);
+        dm.canvastitle.print((gg.wetins[slct - 6] / 127.0) * 100.0, 1);
       }
 
       for (int i = 0; i < OSCS_COUNT; i++) {
         coeffangle = (6.2831 - (gg.mixlevelsL[i]/127.0) * 6.2831) + 3.1416;
         centercirclex = knobradius + (xcentershifter * i) + 25 + (xcentershifter * 2);
         centercircley = yshifter + knobradius;
-        canvasBIG.setCursor(centercirclex - 5, centercircley - (2 + knobradius * 2));
-        canvasBIG.print("W");
-        canvasBIG.print(i);
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+        dm.canvasBIG.setCursor(centercirclex - 5, centercircley - (2 + knobradius * 2));
+        dm.canvasBIG.print("W");
+        dm.canvasBIG.print(i);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
         trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
         trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        display.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
+        dm.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
       }
 
       if (slct > 8 && slct < 12) {
         centercirclex = knobradius + (xcentershifter * (slct - 9)) + 25 + (xcentershifter * 2);
-        canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
-        canvastitle.setCursor(95, 0);
-        canvastitle.print((gg.mixlevelsL[slct - 9]/127.0) * 100.0, 1);
+        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
+        dm.canvastitle.setCursor(95, 0);
+        dm.canvastitle.print((gg.mixlevelsL[slct - 9]/127.0) * 100.0, 1);
       }
       dm.dodisplay();
     }
@@ -952,12 +959,12 @@ void DisplayConsoler::clearing(){
     memset(_c_buff, ' ', sizeof(_c_buff));
 
 /*
-    display.clearDisplay();
-    display.setTextColor(SSD1306_WHITE);
-    display.setTextWrap(false);
-    display.setCursor(0,0);
+    dm.clearDisplay();
+    dm.setTextColor(SSD1306_WHITE);
+    dm.setTextWrap(false);
+    dm.setCursor(0,0);
 
-    display.display();
+    dm.display();
     */
 }
 
@@ -968,12 +975,12 @@ void DisplayConsoler::wipe(){
     memset(_c_buff, ' ', sizeof(_c_buff));
 
 
-    display.clearDisplay();
-    //display.setTextColor(SSD1306_WHITE);
-    //display.setTextWrap(false);
-    display.setCursor(0,0);
+    dm.clearDisplay();
+    //dm.setTextColor(SSD1306_WHITE);
+    //dm.setTextWrap(false);
+    dm.setCursor(0,0);
 
-    display.display();
+    dm.display();
     
 }
 size_t DisplayConsoler::write(uint8_t c){
@@ -999,10 +1006,10 @@ size_t DisplayConsoler::write(uint8_t c){
 }
 
 void DisplayConsoler::drawChar(char c){
-    display.setCursor(cursorX * CHAR_W,
+    dm.setCursor(cursorX * CHAR_W,
                       cursorY * CHAR_H);
 
-    display.write(c);
+    dm.write(c);
 }
 
 void DisplayConsoler::newLine(){
@@ -1025,14 +1032,14 @@ void DisplayConsoler::scroll(){
 
     memset(_c_buff[ROWS - 1], ' ', COLS);
 
-    display.clearDisplay();
+    dm.clearDisplay();
 
     for (uint8_t y = 0; y < ROWS; y++)
     {
-        display.setCursor(0, y * CHAR_H);
+        dm.setCursor(0, y * CHAR_H);
 
         for (uint8_t x = 0; x < COLS; x++)
-            display.write(_c_buff[y][x]);
+            dm.write(_c_buff[y][x]);
           continue;
     }
 
@@ -1040,5 +1047,5 @@ void DisplayConsoler::scroll(){
 }
 
 void DisplayConsoler::refresh(){
-    display.display();
+    dm.display();
 }

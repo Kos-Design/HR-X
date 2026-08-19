@@ -99,31 +99,31 @@ void CCEditor::showleditcc() {
           int lalinex2 = 0;
           int laliney1 = 0;
           int laliney2 = 0;
-          display.clearDisplay();
-          canvasBIG.fillScreen(SSD1306_BLACK);
+          dm.clearDisplay();
+          dm.canvasBIG.fillScreen(SSD1306_BLACK);
 
           if (lv.navlevel == 2) {
-            canvastitle.fillScreen(SSD1306_BLACK);
-            canvastitle.setCursor(0, 0);
+            dm.canvastitle.fillScreen(SSD1306_BLACK);
+            dm.canvastitle.setCursor(0, 0);
             if (gg.midiknobassigned[lv.sublevels[2]] == 0) {
-              canvastitle.setTextSize(2);
-              canvastitle.print("Edit CC");
+              dm.canvastitle.setTextSize(2);
+              dm.canvastitle.print("Edit CC");
               if (lv.sublevels[2] < 100) {
-                canvastitle.print(" ");
+                dm.canvastitle.print(" ");
               }
               if (lv.sublevels[2] < 10) {
-                canvastitle.print(" ");
+                dm.canvastitle.print(" ");
               }
-              canvastitle.print(lv.sublevels[2]);
+              dm.canvastitle.print(lv.sublevels[2]);
             } else {
-              canvastitle.setTextSize(1);
-              canvastitle.print("CC");
-              canvastitle.print(lv.sublevels[2]);
-              canvastitle.print(" ");
-              canvastitle.print((char *)ctl[gg.midiknobassigned[lv.sublevels[2]]].name);
+              dm.canvastitle.setTextSize(1);
+              dm.canvastitle.print("CC");
+              dm.canvastitle.print(lv.sublevels[2]);
+              dm.canvastitle.print(" ");
+              dm.canvastitle.print((char *)ctl[gg.midiknobassigned[lv.sublevels[2]]].name);
             }
           }
-          canvasBIG.drawRect(0, 16, 128, 64, SSD1306_WHITE);
+          dm.canvasBIG.drawRect(0, 16, 128, 64, SSD1306_WHITE);
 
           for (int j = 0; j < PBARS; j++) {
 
@@ -133,10 +133,10 @@ void CCEditor::showleditcc() {
             lalinex1 = lacellx;
             laliney1 = lacelly;
             if (lavaluecc < 128) {
-              canvasBIG.fillRect(lacellx, lacelly, 3, 3, SSD1306_WHITE);
+              dm.canvasBIG.fillRect(lacellx, lacelly, 3, 3, SSD1306_WHITE);
               if (j > 0) {
                 if ((int)pp.cc_partition[lv.sublevels[2]][j - 1] < 128) {
-                  canvasBIG.drawLine(lalinex2, laliney2, lalinex1, laliney1,
+                  dm.canvasBIG.drawLine(lalinex2, laliney2, lalinex1, laliney1,
                                     SSD1306_WHITE);
                 }
               }
@@ -148,27 +148,27 @@ void CCEditor::showleditcc() {
         }
 
 void CCEditor::headerccedit() {
-          display.clearDisplay();
-          canvastitle.fillScreen(SSD1306_BLACK);
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(1);
-          canvastitle.print("Edit CC ");
-          canvastitle.print(lv.sublevels[2]);
-          canvastitle.setCursor(0, 8);
-          canvastitle.print("Pos: ");
-          canvastitle.print(lv.sublevels[3]);
-          canvastitle.setCursor(90, 0);
-          canvastitle.setTextSize(2);
+          dm.clearDisplay();
+          dm.canvastitle.fillScreen(SSD1306_BLACK);
+          dm.canvastitle.setCursor(0, 0);
+          dm.canvastitle.setTextSize(1);
+          dm.canvastitle.print("Edit CC ");
+          dm.canvastitle.print(lv.sublevels[2]);
+          dm.canvastitle.setCursor(0, 8);
+          dm.canvastitle.print("Pos: ");
+          dm.canvastitle.print(lv.sublevels[3]);
+          dm.canvastitle.setCursor(90, 0);
+          dm.canvastitle.setTextSize(2);
           if (pp.cc_partition[lv.sublevels[2]][lv.sublevels[3]] < 128) {
-            canvastitle.print(pp.cc_partition[lv.sublevels[2]][lv.sublevels[3]]);
+            dm.canvastitle.print(pp.cc_partition[lv.sublevels[2]][lv.sublevels[3]]);
           }
           if (pp.cc_partition[lv.sublevels[2]][lv.sublevels[3]] >= 128) {
-            canvastitle.print("Off");
+            dm.canvastitle.print("Off");
           }
         }
 
 void CCEditor::showvertlinecursor(int lavertpos) {
-          display.drawLine(lavertpos * (128 / PBARS), 16, lavertpos * (128 / PBARS), 64,
+          dm.drawLine(lavertpos * (128 / PBARS), 16, lavertpos * (128 / PBARS), 64,
                           SSD1306_WHITE);
         }
 
@@ -212,9 +212,9 @@ void PatEditRouter::homer(){
 
           drawPatternRow();
           dolistpatternlineblocks();
-          display.setCursor(0, 0);
+          dm.setCursor(0, 0);
           String _t_type[TK_TYPES] = {"Synth","Sampler"};
-          display.print(_t_type[self->track_type]);
+          dm.print(_t_type[self->track_type]);
 
         }
 
@@ -248,11 +248,11 @@ void PatEditRouter::doshownoteline() {
           int ncell_x_length = 4;
           byte note_slct = lv.sublevels[self->relative_navlevel + 2];
           int ncell_y;
-          canvasBIG.setCursor(0, 0);
-          canvasBIG.print("Note:");
-          canvasBIG.print(lv.sublevels[self->relative_navlevel + 2]);
-          canvasBIG.print(" Pos:");
-          canvasBIG.print(lv.sublevels[self->relative_navlevel + 3]);
+          dm.canvasBIG.setCursor(0, 0);
+          dm.canvasBIG.print("Note:");
+          dm.canvasBIG.print(lv.sublevels[self->relative_navlevel + 2]);
+          dm.canvasBIG.print(" Pos:");
+          dm.canvasBIG.print(lv.sublevels[self->relative_navlevel + 3]);
           for (int notelines = note_slct; notelines > note_slct - 12; notelines--) {
             for (int i = 0; i < PBARS; i++) {
 
@@ -261,9 +261,9 @@ void PatEditRouter::doshownoteline() {
                 ncell_x_length = max(self->_length_part[i],4);
                 ncell_y = top_spacer + (4 * (note_slct - notelines));
 
-                canvasBIG.fillRect(left_spacer + note_width * i, ncell_y,
+                dm.canvasBIG.fillRect(left_spacer + note_width * i, ncell_y,
                                   ncell_x_length, note_height, SSD1306_WHITE);
-                canvasBIG.drawLine(left_spacer + note_width * i, ncell_y,
+                dm.canvasBIG.drawLine(left_spacer + note_width * i, ncell_y,
                                   left_spacer + note_width * i, ncell_y + note_height,
                                   SSD1306_BLACK);
               }
@@ -273,7 +273,7 @@ void PatEditRouter::doshownoteline() {
 
 void PatEditRouter::drawPatternRow() {
           // rows of audio sources : synth, sampler, others
-          canvasBIG.drawFastHLine(0, 16 + lv.sublevels[self->relative_navlevel] * 8 + 3, 128, SSD1306_WHITE);
+          dm.canvasBIG.drawFastHLine(0, 16 + lv.sublevels[self->relative_navlevel] * 8 + 3, 128, SSD1306_WHITE);
         }
 
 void PatEditRouter::reshift_tracks_display() {
@@ -289,10 +289,10 @@ void PatEditRouter::reshift_tracks_display() {
 void PatEditRouter::show_lines_events(){
           for (int i = 0 ; i < 6 ; i++) {
              for (int j = 0 ; j < PBARS ; j++) {
-                canvasBIG.fillRect( 4 * j, 16+(8*i), 4*((int)self->visible_tracks[i][j]), 8*((int)self->visible_tracks[i][j]), SSD1306_WHITE);
+                dm.canvasBIG.fillRect( 4 * j, 16+(8*i), 4*((int)self->visible_tracks[i][j]), 8*((int)self->visible_tracks[i][j]), SSD1306_WHITE);
             }
           }
-          canvasBIG.drawFastHLine(0, 16 + 5, 128, SSD1306_INVERSE);
+          dm.canvasBIG.drawFastHLine(0, 16 + 5, 128, SSD1306_INVERSE);
         }
 
 void PatEditRouter::clearevented0(int lapatline) {
@@ -330,7 +330,7 @@ void PatEditRouter::dolistpatternlineblocks() {
           for (int lapatline = 0; lapatline < TK_TYPES; lapatline++) {
             for (int i = 0; i < PBARS; i++) {
               if (pp.track_cells[lapatline][i]) {
-                canvasBIG.fillRect( 4*i + 1,16 + (8*lapatline) + 1, 2,6, SSD1306_INVERSE);
+                dm.canvasBIG.fillRect( 4*i + 1,16 + (8*lapatline) + 1, 2,6, SSD1306_INVERSE);
               }
             }
           }
@@ -361,7 +361,7 @@ void PatEditRouter::sync_temp() {
 
 void PatEditRouter::drawCursorCol() {
           int xpos = (lv.sublevels[lv.navlevel] * 4);
-          display.drawLine(xpos, 0, xpos, 64-16, SSD1306_INVERSE);
+          dm.drawLine(xpos, 0, xpos, 64-16, SSD1306_INVERSE);
         }
 
 void PatEditRouter::track_selector() {
@@ -378,23 +378,23 @@ void PatEditRouter::track_selector() {
 void PatEditRouter::show_track_header(){
           self->paterning = false ;
 
-          display.clearDisplay();
+          dm.clearDisplay();
           String head_title[2]={"Synth","Flash"};
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(1);
-          canvastitle.print(head_title[self->track_type]);
-          canvastitle.print(" Track ");
-          canvastitle.print(self->local_line + 1);
+          dm.canvastitle.setCursor(0, 0);
+          dm.canvastitle.setTextSize(1);
+          dm.canvastitle.print(head_title[self->track_type]);
+          dm.canvastitle.print(" Track ");
+          dm.canvastitle.print(self->local_line + 1);
         }
 
 void PatEditRouter::note_selector() {
           self->paterning = false ;
 
-          display.clearDisplay();
+          dm.clearDisplay();
           lv.navrange = 127;
           sync_temp();
           doshownoteline();
-          //canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
+          //dm.canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
           draw_velobars();
           dm.dodisplay();
           lv.sublevels[self->relative_navlevel + 3] = lv.tickposition;
@@ -408,13 +408,13 @@ void PatEditRouter::start_cell_setter() {
 
           lv.previousnavlevel = lv.navlevel;
           //last level showing the noteline and its velocity
-          display.clearDisplay();
+          dm.clearDisplay();
           lv.navrange = 31;
-          canvasBIG.fillRect(0, 32,127,64-32, SSD1306_BLACK);
+          dm.canvasBIG.fillRect(0, 32,127,64-32, SSD1306_BLACK);
           lv.sublevels[self->relative_navlevel + 4] = lv.sublevels[self->relative_navlevel + 3];
           sync_temp();
           doshownoteline();
-          canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_WHITE);
+          dm.canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_WHITE);
           drawCursorCol();
           draw_velobars();
           dm.dodisplay();
@@ -425,7 +425,7 @@ void PatEditRouter::draw_velobars(){
           int velobar ;
           for (int i = 0; i < PBARS; i++) {
             velobar = map(self->_temp_part[i].velocity,0,127,0,16);
-            canvasBIG.fillRect((i*(128/32)), 64-velobar,4 ,velobar, SSD1306_WHITE);
+            dm.canvasBIG.fillRect((i*(128/32)), 64-velobar,4 ,velobar, SSD1306_WHITE);
           }
         }
 
@@ -446,11 +446,11 @@ void PatEditRouter::stretch_cell_length() {
             lv.navrange = 31;
             self->_length_part[lv.sublevels[self->relative_navlevel + 3]] = max( (lv.sublevels[self->relative_navlevel + 4] - lv.sublevels[self->relative_navlevel + 3]) * 4,4);
             _refresher[self->track_type]();
-            display.clearDisplay();
+            dm.clearDisplay();
             lv.sublevels[self->relative_navlevel + 5] = self->_temp_part[lv.sublevels[self->relative_navlevel + 3]].velocity;
             //doshownoteline2();
             doshownoteline();
-            canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_INVERSE);
+            dm.canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_INVERSE);
             drawCursorCol();
             draw_velobars();
             dm.dodisplay();
@@ -463,9 +463,9 @@ void PatEditRouter::stretch_cell_velocity() {
 
           self->addinglength = 0;
           self->_temp_part[lv.sublevels[self->relative_navlevel + 3]].velocity = lv.sublevels[self->relative_navlevel + 5];
-          display.clearDisplay();
+          dm.clearDisplay();
           doshownoteline();
-          canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_INVERSE);
+          dm.canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_INVERSE);
           draw_velobars();
           dm.dodisplay();
         }
@@ -1192,20 +1192,20 @@ void POptionsRouter::shiftnotes2left(int leshifter) {
 
 void POptionsRouter::showtransposedisplays() {
           dm.clean_title_2();
-          canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
+          dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
 
           int latransposition;
           latransposition = 7 - lv.sublevels[3];
-          canvasBIG.setCursor(0, 16);
-          canvasBIG.setTextSize(2);
+          dm.canvasBIG.setCursor(0, 16);
+          dm.canvasBIG.setTextSize(2);
 
           if (latransposition > 0) {
-            canvasBIG.print("+");
+            dm.canvasBIG.print("+");
           }
           if (latransposition == 0) {
-            canvasBIG.setCursor(8, 16);
+            dm.canvasBIG.setCursor(8, 16);
           }
-          canvasBIG.print(latransposition);
+          dm.canvasBIG.print(latransposition);
           dm.dodisplay();
         }
 
@@ -1222,76 +1222,76 @@ void POptionsRouter::doShiftersynth() {
 
 void POptionsRouter::showShifterdisplays() {
           dm.clean_title_2();
-          canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
+          dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
 
           int latransposition;
           latransposition = 16 - lv.sublevels[3];
-          canvasBIG.setCursor(0, 16);
-          canvasBIG.setTextSize(2);
+          dm.canvasBIG.setCursor(0, 16);
+          dm.canvasBIG.setTextSize(2);
 
           if (latransposition > 0) {
-            canvasBIG.print("+");
+            dm.canvasBIG.print("+");
           }
           if (latransposition == 0) {
-            canvasBIG.setCursor(8, 16);
+            dm.canvasBIG.setCursor(8, 16);
           }
-          canvasBIG.print(latransposition);
+          dm.canvasBIG.print(latransposition);
           dm.dodisplay();
         }
 
 void POptionsRouter::showlestargetdisplays() {
           dm.clean_title_2();
-          canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
+          dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
 
           int latransposition;
           latransposition = lv.sublevels[3];
-          canvasBIG.setCursor(0, 16);
-          canvasBIG.setTextSize(2);
+          dm.canvasBIG.setCursor(0, 16);
+          dm.canvasBIG.setTextSize(2);
           switch (latransposition) {
           case 0:
-            canvasBIG.print("All");
+            dm.canvasBIG.print("All");
 
             self->targetNOsampler = 0;
             self->targetNOsynth = 0;
             self->targetNOcc = 0;
             break;
           case 1:
-            // canvasBIG.setTextSize(1);
-            canvasBIG.print("Synth");
+            // dm.canvasBIG.setTextSize(1);
+            dm.canvasBIG.print("Synth");
             self->targetNOsampler = 1;
             self->targetNOsynth = 0;
             self->targetNOcc = 1;
             break;
           case 2:
-            canvasBIG.print("Sampler");
+            dm.canvasBIG.print("Sampler");
             self->targetNOsampler = 0;
             self->targetNOsynth = 1;
             self->targetNOcc = 1;
             break;
           case 3:
-            canvasBIG.print("CCs");
+            dm.canvasBIG.print("CCs");
             self->targetNOsampler = 1;
             self->targetNOsynth = 1;
             self->targetNOcc = 0;
             break;
           case 4:
-            canvasBIG.println("Synth");
-            canvasBIG.print(" + CCs");
+            dm.canvasBIG.println("Synth");
+            dm.canvasBIG.print(" + CCs");
 
             self->targetNOsampler = 1;
             self->targetNOsynth = 0;
             self->targetNOcc = 0;
             break;
           case 5:
-            canvasBIG.println("Sampler");
-            canvasBIG.print(" + CCs");
+            dm.canvasBIG.println("Sampler");
+            dm.canvasBIG.print(" + CCs");
             self->targetNOsampler = 0;
             self->targetNOsynth = 1;
             self->targetNOcc = 0;
             break;
           case 6:
-            canvasBIG.println("Sampler");
-            canvasBIG.print("Synth");
+            dm.canvasBIG.println("Sampler");
+            dm.canvasBIG.print("Synth");
             self->targetNOsampler = 0;
             self->targetNOsynth = 0;
             self->targetNOcc = 1;
@@ -1300,20 +1300,20 @@ void POptionsRouter::showlestargetdisplays() {
             break;
           }
 
-          // canvasBIG.print(latransposition);
+          // dm.canvasBIG.print(latransposition);
           dm.dodisplay();
         }
 
 void POptionsRouter::optionspatterndisplays() {
           dm.clean_title_2();
-          canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
+          dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
           if (lv.sublevels[2] == 4) {
-            canvasBIG.setCursor(0, 16);
-            canvasBIG.setTextSize(2);
+            dm.canvasBIG.setCursor(0, 16);
+            dm.canvasBIG.setTextSize(2);
             if (self->interpolOn) {
-              canvasBIG.print("On");
+              dm.canvasBIG.print("On");
             } else {
-              canvasBIG.print("Off");
+              dm.canvasBIG.print("Off");
             }
           }
           dm.dodisplay();

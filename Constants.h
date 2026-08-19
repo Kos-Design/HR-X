@@ -40,6 +40,9 @@
 #define ARP_TYPES 8
 #define VBUT_LBL_COUNT 8
 #define NUM_BARS 64
+#define SSD1306_BLACK 0
+#define SSD1306_WHITE 1
+#define SSD1306_INVERSE 2
 
 struct MidiEventer{
     uint8_t channel;

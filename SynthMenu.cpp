@@ -23,29 +23,29 @@ void GlideMenuRouter::show(){
   }
   lv.sublevels[3]=*self->glide_params[lv.sublevels[2]];
 
-  display.clearDisplay();
-  display.setCursor(0,0);
-  display.setTextSize(1);
+  dm.clearDisplay();
+  dm.setCursor(0,0);
+  dm.setTextSize(1);
   
-  display.print("Glide Settings");
-  display.println(" ");
-  display.println(" ");
-  display.print("Mode: ");
-  display.print(GlideModeLabels[gg.glideMode]);
+  dm.print("Glide Settings");
+  dm.println(" ");
+  dm.println(" ");
+  dm.print("Mode: ");
+  dm.print(GlideModeLabels[gg.glideMode]);
 
-  display.setCursor(0, 28);
-  display.print("Time: ");
-  display.print(gg.portamento_time);
+  dm.setCursor(0, 28);
+  dm.print("Time: ");
+  dm.print(gg.portamento_time);
 
-  display.setCursor(0, 40);
-  display.print("Height: ");
-  display.print(64-gg.portamento_height);
-  display.setCursor(0, 52);
-  display.print("Slope:   ");
-  display.print((64-gg.glide_slope)/64.0);
-  display.display();
-  display.fillRoundRect(0,11+12*lv.sublevels[2], 35, 16, 3, SSD1306_INVERSE);
-  display.display();
+  dm.setCursor(0, 40);
+  dm.print("Height: ");
+  dm.print(64-gg.portamento_height);
+  dm.setCursor(0, 52);
+  dm.print("Slope:   ");
+  dm.print((64-gg.glide_slope)/64.0);
+  dm.display();
+  dm.fillRoundRect(0,11+12*lv.sublevels[2], 35, 16, 3, SSD1306_INVERSE);
+  dm.display();
   
   if (lv.navlevel > 3 ){
     dm.returntonav(self->relative_navlevel,self->home_navrange,lv.sublevels[2]);
@@ -185,84 +185,84 @@ void Filter303MenuRouter::le303filterVpanel() {
   int barsize;
   int startlex2 = 67;
   dm.clean_title_1();
-  canvastitle.print("303 ");
-  canvastitle.setCursor(22, 0);
+  dm.canvastitle.print("303 ");
+  dm.canvastitle.setCursor(22, 0);
 
-  canvastitle.print("In:");
-  canvastitle.print((int)((gg.preampleswaves / 127.0) * 200.0));
+  dm.canvastitle.print("In:");
+  dm.canvastitle.print((int)((gg.preampleswaves / 127.0) * 200.0));
 
   coeffangle = (6.2831 - (gg.le303ffilterzVknobs[0] / 127.0) * 6.2831) + 3.1416;
-  canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+  dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
   ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
   ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-  canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx,
+  dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx,
                     ftVcursorpointy, SSD1306_WHITE);
-  canvasBIG.setCursor(centercirclex - knobradius + 4,
+  dm.canvasBIG.setCursor(centercirclex - knobradius + 4,
                       centercircley + knobradius + 4);
-  canvasBIG.setTextSize(1);
-  canvasBIG.print("FQ");
+  dm.canvasBIG.setTextSize(1);
+  dm.canvasBIG.print("FQ");
   if (gg.le303filterzfreq < 1000) {
-    canvasBIG.setCursor(centercirclex - knobradius + 1, 25);
-    canvasBIG.print(gg.le303filterzfreq);
+    dm.canvasBIG.setCursor(centercirclex - knobradius + 1, 25);
+    dm.canvasBIG.print(gg.le303filterzfreq);
   }
   if ((gg.le303filterzfreq < 9900) && (gg.le303filterzfreq >= 1000)) {
-    canvasBIG.setCursor(centercirclex - knobradius - 1, 25);
-    canvasBIG.print(round(gg.le303filterzfreq) / 1000.0, 1);
-    canvasBIG.print("k");
+    dm.canvasBIG.setCursor(centercirclex - knobradius - 1, 25);
+    dm.canvasBIG.print(round(gg.le303filterzfreq) / 1000.0, 1);
+    dm.canvasBIG.print("k");
   }
   if (gg.le303filterzfreq >= 9900) {
-    canvasBIG.setCursor(centercirclex - knobradius - 5, 25);
-    canvasBIG.print(gg.le303filterzfreq / 1000.0, 1);
-    canvasBIG.print("k");
+    dm.canvasBIG.setCursor(centercirclex - knobradius - 5, 25);
+    dm.canvasBIG.print(gg.le303filterzfreq / 1000.0, 1);
+    dm.canvasBIG.print("k");
   }
 
   // resonnance
   coeffangle = (6.2831 - (gg.le303ffilterzVknobs[1] / 127.0) * 6.2831) + 3.1416;
   centercirclex = knobradius + 30;
-  canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+  dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
   ftVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
   ftVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-  canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx,
+  dm.canvasBIG.drawLine(centercirclex, centercircley, ftVcursorpointx,
                     ftVcursorpointy, SSD1306_WHITE);
-  canvasBIG.setCursor(centercirclex - knobradius + 1,
+  dm.canvasBIG.setCursor(centercirclex - knobradius + 1,
                       centercircley + knobradius + 4);
-  canvasBIG.setTextSize(1);
-  canvasBIG.print("Res");
-  canvasBIG.setCursor(centercirclex - knobradius + 2, 25);
-  canvasBIG.print((gg.le303filterzreso/127.0)*5, 1);
+  dm.canvasBIG.setTextSize(1);
+  dm.canvasBIG.print("Res");
+  dm.canvasBIG.setCursor(centercirclex - knobradius + 2, 25);
+  dm.canvasBIG.print((gg.le303filterzreso/127.0)*5, 1);
 
   barsize = round(((gg.le303filterzgainz[0]/127.0) * (totbartall - 4)));
-  canvasBIG.drawRoundRect(81, topwbarstart, wbarwidth, totbartall, 2,
+  dm.canvasBIG.drawRoundRect(81, topwbarstart, wbarwidth, totbartall, 2,
                           SSD1306_WHITE);
-  canvasBIG.fillRect(81 + 2, (totbartall + topwbarstart - barsize - 2),
+  dm.canvasBIG.fillRect(81 + 2, (totbartall + topwbarstart - barsize - 2),
                     wbarwidth - 4, barsize, SSD1306_WHITE);
-  canvasBIG.setCursor(81, totbartall + topwbarstart + 4);
-  canvasBIG.print("LP");
+  dm.canvasBIG.setCursor(81, totbartall + topwbarstart + 4);
+  dm.canvasBIG.print("LP");
 
   barsize = round(((gg.le303filterzgainz[1]/127.0) * (totbartall - 4)));
-  canvasBIG.drawRoundRect(98, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
-  canvasBIG.fillRect(98 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
-  canvasBIG.setCursor(97, totbartall + topwbarstart + 4);
-  canvasBIG.print("BP");
+  dm.canvasBIG.drawRoundRect(98, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
+  dm.canvasBIG.fillRect(98 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
+  dm.canvasBIG.setCursor(97, totbartall + topwbarstart + 4);
+  dm.canvasBIG.print("BP");
 
   barsize = round(((gg.le303filterzgainz[2]/127.0) * (totbartall - 4)));
-  canvasBIG.drawRoundRect(115, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
-  canvasBIG.fillRect(115 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
-  canvasBIG.setCursor(114, totbartall + topwbarstart + 4);
-  canvasBIG.print("HP");
+  dm.canvasBIG.drawRoundRect(115, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
+  dm.canvasBIG.fillRect(115 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
+  dm.canvasBIG.setCursor(114, totbartall + topwbarstart + 4);
+  dm.canvasBIG.print("HP");
 
   barsize = round(((gg.le303filterzwet / 127.0) * (totbartall - 4)));
-  canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
-  canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
-  canvasBIG.setCursor(startlex2, 0);
-  canvasBIG.print("Wet");
+  dm.canvasBIG.drawRoundRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, 2, SSD1306_WHITE);
+  dm.canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
+  dm.canvasBIG.setCursor(startlex2, 0);
+  dm.canvasBIG.print("Wet");
 
   barsize = round((0.5 * (totbartall - 4)));
 
-  canvastitle.setCursor(54, 8);
-  canvastitle.print("Glide: ");
-  if (!gg.portamento_time) canvastitle.print("Off");
-  else canvastitle.print(gg.portamento_time);
+  dm.canvastitle.setCursor(54, 8);
+  dm.canvastitle.print("Glide: ");
+  if (!gg.portamento_time) dm.canvastitle.print("Off");
+  else dm.canvastitle.print(gg.portamento_time);
   
   le303filterVpanelSelector();
   dm.dodisplay();
@@ -284,58 +284,58 @@ void Filter303MenuRouter::le303filterVpanelSelector() {
   // fq
   if (slct == 0) {
     lv.sublevels[3] = gg.le303ffilterzVknobs[0];
-    canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
+    dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
                         SSD1306_WHITE);
   }
   // res
   if (slct == 1) {
     lv.sublevels[3] = gg.le303ffilterzVknobs[1];
-    canvasBIG.drawCircle(centercirclex + 25, centercircley, knobradius - 2,
+    dm.canvasBIG.drawCircle(centercirclex + 25, centercircley, knobradius - 2,
                         SSD1306_WHITE);
   }
   /*
   // oct
   if (slct == 2) {
     lv.sublevels[3] = gg.le303ffilterzVknobs[2];
-    canvasBIG.drawCircle(centercirclex + 50, centercircley, knobradius - 2,
+    dm.canvasBIG.drawCircle(centercirclex + 50, centercircley, knobradius - 2,
                         SSD1306_WHITE);
   }
   */
   // lp
   if (slct == 2) {
     lv.sublevels[3] = gg.mixle303ffilterzVknobs[0];
-    canvasBIG.drawRect(83, topwbarstart, wbarwidth - 4, totbartall,
+    dm.canvasBIG.drawRect(83, topwbarstart, wbarwidth - 4, totbartall,
                       SSD1306_WHITE);
   }
   // bp
   if (slct == 3) {
     lv.sublevels[3] = gg.mixle303ffilterzVknobs[1];
-    canvasBIG.drawRect(100, topwbarstart, wbarwidth - 4, totbartall,
+    dm.canvasBIG.drawRect(100, topwbarstart, wbarwidth - 4, totbartall,
                       SSD1306_WHITE);
   }
   // hp
   if (slct == 4) {
     lv.sublevels[3] = gg.mixle303ffilterzVknobs[2];
-    canvasBIG.drawRect(117, topwbarstart, wbarwidth - 4, totbartall,
+    dm.canvasBIG.drawRect(117, topwbarstart, wbarwidth - 4, totbartall,
                       SSD1306_WHITE);
   }
   // wet
   if (slct == 5) {
     lv.sublevels[3] = gg.le303filterzwet;
-    canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
+    dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
                       wbarwidth2 - 4, SSD1306_WHITE);
   }
   
   if (slct == 6) {
     lv.sublevels[3] = gg.preampleswaves;
-    canvasBIG.setCursor(34, 0);
-    canvasBIG.print((char)9);
+    dm.canvasBIG.setCursor(34, 0);
+    dm.canvasBIG.print((char)9);
   }
 
   if (slct == 7) {
     lv.sublevels[3] = gg.portamento_time ;
-    canvasBIG.setCursor(100, 8);
-    canvasBIG.print((char)9);
+    dm.canvasBIG.setCursor(100, 8);
+    dm.canvasBIG.print((char)9);
   }
 
 }
@@ -605,12 +605,12 @@ void Mp3PlayerRouter::transport_selector() {
   String _legend[] = {"Play All","Previous","Pause","Play file","Next","Shuffle","Loop","Stop"," "};
   int startyp = 8;
   int ecart = 14;
-  display.fillRect(ecart * (lv.sublevels[lv.navlevel])-3, startyp-2, ecart-1, startyp*1.5, SSD1306_INVERSE);
-  display.setCursor(0,20);
-  display.setTextSize(1);
-  display.setTextColor(SSD1306_INVERSE);
-  display.print(_legend[lv.sublevels[2]]);
-  display.display();
+  dm.fillRect(ecart * (lv.sublevels[lv.navlevel])-3, startyp-2, ecart-1, startyp*1.5, SSD1306_INVERSE);
+  dm.setCursor(0,20);
+  dm.setTextSize(1);
+  dm.setTextColor(SSD1306_INVERSE);
+  dm.print(_legend[lv.sublevels[2]]);
+  dm.display();
 }
 
 void Mp3PlayerRouter::play_flac_file(const char *flac_file) {
@@ -622,11 +622,11 @@ void Mp3PlayerRouter::play_flac_file(const char *flac_file) {
 
 
 void Mp3PlayerRouter::display_mp3_title(){
-  canvasBIG.setCursor(0,40);
+  dm.canvasBIG.setCursor(0,40);
   String titler = self->mp3_name;
   titler.remove(0, 4);
   //titler.remove(titler.length() - 4);
-  canvasBIG.print((char*)titler.c_str());
+  dm.canvasBIG.print((char*)titler.c_str());
 }
 
 void Mp3PlayerRouter::mp3_player_panel() {
@@ -685,9 +685,9 @@ void SynthMenuRouter::displayoffsetwav() {
             dm.returntonav(3,self->synth_params_count-1,lv.sublevels[3]);
             return;
           }
-          display.setTextSize(1);
-          display.setCursor(80, 8);
-          display.print((float)(((64.0 - gg.wave1offset[lv.oscillator]) / 64.0)));
+          dm.setTextSize(1);
+          dm.setCursor(80, 8);
+          dm.print((float)(((64.0 - gg.wave1offset[lv.oscillator]) / 64.0)));
 
           draw_synth_params();
           dm.dodisplay();
@@ -698,22 +698,22 @@ void SynthMenuRouter::freqbars_panel_selector() {
             lv.retroaction = lv.sublevels[3];
             switch (lv.sublevels[4]){
               case 0:
-                display.fillRect(62, 0, 16, 16, SSD1306_INVERSE);
+                dm.fillRect(62, 0, 16, 16, SSD1306_INVERSE);
                 self->unit = (int)gg.wavesfreqs[lv.oscillator];
                 lv.sublevels[5]=self->unit;
               break;
               case 1:
-                display.fillRect(88, 0, 12, 16, SSD1306_INVERSE);
+                dm.fillRect(88, 0, 12, 16, SSD1306_INVERSE);
                 self->tenth = ((int)(gg.wavesfreqs[lv.oscillator]* 10)) % 10;
                 lv.sublevels[5]=self->tenth;
               break;
               case 2:
-                display.fillRect(100, 0, 12, 16, SSD1306_INVERSE);
+                dm.fillRect(100, 0, 12, 16, SSD1306_INVERSE);
                 self->hundredth = ((int)(gg.wavesfreqs[lv.oscillator] * 100)) % 10;
                 lv.sublevels[5]=self->hundredth;
               break;
             }
-          display.display();
+          dm.display();
           }
         }
 void SynthMenuRouter::freqbars_panel_action() {
@@ -738,9 +738,9 @@ void SynthMenuRouter::freqbars_panel_action() {
 
 void SynthMenuRouter::displayfreqbars(){
           dm.clear_3();
-          display.setTextSize(2);
-          display.setCursor(65, 0);
-          display.println(gg.wavesfreqs[lv.oscillator]);
+          dm.setTextSize(2);
+          dm.setCursor(65, 0);
+          dm.println(gg.wavesfreqs[lv.oscillator]);
           draw_synth_params();
           dm.dodisplay();
         }
@@ -792,10 +792,10 @@ void SynthMenuRouter::displayphasebars() {
 
           draw_synth_params();
 
-          display.setCursor(80, 0);
-          display.setTextSize(2);
-          display.print(lround((gg.phaselevelsL[lv.oscillator]/127.0)*360));
-          //display.print("°");
+          dm.setCursor(80, 0);
+          dm.setTextSize(2);
+          dm.print(lround((gg.phaselevelsL[lv.oscillator]/127.0)*360));
+          //dm.print("°");
           dm.dodisplay();
         }
 
@@ -804,9 +804,9 @@ void SynthMenuRouter::displayModulatedbool() {
 
           draw_synth_params();
           dm.dodisplay();
-          display.setCursor(64, 0);
-          display.setTextSize(2);
-          display.println(modulation_labels[gg.FMmodulated[lv.oscillator]]);
+          dm.setCursor(64, 0);
+          dm.setTextSize(2);
+          dm.println(modulation_labels[gg.FMmodulated[lv.oscillator]]);
           draw_synth_params();
           dm.dodisplay();
 
@@ -871,13 +871,13 @@ void SynthMenuRouter::displaywaveformicon(){
           const char* lelabelw[12] = {"SineWave","SawWave","ReverseSaw" ,"Triangle","V-Triangle","SquareWave",
                               "PulseWave","Arbitrary","SampleHold", "Drum","String", "Wave OFF"};
 
-          display.drawBitmap(74, 20, _img[lv.sublevels[4]], 32, 32, SSD1306_WHITE);
-          display.setTextSize(1);
-          display.setTextColor(SSD1306_WHITE);
-          display.setCursor(64, 0);
-          display.println(lelabelw[lv.sublevels[4]]);
-          display.setCursor(120, 57);
-          display.print(lv.oscillator + 1);
+          dm.drawBitmap(74, 20, _img[lv.sublevels[4]], 32, 32, SSD1306_WHITE);
+          dm.setTextSize(1);
+          dm.setTextColor(SSD1306_WHITE);
+          dm.setCursor(64, 0);
+          dm.println(lelabelw[lv.sublevels[4]]);
+          dm.setCursor(120, 57);
+          dm.print(lv.oscillator + 1);
           draw_synth_params();
           dm.dodisplay();
         }
@@ -934,9 +934,9 @@ void SynthMenuRouter::go_next(){
         }
 
 void SynthMenuRouter::wavelinesBG() {
-          display.clearDisplay();
-          display.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
-          display.display();
+          dm.clearDisplay();
+          dm.drawBitmap(0, 64 - 47, wavesbg2, 128, 47, SSD1306_WHITE);
+          dm.display();
         }
 
 void SynthMenuRouter::wavelining() {
@@ -948,8 +948,8 @@ void SynthMenuRouter::draw_synth_params() {
           const char* wavelineslabels[] = {
               "Type", "Mod", "LFO", "Freq", "Offset", "Phase", "<-  ", "  ->"};
           dm.main_panel(wavelineslabels,3,self->synth_params_count);
-          canvasBIG.setCursor(120, 57);
-          canvasBIG.print(lv.oscillator + 1);
+          dm.canvasBIG.setCursor(120, 57);
+          dm.canvasBIG.print(lv.oscillator + 1);
         }
 
 void SynthMenuRouter::dolistsyntmenu() {
@@ -965,9 +965,9 @@ void SynthMenuRouter::synths_switcher(){
           String leprintlabel = titled + synth_num ;
           wavelinesBG();
           lv.sublevels[3] = 0;
-          display.fillRect(0+(lv.oscillator%2)*64, 16+(24*(lv.oscillator/2)), 64, 24, SSD1306_INVERSE);
+          dm.fillRect(0+(lv.oscillator%2)*64, 16+(24*(lv.oscillator/2)), 64, 24, SSD1306_INVERSE);
           dm.printlabel((char*)leprintlabel.c_str());
-          display.display();
+          dm.display();
         }
 
 void SynthMenuRouter::wavesline_selector(){

@@ -74,7 +74,7 @@ void SongEditorRouter::pausedasong() {
           Tocker.stopticker();
         }
 void SongEditorRouter::showplayheadprogress() {
-          display.drawLine(songplayhead * 8, 16, songplayhead * 8, 64, SSD1306_INVERSE);
+          dm.drawLine(songplayhead * 8, 16, songplayhead * 8, 64, SSD1306_INVERSE);
         }
 void SongEditorRouter::loadsongpattern() {
   if (patternonsong[songplayhead] > 0) {
@@ -100,13 +100,13 @@ void SongEditorRouter::actionSongTransport() {
         }
 
 void SongEditorRouter::showsongnavarrows() {
-          canvasBIG.setTextSize(2);
+          dm.canvasBIG.setTextSize(2);
 
-          canvasBIG.setCursor(115, 49);
-          canvasBIG.print((char)26);
+          dm.canvasBIG.setCursor(115, 49);
+          dm.canvasBIG.print((char)26);
           if (self->songpage > 0) {
-            canvasBIG.setCursor(2, 49);
-            canvasBIG.print((char)27);
+            dm.canvasBIG.setCursor(2, 49);
+            dm.canvasBIG.print((char)27);
           }
         }
 void SongEditorRouter::setpatterninsong() {
@@ -115,21 +115,21 @@ void SongEditorRouter::setpatterninsong() {
         }
 
 void SongEditorRouter::songmodetopbar() {
-          display.clearDisplay();
+          dm.clearDisplay();
           dm.clear_buffs();
-          canvasBIG.setTextSize(1);
+          dm.canvasBIG.setTextSize(1);
           dm.drawtransport();
         }
 
 void SongEditorRouter::showsongcell() {
           int lasongcell = patternonsong[(self->songpage * 16) + lv.sublevels[self->relative_navlevel] - 8];
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(1);
+          dm.canvastitle.setCursor(0, 0);
+          dm.canvastitle.setTextSize(1);
           if (lv.navlevel == self->relative_navlevel) {
             if (lasongcell > 0) {
-              canvastitle.print(_pt.catalog->get_file_name(_pt.catalog->files_indexed[(lasongcell - 1)])); 
+              dm.canvastitle.print(_pt.catalog->get_file_name(_pt.catalog->files_indexed[(lasongcell - 1)])); 
             } else {
-              canvastitle.print("Empty");
+              dm.canvastitle.print("Empty");
             }
           }
         }
@@ -141,9 +141,9 @@ void SongEditorRouter::selectormoveX() {
 void SongEditorRouter::songTransportSelector() {
           int startyp = 8;
           int ecart = 14;
-          display.drawPixel(ecart * (lv.sublevels[self->relative_navlevel]) + 6, startyp + 7, SSD1306_WHITE);
-          display.drawPixel(ecart * (lv.sublevels[self->relative_navlevel]) + 7, startyp + 6, SSD1306_WHITE);
-          display.drawPixel(ecart * (lv.sublevels[self->relative_navlevel]) + 7, startyp + 7, SSD1306_WHITE);
+          dm.drawPixel(ecart * (lv.sublevels[self->relative_navlevel]) + 6, startyp + 7, SSD1306_WHITE);
+          dm.drawPixel(ecart * (lv.sublevels[self->relative_navlevel]) + 7, startyp + 6, SSD1306_WHITE);
+          dm.drawPixel(ecart * (lv.sublevels[self->relative_navlevel]) + 7, startyp + 7, SSD1306_WHITE);
         }
 
 void SongEditorRouter::showpatonSongGrid() {
@@ -151,20 +151,20 @@ void SongEditorRouter::showpatonSongGrid() {
           for (int j = 0; j < 16; j++) {
             lasongcell = patternonsong[(self->songpage * 16) + j];
             if (lasongcell > 0) {
-              display.fillRect(j * 8 + 1, 16 + 1, 8 - 2, 12 - 2, SSD1306_WHITE);
+              dm.fillRect(j * 8 + 1, 16 + 1, 8 - 2, 12 - 2, SSD1306_WHITE);
             }
           }
         }
 
 void SongEditorRouter::selectpatterninsong() {
           lv.navrange = _pt.catalog->files_counter;
-          canvastitle.setCursor(0, 0);
-          canvastitle.setTextSize(1);
+          dm.canvastitle.setCursor(0, 0);
+          dm.canvastitle.setTextSize(1);
 
           if (lv.sublevels[self->relative_navlevel + 1] > 0) {
-            canvastitle.print(_pt.catalog->get_file_name(_pt.catalog->files_indexed[(lv.sublevels[self->relative_navlevel + 1] - 1)])); 
+            dm.canvastitle.print(_pt.catalog->get_file_name(_pt.catalog->files_indexed[(lv.sublevels[self->relative_navlevel + 1] - 1)])); 
           } else {
-            canvastitle.print("Empty");
+            dm.canvastitle.print("Empty");
           }
         }
 
@@ -204,7 +204,7 @@ void SongEditorRouter::selectsongnavarrows() {
           if (lv.navlevel == self->relative_navlevel) {
 
             if (lv.sublevels[self->relative_navlevel] > 23) {
-              canvasBIG.drawRoundRect(113 - (lv.sublevels[self->relative_navlevel] - 24) * 113, 49, 14,
+              dm.canvasBIG.drawRoundRect(113 - (lv.sublevels[self->relative_navlevel] - 24) * 113, 49, 14,
                                       14, 2, SSD1306_WHITE);
             }
           }
@@ -227,7 +227,7 @@ void SongEditorRouter::songgridposselector() {
               // int startyp = 16;
               int cellsizep = 8;
               int celltallp = 12;
-              display.fillRect(songselectorX, songselectorY, cellsizep, celltallp,
+              dm.fillRect(songselectorX, songselectorY, cellsizep, celltallp,
                               SSD1306_INVERSE);
             } else {
               selectsongnavarrows();
@@ -453,19 +453,19 @@ void SongMenuRouter::doSongShifter() {
 void SongMenuRouter::showSongShifterdisplays() {
           lv.navrange = 32;
           dm.clean_title_1();
-          canvastitle.print("Shift Song");
+          dm.canvastitle.print("Shift Song");
           int latransposition;
           latransposition = 16 - lv.sublevels[self->relative_navlevel + 1];
           lv.sublevels[self->relative_navlevel + 2] = lv.sublevels[self->relative_navlevel + 1];
-          canvasBIG.setCursor(0, 16);
-          canvasBIG.setTextSize(2);
+          dm.canvasBIG.setCursor(0, 16);
+          dm.canvasBIG.setTextSize(2);
           if (latransposition > 0) {
-            canvasBIG.print("+");
+            dm.canvasBIG.print("+");
           }
           if (latransposition == 0) {
-            canvasBIG.setCursor(8, 16);
+            dm.canvasBIG.setCursor(8, 16);
           }
-          canvasBIG.print(latransposition);
+          dm.canvasBIG.print(latransposition);
           dm.dodisplay();
         }
 
@@ -484,28 +484,28 @@ void SongMenuRouter::midi_clock_accumulator(){
         }
 void SongMenuRouter::fine_cursor(){
           self->x_ = (4+self->x_)%128 ;
-          display.drawFastVLine(self->x_, 0, 64, INVERSE);
-          display.drawFastVLine(self->x_-4, 0, 64, INVERSE);
-          display.display();
+          dm.drawFastVLine(self->x_, 0, 64, INVERSE);
+          dm.drawFastVLine(self->x_-4, 0, 64, INVERSE);
+          dm.display();
           self->t_ = 0 ;
         }
 void SongMenuRouter::show_some_params(){
           lv.navrange = 32;
           dm.clean_title_1();
-          canvastitle.print("Params");
+          dm.canvastitle.print("Params");
           //int latransposition;
           //latransposition = 16 - lv.sublevels[self->relative_navlevel + 1];
           //lv.sublevels[self->relative_navlevel + 2] = lv.sublevels[self->relative_navlevel + 1];
-          canvasBIG.setCursor(0, 16);
-          canvasBIG.setTextSize(1);
-          canvasBIG.setCursor(8, 16);
-          canvasBIG.print("block controls");
-          canvasBIG.setCursor(8, 16+10);
-          canvasBIG.print("Bpms");
-          canvasBIG.setCursor(8, 16+20);
-          canvasBIG.print("quantize");
-          canvasBIG.setCursor(8, 16+30);
-          canvasBIG.print("external clock");
+          dm.canvasBIG.setCursor(0, 16);
+          dm.canvasBIG.setTextSize(1);
+          dm.canvasBIG.setCursor(8, 16);
+          dm.canvasBIG.print("block controls");
+          dm.canvasBIG.setCursor(8, 16+10);
+          dm.canvasBIG.print("Bpms");
+          dm.canvasBIG.setCursor(8, 16+20);
+          dm.canvasBIG.print("quantize");
+          dm.canvasBIG.setCursor(8, 16+30);
+          dm.canvasBIG.print("external clock");
           dm.dodisplay();
         }
 

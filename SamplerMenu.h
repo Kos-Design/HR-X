@@ -85,9 +85,7 @@ class SamplerMenuRouter : public SectionHolder {
         static void dolistLoadSampleMenu();
         static void dolistDelSampleMenu();
         static void dolistAssignSampleMenu();
-        static void autoassignsamples();
         static void Doautoassign();
-        static void clearassignedsamples();
         static void doclearassign();
         static void doConfirmmkdir();
         static void doConfirmClearassign();

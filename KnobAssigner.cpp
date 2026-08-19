@@ -2,6 +2,7 @@
 #include "Functions.h"
 #include "Presets.h"
 
+
 KnobAssigner* KnobAssigner::self = nullptr;
 
 KnobAssigner::KnobAssigner() {
@@ -38,32 +39,32 @@ void KnobAssigner::kb_home(){
         dm.clean_title_1_2();
         if (lv.sublevels[self->relative_navlevel] != 0) {
           
-          canvastitle.println(ctl[lv.sublevels[self->relative_navlevel]].name);
-          canvasBIG.setTextSize(2);
-          canvasBIG.setCursor(0, 40);
+          dm.canvastitle.println(ctl[lv.sublevels[self->relative_navlevel]].name);
+          dm.canvasBIG.setTextSize(2);
+          dm.canvasBIG.setCursor(0, 40);
           lv.sublevels[self->relative_navlevel+1] = find_assigned_knob(lv.sublevels[self->relative_navlevel]) ;
           if (lv.sublevels[self->relative_navlevel+1] != 0) {
-            canvasBIG.print("Midi");
-            canvasBIG.setTextSize(1);
-            canvasBIG.setCursor(50, 47);
-            canvasBIG.print("(cc)");
-            canvasBIG.setCursor(71, 39);
-            canvasBIG.setTextSize(3);
-            canvasBIG.print(":");
-            canvasBIG.setTextSize(2);
-            canvasBIG.setCursor(85, 40);
+            dm.canvasBIG.print("Midi");
+            dm.canvasBIG.setTextSize(1);
+            dm.canvasBIG.setCursor(50, 47);
+            dm.canvasBIG.print("(cc)");
+            dm.canvasBIG.setCursor(71, 39);
+            dm.canvasBIG.setTextSize(3);
+            dm.canvasBIG.print(":");
+            dm.canvasBIG.setTextSize(2);
+            dm.canvasBIG.setCursor(85, 40);
 
-            canvasBIG.print(lv.sublevels[self->relative_navlevel+1]);
+            dm.canvasBIG.print(lv.sublevels[self->relative_navlevel+1]);
           } else {
-            //canvasBIG.setTextSize(1);
-            canvasBIG.println("Unassigned");
+            //dm.canvasBIG.setTextSize(1);
+            dm.canvasBIG.println("Unassigned");
           }
         } else {
-          canvastitle.setTextSize(2);
-          canvastitle.println("Select");
-          canvasBIG.setTextSize(2);
-          canvasBIG.setCursor(0, 28);
-          canvasBIG.println("Control");
+          dm.canvastitle.setTextSize(2);
+          dm.canvastitle.println("Select");
+          dm.canvasBIG.setTextSize(2);
+          dm.canvasBIG.setCursor(0, 28);
+          dm.canvasBIG.println("Control");
         }
         dm.dodisplay();
 
@@ -76,22 +77,22 @@ void KnobAssigner::assigner(){
           dm.returntonav(self->relative_navlevel,self->home_navrange,lv.sublevels[self->relative_navlevel]);
         } else {
           dm.clean_title_1_2();
-          canvastitle.println(ctl[lv.sublevels[self->relative_navlevel]].name);
-          canvasBIG.setCursor(0, 40);
+          dm.canvastitle.println(ctl[lv.sublevels[self->relative_navlevel]].name);
+          dm.canvasBIG.setCursor(0, 40);
           if (lv.sublevels[self->relative_navlevel+1] != 0) {
-            canvasBIG.print("Midi");
-            canvasBIG.setTextSize(1);
-            canvasBIG.setCursor(50, 47);
-            canvasBIG.print("(cc)");
-            canvasBIG.setCursor(71, 39);
-            canvasBIG.setTextSize(3);
-            canvasBIG.print(":");
-            canvasBIG.setTextSize(2);
-            canvasBIG.setCursor(85, 40);
-            canvasBIG.print(lv.sublevels[self->relative_navlevel+1]);
+            dm.canvasBIG.print("Midi");
+            dm.canvasBIG.setTextSize(1);
+            dm.canvasBIG.setCursor(50, 47);
+            dm.canvasBIG.print("(cc)");
+            dm.canvasBIG.setCursor(71, 39);
+            dm.canvasBIG.setTextSize(3);
+            dm.canvasBIG.print(":");
+            dm.canvasBIG.setTextSize(2);
+            dm.canvasBIG.setCursor(85, 40);
+            dm.canvasBIG.print(lv.sublevels[self->relative_navlevel+1]);
           } else {
-            //canvasBIG.setTextSize(1);
-            canvasBIG.println("Unassigned");
+            //dm.canvasBIG.setTextSize(1);
+            dm.canvasBIG.println("Unassigned");
           }
         }
         dm.dodisplay();
@@ -149,12 +150,12 @@ void AdsrMenuRouter::displayadsrgraph() {
         lv.navleveloverwrite = 4;
       }
       dm.clean_title_1_1();
-      canvasBIG.drawLine(2, 61, 2, 18, SSD1306_WHITE);
-      canvasBIG.drawLine(2, 61, 125, 61, SSD1306_WHITE);
-      canvasBIG.drawLine(125, 59, 127, 61, SSD1306_WHITE);
-      canvasBIG.drawLine(125, 63, 127, 61, SSD1306_WHITE);
-      canvasBIG.drawLine(2, 16, 0, 18, SSD1306_WHITE);
-      canvasBIG.drawLine(2, 16, 4, 18, SSD1306_WHITE);
+      dm.canvasBIG.drawLine(2, 61, 2, 18, SSD1306_WHITE);
+      dm.canvasBIG.drawLine(2, 61, 125, 61, SSD1306_WHITE);
+      dm.canvasBIG.drawLine(125, 59, 127, 61, SSD1306_WHITE);
+      dm.canvasBIG.drawLine(125, 63, 127, 61, SSD1306_WHITE);
+      dm.canvasBIG.drawLine(2, 16, 0, 18, SSD1306_WHITE);
+      dm.canvasBIG.drawLine(2, 16, 4, 18, SSD1306_WHITE);
 
       // mappedsustain
       int totalliner = self->mappedattack * 10 + self->mappeddecay + 100 + self->mappedrelease +
@@ -174,12 +175,12 @@ void AdsrMenuRouter::displayadsrgraph() {
       int startx = 3;
       int starty = 16;
 
-      canvasBIG.drawLine(a0, 61, a1, 24, SSD1306_WHITE);
-      canvasBIG.drawLine(h0, 24, h1, 24, SSD1306_WHITE);
-      canvasBIG.drawLine(d0, 24, d1, suY, SSD1306_WHITE);
-      canvasBIG.drawLine(s0, suY, s1, suY, SSD1306_WHITE);
-      canvasBIG.drawLine(r0, suY, r1, 61, SSD1306_WHITE);
-      display.clearDisplay();
+      dm.canvasBIG.drawLine(a0, 61, a1, 24, SSD1306_WHITE);
+      dm.canvasBIG.drawLine(h0, 24, h1, 24, SSD1306_WHITE);
+      dm.canvasBIG.drawLine(d0, 24, d1, suY, SSD1306_WHITE);
+      dm.canvasBIG.drawLine(s0, suY, s1, suY, SSD1306_WHITE);
+      dm.canvasBIG.drawLine(r0, suY, r1, 61, SSD1306_WHITE);
+      dm.clearDisplay();
       dm.dodisplay();
 
       // preparing for next display loop
@@ -187,47 +188,47 @@ void AdsrMenuRouter::displayadsrgraph() {
 
       switch (lv.sublevels[lv.navleveloverwrite]) {
       case 0:
-        display.fillRect(startx, starty,
+        dm.fillRect(startx, starty,
                         round(self->MadsrAttackDelay * 10 * linerratio) + 1, 45,
                         SSD1306_INVERSE);
-        display.display();
+        dm.display();
         sliceDa();
         break;
 
       case 1:
-        display.fillRect(a0, starty, round(self->mappedattack * 10 * linerratio) + 2, 45,
+        dm.fillRect(a0, starty, round(self->mappedattack * 10 * linerratio) + 2, 45,
                         SSD1306_INVERSE);
-        display.display();
+        dm.display();
 
         sliceA();
         break;
 
       case 2:
-        display.fillRect(h0, starty, round(self->MadsrHold * linerratio) + 2, 45,
+        dm.fillRect(h0, starty, round(self->MadsrHold * linerratio) + 2, 45,
                         SSD1306_INVERSE);
-        display.display();
+        dm.display();
 
         sliceH();
         break;
       case 3:
-        display.fillRect(d0, starty, round(self->mappeddecay * linerratio) + 1, 45,
+        dm.fillRect(d0, starty, round(self->mappeddecay * linerratio) + 1, 45,
                         SSD1306_INVERSE);
-        display.display();
+        dm.display();
 
         sliceD();
         break;
       case 4:
 
-        display.fillRect(s0, starty, round(95 * linerratio) + 1, 45,
+        dm.fillRect(s0, starty, round(95 * linerratio) + 1, 45,
                         SSD1306_INVERSE);
-        display.display();
+        dm.display();
 
         sliceS();
         break;
       case 5:
-        display.fillRect(r0, starty, round(self->mappedrelease * linerratio) + 1, 45,
+        dm.fillRect(r0, starty, round(self->mappedrelease * linerratio) + 1, 45,
                         SSD1306_INVERSE);
-        display.display();
+        dm.display();
 
         sliceR();
         break;
@@ -257,12 +258,12 @@ void AdsrMenuRouter::GlobalADSR() {
     }
 
 void AdsrMenuRouter::print_adsr_echo(String titre, int niveau){
-      canvastitle.setTextSize(1);
-      canvastitle.setCursor(0, 0);
-      canvastitle.fillScreen(SSD1306_BLACK);
-      canvastitle.println(titre);
-      canvastitle.setCursor(55, 0);
-      canvastitle.println(niveau);
+      dm.canvastitle.setTextSize(1);
+      dm.canvastitle.setCursor(0, 0);
+      dm.canvastitle.fillScreen(SSD1306_BLACK);
+      dm.canvastitle.println(titre);
+      dm.canvastitle.setCursor(55, 0);
+      dm.canvastitle.println(niveau);
     }
 
 void AdsrMenuRouter::sliceA() {
