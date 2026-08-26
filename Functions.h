@@ -18,6 +18,7 @@ void setuphubusb();
 void unplugsynth();
 void unplugfx();
 void setupSD();
+void loop_over_303();
 void setup();
 void Volume_ctl(byte cc_value);
 void SynthVolume_ctl(byte cc_value);

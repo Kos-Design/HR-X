@@ -21,7 +21,11 @@ class SynthLiner {
     uint8_t previous_note = 0 ;
     uint8_t velocity = 0 ;
     uint8_t l_index = 0 ;
+    uint8_t length_in_arp = 0 ;
     uint8_t sloper_step = 0;
+    uint8_t next_arp_note;
+    bool arp_starter = 0;
+
     bool activated = 0 ;
     bool f303 = 0 ;
 

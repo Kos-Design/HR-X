@@ -25,7 +25,9 @@ void SectionHolder::set_home(void (*_cb)()){
     _home = _cb;
 }
 
-DisplayManager::DisplayManager() : Adafruit_SSD1306(128, 64, &Wire2, -1){};
+DisplayManager* DisplayManager::self = nullptr;
+
+DisplayManager::DisplayManager() : Adafruit_SSD1306(128, 64, &Wire2, -1){self = this;};
 
 GFXcanvas1 DisplayManager::canvasBIG(128, 64);
 GFXcanvas1 DisplayManager::canvastitle(128, 16);
@@ -396,7 +398,7 @@ void DisplayManager::oscilloscope_loop() {
 
     if (lv.frameTimer >= gg.osc_framerate) {
 
-        display_oscilloscope();
+        self->display_oscilloscope();
 
         lv.frameTimer = 0;
     }

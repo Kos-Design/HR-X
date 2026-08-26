@@ -362,14 +362,14 @@ void setupdefaultvalues() {
   //gg.midiknobassigned[10] = 69;
 
   // 303 pulse
-  //gg.midiknobassigned[23] = 20;
-  //gg.midiknobassigned[24] = 21;
- /*
+  gg.midiknobassigned[23] = 13;
+  gg.midiknobassigned[24] = 15;
+ 
   
 
-  gg.pot_assignements[ALL_BUTTONS-10] = 108 ;
-  gg.pot_assignements[ALL_BUTTONS-9] = 107 ;
-  */
+  //gg.pot_assignements[ALL_BUTTONS-10] = 108 ;
+  //gg.pot_assignements[ALL_BUTTONS-9] = 107 ;
+  
   //gg.midiknobassigned[111] = 109 ;
   //98 debugcpu
   //pots_assignements are to map onboard buttons to midi notes or ccs
@@ -442,10 +442,10 @@ void setupdefaultvalues() {
 }
 
 void fairly_often() {
+  //tac_tics[0] = false;
   //set them all on a separate cycle if possible
   control_me();
   dm.UpdateSpectrum();
-  Tocker.dispatch_ticks();
 }
 
 void at_a_paced_rate() {
@@ -533,14 +533,12 @@ void control_me(){
 }
 
 void loop() {
-
+  //loops in millis cn occur multiple times per milli, set a tic_tacker to throttle or attach to clock
   loopusbHub();
-  if (millis() % 3 == 0) {
-   fairly_often();
-  } else if (millis() % gg.osc_refresher_period == 0) {
-    dm.oscilloscope_loop();
+  if (millis() % 2 == 0) {
+    Tocker.dispatch_ticks();
   }
-
+  //TODO: make one shot system instead or remove this
   if (_rd.pre_record) {
     if (millis() - lv.tocker > 500) {
       _rd.rec_looping = true ;
@@ -552,6 +550,11 @@ void loop() {
   }
 }
 
+void loop_over_303(){
+  for (int i = 0; i < _rg.synth_lines_active; i++) {
+      _ft.pseudo303(i);
+    }
+}
 
 void setuphubusb() {
 
@@ -719,9 +722,12 @@ void setup() {
   AudioShield.volume(1.0);
   _rd.playrecordsd_pathed("SOUNDSET/REC/LOOP22#L.RAW");
   Tocker.attach_24(_tt.advance_tick);
+  Tocker.attach_24_bis(_tt.arp_tick);
   Tocker.attach_long(once_in_a_while);
-  //clocker.attach_3(fairly_often);
-  Tocker.attach_16(at_a_paced_rate);
+  Tocker.attach_2(at_a_paced_rate);
+  Tocker.attach_3(fairly_often);
+  Tocker.attach_oscilloscope(dm.oscilloscope_loop);
+  Tocker.attach_303(loop_over_303);
   //fft256.averageTogether(2);
   fft256.windowFunction(AudioWindowHanning256);
   clocker.setBPM(120);
@@ -797,9 +803,7 @@ void DryAudioIn_ctl(byte cc_value){
 void Slope1_ctl(byte cc_value){
   // 303 cutoff pulse length
   gg.cut_off_slope = cc_value;
-  for (int i=0; i<18; i++){
-    _ft.sloped[i] = _ft.fxsloper[i]*(gg.cut_off_slope/127.0) + _ft.slopelinear[i]*(1-(gg.cut_off_slope/127.0)) ;
-  }
+  _ft.avg_slope();
 }
 
 void Slope2_ctl(byte cc_value){
@@ -1414,12 +1418,16 @@ void eq_display_Toggle_ctl(byte cc_value){
   lv.showing_eq = !lv.showing_eq ;
 }
 
+void set_cutoff_period_ctl(byte cc_value){
+  gg.period_303 = map(cc_value,0,127,24,96);
+}
+
 
 const CcCalls ctl[128] = {
     {"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel",&SynthVolume_ctl},{"SDLevel",&SDPlayerVolume_ctl},{"FlashLevel",&FlashVolume_ctl},
     {"FX1 Wet",&Wet1Volume_ctl},{"FX2 Wet",&Wet2Volume_ctl},{"FX3 Wet",&Wet3Volume_ctl},{"Dry Sampler",&DrySampler_ctl},{"Dry Synth",&DrySynth_ctl},
     //10 ok
-    {"Dry Audio In",&DryAudioIn_ctl},{"CutOff slp.",&Slope1_ctl},{"Reso slp.",&Slope2_ctl},{"Reso Tweak",&ResoTweak_ctl},{"FREE",nullptr},
+    {"Dry Audio In",&DryAudioIn_ctl},{"CutOff slp.",&Slope1_ctl},{"Reso slp.",&Slope2_ctl},{"Reso Tweak",&ResoTweak_ctl},{"Impulse length",&set_cutoff_period_ctl},
     {"CutOff Tweak",&CutOffTweak_ctl},{"Stereo On",toggle_stereo},{"Stereo Off",turn_off_stereo},{"Filter303 Lvl.",&Filter303_ctl},{"Portamento time",&set_Portamento_time_ctl},
     //20 ok
     {"Filter303 PreAmp",&FilterPreAmp_ctl},{"Synth Index",&SynthIndex_ctl},{"Syth X Lvl.",&SynthXLevel_ctl},{"Synth X Freq",&SynthXFreq_ctl},{"Chords type",&SetChords_ctl},

@@ -1,3 +1,4 @@
+#include "elapsedMillis.h"
 #pragma once
 
 #include "MenuClasses.h"
@@ -22,13 +23,18 @@ class MasterClock {
         MasterClock();
 
         bool stop = 1 ;
-
+        bool tic_toc[7]{};
+        int timee = 0;
         static void click();
         void dispatch_ticks();
-        void attach_16(void (*cb)());
+        void attach_2(void (*cb)());
+        void attach_3(void (*cb)());
         void attach_long(void (*cb)());
         void attach_24(void (*cb)());
-        void attach_3(void (*cb)());
+        void attach_24_bis(void (*cb)());
+        void attach_96(void (*cb)());
+        void attach_oscilloscope(void (*cb)());
+        void attach_303(void (*cb)());
         void stopticker();
         void startticker();
 
@@ -36,9 +42,13 @@ class MasterClock {
 
         volatile uint32_t tick96 = 0;
         void (*_callback_24)() = nullptr;
+        void (*_callback_24_bis)() = nullptr;
+        void (*_callback_96)() = nullptr;
+        void (*_callback_2)() = nullptr;
         void (*_callback_3)() = nullptr;
-        void (*_callback_16)() = nullptr;
         void (*_callback_long)() = nullptr;
+        void (*_callback_oscilloscope)() = nullptr;
+        void (*_callback_303)() = nullptr;
         static MasterClock* self;
 };
 
@@ -178,15 +188,6 @@ class PatternsMenuRouter : public SectionHolder {
         FilesLister *catalog;
         static constexpr byte sizeofpatternlistlabels = 8;
 
-        byte arpegnoteoffin[SYNTH_LINERS_COUNT][SYNTH_LINERS_COUNT];
-        byte playingarpegiator[SYNTH_LINERS_COUNT][SYNTH_LINERS_COUNT];
-        byte calledarpegenote[SYNTH_LINERS_COUNT][2];
-        byte arpegiatingNote[SYNTH_LINERS_COUNT];
-        byte tickgamme[SYNTH_LINERS_COUNT];
-        byte ticktriplet[SYNTH_LINERS_COUNT];
-        byte arpegnotestick[SYNTH_LINERS_COUNT];
-        byte arpegemptyticks[SYNTH_LINERS_COUNT];
-        bool tripletdirection[SYNTH_LINERS_COUNT];
         static void route_navlevel();
         static void show();
         static void pattern_nav_zero();
@@ -203,7 +204,6 @@ class PatternsMenuRouter : public SectionHolder {
         static void copypattern();
 
         static void writelemidi();
-        static void arpegiate_synth();
         static void set_arp_type();
         static void call_draw_sequencer();
         static void call_options();

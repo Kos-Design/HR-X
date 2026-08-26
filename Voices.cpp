@@ -88,31 +88,31 @@ void SynthLiner::liner_on(byte data1, byte data2) {
     this->targetFreq = bb.notestofreq[this->note];
     int note_diff = ((this->note + (64 - gg.portamento_height)) % 127 + 127) % 127;
     switch (gg.glideMode) {
-    case Off:
-        this->currentFreq = this->targetFreq ;
-    break;
+      case Off:
+          this->currentFreq = this->targetFreq ;
+      break;
 
-    case Portamento:
-    if (gg.portamento_time)  {
-        this->currentFreq = bb.notestofreq[this->previous_note];
-        }
-    break;
+      case Portamento:
+      if (gg.portamento_time)  {
+          this->currentFreq = bb.notestofreq[this->previous_note];
+          }
+      break;
 
-    case ReversePortamento:
-        if (gg.portamento_time)  {
-        this->targetFreq = bb.notestofreq[this->previous_note];
-        this->currentFreq = bb.notestofreq[this->note];
-        }
-    break;
+      case ReversePortamento:
+          if (gg.portamento_time)  {
+          this->targetFreq = bb.notestofreq[this->previous_note];
+          this->currentFreq = bb.notestofreq[this->note];
+          }
+      break;
 
-    case PitchAttack:
-        this->currentFreq = bb.notestofreq[note_diff];
-    break;
+      case PitchAttack:
+          this->currentFreq = bb.notestofreq[note_diff];
+      break;
 
-    case ReversePitchAttack:
-        this->currentFreq = this->targetFreq;
-        this->targetFreq = bb.notestofreq[note_diff];
-    break;
+      case ReversePitchAttack:
+          this->currentFreq = this->targetFreq;
+          this->targetFreq = bb.notestofreq[note_diff];
+      break;
 
     }
     this->startFreq = this->currentFreq;
@@ -126,6 +126,21 @@ void SynthLiner::liner_on(byte data1, byte data2) {
     enveloppesL[this->l_index]->hold(gg.millitickinterval - gg.adsrlevels[3]);
     enveloppesL[this->l_index]->noteOn();
     _rg.add_active_synth(this);
+    
+    Serial.println();
+    Serial.print("liner played = ");
+    Serial.print(this->l_index);
+    Serial.print(" is arp_starter = ");
+
+    Serial.print(this->arp_starter);
+    Serial.print(" note onned = ");
+    Serial.print(this->note);
+    Serial.print(" next arp note = ");
+    Serial.print(this->next_arp_note);
+    Serial.print(" arp_length = ");
+    Serial.print(this->length_in_arp);
+    
+
 }
 
 void SynthLiner::update_line_old(){
@@ -205,8 +220,16 @@ void SynthLiner::liner_off() {
       this->activated = false;
       _rg.remove_inactive_synth(this);
       this->previous_note = this->note ;
+      /*
+      Serial.println();
+      Serial.print(" note offed = ");
+      Serial.print(this->note);
+      */
       this->note = 0 ;
-
+      this->length_in_arp = 0 ;
+      this->arp_starter = 0 ;
+      this->next_arp_note = 0 ;
+      
     }
 
 

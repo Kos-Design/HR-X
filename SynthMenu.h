@@ -1,3 +1,4 @@
+#include <stdint.h>
 #pragma once
 #include "MenuClasses.h"
 #include "FilesLister.h"
@@ -34,6 +35,7 @@ class Filter303MenuRouter : public SectionHolder {
 
     static void initialize303group();
     static void allpasslevels();
+    static void avg_slope();
     static void pseudo303(byte i);
     static void filter_knob_freq();
     static void filter_knob_res();

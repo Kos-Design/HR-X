@@ -29,7 +29,6 @@ struct LiveState {
     bool temp_buff_armed = 0 ;
     int tickerlasttick = 0;
     int tickposition = 0;
-    bool stoptickernextcycle = 0;
     byte oscillator = 0;
     byte cclfoselector = 0 ;
     //selector for the Fx bus
@@ -47,6 +46,7 @@ struct LiveState {
     bool avoid_fx_bounce = false;
     //checking one pot per loop as it is fast as long as we call it often
     uint8_t muxer_ch_active = 1;
+
 };
 
 extern LiveState lv;
@@ -123,7 +123,7 @@ class DisplayManager : public Adafruit_SSD1306 {
         void display_oscilloscope();
         void stop_spectro();
         void start_spectro();
-        void oscilloscope_loop();
+        static void oscilloscope_loop();
         void UpdateSpectrum();
         void DrawSpectrum64();
         void dodisplayplayhead();
@@ -159,6 +159,7 @@ class DisplayManager : public Adafruit_SSD1306 {
     private:
         void _displayleBGimg(const unsigned char *img);
         void _setupscreen_ILI(void);
+        static DisplayManager* self;
 };
 
 extern DisplayManager dm;

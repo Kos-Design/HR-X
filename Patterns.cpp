@@ -1,3 +1,5 @@
+#include "core_pins.h"
+#include "Voices.h"
 #include "Patterns.h"
 #include "Triggers.h"
 #include "Functions.h"
@@ -5,34 +7,70 @@
 
 MasterClock* MasterClock::self = nullptr;
 
-MasterClock::MasterClock() {self = this;}
+MasterClock::MasterClock() {self = this;
+                            self->timee = millis();
+                            }
 
 void MasterClock::click() {
             self->tick96++;
+            memset(self->tic_toc, 1, sizeof(self->tic_toc));
+
             //if (!(self->tick96 % 2))
             //self->dispatch_ticks();
         }
 
 void MasterClock::dispatch_ticks() {
-            
-            if ((tick96 % 8) == 0 && _callback_3){
-                _callback_3();
-            }
-            if ((tick96 % 96*4) == 0 && _callback_long){
-                _callback_long();
-            }
-            if ((tick96 % 2) == 0 && _callback_16){
-                _callback_16();
-            }
-            if (!self->stop) {
-                if ((tick96 % 24) == 0 && _callback_24){
-                    _callback_24();
-                }
-            }
-        }
+    if ((self->tick96 % 96) == 0 && _callback_96 && self->tic_toc[0]){
+      self->tic_toc[0] = false;
+      _callback_96();
+    }
+    if ((self->tick96 % (96*4)) == 0 && _callback_long && self->tic_toc[1]){ 
+      self->tic_toc[1] = false;
+      _callback_long();
+      
+    }
+    if ((self->tick96 % 2) == 0 && _callback_2 && self->tic_toc[2]){
+      self->tic_toc[2] = false;
+      _callback_2();
+    }
+    if ((self->tick96 % 24) == 0 && self->tic_toc[3]) {
+      self->tic_toc[3] = false;
 
-void MasterClock::attach_16(void (*cb)()) {
-            _callback_16 = cb;
+      if (!self->stop) {
+          if (_callback_24){
+              _callback_24();
+          }
+      }
+      if (_callback_24_bis){
+              _callback_24_bis();
+          }
+    }
+    if ((self->tick96 % gg.period_303 == 0) && _callback_303 && self->tic_toc[4]){
+      self->tic_toc[4] = false;
+      _callback_303();
+    }
+    if (self->tick96 % gg.osc_refresher_period == 0 && _callback_oscilloscope && self->tic_toc[5]){
+      self->tic_toc[5] = false;
+      _callback_oscilloscope();
+    }
+    if ((self->tick96 % 3) == 0 && _callback_3 && self->tic_toc[6]){
+      self->tic_toc[6] = false;
+      _callback_3();
+    }
+    
+}
+
+void MasterClock::attach_2(void (*cb)()) {
+            _callback_2 = cb;
+        }
+void MasterClock::attach_3(void (*cb)()) {
+            _callback_3 = cb;
+        }
+void MasterClock::attach_oscilloscope(void (*cb)()) {
+            _callback_oscilloscope = cb;
+        }
+void MasterClock::attach_303(void (*cb)()) {
+            _callback_303 = cb;
         }
 
 void MasterClock::attach_long(void (*cb)()) {
@@ -42,9 +80,12 @@ void MasterClock::attach_long(void (*cb)()) {
 void MasterClock::attach_24(void (*cb)()) {
             _callback_24 = cb;
         }
+void MasterClock::attach_24_bis(void (*cb)()) {
+            _callback_24_bis = cb;
+        }
 
-void MasterClock::attach_3(void (*cb)()) {
-            _callback_3 = cb;
+void MasterClock::attach_96(void (*cb)()) {
+            _callback_96 = cb;
         }
 
 void MasterClock::stopticker() {
@@ -700,11 +741,11 @@ void PatEditRouter::computelenghtmesureoffline_sampler() {
 }
 
 void PatEditRouter::refresh_patterns(){
-          _refresher[self->track_type]();
-          _sanitizer[self->track_type]();
-          computelenghtmesureoffline_synth();
-          computelenghtmesureoffline_sampler();
-        }
+  _refresher[self->track_type]();
+  _sanitizer[self->track_type]();
+  computelenghtmesureoffline_synth();
+  computelenghtmesureoffline_sampler();
+}
 
 extern PatEditRouter _pe;
 
@@ -1476,51 +1517,15 @@ void PatternsMenuRouter::writelemidi() {
 void PatternsMenuRouter::set_arp_type(){
   if (gg.arpegiatortype < ARP_TYPES) {
     gg.arpegiatorOn = 1;
-    //metro0.reset();
   } else {
     gg.arpegiatorOn = 0;
-    for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-      self->calledarpegenote[i][0] = 0;
-      self->calledarpegenote[i][1] = 0;
-      for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
-        self->playingarpegiator[i][j] = 0;
-        self->arpegnoteoffin[i][j] = 0;
-      }
-      self->arpegiatingNote[i] = 0;
-    }
     _tt.stopallnotes();
   }
 }
 
-void PatternsMenuRouter::arpegiate_synth() {
-          for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            self->calledarpegenote[i][0] = 0;
-            for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
-              if (self->arpegnoteoffin[i][j] == 1) {
-                _tt.shutlineroff(gg.synthmidichannel,self->playingarpegiator[i][j]);
-                self->arpegnoteoffin[i][j] = 0;
-                self->playingarpegiator[i][j] = 0;
-              }
-              if (self->arpegnoteoffin[i][j] > 1) {
-                self->arpegnoteoffin[i][j]--;
-              }
-            }
-            if (self->arpegiatingNote[i] != 0) {
-              ap.playarpegenote(i);
-            }
-          }
-          if (lv.stoptickernextcycle) {
-              _tt.stopallnotes();
-            if (lv.patternOn != 1) {
-              lv.stoptick = 1;
-            }
-            lv.stoptickernextcycle = 0;
-          }
-        }
-
 void PatternsMenuRouter::call_draw_sequencer(){
-          _pe.show();
-        }
+  _pe.show();
+}
 
 void PatternsMenuRouter::call_options(){
           _po.optionspattern();

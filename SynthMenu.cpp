@@ -62,6 +62,7 @@ Filter303MenuRouter::Filter303MenuRouter() {
   self->relative_navlevel=1;
   self->max_navlevel=5;
   self->sublevels_address={0,0,0};
+  self->avg_slope();
 }
 
 void Filter303MenuRouter::initialize303group() {
@@ -69,7 +70,7 @@ void Filter303MenuRouter::initialize303group() {
         _mx.setle303filterpass(i);
         les303wet[i]->gain(1.0, 1.0);
         les303wet[i]->gain(0.0, 0.0);
-        les303filterz[i]->frequency(1800.5);
+        les303filterz[i]->frequency(14800.5);
         les303filterz[i]->resonance(2.5);
       }
     }
@@ -77,26 +78,39 @@ void Filter303MenuRouter::initialize303group() {
 
 
 void Filter303MenuRouter::allpasslevels() {
-      mix303L1.gain(0, 1);
-      mix303L1.gain(1, 0);
-      mix303L1.gain(2, 0);
-    }
+  mix303L1.gain(0, 1);
+  mix303L1.gain(1, 0);
+  mix303L1.gain(2, 0);
+}
 
+void Filter303MenuRouter::avg_slope(){
+  for (int i=0; i<18; i++){
+    self->sloped[i] = self->fxsloper[i]*(gg.cut_off_slope/127.0) + self->slopelinear[i]*(1-(gg.cut_off_slope/127.0)) ;
+  }
+}
 
 void Filter303MenuRouter::pseudo303(byte i) {
-        if (_rg.active_synths[i]->f303) {
-          self->letbfreq = gg.le303filterzfreq + 50 - (gg.le303filterzfreq * self->sloped[_rg.active_synths[i]->sloper_step]);
-          if (_rg.active_synths[i]->sloper_step > 18) {
-            _rg.active_synths[i]->f303 = 0;
-            self->letbfreq = 50 ;
-            _rg.active_synths[i]->sloper_step = 0 ;
-          }
-          les303filterz[_rg.active_synths[i]->l_index]->frequency(self->letbfreq);
-          les303filterz[_rg.active_synths[i]->l_index]->resonance(0.1 + ((gg.le303filterzreso/127.0)*5) * self->sloped[_rg.active_synths[i]->sloper_step]);
-          _rg.active_synths[i]->sloper_step++;
-        }
-      
+  if (_rg.active_synths[i]->f303) {
+ if (_rg.active_synths[i]->sloper_step > 17) {
+      _rg.active_synths[i]->f303 = 0;
+      self->letbfreq = 50 ;
+      _rg.active_synths[i]->sloper_step = 0 ;
+      return;
     }
+    self->letbfreq = gg.le303filterzfreq + 50 - (gg.le303filterzfreq * self->sloped[_rg.active_synths[i]->sloper_step]);
+    /*
+    Serial.println();
+    Serial.print("t:");
+    Serial.print(self->sloped[_rg.active_synths[i]->sloper_step]);
+    //Serial.print(self->letbfreq);
+    */
+    
+    les303filterz[_rg.active_synths[i]->l_index]->frequency(self->letbfreq);
+    //les303filterz[_rg.active_synths[i]->l_index]->resonance(0.1 + ((gg.le303filterzreso/127.0)*5) * self->sloped[_rg.active_synths[i]->sloper_step]);
+    _rg.active_synths[i]->sloper_step++;
+   
+  }
+}
 
 void Filter303MenuRouter::filter_knob_freq(){
       lv.navrange = 127;

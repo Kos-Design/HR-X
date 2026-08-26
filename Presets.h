@@ -1,3 +1,4 @@
+#include <stdint.h>
 #pragma once
 #include "Cablages.h"
 
@@ -70,7 +71,7 @@ struct Preset {
 
     int32_t millitickinterval = 115;
     //Atk Delay, Attack, Hold, Decay, Sustain, Release
-    int32_t adsrlevels[6] = {0, 5, 0, 50, 100, 750};
+    int32_t adsrlevels[6] = {0, 5, 0, 100, 0, 50};
     
     int32_t midiknobassigned[128];
     int32_t Sampleassigned[128];
@@ -96,7 +97,7 @@ struct Preset {
     };
 
     uint16_t le303filterzfreq = 14000;
-    GlideMode glideMode = PitchAttack;
+    GlideMode glideMode = Off;
     uint8_t le303filterzgainz[3] = {127,0,0};
     //0 is Off, 1-> Waveform, 2-> FM Waveform, 3->Drum, 4->String 
     uint8_t audio_obj_type[OSCS_COUNT] = {1,1,1};
@@ -107,7 +108,7 @@ struct Preset {
     //unused until 303 refactor
     uint8_t resonance_slope = 1;
     // cutoff, resonance, octave
-    uint8_t le303ffilterzVknobs[3] = {0,0,0};
+    uint8_t le303ffilterzVknobs[3] = {48,32,0};
     // LP BP HP
     uint8_t mixle303ffilterzVknobs[3] = {127,0,0};
     uint8_t le303filterzwet = 127;
@@ -116,17 +117,18 @@ struct Preset {
     uint8_t glide_slope = 64;
     uint8_t portamento_height = 70;
     uint8_t portamento_time = 60;
-    bool arpegiatorOn = false;
-    uint8_t arpegiatortype = 8;
+    bool arpegiatorOn = true;
+    uint8_t arpegiatortype = 7;
     uint8_t arpeglengh = 0;
     uint8_t arpegmode = 4;
     uint8_t arpegnumofnotes = 7;
     uint8_t arpegstartoffset = 0;
     uint8_t arpeggridC = 0;
     uint8_t arpeggridS = 0;
+    uint8_t out_midichannel = 3 ;
     bool digitalplay = false;
     bool chordson = false;
-    bool SendMidiOut;
+    bool SendMidiOut = true;
 
     // 6 is Off
     uint8_t lasetchord = 6;//midi cc notes controlling navigation
@@ -178,9 +180,11 @@ struct Preset {
     uint8_t muxed_channels[15] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
     // virtual pots available for keyboardless control
 
-    uint8_t oscilloscope_tscale = 8;
+    uint8_t oscilloscope_tscale = 5;
     uint8_t osc_framerate = 33 ;
-    uint8_t osc_refresher_period = 3 ;
+    uint8_t osc_refresher_period = 2 ;
+    uint16_t period_303 = 96;
+
 
 };
 
@@ -198,5 +202,4 @@ extern const unsigned char reversesawtoothwave[];
 extern const unsigned char pulsewave[];
 extern const unsigned char sawtoothwave[];
 extern const unsigned char sinewave[];
-extern const byte leschords[6][12][3];
 extern const int lesformes[9];

@@ -43,6 +43,7 @@
 #define SSD1306_BLACK 0
 #define SSD1306_WHITE 1
 #define SSD1306_INVERSE 2
+#define ARP_LINES 6
 
 struct MidiEventer{
     uint8_t channel;

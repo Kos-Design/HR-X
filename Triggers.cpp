@@ -1,3 +1,5 @@
+#include <sys/_stdint.h>
+#include "Constants.h"
 #include "MenuClasses.h"
 #include "Triggers.h"
 #include "Patterns.h"
@@ -13,95 +15,217 @@
 #include "Cablages.h"
 #include "PresetsMenu.h"
 
-Arpegiator::Arpegiator() { }
+byte leschords[6][12][3] = {{{0, 4, 7},
+                                           {1, 5, 8},
+                                           {2, 6, 9},
+                                           {3, 7, 10},
+                                           {4, 8, 11},
+                                           {5, 9, 12},
+                                           {6, 10, 13},
+                                           {7, 11, 14},
+                                           {8, 12, 15},
+                                           {9, 13, 16},
+                                           {10, 14, 17},
+                                           {11, 15, 18}},
+                                          {{0, 3, 7},
+                                           {1, 4, 8},
+                                           {2, 5, 9},
+                                           {3, 6, 10},
+                                           {4, 7, 11},
+                                           {5, 8, 12},
+                                           {6, 9, 13},
+                                           {7, 10, 14},
+                                           {8, 11, 15},
+                                           {9, 12, 16},
+                                           {10, 13, 17},
+                                           {11, 14, 18}},
+                                          {{0, 3, 6},
+                                           {1, 4, 7},
+                                           {2, 5, 8},
+                                           {3, 6, 9},
+                                           {4, 7, 10},
+                                           {5, 8, 11},
+                                           {6, 9, 12},
+                                           {7, 10, 13},
+                                           {8, 11, 14},
+                                           {9, 12, 15},
+                                           {10, 13, 16},
+                                           {11, 14, 17}},
+                                          {{0, 4, 8},
+                                           {1, 5, 9},
+                                           {2, 6, 10},
+                                           {3, 7, 11},
+                                           {4, 8, 12},
+                                           {5, 9, 13},
+                                           {6, 10, 14},
+                                           {7, 11, 15},
+                                           {8, 12, 16},
+                                           {9, 13, 17},
+                                           {10, 14, 18},
+                                           {11, 15, 19}},
+                                          {{0, 2, 7},
+                                           {1, 3, 8},
+                                           {2, 4, 9},
+                                           {3, 5, 10},
+                                           {4, 6, 11},
+                                           {5, 7, 12},
+                                           {6, 8, 13},
+                                           {7, 9, 14},
+                                           {8, 10, 15},
+                                           {9, 11, 16},
+                                           {10, 12, 17},
+                                           {11, 13, 18}},
+                                          {{0, 5, 7},
+                                           {1, 6, 8},
+                                           {2, 7, 9},
+                                           {3, 8, 10},
+                                           {4, 9, 11},
+                                           {5, 10, 12},
+                                           {6, 11, 13},
+                                           {7, 12, 14},
+                                           {8, 13, 15},
+                                           {9, 14, 16},
+                                           {10, 15, 17},
+                                           {11, 16, 18}}
+        };
+        
+        // C Ionian     { C maj;  D min;  E min;  F maj;  G maj;  A min;  B dim  }
+        // const chord ionian[7]     = {{0, maj},    {2, minor}, {4, minor}, {5, maj},
+        // {7, maj},   {9, minor}, {11, dim}};
+        //                            {0,4,7} ,   {2,5,9},    {4,7,11}    {5,9,12},
+        //                            {7,11,14},   {9,12,16}, {11,14,17}
+        byte *event_ionian[7] = {
+            leschords[0][0], leschords[1][2], leschords[1][4], leschords[0][5],
+            leschords[0][7], leschords[1][9], leschords[2][11]};
+        // C Dorian     { C min;  D min;  D♯ maj; F maj;  G min;  A dim;  A♯ maj  }
+        // const chord dorian[7]     = {{0, minor},  {2, minor}, {3, maj},   {5, maj},
+        // {7, minor}, {9, dim},   {10, maj}};
+        byte *event_dorian[7] = {
+            leschords[1][0], leschords[1][2], leschords[0][3], leschords[0][5],
+            leschords[1][7], leschords[2][9], leschords[0][10]};
+        // C Phrygian    { C min;  C♯ maj; D♯ maj; F min;  G dim;  G♯ maj; A♯ min  }
+        // const chord phrygian[7]   = {{0, minor},  {1, maj},   {3, maj},   {5, minor},
+        // {7, dim},   {8, maj},   {10, minor}};
+        byte *event_phrygian[7] = {
+            leschords[1][0], leschords[0][1], leschords[0][3], leschords[1][5],
+            leschords[2][7], leschords[0][8], leschords[1][10]};
+        // C Lydian      { C maj;  D maj;  E min;  F♯ dim; G maj;  A min;  B min   }
+        // const chord lydian[7]     = {{0, maj},    {2, maj},   {4, minor}, {6, dim},
+        // {7, maj},   {9, minor}, {11, minor}};
+byte *event_lydian[7] = {
+            leschords[0][0], leschords[0][2], leschords[1][4], leschords[2][6],
+            leschords[0][7], leschords[1][9], leschords[1][11]};
+        // C Mixolydian  { C maj;  D min;  E dim;  F maj;  G min;  A min;  A♯ maj  }
+byte *event_mixolydian[7] = {
+            leschords[0][0], leschords[1][2], leschords[2][4], leschords[0][5],
+            leschords[1][7], leschords[1][9], leschords[0][10]};
+        // const chord mixolydian[7] = {{0, maj},    {2, minor}, {4, dim},   {5, maj},
+        // {7, minor}, {9, minor}, {10, maj}}; C Aeolian     { C min;  D dim;  D♯ maj; F
+        // min;  G min;  G♯ maj; A♯ maj  } const chord aeolian[7]    = {{0, minor},  {2,
+        // dim},   {3, maj},   {5, minor}, {7, minor}, {8, maj},   {10, maj}};
+byte *event_aeolian[7] = {
+            leschords[1][0], leschords[2][2], leschords[0][3], leschords[1][5],
+            leschords[1][7], leschords[0][8], leschords[0][10]};
+        // C harmonic    { C min;  D dim;  D♯ aug; F min;  G maj;  G♯ maj; B dim   }
+        // const chord harmonic[7]   = {{0, minor},  {2, dim},   {3, aug},   {5, minor},
+        // {7, maj},   {8, maj},   {11, dim}};
+byte *event_harmonic[7] = {
+            leschords[1][0], leschords[2][2], leschords[3][3], leschords[1][5],
+            leschords[0][7], leschords[0][8], leschords[2][11]};
+        // C Locrian     { C dim;  C♯ maj; D♯ min; F min;  F♯ maj; G♯ maj; A♯ min  }
+        // const chord locrian[7]    = {{0, dim},    {1, maj},   {3, minor}, {5, minor},
+        // {6, maj},   {8, maj},   {10, minor}};
+byte *event_locrian[7] = {
+            leschords[2][0], leschords[0][1], leschords[1][3], leschords[1][5],
+            leschords[0][6], leschords[0][8], leschords[1][10]};
+        // const chord *all_chords[8] = {ionian, dorian, phrygian, lydian, mixolydian,
+        // aeolian, harmonic, locrian};
+byte **all_arpegios[ARP_TYPES] = {
+            event_ionian,     event_dorian,  event_phrygian, event_lydian,
+            event_mixolydian, event_aeolian, event_harmonic, event_locrian};
 
-void Arpegiator::initiatearpegesynthliner(byte larpegeline, byte data1, byte data2) {
-  byte free_line = _tt.get_free_synth(data1);
+Arpegiator* Arpegiator::self = nullptr;
+
+Arpegiator::Arpegiator() { self = this;
+                     
+                          };
+//larpegeline is created when pressing a note
+//each of these lines can hen useany available synth liners
+// length is set in voice after the note on 
+//
+bool Arpegiator::note_in_arp(uint8_t note){
+  for (auto* synth : _rg.active_synths) if (synth && synth->note == note) return true ; 
+  return false;
+}
+
+void Arpegiator::initiatearpegesynthliner(byte start_voice, MidiEventer msg) {
+  if (note_in_arp(msg.note)) return;
+  byte free_line = _tt.get_free_synth(msg.note);
   if (free_line < SYNTH_LINERS_COUNT) {
-    for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-      if (data1 == _pt.calledarpegenote[i][0]) {
-        _pt.arpegnoteoffin[i][free_line] = gg.arpeglengh + 1;
-        _pt.playingarpegiator[i][free_line] = data1;
-      }
-    }
-    _pt.arpegnoteoffin[larpegeline][free_line] = gg.arpeglengh + 1;
-    _pt.playingarpegiator[larpegeline][free_line] = data1;
     if (lv.patrecord) {
-      md.recordmidinotes(free_line, gg.synthmidichannel, data1, data2);
+      md.recordmidinotes(free_line, msg.channel, msg.note, msg.velocity);
     }
-    synth_lines[free_line]->liner_on(data1, data2);
+    //get and increment note from starter line
+    //synth_lines[free_line]->
+    synth_lines[free_line]->length_in_arp = gg.arpeglengh + 2;
+    synth_lines[free_line]->liner_on(msg.note, msg.velocity);
+    //+2 as it is decremented right after note ons
+    //try +3 if none
+    //add to arp line arp_line
   }
 }
 
-void Arpegiator::playarpegenote(byte larpegeline) {
-  if (_pt.arpegemptyticks[larpegeline] > 0) {
-    decrementcrementns(larpegeline);
-    return;
-  }
-  incrementcs(larpegeline);
-  byte relativenote;
-  byte realnotetoplay;
-  relativenote = _tt.all_arpegios[gg.arpegiatortype][_pt.tickgamme[larpegeline]][_pt.ticktriplet[larpegeline]];
-  // realnotetoplay = (byte)(octave*12 + relativenote) ;
-  realnotetoplay = (byte)(_pt.arpegiatingNote[larpegeline] + relativenote);
-  if (gg.arpegmode == 4) {
-    arpegioticker(larpegeline);
-  }
-  _pt.calledarpegenote[larpegeline][0] = realnotetoplay;
-  initiatearpegesynthliner(larpegeline, realnotetoplay, _pt.calledarpegenote[larpegeline][1]);
-  // initiateasynthliner(realnotetoplay, _pt.calledarpegenote[larpegeline][1] );
-  if (gg.arpegmode != 4) {
-    arpegioticker(larpegeline);
+
+void Arpegiator::arpegiate_synth() {
+  //
+  /*SynthLiner* _rg.active_synths[6];
+  memcpy(_rg.active_synths, _rg.active_synths, sizeof(_rg.active_synths));
+  int currently_actives = _rg.synth_lines_active ;
+  */
+  //incrementcs(larpegeline);
+  //if (gg.arpegmode == 4) {
+  //  arpegioticker(larpegeline);
+  //}
+
+  for (int i = 0; i < _rg.synth_lines_active; i++) {
+    if (_rg.active_synths[i]->arp_starter) {
+      //check why same note is looped after a starter not off ?...
+      //check increment & decrement
+        if (arpegemptyticks[_rg.active_synths[i]->l_index] > 0) {
+          decrementcrementns(_rg.active_synths[i]->l_index);
+          return;
+        }
+      incrementcs(_rg.active_synths[i]->l_index);
+      arpegioticker(_rg.active_synths[i]->l_index);
+
+      uint8_t relativenote = all_arpegios[gg.arpegiatortype][tickgamme[i]][ticktriplet[i]];
+      //if same note as before reinitialize like manoteon and return
+      //original note from starting voice
+      _rg.active_synths[i]->next_arp_note = _rg.active_synths[i]->note + relativenote;
+      initiatearpegesynthliner(_rg.active_synths[i]->l_index,(MidiEventer){gg.synthmidichannel,_rg.active_synths[i]->next_arp_note,127});
+      continue;
+    } else {
+      if (_rg.active_synths[i]->length_in_arp >= 2) _rg.active_synths[i]->length_in_arp--;
+      else if (_rg.active_synths[i]->length_in_arp) _rg.active_synths[i]->liner_off();
+      else if (_rg.active_synths[i]->activated && !_rg.active_synths[i]->length_in_arp) _rg.active_synths[i]->liner_off();
+      }
   }
 }
+
 
 void Arpegiator::decrementgamme(byte larpegeline) {
 
-  if (_pt.tickgamme[larpegeline] > (int)(gg.arpegstartoffset / 6)) {
-    _pt.tickgamme[larpegeline]--;
+  if (tickgamme[larpegeline] > (int)(gg.arpegstartoffset / 6)) {
+    tickgamme[larpegeline]--;
   } else {
-    _pt.tickgamme[larpegeline] = gg.arpegnumofnotes - 1;
+    tickgamme[larpegeline] = gg.arpegnumofnotes - 1;
   }
-}
-
-void Arpegiator::allarpegeoffs() {
-  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-    _pt.calledarpegenote[i][0] = 0;
-    _pt.calledarpegenote[i][1] = 0;
-    for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
-      _pt.playingarpegiator[i][j] = 0;
-      _pt.arpegnoteoffin[i][j] = 0;
-    }
-    _pt.arpegiatingNote[i] = 0;
-  }
-  _tt.stopallnotes();
-
-}
-
-byte Arpegiator::incrementarpegiatingNote(byte lanote) {
-  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-    if (_pt.arpegiatingNote[i] == 0) {
-      _pt.arpegiatingNote[i] = lanote;
-      return i;
-    }
-  }
-  return SYNTH_LINERS_COUNT;
-}
-
-bool Arpegiator::decrementarpegiatingNote() {
-  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-    if (_pt.arpegiatingNote[i] != 0) {
-      _pt.arpegiatingNote[i] = 0;
-      return 1;
-    }
-  }
-  return 0;
 }
 
 void Arpegiator::randomdirtest(byte larpegeline) {
   byte lerandom = (byte)random(0, 101);
   if (lerandom > 50) {
-    _pt.tripletdirection[larpegeline] = !_pt.tripletdirection[larpegeline];
+    tripletdirection[larpegeline] = !tripletdirection[larpegeline];
     // ticklagamme(larpegeline);
   }
   if (gg.arpegmode == 4) {
@@ -120,29 +244,29 @@ void Arpegiator::randomgammedirtest(byte larpegeline) {
 }
 
 void Arpegiator::tickarpegedown(byte larpegeline) {
-  if (_pt.ticktriplet[larpegeline] > 0) {
-    _pt.ticktriplet[larpegeline]--;
+  if (ticktriplet[larpegeline] > 0) {
+    ticktriplet[larpegeline]--;
   } else {
-    _pt.ticktriplet[larpegeline] = 2;
+    ticktriplet[larpegeline] = 2;
     if (gg.arpegmode == 1 || gg.arpegmode == 5 || gg.arpegmode == 4) {
       decrementgamme(larpegeline);
     }
     if (gg.arpegmode == 3) {
       ticklagamme(larpegeline);
-      _pt.tripletdirection[larpegeline] = 1;
-      _pt.ticktriplet[larpegeline] = 0;
+      tripletdirection[larpegeline] = 1;
+      ticktriplet[larpegeline] = 0;
     }
     if (gg.arpegmode == 2) {
-      _pt.tripletdirection[larpegeline] = 1;
-      _pt.ticktriplet[larpegeline] = 0;
+      tripletdirection[larpegeline] = 1;
+      ticktriplet[larpegeline] = 0;
     }
     if (gg.arpegmode == 5) {
-      _pt.tripletdirection[larpegeline] = 1;
-      _pt.ticktriplet[larpegeline] = 0;
+      tripletdirection[larpegeline] = 1;
+      ticktriplet[larpegeline] = 0;
     }
     if (gg.arpegmode == 6) {
-      _pt.tripletdirection[larpegeline] = 1;
-      _pt.ticktriplet[larpegeline] = 0;
+      tripletdirection[larpegeline] = 1;
+      ticktriplet[larpegeline] = 0;
     }
     if (gg.arpegmode == 4) {
       randomdirtest(larpegeline);
@@ -156,31 +280,31 @@ void Arpegiator::tickarpegedown(byte larpegeline) {
 }
 
 void Arpegiator::tickarpege(byte larpegeline) {
-  _pt.ticktriplet[larpegeline]++;
-  if (_pt.ticktriplet[larpegeline] > 2) {
-    _pt.ticktriplet[larpegeline] = 0;
+  ticktriplet[larpegeline]++;
+  if (ticktriplet[larpegeline] > 2) {
+    ticktriplet[larpegeline] = 0;
     if (gg.arpegmode == 0 || gg.arpegmode == 2 || gg.arpegmode == 3 || gg.arpegmode == 4) {
       ticklagamme(larpegeline);
     }
     if (gg.arpegmode == 3) {
-      _pt.tripletdirection[larpegeline] = 0;
+      tripletdirection[larpegeline] = 0;
 
-      _pt.ticktriplet[larpegeline] = 2;
+      ticktriplet[larpegeline] = 2;
     }
     if (gg.arpegmode == 2) {
-      _pt.tripletdirection[larpegeline] = 0;
+      tripletdirection[larpegeline] = 0;
 
-      _pt.ticktriplet[larpegeline] = 2;
+      ticktriplet[larpegeline] = 2;
     }
     if (gg.arpegmode == 5) {
-      _pt.tripletdirection[larpegeline] = 0;
+      tripletdirection[larpegeline] = 0;
 
-      _pt.ticktriplet[larpegeline] = 2;
+      ticktriplet[larpegeline] = 2;
     }
     if (gg.arpegmode == 6) {
-      _pt.tripletdirection[larpegeline] = 0;
+      tripletdirection[larpegeline] = 0;
 
-      _pt.ticktriplet[larpegeline] = 2;
+      ticktriplet[larpegeline] = 2;
       decrementgamme(larpegeline);
     }
     if (gg.arpegmode == 4) {
@@ -194,45 +318,43 @@ void Arpegiator::tickarpege(byte larpegeline) {
   }
 }
 
-void Arpegiator::synth_arpegiator_ticker(byte data1, byte data2, byte larpegeline) {
-  // for (int i = 0 ; i < SYNTH_LINERS_COUNT ; i++ ) {
-  // if (_pt.arpegiatingNote[larpegeline] == data1 ) {
-  // for (int i = 0 ; i < SYNTH_LINERS_COUNT ; i++ ) {
-  _pt.calledarpegenote[larpegeline][1] = data2;
-  _pt.calledarpegenote[larpegeline][0] = 0;
-  // }
-  if (gg.arpegstartoffset > 0) {
-    _pt.tickgamme[larpegeline] = (byte)((int)(gg.arpegstartoffset / 3.0));
-    _pt.ticktriplet[larpegeline] = (byte)((int)(gg.arpegstartoffset % 3));
-  } else {
-    _pt.tickgamme[larpegeline] = 0;
-    _pt.ticktriplet[larpegeline] = 0;
-  }
-  _pt.arpegemptyticks[larpegeline] = gg.arpeggridS;
-  _pt.arpegnotestick[larpegeline] = 0;
+void Arpegiator::synth_arpegiator_ticker(byte starting_voice) {
 
-  // if (gg.arpegstartoffset) {
-  //  for (int i = 0 ; i < gg.arpegstartoffset ; i++ ) {
-  //  tickarpege(larpegeline) ;
-  //  }
-  // }
+
+  if (gg.arpegstartoffset > 0) {
+    tickgamme[starting_voice] = (byte)((int)(gg.arpegstartoffset / 3.0));
+    ticktriplet[starting_voice] = (byte)((int)(gg.arpegstartoffset % 3));
+  } else {
+    tickgamme[starting_voice] = 0;
+    ticktriplet[starting_voice] = 0;
+  }
+  arpegemptyticks[starting_voice] = gg.arpeggridS;
+  arpegnotestick[starting_voice] = 0;
+
   if (gg.arpegmode == 1 || gg.arpegmode == 5 || gg.arpegmode == 6) {
-    _pt.tickgamme[larpegeline] = 6;
+    tickgamme[starting_voice] = 6;
   }
 
   if (gg.arpegmode == 0 || gg.arpegmode == 3 || gg.arpegmode == 5) {
-    _pt.ticktriplet[larpegeline] = 0;
+    ticktriplet[starting_voice] = 0;
   }
   if (gg.arpegmode == 1 || gg.arpegmode == 2 || gg.arpegmode == 6) {
-    _pt.tripletdirection[larpegeline] = 0;
-    _pt.ticktriplet[larpegeline] = 2;
+    tripletdirection[starting_voice] = 0;
+    ticktriplet[starting_voice] = 2;
   }
 
   // printarparams();
+  Serial.println();
+  Serial.print(" triplet = ");
+  Serial.print(ticktriplet[starting_voice]);
+  Serial.print(" tickgamme = ");
+  Serial.print(tickgamme[starting_voice]);
+   
 }
+
 // modes 0 up , 1 down, 2 up-down , 3 down-up, 4 random
 void Arpegiator::arpegioticker(byte larpegeline) {
-  switch ((int)_pt.tripletdirection[larpegeline]) {
+  switch ((int)tripletdirection[larpegeline]) {
   case 0:
     // up
     tickarpegedown(larpegeline);
@@ -248,9 +370,9 @@ void Arpegiator::arpegioticker(byte larpegeline) {
 }
 
 void Arpegiator::ticklatriplet(byte larpegeline) {
-  _pt.ticktriplet[larpegeline]++;
-  if (_pt.ticktriplet[larpegeline] > 2) {
-    _pt.ticktriplet[larpegeline] = 0;
+  ticktriplet[larpegeline]++;
+  if (ticktriplet[larpegeline] > 2) {
+    ticktriplet[larpegeline] = 0;
     ticklagamme(larpegeline);
   }
 }
@@ -259,45 +381,27 @@ void Arpegiator::ticklagamme(byte larpegeline) {
   if (gg.arpegmode == 4) {
     randomdirtest(larpegeline);
   }
-  _pt.tickgamme[larpegeline]++;
-  if (_pt.tickgamme[larpegeline] > gg.arpegnumofnotes - 1) {
-    _pt.tickgamme[larpegeline] = int(gg.arpegstartoffset / 6);
+  tickgamme[larpegeline]++;
+  if (tickgamme[larpegeline] > gg.arpegnumofnotes - 1) {
+    tickgamme[larpegeline] = int(gg.arpegstartoffset / 6);
   }
 }
 
 void Arpegiator::incrementcs(byte larpegeline) {
-  if (_pt.arpegnotestick[larpegeline] < gg.arpeggridC) {
-    _pt.arpegnotestick[larpegeline]++;
+  if (arpegnotestick[larpegeline] < gg.arpeggridC) {
+    arpegnotestick[larpegeline]++;
   } else {
-    _pt.arpegemptyticks[larpegeline] = gg.arpeggridS;
-    _pt.arpegnotestick[larpegeline] = 0;
+    arpegemptyticks[larpegeline] = gg.arpeggridS;
+    arpegnotestick[larpegeline] = 0;
   }
 }
 
 void Arpegiator::decrementcrementns(byte larpegeline) {
-  if (_pt.arpegemptyticks[larpegeline] > 0) {
-    _pt.arpegemptyticks[larpegeline]--;
+  if (arpegemptyticks[larpegeline] > 0) {
+    arpegemptyticks[larpegeline]--;
   }
 }
 
-bool Arpegiator::testarpege(byte lanote) {
-  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-    if (_pt.arpegiatingNote[i] == lanote) {
-      _pt.arpegiatingNote[i] = 0;
-      return 1;
-    }
-  }
-  return 0;
-}
-
-bool Arpegiator::retestarpege() {
-  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-    if (_pt.arpegiatingNote[i] != 0) {
-      return 1;
-    }
-  }
-  return 0;
-}
 
 MidiRecorder::MidiRecorder() { }
 
@@ -360,7 +464,7 @@ void MidiRecorder::recordCCmidinotes(byte channel, byte lanote, byte leccval) {
 
 TriggerMessenger* TriggerMessenger::self = nullptr;
 
-TriggerMessenger::TriggerMessenger() { self = this ;}
+TriggerMessenger::TriggerMessenger() { self = this ; }
 
 void TriggerMessenger::MaNoteOn(uint8_t ch_,uint8_t nt_,uint8_t ve_) {
   MidiEventer msg = {ch_,nt_,ve_};
@@ -385,18 +489,15 @@ void TriggerMessenger::advance_tick(){
   self->tick();
 }
 
+void TriggerMessenger::arp_tick() {
+  if (gg.arpegiatorOn) ap.arpegiate_synth();
+}
+
 void TriggerMessenger::tick() {
 
-  if (gg.arpegiatorOn) {
-      _pt.arpegiate_synth();
-  }
-  if (lv.patternOn) {
-    _se.use_pattern();
-  }
-
-  if (lv.songplaying) {
-    _se.update_song_player();
-  }
+  if (lv.patternOn) _se.use_pattern();
+  
+  if (lv.songplaying) _se.update_song_player();
 
 }
 
@@ -469,8 +570,9 @@ void TriggerMessenger::setchordnotesOff(byte absolutenote, byte lachord) {
 }
 void TriggerMessenger::update_active_lines() {
   for (int i = 0; i < _rg.synth_lines_active; i++) {
-    _ft.pseudo303(i);
     _rg.active_synths[i]->update_line();
+    //_ft.pseudo303(i);
+
   }
 }
 void TriggerMessenger::check_pots() {
@@ -499,38 +601,27 @@ void TriggerMessenger::check_pads() {
     MaNoteOff(chan_received, cc_note_num, 0);
   }
 }
+
+//quid of a voiceplayer class handling voices dispatch and cleanup
+// maybe via _rg actives_lines
+//
+
 void TriggerMessenger::MaNoteOn(MidiEventer msg) {
-  byte larpegeline;
-  int lachordon;
   //uint8_t statusByte = static_cast<uint8_t>(0x90 | channel);
-  if (msg.note == gg.tapnote && taptap_on) {
-    taptap();
-    return;
-  }
-  if (self->debugmidion) {
-    debugmidi((char *)"NoteOn", msg);
-  }
-  if (lv.navlevel)
-    notes_edgecases(msg.note,msg.velocity);
+        int lachordon;
+
+  if (lv.navlevel) notes_edgecases(msg);
   //dm.printnoteon(channel,msg.note,msg.velocity);
   if ((msg.channel == gg.synthmidichannel) or (gg.synthmidichannel == 0)) {
-    if (!gg.arpegiatorOn) {
-      if (!gg.chordson) {
-        initiateasynthliner(msg.note, msg.velocity);
-      } else {
-        // if chords
-        setchordnotes(msg.note, gg.lasetchord);
-        for (int i = 0; i < 3; i++) {
-          lachordon = chordnotes[i] + ((int(msg.note / 12)) * 12);
-          initiateasynthliner(lachordon, msg.velocity);
-        }
-      }
+    if (!gg.chordson) {
+      initiateasynthliner(msg);
     } else {
-      larpegeline = ap.incrementarpegiatingNote(msg.note);
-      if (larpegeline < SYNTH_LINERS_COUNT) {
-        //should not stop tick during arpegio
-        lv.stoptick = 0;
-        ap.synth_arpegiator_ticker(msg.note, msg.velocity, larpegeline);
+      // if chords
+      //!!! TODO chords should be in init liner or init arp liner
+      setchordnotes(msg.note, gg.lasetchord);
+      for (int i = 0; i < 3; i++) {
+        lachordon = chordnotes[i] + ((int(msg.note / 12)) * 12);
+        initiateasynthliner((MidiEventer){gg.synthmidichannel,(byte)lachordon, msg.velocity});
       }
     }
   }
@@ -555,21 +646,23 @@ void TriggerMessenger::MaNoteOn(MidiEventer msg) {
   // MidiUSB.sendMIDI({0x09, statusByte, msg.note, msg.velocity});
   // MidiUSB.flush();
     //usbMIDI.send((uint8_t)0x09, (uint8_t)msg.note, (uint8_t)msg.velocity, (uint8_t)msg.channel,(uint8_t)0);
-    usbMIDI.sendNoteOn(msg.note, msg.velocity, msg.channel);
+    usbMIDI.sendNoteOn(msg.note, msg.velocity, gg.out_midichannel);
     usbMIDI.send_now();
   }
 }
 
-void TriggerMessenger::synth_used_this_note(byte data1) {
-  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-    if (data1 == synth_lines[i]->note) {
-      synth_lines[i]->liner_off();
-      if (lv.patrecord) 
-        md.record_synth_notesOff(i, gg.synthmidichannel, data1, 0);
-    }
+bool TriggerMessenger::synth_used_this_note(byte notee) {
+  //kind of bad: goes through all instead of only actives
+  //for (auto* synth : _rg.active_synths) if (synth && synth->note == notee) return true ; 
+  for (int i=0;i<_rg.synth_lines_active;i++){
+    if (_rg.active_synths[i]->note == notee) return true ; 
   }
+  return false;
 }
 
+bool TriggerMessenger::flash_used_this_note(byte data1) {
+return false;
+}
 void TriggerMessenger::MaProgramchange(byte channel, byte data1) {
   if (self->debugmidion) {
     self->debugmidi((char *)"ProgramChange", (MidiEventer){channel, data1, 0});
@@ -582,7 +675,8 @@ void TriggerMessenger::MaProgramchange(byte channel, byte data1) {
     _ps.read_preset();
   }*/
 }
-void TriggerMessenger::flash_used_this_note(byte data1) {
+
+void TriggerMessenger::shut_used_flash_notes(byte data1) {
   for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
     if (data1 == flash_lines[i]->note) {
       flash_lines[i]->liner_off();
@@ -590,6 +684,15 @@ void TriggerMessenger::flash_used_this_note(byte data1) {
   }
 }
 
+void TriggerMessenger::shut_used_synth_notes(byte data1) {
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    if (data1 == synth_lines[i]->note) {
+      synth_lines[i]->liner_off();
+      if (lv.patrecord) 
+        md.record_synth_notesOff(i, gg.synthmidichannel, data1, 0);
+    }
+  }
+}
 void TriggerMessenger::MaNoteOff(uint8_t ch_,uint8_t nt_,uint8_t ve_) {
   MidiEventer msg = {ch_,nt_,ve_};
   self->MaNoteOff(msg);
@@ -602,11 +705,10 @@ void TriggerMessenger::MaNoteOff(MidiEventer msg) {
     //MidiUSB.sendMIDI({0x08, statusByte, data1, data2});
     //MidiUSB.flush();
     //usbMIDI.send((uint8_t)0x09, (uint8_t)data1, (uint8_t)data2, (uint8_t)channel,(uint8_t)0);
-    usbMIDI.sendNoteOff(msg.note, msg.velocity, msg.channel);
-
+    usbMIDI.sendNoteOff(msg.note, msg.velocity, gg.out_midichannel);
     usbMIDI.send_now();
   }
-  if (!gg.arpegiatorOn) {
+  //if (!gg.arpegiatorOn) {
     if (!gg.chordson) {
       shutlineroff(msg.channel,msg.note);
     } else {
@@ -616,36 +718,31 @@ void TriggerMessenger::MaNoteOff(MidiEventer msg) {
         shutlineroff(msg.channel,lachordnote);
       }
     }
-  } else {
-    // decrement_pt.arpegiatingNote();
-    if (ap.testarpege(msg.note)) {
-      if (!ap.retestarpege()) {
-        lv.stoptickernextcycle = 1;
-      }
-    }
-  }
+  //} 
 }
+
 void TriggerMessenger::shutlineroff(byte chan,byte data1) {
 
     if ((chan == gg.synthmidichannel) or ( gg.synthmidichannel == 0)) 
-      synth_used_this_note(data1);
+      shut_used_synth_notes(data1);
       
     if ((chan == gg.samplermidichannel) or ( gg.samplermidichannel == 0)) 
-      flash_used_this_note(data1);
+      shut_used_flash_notes(data1);
 }
 
 
 void TriggerMessenger::moncontrollercc(byte channel, byte control, byte value) {
   if (value < 128) {
-    if (gg.midiknobassigned[control] != 0 && !lv.freezemidicc) {
-      if (gg.SendMidiOut) {
+    if (gg.SendMidiOut) {
         //uint8_t statusByte = static_cast<uint8_t>(0xB0 | channel);
         //MidiUSB.sendMIDI({0x0B, statusByte, control, value});
         //MidiUSB.flush();
-        usbMIDI.sendControlChange(control,value,channel);
+        //FIXED CC OUTPUT TO CH 3
+        usbMIDI.sendControlChange(control,value,gg.out_midichannel);
         usbMIDI.send_now();
         
       }
+    if (gg.midiknobassigned[control] != 0 && !lv.freezemidicc) {
       ctl[gg.midiknobassigned[control]].tweaker(value);
       // AudioInterrupts();
     }
@@ -697,12 +794,17 @@ void TriggerMessenger::cc_edgecases(byte control, byte value){
   }
 }
 
-void TriggerMessenger::notes_edgecases(byte note, byte velo){
+void TriggerMessenger::notes_edgecases(MidiEventer msg){
+    if (msg.note == gg.tapnote && taptap_on) {
+    taptap();
+    return;
+  }
+  if (self->debugmidion) debugmidi((char *)"NoteOn", msg);
   // control is (byte)gg.pot_assignements[11 + lv.paddered]
   //inside sample assigner
   if (lv.setting_on_board && (lv.navlevel == 2)) helper_onbard();
   
-  if (lv.assigning_sample_to_note) dm.returntonav(3,127,note);
+  if (lv.assigning_sample_to_note) dm.returntonav(3,127,msg.note);
     //sets the navigation wheel to the captured note position for easier selection when assigning Flashsamples
 }
 
@@ -739,14 +841,17 @@ byte TriggerMessenger::get_free_sampler(byte note) {
   return 0;
 }
 
-void TriggerMessenger::initiateasynthliner(byte data1, byte data2) {
-  byte free_line = self->get_free_synth(data1);
+void TriggerMessenger::initiateasynthliner(MidiEventer msg) {
+  byte free_line = self->get_free_synth(msg.note);
   if (free_line < SYNTH_LINERS_COUNT) {
     if (lv.patrecord) {
-      md.recordmidinotes(free_line, gg.synthmidichannel, data1, data2);
+      md.recordmidinotes(free_line, gg.synthmidichannel, msg.note, msg.velocity);
     }
-    //dm.printnoteon(0,data1,data2);
-    synth_lines[free_line]->liner_on(data1, data2);
+    if (gg.arpegiatorOn)  {
+      synth_lines[free_line]->arp_starter = 1; 
+      ap.synth_arpegiator_ticker(synth_lines[free_line]->l_index);
+    }
+    synth_lines[free_line]->liner_on(msg.note, msg.velocity);
   }
 }
 
