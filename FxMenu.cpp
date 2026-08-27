@@ -173,11 +173,6 @@ void FxMenuRouter::biquadcontrols(byte fx_idx) {
             break;
 
           case 6:
-              //set self->coeffs
-              Serial.println("");
-              Serial.print("Calling biquad");
-              Serial.println(fx_idx);
-
               prepare_coeffs(fx_idx);
               
               biquad[fx_idx]->setCoefficients(gg.fx[fx_idx].bqstage, self->coeffs[gg.fx[fx_idx].bqstage]);

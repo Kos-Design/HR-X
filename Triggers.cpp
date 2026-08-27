@@ -15,144 +15,77 @@
 #include "Cablages.h"
 #include "PresetsMenu.h"
 
-byte leschords[6][12][3] = {{{0, 4, 7},
-                                           {1, 5, 8},
-                                           {2, 6, 9},
-                                           {3, 7, 10},
-                                           {4, 8, 11},
-                                           {5, 9, 12},
-                                           {6, 10, 13},
-                                           {7, 11, 14},
-                                           {8, 12, 15},
-                                           {9, 13, 16},
-                                           {10, 14, 17},
-                                           {11, 15, 18}},
-                                          {{0, 3, 7},
-                                           {1, 4, 8},
-                                           {2, 5, 9},
-                                           {3, 6, 10},
-                                           {4, 7, 11},
-                                           {5, 8, 12},
-                                           {6, 9, 13},
-                                           {7, 10, 14},
-                                           {8, 11, 15},
-                                           {9, 12, 16},
-                                           {10, 13, 17},
-                                           {11, 14, 18}},
-                                          {{0, 3, 6},
-                                           {1, 4, 7},
-                                           {2, 5, 8},
-                                           {3, 6, 9},
-                                           {4, 7, 10},
-                                           {5, 8, 11},
-                                           {6, 9, 12},
-                                           {7, 10, 13},
-                                           {8, 11, 14},
-                                           {9, 12, 15},
-                                           {10, 13, 16},
-                                           {11, 14, 17}},
-                                          {{0, 4, 8},
-                                           {1, 5, 9},
-                                           {2, 6, 10},
-                                           {3, 7, 11},
-                                           {4, 8, 12},
-                                           {5, 9, 13},
-                                           {6, 10, 14},
-                                           {7, 11, 15},
-                                           {8, 12, 16},
-                                           {9, 13, 17},
-                                           {10, 14, 18},
-                                           {11, 15, 19}},
-                                          {{0, 2, 7},
-                                           {1, 3, 8},
-                                           {2, 4, 9},
-                                           {3, 5, 10},
-                                           {4, 6, 11},
-                                           {5, 7, 12},
-                                           {6, 8, 13},
-                                           {7, 9, 14},
-                                           {8, 10, 15},
-                                           {9, 11, 16},
-                                           {10, 12, 17},
-                                           {11, 13, 18}},
-                                          {{0, 5, 7},
-                                           {1, 6, 8},
-                                           {2, 7, 9},
-                                           {3, 8, 10},
-                                           {4, 9, 11},
-                                           {5, 10, 12},
-                                           {6, 11, 13},
-                                           {7, 12, 14},
-                                           {8, 13, 15},
-                                           {9, 14, 16},
-                                           {10, 15, 17},
-                                           {11, 16, 18}}
-        };
-        
-        // C Ionian     { C maj;  D min;  E min;  F maj;  G maj;  A min;  B dim  }
-        // const chord ionian[7]     = {{0, maj},    {2, minor}, {4, minor}, {5, maj},
-        // {7, maj},   {9, minor}, {11, dim}};
-        //                            {0,4,7} ,   {2,5,9},    {4,7,11}    {5,9,12},
-        //                            {7,11,14},   {9,12,16}, {11,14,17}
-        byte *event_ionian[7] = {
-            leschords[0][0], leschords[1][2], leschords[1][4], leschords[0][5],
-            leschords[0][7], leschords[1][9], leschords[2][11]};
-        // C Dorian     { C min;  D min;  D♯ maj; F maj;  G min;  A dim;  A♯ maj  }
-        // const chord dorian[7]     = {{0, minor},  {2, minor}, {3, maj},   {5, maj},
-        // {7, minor}, {9, dim},   {10, maj}};
-        byte *event_dorian[7] = {
-            leschords[1][0], leschords[1][2], leschords[0][3], leschords[0][5],
-            leschords[1][7], leschords[2][9], leschords[0][10]};
-        // C Phrygian    { C min;  C♯ maj; D♯ maj; F min;  G dim;  G♯ maj; A♯ min  }
-        // const chord phrygian[7]   = {{0, minor},  {1, maj},   {3, maj},   {5, minor},
-        // {7, dim},   {8, maj},   {10, minor}};
-        byte *event_phrygian[7] = {
-            leschords[1][0], leschords[0][1], leschords[0][3], leschords[1][5],
-            leschords[2][7], leschords[0][8], leschords[1][10]};
-        // C Lydian      { C maj;  D maj;  E min;  F♯ dim; G maj;  A min;  B min   }
-        // const chord lydian[7]     = {{0, maj},    {2, maj},   {4, minor}, {6, dim},
-        // {7, maj},   {9, minor}, {11, minor}};
+byte leschords[6][12][3] = {{{0, 4, 7},{1, 5, 8},{2, 6, 9},{3, 7, 10},{4, 8, 11},{5, 9, 12},
+                            {6, 10, 13},{7, 11, 14},{8, 12, 15},{9, 13, 16},{10, 14, 17},{11, 15, 18}},
+                           {{0, 3, 7},{1, 4, 8},{2, 5, 9},{3, 6, 10},{4, 7, 11},{5, 8, 12},
+                            {6, 9, 13},{7, 10, 14},{8, 11, 15},{9, 12, 16},{10, 13, 17},{11, 14, 18}},
+                           {{0, 3, 6},{1, 4, 7},{2, 5, 8},{3, 6, 9},{4, 7, 10},{5, 8, 11},
+                            {6, 9, 12},{7, 10, 13},{8, 11, 14},{9, 12, 15},{10, 13, 16},{11, 14, 17}},
+                           {{0, 4, 8},{1, 5, 9},{2, 6, 10},{3, 7, 11},{4, 8, 12},{5, 9, 13},
+                            {6, 10, 14},{7, 11, 15},{8, 12, 16},{9, 13, 17},{10, 14, 18},{11, 15, 19}},
+                           {{0, 2, 7},{1, 3, 8},{2, 4, 9},{3, 5, 10},{4, 6, 11},{5, 7, 12},
+                            {6, 8, 13},{7, 9, 14},{8, 10, 15},{9, 11, 16},{10, 12, 17},{11, 13, 18}},
+                           {{0, 5, 7},{1, 6, 8},{2, 7, 9},{3, 8, 10},{4, 9, 11},{5, 10, 12},
+                            {6, 11, 13},{7, 12, 14},{8, 13, 15},{9, 14, 16},{10, 15, 17},{11, 16, 18}}
+};
+
+// C Ionian     { C maj;  D min;  E min;  F maj;  G maj;  A min;  B dim  }
+// const chord ionian[7]     = {{0, maj},    {2, minor}, {4, minor}, {5, maj},
+// {7, maj},   {9, minor}, {11, dim}};
+//                            {0,4,7} ,   {2,5,9},    {4,7,11}    {5,9,12},
+//                            {7,11,14},   {9,12,16}, {11,14,17}
+byte *event_ionian[7] = {
+    leschords[0][0], leschords[1][2], leschords[1][4], leschords[0][5],
+    leschords[0][7], leschords[1][9], leschords[2][11]};
+// C Dorian     { C min;  D min;  D♯ maj; F maj;  G min;  A dim;  A♯ maj  }
+// const chord dorian[7]     = {{0, minor},  {2, minor}, {3, maj},   {5, maj},
+// {7, minor}, {9, dim},   {10, maj}};
+byte *event_dorian[7] = {
+    leschords[1][0], leschords[1][2], leschords[0][3], leschords[0][5],
+    leschords[1][7], leschords[2][9], leschords[0][10]};
+// C Phrygian    { C min;  C♯ maj; D♯ maj; F min;  G dim;  G♯ maj; A♯ min  }
+// const chord phrygian[7]   = {{0, minor},  {1, maj},   {3, maj},   {5, minor},
+// {7, dim},   {8, maj},   {10, minor}};
+byte *event_phrygian[7] = {
+    leschords[1][0], leschords[0][1], leschords[0][3], leschords[1][5],
+    leschords[2][7], leschords[0][8], leschords[1][10]};
+// C Lydian      { C maj;  D maj;  E min;  F♯ dim; G maj;  A min;  B min   }
+// const chord lydian[7]     = {{0, maj},    {2, maj},   {4, minor}, {6, dim},
+// {7, maj},   {9, minor}, {11, minor}};
 byte *event_lydian[7] = {
             leschords[0][0], leschords[0][2], leschords[1][4], leschords[2][6],
             leschords[0][7], leschords[1][9], leschords[1][11]};
-        // C Mixolydian  { C maj;  D min;  E dim;  F maj;  G min;  A min;  A♯ maj  }
+// C Mixolydian  { C maj;  D min;  E dim;  F maj;  G min;  A min;  A♯ maj  }
 byte *event_mixolydian[7] = {
             leschords[0][0], leschords[1][2], leschords[2][4], leschords[0][5],
             leschords[1][7], leschords[1][9], leschords[0][10]};
-        // const chord mixolydian[7] = {{0, maj},    {2, minor}, {4, dim},   {5, maj},
-        // {7, minor}, {9, minor}, {10, maj}}; C Aeolian     { C min;  D dim;  D♯ maj; F
-        // min;  G min;  G♯ maj; A♯ maj  } const chord aeolian[7]    = {{0, minor},  {2,
-        // dim},   {3, maj},   {5, minor}, {7, minor}, {8, maj},   {10, maj}};
+// const chord mixolydian[7] = {{0, maj},    {2, minor}, {4, dim},   {5, maj},
+// {7, minor}, {9, minor}, {10, maj}}; C Aeolian     { C min;  D dim;  D♯ maj; F
+// min;  G min;  G♯ maj; A♯ maj  } const chord aeolian[7]    = {{0, minor},  {2,
+// dim},   {3, maj},   {5, minor}, {7, minor}, {8, maj},   {10, maj}};
 byte *event_aeolian[7] = {
             leschords[1][0], leschords[2][2], leschords[0][3], leschords[1][5],
             leschords[1][7], leschords[0][8], leschords[0][10]};
-        // C harmonic    { C min;  D dim;  D♯ aug; F min;  G maj;  G♯ maj; B dim   }
-        // const chord harmonic[7]   = {{0, minor},  {2, dim},   {3, aug},   {5, minor},
-        // {7, maj},   {8, maj},   {11, dim}};
+// C harmonic    { C min;  D dim;  D♯ aug; F min;  G maj;  G♯ maj; B dim   }
+// const chord harmonic[7]   = {{0, minor},  {2, dim},   {3, aug},   {5, minor},
+// {7, maj},   {8, maj},   {11, dim}};
 byte *event_harmonic[7] = {
             leschords[1][0], leschords[2][2], leschords[3][3], leschords[1][5],
             leschords[0][7], leschords[0][8], leschords[2][11]};
-        // C Locrian     { C dim;  C♯ maj; D♯ min; F min;  F♯ maj; G♯ maj; A♯ min  }
-        // const chord locrian[7]    = {{0, dim},    {1, maj},   {3, minor}, {5, minor},
-        // {6, maj},   {8, maj},   {10, minor}};
+// C Locrian     { C dim;  C♯ maj; D♯ min; F min;  F♯ maj; G♯ maj; A♯ min  }
+// const chord locrian[7]    = {{0, dim},    {1, maj},   {3, minor}, {5, minor},
+// {6, maj},   {8, maj},   {10, minor}};
 byte *event_locrian[7] = {
             leschords[2][0], leschords[0][1], leschords[1][3], leschords[1][5],
             leschords[0][6], leschords[0][8], leschords[1][10]};
-        // const chord *all_chords[8] = {ionian, dorian, phrygian, lydian, mixolydian,
-        // aeolian, harmonic, locrian};
 byte **all_arpegios[ARP_TYPES] = {
             event_ionian,     event_dorian,  event_phrygian, event_lydian,
             event_mixolydian, event_aeolian, event_harmonic, event_locrian};
 
 Arpegiator* Arpegiator::self = nullptr;
 
-Arpegiator::Arpegiator() { self = this;
-                     
-                          };
-//larpegeline is created when pressing a note
-//each of these lines can hen useany available synth liners
-// length is set in voice after the note on 
-//
+Arpegiator::Arpegiator() { self = this; };
+
 bool Arpegiator::note_in_arp(uint8_t note){
   for (auto* synth : _rg.active_synths) if (synth && synth->note == note) return true ; 
   return false;
@@ -161,20 +94,20 @@ bool Arpegiator::note_in_arp(uint8_t note){
 void Arpegiator::initiatearpegesynthliner(byte start_voice, MidiEventer msg) {
   if (note_in_arp(msg.note)) return;
   byte free_line = _tt.get_free_synth(msg.note);
-  if (free_line < SYNTH_LINERS_COUNT) {
-    if (lv.patrecord) {
-      md.recordmidinotes(free_line, msg.channel, msg.note, msg.velocity);
-    }
-    //get and increment note from starter line
-    //synth_lines[free_line]->
-    synth_lines[free_line]->length_in_arp = gg.arpeglengh + 2;
-    synth_lines[free_line]->liner_on(msg.note, msg.velocity);
-    //+2 as it is decremented right after note ons
-    //try +3 if none
-    //add to arp line arp_line
+  if (free_line == SYNTH_LINERS_COUNT) return;
+  if (lv.patrecord) {
+    md.recordmidinotes(free_line, msg.channel, msg.note, msg.velocity);
   }
+  synth_lines[free_line]->length_in_arp = gg.arpeglengh + 2;
+  synth_lines[free_line]->liner_on(msg.note, msg.velocity);
 }
 
+bool Arpegiator::same_3_notes(){
+  for (int i = 1; i < 3; i++) {
+    if (last_3_notes[0] != last_3_notes[i]) return false;
+  }
+  return true;
+}
 
 void Arpegiator::arpegiate_synth() {
   //
@@ -186,10 +119,10 @@ void Arpegiator::arpegiate_synth() {
   //if (gg.arpegmode == 4) {
   //  arpegioticker(larpegeline);
   //}
-
+  //things get weird with more than one arp line arpegiating
   for (int i = 0; i < _rg.synth_lines_active; i++) {
+    last_indexer = (last_indexer + 1) % 3 ;
     if (_rg.active_synths[i]->arp_starter) {
-      //check why same note is looped after a starter not off ?...
       //check increment & decrement
         if (arpegemptyticks[_rg.active_synths[i]->l_index] > 0) {
           decrementcrementns(_rg.active_synths[i]->l_index);
@@ -197,13 +130,11 @@ void Arpegiator::arpegiate_synth() {
         }
       incrementcs(_rg.active_synths[i]->l_index);
       arpegioticker(_rg.active_synths[i]->l_index);
-
-      uint8_t relativenote = all_arpegios[gg.arpegiatortype][tickgamme[i]][ticktriplet[i]];
-      //if same note as before reinitialize like manoteon and return
-      //original note from starting voice
-      _rg.active_synths[i]->next_arp_note = _rg.active_synths[i]->note + relativenote;
-      initiatearpegesynthliner(_rg.active_synths[i]->l_index,(MidiEventer){gg.synthmidichannel,_rg.active_synths[i]->next_arp_note,127});
-      continue;
+      last_3_notes[last_indexer] = all_arpegios[gg.arpegiatortype][tickgamme[i]][ticktriplet[i]];
+      _rg.active_synths[i]->next_arp_note = _rg.active_synths[i]->note + last_3_notes[last_indexer];
+      if (!same_3_notes()) initiatearpegesynthliner(_rg.active_synths[i]->l_index,(MidiEventer){gg.synthmidichannel,_rg.active_synths[i]->next_arp_note,127});
+      else synth_arpegiator_ticker(_rg.active_synths[i]->l_index);
+      //continue;
     } else {
       if (_rg.active_synths[i]->length_in_arp >= 2) _rg.active_synths[i]->length_in_arp--;
       else if (_rg.active_synths[i]->length_in_arp) _rg.active_synths[i]->liner_off();
@@ -319,8 +250,6 @@ void Arpegiator::tickarpege(byte larpegeline) {
 }
 
 void Arpegiator::synth_arpegiator_ticker(byte starting_voice) {
-
-
   if (gg.arpegstartoffset > 0) {
     tickgamme[starting_voice] = (byte)((int)(gg.arpegstartoffset / 3.0));
     ticktriplet[starting_voice] = (byte)((int)(gg.arpegstartoffset % 3));
@@ -342,14 +271,6 @@ void Arpegiator::synth_arpegiator_ticker(byte starting_voice) {
     tripletdirection[starting_voice] = 0;
     ticktriplet[starting_voice] = 2;
   }
-
-  // printarparams();
-  Serial.println();
-  Serial.print(" triplet = ");
-  Serial.print(ticktriplet[starting_voice]);
-  Serial.print(" tickgamme = ");
-  Serial.print(tickgamme[starting_voice]);
-   
 }
 
 // modes 0 up , 1 down, 2 up-down , 3 down-up, 4 random
@@ -558,14 +479,14 @@ void TriggerMessenger::debugmidi(char *typemsg = (char *)"midi ", MidiEventer ms
 void TriggerMessenger::setchordnotes(byte absolutenote, byte lachord) {
   byte relativenote = ((absolutenote + 12) % 12);
   for (int i = 0; i < 3; i++) {
-    chordnotes[i] = leschords[lachord][relativenote][i];
+    chordnotes[i] = leschords[lachord%6][relativenote][i];
   }
 }
 
 void TriggerMessenger::setchordnotesOff(byte absolutenote, byte lachord) {
   byte relativenote = ((absolutenote + 12) % 12);
   for (int i = 0; i < 3; i++) {
-    chordnotesoff[i] = leschords[lachord][relativenote][i];
+    chordnotesoff[i] = leschords[lachord%6][relativenote][i];
   }
 }
 void TriggerMessenger::update_active_lines() {
@@ -602,67 +523,36 @@ void TriggerMessenger::check_pads() {
   }
 }
 
-//quid of a voiceplayer class handling voices dispatch and cleanup
-// maybe via _rg actives_lines
-//
-
 void TriggerMessenger::MaNoteOn(MidiEventer msg) {
-  //uint8_t statusByte = static_cast<uint8_t>(0x90 | channel);
-        int lachordon;
-
-  if (lv.navlevel) notes_edgecases(msg);
-  //dm.printnoteon(channel,msg.note,msg.velocity);
-  if ((msg.channel == gg.synthmidichannel) or (gg.synthmidichannel == 0)) {
-    if (!gg.chordson) {
-      initiateasynthliner(msg);
-    } else {
-      // if chords
-      //!!! TODO chords should be in init liner or init arp liner
-      setchordnotes(msg.note, gg.lasetchord);
-      for (int i = 0; i < 3; i++) {
-        lachordon = chordnotes[i] + ((int(msg.note / 12)) * 12);
-        initiateasynthliner((MidiEventer){gg.synthmidichannel,(byte)lachordon, msg.velocity});
-      }
-    }
-  }
-
-  if ((msg.channel == gg.samplermidichannel) or (gg.samplermidichannel == 0)) {
-    //dm.printnoteon(channel, msg.note, msg.velocity);
-    if (!gg.chordson) {
-      initiateasamplerliner(msg.note, msg.velocity);
-    } else {
-      // if chords
-      setchordnotes(msg.note, gg.lasetchord);
-      for (int i = 0; i < 3; i++) {
-        lachordon = chordnotes[i] + ((int(msg.note / 12)) * 12);
-        initiateasamplerliner(lachordon, msg.velocity);
-      }
-    }
-  }
-
   if (gg.SendMidiOut) {
     // TODO: send midi during sound trigger to use arpegiators (+ note offs if
     // arpegiator doesn't already send Off notes ?)
-  // MidiUSB.sendMIDI({0x09, statusByte, msg.note, msg.velocity});
-  // MidiUSB.flush();
+    // MidiUSB.sendMIDI({0x09, statusByte, msg.note, msg.velocity});
+    // MidiUSB.flush();
     //usbMIDI.send((uint8_t)0x09, (uint8_t)msg.note, (uint8_t)msg.velocity, (uint8_t)msg.channel,(uint8_t)0);
     usbMIDI.sendNoteOn(msg.note, msg.velocity, gg.out_midichannel);
     usbMIDI.send_now();
   }
-}
+  //uint8_t statusByte = static_cast<uint8_t>(0x90 | channel);
+  int lachordon;
+  setchordnotes(msg.note, gg.lasetchord);
 
-bool TriggerMessenger::synth_used_this_note(byte notee) {
-  //kind of bad: goes through all instead of only actives
-  //for (auto* synth : _rg.active_synths) if (synth && synth->note == notee) return true ; 
-  for (int i=0;i<_rg.synth_lines_active;i++){
-    if (_rg.active_synths[i]->note == notee) return true ; 
+  if (lv.navlevel) notes_edgecases(msg);
+  if ((msg.channel == gg.synthmidichannel) or (gg.synthmidichannel == 0)) {
+    for (int i = 0; i < gg.chordson ; i++) {
+      lachordon = chordnotes[i] + ((int(msg.note / 12)) * 12);
+      initiateasynthliner((MidiEventer){gg.synthmidichannel,(byte)lachordon, msg.velocity});
+    }
   }
-  return false;
+  
+  if ((msg.channel == gg.samplermidichannel) or (gg.samplermidichannel == 0)) {
+    for (int i = 0; i < gg.chordson; i++) {
+      lachordon = chordnotes[i] + ((int(msg.note / 12)) * 12);
+      initiateasamplerliner(lachordon, msg.velocity);
+    }
+  }
 }
 
-bool TriggerMessenger::flash_used_this_note(byte data1) {
-return false;
-}
 void TriggerMessenger::MaProgramchange(byte channel, byte data1) {
   if (self->debugmidion) {
     self->debugmidi((char *)"ProgramChange", (MidiEventer){channel, data1, 0});
@@ -709,16 +599,12 @@ void TriggerMessenger::MaNoteOff(MidiEventer msg) {
     usbMIDI.send_now();
   }
   //if (!gg.arpegiatorOn) {
-    if (!gg.chordson) {
-      shutlineroff(msg.channel,msg.note);
-    } else {
-      setchordnotesOff(msg.note, gg.lasetchord);
-      for (int i = 0; i < 3; i++) {
-        lachordnote = chordnotesoff[i] + ((int(msg.note / 12)) * 12);
-        shutlineroff(msg.channel,lachordnote);
-      }
-    }
-  //} 
+    
+  setchordnotesOff(msg.note, gg.lasetchord);
+  for (int i = 0; i < gg.chordson; i++) {
+    lachordnote = chordnotesoff[i] + ((int(msg.note / 12)) * 12);
+    shutlineroff(msg.channel,lachordnote);
+  }
 }
 
 void TriggerMessenger::shutlineroff(byte chan,byte data1) {
@@ -843,16 +729,16 @@ byte TriggerMessenger::get_free_sampler(byte note) {
 
 void TriggerMessenger::initiateasynthliner(MidiEventer msg) {
   byte free_line = self->get_free_synth(msg.note);
-  if (free_line < SYNTH_LINERS_COUNT) {
-    if (lv.patrecord) {
-      md.recordmidinotes(free_line, gg.synthmidichannel, msg.note, msg.velocity);
-    }
-    if (gg.arpegiatorOn)  {
-      synth_lines[free_line]->arp_starter = 1; 
-      ap.synth_arpegiator_ticker(synth_lines[free_line]->l_index);
-    }
-    synth_lines[free_line]->liner_on(msg.note, msg.velocity);
+  if (free_line == SYNTH_LINERS_COUNT) return;
+  if (lv.patrecord) {
+    md.recordmidinotes(free_line, gg.synthmidichannel, msg.note, msg.velocity);
   }
+  if (gg.arpegiatorOn)  {
+    synth_lines[free_line]->arp_starter = 1; 
+    ap.synth_arpegiator_ticker(synth_lines[free_line]->l_index);
+  }
+
+  synth_lines[free_line]->liner_on(msg.note, msg.velocity);
 }
 
 void TriggerMessenger::initiateasamplerliner(byte data1, byte data2) {

@@ -55,7 +55,14 @@ EXTMEM Pads Padded;
 Muxer muxer;
 TriggerMessenger _tt;
 FxMenuRouter _fx;
-
+DisplayManager dm;
+GlobalMixer _mx;
+CCEditor _ce;
+PatEditRouter _pe;
+POptionsRouter _po;
+PatternsMenuRouter _pt;
+MasterClock Tocker;
+DisplayConsoler consoler;
 EXTMEM Bounce clicked = Bounce(32, 100);
 
 #if MULTIPLEXED_PADS
@@ -63,19 +70,6 @@ Bounce Backb = Bounce( 99, 5 );
 #else
 Bounce Backb = Bounce( 33, 5 );
 #endif
-
-
-DisplayManager dm;
-GlobalMixer _mx;
-
-CCEditor _ce;
-PatEditRouter _pe;
-POptionsRouter _po;
-PatternsMenuRouter _pt;
-
-MasterClock Tocker;
-
-DisplayConsoler consoler;
 
 //in progress TODO: make options in a menu
 StereoDualFilter stereoWidth( mixerWAll,

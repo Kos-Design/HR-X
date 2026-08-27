@@ -6,6 +6,7 @@
 #include "Presets.h"
 #include "KnobAssigner.h"
 #include "PresetsMenu.h"
+#include "Functions.h"
 
 VirtualKnobs* VirtualKnobs::self = nullptr;
 
@@ -1134,17 +1135,14 @@ void SettingsMenuRouter::set_bpms_interval(){
       }
 
 void SettingsMenuRouter::set_chord_mode(){
-        lv.navrange = 6;
-        gg.lasetchord = lv.sublevels[2];
-        if (gg.lasetchord < 6) {
-          gg.chordson = 1;
-        } else {
-          gg.chordson = 0;
-        }
-        if (lv.navlevel >= 3) {
-          dm.returntonav(1,self->home_navrange,7);
-        }
-      }
+  lv.navrange = 6;
+
+  SetChords_ctl(map(lv.sublevels[2],0,6,0,127));
+
+  if (lv.navlevel >= 3) {
+    dm.returntonav(1,self->home_navrange,7);
+  }
+}
 
 void SettingsMenuRouter::toggle_ext_clock(){
         //gg.externalticker = !gg.externalticker;

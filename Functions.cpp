@@ -928,9 +928,9 @@ void PlaySong_Trigger_ctl(byte cc_value){
 void SetChords_ctl(byte cc_value){
   gg.lasetchord = round((cc_value / 127.0) * 6.0);
   if (gg.lasetchord < 6) {
-    gg.chordson = 1;
+    gg.chordson = 3;
   } else {
-    gg.chordson = 0;
+    gg.chordson = 1;
   }
 }
 

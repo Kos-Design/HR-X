@@ -1,5 +1,6 @@
 #include "LfoMenu.h"
 #include "Presets.h"
+#include "SynthMenu.h"
 
 LFOMenuRouter* LFOMenuRouter::self = nullptr;
 
@@ -36,65 +37,22 @@ void LFOMenuRouter::LFOrmType() {
           if (lv.navlevel == 3) {
             lv.navrange = 8;
           }
-
-          switch (lv.sublevels[3]) {
-          case 0:
-            displayLFOrmimg(lv.sublevels[3], (char *)"SineWave", sinewave, leLFO,
-                            WAVEFORM_SINE);
-            break;
-          case 1:
-            displayLFOrmimg(lv.sublevels[3], (char *)"SawWave", sawtoothwave, leLFO,
-                            WAVEFORM_SAWTOOTH);
-            break;
-          case 2:
-            displayLFOrmimg(lv.sublevels[3], (char *)"ReverseSaw", reversesawtoothwave,
-                            leLFO, WAVEFORM_SAWTOOTH_REVERSE);
-            break;
-          case 3:
-            displayLFOrmimg(lv.sublevels[3], (char *)"Triangle", trianglewave, leLFO,
-                            WAVEFORM_TRIANGLE);
-            break;
-          case 4:
-            displayLFOrmimg(lv.sublevels[3], (char *)"V-Triangle", variabletriangle, leLFO,
-                            WAVEFORM_TRIANGLE_VARIABLE);
-            break;
-          case 5:
-            displayLFOrmimg(lv.sublevels[3], (char *)"SquareWave", squarewave, leLFO,
-                            WAVEFORM_SQUARE);
-            break;
-          case 6:
-            displayLFOrmimg(lv.sublevels[3], (char *)"PulseWave", pulsewave, leLFO,
-                            WAVEFORM_PULSE);
-            break;
-          case 7:
-            displayLFOrmimg(lv.sublevels[3], (char *)"Arbitrary", arbitrarywave, leLFO,
-                            WAVEFORM_ARBITRARY);
-            break;
-          case 8:
-            displayLFOrmimg(lv.sublevels[3], (char *)"SampleHold", samplehold, leLFO,
-                            WAVEFORM_SAMPLE_HOLD);
-            break;
-
-          default:
-            break;
-          }
+          displayLFOrmimg();
           if (lv.navlevel >= 4) {
             gg.LFOformstype[leLFO] = lv.sublevels[3];
-           
+            
             restartLFO(leLFO%OSCS_COUNT);
             gobacktolfoparams();
           }
         }
 
-void LFOMenuRouter::displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int leLFO, int wavetype) {
-
-          dm.canvasBIG.drawBitmap(70, 20, img, 32, 32, SSD1306_WHITE);
-          dm.canvastitle.setTextSize(1); // Draw 1X-scale text
-          dm.canvastitle.setTextColor(SSD1306_WHITE);
-          dm.canvastitle.setCursor(64, 8);
-          dm.canvastitle.println(lelabelw);
-          // dm.dodisplay();
-        }
+void LFOMenuRouter::displayLFOrmimg() {
+  dm.canvasBIG.drawBitmap(70, 20, _img[lv.sublevels[3]], 32, 32, SSD1306_WHITE);
+  dm.canvastitle.setTextSize(1); // Draw 1X-scale text
+  dm.canvastitle.setTextColor(SSD1306_WHITE);
+  dm.canvastitle.setCursor(64, 8);
+  dm.canvastitle.println(lelabelw[lv.sublevels[3]]);
+}
 
 void LFOMenuRouter::doLFObool() {
           int leLFO=lv.cclfoselector;

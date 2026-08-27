@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "Constants.h"
 #pragma once
 
@@ -62,8 +63,6 @@ class TriggerMessenger {
         void dotapaverage();
         void shut_used_synth_notes(byte data1);
         void shut_used_flash_notes(byte data1);
-        bool flash_used_this_note(byte data1);
-        bool synth_used_this_note(byte data1);
         void stopallnotes();
         byte get_free_synth(byte note);
         byte get_free_sampler(byte note);
@@ -90,10 +89,12 @@ class Arpegiator {
         byte arpegemptyticks[SYNTH_LINERS_COUNT];
         bool tripletdirection[SYNTH_LINERS_COUNT];
         bool note_in_arp(uint8_t note);
+        uint8_t last_3_notes[3]{};
+        uint8_t last_indexer = 0;
 
         void initiatearpegesynthliner(byte larpegeline, MidiEventer msg);
         void arpegiate_synth();
-
+        bool same_3_notes();
         void decrementgamme(byte larpegeline);
         void randomdirtest(byte larpegeline);
         void randomgammedirtest(byte larpegeline);

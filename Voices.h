@@ -12,6 +12,7 @@ void drum_refresh(uint8_t l_index,uint8_t osc_idx,float currentFreq,uint8_t velo
 class SynthLiner {
   public:
     int totalUpdates = 0;
+    int note_diff = 0;
     int currentUpdate = 0;
     float startFreq = 0.0;    
     float targetFreq = 0.0;

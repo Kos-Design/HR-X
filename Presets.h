@@ -80,11 +80,7 @@ struct Preset {
 
     //individual frequency multipliers for the oscillators
     float wavesfreqs[OSCS_COUNT] = {1.0f, 1.0f, 0.5f};
-    /*
-    byte wfq_unit[OSCS_COUNT] = {1,1,0};
-    byte wfq_deci[OSCS_COUNT] = {0,0,5};
-    byte wfq_centi[OSCS_COUNT] = {0,0,0};
-    */
+
     //doesn't seem to affect arbitrary waveforms... :(
     float arbitrary_maxF[OSCS_COUNT] = { 172.0, 172.0, 172.0} ;
 
@@ -127,11 +123,12 @@ struct Preset {
     uint8_t arpeggridS = 0;
     uint8_t out_midichannel = 3 ;
     bool digitalplay = false;
-    bool chordson = false;
+    uint8_t chordson = 1;
     bool SendMidiOut = true;
 
     // 6 is Off
-    uint8_t lasetchord = 6;//midi cc notes controlling navigation
+    uint8_t lasetchord = 6;
+    //midi cc notes controlling navigation
     uint8_t alt_nav[4] = {106,107,110,111};
     //wetness for: synth, sampler, audio In
     uint8_t wetins[3] = {64,64,64};
@@ -202,4 +199,6 @@ extern const unsigned char reversesawtoothwave[];
 extern const unsigned char pulsewave[];
 extern const unsigned char sawtoothwave[];
 extern const unsigned char sinewave[];
-extern const int lesformes[9];
+extern const uint8_t lesformes[9];
+extern const char* lelabelw[12];
+extern const unsigned char *_img[12];

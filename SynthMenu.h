@@ -1,5 +1,5 @@
-#include <stdint.h>
 #pragma once
+#include <stdint.h>
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
@@ -16,6 +16,12 @@ class GlideMenuRouter : public SectionHolder {
 
         static uint8_t *glide_params[4];
         static void show();
+        static void set_glide_mode_off(byte voice);
+        static void set_glide_mode_porta(byte voice);
+        static void set_glide_mode_rporta(byte voice);
+        static void set_glide_mode_patack(byte voice);
+        static void set_glide_mode_rpatack(byte voice);
+        static constexpr void (*glide_mode_setter[5])(byte) = {&set_glide_mode_off,&set_glide_mode_porta,&set_glide_mode_rporta,&set_glide_mode_patack,&set_glide_mode_rpatack};
   private:
     
     static GlideMenuRouter* self;
@@ -76,7 +82,7 @@ class Mp3PlayerRouter : public SectionHolder {
         bool mp3_paused = 0 ;
         bool mp3_shuffle = 0 ;
         bool mp3_continue = 0 ;
-
+        static void selector_clues();
         static void mp3_player_play();
         static void mp3_player_stop();
         static void mp3_player_continous();
@@ -94,6 +100,8 @@ class Mp3PlayerRouter : public SectionHolder {
         static void play_flac_file(const char *flac_file);
         static void display_mp3_title();
         static void mp3_player_panel();
+        static constexpr void (*_mp3_actions[8])() = {&mp3_player_continous,&mp3_player_previous,&mp3_player_pause,&mp3_player_play,
+                                                      &mp3_player_next,&mp3_player_shuffle,&mp3_loop_setter,&mp3_player_stop};
   private:
       static Mp3PlayerRouter* self;
 };
@@ -107,8 +115,7 @@ class SynthMenuRouter : public SectionHolder {
         int tenth = 0;
         int hundredth = 0;
         //TODO give default value based on wformtype
-        const byte synth_params_count = 8;
-
+        static constexpr byte synth_params_count = 8;
         static void show();
         static void route_navlevel_1();
         static void route_navlevel_2();

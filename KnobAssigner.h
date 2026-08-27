@@ -1,3 +1,4 @@
+#include <stdint.h>
 #pragma once
 
 #include "MenuClasses.h"
@@ -8,6 +9,7 @@ class KnobAssigner : public SectionHolder {
       static void show();
       static void learn_midi(byte captured);
       static int find_assigned_knob(int k);
+      static void show_assignements();
       static void kb_home();
       static void assigner();
       static void set_midi_cc_to_ctl(byte cc_nt, int cc_cl);
@@ -26,24 +28,25 @@ extern KnobAssigner _ka;
 class AdsrMenuRouter : public SectionHolder {
   public:
     AdsrMenuRouter();
+    static constexpr const char* AdsrLabels[6] = {
+            "Attack Delay ",
+            "Attack ",
+            "Hold ",
+            "Decay ",
+            "Sustain ",
+            "Release "
+    };
+    static constexpr uint16_t local_navranges[6] = {100,1024,100,512,100,1024};
     static void show();
     static void ApplyADSR();
-    static void displayadsrgraph();
+    static void slice_adsr();
+    static void draw_frame();
+    static void resync_tmp();
     static void SetADSR();
     static void GlobalADSR();
     static void print_adsr_echo(String titre, int niveau);
-    static void sliceA();
-    static void sliceDa();
-    static void sliceH();
-    static void sliceD();
-    static void sliceS();
-    static void sliceR();
-    int mappedattack = 5;
-    int mappeddecay = 50;
-    int mappedrelease = 60;
-    int mappedsustain = 100; // divide by 100 to float
-    int MadsrAttackDelay = 0;
-    int MadsrHold = 0;
+    int32_t tmp_adsrlevels[6] = {0, 5, 0, 100, 0, 50};
+
   private:
     
     static AdsrMenuRouter* self;

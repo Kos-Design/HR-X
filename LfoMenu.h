@@ -13,7 +13,7 @@ class LFOMenuRouter : public SectionHolder {
         static void show();
         static void applyLFOrmicon(int lesinthy);
         static void LFOrmType();
-        static void displayLFOrmimg(int letype, char *lelabelw, const unsigned char img[],int leLFO, int wavetype);
+        static void displayLFOrmimg();
         static void doLFObool();
         static void gobacktolfoparams();
         static void doLFOparamdisplayval(int laval);
