@@ -3,14 +3,19 @@
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
+struct Song {
+    int numberofpatonsong=0;
+    int patternonsong[99]{};
+};
+
+extern Song ng;
+
 class SongEditorRouter : public SectionHolder {
     public:
         SongEditorRouter();
-        byte patternonsong[99]{};
         byte songpage = 0;
         byte songselectorX = 0;
         byte songselectorY = 0;
-        byte numberofpatonsong = 0;
         byte songplayhead = 0;
 
         //changing_ccs[32][32][2] cc,val
@@ -67,13 +72,10 @@ class SongMenuRouter : public SectionHolder {
         
         static void save_song();
         static void writedasong();
-        static void insert_int_in_song_file(File &song_filer,int leint, char *leparam);
-
-        static void writeSong(File &song_filer);
         static void parseSong();
         static void load_song();
         static void song_nav_zero();
-        static void initializepatternonsong();
+        static void initializeSong();
         static void clear_song_popup();
         static void duplicate_song();
         static void copySong();

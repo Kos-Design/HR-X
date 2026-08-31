@@ -695,30 +695,30 @@ void GlobalMixer::showmixerwaves() {
       }
       dm.dodisplay();
     }
+
+void GlobalMixer::set_masters_master() {
+  // set mastermixlevel
+  AudioShield.volume(gg.mixlevelsM[0] / 127.0);
+  //ampL & R level should be 1.0 as they are used by queue recorder
+  //ampL.gain(gg.mixlevelsM[0] / 127.0);
+  //ampR.gain(gg.mixlevelsM[0] / 127.0);
+}
+
+void GlobalMixer::set_synth_master() {
+  // set synth Main
+  mixerWAll.gain(1, gg.mixlevelsM[1] / 127.0);
+  mixerWAll.gain(0, gg.mixlevelsM[1] / 127.0);
+}
   
-void GlobalMixer::setmastersmixlevel(int lebus) {
+void GlobalMixer::set_flash_master() {
+  // set sampler main
+  flashMastermix.gain(0, gg.mixlevelsM[2] / 127.0);
+  flashMastermix.gain(1, gg.mixlevelsM[2] / 127.0);
+}
+
+void GlobalMixer::setmastersmixlevel(byte lebus) {
       //AudioNoInterrupts();
-      switch (lebus) {
-        case 0:
-          // set mastermixlevel
-          AudioShield.volume(gg.mixlevelsM[0] / 127.0);
-          //ampL & R level should be 1.0 as they are used by queue recorder
-          //ampL.gain(gg.mixlevelsM[0] / 127.0);
-          //ampR.gain(gg.mixlevelsM[0] / 127.0);
-          break;
-        case 1:
-          // set synth Main
-          mixerWAll.gain(1, gg.mixlevelsM[1] / 127.0);
-          mixerWAll.gain(0, gg.mixlevelsM[1] / 127.0);
-          break;
-        case 2:
-          // set sampler main
-          flashMastermix.gain(0, gg.mixlevelsM[2] / 127.0);
-          flashMastermix.gain(1, gg.mixlevelsM[2] / 127.0);
-          break;
-        default:
-        break;
-      }
+      _master_mixers[lebus]();
       //AudioInterrupts();
     }
 
@@ -761,39 +761,30 @@ void GlobalMixer::set_wmixer_buff_temp() {
           }
 
         }
+void GlobalMixer::set_synth_wet() {
+  MasterL1.gain(2, gg.wetins[0] / 127.0);
+  MasterR1.gain(2, gg.wetins[0] / 127.0);
+  FXBusL.gain(2, 1 - (gg.wetins[0] / 127.0));
+  FXBusR.gain(2, 1 - (gg.wetins[0] / 127.0));
+}
 
-void GlobalMixer::set_dry_mix(int lebus) {
+void GlobalMixer::set_flash_wet() {
+  MasterL1.gain(3, gg.wetins[1] / 127.0);
+  MasterR1.gain(3, gg.wetins[1] / 127.0);
+  FXBusL.gain(1, 1 - (gg.wetins[1] / 127.0));
+  FXBusR.gain(1, 1 - (gg.wetins[1] / 127.0));
+}
 
-      switch (lebus) {
-      case 0:
-        // set synth wetness on fx main bus
-        MasterL1.gain(2, gg.wetins[0] / 127.0);
-        MasterR1.gain(2, gg.wetins[0] / 127.0);
-        FXBusL.gain(2, 1 - (gg.wetins[0] / 127.0));
-        FXBusR.gain(2, 1 - (gg.wetins[0] / 127.0));
+void GlobalMixer::set_other_wet() {
+  MasterL1.gain(0 ,gg.wetins[2] / 127.0);
+  MasterR1.gain(0, gg.wetins[2] / 127.0);
+  FXBusL.gain(3, 1 - (gg.wetins[2] / 127.0));
+  FXBusR.gain(3, 1 - (gg.wetins[2] / 127.0));
+}
 
-        break;
-      case 1:
-        // set sampler wetness on fx main bus
-        MasterL1.gain(3, gg.wetins[1] / 127.0);
-        MasterR1.gain(3, gg.wetins[1] / 127.0);
-        FXBusL.gain(1, 1 - (gg.wetins[1] / 127.0));
-        FXBusR.gain(1, 1 - (gg.wetins[1] / 127.0));
-        break;
-
-      case 2:
-        // set wetness for "others" (audio in,SD,metronome) on fx main bus
-        MasterL1.gain(0 ,gg.wetins[2] / 127.0);
-        MasterR1.gain(0, gg.wetins[2] / 127.0);
-        FXBusL.gain(3, 1 - (gg.wetins[2] / 127.0));
-        FXBusR.gain(3, 1 - (gg.wetins[2] / 127.0));
-        break;
-
-      default:
-        break;
-      }
-      //AudioInterrupts();
-    }
+void GlobalMixer::set_dry_mix(byte lebus) {
+  _wet_mixers[lebus]();
+}
 
 void GlobalMixer::actionwet1mixer(int linstru) {
 

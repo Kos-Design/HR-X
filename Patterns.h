@@ -138,24 +138,24 @@ class POptionsRouter : public SectionHolder {
     public:
         POptionsRouter();
         static constexpr byte sizeofoptionspattern = 6;
-        static constexpr char optionspatternlabels[sizeofoptionspattern][12] = {
-            "Transpose", "Shift", "Clear", "Target", "Smooth CC","Merge Pat"};
-        bool targetNOsampler = 0;
-        bool targetNOsynth = 0;
-        bool targetNOcc = 0;
+        static const char* optionspatternlabels[];
+        static bool target_sampler;
+        static bool target_synth;
+        static bool target_ccs;
         bool interpolOn = 1;
 
         static void clearlapattern();
         static void clearCCline();
         static void clearsynthpatternline();
+        static void merge_partitions();
         static void merge_synth_partition_liners();
+        static void merge_sampler_partition_liners();
         static void clearsamplerpatternline();
-        static void optionspattern();
-        static void dotranspose();
-        static void doShifter();
+        static void toggle_interpol_cc();
         static void dotransposesynth();
         static void dotransposeCC();
         static void doShifterCC();
+        static void show();
         static void shiftnotesCCup(int leshifter);
         static void shiftnotesCCdown(int leshifter);
         static void shiftnotesCCright(int leshifter);
@@ -175,7 +175,13 @@ class POptionsRouter : public SectionHolder {
         static void showShifterdisplays();
         static void showlestargetdisplays();
         static void optionspatterndisplays();
-
+        static bool *_targets[3];
+        static constexpr void (*_pat_params[6])() = {&showtransposedisplays,&showShifterdisplays,&clearlapattern,
+                                        &showlestargetdisplays,&toggle_interpol_cc,&merge_partitions};
+        static constexpr void (*cleaners[3])() = {&clearsynthpatternline,&clearlapattern,&clearCCline};
+        static constexpr void (*mergers[2])() = {&merge_synth_partition_liners,&merge_sampler_partition_liners};
+        static constexpr void (*shifters[3])() = {&doShiftersynth,&doShiftersampler,&doShifterCC};
+        static constexpr void (*transposers[3])() = {&dotransposesynth,&dotransposesampler,&dotransposeCC};
     private:
         static POptionsRouter* self;
 };
@@ -202,22 +208,16 @@ class PatternsMenuRouter : public SectionHolder {
         static void doPatternsmenu();
         static void deletepattern();
         static void copypattern();
-
         static void writelemidi();
         static void set_arp_type();
-        static void call_draw_sequencer();
-        static void call_options();
-        static void call_edit_ccs();
-        static void call_clearpattern();
-
 
         static constexpr void (*_route_nav[7])() = {&pattern_nav_zero, &route_navlevel,
                         &route_navlevel, &route_navlevel, &route_navlevel,
                          &route_navlevel, &route_navlevel};
 
-        static constexpr void (*_nav_pattern[8])() = {&call_draw_sequencer,&save_pattern,
+        static constexpr void (*_nav_pattern[8])() = {&_pe.show,&save_pattern,
                                             &load_pattern, &duplicate_pattern,&remove_pattern,
-                                            &call_options,&call_clearpattern,&call_edit_ccs};
+                                            &_po.show,&_po.clearlapattern,&_ce.show};
   private:
       static PatternsMenuRouter* self;
 };

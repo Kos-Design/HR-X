@@ -169,20 +169,28 @@ class GlobalMixer : public SectionHolder {
         GlobalMixer();
         static void show(void);
         static void showmixerwaves(void);
-        static void setmastersmixlevel(int lebus);
+        static void setmastersmixlevel(byte lebus);
         static void restore_wmixer_from_temp();
         static void set_wmixer_buff_temp();
         static void wetmixmastercontrols(void);
-        static void set_dry_mix(int lebus);
+        static void set_dry_mix(byte lebus);
         static void actionwet1mixer(int linstru);
         static void action_dry_mix(int linstru);
         static void actionwmixer(byte vknob);
         static void actionwmixerM(int lebus);
         static void setwavemixlevel();
         static void le303filterzWet();
+        static void set_synth_wet();
+        static void set_flash_wet();
+        static void set_other_wet();
+        static void set_masters_master();
+        static void set_synth_master();
+        static void set_flash_master();
         static void Wavespreamp303controls();
         static void setle303filterpass(int linei);
         static void le303filtercontrols();
+        static constexpr void (*_wet_mixers[3])() = {&set_synth_wet,&set_flash_wet,&set_other_wet};
+        static constexpr void (*_master_mixers[3])() = {&set_masters_master,&set_synth_master,&set_flash_master};
 
     private:
         byte *wmixer_tmp_pointers[12];

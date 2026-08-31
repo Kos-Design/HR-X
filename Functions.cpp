@@ -679,7 +679,7 @@ void setup() {
   consoler.wipe();
   consoler.println((char *)"initializing...");
   consoler.refresh();
-  _sg.initializepatternonsong();
+  _sg.initializeSong();
   //delay(100);
   //Initialise the AutoVolumeLeveller
   //audioShield.autoVolumeControl(1, 1, 0, -6, 40, 20); // **BUG** with a max

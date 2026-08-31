@@ -273,21 +273,13 @@ void Arpegiator::synth_arpegiator_ticker(byte starting_voice) {
   }
 }
 
-// modes 0 up , 1 down, 2 up-down , 3 down-up, 4 random
+// modes 1 up , 0 down
 void Arpegiator::arpegioticker(byte larpegeline) {
-  switch ((int)tripletdirection[larpegeline]) {
-  case 0:
-    // up
-    tickarpegedown(larpegeline);
-    break;
-  case 1:
-    // down
+  if (tripletdirection[larpegeline]) {
     tickarpege(larpegeline);
-    break;
-
-  default:
-    break;
+    return;
   }
+  tickarpegedown(larpegeline);
 }
 
 void Arpegiator::ticklatriplet(byte larpegeline) {

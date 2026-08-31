@@ -1,3 +1,5 @@
+#include "Constants.h"
+#include <cstring>
 #include "core_pins.h"
 #include "Voices.h"
 #include "Patterns.h"
@@ -759,450 +761,370 @@ POptionsRouter::POptionsRouter() {
                     self->sublevels_address={4,0,0};
                     }
 
+bool POptionsRouter::target_sampler = 1;
+bool POptionsRouter::target_synth = 1;
+bool POptionsRouter::target_ccs = 0;
+
+bool* POptionsRouter::_targets[3] = {&target_sampler, &target_synth, &target_ccs};
+
 void POptionsRouter::clearlapattern() {
-          if (!self->targetNOsynth || lv.songplaying) {
-            clearsynthpatternline();
-          }
-          if (!self->targetNOsampler || lv.songplaying) {
-            clearsamplerpatternline();
-          }
-          if (!self->targetNOcc || lv.songplaying) {
-            clearCCline();
-          }
-          // cc as well
-        }
+  for (int i=0;i<3;i++) if (*_targets[i] || lv.songplaying) cleaners[i]();
+  dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
+}
 
 void POptionsRouter::clearCCline() {
-          for (int j = 0; j < PBARS; j++) {
-            for (int i = 0; i < 128; i++) {
-
-              pp.cc_partition[i][j] = 127;
-            }
-          }
-        }
+  memset(pp.cc_partition, 127, sizeof(pp.cc_partition));
+}
 
 void POptionsRouter::clearsynthpatternline() {
-          for (int j = 0; j < PBARS; j++) {
-            for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+  memset(pp.synth_partition, 0, sizeof(pp.synth_partition));
+  memset(pp.synth_off_pat, 0, sizeof(pp.synth_off_pat));
+  memset(pp.track_cells[Synth], 0, sizeof(pp.track_cells[Synth])); 
+}
 
-              pp.synth_partition[i][j] = {0,0,0};
+void POptionsRouter::merge_partitions() {
+  for (int i=0;i<2;i++) if (*_targets[i]) mergers[i]();
+  dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
+}
 
-              pp.synth_off_pat[i][j] = {0,0,0};
-            }
-            pp.track_cells[Synth][j] = 0;
-          }
-        }
+void POptionsRouter::merge_sampler_partition_liners(){
+  byte note_encoutered ;
+  byte liner_encoutered[FLASH_LINERS_COUNT] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} ;
+
+  for (int j=0;j<PBARS;j++){
+    note_encoutered = 0 ;
+    for (int i=0;i<FLASH_LINERS_COUNT;i++){
+      if(pp.sampler_partition[i][j].note && pp.sampler_partition[i][j].velocity){
+        liner_encoutered[note_encoutered] = i ;
+        note_encoutered++;
+      //si note on same tickpos, open new line, otherwise merge all liners count if one line only is noteon
+      }
+    }
+    for (int i=0;i<note_encoutered;i++){
+      if (liner_encoutered[i]!=i){
+        //to avoid clearing current stage
+        pp.sampler_partition[i][j].note = pp.sampler_partition[liner_encoutered[i]][j].note ;
+        pp.sampler_partition[i][j].velocity = pp.sampler_partition[liner_encoutered[i]][j].velocity ;
+        pp.sampler_partition[liner_encoutered[i]][j] = {0,0,0};
+      }
+    }
+  }
+}
+
 void POptionsRouter::merge_synth_partition_liners(){
-          byte note_encoutered ;
-          byte liner_encoutered[SYNTH_LINERS_COUNT] = {0,0,0,0,0,0} ;
+  byte note_encoutered ;
+  byte liner_encoutered[SYNTH_LINERS_COUNT] = {0,0,0,0,0,0} ;
 
-          for (int j=0;j<PBARS;j++){
-            note_encoutered = 0 ;
-            for (int i=0;i<SYNTH_LINERS_COUNT;i++){
-              if(pp.synth_partition[i][j].note !=0 && pp.synth_partition[i][j].velocity !=0){
-                liner_encoutered[note_encoutered] = i ;
-                note_encoutered++;
-              //si note on same tickpos, open new line, otherwise merge all liners count if one line only is noteon
-              }
-            }
-            for (int i=0;i<note_encoutered;i++){
-              if (liner_encoutered[i]!=i){
-                //to avoid clearing current stage
-                pp.synth_partition[i][j].note = pp.synth_partition[liner_encoutered[i]][j].note ;
-                pp.synth_partition[i][j].velocity = pp.synth_partition[liner_encoutered[i]][j].velocity ;
-                pp.synth_partition[liner_encoutered[i]][j] = {0,0,0};
-              }
-            }
-          }
-        }
+  for (int j=0;j<PBARS;j++){
+    note_encoutered = 0 ;
+    for (int i=0;i<SYNTH_LINERS_COUNT;i++){
+      if(pp.synth_partition[i][j].note && pp.synth_partition[i][j].velocity){
+        liner_encoutered[note_encoutered] = i ;
+        note_encoutered++;
+      //si note on same tickpos, open new line, otherwise merge all liners count if one line only is noteon
+      }
+    }
+    for (int i=0;i<note_encoutered;i++){
+      if (liner_encoutered[i]!=i){
+        //to avoid clearing current stage
+        pp.synth_partition[i][j].note = pp.synth_partition[liner_encoutered[i]][j].note ;
+        pp.synth_partition[i][j].velocity = pp.synth_partition[liner_encoutered[i]][j].velocity ;
+        pp.synth_partition[liner_encoutered[i]][j] = {0,0,0};
+      }
+    }
+  }
+}
+
 void POptionsRouter::clearsamplerpatternline() {
-          for (int j = 0; j < PBARS; j++) {
-            for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+  memset(pp.sampler_partition, 0, sizeof(pp.sampler_partition));
+  memset(pp.sampler_off_pat, 0, sizeof(pp.sampler_off_pat));
+  memset(pp.track_cells[Flash], 0, sizeof(pp.track_cells[Flash]));
+}
 
-              pp.sampler_partition[i][j] = {0,0,0};
-            }
-            pp.track_cells[Flash][j] = 0;
-            pp.sampler_off_pat[j] = {0,0,0};
-          }
-        }
-void POptionsRouter::optionspattern() {
-          // size 4
-          //TARGETS !!!
-          // char optionspatternlabels[sizeofoptionspattern][12] = {"Transpose","Shift",
-          // "Clear", "Target" };
-          if (lv.navlevel == 2) {
-            lv.navrange = self->home_navrange;
-            optionspatterndisplays();
+const char* POptionsRouter::optionspatternlabels[] = {"Transpose", "Shift", "Clear", "Target", "Inter CC","Merge Pat"};
 
-            if (lv.sublevels[2] == 1) {
-              lv.sublevels[3] = 16;
-            }
+void POptionsRouter::show(){
+  if (lv.navlevel == 2 ){
+    lv.navrange = self->home_navrange ;
+    dm.clean_title_2_1();
+    dm.main_panel(optionspatternlabels,2,self->home_navrange);
+    dm.dodisplay();
+  }
+  if (lv.navlevel >= 3 ){
+    _pat_params[lv.sublevels[2]]();
+  }
+}
 
-            if (lv.sublevels[2] == 0) {
-              lv.sublevels[3] = 7;
-            }
-          }
-          if (lv.navlevel == 3) {
-
-            if (lv.sublevels[2] == 4) {
-              // lv.navrange = 14 ;
-              self->interpolOn = !self->interpolOn;
-              dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
-            }
-            if (lv.sublevels[2] == 5) {
-              // lv.navrange = 14 ;
-              merge_synth_partition_liners();
-              dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
-            }
-            if (lv.sublevels[2] == 2) {
-              // lv.navrange = 14 ;
-              clearlapattern();
-              dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
-            }
-
-            if (lv.sublevels[2] == 0) {
-              lv.navrange = 14;
-              showtransposedisplays();
-            }
-            if (lv.sublevels[2] == 3) {
-              lv.navrange = 6;
-              showlestargetdisplays();
-            }
-            if (lv.sublevels[2] == 1) {
-              lv.navrange = 31;
-              showShifterdisplays();
-            }
-          }
-          if (lv.navlevel > 3) {
-            if (lv.sublevels[2] == 0) {
-              dotranspose();
-            }
-
-            if (lv.sublevels[2] == 1) {
-              doShifter();
-            }
-
-            dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
-
-            
-          }
-        }
-
-void POptionsRouter::dotranspose() {
-          if (!self->targetNOsynth) {
-            dotransposesynth();
-          }
-          if (!self->targetNOsampler) {
-            dotransposesampler();
-          }
-          if (!self->targetNOcc) {
-            dotransposeCC();
-          }
-        }
-
-void POptionsRouter::doShifter() {
-          if (!self->targetNOsynth) {
-            doShiftersynth();
-          }
-          if (!self->targetNOsampler) {
-            doShiftersampler();
-          }
-          if (!self->targetNOcc) {
-            doShifterCC();
-          }
-        }
+void POptionsRouter::toggle_interpol_cc() {
+  self->interpolOn = !self->interpolOn;
+  dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
+}
 
 void POptionsRouter::dotransposesynth() {
-          if (lv.sublevels[3] - 7 > 0) {
-            shiftnotes1down(abs(lv.sublevels[3] - 7));
-          }
-          if (lv.sublevels[3] - 7 < 0) {
-            shiftnotes1up(abs(lv.sublevels[3] - 7));
-          }
-          _pe.refresh_synth_track();
-        }
+  if (lv.sublevels[3] - 7 > 0) {
+    shiftnotes1down(abs(lv.sublevels[3] - 7));
+  }
+  if (lv.sublevels[3] - 7 < 0) {
+    shiftnotes1up(abs(lv.sublevels[3] - 7));
+  }
+  _pe.refresh_synth_track();
+}
 
 void POptionsRouter::dotransposeCC() {
-          if (lv.sublevels[3] - 7 > 0) {
-            shiftnotesCCdown(abs(lv.sublevels[3] - 7));
-          }
-          if (lv.sublevels[3] - 7 < 0) {
-            shiftnotesCCup(abs(lv.sublevels[3] - 7));
-          }
-        }
+  if (lv.sublevels[3] - 7 > 0) {
+    shiftnotesCCdown(abs(lv.sublevels[3] - 7));
+  }
+  if (lv.sublevels[3] - 7 < 0) {
+    shiftnotesCCup(abs(lv.sublevels[3] - 7));
+  }
+}
 
 void POptionsRouter::doShifterCC() {
-          if (lv.sublevels[3] - 16 > 0) {
-            shiftnotesCCleft(abs(lv.sublevels[3] - 16));
-          }
-          if (lv.sublevels[3] - 16 < 0) {
-            shiftnotesCCright(abs(lv.sublevels[3] - 16));
-          }
-        }
+  if (lv.sublevels[3] - 16 > 0) {
+    shiftnotesCCleft(abs(lv.sublevels[3] - 16));
+  }
+  if (lv.sublevels[3] - 16 < 0) {
+    shiftnotesCCright(abs(lv.sublevels[3] - 16));
+  }
+}
 
 void POptionsRouter::shiftnotesCCup(int leshifter) {
-          for (int shifts = 0; shifts < leshifter; shifts++) {
-            for (int i = 0; i < 128; i++) {
-              for (int j = 0; j < PBARS; j++) {
+  for (int shifts = 0; shifts < leshifter; shifts++) {
+    for (int i = 0; i < 128; i++) {
+      for (int j = 0; j < PBARS; j++) {
 
-                if (((int)pp.cc_partition[i][j] < 127) &&
-                    ((int)pp.cc_partition[i][j] > 0)) {
+        if (((int)pp.cc_partition[i][j] < 127) &&
+            ((int)pp.cc_partition[i][j] > 0)) {
 
-                  pp.cc_partition[i][j]++;
-                }
-              }
-            }
-          }
+          pp.cc_partition[i][j]++;
         }
+      }
+    }
+  }
+}
 
 void POptionsRouter::shiftnotesCCdown(int leshifter) {
+  for (int shifts = 0; shifts < leshifter; shifts++) {
+    for (int i = 0; i < 128; i++) {
+      for (int j = 0; j < PBARS; j++) {
 
-          for (int shifts = 0; shifts < leshifter; shifts++) {
-            for (int i = 0; i < 128; i++) {
-              for (int j = 0; j < PBARS; j++) {
+        if ((int)pp.cc_partition[i][j] > 0) {
 
-                if ((int)pp.cc_partition[i][j] > 0) {
-
-                  pp.cc_partition[i][j]--;
-                }
-              }
-            }
-          }
+          pp.cc_partition[i][j]--;
         }
+      }
+    }
+  }
+}
 
 void POptionsRouter::shiftnotesCCright(int leshifter) {
-          byte letempevent1;
-          for (int shifts = 0; shifts < leshifter; shifts++) {
-            for (int i = 0; i < 128; i++) {
-              for (int j = PBARS - 1; j >= 0; j--) {
+  byte letempevent1;
+  for (int shifts = 0; shifts < leshifter; shifts++) {
+    for (int i = 0; i < 128; i++) {
+      for (int j = PBARS - 1; j >= 0; j--) {
 
-                if (j == PBARS - 1) {
-                  letempevent1 = pp.cc_partition[i][PBARS - 1];
-                  pp.cc_partition[i][j] = pp.cc_partition[i][j - 1];
-                }
-                if ((j > 0) && (j < PBARS - 1)) {
-                  pp.cc_partition[i][j] = pp.cc_partition[i][j - 1];
-                }
-
-                if (j == 0) {
-                  pp.cc_partition[i][j] = letempevent1;
-                }
-              }
-            }
-          }
+        if (j == PBARS - 1) {
+          letempevent1 = pp.cc_partition[i][PBARS - 1];
+          pp.cc_partition[i][j] = pp.cc_partition[i][j - 1];
         }
+        if ((j > 0) && (j < PBARS - 1)) {
+          pp.cc_partition[i][j] = pp.cc_partition[i][j - 1];
+        }
+
+        if (j == 0) {
+          pp.cc_partition[i][j] = letempevent1;
+        }
+      }
+    }
+  }
+}
 
 void POptionsRouter::shiftnotesCCleft(int leshifter) {
-
-          byte letempevent1;
-          for (int shifts = 0; shifts < leshifter; shifts++) {
-
-            for (int i = 0; i < 128; i++) {
-              for (int j = 0; j < PBARS; j++) {
-
-                if (j == 0) {
-                  letempevent1 = pp.cc_partition[i][0];
-                  pp.cc_partition[i][j] = pp.cc_partition[i][j + 1];
-                }
-                if ((j > 0) && (j < PBARS - 1)) {
-                  pp.cc_partition[i][j] = pp.cc_partition[i][j + 1];
-                }
-                if (j == PBARS - 1) {
-                  pp.cc_partition[i][j] = letempevent1;
-                }
-              }
-            }
-          }
+  byte letempevent1;
+  for (int shifts = 0; shifts < leshifter; shifts++) {
+    for (int i = 0; i < 128; i++) {
+      for (int j = 0; j < PBARS; j++) {
+        if (j == 0) {
+          letempevent1 = pp.cc_partition[i][0];
+          pp.cc_partition[i][j] = pp.cc_partition[i][j + 1];
         }
+        if ((j > 0) && (j < PBARS - 1)) {
+          pp.cc_partition[i][j] = pp.cc_partition[i][j + 1];
+        }
+        if (j == PBARS - 1) {
+          pp.cc_partition[i][j] = letempevent1;
+        }
+      }
+    }
+  }
+}
 
 void POptionsRouter::shiftnotes1up(int leshifter) {
-          for (int shifts = 0; shifts < leshifter; shifts++) {
-            for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-              for (int j = 0; j < PBARS; j++) {
-                if (((int)pp.synth_partition[i][j].note < 127) &&
-                    ((int)pp.synth_partition[i][j].note > 2)) {
-
-                  pp.synth_partition[i][j].note++;
-                }
-                if (((int)pp.synth_off_pat[i][j].note < 127) &&
-                    ((int)pp.synth_off_pat[i][j].note > 2)) {
-
-                  pp.synth_off_pat[i][j].note++;
-                }
-              }
-            }
-          }
+  for (int shifts = 0; shifts < leshifter; shifts++) {
+    for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+      for (int j = 0; j < PBARS; j++) {
+        if (((int)pp.synth_partition[i][j].note < 127) &&
+            ((int)pp.synth_partition[i][j].note > 2)) {
+          pp.synth_partition[i][j].note++;
         }
+        if (((int)pp.synth_off_pat[i][j].note < 127) &&
+            ((int)pp.synth_off_pat[i][j].note > 2)) {
+          pp.synth_off_pat[i][j].note++;
+        }
+      }
+    }
+  }
+}
 
 void POptionsRouter::shiftnotes1down(int leshifter) {
-          for (int shifts = 0; shifts < leshifter; shifts++) {
-
-            for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-              for (int j = 0; j < PBARS; j++) {
-
-                if ((int)pp.synth_partition[i][j].note > 1) {
-
-                  pp.synth_partition[i][j].note--;
-                }
-                if ((int)pp.synth_off_pat[i][j].note > 1) {
-
-                  pp.synth_off_pat[i][j].note--;
-                }
-              }
-            }
-          }
+  for (int shifts = 0; shifts < leshifter; shifts++) {
+    for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+      for (int j = 0; j < PBARS; j++) {
+        if ((int)pp.synth_partition[i][j].note > 1) {
+          pp.synth_partition[i][j].note--;
         }
+        if ((int)pp.synth_off_pat[i][j].note > 1) {
+          pp.synth_off_pat[i][j].note--;
+        }
+      }
+    }
+  }
+}
 
 void POptionsRouter::shiftnotes1right(int leshifter) {
-          MidiEventer letempevent1[2];
-          for (int shifts = 0; shifts < leshifter; shifts++) {
-            for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-              for (int j = PBARS - 1; j >= 0; j--) {
-
-                if (j == PBARS - 1) {
-                    pp.synth_partition[i][j] = pp.synth_partition[i][j - 1];
-                    letempevent1[0] = pp.synth_partition[i][PBARS - 1];
-                    letempevent1[1] = pp.synth_off_pat[i][PBARS - 1];
-                    pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j - 1];
-                }
-                if ((j > 0) && (j < PBARS - 1)) {
-                  pp.synth_partition[i][j] = pp.synth_partition[i][j - 1];
-                  pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j - 1];
-                  
-                }
-
-                if (j == 0) {
-                    pp.synth_partition[i][j] = letempevent1[0];
-                    pp.synth_off_pat[i][j] = letempevent1[1];
-                  
-                }
-              }
-            }
-          }
+  MidiEventer letempevent1[2];
+  for (int shifts = 0; shifts < leshifter; shifts++) {
+    for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+      for (int j = PBARS - 1; j >= 0; j--) {
+        if (j == PBARS - 1) {
+          pp.synth_partition[i][j] = pp.synth_partition[i][j - 1];
+          letempevent1[0] = pp.synth_partition[i][PBARS - 1];
+          letempevent1[1] = pp.synth_off_pat[i][PBARS - 1];
+          pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j - 1];
         }
+        if ((j > 0) && (j < PBARS - 1)) {
+          pp.synth_partition[i][j] = pp.synth_partition[i][j - 1];
+          pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j - 1];
+        }
+        if (j == 0) {
+          pp.synth_partition[i][j] = letempevent1[0];
+          pp.synth_off_pat[i][j] = letempevent1[1];
+        }
+      }
+    }
+  }
+}
 
 void POptionsRouter::shiftnotes1left(int leshifter) {
-
-          MidiEventer letempevent1[2];
-          for (int shifts = 0; shifts < leshifter; shifts++) {
-
-            for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-              for (int j = 0; j < PBARS; j++) {
-
-                if (j == 0) {
-                  letempevent1[0] = pp.synth_partition[i][0];
-                  pp.synth_partition[i][j] = pp.synth_partition[i][j + 1];
-                  letempevent1[1] = pp.synth_off_pat[i][0];
-                  pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j + 1];
-                }
-                if ((j > 0) && (j < PBARS - 1)) {
-                    pp.synth_partition[i][j] = pp.synth_partition[i][j + 1];
-                    pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j + 1];
-                }
-
-                if (j == PBARS - 1) {
-                    pp.synth_partition[i][j] = letempevent1[0];
-                    pp.synth_off_pat[i][j] = letempevent1[1];
-                  
-                }
-              }
-            }
-          }
+  MidiEventer letempevent1[2];
+  for (int shifts = 0; shifts < leshifter; shifts++) {
+    for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+      for (int j = 0; j < PBARS; j++) {
+        if (j == 0) {
+          letempevent1[0] = pp.synth_partition[i][0];
+          pp.synth_partition[i][j] = pp.synth_partition[i][j + 1];
+          letempevent1[1] = pp.synth_off_pat[i][0];
+          pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j + 1];
         }
+        if ((j > 0) && (j < PBARS - 1)) {
+          pp.synth_partition[i][j] = pp.synth_partition[i][j + 1];
+          pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j + 1];
+        }
+        if (j == PBARS - 1) {
+          pp.synth_partition[i][j] = letempevent1[0];
+          pp.synth_off_pat[i][j] = letempevent1[1];
+        }
+      }
+    }
+  }
+}
 
 void POptionsRouter::dotransposesampler() {
-          if (lv.sublevels[3] - 7 > 0) {
-            shiftnotes2down(abs(lv.sublevels[3] - 7));
-          }
-          if (lv.sublevels[3] - 7 < 0) {
-
-            shiftnotes2up(abs(lv.sublevels[3] - 7));
-          }
-          _pe.refresh_flash_track();
-        }
+  if (lv.sublevels[3] - 7 > 0) {
+    shiftnotes2down(abs(lv.sublevels[3] - 7));
+  }
+  if (lv.sublevels[3] - 7 < 0) {
+    shiftnotes2up(abs(lv.sublevels[3] - 7));
+  }
+  _pe.refresh_flash_track();
+}
 
 void POptionsRouter::doShiftersampler() {
-          if (lv.sublevels[3] - 16 > 0) {
-            shiftnotes2left(abs(lv.sublevels[3] - 16));
-          }
-          if (lv.sublevels[3] - 16 < 0) {
-
-            shiftnotes2right(abs(lv.sublevels[3] - 16));
-          }
-          _pe.refresh_flash_track();
-        }
+  if (lv.sublevels[3] - 16 > 0) {
+    shiftnotes2left(abs(lv.sublevels[3] - 16));
+  }
+  if (lv.sublevels[3] - 16 < 0) {
+    shiftnotes2right(abs(lv.sublevels[3] - 16));
+  }
+  _pe.refresh_flash_track();
+}
 
 void POptionsRouter::shiftnotes2up(int leshifter) {
-
-          for (int shifts = 0; shifts < leshifter; shifts++) {
-
-            for (int j = 0; j < PBARS; j++) {
-              if (((int)pp.sampler_off_pat[j].note < 127) &&
-                  ((int)pp.sampler_off_pat[j].note > 2)) {
-                pp.sampler_off_pat[j].note++;
-              }
-              for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
-                if (((int)pp.sampler_partition[i][j].note < 127) &&
-                    ((int)pp.sampler_partition[i][j].note > 2)) {
-
-                  pp.sampler_partition[i][j].note++;
-                }
-              }
-            }
-          }
+  for (int shifts = 0; shifts < leshifter; shifts++) {
+    for (int j = 0; j < PBARS; j++) {
+      if (((int)pp.sampler_off_pat[j].note < 127) &&
+          ((int)pp.sampler_off_pat[j].note > 2)) {
+        pp.sampler_off_pat[j].note++;
+      }
+      for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+        if (((int)pp.sampler_partition[i][j].note < 127) &&
+            ((int)pp.sampler_partition[i][j].note > 2)) {
+          pp.sampler_partition[i][j].note++;
         }
+      }
+    }
+  }
+}
 
 void POptionsRouter::shiftnotes2down(int leshifter) {
-          for (int shifts = 0; shifts < leshifter; shifts++) {
-            for (int j = 0; j < PBARS; j++) {
-              if ((int)pp.sampler_off_pat[j].note > 1) {
-                pp.sampler_off_pat[j].note--;
-              }
-              for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
-                if ((int)pp.sampler_partition[i][j].note > 1) {
+  for (int shifts = 0; shifts < leshifter; shifts++) {
+    for (int j = 0; j < PBARS; j++) {
+      if ((int)pp.sampler_off_pat[j].note > 1) {
+        pp.sampler_off_pat[j].note--;
+      }
+      for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+        if ((int)pp.sampler_partition[i][j].note > 1) {
 
-                  pp.sampler_partition[i][j].note--;
-                }
-              }
-            }
-          }
+          pp.sampler_partition[i][j].note--;
         }
+      }
+    }
+  }
+}
 
 void POptionsRouter::shiftnotes2right(int leshifter) {
-          MidiEventer letempevent2[2];
-          for (int shifts = 0; shifts < leshifter; shifts++) {
-            for (int j = PBARS - 1; j >= 0; j--) {
-              if (j == PBARS - 1) {
-                letempevent2[1] = pp.sampler_off_pat[PBARS - 1];
-                pp.sampler_off_pat[j] = pp.sampler_off_pat[j - 1];
-              }
-              if ((j > 0) && (j < PBARS - 1)) {
-                pp.sampler_off_pat[j] = pp.sampler_off_pat[j - 1];
-              }
-              if (j == 0) {
-                pp.sampler_off_pat[j] = letempevent2[1];
-              }
-              for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
-                if (j == PBARS - 1) {
-                  letempevent2[0] = pp.sampler_partition[i][PBARS - 1];
-                  pp.sampler_partition[i][j] = pp.sampler_partition[i][j - 1];
-                }
-                if ((j > 0) && (j < PBARS - 1)) {
-                    pp.sampler_partition[i][j] = pp.sampler_partition[i][j - 1];
-                }
-                if (j == 0) {
-                  pp.sampler_partition[i][j] = letempevent2[0];
-                }
-              }
-            }
-          }
-        }
-
-void POptionsRouter::shiftnotes2left(int leshifter) {
-
   MidiEventer letempevent2[2];
   for (int shifts = 0; shifts < leshifter; shifts++) {
+    for (int j = PBARS - 1; j >= 0; j--) {
+      if (j == PBARS - 1) {
+        letempevent2[1] = pp.sampler_off_pat[PBARS - 1];
+        pp.sampler_off_pat[j] = pp.sampler_off_pat[j - 1];
+      }
+      if ((j > 0) && (j < PBARS - 1)) {
+        pp.sampler_off_pat[j] = pp.sampler_off_pat[j - 1];
+      }
+      if (j == 0) {
+        pp.sampler_off_pat[j] = letempevent2[1];
+      }
+      for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+        if (j == PBARS - 1) {
+          letempevent2[0] = pp.sampler_partition[i][PBARS - 1];
+          pp.sampler_partition[i][j] = pp.sampler_partition[i][j - 1];
+        }
+        if ((j > 0) && (j < PBARS - 1)) {
+            pp.sampler_partition[i][j] = pp.sampler_partition[i][j - 1];
+        }
+        if (j == 0) {
+          pp.sampler_partition[i][j] = letempevent2[0];
+        }
+      }
+    }
+  }
+}
 
+void POptionsRouter::shiftnotes2left(int leshifter) {
+  MidiEventer letempevent2[2];
+  for (int shifts = 0; shifts < leshifter; shifts++) {
     for (int j = 0; j < PBARS; j++) {
       if (j == 0) {
         letempevent2[1] = pp.sampler_off_pat[0];
@@ -1222,7 +1144,6 @@ void POptionsRouter::shiftnotes2left(int leshifter) {
         if ((j > 0) && (j < PBARS - 1)) {
           pp.sampler_partition[i][j] = pp.sampler_partition[i][j + 1];
         }
-
         if (j == PBARS - 1) {
           pp.sampler_partition[i][j] = letempevent2[0];
         }
@@ -1232,145 +1153,110 @@ void POptionsRouter::shiftnotes2left(int leshifter) {
 }
 
 void POptionsRouter::showtransposedisplays() {
-          dm.clean_title_2();
-          dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
+  lv.navrange = 14;
+  if (lv.navlevel > 3) {
+    for (int i=0;i<3;i++) if (*_targets[i]) transposers[i]();
+    dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
+    return;
+  }
 
-          int latransposition;
-          latransposition = 7 - lv.sublevels[3];
-          dm.canvasBIG.setCursor(0, 16);
-          dm.canvasBIG.setTextSize(2);
+  dm.clean_title_2();
+  dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
 
-          if (latransposition > 0) {
-            dm.canvasBIG.print("+");
-          }
-          if (latransposition == 0) {
-            dm.canvasBIG.setCursor(8, 16);
-          }
-          dm.canvasBIG.print(latransposition);
-          dm.dodisplay();
-        }
+  int latransposition;
+  latransposition = 7 - lv.sublevels[3];
+  dm.canvasBIG.setCursor(0, 16);
+  dm.canvasBIG.setTextSize(2);
+
+  if (latransposition > 0) {
+    dm.canvasBIG.print("+");
+  }
+  if (latransposition == 0) {
+    dm.canvasBIG.setCursor(8, 16);
+  }
+  dm.canvasBIG.print(latransposition);
+  dm.dodisplay();
+}
 
 void POptionsRouter::doShiftersynth() {
-          if (lv.sublevels[3] - 16 > 0) {
-            shiftnotes1left(abs(lv.sublevels[3] - 16));
-          }
-          if (lv.sublevels[3] - 16 < 0) {
+  if (lv.sublevels[3] - 16 > 0) {
+    shiftnotes1left(abs(lv.sublevels[3] - 16));
+  }
+  if (lv.sublevels[3] - 16 < 0) {
 
-            shiftnotes1right(abs(lv.sublevels[3] - 16));
-          }
-          _pe.refresh_synth_track();
-        }
+    shiftnotes1right(abs(lv.sublevels[3] - 16));
+  }
+  _pe.refresh_synth_track();
+}
 
 void POptionsRouter::showShifterdisplays() {
-          dm.clean_title_2();
-          dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
+  lv.navrange = 31;
+  if (lv.navlevel > 3) {
+    for (int i=0;i<3;i++) if (*_targets[i]) shifters[i]();
+    dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
+    return;
+  }
 
-          int latransposition;
-          latransposition = 16 - lv.sublevels[3];
-          dm.canvasBIG.setCursor(0, 16);
-          dm.canvasBIG.setTextSize(2);
+  dm.clean_title_2();
+  dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
 
-          if (latransposition > 0) {
-            dm.canvasBIG.print("+");
-          }
-          if (latransposition == 0) {
-            dm.canvasBIG.setCursor(8, 16);
-          }
-          dm.canvasBIG.print(latransposition);
-          dm.dodisplay();
-        }
+  int latransposition;
+  latransposition = 16 - lv.sublevels[3];
+  dm.canvasBIG.setCursor(0, 16);
+  dm.canvasBIG.setTextSize(2);
+
+  if (latransposition > 0) {
+    dm.canvasBIG.print("+");
+  }
+  if (latransposition == 0) {
+    dm.canvasBIG.setCursor(8, 16);
+  }
+  dm.canvasBIG.print(latransposition);
+  dm.dodisplay();
+}
 
 void POptionsRouter::showlestargetdisplays() {
-          dm.clean_title_2();
-          dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
+  lv.navrange = 2;
+  const char* target_lbl[] = {"Synth","Sampler","CCs"};
+  int ipos = lv.sublevels[3];
+  //Serial.println((int)*_targets[ipos]);
+  if (lv.navlevel > 3) {
+    *_targets[ipos] = !*_targets[ipos];
+    dm.returntonav(3, 2,ipos);
+  }
 
-          int latransposition;
-          latransposition = lv.sublevels[3];
-          dm.canvasBIG.setCursor(0, 16);
-          dm.canvasBIG.setTextSize(2);
-          switch (latransposition) {
-          case 0:
-            dm.canvasBIG.print("All");
+  dm.clean_title_1_1();
+  dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
+  for (int i = 0; i < 3; i++) {
+    dm.canvasBIG.setCursor(10, i*10 +16);
+    dm.canvasBIG.print(target_lbl[i]);
+    dm.canvasBIG.drawRect(0, i*10 + 16, 6, 6, SSD1306_WHITE);
+    if(*_targets[i]) dm.canvasBIG.fillRect(1, i*10 + 17, 5, 5, SSD1306_WHITE);
+  }
 
-            self->targetNOsampler = 0;
-            self->targetNOsynth = 0;
-            self->targetNOcc = 0;
-            break;
-          case 1:
-            // dm.canvasBIG.setTextSize(1);
-            dm.canvasBIG.print("Synth");
-            self->targetNOsampler = 1;
-            self->targetNOsynth = 0;
-            self->targetNOcc = 1;
-            break;
-          case 2:
-            dm.canvasBIG.print("Sampler");
-            self->targetNOsampler = 0;
-            self->targetNOsynth = 1;
-            self->targetNOcc = 1;
-            break;
-          case 3:
-            dm.canvasBIG.print("CCs");
-            self->targetNOsampler = 1;
-            self->targetNOsynth = 1;
-            self->targetNOcc = 0;
-            break;
-          case 4:
-            dm.canvasBIG.println("Synth");
-            dm.canvasBIG.print(" + CCs");
-
-            self->targetNOsampler = 1;
-            self->targetNOsynth = 0;
-            self->targetNOcc = 0;
-            break;
-          case 5:
-            dm.canvasBIG.println("Sampler");
-            dm.canvasBIG.print(" + CCs");
-            self->targetNOsampler = 0;
-            self->targetNOsynth = 1;
-            self->targetNOcc = 0;
-            break;
-          case 6:
-            dm.canvasBIG.println("Sampler");
-            dm.canvasBIG.print("Synth");
-            self->targetNOsampler = 0;
-            self->targetNOsynth = 0;
-            self->targetNOcc = 1;
-            break;
-          default:
-            break;
-          }
-
-          // dm.canvasBIG.print(latransposition);
-          dm.dodisplay();
-        }
+  dm.dodisplay();
+  dm.fillRect(2, 10*ipos + 18, 4, 4, SSD1306_INVERSE);
+  //dm.fillRect(0, 10*ipos + 16, 48, 7, SSD1306_INVERSE);
+  dm.display();
+}
 
 void POptionsRouter::optionspatterndisplays() {
-          dm.clean_title_2();
-          dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
-          if (lv.sublevels[2] == 4) {
-            dm.canvasBIG.setCursor(0, 16);
-            dm.canvasBIG.setTextSize(2);
-            if (self->interpolOn) {
-              dm.canvasBIG.print("On");
-            } else {
-              dm.canvasBIG.print("Off");
-            }
-          }
-          dm.dodisplay();
-        }
+  dm.clean_title_2();
+  dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
+  dm.dodisplay();
+}
 
 extern POptionsRouter _po;
 
 PatternsMenuRouter::PatternsMenuRouter() {
-                    self = this;
-                    self->home_navrange=sizeofpatternlistlabels-1;
-                    self->catalog = new FilesLister("PATTERNS/","PATTERN",".TXT",doPatternsmenu,self->home_navrange);
-                    self->catalog->left_margin = 73;
-                    self->relative_navlevel=1;
-                    self->max_navlevel=5;
-                    self->sublevels_address={4,0,0};
-                    }
+  self = this;
+  self->home_navrange=sizeofpatternlistlabels-1;
+  self->catalog = new FilesLister("PATTERNS/","PATTERN",".TXT",doPatternsmenu,self->home_navrange);
+  self->catalog->left_margin = 73;
+  self->relative_navlevel=1;
+  self->max_navlevel=5;
+  self->sublevels_address={4,0,0};
+}
 
 void PatternsMenuRouter::route_navlevel(){
           _nav_pattern[lv.sublevels[1]]();
@@ -1487,32 +1373,28 @@ void PatternsMenuRouter::copypattern() {
           self->catalog->list_files();
         }
 
-
-
 void PatternsMenuRouter::writelemidi() {
-          if (lv.locked_fileing)
-            return;
-          lv.locked_fileing = 1 ;
-          self->catalog->refresh_files_names();
-          FsFile pat_filer ;
-          if (self->catalog->new_file_mode) {
-            pat_filer = SD.sdfs.open(self->catalog->get_new_file_name().c_str(), O_WRITE | O_CREAT | O_TRUNC);
-          } else {
-            const char* overwritee = self->catalog->get_current_file_path(0).c_str();
-            self->catalog->deleteFile();
-            pat_filer = SD.sdfs.open(overwritee, O_WRITE | O_CREAT | O_TRUNC);
-          }
-          if (pat_filer) {
-            pat_filer.write((uint8_t*)&pp, sizeof(pp));
-            pat_filer.close();
-            Serial.println("WROTE OK");
+  if (lv.locked_fileing)
+    return;
+  lv.locked_fileing = 1 ;
+  self->catalog->refresh_files_names();
+  FsFile pat_filer ;
+  if (self->catalog->new_file_mode) {
+    pat_filer = SD.sdfs.open(self->catalog->get_new_file_name().c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  } else {
+    const char* overwritee = self->catalog->get_current_file_path(0).c_str();
+    self->catalog->deleteFile();
+    pat_filer = SD.sdfs.open(overwritee, O_WRITE | O_CREAT | O_TRUNC);
+  }
+  if (pat_filer) {
+    pat_filer.write((uint8_t*)&pp, sizeof(pp));
+    pat_filer.close();
 
-          }
-          pat_filer.close();
-          self->catalog->list_files();
-          lv.locked_fileing = 0;
-        }
-
+  }
+  pat_filer.close();
+  self->catalog->list_files();
+  lv.locked_fileing = 0;
+}
 
 void PatternsMenuRouter::set_arp_type(){
   if (gg.arpegiatortype < ARP_TYPES) {
@@ -1522,22 +1404,5 @@ void PatternsMenuRouter::set_arp_type(){
     _tt.stopallnotes();
   }
 }
-
-void PatternsMenuRouter::call_draw_sequencer(){
-  _pe.show();
-}
-
-void PatternsMenuRouter::call_options(){
-          _po.optionspattern();
-        }
-
-void PatternsMenuRouter::call_edit_ccs(){
-          _ce.show();
-        }
-
-void PatternsMenuRouter::call_clearpattern(){
-           _po.clearlapattern();
-        }
-
 
 PatternsMenuRouter* PatternsMenuRouter::self = nullptr;

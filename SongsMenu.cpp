@@ -77,8 +77,8 @@ void SongEditorRouter::showplayheadprogress() {
           dm.drawLine(songplayhead * 8, 16, songplayhead * 8, 64, SSD1306_INVERSE);
         }
 void SongEditorRouter::loadsongpattern() {
-  if (patternonsong[songplayhead] > 0) {
-    _pt.catalog->displayable_offset = patternonsong[songplayhead] - 1  ;
+  if (ng.patternonsong[songplayhead] > 0) {
+    _pt.catalog->displayable_offset = ng.patternonsong[songplayhead] - 1  ;
     _pt.parsepattern();
   } else {
     stopdasong();
@@ -110,7 +110,7 @@ void SongEditorRouter::showsongnavarrows() {
           }
         }
 void SongEditorRouter::setpatterninsong() {
-          patternonsong[(self->songpage * 16) + lv.sublevels[self->relative_navlevel] - 8] = lv.sublevels[self->relative_navlevel + 1];
+          ng.patternonsong[(self->songpage * 16) + lv.sublevels[self->relative_navlevel] - 8] = lv.sublevels[self->relative_navlevel + 1];
           dm.returntonav(self->relative_navlevel, lv.navrange,lv.sublevels[self->relative_navlevel]);
         }
 
@@ -122,7 +122,7 @@ void SongEditorRouter::songmodetopbar() {
         }
 
 void SongEditorRouter::showsongcell() {
-          int lasongcell = patternonsong[(self->songpage * 16) + lv.sublevels[self->relative_navlevel] - 8];
+          int lasongcell = ng.patternonsong[(self->songpage * 16) + lv.sublevels[self->relative_navlevel] - 8];
           dm.canvastitle.setCursor(0, 0);
           dm.canvastitle.setTextSize(1);
           if (lv.navlevel == self->relative_navlevel) {
@@ -149,7 +149,7 @@ void SongEditorRouter::songTransportSelector() {
 void SongEditorRouter::showpatonSongGrid() {
           int lasongcell;
           for (int j = 0; j < 16; j++) {
-            lasongcell = patternonsong[(self->songpage * 16) + j];
+            lasongcell = ng.patternonsong[(self->songpage * 16) + j];
             if (lasongcell > 0) {
               dm.fillRect(j * 8 + 1, 16 + 1, 8 - 2, 12 - 2, SSD1306_WHITE);
             }
@@ -171,7 +171,7 @@ void SongEditorRouter::selectpatterninsong() {
 void SongEditorRouter::update_song_player() {
           if (lv.tickposition == PBARS - 1) {
 
-              if (songplayhead < numberofpatonsong - 1) {
+              if (songplayhead < ng.numberofpatonsong - 1) {
                 songplayhead++;
               } else {
                 songplayhead = 0;
@@ -269,10 +269,10 @@ void SongEditorRouter::Songmodepanel() {
   if (lv.navlevel == self->relative_navlevel + 2) {
 
     self->setpatterninsong();
-    if (self->patternonsong[lv.sublevels[self->relative_navlevel] - 8] > 0) {
-      self->numberofpatonsong++;
+    if (ng.patternonsong[lv.sublevels[self->relative_navlevel] - 8] > 0) {
+      ng.numberofpatonsong++;
     } else {
-      self->numberofpatonsong = lv.sublevels[self->relative_navlevel] - 8;
+      ng.numberofpatonsong = lv.sublevels[self->relative_navlevel] - 8;
     }
   }
 
@@ -309,217 +309,196 @@ void SongMenuRouter::route_navlevel() {
         }
 
 void SongMenuRouter::lv1_wrapper(void (*func)()) {
-          self->catalog->nav_one(1,1);
-          if (lv.navlevel >= 3) {
-            func();
-            dm.returntonav(1, self->home_navrange,lv.sublevels[1]);
-          }
-        }
+  self->catalog->nav_one(1,1);
+  if (lv.navlevel >= 3) {
+    func();
+    dm.returntonav(1, self->home_navrange,lv.sublevels[1]);
+  }
+}
         
 void SongMenuRouter::save_song(){
-          lv1_wrapper(self->writedasong);
-        }
+  lv1_wrapper(self->writedasong);
+}
 
 void SongMenuRouter::writedasong() {
-          if (lv.locked_fileing)
-            return;
-          lv.locked_fileing = 1 ;
-          File song_filer ;
-          if (self->catalog->new_file_mode) {
-            song_filer = SD.open(self->catalog->get_new_file_name().c_str(), FILE_WRITE);
-          } else {
-            const char* overwritee = self->catalog->get_current_file_path(0).c_str();
-            self->catalog->deleteFile();
-            song_filer = SD.open(overwritee, FILE_WRITE);
-          }
-          writeSong(song_filer);
-          song_filer.close();
-          lv.locked_fileing = 0 ;
-          self->catalog->list_files();
-        }
+  if (lv.locked_fileing)
+    return;
+  lv.locked_fileing = 1 ;
+  self->catalog->refresh_files_names();
+  FsFile song_filer ;
+  if (self->catalog->new_file_mode) {
+    song_filer = SD.sdfs.open(self->catalog->get_new_file_name().c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  } else {
+    const char* overwritee = self->catalog->get_current_file_path(0).c_str();
+    self->catalog->deleteFile();
+    song_filer = SD.sdfs.open(overwritee, O_WRITE | O_CREAT | O_TRUNC);
+  }
+  if (song_filer) {
+    song_filer.write((uint8_t*)&ng, sizeof(ng));
+    song_filer.close();
+  }
+  song_filer.close();
+  self->catalog->list_files();
+  lv.locked_fileing = 0;
+}
 
-void SongMenuRouter::insert_int_in_song_file(File &song_filer,int leint, char *leparam) {
-          size_t param_length = strlen(leparam);
-          if (param_length > 5 ) {
-            leparam[6] = '\0';
-          }
-          //strncpy(truncated, leparam, 5);
-          song_filer.print((char *)leparam);
-          song_filer.print(" ");
-          song_filer.print("#");
-          song_filer.print(int(leint));
-          song_filer.print("\n");
-        }
-
-void SongMenuRouter::writeSong(File &song_filer) {
-          song_filer.print("<Song>\n");
-          insert_int_in_song_file(song_filer,_se.numberofpatonsong, (char*)"nums");
-          for (byte i = 0; i < 99; i++) {
-            insert_int_in_song_file(song_filer,_se.patternonsong[i], (char*)"songpat");
-          }
-        }
-        
+ 
 void SongMenuRouter::parseSong(){
-          File song_filer = SD.open(self->catalog->get_current_file_path(0).c_str());
-            if (song_filer) {
-              
-              
-            }
-            /*
-            Parser parser((byte *)receivedbitinchar, parsinglength);
-            parser.Read_String('#');
-            parser.Skip(1);
-            numberofpatonsong = parser.Read_Int16();
-            for (int i = 0; i < 99; i++) {
-              parser.Read_String('#');
-              parser.Skip(1);
-              _se.patternonsong[i] = parser.Read_Int16();
-            }
-            parser.Reset();
-            */
-            song_filer.close();
-        }
+  if (lv.locked_fileing)
+    return;
+  lv.locked_fileing = 1 ;
+  self->catalog->refresh_files_names();
+  FsFile song_filer = SD.sdfs.open(self->catalog->get_current_file_path(0).c_str(), O_READ);
+  if (song_filer) {
+    song_filer.read((uint8_t*)&ng, sizeof(ng));
+  }
+  song_filer.close();
+  lv.locked_fileing = 0 ;
+}
 
 void SongMenuRouter::load_song() {
-          lv1_wrapper(self->parseSong);
-        }
+  lv1_wrapper(self->parseSong);
+}
 
 void SongMenuRouter::song_nav_zero(){
-          self->catalog->nav_zero();
-        }
+  self->catalog->nav_zero();
+}
 
-void SongMenuRouter::initializepatternonsong() {
-          for (int j = 0; j < 99; j++) {
-            _se.patternonsong[j] = 0;
-          }
-        }
+void SongMenuRouter::initializeSong() {
+  for (int j = 0; j < 99; j++) {
+    ng.patternonsong[j] = 0;
+  }
+}
 
 void SongMenuRouter::clear_song_popup(){
-          dm.clear_3();
-          char messageconfirm[32] = "Delete Song ?";
-          dm.doConfirmpanel((char *)messageconfirm);
-          if (lv.navlevel >= self->relative_navlevel + 2) {
-            if (lv.sublevels[self->relative_navlevel+1] == 1) {
-              initializepatternonsong();
-            }
-            dm.returntonav(self->relative_navlevel, self->home_navrange,lv.sublevels[self->relative_navlevel]);
-          }
-        }
+  dm.clear_3();
+  char messageconfirm[32] = "Delete Song ?";
+  dm.doConfirmpanel((char *)messageconfirm);
+  if (lv.navlevel >= self->relative_navlevel + 2) {
+    if (lv.sublevels[self->relative_navlevel+1] == 1) {
+      initializeSong();
+    }
+    dm.returntonav(self->relative_navlevel, self->home_navrange,lv.sublevels[self->relative_navlevel]);
+  }
+}
 
 void SongMenuRouter::duplicate_song(){
-          lv1_wrapper(self->copySong);
-        }
+  lv1_wrapper(self->copySong);
+}
 
 void SongMenuRouter::copySong() {
-          self->catalog->copyFile();
-        }
+  self->catalog->copyFile();
+}
 
 void SongMenuRouter::remove_song(){
-          lv1_wrapper(self->deleteSong);
-        }
+  lv1_wrapper(self->deleteSong);
+}
+
 void SongMenuRouter::deleteSong() {
-          self->catalog->deleteFile();
-        }
+  self->catalog->deleteFile();
+}
 
 
 void SongMenuRouter::shiftSongright(int leshifter) {
-          for (int shifts = 0; shifts < leshifter; shifts++) {
-            for (int i = 98; i >= 0; i--) {
-              _se.patternonsong[i + 1] = _se.patternonsong[i];
-              _se.patternonsong[i] = 0;
-            }
-          }
-        }
+  for (int shifts = 0; shifts < leshifter; shifts++) {
+    for (int i = 98; i >= 0; i--) {
+      ng.patternonsong[i + 1] = ng.patternonsong[i];
+      ng.patternonsong[i] = 0;
+    }
+  }
+}
 
 void SongMenuRouter::shiftSongleft(int leshifter) {
-          for (int shifts = 0; shifts < leshifter; shifts++) {
-            for (int i = 1; i < 99; i++) {
-              _se.patternonsong[i - 1] = _se.patternonsong[i];
-              _se.patternonsong[i] = 0;
-            }
-          }
-        }
+  for (int shifts = 0; shifts < leshifter; shifts++) {
+    for (int i = 1; i < 99; i++) {
+      ng.patternonsong[i - 1] = ng.patternonsong[i];
+      ng.patternonsong[i] = 0;
+    }
+  }
+}
 
 void SongMenuRouter::doSongShifter() {
-          int shifter=lv.sublevels[3];
-          if (shifter - 16 > 0) {
-            shiftSongleft(abs(shifter - 16));
-          }
-          if (shifter - 16 < 0) {
-            shiftSongright(abs(shifter - 16));
-          }
-        }
+  int shifter=lv.sublevels[3];
+  if (shifter - 16 > 0) {
+    shiftSongleft(abs(shifter - 16));
+  }
+  if (shifter - 16 < 0) {
+    shiftSongright(abs(shifter - 16));
+  }
+}
 
 void SongMenuRouter::showSongShifterdisplays() {
-          lv.navrange = 32;
-          dm.clean_title_1();
-          dm.canvastitle.print("Shift Song");
-          int latransposition;
-          latransposition = 16 - lv.sublevels[self->relative_navlevel + 1];
-          lv.sublevels[self->relative_navlevel + 2] = lv.sublevels[self->relative_navlevel + 1];
-          dm.canvasBIG.setCursor(0, 16);
-          dm.canvasBIG.setTextSize(2);
-          if (latransposition > 0) {
-            dm.canvasBIG.print("+");
-          }
-          if (latransposition == 0) {
-            dm.canvasBIG.setCursor(8, 16);
-          }
-          dm.canvasBIG.print(latransposition);
-          dm.dodisplay();
-        }
+  lv.navrange = 32;
+  dm.clean_title_1();
+  dm.canvastitle.print("Shift Song");
+  int latransposition;
+  latransposition = 16 - lv.sublevels[self->relative_navlevel + 1];
+  lv.sublevels[self->relative_navlevel + 2] = lv.sublevels[self->relative_navlevel + 1];
+  dm.canvasBIG.setCursor(0, 16);
+  dm.canvasBIG.setTextSize(2);
+  if (latransposition > 0) {
+    dm.canvasBIG.print("+");
+  }
+  if (latransposition == 0) {
+    dm.canvasBIG.setCursor(8, 16);
+  }
+  dm.canvasBIG.print(latransposition);
+  dm.dodisplay();
+}
 
 void SongMenuRouter::shift_song(){
-           showSongShifterdisplays();
-          if (lv.navlevel >= self->relative_navlevel + 2) {
-            doSongShifter();
-            dm.returntonav(self->relative_navlevel, self->home_navrange,lv.sublevels[self->relative_navlevel]);
-          }
-        }
-
+    showSongShifterdisplays();
+  if (lv.navlevel >= self->relative_navlevel + 2) {
+    doSongShifter();
+    dm.returntonav(self->relative_navlevel, self->home_navrange,lv.sublevels[self->relative_navlevel]);
+  }
+}
 
 void SongMenuRouter::midi_clock_accumulator(){
-          self->t_ += 1 ;
-          if (!(self->t_% 24)) fine_cursor() ;
-        }
+  self->t_ += 1 ;
+  if (!(self->t_% 24)) fine_cursor() ;
+}
+
 void SongMenuRouter::fine_cursor(){
-          self->x_ = (4+self->x_)%128 ;
-          dm.drawFastVLine(self->x_, 0, 64, INVERSE);
-          dm.drawFastVLine(self->x_-4, 0, 64, INVERSE);
-          dm.display();
-          self->t_ = 0 ;
-        }
+  self->x_ = (4+self->x_)%128 ;
+  dm.drawFastVLine(self->x_, 0, 64, INVERSE);
+  dm.drawFastVLine(self->x_-4, 0, 64, INVERSE);
+  dm.display();
+  self->t_ = 0 ;
+}
+
 void SongMenuRouter::show_some_params(){
-          lv.navrange = 32;
-          dm.clean_title_1();
-          dm.canvastitle.print("Params");
-          //int latransposition;
-          //latransposition = 16 - lv.sublevels[self->relative_navlevel + 1];
-          //lv.sublevels[self->relative_navlevel + 2] = lv.sublevels[self->relative_navlevel + 1];
-          dm.canvasBIG.setCursor(0, 16);
-          dm.canvasBIG.setTextSize(1);
-          dm.canvasBIG.setCursor(8, 16);
-          dm.canvasBIG.print("block controls");
-          dm.canvasBIG.setCursor(8, 16+10);
-          dm.canvasBIG.print("Bpms");
-          dm.canvasBIG.setCursor(8, 16+20);
-          dm.canvasBIG.print("quantize");
-          dm.canvasBIG.setCursor(8, 16+30);
-          dm.canvasBIG.print("external clock");
-          dm.dodisplay();
-        }
+  //placeholder
+  lv.navrange = 32;
+  dm.clean_title_1();
+  dm.canvastitle.print("Params");
+  //int latransposition;
+  //latransposition = 16 - lv.sublevels[self->relative_navlevel + 1];
+  //lv.sublevels[self->relative_navlevel + 2] = lv.sublevels[self->relative_navlevel + 1];
+  dm.canvasBIG.setCursor(0, 16);
+  dm.canvasBIG.setTextSize(1);
+  dm.canvasBIG.setCursor(8, 16);
+  dm.canvasBIG.print("block controls");
+  dm.canvasBIG.setCursor(8, 16+10);
+  dm.canvasBIG.print("Bpms");
+  dm.canvasBIG.setCursor(8, 16+20);
+  dm.canvasBIG.print("quantize");
+  dm.canvasBIG.setCursor(8, 16+30);
+  dm.canvasBIG.print("external clock");
+  dm.dodisplay();
+}
 
 void SongMenuRouter::song_params_panel(){
-            show_some_params();
-          if (lv.navlevel >= self->relative_navlevel + 2) {
-            dm.returntonav(self->relative_navlevel, self->home_navrange,lv.sublevels[self->relative_navlevel]);
-          }
-        }
+    show_some_params();
+  if (lv.navlevel >= self->relative_navlevel + 2) {
+    dm.returntonav(self->relative_navlevel, self->home_navrange,lv.sublevels[self->relative_navlevel]);
+  }
+}
 
 void SongMenuRouter::draw_song_menu(){
-          const char* Songmenulabels[] = {
-              "Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params", "Shift"};
-          dm.main_panel(Songmenulabels,1,sg_labels_count);
-        }
+  const char* Songmenulabels[] = {
+      "Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params", "Shift"};
+  dm.main_panel(Songmenulabels,1,sg_labels_count);
+}
 
 

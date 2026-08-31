@@ -17,24 +17,28 @@ GlideMenuRouter::GlideMenuRouter() {
 void GlideMenuRouter::set_glide_mode_off(byte voice){
   synth_lines[voice]->currentFreq = synth_lines[voice]->targetFreq ;
 }
+
 void GlideMenuRouter::set_glide_mode_porta(byte voice){
   if (gg.portamento_time)  {
     synth_lines[voice]->currentFreq = bb.notestofreq[synth_lines[voice]->previous_note];
   }
-};
+}
+
 void GlideMenuRouter::set_glide_mode_rporta(byte voice){
   if (gg.portamento_time)  {
     synth_lines[voice]->targetFreq = bb.notestofreq[synth_lines[voice]->previous_note];
     synth_lines[voice]->currentFreq = bb.notestofreq[synth_lines[voice]->note];
   }
-};
+}
+
 void GlideMenuRouter::set_glide_mode_patack(byte voice){
   synth_lines[voice]->currentFreq = bb.notestofreq[synth_lines[voice]->note_diff];
-};
+}
+
 void GlideMenuRouter::set_glide_mode_rpatack(byte voice){
   synth_lines[voice]->currentFreq = synth_lines[voice]->targetFreq;
   synth_lines[voice]->targetFreq = bb.notestofreq[synth_lines[voice]->note_diff];
-};
+}
 
 void GlideMenuRouter::show(){
   lv.navrange = self->home_navrange ;
@@ -88,16 +92,14 @@ Filter303MenuRouter::Filter303MenuRouter() {
 }
 
 void Filter303MenuRouter::initialize303group() {
-      for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-        _mx.setle303filterpass(i);
-        les303wet[i]->gain(1.0, 1.0);
-        les303wet[i]->gain(0.0, 0.0);
-        les303filterz[i]->frequency(14800.5);
-        les303filterz[i]->resonance(2.5);
-      }
-    }
-
-
+  for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+    _mx.setle303filterpass(i);
+    les303wet[i]->gain(1.0, 1.0);
+    les303wet[i]->gain(0.0, 0.0);
+    les303filterz[i]->frequency(14800.5);
+    les303filterz[i]->resonance(2.5);
+  }
+}
 
 void Filter303MenuRouter::allpasslevels() {
   mix303L1.gain(0, 1);
@@ -113,32 +115,25 @@ void Filter303MenuRouter::avg_slope(){
 
 void Filter303MenuRouter::pseudo303(byte i) {
   if (_rg.active_synths[i]->f303) {
- if (_rg.active_synths[i]->sloper_step > 17) {
+    if (_rg.active_synths[i]->sloper_step > 17) {
       _rg.active_synths[i]->f303 = 0;
       self->letbfreq = 50 ;
       _rg.active_synths[i]->sloper_step = 0 ;
       return;
     }
     self->letbfreq = gg.le303filterzfreq + 50 - (gg.le303filterzfreq * self->sloped[_rg.active_synths[i]->sloper_step]);
-    /*
-    Serial.println();
-    Serial.print("t:");
-    Serial.print(self->sloped[_rg.active_synths[i]->sloper_step]);
-    //Serial.print(self->letbfreq);
-    */
-    
     les303filterz[_rg.active_synths[i]->l_index]->frequency(self->letbfreq);
     //les303filterz[_rg.active_synths[i]->l_index]->resonance(0.1 + ((gg.le303filterzreso/127.0)*5) * self->sloped[_rg.active_synths[i]->sloper_step]);
     _rg.active_synths[i]->sloper_step++;
-   
+    
   }
 }
 
 void Filter303MenuRouter::filter_knob_freq(){
-      lv.navrange = 127;
-      gg.le303ffilterzVknobs[0] = lv.sublevels[3];
-      gg.le303filterzfreq = lround((gg.le303ffilterzVknobs[0] / 127.0) * 14000);
-    }
+  lv.navrange = 127;
+  gg.le303ffilterzVknobs[0] = lv.sublevels[3];
+  gg.le303filterzfreq = lround((gg.le303ffilterzVknobs[0] / 127.0) * 14000);
+}
 
 void Filter303MenuRouter::filter_knob_res(){
       lv.navrange = 127;

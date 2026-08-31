@@ -1,3 +1,4 @@
+#include "Constants.h"
 #include "FxMenu.h"
 #include "LfoMenu.h"
 #include "Presets.h"
@@ -109,74 +110,85 @@ void FxMenuRouter::dolistmainfxlines() {
         }
       }
 
-void FxMenuRouter::biquadcontrols(byte fx_idx) {
+void FxMenuRouter::biquad_all_stages_controls(byte fx_idx) {
+  for (int j = 0; j < STAGES_BQ; j++) {
+    //to avoid configuring unused biquad filters stages
+    if (gg.fx[fx_idx].bqfreq[j] >= 101) {
+      biquadcontrols(fx_idx,j);
+      break;
+    }
+  }
+}
+
+void FxMenuRouter::biquadcontrols(byte fx_idx, byte stage) {
+      if (stage==STAGES_BQ) stage = gg.fx[fx_idx].bqstage ;
         // AudioNoInterrupts();
-        switch (gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage]) {
+        switch (gg.fx[fx_idx].bqtype[stage]) {
         
           case 0:
-            biquad[fx_idx]->setLowpass(gg.fx[fx_idx].bqstage,
-                                        gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage],
-                                        gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
-            biquadR[fx_idx]->setLowpass(gg.fx[fx_idx].bqstage,
-                                        gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage],
-                                        gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
+            biquad[fx_idx]->setLowpass(stage,
+                                        gg.fx[fx_idx].bqfreq[stage],
+                                        gg.fx[fx_idx].bqslope[stage]);
+            biquadR[fx_idx]->setLowpass(stage,
+                                        gg.fx[fx_idx].bqfreq[stage],
+                                        gg.fx[fx_idx].bqslope[stage]);
             break;
 
           case 1:
 
-            biquad[fx_idx]->setHighpass(gg.fx[fx_idx].bqstage,
-                                          gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage],
-                                          gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
-            biquadR[fx_idx]->setHighpass(gg.fx[fx_idx].bqstage,
-                                          gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage],
-                                          gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
+            biquad[fx_idx]->setHighpass(stage,
+                                          gg.fx[fx_idx].bqfreq[stage],
+                                          gg.fx[fx_idx].bqslope[stage]);
+            biquadR[fx_idx]->setHighpass(stage,
+                                          gg.fx[fx_idx].bqfreq[stage],
+                                          gg.fx[fx_idx].bqslope[stage]);
             break;
 
           case 2:
-            biquad[fx_idx]->setBandpass(gg.fx[fx_idx].bqstage,
-                                          gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage],
-                                          gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
-            biquadR[fx_idx]->setBandpass(gg.fx[fx_idx].bqstage,
-                                          gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage],
-                                          gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
+            biquad[fx_idx]->setBandpass(stage,
+                                          gg.fx[fx_idx].bqfreq[stage],
+                                          gg.fx[fx_idx].bqslope[stage]);
+            biquadR[fx_idx]->setBandpass(stage,
+                                          gg.fx[fx_idx].bqfreq[stage],
+                                          gg.fx[fx_idx].bqslope[stage]);
             break;
 
           case 3:
-            biquad[fx_idx]->setNotch(gg.fx[fx_idx].bqstage,
-                                      gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage],
-                                      gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
-            biquadR[fx_idx]->setNotch(gg.fx[fx_idx].bqstage,
-                                      gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage],
-                                      gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
+            biquad[fx_idx]->setNotch(stage,
+                                      gg.fx[fx_idx].bqfreq[stage],
+                                      gg.fx[fx_idx].bqslope[stage]);
+            biquadR[fx_idx]->setNotch(stage,
+                                      gg.fx[fx_idx].bqfreq[stage],
+                                      gg.fx[fx_idx].bqslope[stage]);
             break;
 
           case 4:
-            biquad[fx_idx]->setLowShelf(gg.fx[fx_idx].bqstage,
-                                          gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage],
-                                          gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage],
-                                          gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
-            biquadR[fx_idx]->setLowShelf(gg.fx[fx_idx].bqstage,
-                                          gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage],
-                                          gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage],
-                                          gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
+            biquad[fx_idx]->setLowShelf(stage,
+                                          gg.fx[fx_idx].bqfreq[stage],
+                                          gg.fx[fx_idx].bqgain[stage],
+                                          gg.fx[fx_idx].bqslope[stage]);
+            biquadR[fx_idx]->setLowShelf(stage,
+                                          gg.fx[fx_idx].bqfreq[stage],
+                                          gg.fx[fx_idx].bqgain[stage],
+                                          gg.fx[fx_idx].bqslope[stage]);
             break;
 
           case 5:
-            biquad[fx_idx]->setHighShelf(gg.fx[fx_idx].bqstage,
-                                          gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage],
-                                          gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage],
-                                          gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
-            biquadR[fx_idx]->setHighShelf(gg.fx[fx_idx].bqstage,
-                                          gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage],
-                                          gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage],
-                                          gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
+            biquad[fx_idx]->setHighShelf(stage,
+                                          gg.fx[fx_idx].bqfreq[stage],
+                                          gg.fx[fx_idx].bqgain[stage],
+                                          gg.fx[fx_idx].bqslope[stage]);
+            biquadR[fx_idx]->setHighShelf(stage,
+                                          gg.fx[fx_idx].bqfreq[stage],
+                                          gg.fx[fx_idx].bqgain[stage],
+                                          gg.fx[fx_idx].bqslope[stage]);
             break;
 
           case 6:
               prepare_coeffs(fx_idx);
               
-              biquad[fx_idx]->setCoefficients(gg.fx[fx_idx].bqstage, self->coeffs[gg.fx[fx_idx].bqstage]);
-              biquadR[fx_idx]->setCoefficients(gg.fx[fx_idx].bqstage, self->coeffs[gg.fx[fx_idx].bqstage]);
+              biquad[fx_idx]->setCoefficients(stage, self->coeffs[stage]);
+              biquadR[fx_idx]->setCoefficients(stage, self->coeffs[stage]);
             break;
 
           default:
@@ -223,7 +235,7 @@ void FxMenuRouter::delaytimingselect(int fx_idx, int leselecta) {
         // restartdelayline(fx_idx);
       }
 
-void FxMenuRouter::restartdelayline(int fx_idx) {
+void FxMenuRouter::restartdelayline(byte fx_idx) {
 
         gg.fx[fx_idx].delaymultiplier = gg.fx[fx_idx].delayVknobs[1] + 1;
         delaytimingselect(fx_idx, gg.fx[fx_idx].delayVknobs[0]);
@@ -1349,319 +1361,278 @@ void FxMenuRouter::filterVpanel(byte fx_idx) {
       }
 
 void FxMenuRouter::filterVpanelSelector(byte fx_idx) {
-
-        byte knobradius = 9;
-        byte centercirclex = 5 + knobradius;
-        byte centercircley = 35 + knobradius;
-        byte totbartall = 37;
-        byte topwbarstart = 16;
-        byte wbarwidth = 9;
-        int wbarwidth2 = 8;
-        byte startlex2 = 67;
-        if (lv.navlevel == 3) {
-          lv.navrange = 8;
-        }
-        byte slct = lv.sublevels[3];
-        // fq
-        if (slct == 0) {
-          lv.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[0];
-          dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
-        }
-        // res
-        if (slct == 1) {
-          lv.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[1];
-          dm.canvasBIG.drawCircle(centercirclex + 25, centercircley, knobradius - 2, SSD1306_WHITE);
-        }
-        // oct
-        if (slct == 2) {
-          lv.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[2];
-          dm.canvasBIG.drawCircle(centercirclex + 50, centercircley, knobradius - 2, SSD1306_WHITE);
-        }
-        // lp
-        if (slct == 3) {
-          lv.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[0];
-          dm.canvasBIG.drawRect(83, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
-        }
-        // bp
-        if (slct == 4) {
-          lv.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[1];
-          dm.canvasBIG.drawRect(100, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
-        }
-        // hp
-        if (slct == 5) {
-          lv.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[2];
-          dm.canvasBIG.drawRect(117, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
-        }
-        // Select LFO
-        if (slct == 6) {
-          lv.sublevels[4] = self->filter_lfo_option;
-          dm.canvasBIG.setCursor(64, 8);
-          dm.canvasBIG.print((char)9);
-        }
-        if (slct == 7) {
-          lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
-          dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, SSD1306_WHITE);
-          dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
-        }
-      }
+  byte knobradius = 9;
+  byte centercirclex = 5 + knobradius;
+  byte centercircley = 35 + knobradius;
+  byte totbartall = 37;
+  byte topwbarstart = 16;
+  byte wbarwidth = 9;
+  int wbarwidth2 = 8;
+  byte startlex2 = 67;
+  if (lv.navlevel == 3) {
+    lv.navrange = 8;
+  }
+  byte slct = lv.sublevels[3];
+  // fq
+  if (slct == 0) {
+    lv.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[0];
+    dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
+  }
+  // res
+  if (slct == 1) {
+    lv.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[1];
+    dm.canvasBIG.drawCircle(centercirclex + 25, centercircley, knobradius - 2, SSD1306_WHITE);
+  }
+  // oct
+  if (slct == 2) {
+    lv.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[2];
+    dm.canvasBIG.drawCircle(centercirclex + 50, centercircley, knobradius - 2, SSD1306_WHITE);
+  }
+  // lp
+  if (slct == 3) {
+    lv.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[0];
+    dm.canvasBIG.drawRect(83, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
+  }
+  // bp
+  if (slct == 4) {
+    lv.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[1];
+    dm.canvasBIG.drawRect(100, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
+  }
+  // hp
+  if (slct == 5) {
+    lv.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[2];
+    dm.canvasBIG.drawRect(117, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
+  }
+  // Select LFO
+  if (slct == 6) {
+    lv.sublevels[4] = self->filter_lfo_option;
+    dm.canvasBIG.setCursor(64, 8);
+    dm.canvasBIG.print((char)9);
+  }
+  if (slct == 7) {
+    lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
+    dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, SSD1306_WHITE);
+    dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
+  }
+}
 
 void FxMenuRouter::biquadVpanelAction(byte fx_idx) {
-        if (lv.navlevel == 4) {
-          byte slct = lv.sublevels[3];
-          // stage
-          if (slct == 0) {
-            lv.navrange = 3;
-            gg.fx[fx_idx].bqstage = lv.sublevels[4];
-          }
-          // mode
-          if (slct == 1) {
-            lv.navrange = 6;
-            gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage] = lv.sublevels[4];
-          }
-          // freq
-          if (slct == 2) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0] = lv.sublevels[4];
-            gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] =
-                (((gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0]) / 127.0) * self->bqrange) + 101;
-          }
-          // slope or Q
-          if (slct == 3) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1] = lv.sublevels[4];
-            gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage] = 0.001 + 5.0 * ((gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1]) / 127.0);
-          }
-          // gain
-          if (slct == 5) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2] = lv.sublevels[4];
-            gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage] = 100.0 - ((gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2]) / 127.0) * 200.0 ;
-          }
-          // to avoid setting up a stage unconfigured while browsing
-          if (gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] >= 101) {
-            biquadcontrols(fx_idx);
-          }
-          if (slct == 4) {
-            lv.navrange = 127;
-            set_wet_mix_at_sub4(fx_idx);
-          }
-        }
-        if (lv.navlevel > 4) {
+  if (lv.navlevel == 4) {
+    byte slct = lv.sublevels[3];
+    // stage
+    if (slct == 0) {
+      lv.navrange = 3;
+      gg.fx[fx_idx].bqstage = lv.sublevels[4];
+    }
+    // mode
+    if (slct == 1) {
+      lv.navrange = 6;
+      gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage] = lv.sublevels[4];
+    }
+    // freq
+    if (slct == 2) {
+      lv.navrange = 127;
+      gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0] = lv.sublevels[4];
+      gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] =
+          (((gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0]) / 127.0) * self->bqrange) + 101;
+    }
+    // slope or Q
+    if (slct == 3) {
+      lv.navrange = 127;
+      gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1] = lv.sublevels[4];
+      gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage] = 0.001 + 5.0 * ((gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1]) / 127.0);
+    }
+    // gain
+    if (slct == 5) {
+      lv.navrange = 127;
+      gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2] = lv.sublevels[4];
+      gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage] = 100.0 - ((gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2]) / 127.0) * 200.0 ;
+    }
+    // to avoid setting up a stage unconfigured while browsing
+    if (gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] >= 101) {
+      biquadcontrols(fx_idx);
+    }
+    if (slct == 4) {
+      lv.navrange = 127;
+      set_wet_mix_at_sub4(fx_idx);
+    }
+  }
+  if (lv.navlevel > 4) {
 
-          dm.returntonav(3);
-        }
-      }
+    dm.returntonav(3);
+  }
+}
 
 void FxMenuRouter::biquadVpanel(byte fx_idx) {
-        char bqtypeLabels[7][12] = {"Low Pass", "High Pass", "Band Pass",
-                                    "Notch",    "LowShelf",  "High Shelf","Param EQ"};
-        biquadVpanelAction(fx_idx);
-        byte knobradius = 12;
-        byte centercirclex = 10 + knobradius;
-        byte centercircley = 28 + knobradius;
-        byte wbarwidth2 = 7;
-        byte bqVcursorpointx;
-        byte bqVcursorpointy;
-        byte startlex2 = 67;
-        float coeffangle;
-        byte totbartall = 24;
-        byte topwbarstart = 16 + 12;
-        byte wbarwidth = 9;
-        byte barsize = round((gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2] / 127.0) * (totbartall - 4));
-            dm.clean_title_1();
-        dm.canvastitle.print("Biquad ");
-        dm.canvastitle.print(fx_idx + 1);
-        dm.canvastitle.setCursor(107, 8);
-        // reflect lebq
-        dm.canvastitle.print("s:");
-        dm.canvastitle.print(gg.fx[fx_idx].bqstage + 1);
+  char bqtypeLabels[7][12] = {"Low Pass", "High Pass", "Band Pass",
+                              "Notch",    "LowShelf",  "High Shelf","Param EQ"};
+  biquadVpanelAction(fx_idx);
+  byte knobradius = 12;
+  byte centercirclex = 10 + knobradius;
+  byte centercircley = 28 + knobradius;
+  byte wbarwidth2 = 7;
+  byte bqVcursorpointx;
+  byte bqVcursorpointy;
+  byte startlex2 = 67;
+  float coeffangle;
+  byte totbartall = 24;
+  byte topwbarstart = 16 + 12;
+  byte wbarwidth = 9;
+  byte barsize = round((gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2] / 127.0) * (totbartall - 4));
+      dm.clean_title_1();
+  dm.canvastitle.print("Biquad ");
+  dm.canvastitle.print(fx_idx + 1);
+  dm.canvastitle.setCursor(107, 8);
+  // reflect lebq
+  dm.canvastitle.print("s:");
+  dm.canvastitle.print(gg.fx[fx_idx].bqstage + 1);
 
-        dm.canvastitle.setCursor(0, 8);
-        dm.canvastitle.print("mode: ");
-        dm.canvastitle.print((char *)bqtypeLabels[gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage]]);
-        // bqfreq
-        coeffangle = (6.2831 - (gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0] / 127.0) * 6.2831) + 3.1416;
-        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
-        bqVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
-        bqVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        dm.canvasBIG.drawLine(centercirclex, centercircley, bqVcursorpointx, bqVcursorpointy, SSD1306_WHITE);
-        dm.canvasBIG.setCursor(centercirclex - knobradius, centercircley + knobradius + 4);
-        dm.canvasBIG.setTextSize(1);
-        dm.canvasBIG.print("Freq.");
-        if (gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] < 1000) {
-          dm.canvasBIG.setCursor(centercirclex - knobradius + 4, 18);
-        }
-        if ((gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] < 10000) && (gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] >= 1000)) {
-          dm.canvasBIG.setCursor(centercirclex - knobradius + 2, 18);
-        }
-        if (gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] >= 10000) {
-          dm.canvasBIG.setCursor(centercirclex - knobradius - 2, 18);
-        }
-        dm.canvasBIG.print(gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage], 0);
-        // bqslope
-        coeffangle = (6.2831 - (gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1] / 127.0) * 6.2831) + 3.1416;
-        centercirclex = knobradius + 50;
-        dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
-        bqVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
-        bqVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
-        dm.canvasBIG.drawLine(centercirclex, centercircley, bqVcursorpointx, bqVcursorpointy, SSD1306_WHITE);
-        dm.canvasBIG.setCursor(centercirclex - knobradius, centercircley + knobradius + 4);
-        dm.canvasBIG.setTextSize(1);
-        dm.canvasBIG.print("Slope");
-        dm.canvasBIG.setCursor(centercirclex - knobradius, 18);
-        dm.canvasBIG.print(gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
-        // gain if  setLowShelf or sethighShelf
-        if (gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage] > 3) {
-          dm.canvasBIG.drawRoundRect(95, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
-          dm.canvasBIG.fillRect(95 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
-          dm.canvasBIG.setCursor(90, totbartall + topwbarstart + 4);
-          dm.canvasBIG.print("Gain");
-          dm.canvasBIG.setCursor(90, 18);
-          dm.canvasBIG.print(gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage]);
-        }
-        barsize = round(((gg.WetMixMasters[fx_idx + 1]/127.0) * (totbartall + 13 - 4)));
-        dm.canvasBIG.drawRoundRect(topwbarstart - 12 + startlex2 + 4, 0, totbartall + 13, wbarwidth2, 2, SSD1306_WHITE);
-        dm.canvasBIG.fillRect((topwbarstart - 12 + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
-        dm.canvasBIG.setCursor(startlex2 - 6, 0);
-        dm.canvasBIG.print("Wet:");
-        biquadVpanelSelector(fx_idx);
-        dm.dodisplay();
-      }
+  dm.canvastitle.setCursor(0, 8);
+  dm.canvastitle.print("mode: ");
+  dm.canvastitle.print((char *)bqtypeLabels[gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage]]);
+  // bqfreq
+  coeffangle = (6.2831 - (gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0] / 127.0) * 6.2831) + 3.1416;
+  dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+  bqVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
+  bqVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
+  dm.canvasBIG.drawLine(centercirclex, centercircley, bqVcursorpointx, bqVcursorpointy, SSD1306_WHITE);
+  dm.canvasBIG.setCursor(centercirclex - knobradius, centercircley + knobradius + 4);
+  dm.canvasBIG.setTextSize(1);
+  dm.canvasBIG.print("Freq.");
+  if (gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] < 1000) {
+    dm.canvasBIG.setCursor(centercirclex - knobradius + 4, 18);
+  }
+  if ((gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] < 10000) && (gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] >= 1000)) {
+    dm.canvasBIG.setCursor(centercirclex - knobradius + 2, 18);
+  }
+  if (gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] >= 10000) {
+    dm.canvasBIG.setCursor(centercirclex - knobradius - 2, 18);
+  }
+  dm.canvasBIG.print(gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage], 0);
+  // bqslope
+  coeffangle = (6.2831 - (gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1] / 127.0) * 6.2831) + 3.1416;
+  centercirclex = knobradius + 50;
+  dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+  bqVcursorpointx = round(centercirclex + (knobradius * (cos(coeffangle))));
+  bqVcursorpointy = round(centercircley - (knobradius * (sin(coeffangle))));
+  dm.canvasBIG.drawLine(centercirclex, centercircley, bqVcursorpointx, bqVcursorpointy, SSD1306_WHITE);
+  dm.canvasBIG.setCursor(centercirclex - knobradius, centercircley + knobradius + 4);
+  dm.canvasBIG.setTextSize(1);
+  dm.canvasBIG.print("Slope");
+  dm.canvasBIG.setCursor(centercirclex - knobradius, 18);
+  dm.canvasBIG.print(gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage]);
+  // gain if  setLowShelf or sethighShelf
+  if (gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage] > 3) {
+    dm.canvasBIG.drawRoundRect(95, topwbarstart, wbarwidth, totbartall, 2, SSD1306_WHITE);
+    dm.canvasBIG.fillRect(95 + 2, (totbartall + topwbarstart - barsize - 2), wbarwidth - 4, barsize, SSD1306_WHITE);
+    dm.canvasBIG.setCursor(90, totbartall + topwbarstart + 4);
+    dm.canvasBIG.print("Gain");
+    dm.canvasBIG.setCursor(90, 18);
+    dm.canvasBIG.print(gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage]);
+  }
+  barsize = round(((gg.WetMixMasters[fx_idx + 1]/127.0) * (totbartall + 13 - 4)));
+  dm.canvasBIG.drawRoundRect(topwbarstart - 12 + startlex2 + 4, 0, totbartall + 13, wbarwidth2, 2, SSD1306_WHITE);
+  dm.canvasBIG.fillRect((topwbarstart - 12 + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
+  dm.canvasBIG.setCursor(startlex2 - 6, 0);
+  dm.canvasBIG.print("Wet:");
+  biquadVpanelSelector(fx_idx);
+  dm.dodisplay();
+}
 
 void FxMenuRouter::biquadVpanelSelector(byte fx_idx) {
-        byte startlex2 = 67;
-        byte totbartall = 37;
-        byte topwbarstart = 16;
-        byte wbarwidth2 = 7;
-        if (lv.navlevel == 3) {
-          lv.navrange = 4;
-          if (gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage] > 3) {
-            lv.navrange = 5;
-          }
-        }
-        byte slct = lv.sublevels[3];
-        // stage
-        if (slct == 0) {
-          lv.sublevels[4] = gg.fx[fx_idx].bqstage;
-          dm.canvasBIG.setCursor(103, 9);
-          dm.canvasBIG.print((char)9);
-        }
-        // mode
-        if (slct == 1) {
-          lv.sublevels[4] = gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage];
-          dm.canvasBIG.setCursor(29, 8);
-          dm.canvasBIG.print((char)9);
-        }
-        // freq
-        if (slct == 2) {
-          lv.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0];
-          dm.canvasBIG.setCursor(20, 36);
-          dm.canvasBIG.print((char)9);
-        }
-        // slope
-        if (slct == 3) {
-          lv.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1];
-          dm.canvasBIG.setCursor(60, 36);
-          dm.canvasBIG.print((char)9);
-        }
-        // gain
-        if (slct == 5) {
-          lv.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2];
-          dm.canvasBIG.setCursor(89, 36);
-          dm.canvasBIG.print((char)9);
-        }
+  byte startlex2 = 67;
+  byte totbartall = 37;
+  byte topwbarstart = 16;
+  byte wbarwidth2 = 7;
+  if (lv.navlevel == 3) {
+    lv.navrange = 4;
+    if (gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage] > 3) {
+      lv.navrange = 5;
+    }
+  }
+  byte slct = lv.sublevels[3];
+  // stage
+  if (slct == 0) {
+    lv.sublevels[4] = gg.fx[fx_idx].bqstage;
+    dm.canvasBIG.setCursor(103, 9);
+    dm.canvasBIG.print((char)9);
+  }
+  // mode
+  if (slct == 1) {
+    lv.sublevels[4] = gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage];
+    dm.canvasBIG.setCursor(29, 8);
+    dm.canvasBIG.print((char)9);
+  }
+  // freq
+  if (slct == 2) {
+    lv.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0];
+    dm.canvasBIG.setCursor(20, 36);
+    dm.canvasBIG.print((char)9);
+  }
+  // slope
+  if (slct == 3) {
+    lv.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1];
+    dm.canvasBIG.setCursor(60, 36);
+    dm.canvasBIG.print((char)9);
+  }
+  // gain
+  if (slct == 5) {
+    lv.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2];
+    dm.canvasBIG.setCursor(89, 36);
+    dm.canvasBIG.print((char)9);
+  }
 
-        if (slct == 4) {
-          lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
-          dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
-          dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
-        }
-      }
+  if (slct == 4) {
+    lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
+    dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
+    dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
+  }
+}
 
 void FxMenuRouter::allfxcontrolled() {
-        for (int i = 0; i < 3; i++) {
-          switch(gg.fx[i].plugged_fx){
-            case 0:
-            //multiply
-            break;
-            case 1:
-              freeverbscontrl(i);
-            break;
-            case 2:
-              granularcontrols(i);
-            break;
-            case 3:
-              bitcrusherctrl(i);
-            break;
-            case 4:
-              flangercontrols(i);
-            break;
-            case 5:
-              choruscontrols(i);
-            break;
-            case 6:
-              for (int j = 0; j < STAGES_BQ; j++) {
-                //TODO: REDO
-                //to avoid configuring unused biquad filters stages
-                if (gg.fx[i].bqfreq[j] >= 101) {
-                  biquadcontrols(i);
-                  break;
-                }
-              }
-            break;
-            case 7:
-              filtercontrols(i);
-            break;
-            case 8:
-              restartdelayline(i);
-            break;
-
-            default:
-            break;
-          }
-        }
-      }
+  for (int i = 0; i < 3; i++) {
+    if ( gg.fx[i].plugged_fx < ALL_FX_TYPES-1) all_fx_controls[gg.fx[i].plugged_fx](i);
+  }
+}
 
 void FxMenuRouter::fx_nav_zero(){
-        if (lv.navlevel < 2) dm.reinitsublevels(2);
-        lv.avoid_fx_bounce = false ;
-        lv.navrange = self->home_navrange;
-        dm.clearDisplay();
-        dolistmainfxlines();
-        dm.dodisplay();
-        lv.sublevels[2] = gg.fx[lv.sublevels[1]%FXS_COUNT].plugged_fx ;
-      }
+  if (lv.navlevel < 2) dm.reinitsublevels(2);
+  lv.avoid_fx_bounce = false ;
+  lv.navrange = self->home_navrange;
+  dm.clearDisplay();
+  dolistmainfxlines();
+  dm.dodisplay();
+  lv.sublevels[2] = gg.fx[lv.sublevels[1]%FXS_COUNT].plugged_fx ;
+}
 
 void FxMenuRouter::fx_nav_one(){
-        if (lv.navlevel < 2) dm.reinitsublevels(2);
-        lv.avoid_fx_bounce = false ;
-        dm.clearDisplay();
-        if (lv.navlevel == 2) lv.navrange = 9;
-        dolistMainFxPanel();
-        dm.dodisplay();
-      }
+  if (lv.navlevel < 2) dm.reinitsublevels(2);
+  lv.avoid_fx_bounce = false ;
+  dm.clearDisplay();
+  if (lv.navlevel == 2) lv.navrange = 9;
+  dolistMainFxPanel();
+  dm.dodisplay();
+}
 
 void FxMenuRouter::fx_nav_two(){
-        //remember to manage lv.avoid_fx_bounce if plugging fx outside of menu
-        if (!lv.avoid_fx_bounce){
-          lv.avoid_fx_bounce = true ;
-          gg.fx[lv.sublevels[1]].route_fx(lv.sublevels[2]);
-        }
-          displayfxVcontrols(lv.sublevels[1]);
-      }
+  //remember to manage lv.avoid_fx_bounce if plugging fx outside of menu
+  if (!lv.avoid_fx_bounce){
+    lv.avoid_fx_bounce = true ;
+    gg.fx[lv.sublevels[1]].route_fx(lv.sublevels[2]);
+  }
+    displayfxVcontrols(lv.sublevels[1]);
+}
 
 void FxMenuRouter::MainFxPanel() {
-        //if (lv.sublevels[lv.navlevel] > lv.navrange) dm.reinitsublevels(lv.navlevel);
-
-        if (lv.navlevel == 1) {
-          fx_nav_zero();
-        }
-        if (lv.navlevel == 2) {
-          fx_nav_one();
-        }
-        if (lv.navlevel > 2) {
-          fx_nav_two();
-        }
-      }
+  if (lv.navlevel == 1) {
+    fx_nav_zero();
+  }
+  if (lv.navlevel == 2) {
+    fx_nav_one();
+  }
+  if (lv.navlevel > 2) {
+    fx_nav_two();
+  }
+}
 
 
