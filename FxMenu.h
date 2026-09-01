@@ -1,7 +1,6 @@
+#pragma once
 #include <stdint.h>
 #include "Constants.h"
-#pragma once
-
 #include "MenuClasses.h"
 
 class FxMenuRouter : public SectionHolder {

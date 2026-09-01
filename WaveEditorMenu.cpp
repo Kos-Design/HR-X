@@ -20,48 +20,46 @@ void RecorderMenuRouter::show() {
         }
 
 void RecorderMenuRouter::Load_raw_file() {
-          clear_temp_files();
-          self->newRecpathL = self->catalog->get_current_file_path(0);
-          self->newloopedpath = self->newRecpathL ;
-          Serial.println(self->newloopedpath);
+  clear_temp_files();
+  self->newRecpathL = self->catalog->get_current_file_path(0);
+  self->newloopedpath = self->newRecpathL ;
+  Serial.println(self->newloopedpath);
 
-          //TODO if stereo
-          //self->newRecpathR = self->newRecpathL ;
-        }
+  //TODO if stereo
+  //self->newRecpathR = self->newRecpathL ;
+}
 
 
 
 void RecorderMenuRouter::startRecording() {
-          if (lv.locked_fileing)
-            return;
-          lv.locked_fileing = 1 ;
-          if (!self->just_pressed_rec){
-            self->just_pressed_rec = true ;
-            check_rec_folder_path();
-            lv.tocker = millis();
+  if (lv.locked_fileing) return;
+  lv.locked_fileing = 1 ;
+  if (!self->just_pressed_rec){
+    self->just_pressed_rec = true ;
+    check_rec_folder_path();
+    lv.tocker = millis();
 
-            self->newloopedpath = self->catalog->get_new_file_name();
-            //self->catalog->get_new_file_name();
-            self->looper = SD.open(self->newloopedpath.c_str(), FILE_WRITE);
-            if (self->looper) {
-              //AudioNoInterrupts();
-              queue1.begin();
-              self->pre_record = true;
-              //AudioInterrupts();
-              //self->rec_looping = true ;
-            } else {
-              self->rec_looping = false ;
-            }
-              //TODO: pattern synched record
-              //start at pat pos
-              //rec mono
-              // ends in 32 ticks
-              //save sample
-              // assign saved to note 50
-              // set pattern empty and place note 50 on 0
-              //clear locks
-          }
-        }
+    self->newloopedpath = self->catalog->get_new_file_name();
+    self->looper = SD.sdfs.open(self->newloopedpath.c_str(),O_WRITE | O_CREAT | O_TRUNC);
+    if (self->looper) {
+      //AudioNoInterrupts();
+      queue1.begin();
+      self->pre_record = true;
+      //AudioInterrupts();
+      //self->rec_looping = true ;
+    } else {
+      self->rec_looping = false ;
+    }
+      //TODO: pattern synched record
+      //start at pat pos
+      //rec mono
+      // ends in 32 ticks
+      //save sample
+      // assign saved to note 50
+      // set pattern empty and place note 50 on 0
+      //clear locks
+  }
+}
 
 
 void RecorderMenuRouter::auto_stop_rec(){
@@ -382,692 +380,486 @@ void RecorderMenuRouter::records_actions(){
         }
 
 void RecorderMenuRouter::remove_record(){
-          lv1_wrapper(self->deleteRec);
-        }
+  lv1_wrapper(self->deleteRec);
+}
 
 void RecorderMenuRouter::load_record(){
           lv1_wrapper(self->Load_raw_file);
         }
 
 void RecorderMenuRouter::drawWaveform(float startPos,float endPos, uint16_t width, uint16_t height){
-    File wave_file = SD.open(self->newloopedpath.c_str(), FILE_READ);
-    if (!wave_file)
-        return;
-
-    uint32_t totalSamples = wave_file.size() / 2; // 16-bit mono
-    uint32_t firstSample = (uint32_t)(startPos * totalSamples);
-    uint32_t lastSample  = (uint32_t)(endPos   * totalSamples);
-    uint32_t visibleSamples = lastSample - firstSample;
-
-    if (visibleSamples == 0)
-        return;
-
-    for (uint16_t x = 0; x < width; x++)
-    {
-        uint32_t start = firstSample +
-            ((uint64_t)x * visibleSamples) / width;
-
-        uint32_t end = firstSample +
-            ((uint64_t)(x + 1) * visibleSamples) / width;
-
-        if (end <= start)
-            end = start + 1;
-
-        wave_file.seek(start * 2);
-
-        int16_t minSample = 32767;
-        int16_t maxSample = -32768;
-
-        for (uint32_t i = start; i < end; i++)
-        {
-            int16_t sample_selected;
-            wave_file.read((uint8_t *)&sample_selected, sizeof(sample_selected));
-            if (sample_selected < minSample) minSample = sample_selected;
-            if (sample_selected > maxSample) maxSample = sample_selected;
-        }
-
-        int yTop = map(maxSample, 32767, -32768, 0, height - 1);
-        int yBottom = map(minSample, 32767, -32768, 0, height - 1);
-
-        dm.canvasBIG.drawFastVLine(x, yTop + 8, yBottom - yTop + 1, SSD1306_WHITE);
-        
+  FsFile wave_file = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
+  if (!wave_file) return;
+  uint32_t totalSamples = wave_file.size() / 2; // 16-bit mono
+  uint32_t firstSample = (uint32_t)(startPos * totalSamples);
+  uint32_t lastSample  = (uint32_t)(endPos   * totalSamples);
+  uint32_t visibleSamples = lastSample - firstSample;
+  if (!visibleSamples) return;
+  for (uint16_t x = 0; x < width; x++) {
+    uint32_t start = firstSample + ((uint64_t)x * visibleSamples) / width;
+    uint32_t end = firstSample + ((uint64_t)(x + 1) * visibleSamples) / width;
+    if (end <= start) end = start + 1;
+    wave_file.seek(start * 2);
+    int16_t minSample = 32767;
+    int16_t maxSample = -32768;
+    for (uint32_t i = start; i < end; i++) {
+      int16_t sample_selected;
+      wave_file.read((uint8_t *)&sample_selected, sizeof(sample_selected));
+      if (sample_selected < minSample) minSample = sample_selected;
+      if (sample_selected > maxSample) maxSample = sample_selected;
     }
-    wave_file.close();
+    int yTop = map(maxSample, 32767, -32768, 0, height - 1);
+    int yBottom = map(minSample, 32767, -32768, 0, height - 1);
+    dm.canvasBIG.drawFastVLine(x, yTop + 8, yBottom - yTop + 1, SSD1306_WHITE); 
+  }
+  wave_file.close();
 }
 
 void RecorderMenuRouter::select_cursor() {
-          String _legend[] = {"Select","Zoom Out","Zoom In","Normalize","Reverse","Pitch x","Fade In","Fade Out","Preview","Del before","Del after","Del zone","Keep zone","Undo"," "};
+  String _legend[] = {"Select","Zoom Out","Zoom In","Normalize","Reverse","Pitch x","Fade In","Fade Out",
+                      "Preview","Del before","Del after","Del zone","Keep zone","Undo"," "};
+  dm.clearDisplay();
+  dm.dodisplay();
+  int cursor_coords[][4] = {{0,0,18,8},{22,0,9,8},{38,0,9,8},{52,0,9,8},{64,0,9,8},{76,0,9,8},{88,0,14,8},{106,0,14,8},{0,8,128,48},
+                            {23,56,14,8},{40,56,21,8},{64,56,20,8},{88,56,27,8},{116,56,12,8}};
+  dm.fillRect(cursor_coords[lv.sublevels[self->relative_navlevel+1]][0], 
+                    cursor_coords[lv.sublevels[self->relative_navlevel+1]][1],
+                    cursor_coords[lv.sublevels[self->relative_navlevel+1]][2],
+                    cursor_coords[lv.sublevels[self->relative_navlevel+1]][3],
+                    SSD1306_INVERSE);
 
-          dm.clearDisplay();
-          dm.dodisplay();
-          int cursor_coords[][4] = {{0,0,18,8},{22,0,9,8},{38,0,9,8},{52,0,9,8},{64,0,9,8},{76,0,9,8},{88,0,14,8},{106,0,14,8},{0,8,128,48},
-                                    {23,56,14,8},{40,56,21,8},{64,56,20,8},{88,56,27,8},{116,56,12,8}};
-          dm.fillRect(cursor_coords[lv.sublevels[self->relative_navlevel+1]][0], 
-                            cursor_coords[lv.sublevels[self->relative_navlevel+1]][1],
-                            cursor_coords[lv.sublevels[self->relative_navlevel+1]][2],
-                            cursor_coords[lv.sublevels[self->relative_navlevel+1]][3],
-                            SSD1306_INVERSE);
-
-           if (self->wave_selected) {
-            redraw_selection_box();
-          } 
-          //dm.fillRect(80,16, 38, 10, SSD1306_INVERSE);
-          dm.setTextSize(1);
-          dm.setTextColor(SSD1306_INVERSE);
-          dm.setCursor(60,12);
-          dm.print(_legend[lv.sublevels[self->relative_navlevel +1]]);
-          dm.display();
-        }
+    if (self->wave_selected) {
+    redraw_selection_box();
+  } 
+  dm.setTextSize(1);
+  dm.setTextColor(SSD1306_INVERSE);
+  dm.setCursor(60,12);
+  dm.print(_legend[lv.sublevels[self->relative_navlevel +1]]);
+  dm.display();
+}
 
 void RecorderMenuRouter::draw_editor_zones(){
-          dm.clean_title_1_1();
-          dm.canvastitle.print("Slt");
-          dm.canvastitle.print(" -  +");
-          //dm.canvastitle.print(" Play");
-          dm.canvastitle.print(" A");//amplify
-          dm.canvastitle.print(" R");//reverse
-          dm.canvastitle.print(" P");//Pitch
-          dm.canvastitle.print(" Fi");//fade In
-          dm.canvastitle.print(" Fo");//fade out
-          //dm.canvasBIG.drawFastHLine(0, 10, 128, SSD1306_WHITE);
-          //dm.canvasBIG.drawFastHLine(0, 53, 128, SSD1306_WHITE);
-          dm.canvasBIG.setCursor(0,57);
-          dm.canvasBIG.print("Cut In");//trim from start of zone to eof
-          dm.canvasBIG.print(" Out");// trim from begining to end of zone
-          dm.canvasBIG.print(" Del");// remove selected zone
-          dm.canvasBIG.print(" Trim");// keep only selected zone
-          dm.canvasBIG.print((char)14);// Undo
-        }
+  dm.clean_title_1_1();
+  dm.canvastitle.print("Slt");
+  dm.canvastitle.print(" -  +");
+  dm.canvastitle.print(" A");//amplify
+  dm.canvastitle.print(" R");//reverse
+  dm.canvastitle.print(" P");//Pitch
+  dm.canvastitle.print(" Fi");//fade In
+  dm.canvastitle.print(" Fo");//fade out
+  dm.canvasBIG.setCursor(0,57);
+  dm.canvasBIG.print("Cut In");//trim from start of zone to eof
+  dm.canvasBIG.print(" Out");// trim from begining to end of zone
+  dm.canvasBIG.print(" Del");// remove selected zone
+  dm.canvasBIG.print(" Trim");// keep only selected zone
+  dm.canvasBIG.print((char)14);// Undo
+}
 
 void RecorderMenuRouter::redraw_selection_box(){
-          dm.fillRect(lv.sublevels[self->relative_navlevel +2], 8, 
-                              lv.sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
-         
-        }
+  dm.fillRect(lv.sublevels[self->relative_navlevel +2], 8, 
+                      lv.sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
+  
+}
 
 void RecorderMenuRouter::zoomRange(float subStart,float subEnd) {
-          if (!self->wave_selected) return ;
-          float zone_width = self->end_zone - self->start_zone;
-          self->end_zone = self->start_zone + subEnd * zone_width;
-          self->start_zone = self->start_zone + subStart * zone_width;
-        }
+  if (!self->wave_selected) return ;
+  float zone_width = self->end_zone - self->start_zone;
+  self->end_zone = self->start_zone + subEnd * zone_width;
+  self->start_zone = self->start_zone + subStart * zone_width;
+}
 
 void RecorderMenuRouter::reverseSection(float startPos, float endPos) {
-          self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
-          self->catalog->tmp_counter++;
-          if (lv.locked_fileing)
-          return;
-            const uint16_t sampleSize = 2;      // 16-bit RAW
-            const uint32_t blockSamples = 512;  // 1024-byte buffer
-            uint8_t buffer[blockSamples * sampleSize];
-            File src = SD.open(self->newloopedpath.c_str(), FILE_READ);
-            if (!src) return;
-            //should get new temp name
-            File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
-            if (!dst) {
-                src.close();
-                return;
-            }
-          
-          lv.locked_fileing = 1 ;
-          uint32_t fileSize = src.size();
-
-          // Clamp
-          if (startPos < 0.0f) startPos = 0.0f;
-          if (endPos > 1.0f) endPos = 1.0f;
-          if (startPos > endPos) {
-              float t = startPos;
-              startPos = endPos;
-              endPos = t;
-          }
-
-          uint32_t startByte = (uint32_t)(fileSize * startPos);
-          uint32_t endByte   = (uint32_t)(fileSize * endPos);
-
-          // Align to sample boundaries
-          startByte = (startByte / sampleSize) * sampleSize;
-          endByte   = (endByte / sampleSize) * sampleSize;
-
-          src.seek(0);
-
-          uint32_t remaining = startByte;
-
-          while (remaining) {
-              uint32_t n = min((uint32_t)sizeof(buffer), remaining);
-              src.read(buffer, n);
-              dst.write(buffer, n);
-              remaining -= n;
-          }
-
-          int32_t pos = endByte;
-
-          while (pos > (int32_t)startByte) {
-
-            uint32_t chunk = min((uint32_t)(pos - startByte),
-                                (uint32_t)sizeof(buffer));
-
-            // Keep sample alignment
-            chunk = (chunk / sampleSize) * sampleSize;
-
-            pos -= chunk;
-
-            src.seek(pos);
-            src.read(buffer, chunk);
-
-            // Reverse samples inside buffer
-            for (uint32_t i = 0; i < chunk; i += sampleSize) {
-              uint32_t srcIndex = chunk - sampleSize - i;
-              dst.write(buffer + srcIndex, sampleSize);
-            }
-          }
-
-          src.seek(endByte);
-
-          while (true) {
-              int n = src.read(buffer, sizeof(buffer));
-              if (n <= 0) break;
-              dst.write(buffer, n);
-          }
-
-          src.close();
-          dst.close();
-          lv.locked_fileing = 0 ;
-          
-          /*
-          SdFile file;
-          file.open(self->get_current_temp_file().c_str(), O_READ);
-          file.rename(self->newloopedpath.c_str());
-          */
-          self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
-          //self->catalog->tmp_counter++;
-          //self->catalog->copyFileGeneric(self->get_current_temp_file().c_str(),self->newloopedpath.c_str());
-          //self->catalog->deleteFileGeneric(self->get_current_temp_file().c_str());
-          //self->catalog->tmp_counter--;
-        }
-        
+  self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+  self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
+  if (lv.locked_fileing) return;
+  const uint16_t sampleSize = 2;
+  const uint32_t blockSamples = 512;
+  uint8_t buffer[blockSamples * sampleSize];
+  FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
+  if (!src) return;
+  FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  if (!dst) {
+    src.close();
+    return;
+  }
+  lv.locked_fileing = 1 ;
+  uint32_t fileSize = src.size();
+  if (startPos < 0.0f) startPos = 0.0f;
+  if (endPos > 1.0f) endPos = 1.0f;
+  if (startPos > endPos) {
+    float t = startPos;
+    startPos = endPos;
+    endPos = t;
+  }
+  uint32_t startByte = (uint32_t)(fileSize * startPos);
+  uint32_t endByte   = (uint32_t)(fileSize * endPos);
+  startByte = (startByte / sampleSize) * sampleSize;
+  endByte   = (endByte / sampleSize) * sampleSize;
+  src.seek(0);
+  uint32_t remaining = startByte;
+  while (remaining) {
+    uint32_t n = min((uint32_t)sizeof(buffer), remaining);
+    src.read(buffer, n);
+    dst.write(buffer, n);
+    remaining -= n;
+  }
+  int32_t pos = endByte;
+  while (pos > (int32_t)startByte) {
+    uint32_t chunk = min((uint32_t)(pos - startByte),(uint32_t)sizeof(buffer));
+    chunk = (chunk / sampleSize) * sampleSize;
+    pos -= chunk;
+    src.seek(pos);
+    src.read(buffer, chunk);
+    for (uint32_t i = 0; i < chunk; i += sampleSize) {
+      uint32_t srcIndex = chunk - sampleSize - i;
+      dst.write(buffer + srcIndex, sampleSize);
+    }
+  }
+  src.seek(endByte);
+  while (int n = src.read(buffer, sizeof(buffer))) dst.write(buffer, n);
+  src.close();
+  dst.close();
+  lv.locked_fileing = 0 ;
+  self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
+}
+     
 void RecorderMenuRouter::pitchSection(float startPos, float endPos, float speed) {
-          self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
-          self->catalog->tmp_counter++;
-          if (lv.locked_fileing)
-          return;
-            if (speed <= 0.0f) return;
+  self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+  self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
+  if (lv.locked_fileing || speed <= 0.0f) return;
+  FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
+  if (!src) return;
+  FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  lv.locked_fileing = 1 ;
+  const uint32_t BUFFER_SAMPLES = 1024;
+  int16_t buffer[BUFFER_SAMPLES];
+  uint32_t fileSize = src.size();
+  uint32_t startByte = (uint32_t)(fileSize * startPos);
+  uint32_t endByte   = (uint32_t)(fileSize * endPos);
+  startByte &= ~1;
+  endByte   &= ~1;
+  src.seek(0);
+  int16_t sample;
+  while (src.position() < startByte) {
+    src.read((uint8_t *)&sample, 2);
+    dst.write((uint8_t *)&sample, 2);
+  }
+  uint32_t startSample = startByte / 2;
+  uint32_t endSample   = endByte / 2;
+  uint32_t bufferStart = 0;
+  uint32_t samplesInBuffer = 0;
 
-          File src = SD.open(self->newloopedpath.c_str(), FILE_READ);
-          if (!src) return;
-          File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
-          lv.locked_fileing = 1 ;
-
-          const uint32_t BUFFER_SAMPLES = 1024;
-          int16_t buffer[BUFFER_SAMPLES];
-
-          uint32_t fileSize = src.size();
-
-          uint32_t startByte = (uint32_t)(fileSize * startPos);
-          uint32_t endByte   = (uint32_t)(fileSize * endPos);
-
-          startByte &= ~1;
-          endByte   &= ~1;
-
-          //----------------------------------------------------
-          // Copy beginning
-          //----------------------------------------------------
-
-          src.seek(0);
-
-          int16_t sample;
-
-          while (src.position() < startByte)
-          {
-              src.read((uint8_t *)&sample, 2);
-              dst.write((uint8_t *)&sample, 2);
-          }
-
-          //----------------------------------------------------
-          // Buffered resampling
-          //----------------------------------------------------
-
-          uint32_t startSample = startByte / 2;
-          uint32_t endSample   = endByte / 2;
-
-          uint32_t bufferStart = 0;
-          uint32_t samplesInBuffer = 0;
-
-          auto loadBuffer = [&](uint32_t sampleIndex)
-          {
-              bufferStart = sampleIndex;
-
-              src.seek(bufferStart * 2);
-
-              samplesInBuffer =
-                  src.read((uint8_t *)buffer,
-                          BUFFER_SAMPLES * sizeof(int16_t))
-                  / sizeof(int16_t);
-          };
-
-          loadBuffer(startSample);
-
-          float pos = (float)startSample;
-
-          while (pos < endSample - 1)
-          {
-              uint32_t index = (uint32_t)pos;
-
-              // Need a new buffer?
-              if (index < bufferStart ||
-                  index + 1 >= bufferStart + samplesInBuffer)
-              {
-                  loadBuffer(index);
-
-                  if (samplesInBuffer < 2)
-                      break;
-              }
-
-              uint32_t local = index - bufferStart;
-
-              float frac = pos - index;
-
-              float s0 = buffer[local];
-              float s1 = buffer[local + 1];
-
-              float out = s0 + (s1 - s0) * frac;
-
-              int16_t result = (int16_t)out;
-
-              dst.write((uint8_t *)&result, 2);
-
-              pos += speed;
-          }
-
-          //----------------------------------------------------
-          // Copy end
-          //----------------------------------------------------
-
-          src.seek(endByte);
-
-          while (src.read((uint8_t *)&sample, 2) == 2)
-              dst.write((uint8_t *)&sample, 2);
-          
-          src.close();
-          dst.close();
-          lv.locked_fileing = 0 ;
-
-          self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
-
-        }
+  auto loadBuffer = [&](uint32_t sampleIndex) {
+      bufferStart = sampleIndex;
+      src.seek(bufferStart * 2);
+      samplesInBuffer = src.read((uint8_t *)buffer, BUFFER_SAMPLES * sizeof(int16_t)) / sizeof(int16_t);
+  };
+  loadBuffer(startSample);
+  float pos = (float)startSample;
+  while (pos < endSample - 1) {
+    uint32_t index = (uint32_t)pos;
+    if (index < bufferStart || index + 1 >= bufferStart + samplesInBuffer) {
+      loadBuffer(index);
+      if (samplesInBuffer < 2) break;
+    }
+    uint32_t local = index - bufferStart;
+    float frac = pos - index;
+    float s0 = buffer[local];
+    float s1 = buffer[local + 1];
+    float out = s0 + (s1 - s0) * frac;
+    int16_t result = (int16_t)out;
+    dst.write((uint8_t *)&result, 2);
+    pos += speed;
+  }
+  src.seek(endByte);
+  while (src.read((uint8_t *)&sample, 2) == 2) dst.write((uint8_t *)&sample, 2);
+  src.close();
+  dst.close();
+  lv.locked_fileing = 0 ;
+  self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
+}
 
 void RecorderMenuRouter::trimSection(float start_pos, float end_pos) {
-          self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
-          self->catalog->tmp_counter++;
-          if (lv.locked_fileing)
-          return;
-            File in = SD.open(self->newloopedpath.c_str(), FILE_READ);
-            if (!in)
-                return;
-
-            File out = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
-            if (!out)
-            {
-                in.close();
-                return;
-            }
-          lv.locked_fileing = 1 ;
-
-            uint32_t fileSize = in.size();
-
-            // Clamp arguments
-            start_pos = constrain(start_pos, 0.0f, 1.0f);
-            end_pos   = constrain(end_pos,   0.0f, 1.0f);
-
-            if (start_pos >= end_pos)
-            {
-                in.close();
-                out.close();
-                return;
-            }
-
-            // Convert percentages to byte offsets
-            uint32_t startByte = (uint32_t)(start_pos * fileSize);
-            uint32_t endByte   = (uint32_t)(end_pos   * fileSize);
-
-            // Align to 16-bit sample boundaries
-            startByte &= ~1;
-            endByte   &= ~1;
-
-            // Safety
-            if (endByte > fileSize)
-                endByte = fileSize;
-
-            if (startByte >= endByte)
-            {
-                in.close();
-                out.close();
-                return;
-            }
-
-            in.seek(startByte);
-
-            uint32_t remaining = endByte - startByte;
-            uint8_t buffer[4096];
-
-            while (remaining)
-            {
-                uint32_t chunk = min((uint32_t)sizeof(buffer), remaining);
-
-                int bytesRead = in.read(buffer, chunk);
-                if (bytesRead <= 0)
-                    break;
-
-                out.write(buffer, bytesRead);
-                remaining -= bytesRead;
-            }
-            out.close();
-            in.close();
-            lv.locked_fileing = 0 ;
-            self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
-        }
+  self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+  self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
+  if (lv.locked_fileing) return;
+  FsFile in = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
+  if (!in) return;
+  FsFile out = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  if (!out) {
+    in.close();
+    lv.locked_fileing = 0 ;
+    return;
+  }
+  lv.locked_fileing = 1 ;
+  uint32_t fileSize = in.size();
+  start_pos = constrain(start_pos, 0.0f, 1.0f);
+  end_pos   = constrain(end_pos,   0.0f, 1.0f);
+  if (start_pos >= end_pos) {
+    in.close();
+    out.close();
+    lv.locked_fileing = 0 ;
+    return;
+  }
+  uint32_t startByte = (uint32_t)(start_pos * fileSize);
+  uint32_t endByte   = (uint32_t)(end_pos   * fileSize);
+  startByte &= ~1;
+  endByte   &= ~1;
+  if (endByte > fileSize) endByte = fileSize;
+  if (startByte >= endByte) {
+    in.close();
+    out.close();
+    lv.locked_fileing = 0 ;
+    return;
+  }
+  in.seek(startByte);
+  uint32_t remaining = endByte - startByte;
+  uint8_t buffer[4096];
+  while (remaining) {
+    uint32_t chunk = min((uint32_t)sizeof(buffer), remaining);
+    int bytesRead = in.read(buffer, chunk);
+    if (bytesRead <= 0) break;
+    out.write(buffer, bytesRead);
+    remaining -= bytesRead;
+  }
+  out.close();
+  in.close();
+  lv.locked_fileing = 0 ;
+  self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
+}
    
 void RecorderMenuRouter::normalizeSection(float startPos, float endPos) {
-          self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
-          self->catalog->tmp_counter++;
-          if (lv.locked_fileing)
-          return;
-            const uint16_t sampleSize = 2;      // 16-bit mono
-            const uint32_t bufferSamples = 512;
-            int16_t buffer[bufferSamples];
+  self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+  self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
+  if (lv.locked_fileing) return;
+  const uint16_t sampleSize = 2;
+  const uint32_t bufferSamples = 512;
+  int16_t buffer[bufferSamples];
+  FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
+  if (!src) return;
+  FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  lv.locked_fileing = 1 ;
+  uint32_t fileSize = src.size();
+  if (startPos < 0.0f) startPos = 0.0f;
+  if (endPos > 1.0f) endPos = 1.0f;
+  if (startPos > endPos) {
+    float t = startPos;
+    startPos = endPos;
+    endPos = t;
+  }
+  uint32_t startByte = (uint32_t)(fileSize * startPos);
+  uint32_t endByte = (uint32_t)(fileSize * endPos);
+  startByte = (startByte / sampleSize) * sampleSize;
+  endByte = (endByte / sampleSize) * sampleSize;
+  int16_t peak = 0;
+  src.seek(startByte);
+  uint32_t remaining = endByte - startByte;
+  while (remaining) {
+    uint32_t bytes = min((uint32_t)sizeof(buffer), remaining);
+    src.read((uint8_t *)buffer, bytes);
+    int samples = bytes / sampleSize;
+    for (int i = 0; i < samples; i++) {
+        int32_t v = buffer[i];
+        if (v < 0) v = -v;
+        if (v > peak) peak = v;
+    }
+    remaining -= bytes;
+  }
+  if (peak == 0){ 
+    lv.locked_fileing = 0 ;
+    return;
+  }
+  float gain = (32767.0f * 0.99f) / peak;
+  src.seek(0);
+  remaining = startByte;
 
-            File src = SD.open(self->newloopedpath.c_str(), FILE_READ);
-            if (!src) return;
-            File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
-            lv.locked_fileing = 1 ;
-            uint32_t fileSize = src.size();
+  while (remaining) {
+    uint32_t bytes = min((uint32_t)sizeof(buffer), remaining);
+    src.read((uint8_t *)buffer, bytes);
+    dst.write((uint8_t *)buffer, bytes);
+    remaining -= bytes;
+  }
+  src.seek(startByte);
+  remaining = endByte - startByte;
+  while (remaining) {
+    uint32_t bytes = min((uint32_t)sizeof(buffer), remaining);
+    src.read((uint8_t *)buffer, bytes);
+    int samples = bytes / sampleSize;
+    for (int i = 0; i < samples; i++) {
+      int32_t s = (int32_t)(buffer[i] * gain);
+      if (s > 32767) s = 32767;
+      else if (s < -32768) s = -32768;
+      buffer[i] = (int16_t)s;
+    }
+    dst.write((uint8_t *)buffer, bytes);
+    remaining -= bytes;
+  }
+  while (int bn = src.read((uint8_t *)buffer, sizeof(buffer))) dst.write(buffer, bn);
+  src.close();
+  dst.close();
+  lv.locked_fileing = 0 ;
+  self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
 
-            if (startPos < 0.0f) startPos = 0.0f;
-            if (endPos > 1.0f) endPos = 1.0f;
-
-            if (startPos > endPos)
-            {
-              float t = startPos;
-              startPos = endPos;
-              endPos = t;
-            }
-
-            uint32_t startByte = (uint32_t)(fileSize * startPos);
-            uint32_t endByte   = (uint32_t)(fileSize * endPos);
-
-            startByte = (startByte / sampleSize) * sampleSize;
-            endByte   = (endByte / sampleSize) * sampleSize;
-
-            int16_t peak = 0;
-
-            src.seek(startByte);
-
-            uint32_t remaining = endByte - startByte;
-
-            while (remaining)
-            {
-                uint32_t bytes = min((uint32_t)sizeof(buffer), remaining);
-
-                src.read((uint8_t *)buffer, bytes);
-
-                int samples = bytes / sampleSize;
-
-                for (int i = 0; i < samples; i++)
-                {
-                    int32_t v = buffer[i];
-
-                    if (v < 0)
-                        v = -v;
-
-                    if (v > peak)
-                        peak = v;
-                }
-                remaining -= bytes;
-            }
-            if (peak == 0)
-                return;
-            float gain = (32767.0f * 0.99f) / peak;
-            src.seek(0);
-            remaining = startByte;
-
-            while (remaining)
-            {
-                uint32_t bytes = min((uint32_t)sizeof(buffer), remaining);
-
-                src.read((uint8_t *)buffer, bytes);
-                dst.write((uint8_t *)buffer, bytes);
-
-                remaining -= bytes;
-            }
-            src.seek(startByte);
-            remaining = endByte - startByte;
-            while (remaining)
-            {
-                uint32_t bytes = min((uint32_t)sizeof(buffer), remaining);
-                src.read((uint8_t *)buffer, bytes);
-                int samples = bytes / sampleSize;
-                for (int i = 0; i < samples; i++)
-                {
-                    int32_t s = (int32_t)(buffer[i] * gain);
-
-                    if (s > 32767)
-                        s = 32767;
-                    else if (s < -32768)
-                        s = -32768;
-
-                    buffer[i] = (int16_t)s;
-                }
-
-                dst.write((uint8_t *)buffer, bytes);
-                remaining -= bytes;
-            }
-            while (true)
-            {
-                int bytes = src.read((uint8_t *)buffer, sizeof(buffer));
-
-                if (bytes <= 0)
-                    break;
-
-                dst.write((uint8_t *)buffer, bytes);
-            }
-          src.close();
-          dst.close();
-          lv.locked_fileing = 0 ;
-          self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
-        }
+}
 
 void RecorderMenuRouter::playSection(){
-          PartialPlayerMono.play(self->newloopedpath.c_str(),self->start_zone,self->end_zone);
-          dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
-        }
+  PartialPlayerMono.play(self->newloopedpath.c_str(),self->start_zone,self->end_zone);
+  dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
+}
 
 void RecorderMenuRouter::scheddule_wave_rebuild(bool noreturn,bool noreinit){
-          self->end_zone = 1.0;
-          self->start_zone = 0.0 ;
-          self->wave_buffed = 0 ;
-          if (!noreinit)
-            dm.reinitsublevels(self->relative_navlevel + 1); 
-          if (!noreturn)
-            dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
-          lv.locked_fileing = 0 ; 
-        }
+  self->end_zone = 1.0;
+  self->start_zone = 0.0 ;
+  self->wave_buffed = 0 ;
+  if (!noreinit)
+    dm.reinitsublevels(self->relative_navlevel + 1); 
+  if (!noreturn)
+    dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
+  lv.locked_fileing = 0 ; 
+}
 
 void RecorderMenuRouter::fadeInSection(float startPos, float endPos) {
-          self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
-          self->catalog->tmp_counter++;
-          if (lv.locked_fileing)
-          return;
+  self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+  self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
+  if (lv.locked_fileing) return;
+  FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
+  if (!src) return;
+  FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  lv.locked_fileing = 1 ;
+  //const uint16_t sampleSize = 2;
+  const uint32_t BUFFER_SAMPLES = 1024;
+  int16_t buffer[BUFFER_SAMPLES];
+  uint32_t fileSize = src.size();
+  uint32_t startByte = (uint32_t)(fileSize * startPos);
+  uint32_t endByte   = (uint32_t)(fileSize * endPos);
+  startByte &= ~1;
+  endByte   &= ~1;
+  src.seek(0);
 
-          File src = SD.open(self->newloopedpath.c_str(), FILE_READ);
-          if (!src) return;
-        
-          File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
-          lv.locked_fileing = 1 ;
-          //const uint16_t sampleSize = 2;
-          const uint32_t BUFFER_SAMPLES = 1024;
-          int16_t buffer[BUFFER_SAMPLES];
-          uint32_t fileSize = src.size();
-          uint32_t startByte = (uint32_t)(fileSize * startPos);
-          uint32_t endByte   = (uint32_t)(fileSize * endPos);
-          startByte &= ~1;
-          endByte   &= ~1;
-          src.seek(0);
+  while (src.position() < startByte) {
+    uint32_t bytes = min((uint32_t)sizeof(buffer), startByte - src.position());
+    src.read((uint8_t*)buffer, bytes);
+    dst.write((uint8_t*)buffer, bytes);
+  }
+  uint32_t fadeSamples = (endByte - startByte) / 2;
+  uint32_t sampleIndex = 0;
+  while (sampleIndex < fadeSamples){
+    uint32_t samples = min(BUFFER_SAMPLES,
+                          fadeSamples - sampleIndex);
 
-          while (src.position() < startByte)
-          {
-              uint32_t bytes = min((uint32_t)sizeof(buffer), startByte - src.position());
-              src.read((uint8_t*)buffer, bytes);
-              dst.write((uint8_t*)buffer, bytes);
-          }
-          uint32_t fadeSamples = (endByte - startByte) / 2;
-          uint32_t sampleIndex = 0;
-          while (sampleIndex < fadeSamples){
-              uint32_t samples = min(BUFFER_SAMPLES,
-                                    fadeSamples - sampleIndex);
-
-              src.read((uint8_t*)buffer, samples * 2);
-              for (uint32_t i = 0; i < samples; i++) {   
-                  float x = (float)(sampleIndex + i) / (fadeSamples - 1);
-                  float gain = sinf(x * (PI/2.0));
-                  int32_t s = (int32_t)(buffer[i] * gain);
-                  buffer[i] = (int16_t)s;
-              }
-              dst.write((uint8_t*)buffer, samples * 2);
-              sampleIndex += samples;
-          }
-          while (true)
-          {
-              int bytes = src.read((uint8_t*)buffer, sizeof(buffer));
-              if (bytes <= 0)
-                  break;
-              dst.write((uint8_t*)buffer, bytes);
-          }
-          src.close();
-          dst.close();
-          lv.locked_fileing = 0 ;
-          self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
-        }
+    src.read((uint8_t*)buffer, samples * 2);
+    for (uint32_t i = 0; i < samples; i++) {   
+      float x = (float)(sampleIndex + i) / (fadeSamples - 1);
+      float gain = sinf(x * (PI/2.0));
+      int32_t s = (int32_t)(buffer[i] * gain);
+      buffer[i] = (int16_t)s;
+    }
+    dst.write((uint8_t*)buffer, samples * 2);
+    sampleIndex += samples;
+  }
+  while (int bn = src.read((uint8_t *)buffer, sizeof(buffer))) dst.write((uint8_t*)buffer, bn);
+  src.close();
+  dst.close();
+  lv.locked_fileing = 0 ;
+  self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
+}
 
 void RecorderMenuRouter::fadeOutSection(float startPos, float endPos) {
-          self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
-          self->catalog->tmp_counter++;
-          if (lv.locked_fileing)
-          return;
-
-          File src = SD.open(self->newloopedpath.c_str(), FILE_READ);
-          if (!src) return;
-          File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
-          lv.locked_fileing = 1 ;
-          const uint32_t BUFFER_SAMPLES = 1024;
-          int16_t buffer[BUFFER_SAMPLES];
-          uint32_t fileSize = src.size();
-          uint32_t startByte = (uint32_t)(fileSize * startPos);
-          uint32_t endByte   = (uint32_t)(fileSize * endPos);
-          startByte &= ~1;
-          endByte   &= ~1;
-          src.seek(0);
-          while (src.position() < startByte)
-          {
-              uint32_t bytes = min((uint32_t)sizeof(buffer),
-                                  startByte - src.position());
-
-              src.read((uint8_t*)buffer, bytes);
-              dst.write((uint8_t*)buffer, bytes);
-          }
-          uint32_t fadeSamples = (endByte - startByte) / 2;
-          uint32_t sampleIndex = 0;
-          while (sampleIndex < fadeSamples)
-          {
-              uint32_t samples = min(BUFFER_SAMPLES, fadeSamples - sampleIndex);
-              src.read((uint8_t*)buffer, samples * 2);
-              for (uint32_t i = 0; i < samples; i++)
-              {
-                  float x = (float)(sampleIndex + i) / (fadeSamples - 1);
-                  float gain = cosf(x * (PI/2));
-                  int32_t s = (int32_t)(buffer[i] * gain);
-                  buffer[i] = (int16_t)s;
-              }
-
-              dst.write((uint8_t*)buffer, samples * 2);
-              sampleIndex += samples;
-          }
-          while (true)
-          {
-              int bytes = src.read((uint8_t*)buffer, sizeof(buffer));
-              if (bytes <= 0)
-                  break;
-              dst.write((uint8_t*)buffer, bytes);
-          }
-          src.close();
-          dst.close();
-          lv.locked_fileing = 0 ;
-          self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
-        }
+  self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+  self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
+  if (lv.locked_fileing) return;
+  FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
+  if (!src) return;
+  FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  lv.locked_fileing = 1 ;
+  const uint32_t BUFFER_SAMPLES = 1024;
+  int16_t buffer[BUFFER_SAMPLES];
+  uint32_t fileSize = src.size();
+  uint32_t startByte = (uint32_t)(fileSize * startPos);
+  uint32_t endByte   = (uint32_t)(fileSize * endPos);
+  startByte &= ~1;
+  endByte   &= ~1;
+  src.seek(0);
+  while (src.position() < startByte) {
+    uint32_t bytes = min((uint32_t)sizeof(buffer), startByte - src.position());
+    src.read((uint8_t*)buffer, bytes);
+    dst.write((uint8_t*)buffer, bytes);
+  }
+  uint32_t fadeSamples = (endByte - startByte) / 2;
+  uint32_t sampleIndex = 0;
+  while (sampleIndex < fadeSamples) {
+    uint32_t samples = min(BUFFER_SAMPLES, fadeSamples - sampleIndex);
+    src.read((uint8_t*)buffer, samples * 2);
+    for (uint32_t i = 0; i < samples; i++) {
+      float x = (float)(sampleIndex + i) / (fadeSamples - 1);
+      float gain = cosf(x * (PI/2));
+      int32_t s = (int32_t)(buffer[i] * gain);
+      buffer[i] = (int16_t)s;
+    }
+    dst.write((uint8_t*)buffer, samples * 2);
+    sampleIndex += samples;
+  }
+  while (int bn = src.read((uint8_t *)buffer, sizeof(buffer))) dst.write((uint8_t*)buffer, bn);
+  src.close();
+  dst.close();
+  lv.locked_fileing = 0 ;
+  self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
+}
 
 void RecorderMenuRouter::start_inputting_pitch(){
-          lv.navrange = 127 ;
-          dm.setCursor(104,12);
-          dm.fillRect(104, 12, 30, 10, SSD1306_BLACK);
-          self->pitcher = (lv.sublevels[self->relative_navlevel + 2]/127.0) * 2.0;
-          dm.print(self->pitcher);
-          dm.dodisplay();
-          if (lv.navlevel >= self->relative_navlevel+3) {
-            pitchSection(self->start_zone,self->end_zone,self->pitcher);
-            scheddule_wave_rebuild();
-            dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
+  lv.navrange = 127 ;
+  dm.setCursor(104,12);
+  dm.fillRect(104, 12, 30, 10, SSD1306_BLACK);
+  self->pitcher = (lv.sublevels[self->relative_navlevel + 2]/127.0) * 2.0;
+  dm.print(self->pitcher);
+  dm.dodisplay();
+  if (lv.navlevel >= self->relative_navlevel+3) {
+    pitchSection(self->start_zone,self->end_zone,self->pitcher);
+    scheddule_wave_rebuild();
+    dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
 
-          }
-        }
+  }
+}
 
 void RecorderMenuRouter::deleteSection(float startPos, float endPos){
-          self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
-          self->catalog->tmp_counter++;
-          if (lv.locked_fileing)
-          return;
-          File src = SD.open(self->newloopedpath.c_str(), FILE_READ);
-          if (!src) return;
-          File dst = SD.open(self->catalog->get_new_tmp_name().c_str(), FILE_WRITE);
-          lv.locked_fileing = 1 ;
-          const uint32_t BUFFER_SIZE = 2048;
-          uint8_t buffer[BUFFER_SIZE];
-          uint32_t fileSize = src.size();
-          if (startPos < 0.0f) startPos = 0.0f;
-          if (startPos > 1.0f) startPos = 1.0f;
-          if (endPos < 0.0f) endPos = 0.0f;
-          if (endPos > 1.0f) endPos = 1.0f;
-          if (startPos > endPos)
-          {
-            float t = startPos;
-            startPos = endPos;
-            endPos = t;
-          }
-          uint32_t startByte = (uint32_t)(fileSize * startPos);
-          uint32_t endByte   = (uint32_t)(fileSize * endPos);
-          // Align to 16-bit samples
-          startByte &= ~1;
-          endByte   &= ~1;
-          src.seek(0);
-          uint32_t remaining = startByte;
-
-          while (remaining)
-          {
-              uint32_t chunk = (remaining > BUFFER_SIZE) ? BUFFER_SIZE : remaining;
-              src.read(buffer, chunk);
-              dst.write(buffer, chunk);
-              remaining -= chunk;
-          }
-          src.seek(endByte);
-          while (true)
-          {
-            int bytesRead = src.read(buffer, BUFFER_SIZE);
-            if (bytesRead <= 0)
-                break;
-            dst.write(buffer, bytesRead);
-          }
-          src.close();
-          dst.close();
-          lv.locked_fileing = 0 ;
-          self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
-        }
+  self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+  self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
+  if (lv.locked_fileing) return;
+  FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
+  if (!src) return;
+  FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  lv.locked_fileing = 1 ;
+  const uint32_t BUFFER_SIZE = 2048;
+  uint8_t buffer[BUFFER_SIZE];
+  uint32_t fileSize = src.size();
+  if (startPos < 0.0f) startPos = 0.0f;
+  if (startPos > 1.0f) startPos = 1.0f;
+  if (endPos < 0.0f) endPos = 0.0f;
+  if (endPos > 1.0f) endPos = 1.0f;
+  if (startPos > endPos) {
+    float t = startPos;
+    startPos = endPos;
+    endPos = t;
+  }
+  uint32_t startByte = (uint32_t)(fileSize * startPos);
+  uint32_t endByte   = (uint32_t)(fileSize * endPos);
+  startByte &= ~1;
+  endByte   &= ~1;
+  src.seek(0);
+  uint32_t remaining = startByte;
+  while (remaining) {
+    uint32_t chunk = (remaining > BUFFER_SIZE) ? BUFFER_SIZE : remaining;
+    src.read(buffer, chunk);
+    dst.write(buffer, chunk);
+    remaining -= chunk;
+  }
+  src.seek(endByte);
+  while (int bn = src.read(buffer, BUFFER_SIZE)) dst.write(buffer, bn);
+  src.close();
+  dst.close();
+  lv.locked_fileing = 0 ;
+  self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
+}
 
 void RecorderMenuRouter::edit_record(){
           make_temp_folders();
@@ -1190,14 +982,14 @@ void RecorderMenuRouter::redo(){
 }
 
 String RecorderMenuRouter::get_current_temp_file(){
-  return (self->catalog->get_full_tmp_file_path(max(self->catalog->tmp_counter-1,0))); 
+  return (self->catalog->get_full_tmp_file_path(max(self->catalog->tmp_index,0))); 
 }
 
 void RecorderMenuRouter::Undo(){
+  self->catalog->tmp_index = self->undoables[max(self->catalog->tmp_count-1,0)];
   if (SD.exists(self->get_current_temp_file().c_str())){
-    //make first temp if none only
+    self->catalog->tmp_count--;
     self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
-    self->catalog->tmp_counter--;
   } else {
     Serial.println(" no bkp yet");
   }
@@ -1205,23 +997,24 @@ void RecorderMenuRouter::Undo(){
 }
 
 void RecorderMenuRouter::clear_temp_files(){
-          if (SD.exists(self->catalog->tmp_folder)) {
-            File opened_dir = SD.open((const char*)self->catalog->tmp_folder);
-            while (true) {
-              File entry = opened_dir.openNextFile();
-              if (!entry) {
-                  break;
-              }
-              if (!entry.isDirectory()) {
-                char apathe[37];
-                snprintf(apathe, sizeof(apathe), "%s%s",self->catalog->tmp_folder, entry.name());
-                SD.remove(apathe);               
-                entry.close();
-              }
-            }
-          }
-          self->catalog->tmp_counter = 0;
-        }
+  if (SD.sdfs.exists(self->catalog->tmp_folder)) {
+    FsFile opened_dir = SD.sdfs.open((const char*)self->catalog->tmp_folder);
+    while (true) {
+      FsFile entry = opened_dir.openNextFile();
+      if (!entry) break;
+      if (!entry.isDirectory()) {
+        char namer_[16];
+        entry.getName(namer_, 16);
+        namer_[15] = '\0';
+        char apathe[37];
+        snprintf(apathe, sizeof(apathe), "%s%s",self->catalog->tmp_folder, namer_);
+        SD.sdfs.remove(apathe);
+      }
+    }
+  }
+  self->catalog->tmp_index = 0;
+  self->catalog->tmp_count = 0;
+}
 
 void RecorderMenuRouter::make_temp_folders(){
           self->catalog->make_temp_folders();

@@ -1,5 +1,5 @@
+#include <stdint.h>
 #pragma once
-
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
@@ -7,7 +7,7 @@ class RecorderMenuRouter : public SectionHolder {
     public:
         RecorderMenuRouter();
         FilesLister *catalog;
-        File looper;
+        FsFile looper;
         const byte rec_labels_count = 6;
         float pitcher = 1.0;
         bool recorderstop = false ;
@@ -27,6 +27,7 @@ class RecorderMenuRouter : public SectionHolder {
         float end_zone = 1.0f ; 
         bool wave_buffed = 0 ;
         bool wave_selected = 0 ;
+        uint8_t undoables[99]{};
 
         static void show();
         static void Load_raw_file();

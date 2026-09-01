@@ -42,7 +42,7 @@ bool AudioPlayPartialSdRaw::play(const char *filename,float start, float end){
 	AudioStartUsingSPI();
 #endif
 	__disable_irq();
-	rawfile = SD.open(filename);
+	rawfile = SD.sdfs.open(filename, O_READ);
 	__enable_irq();
 	if (!rawfile) {
 		//Serial.println("unable to open file");
@@ -53,19 +53,13 @@ bool AudioPlayPartialSdRaw::play(const char *filename,float start, float end){
 		#endif
 		return false;
 	}
-
 	file_size = rawfile.size();
-
 	startPos = constrain(start, 0.0f, 1.0f);
 	endPos   = constrain(end, startPos, 1.0f);
-
 	startByte = ((uint32_t)(startPos * file_size)) & ~1;
 	endByte   = ((uint32_t)(endPos * file_size)) & ~1;
-
 	rawfile.seek(startByte);
 	currentByte = startByte;
-
-
 	file_offset = 0;
 	playing = true;
 	return true;

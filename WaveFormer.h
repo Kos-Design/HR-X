@@ -1,5 +1,4 @@
 #pragma once
-
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
@@ -57,7 +56,6 @@ class WaveformsMenuRouter : public SectionHolder {
         static void go_previous();
         static void go_next();
         static void writewaveform();
-        static void writewaveforms(File &filer);
         static void copywaveform();
         static void deletewaveform();
         static void parsewaveformfile();

@@ -529,10 +529,11 @@ void Mp3PlayerRouter::playFile(const char *mp3_file) {
 
 void Mp3PlayerRouter::get_next_mp3() {
   if (SD.exists("MP3") ) {
-    File susudir = SD.open("MP3");
+    FsFile susudir = SD.sdfs.open("MP3");
+    char mpname[32]{};
     if (!self->mp3_looped) {
       while (self->file_index <= self->next_mp3) {
-        File subentry = susudir.openNextFile();
+        FsFile subentry = susudir.openNextFile();
         if (!subentry) {
           self->file_index = 0 ;
           self->next_mp3 = 0 ;
@@ -541,15 +542,15 @@ void Mp3PlayerRouter::get_next_mp3() {
 
         if (!subentry.isDirectory()) {
           self->file_index++;
-          self->mp3_name = self->mp3_dir + subentry.name();
+          subentry.getName(mpname, 32);
+          self->mp3_name = self->mp3_dir + (String)mpname;
         }
         subentry.close();
       }
       self->next_mp3++;
     } else {
-
       while (self->file_index < self->next_mp3) {
-        File subentry = susudir.openNextFile();
+        FsFile subentry = susudir.openNextFile();
         if (!subentry) {
           self->file_index = 0 ;
           return;
@@ -557,7 +558,8 @@ void Mp3PlayerRouter::get_next_mp3() {
 
         if (!subentry.isDirectory()) {
           self->file_index++;
-          self->mp3_name = self->mp3_dir + subentry.name();
+          subentry.getName(mpname, 32);
+          self->mp3_name = self->mp3_dir + (String)mpname;
         }
         subentry.close();
       }
@@ -574,10 +576,10 @@ void Mp3PlayerRouter::count_mp3s() {
   self->mp3_count=0;
   
   if (SD.exists("MP3") ) {
-    File susudir = SD.open("MP3");
+    FsFile susudir = SD.sdfs.open("MP3");
     
     while (true) {
-      File subentry = susudir.openNextFile();
+      FsFile subentry = susudir.openNextFile();
       if (!subentry) {
         return;
       }

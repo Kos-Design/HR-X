@@ -1,5 +1,4 @@
 #pragma once
-
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
@@ -32,8 +31,6 @@ class SamplerMenuRouter : public SectionHolder {
         static void smixerVpanelAction();
         static void clearsizeofsamplefolder();
         static void initializesamplebase();
-        static void batchclearsamplebase(int lefolder);
-        static void clearsamplebase(int lefolder, int lefile);
         String lower_extension_case(String f_name);
         bool test_flash_sample_name(String f_s_name);
         static void listSoundset();
@@ -70,15 +67,10 @@ class SamplerMenuRouter : public SectionHolder {
                                       int lasizey, int lacolor,
                                       int lefolder, int lefile);
         static void addtoFlashsamplelist(char *lesample);
-        static void rebuildflashsamplesnames();
         static void initializeFlashsamplename();
-        static void clearFlashsamplename(int lefile);
-        static void initializeFlashsamplebase();
-        static void clearFlashsamplebase(int lefile);
         static void initializesamplesfoldersselectedlist();
         static void initializeFlashsamplesselected();
         static void initializesamplesselectedlist();
-        static void clearsamplesselectedlist(int lefolder);
         static void drawFlashSamplesList();
         static void drawsamplerfilesList();
         static void drawSamplerFoldersList();

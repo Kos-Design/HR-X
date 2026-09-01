@@ -1359,19 +1359,8 @@ void PatternsMenuRouter::deletepattern() {
 }
 
 void PatternsMenuRouter::copypattern() {
-          File originpatternfile = SD.open(self->catalog->get_current_file_path(0).c_str());
-          File mypatterntxtFile = SD.open(self->catalog->get_new_file_name().c_str(), FILE_WRITE);
-          size_t n;
-          uint8_t buf[64];
-          if (originpatternfile) {
-            while ((n = originpatternfile.read(buf, sizeof(buf))) > 0) {
-              mypatterntxtFile.write(buf, n);
-            }
-            originpatternfile.close();
-          }
-          mypatterntxtFile.close();
-          self->catalog->list_files();
-        }
+  self->catalog->copyFile();
+}
 
 void PatternsMenuRouter::writelemidi() {
   if (lv.locked_fileing)

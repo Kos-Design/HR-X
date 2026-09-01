@@ -49,7 +49,7 @@ public:
     uint32_t currentByte = 0;
 
 private:
-	File rawfile;
+	FsFile rawfile;
 	uint32_t file_size;
 	volatile uint32_t file_offset;
 	volatile bool playing;

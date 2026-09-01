@@ -17,9 +17,9 @@ class FilesLister{
         uint8_t home_navrange;
         size_t base_char_count;
         int left_margin = 80;
-        int tmp_counter = 0;
+        int tmp_index = 0;
         char tmp_folder[36];
-
+        byte tmp_count = 0;
         int top_margin = 16;
         int v_spacer = 10 ;
         bool folders_mode = false;
@@ -53,7 +53,7 @@ class FilesLister{
         void nav_zero();
         void make_temp_folders();
         String get_full_tmp_file_path(uint8_t);
-        String get_new_tmp_name();
+        String get_new_tmp_name(bool increment = true);
         void nav_one(uint8_t save_lbl_idx,uint8_t lbl_navlevel);
         void refresh_files_names();
         void refresh_folders_names();

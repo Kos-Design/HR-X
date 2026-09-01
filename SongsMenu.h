@@ -1,5 +1,4 @@
 #pragma once
-
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
