@@ -1,6 +1,5 @@
-#include <stdint.h>
 #pragma once
-
+#include <stdint.h>
 #include "MenuClasses.h"
 
 class KnobAssigner : public SectionHolder {
@@ -48,7 +47,7 @@ class AdsrMenuRouter : public SectionHolder {
     int32_t tmp_adsrlevels[6] = {0, 5, 0, 100, 0, 50};
 
   private:
-    
+
     static AdsrMenuRouter* self;
 };
 
@@ -73,7 +72,7 @@ class StereoDualFilter {
         AudioConnection& p4,
         AudioConnection& p5,
         AudioConnection& p6);
-        
+
     bool stereo_toggled = false ;
 
     void disconnect_standard();

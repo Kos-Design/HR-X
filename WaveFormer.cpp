@@ -15,7 +15,7 @@ WaveformsMenuRouter::WaveformsMenuRouter() {
 void WaveformsMenuRouter::show() {
   _route_nav[lv.navlevel-1]();
 }
-        
+
 void WaveformsMenuRouter::waveforms_nav_zero(){
   lv.waveforming = 0 ;
   self->catalog->nav_zero();
@@ -36,13 +36,13 @@ void WaveformsMenuRouter::set_tracer(byte control,byte value){
 }
 
 void WaveformsMenuRouter::WaveformParams(){
-          
+
   lv.navrange = 2 ;
   if (lv.navlevel == 3 ){
     lv.navrange = 127;
     *self->waveform_tracers[lv.sublevels[2]]=lv.sublevels[3];
   }
-  
+
   lv.sublevels[3]=*self->waveform_tracers[lv.sublevels[2]];
   dm.clearDisplay();
   dm.setCursor(0,0);
@@ -68,7 +68,7 @@ void WaveformsMenuRouter::WaveformParams(){
   //dm.drawRoundRect(62,11+16, 25, 16, 3, SSD1306_WHITE);
   //dm.drawRoundRect(62,11+16 +16, 25, 16, 3, SSD1306_WHITE);
   dm.display();
-  
+
   if (lv.navlevel > 3 ){
     dm.returntonav(2,2,lv.sublevels[2]);
   }
@@ -169,10 +169,10 @@ void WaveformsMenuRouter::WaveformEditer() {
   lv.waveforming = 1;
   lv.navrange = 255;
   dm.clean_title_1();
-  
+
   if (lv.navlevel > 3) {
     self->trace_waveform = 0 ;
-    
+
     smooth_w_graph();
     dm.returntonav(2,255,lv.sublevels[2]);
   }
@@ -255,9 +255,9 @@ void WaveformsMenuRouter::parsewaveformfile() {
   target_waveform.close();
   lv.locked_fileing = 0 ;
 }
-        
+
 void WaveformsMenuRouter::wforms_actions(){
-  _nav_wforms[lv.sublevels[1]]();  
+  _nav_wforms[lv.sublevels[1]]();
 }
 
 void WaveformsMenuRouter::remove_wform(){
@@ -273,8 +273,8 @@ void WaveformsMenuRouter::load_wform(){
 }
 
 void WaveformsMenuRouter::save_wform(){
-  lv1_wrapper(self->writewaveform);         
-} 
+  lv1_wrapper(self->writewaveform);
+}
 
 void WaveformsMenuRouter::lv1_wrapper(void (*func)()) {
   self->catalog->nav_one(0,1);

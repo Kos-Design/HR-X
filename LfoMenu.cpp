@@ -12,7 +12,7 @@ LFOMenuRouter::LFOMenuRouter() {
                     self->sublevels_address={1,0,0};
                     }
 
-      
+
 void LFOMenuRouter::show() {
           _nav_lfo[lv.navlevel-1]();
         }
@@ -40,7 +40,7 @@ void LFOMenuRouter::LFOrmType() {
           displayLFOrmimg();
           if (lv.navlevel >= 4) {
             gg.LFOformstype[leLFO] = lv.sublevels[3];
-            
+
             restartLFO(leLFO%OSCS_COUNT);
             gobacktolfoparams();
           }
@@ -76,7 +76,7 @@ void LFOMenuRouter::doLFObool() {
 void LFOMenuRouter::gobacktolfoparams() { dm.returntonav(2); }
 
 void LFOMenuRouter::doLFOparamdisplayval(int laval) {
-          
+
         }
 
 void LFOMenuRouter::draw_lfo_val(float laval) {
@@ -232,14 +232,14 @@ void LFOMenuRouter::go_to_synth(){
             dm.returntonav(lv.navlevel+2);
           }
         }
-       
+
 void LFOMenuRouter::go_previous(){
           if (lv.navlevel >= 3) {
             if (lv.cclfoselector-1 < 0)
               lv.cclfoselector = 2 ;
             else
               lv.cclfoselector = lv.cclfoselector-1;
-            
+
             lv.sublevels[1] = lv.cclfoselector ;
             dm.returntonav(lv.navlevel-1,self->sizeofLFOlabels-1,lv.sublevels[2]);
             }
@@ -313,4 +313,4 @@ void LFOMenuRouter::lfo_zero(){
             dm.reinitsublevels(2);
             LFOlineBG();
         }
-       
+

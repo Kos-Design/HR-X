@@ -142,14 +142,14 @@ void PresetsMenuRouter::load_preset(){
         }
 
 void PresetsMenuRouter::save_preset(){
-          lv1_wrapper(self->write_preset);         
+          lv1_wrapper(self->write_preset);
         }
 
-void PresetsMenuRouter::params_presets(){ 
+void PresetsMenuRouter::params_presets(){
           //TODO: selection filter to load only some settings
           dm.returntonav(1, self->ps_labels_count-1,lv.sublevels[1]);
         }
-        
+
 void PresetsMenuRouter::lv1_wrapper(void (*func)()) {
   self->catalog->nav_one(0,1);
   if (lv.navlevel >= 3) {

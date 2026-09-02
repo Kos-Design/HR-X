@@ -2,7 +2,7 @@
 #include "FilesLister.h"
 #include "MenuClasses.h"
 
-FilesLister::FilesLister(const char *main_folder, const char *base_filename, const char *file_extension, void (*menu_labels_method)(), byte navranger) : 
+FilesLister::FilesLister(const char *main_folder, const char *base_filename, const char *file_extension, void (*menu_labels_method)(), byte navranger) :
                  basenamer(base_filename),
                   extension(file_extension),
                    home(menu_labels_method),
@@ -12,7 +12,7 @@ FilesLister::FilesLister(const char *main_folder, const char *base_filename, con
                       folder_dir[sizeof(folder_dir) - 1] = '\0';
                       snprintf(tmp_folder, 36, "%s%s",folder_dir,"TMP/");
             }
-            
+
 String FilesLister::get_file_name(byte number) {
   char formatted_number[4] ;
   sprintf(formatted_number,"%02d",number);
@@ -21,10 +21,10 @@ String FilesLister::get_file_name(byte number) {
 
 String FilesLister::get_current_file_path(byte f_index=0){
   String based_file = this->folder_dir + this->files_displayable[f_index] + this->extension ;
-  if (SD.exists(based_file.c_str())){
+  if (SD.sdfs.exists(based_file.c_str())){
     Serial.println("based file");
     return this->folder_dir + this->files_displayable[f_index] + this->extension;
-  } else if (SD.exists((this->folder_dir + this->files_displayable[f_index]).c_str())){
+  } else if (SD.sdfs.exists((this->folder_dir + this->files_displayable[f_index]).c_str())){
     Serial.println("wild file");
     return this->folder_dir + this->files_displayable[f_index] ;
   }
@@ -46,7 +46,7 @@ String FilesLister::get_full_tmp_file_path(byte number) {
 String FilesLister::get_new_file_name() {
   byte file_number = this->files_counter ;
   String new_path = make_full_file_name(file_number);
-  while (SD.exists(new_path.c_str())) {
+  while (SD.sdfs.exists(new_path.c_str())) {
       file_number++;
       new_path = make_full_file_name(file_number);
   }
@@ -56,7 +56,7 @@ String FilesLister::get_new_file_name() {
 String FilesLister::get_new_tmp_name(bool increment) {
   byte tmp_file_number = this->tmp_index ;
   String new_path = get_full_tmp_file_path(tmp_file_number);
-  while (SD.exists(new_path.c_str())) {
+  while (SD.sdfs.exists(new_path.c_str())) {
       tmp_file_number++;
       new_path = get_full_tmp_file_path(tmp_file_number);
   }
@@ -69,7 +69,7 @@ void FilesLister::deleteFile() {
   if (lv.locked_fileing)
     return;
   lv.locked_fileing = 1 ;
-  if (SD.exists((char *)(this->get_current_file_path(0)).c_str())) {
+  if (SD.sdfs.exists((char *)(this->get_current_file_path(0)).c_str())) {
     SD.remove((char *)(this->get_current_file_path(0)).c_str());
   }
   this->list_files();
@@ -80,7 +80,7 @@ void FilesLister::deleteFileGeneric(const char* _target_file) {
   if (lv.locked_fileing)
     return;
   lv.locked_fileing = 1 ;
-  if (SD.exists(_target_file)) {
+  if (SD.sdfs.exists(_target_file)) {
     SD.remove(_target_file);
   }
   lv.locked_fileing = 0 ;
@@ -93,7 +93,7 @@ void FilesLister::copyFile() {
  FsFile origin_file;
  FsFile target_file;
   String current_pathed = this->get_current_file_path(0) ;
-  if (SD.exists(current_pathed.c_str())) {
+  if (SD.sdfs.exists(current_pathed.c_str())) {
     target_file = SD.sdfs.open(this->get_new_file_name().c_str(), O_WRITE | O_CREAT | O_TRUNC);
     origin_file = SD.sdfs.open(current_pathed.c_str(), O_READ);
     size_t n_size;
@@ -119,7 +119,7 @@ void FilesLister::move_file(const char* _source, const char* _dest){
   if (SD.sdfs.exists(_dest)) SD.sdfs.remove(_dest);
   file.open(_source, O_READ);
   if (file.rename(_dest)) Serial.println(" movyed !");
-  
+
 }
 
 void FilesLister::copyFileGeneric(const char* _origin_file,const char* _target_file) {
@@ -129,8 +129,8 @@ void FilesLister::copyFileGeneric(const char* _origin_file,const char* _target_f
         Serial.print(" to ");
         Serial.print(_target_file);
 
-  if (SD.exists(_origin_file)) {
-    if (SD.exists(_target_file)) 
+  if (SD.sdfs.exists(_origin_file)) {
+    if (SD.sdfs.exists(_target_file))
       deleteFileGeneric(_target_file);
     if (lv.locked_fileing){
       Serial.println("already locked");
@@ -161,7 +161,7 @@ void FilesLister::copyFileGeneric(const char* _origin_file,const char* _target_f
 void FilesLister::make_temp_folders(){
   make_sub_folder(this->folder_dir, "TMP");
   strncpy(this->tmp_folder, ((String)this->folder_dir+"TMP/").c_str(), 35);
-  this->tmp_folder[35] = '\0'; 
+  this->tmp_folder[35] = '\0';
   //Serial.println(get_new_tmp_name());
 }
 
@@ -201,7 +201,7 @@ void FilesLister::refresh_files_names() {
       //{
         //this->files_displayable[i] = this->get_file_name(this->files_indexed[((this->displayable_offset+i)%this->files_counter) ]);
         this->files_displayable[i] =  this->free_files[(this->displayable_offset+i)-this->files_counter];
-    } 
+    }
   }
 }
 
@@ -217,10 +217,10 @@ void FilesLister::refresh_folders_names() {
 }
 
 void FilesLister::make_sub_folder(const char *base_folder, const char *subfoldee){
-  if (!(SD.exists(base_folder))) {
+  if (!(SD.sdfs.exists(base_folder))) {
     SD.mkdir(base_folder);
   }
-  if (!(SD.exists(((String)base_folder+"/"+(String)subfoldee).c_str()))) {
+  if (!(SD.sdfs.exists(((String)base_folder+"/"+(String)subfoldee).c_str()))) {
     SD.mkdir(((String)base_folder+"/"+(String)subfoldee).c_str());
   }
 }
@@ -244,7 +244,7 @@ void FilesLister::display_files_list() {
   } else {
     dm.canvastitle.print(this->files_displayable[0]);
   }
-  
+
   if (this->displayable_offset == all_files_count) {
     //if cursor is on new(), the size-1 elements are displayed below.
     for (int i = 0; i < max_displayables-1; i++) {
@@ -276,14 +276,14 @@ void FilesLister::display_folders_list() {
   this->folder_selected = this->folders_displayable[0];
 
        // strncpy(this->folder_selected, this->folders_displayable[0], 15);
-        //this->folder_selected[15] = '\0';                 
+        //this->folder_selected[15] = '\0';
   dm.canvastitle.setCursor(left_margin, 0);
   dm.canvastitle.print(this->folders_displayable[0]);
   for (int i = 0; i < max_displayables - 1 ; i++) {
     dm.canvasBIG.setCursor(left_margin, top_margin + i*v_spacer);
     dm.canvasBIG.println(this->folders_displayable[1 + i]);
   }
-  
+
 }
 
 void FilesLister::list_files() {
@@ -291,7 +291,7 @@ void FilesLister::list_files() {
   this->files_counter = 0;
   this->folders_counter = 0;
   this->free_counter = 0 ;
-  if (SD.exists((const char*)this->folder_dir)) {
+  if (SD.sdfs.exists((const char*)this->folder_dir)) {
    FsFile opened_dir = SD.sdfs.open((const char*)this->folder_dir);
     while (this->files_counter < 99 && this->folders_counter < 99 && this->free_counter < 99) {
      FsFile entry = opened_dir.openNextFile();
@@ -304,7 +304,7 @@ void FilesLister::list_files() {
 
         entry.getName(entry_name, 16);
         strncpy(named, entry_name, 15);
-        named[15] = '\0';                 
+        named[15] = '\0';
         if (strlen(named)>strlen(this->extension)){
           named[strlen((char*)named) - strlen(this->extension)] = '\0';
         }
@@ -325,7 +325,7 @@ void FilesLister::list_files() {
         //lets hope folders names aare below 15 chars
         //strncpy(this->folders_indexed[this->folders_counter], entry_name, 15);
         entry.getName(this->folders_indexed[this->folders_counter], 16);
-        
+
         this->folders_indexed[this->folders_counter][15] = '\0';
         this->folders_counter++;
       }

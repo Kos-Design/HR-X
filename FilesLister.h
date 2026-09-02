@@ -1,13 +1,12 @@
-#include <stdint.h>
 #pragma once
-
+#include <stdint.h>
 #include <Arduino.h>
 #include "Constants.h"
 
 class FilesLister{
     public:
         static const uint8_t max_displayables = 6; //displayables lines
-    
+
         FilesLister(const char *main_folder, const char *base_filename, const char *file_extension, void (*menu_labels_method)(), uint8_t navranger);
 
         char folder_dir[32];

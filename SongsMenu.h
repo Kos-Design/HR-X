@@ -68,7 +68,7 @@ class SongMenuRouter : public SectionHolder {
         static void show();
         static void route_navlevel();
         static void lv1_wrapper(void (*func)());
-        
+
         static void save_song();
         static void writedasong();
         static void parseSong();

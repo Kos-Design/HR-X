@@ -52,7 +52,7 @@ void GlideMenuRouter::show(){
   dm.clearDisplay();
   dm.setCursor(0,0);
   dm.setTextSize(1);
-  
+
   dm.print("Glide Settings");
   dm.println(" ");
   dm.println(" ");
@@ -72,7 +72,7 @@ void GlideMenuRouter::show(){
   dm.display();
   dm.fillRoundRect(0,11+12*lv.sublevels[2], 35, 16, 3, SSD1306_INVERSE);
   dm.display();
-  
+
   if (lv.navlevel > 3 ){
     dm.returntonav(self->relative_navlevel,self->home_navrange,lv.sublevels[2]);
   }
@@ -125,7 +125,7 @@ void Filter303MenuRouter::pseudo303(byte i) {
     les303filterz[_rg.active_synths[i]->l_index]->frequency(self->letbfreq);
     //les303filterz[_rg.active_synths[i]->l_index]->resonance(0.1 + ((gg.le303filterzreso/127.0)*5) * self->sloped[_rg.active_synths[i]->sloper_step]);
     _rg.active_synths[i]->sloper_step++;
-    
+
   }
 }
 
@@ -171,7 +171,7 @@ void Filter303MenuRouter::filter_knob_preamp(){
 
 void Filter303MenuRouter::filter_knob_glide(){
       lv.navrange = 127;
-      gg.portamento_time = lv.sublevels[3] ;   
+      gg.portamento_time = lv.sublevels[3] ;
 
     }
 
@@ -294,7 +294,7 @@ void Filter303MenuRouter::le303filterVpanel() {
   dm.canvastitle.print("Glide: ");
   if (!gg.portamento_time) dm.canvastitle.print("Off");
   else dm.canvastitle.print(gg.portamento_time);
-  
+
   le303filterVpanelSelector();
   dm.dodisplay();
 }
@@ -356,7 +356,7 @@ void Filter303MenuRouter::le303filterVpanelSelector() {
     dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
                       wbarwidth2 - 4, SSD1306_WHITE);
   }
-  
+
   if (slct == 6) {
     lv.sublevels[3] = gg.preampleswaves;
     dm.canvasBIG.setCursor(34, 0);
@@ -388,7 +388,7 @@ void Filter303MenuRouter::set_filter_buff_temp() {
       }
 
     }
-    
+
 void Filter303MenuRouter::show(){
   le303filterVpanel();
 }
@@ -411,7 +411,7 @@ Mp3PlayerRouter::Mp3PlayerRouter() {
 }
 
 void Mp3PlayerRouter::mp3_player_play(){
-      if (!SD.exists((char*)self->mp3_name.c_str())) {
+      if (!SD.sdfs.exists((char*)self->mp3_name.c_str())) {
         get_next_mp3();
       }
       playFile((char*)self->mp3_name.c_str());
@@ -432,11 +432,11 @@ void Mp3PlayerRouter::mp3_player_pause(){
     }
 
 void Mp3PlayerRouter::mp3_player_next(){
-      
+
       Serial.println("");
       Serial.print("previous =");
       Serial.print(self->previous_mp3);
-      
+
       if (!self->mp3_looped) {
         if (self->mp3_shuffle) {
           self->previous_mp3 = self->next_mp3;
@@ -444,7 +444,7 @@ void Mp3PlayerRouter::mp3_player_next(){
           Serial.println("");
           Serial.print("previous after next =");
           Serial.print(self->previous_mp3);
-          
+
           self->next_mp3 = rand() % self->mp3_count ;
           Serial.println(self->mp3_count);
           Serial.println(self->next_mp3);
@@ -467,14 +467,14 @@ void Mp3PlayerRouter::mp3_player_previous(){
         } else {
           self->next_mp3 -= 2;
         }
-      } 
+      }
       get_next_mp3();
     }
 
 void Mp3PlayerRouter::mp3_player_shuffle(){
   //TODO: make whole list of shuffled numbers the size of their folder files count
   // allow next and previous
-  //regenerate on stop / and shuffle toggle 
+  //regenerate on stop / and shuffle toggle
   self->mp3_shuffle = !self->mp3_shuffle ;
   if (self->mp3_shuffle) {
     self->previous_mp3 = self->next_mp3;
@@ -520,7 +520,7 @@ void Mp3PlayerRouter::playFile(const char *mp3_file) {
     break;
 
     case 1:
-    
+
       play_flac_file(mp3_file);
 
     break;
@@ -528,7 +528,7 @@ void Mp3PlayerRouter::playFile(const char *mp3_file) {
 }
 
 void Mp3PlayerRouter::get_next_mp3() {
-  if (SD.exists("MP3") ) {
+  if (SD.sdfs.exists("MP3") ) {
     FsFile susudir = SD.sdfs.open("MP3");
     char mpname[32]{};
     if (!self->mp3_looped) {
@@ -574,10 +574,10 @@ void Mp3PlayerRouter::get_next_mp3() {
 
 void Mp3PlayerRouter::count_mp3s() {
   self->mp3_count=0;
-  
-  if (SD.exists("MP3") ) {
+
+  if (SD.sdfs.exists("MP3") ) {
     FsFile susudir = SD.sdfs.open("MP3");
-    
+
     while (true) {
       FsFile subentry = susudir.openNextFile();
       if (!subentry) {
@@ -846,7 +846,7 @@ void SynthMenuRouter::displaywaveformicon(){
     return;
   }
 
-  
+
 
   dm.drawBitmap(74, 20, _img[lv.sublevels[4]], 32, 32, SSD1306_WHITE);
   dm.setTextSize(1);
@@ -932,7 +932,7 @@ void SynthMenuRouter::draw_synth_params() {
 
 void SynthMenuRouter::dolistsyntmenu() {
   const char* synthmenulabels[] = {"Synths", "Mixer", "ADSR", "MP3 Player", "Filter", "Glider"};
-  dm.main_panel(synthmenulabels,1,SN_MENU_LABELS_COUNT);          
+  dm.main_panel(synthmenulabels,1,SN_MENU_LABELS_COUNT);
 }
 
 void SynthMenuRouter::synths_switcher(){

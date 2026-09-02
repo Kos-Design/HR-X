@@ -87,7 +87,7 @@ Arpegiator* Arpegiator::self = nullptr;
 Arpegiator::Arpegiator() { self = this; };
 
 bool Arpegiator::note_in_arp(uint8_t note){
-  for (auto* synth : _rg.active_synths) if (synth && synth->note == note) return true ; 
+  for (auto* synth : _rg.active_synths) if (synth && synth->note == note) return true ;
   return false;
 }
 
@@ -409,7 +409,7 @@ void TriggerMessenger::arp_tick() {
 void TriggerMessenger::tick() {
 
   if (lv.patternOn) _se.use_pattern();
-  
+
   if (lv.songplaying) _se.update_song_player();
 
 }
@@ -536,7 +536,7 @@ void TriggerMessenger::MaNoteOn(MidiEventer msg) {
       initiateasynthliner((MidiEventer){gg.synthmidichannel,(byte)lachordon, msg.velocity});
     }
   }
-  
+
   if ((msg.channel == gg.samplermidichannel) or (gg.samplermidichannel == 0)) {
     for (int i = 0; i < gg.chordson; i++) {
       lachordon = chordnotes[i] + ((int(msg.note / 12)) * 12);
@@ -570,7 +570,7 @@ void TriggerMessenger::shut_used_synth_notes(byte data1) {
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
     if (data1 == synth_lines[i]->note) {
       synth_lines[i]->liner_off();
-      if (lv.patrecord) 
+      if (lv.patrecord)
         md.record_synth_notesOff(i, gg.synthmidichannel, data1, 0);
     }
   }
@@ -591,7 +591,7 @@ void TriggerMessenger::MaNoteOff(MidiEventer msg) {
     usbMIDI.send_now();
   }
   //if (!gg.arpegiatorOn) {
-    
+
   setchordnotesOff(msg.note, gg.lasetchord);
   for (int i = 0; i < gg.chordson; i++) {
     lachordnote = chordnotesoff[i] + ((int(msg.note / 12)) * 12);
@@ -601,10 +601,10 @@ void TriggerMessenger::MaNoteOff(MidiEventer msg) {
 
 void TriggerMessenger::shutlineroff(byte chan,byte data1) {
 
-    if ((chan == gg.synthmidichannel) or ( gg.synthmidichannel == 0)) 
+    if ((chan == gg.synthmidichannel) or ( gg.synthmidichannel == 0))
       shut_used_synth_notes(data1);
-      
-    if ((chan == gg.samplermidichannel) or ( gg.samplermidichannel == 0)) 
+
+    if ((chan == gg.samplermidichannel) or ( gg.samplermidichannel == 0))
       shut_used_flash_notes(data1);
 }
 
@@ -618,7 +618,7 @@ void TriggerMessenger::moncontrollercc(byte channel, byte control, byte value) {
         //FIXED CC OUTPUT TO CH 3
         usbMIDI.sendControlChange(control,value,gg.out_midichannel);
         usbMIDI.send_now();
-        
+
       }
     if (gg.midiknobassigned[control] != 0 && !lv.freezemidicc) {
       ctl[gg.midiknobassigned[control]].tweaker(value);
@@ -633,20 +633,20 @@ void TriggerMessenger::cc_edgecases(byte control, byte value){
   if (lv.knobsetting){
     _ka.learn_midi(control);
   }
-  //set this control == 19 optional in settings 
-  
+  //set this control == 19 optional in settings
+
   //inside pattern mode
   if (_pe.paterning && control == 19) {
     if (_pe.track_type == 0) {
-      pp.synth_partition[lv.sublevels[2]][lv.sublevels[5]].velocity = value; 
+      pp.synth_partition[lv.sublevels[2]][lv.sublevels[5]].velocity = value;
     } else if (_pe.track_type == 1) {
-      pp.sampler_partition[lv.sublevels[2]][lv.sublevels[5]].velocity = value; 
+      pp.sampler_partition[lv.sublevels[2]][lv.sublevels[5]].velocity = value;
     }
   }
 
   if (lv.setting_on_board) {
     if (lv.navlevel == 2) {
-      
+
       if (control == 19)  {
         gg.but_channel[lv.sublevels[2]] = (gg.but_channel[lv.sublevels[2]] + 1) % 17;
       }
@@ -681,7 +681,7 @@ void TriggerMessenger::notes_edgecases(MidiEventer msg){
   // control is (byte)gg.pot_assignements[11 + lv.paddered]
   //inside sample assigner
   if (lv.setting_on_board && (lv.navlevel == 2)) helper_onbard();
-  
+
   if (lv.assigning_sample_to_note) dm.returntonav(3,127,msg.note);
     //sets the navigation wheel to the captured note position for easier selection when assigning Flashsamples
 }
@@ -714,7 +714,7 @@ byte TriggerMessenger::get_free_sampler(byte note) {
   for (byte i = 0; i < FLASH_LINERS_COUNT; i++) {
     if (!(FlashSampler[i]->isPlaying() )) {
       return i;
-    } 
+    }
   }
   return 0;
 }
@@ -726,7 +726,7 @@ void TriggerMessenger::initiateasynthliner(MidiEventer msg) {
     md.recordmidinotes(free_line, gg.synthmidichannel, msg.note, msg.velocity);
   }
   if (gg.arpegiatorOn)  {
-    synth_lines[free_line]->arp_starter = 1; 
+    synth_lines[free_line]->arp_starter = 1;
     ap.synth_arpegiator_ticker(synth_lines[free_line]->l_index);
   }
 

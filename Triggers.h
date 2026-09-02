@@ -1,6 +1,6 @@
+#pragma once
 #include <stdint.h>
 #include "Constants.h"
-#pragma once
 #include "MenuClasses.h"
 #include "Presets.h"
 
@@ -32,7 +32,7 @@ class TriggerMessenger {
         bool debugmidion = 0;
         bool tapstarted = 0;
         byte noCCrecord[NO_CCREC_SIZE] = {3,35,36,37, 38,39,40,41,42,44,1};
-        
+
 
         static void MaNoteOn(uint8_t ch_,uint8_t nt_,uint8_t ve_);
 

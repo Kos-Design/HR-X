@@ -43,4 +43,4 @@ public:
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0,  12, 10};
 };
 
-extern Pads Padded; 
+extern Pads Padded;

@@ -1,5 +1,5 @@
-#include <CD74HC4067.h>
 #include "muxer.h"
+#include <CD74HC4067.h>
 
 
 Muxer::Muxer() {}

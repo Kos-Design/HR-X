@@ -23,7 +23,7 @@ class GlideMenuRouter : public SectionHolder {
         static void set_glide_mode_rpatack(byte voice);
         static constexpr void (*glide_mode_setter[5])(byte) = {&set_glide_mode_off,&set_glide_mode_porta,&set_glide_mode_rporta,&set_glide_mode_patack,&set_glide_mode_rpatack};
   private:
-    
+
     static GlideMenuRouter* self;
 };
 

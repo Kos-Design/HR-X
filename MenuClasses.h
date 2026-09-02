@@ -78,10 +78,10 @@ class DisplayManager : public Adafruit_SSD1306 {
         float fftGain[NUM_BARS] = {
             15.0f,17.7f,45.82f,58.825f,
             65.2f,92.575f,98.6f,106.92f,
-            
+
             117.12f,127.255f,136.5f,
             144.71f,151.9f,157.95f,
-            
+
             163.15f,167.25f,180.0f,181.47f,
             181.94f,181.44f,180.0f, 193.8f,
 
@@ -96,7 +96,7 @@ class DisplayManager : public Adafruit_SSD1306 {
 
             240.0f, 249.6f, 259.3f, 269.3f,
             279.5f, 289.8f, 300.3f, 311.1f,
-            
+
             322.0f, 333.1f, 344.4f, 355.9f,
             367.5f, 379.4f, 391.4f, 403.6f
         };
@@ -196,7 +196,7 @@ class GlobalMixer : public SectionHolder {
         byte *wmixer_tmp_pointers[12];
         byte wmixer_tmp_values[12];
         static GlobalMixer* self;
-        
+
 };
 
 extern GlobalMixer _mx;
@@ -208,7 +208,7 @@ class SequencerClocker : public AudioStream {
         void setPPQN(uint8_t ppqn);
         void attach_96(void (*cb)());
         virtual void update() override;
-    
+
     private:
 
         void calculatePPQN();

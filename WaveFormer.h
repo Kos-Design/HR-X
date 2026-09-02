@@ -4,7 +4,7 @@
 
 class WaveformsMenuRouter : public SectionHolder {
     public:
-       
+
         WaveformsMenuRouter();
 
         FilesLister *catalog;
@@ -59,7 +59,7 @@ class WaveformsMenuRouter : public SectionHolder {
         static void copywaveform();
         static void deletewaveform();
         static void parsewaveformfile();
-        
+
         static void wforms_actions();
         static void remove_wform();
         static void duplicate_wform();
@@ -71,10 +71,10 @@ class WaveformsMenuRouter : public SectionHolder {
 
         static constexpr void (*_route_nav[7])() = {&waveforms_nav_zero, &wforms_actions, &wforms_actions,
                                     &wforms_actions, &wforms_actions, &wforms_actions, &wforms_actions};
-        
+
         static constexpr void  (*_nav_wforms[8])() = {&save_wform, &load_wform, &duplicate_wform,&remove_wform,
                                                                     &WaveformEditer ,&go_next,&go_previous,&WaveformParams};
-  
+
     private:
         static WaveformsMenuRouter* self;
 };

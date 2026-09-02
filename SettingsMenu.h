@@ -12,12 +12,12 @@ class VirtualKnobs : public SectionHolder {
     static VirtualKnobs* self;
 };
 
-extern VirtualKnobs _vk;        
+extern VirtualKnobs _vk;
 
 class SettingsMenuRouter : public SectionHolder {
     public:
         SettingsMenuRouter();
-                    
+
         static constexpr uint8_t settings_labels_count = 17;
         bool noteprint = 0;
         char usnotes[12][5] = {"C",  "C#", "D",  "Eb", "E",  "F",

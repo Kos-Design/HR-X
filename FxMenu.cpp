@@ -12,10 +12,10 @@ FxMenuRouter::FxMenuRouter() {
   self->max_navlevel=5;
   self->sublevels_address={6,0,0};
 }
-      
+
       /*
 void FxMenuRouter::show() {
-        _nav_fx[lv.sublevels[1]](); 
+        _nav_fx[lv.sublevels[1]]();
       }
       */
 void FxMenuRouter::peakingEQ(float freq, float gainDB, float Q, float Fs, double *c) {
@@ -34,7 +34,7 @@ void FxMenuRouter::peakingEQ(float freq, float gainDB, float Q, float Fs, double
           float a0 = 1 + alpha/A;
           float a1 = -2*cosw;
           float a2 = 1 - alpha/A;
-          
+
           Serial.println("inside");
           Serial.println(b0, 6);
           Serial.println(b1, 6);
@@ -57,9 +57,9 @@ void FxMenuRouter::peakingEQ(float freq, float gainDB, float Q, float Fs, double
           Serial.println(c[i], 12);
         }
       }
-      
+
 void FxMenuRouter::prepare_coeffs(byte fx_idx){
-        peakingEQ(gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage], gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage], gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage], AUDIO_SAMPLE_RATE, self->coeffs[gg.fx[fx_idx].bqstage]); 
+        peakingEQ(gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage], gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage], gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage], AUDIO_SAMPLE_RATE, self->coeffs[gg.fx[fx_idx].bqstage]);
       }
 
 void FxMenuRouter::dolistMainFxPanel() {
@@ -124,7 +124,7 @@ void FxMenuRouter::biquadcontrols(byte fx_idx, byte stage) {
       if (stage==STAGES_BQ) stage = gg.fx[fx_idx].bqstage ;
         // AudioNoInterrupts();
         switch (gg.fx[fx_idx].bqtype[stage]) {
-        
+
           case 0:
             biquad[fx_idx]->setLowpass(stage,
                                         gg.fx[fx_idx].bqfreq[stage],
@@ -186,7 +186,7 @@ void FxMenuRouter::biquadcontrols(byte fx_idx, byte stage) {
 
           case 6:
               prepare_coeffs(fx_idx);
-              
+
               biquad[fx_idx]->setCoefficients(stage, self->coeffs[stage]);
               biquadR[fx_idx]->setCoefficients(stage, self->coeffs[stage]);
             break;
@@ -196,7 +196,7 @@ void FxMenuRouter::biquadcontrols(byte fx_idx, byte stage) {
         }
         // AudioInterrupts();
       }
-           
+
 void FxMenuRouter::delayfeedback(byte fx_idx, float lesmallfloat) {
         // delay feedback
         if (lesmallfloat <= 0.1) {
@@ -249,7 +249,7 @@ void FxMenuRouter::restartdelayline(byte fx_idx) {
 
         }
       }
-      
+
 void FxMenuRouter::changebiquadfreqvalue(byte fx_idx, int valub) {
         // valub range 1024
         gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] = valub * 3;
@@ -1219,7 +1219,7 @@ void FxMenuRouter::lfoonfilterreplug(byte fx_idx) {
         if (gg.fx[fx_idx].LFOonfilterz < OSCS_COUNT) {
           LFOtoFilterz[((FXS_COUNT * fx_idx) + gg.fx[fx_idx].LFOonfilterz)]->connect();
           LFOtoFilterzR[((FXS_COUNT * fx_idx) + gg.fx[fx_idx].LFOonfilterz)]->connect();
-        
+
           _lf.restartLFO((gg.fx[fx_idx].LFOonfilterz)%OSCS_COUNT);
         }
 

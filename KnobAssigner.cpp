@@ -1,6 +1,5 @@
-#include "avr/pgmspace.h"
-#include <stdint.h>
 #include "KnobAssigner.h"
+#include "avr/pgmspace.h"
 #include "Functions.h"
 #include "Presets.h"
 
@@ -13,7 +12,7 @@ KnobAssigner::KnobAssigner() {
                     self->max_navlevel=3;
                     self->sublevels_address={2,0,0};
                     }
- 
+
 void KnobAssigner::KnobAssigner::show() {
   lv.knobsetting = false ;
   _actionable[lv.navlevel-self->relative_navlevel]();
@@ -83,7 +82,7 @@ void KnobAssigner::assigner(){
   }
   dm.dodisplay();
 }
-      
+
 void KnobAssigner::set_midi_cc_to_ctl(byte cc_nt, int cc_cl){
   gg.midiknobassigned[cc_nt] = cc_cl;
 }
@@ -104,7 +103,7 @@ AdsrMenuRouter::AdsrMenuRouter() {
                     self->max_navlevel=5;
                     self->sublevels_address={0,0,0};
                     }
-    
+
 void AdsrMenuRouter::show(){
   lv.navrange = 5 ;
   slice_adsr();
@@ -222,7 +221,7 @@ StereoDualFilter::StereoDualFilter(
   patchOutL(p3),
   patchOutR(p4),
   patchOutL2(p5),
-  patchOutR2(p6){ 
+  patchOutR2(p6){
 
 }
 

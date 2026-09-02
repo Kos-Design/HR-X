@@ -1,5 +1,5 @@
-#include <stdint.h>
 #pragma once
+#include <stdint.h>
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
@@ -24,7 +24,7 @@ class RecorderMenuRouter : public SectionHolder {
         bool temp_ops = 0;
         float previous_offset = 0.0f ;
         float start_zone = 0.0f ;
-        float end_zone = 1.0f ; 
+        float end_zone = 1.0f ;
         bool wave_buffed = 0 ;
         bool wave_selected = 0 ;
         uint8_t undoables[99]{};
@@ -76,14 +76,14 @@ class RecorderMenuRouter : public SectionHolder {
         static constexpr void (*_route_nav[9])() = {&rec_nav_zero, &records_actions, &records_actions,
                                     &records_actions, &records_actions,&records_actions, &records_actions,
                                     &records_actions, &records_actions};
-        
+
         static constexpr void  (*_nav_recs[6])() = {&recordVpanel, &load_record, &remove_record, &rec_params, &edit_record, &drawFoldersList};
-        
+
 
   private:
     static RecorderMenuRouter* self;
 };
 
 extern RecorderMenuRouter _rd;
-       
-        
+
+

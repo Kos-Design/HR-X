@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include "Presets.h"
 
 constexpr unsigned char menuBG[] = {
@@ -297,7 +296,7 @@ constexpr uint8_t lesformes[9] PROGMEM = {
 
 const char* lelabelw[12] = {"SineWave","SawWave","ReverseSaw" ,"Triangle","V-Triangle","SquareWave",
                               "PulseWave","Arbitrary","SampleHold", "Drum","String", "Wave OFF"};
-                              
+
 const unsigned char *_img[12] = { sinewave, sawtoothwave, reversesawtoothwave, trianglewave,
                                       variabletriangle, squarewave, pulsewave,arbitrarywave,
                                       samplehold,arbitrarywave,samplehold,moonwave};
@@ -320,7 +319,7 @@ const unsigned char *_img[12] = { sinewave, sawtoothwave, reversesawtoothwave, t
 };
 */
 FxBus::FxBus() {}
-    
+
 void FxBus::route_fx(byte selected_fx_type) {
       if (plugged_fx != (ALL_FX_TYPES - 1)) {
         unplug_fx_line();
@@ -330,9 +329,9 @@ void FxBus::route_fx(byte selected_fx_type) {
         plugged_fx = selected_fx_type;
       }
     }
-   
+
 void FxBus::plug_fx_line(byte selected_fx_type){
-   
+
       AudioNoInterrupts();
       //delay
       if (selected_fx_type == 8) {

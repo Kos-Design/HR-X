@@ -104,12 +104,12 @@ class SamplerMenuRouter : public SectionHolder {
         static void makesoundsetfullpathfromchars(int eldir);
         static void dosoundlist();
   //TODO: refactor nav routing after using fileslister
-        static constexpr void (*_route_nav[7])() = {&sampler_nav_zero, &sampler_nav_one, &sampler_nav_two, 
+        static constexpr void (*_route_nav[7])() = {&sampler_nav_zero, &sampler_nav_one, &sampler_nav_two,
                                                     &sampler_nav_two, &sampler_nav_two,&sampler_nav_two, &sampler_nav_two};
-                                    
-        
+
+
     private:
-        
+
         static constexpr void (*_nav_sampler[SP_LABELS_COUNT])() = {&dolistLoadSampleMenu, &dolistDelSampleMenu, &dolistAssignSampleMenu, &smixerVpanel};
         static SamplerMenuRouter* self;
 };

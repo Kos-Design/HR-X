@@ -19,14 +19,14 @@ extern BigBuffers bb;
 
 class FxBus {
   public:
-    
+
     FxBus();
-    
+
     int delaymultiplier = 55;
     int flangeoffset = FLANGE_DELAY_LENGTH / 4;
     int flangedepth = FLANGE_DELAY_LENGTH / 4;
 
-    float bqslope[STAGES_BQ] = {1.0,1.0,1.0,1.0};   
+    float bqslope[STAGES_BQ] = {1.0,1.0,1.0,1.0};
     float bqgain[STAGES_BQ] = {0.0,0.0,0.0,0.0};
     float bqfreq[STAGES_BQ] = {0.0,0.0,0.0,0.0};
     float filterzgainz[3] = {0.0,0.0,0.0};
@@ -72,7 +72,7 @@ struct Preset {
     int32_t millitickinterval = 115;
     //Atk Delay, Attack, Hold, Decay, Sustain, Release
     int32_t adsrlevels[6] = {0, 5, 0, 100, 0, 50};
-    
+
     int32_t midiknobassigned[128];
     int32_t Sampleassigned[128];
     int16_t arbitrary_waveforms[OSCS_COUNT][256] ;
@@ -95,7 +95,7 @@ struct Preset {
     uint16_t le303filterzfreq = 14000;
     GlideMode glideMode = Off;
     uint8_t le303filterzgainz[3] = {127,0,0};
-    //0 is Off, 1-> Waveform, 2-> FM Waveform, 3->Drum, 4->String 
+    //0 is Off, 1-> Waveform, 2-> FM Waveform, 3->Drum, 4->String
     uint8_t audio_obj_type[OSCS_COUNT] = {1,1,1};
     uint8_t le303filterzreso = 70;
     uint8_t panLs = 64;
@@ -135,7 +135,7 @@ struct Preset {
     uint8_t synthmidichannel = 16;
     uint8_t samplermidichannel = 8;
     uint8_t tapnote = 3;
-    
+
     uint8_t vPots[17];
     uint8_t smixervknobs[16] = {
         127,127,127,127,

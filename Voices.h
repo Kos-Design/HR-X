@@ -14,7 +14,7 @@ class SynthLiner {
     int totalUpdates = 0;
     int note_diff = 0;
     int currentUpdate = 0;
-    float startFreq = 0.0;    
+    float startFreq = 0.0;
     float targetFreq = 0.0;
     float currentFreq = 0.0;
     float steps = 0.0 ;

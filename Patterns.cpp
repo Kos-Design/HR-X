@@ -26,10 +26,10 @@ void MasterClock::dispatch_ticks() {
       self->tic_toc[0] = false;
       _callback_96();
     }
-    if ((self->tick96 % (96*4)) == 0 && _callback_long && self->tic_toc[1]){ 
+    if ((self->tick96 % (96*4)) == 0 && _callback_long && self->tic_toc[1]){
       self->tic_toc[1] = false;
       _callback_long();
-      
+
     }
     if ((self->tick96 % 2) == 0 && _callback_2 && self->tic_toc[2]){
       self->tic_toc[2] = false;
@@ -59,7 +59,7 @@ void MasterClock::dispatch_ticks() {
       self->tic_toc[6] = false;
       _callback_3();
     }
-    
+
 }
 
 void MasterClock::attach_2(void (*cb)()) {
@@ -779,7 +779,7 @@ void POptionsRouter::clearCCline() {
 void POptionsRouter::clearsynthpatternline() {
   memset(pp.synth_partition, 0, sizeof(pp.synth_partition));
   memset(pp.synth_off_pat, 0, sizeof(pp.synth_off_pat));
-  memset(pp.track_cells[Synth], 0, sizeof(pp.track_cells[Synth])); 
+  memset(pp.track_cells[Synth], 0, sizeof(pp.track_cells[Synth]));
 }
 
 void POptionsRouter::merge_partitions() {
@@ -1330,7 +1330,7 @@ void PatternsMenuRouter::set_ccs() {
           }
         }
 void PatternsMenuRouter::parsepattern() {
-  
+
           if (lv.locked_fileing)
             return;
           lv.locked_fileing = 1 ;
@@ -1340,17 +1340,17 @@ void PatternsMenuRouter::parsepattern() {
             lepatternfile.read((uint8_t*)&pp, sizeof(pp));
           }
           lepatternfile.close();
-          
+
           _pe.refresh_patterns();
             set_ccs();
-          
+
           lv.locked_fileing = 0 ;
 }
 
 void PatternsMenuRouter::doPatternsmenu() {
           const char* patternlistlabels[] = {
               "Edit", "Save", "Load", "Copy", "Delete", "Params", "Clear", "C-Edit"};
-          
+
           dm.main_panel(patternlistlabels,1,self->home_navrange);
         }
 

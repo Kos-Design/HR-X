@@ -12,7 +12,7 @@ SongEditorRouter::SongEditorRouter() {
                     self->max_navlevel=5;
                     self->sublevels_address={3,0,0};
                     }
-        
+
 
 void SongEditorRouter::light_cc_change() {
           for (int i = 0; i < 32; i++) {
@@ -127,7 +127,7 @@ void SongEditorRouter::showsongcell() {
           dm.canvastitle.setTextSize(1);
           if (lv.navlevel == self->relative_navlevel) {
             if (lasongcell > 0) {
-              dm.canvastitle.print(_pt.catalog->get_file_name(_pt.catalog->files_indexed[(lasongcell - 1)])); 
+              dm.canvastitle.print(_pt.catalog->get_file_name(_pt.catalog->files_indexed[(lasongcell - 1)]));
             } else {
               dm.canvastitle.print("Empty");
             }
@@ -162,7 +162,7 @@ void SongEditorRouter::selectpatterninsong() {
           dm.canvastitle.setTextSize(1);
 
           if (lv.sublevels[self->relative_navlevel + 1] > 0) {
-            dm.canvastitle.print(_pt.catalog->get_file_name(_pt.catalog->files_indexed[(lv.sublevels[self->relative_navlevel + 1] - 1)])); 
+            dm.canvastitle.print(_pt.catalog->get_file_name(_pt.catalog->files_indexed[(lv.sublevels[self->relative_navlevel + 1] - 1)]));
           } else {
             dm.canvastitle.print("Empty");
           }
@@ -315,7 +315,7 @@ void SongMenuRouter::lv1_wrapper(void (*func)()) {
     dm.returntonav(1, self->home_navrange,lv.sublevels[1]);
   }
 }
-        
+
 void SongMenuRouter::save_song(){
   lv1_wrapper(self->writedasong);
 }
@@ -342,7 +342,7 @@ void SongMenuRouter::writedasong() {
   lv.locked_fileing = 0;
 }
 
- 
+
 void SongMenuRouter::parseSong(){
   if (lv.locked_fileing)
     return;

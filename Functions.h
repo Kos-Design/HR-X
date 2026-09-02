@@ -79,7 +79,7 @@ void AdsrSustain_ctl(byte cc_value);
 void AdsrRelease_ctl(byte cc_value);
 void Filter303_Knob1_ctl(byte cc_value);
 void Filter303_Knob2_ctl(byte cc_value);
-void Filter303_Knob3_ctl(byte cc_value); 
+void Filter303_Knob3_ctl(byte cc_value);
 void FXBusSelector_ctl(byte cc_value);
 void ChorusVoices_ctl(byte cc_value);
 void LFOonFilter_ctl(byte cc_value);

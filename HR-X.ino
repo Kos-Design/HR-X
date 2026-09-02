@@ -36,7 +36,7 @@ SequencerClocker clocker;
 ActiveLinesRegister _rg;
 Arpegiator ap;
 MidiRecorder md;
-VirtualKnobs _vk;        
+VirtualKnobs _vk;
 SettingsMenuRouter _st;
 PresetsMenuRouter _ps;
 EXTMEM Pattern pp ;

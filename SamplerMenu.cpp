@@ -39,7 +39,7 @@ void SamplerMenuRouter::sampler_nav_one(){
           _nav_sampler[lv.sublevels[1]]();
           dm.dodisplay();
         }
-        
+
 void SamplerMenuRouter::sampler_nav_zero(){
             dm.reinitsublevels(2);
             lv.navrange = SP_LABELS_COUNT - 1;
@@ -174,7 +174,7 @@ void SamplerMenuRouter::dolistsamplermenu() {
       dm.canvasBIG.println(samplerlabels[i]);
   }
 }
-        
+
 String SamplerMenuRouter::samplefullpath(int lefolder, int lefile){
   String based = self->samplebase[lefolder][lefile];
   String folded = self->samplefoldersregistered[lefolder] ;
@@ -194,7 +194,7 @@ void SamplerMenuRouter::setupsamplefoldersregistered() {
 }
 
 void SamplerMenuRouter::setlefilenamed(int lefolder, int lefile, char *lefname) {
-  int fnamesize = strlen((char *)lefname);         
+  int fnamesize = strlen((char *)lefname);
   for (int i = 0; i < fnamesize; i++) {
     if (i < fnamesize - 4) {
       self->samplebase[lefolder][lefile][i] = lefname[i];
@@ -208,7 +208,7 @@ void SamplerMenuRouter::playsamplepreview() {
   if (!self->test_flash_sample_name(playable_file)){
     playable_file = self->lower_extension_case(playable_file);
   }
-  if (!SD.exists(playable_file.c_str())){
+  if (!SD.sdfs.exists(playable_file.c_str())){
     return;
   }
   playRawL.play(playable_file.c_str());
@@ -420,7 +420,7 @@ void SamplerMenuRouter::Flashsamplerexplorer() {
                 self->Flashsamplesselected[lv.sublevels[3]] = 1;
                 if (SerialFlash.exists((const char *)bb.Flashsamplename[lv.sublevels[3]])) FlashRaw.play((const char *)bb.Flashsamplename[lv.sublevels[3]]);
                 self->numberofFlashsamplesselected++;
-                
+
               } else {
                 self->Flashsamplesselected[lv.sublevels[3]] = 0;
                 self->numberofFlashsamplesselected--;
@@ -870,7 +870,7 @@ void SamplerMenuRouter::loadSelectedSamples() {
           if (!SerialFlash.begin(self->FlashChipSelect)) {
             dm.pseudoconsole((char *)"Unable to access SPI Flash chip");
           }
-          char currentflashname[12]; 
+          char currentflashname[12];
           for (int i = 0; i < 99; i++) {
             //dm.pleasewait(i, 99);
             for (int j = 0; j < 999; j++) {
@@ -888,7 +888,7 @@ void SamplerMenuRouter::loadSelectedSamples() {
                 }
                 lengthz = currentsample.size();
                 dm.pseudoconsole(currentflashname);
-                if (SerialFlash.exists((const char*)currentflashname)) continue; 
+                if (SerialFlash.exists((const char*)currentflashname)) continue;
 
                 if (SerialFlash.create((const char*)currentflashname, lengthz)) {
                   SerialFlashFile currentFlashfile = SerialFlash.open((const char*)currentflashname);
@@ -906,8 +906,8 @@ void SamplerMenuRouter::loadSelectedSamples() {
                       }
                     }
                     currentFlashfile.close();
-                  } 
-                } 
+                  }
+                }
                 currentsample.close();
               }
             }
@@ -928,10 +928,10 @@ void SamplerMenuRouter::loadSampledSound() {
             dm.pseudoconsole("Unable to access SPI Flash chip");
           }
           currentsample = SD.sdfs.open(_rd.newloopedpath.c_str());
-          char currentflashname[12]; 
+          char currentflashname[12];
           currentsample.getName(currentflashname, 12);
           lengthz = currentsample.size();
-          
+
           if (SerialFlash.exists((const char*)currentflashname)) return;
 
           if (SerialFlash.create((const char*)currentflashname, lengthz)) {
@@ -956,7 +956,7 @@ void SamplerMenuRouter::loadSampledSound() {
           initializesamplesselectedlist();
           initializesamplesfoldersselectedlist();
           listFlashfiles();
-        
+
         }
 
 void SamplerMenuRouter::listFlashfiles() {
@@ -1051,7 +1051,7 @@ void SamplerMenuRouter::listSoundsetsubdir(int ledir) {
       //int fnamesize = strlen((char *)subentry.name());
       /*
       if (fnamesize > 12) {
-        for (int i=fnamesize-11; i < fnamesize; i++) { 
+        for (int i=fnamesize-11; i < fnamesize; i++) {
           shorter_name[i-fnamesize+11] = new_namer[i];
         }
         shorter_name[11] = (char)'\0';

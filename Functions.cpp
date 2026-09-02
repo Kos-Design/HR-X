@@ -15,7 +15,6 @@
 #include "FxMenu.h"
 #include "PresetsMenu.h"
 #include "KnobAssigner.h"
-#include "Frequencies.h"
 
 extern USBHost myusb;
 extern USBHub hub1;
@@ -193,7 +192,7 @@ void initextmems() {
     }
 
     for (int i = 0; i < 128; i++) {
-      
+
       pp.cc_partition[i][j] = 127;
     }
   }
@@ -364,12 +363,12 @@ void setupdefaultvalues() {
   // 303 pulse
   gg.midiknobassigned[23] = 13;
   gg.midiknobassigned[24] = 15;
- 
-  
+
+
 
   //gg.pot_assignements[ALL_BUTTONS-10] = 108 ;
   //gg.pot_assignements[ALL_BUTTONS-9] = 107 ;
-  
+
   //gg.midiknobassigned[111] = 109 ;
   //98 debugcpu
   //pots_assignements are to map onboard buttons to midi notes or ccs
@@ -392,7 +391,7 @@ void setupdefaultvalues() {
   gg.pot_assignements[ALL_BUTTONS-4] = 100 ;
   gg.pot_assignements[ALL_BUTTONS-13] = 101 ;
   //osc toggles
-  //midiknobs link a midi cc note to an index from ctl[] 
+  //midiknobs link a midi cc note to an index from ctl[]
   gg.midiknobassigned[100] = 116 ;
   gg.midiknobassigned[101] = 117 ;
   //gg.midiknobassigned[106] = 98;
@@ -424,7 +423,7 @@ void setupdefaultvalues() {
   InMixR.gain(2, 1.0);
   InMixL.gain(3, 0.0);
   InMixR.gain(3, 0.0);
-  
+
   sd_mixerL.gain(0, 1.0);
   sd_mixerR.gain(0, 1.0);
 
@@ -459,7 +458,7 @@ void once_in_a_while(){
 }
 
 void refresh_mp3_player(){
-  if (!playFlac1.isPlaying() && !playMp31.isPlaying()) {  
+  if (!playFlac1.isPlaying() && !playMp31.isPlaying()) {
     _mp.mp3_player_next();
     _mp.mp3_player_play();
   }
@@ -495,7 +494,7 @@ void loopusbHub() {
         //4 seems to be pos 0 on ardour
         if (songpos_midi == 4 ) _sg.x_ = 0 ;
         //Serial.println(songpos_midi);
-      } 
+      }
       switch(type_midi){
         case 0x90:
           MaNoteOn(channel_midi,rx.byte2,rx.byte3);
@@ -523,13 +522,13 @@ void loopusbHub() {
 
 void control_me(){
   if (_st.noteprint)
-    _st.printlanote();    
+    _st.printlanote();
   if (MULTIPLEXED_PADS){
     _tt.check_pads();
     _tt.check_pots();
   }
   dm.evalinputs();
-  dm.evalrota(); 
+  dm.evalrota();
 }
 
 void loop() {
@@ -700,9 +699,9 @@ void setup() {
   consoler.println((char *)"SD Card OK !");
   Padded.begin();
   consoler.println((char *)"Setting up I/O");
-  
+
   pinMode(MULTIPLEXER_PIN, INPUT_PULLUP);
-  
+
 
   consoler.println((char *)"I/O Set !");
   consoler.println((char *)"Loading Defaults");
@@ -836,11 +835,11 @@ void ResoTweak_ctl(byte cc_value){
 }
 
 void set_Portamento_time_ctl(byte cc_value){
-  gg.portamento_time = cc_value ;   
+  gg.portamento_time = cc_value ;
 }
 
 void set_Portamento_height_ctl(byte cc_value){
-  gg.portamento_height = cc_value ;   
+  gg.portamento_height = cc_value ;
 }
 
 void FilterPreAmp_ctl(byte cc_value){
@@ -866,7 +865,7 @@ void ArpegioNotesCount_ctl(byte cc_value){
 }
 
 void ArpegioStartOffset_ctl(byte cc_value){
-  gg.arpegstartoffset = round((cc_value / 127.0) * 18.0);  
+  gg.arpegstartoffset = round((cc_value / 127.0) * 18.0);
 }
 
 void ArpegioGridC_ctl(byte cc_value){
@@ -914,11 +913,11 @@ void RecordPattern_Trigger_ctl(byte cc_value){
 }
 
 void StopSong_Trigger_ctl(byte cc_value){
-  _se.stopdasong(); 
+  _se.stopdasong();
 }
 
 void PauseSong_Trigger_ctl(byte cc_value){
-  _se.pausedasong();   
+  _se.pausedasong();
 }
 
 void PlaySong_Trigger_ctl(byte cc_value){
@@ -988,7 +987,7 @@ void AnalogTouch_Toggle_ctl(byte cc_value){
 void LFOXLevel_ctl(byte cc_value){
   gg.LFOlevel[lv.oscillator] = cc_value;
 }
-      
+
 void LFOXType_ctl(byte cc_value){
   gg.LFOformstype[lv.oscillator] = round((cc_value / 127.0) * 8.0);
 }
@@ -1052,7 +1051,7 @@ void Filter303_Knob3_ctl(byte cc_value){
   gg.le303filterzgainz[2] = cc_value ;
   _mx.le303filtercontrols();
 }
-     
+
 void FXBusSelector_ctl(byte cc_value){
   lv.fidx = map((int)((cc_value / 127.0)*100.0),0,100,0,2);
 }
@@ -1362,13 +1361,13 @@ void adjust_osc_framerate_ctl(byte cc_val) {
 }
 
 void adjust_osc_refresher_period_ctl(byte cc_val) {
-  gg.osc_refresher_period = 1 + (cc_val / 2) ; 
+  gg.osc_refresher_period = 1 + (cc_val / 2) ;
 }
 
 void adjust_rota_decrease_ctl(byte cc_val){
   int this_rota = dm.myEnc.read();
   dm.myEnc.write(this_rota-4);
-  dm.evalrota(); 
+  dm.evalrota();
 }
 
 void rota_increase_ctl(byte cc_val){
@@ -1405,7 +1404,7 @@ void validate_pushed_ctl(byte cc_val){
 }
 
 void adjust_waveEditor_pitch_ctl(byte cc_val) {
-  _rd.pitcher = (cc_val/127.0) * 2.0; 
+  _rd.pitcher = (cc_val/127.0) * 2.0;
 }
 
 void spectro_Toggle_ctl(byte unused_cc){
@@ -1460,6 +1459,6 @@ const CcCalls ctl[128] = {
     {"Flash Line11 Level",&FlashLineVolume_Knob11_ctl},{"Flash Line12 Level",&FlashLineVolume_Knob12_ctl},{"Flash Line13 Level",&FlashLineVolume_Knob13_ctl},{"Flash Line14 Level",&FlashLineVolume_Knob14_ctl},{"Flash Line15 Level",&FlashLineVolume_Knob15_ctl},
     {"Flash Line16 Level",&FlashLineVolume_Knob16_ctl},{"Show oscilloscope",&spectro_Toggle_ctl},{"Show EQ Bars",&eq_display_Toggle_ctl},{"USB In Volume",&USB_In_Volume_ctl},{"Fps oscilloscope",&adjust_osc_framerate_ctl},
     //140 ok
-    {"Time oscilloscope",&adjust_osc_timee_ctl},{"refresh OscScope",&adjust_osc_refresher_period_ctl},{"Wav Editor Pitch",&adjust_waveEditor_pitch_ctl},{"Rota Nav +",&rota_increase_ctl}, {"Rota Nav -",&adjust_rota_decrease_ctl},      
-    {"Validate Nav",&validate_pushed_ctl},{"Cancel Nav",&cancel_pushed_ctl},{"Pitch Attack",&set_Portamento_height_ctl} 
+    {"Time oscilloscope",&adjust_osc_timee_ctl},{"refresh OscScope",&adjust_osc_refresher_period_ctl},{"Wav Editor Pitch",&adjust_waveEditor_pitch_ctl},{"Rota Nav +",&rota_increase_ctl}, {"Rota Nav -",&adjust_rota_decrease_ctl},
+    {"Validate Nav",&validate_pushed_ctl},{"Cancel Nav",&cancel_pushed_ctl},{"Pitch Attack",&set_Portamento_height_ctl}
 };

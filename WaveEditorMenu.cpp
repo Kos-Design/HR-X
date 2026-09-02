@@ -13,7 +13,7 @@ RecorderMenuRouter::RecorderMenuRouter() {
                     self->max_navlevel=5;
                     self->sublevels_address={7,3,0};
                     }
-                    
+
 
 void RecorderMenuRouter::show() {
           _route_nav[lv.navlevel-self->relative_navlevel]();
@@ -66,7 +66,7 @@ void RecorderMenuRouter::auto_stop_rec(){
           if (millis() - lv.tocker > 10000) {
             self->rec_looping = false ;
             stopRecording();
-            
+
           }
         }
 
@@ -96,7 +96,7 @@ void RecorderMenuRouter::continue_looper() {
         }
 
 void RecorderMenuRouter::stopRecording() {
-          
+
             if (self->looper) {
             //AudioNoInterrupts();
             queue1.end();
@@ -250,8 +250,8 @@ void RecorderMenuRouter::recordVpanel() {
 
 void RecorderMenuRouter::playrecordsd() {
             //Serial.println(self->newloopedpath);
-          
-          if (SD.exists(self->newloopedpath.c_str())) {
+
+          if (SD.sdfs.exists(self->newloopedpath.c_str())) {
             AudioNoInterrupts();
             playRawL.play(self->newloopedpath.c_str());
             if (self->modestereo) {
@@ -266,7 +266,7 @@ void RecorderMenuRouter::playrecordsd() {
 void RecorderMenuRouter::playrecordsd_pathed(const char* lepath) {
             //Serial.print(lepath);
 
-          if (SD.exists(lepath)) {
+          if (SD.sdfs.exists(lepath)) {
             AudioNoInterrupts();
             playRawL.play(lepath);
             if (self->modestereo) {
@@ -279,7 +279,7 @@ void RecorderMenuRouter::playrecordsd_pathed(const char* lepath) {
             Serial.println("");
             Serial.print("error playing ");
             Serial.print(lepath);
-            
+
           }
         }
 
@@ -291,7 +291,7 @@ void RecorderMenuRouter::stopplayrecordsd() {
         }
 
 void RecorderMenuRouter::check_rec_folder_path(){
-          if (!(SD.exists(((String)"SOUNDSET/REC").c_str()))) 
+          if (!(SD.sdfs.exists(((String)"SOUNDSET/REC").c_str())))
             self->catalog->make_sub_folder("SOUNDSET", "REC");
         }
 
@@ -316,9 +316,9 @@ void RecorderMenuRouter::rec_params(){
 void RecorderMenuRouter::rec_nav_zero(){
           self->catalog->nav_zero();
         }
-        
+
 void RecorderMenuRouter::drawFoldersList(){
-          
+
           self->catalog->folders_mode = true ;
           //self->catalog->folder_dir = "SOUNDSET/" ;
           strncpy(self->catalog->folder_dir, "SOUNDSET/", 31);
@@ -339,7 +339,7 @@ void RecorderMenuRouter::drawFoldersList(){
           //Serial.println(self->catalog->folder_selected);
           if (lv.navlevel > self->relative_navlevel+1){
             String entering_dir = ((String)self->catalog->folder_dir + self->catalog->folder_selected + "/");
-            if (SD.exists(entering_dir.c_str())){
+            if (SD.sdfs.exists(entering_dir.c_str())){
               self->catalog->folders_mode = false ;
               //self->catalog->folder_dir = (entering_dir).c_str();
               strncpy(self->catalog->folder_dir, entering_dir.c_str(), 31);
@@ -358,7 +358,7 @@ void RecorderMenuRouter::drawFoldersList(){
             }
             self->catalog->list_files();
             self->catalog->folders_already_listed = false;
-            
+
             dm.returntonav(self->relative_navlevel,self->home_navrange,0);
           }
         }
@@ -410,7 +410,7 @@ void RecorderMenuRouter::drawWaveform(float startPos,float endPos, uint16_t widt
     }
     int yTop = map(maxSample, 32767, -32768, 0, height - 1);
     int yBottom = map(minSample, 32767, -32768, 0, height - 1);
-    dm.canvasBIG.drawFastVLine(x, yTop + 8, yBottom - yTop + 1, SSD1306_WHITE); 
+    dm.canvasBIG.drawFastVLine(x, yTop + 8, yBottom - yTop + 1, SSD1306_WHITE);
   }
   wave_file.close();
 }
@@ -422,7 +422,7 @@ void RecorderMenuRouter::select_cursor() {
   dm.dodisplay();
   int cursor_coords[][4] = {{0,0,18,8},{22,0,9,8},{38,0,9,8},{52,0,9,8},{64,0,9,8},{76,0,9,8},{88,0,14,8},{106,0,14,8},{0,8,128,48},
                             {23,56,14,8},{40,56,21,8},{64,56,20,8},{88,56,27,8},{116,56,12,8}};
-  dm.fillRect(cursor_coords[lv.sublevels[self->relative_navlevel+1]][0], 
+  dm.fillRect(cursor_coords[lv.sublevels[self->relative_navlevel+1]][0],
                     cursor_coords[lv.sublevels[self->relative_navlevel+1]][1],
                     cursor_coords[lv.sublevels[self->relative_navlevel+1]][2],
                     cursor_coords[lv.sublevels[self->relative_navlevel+1]][3],
@@ -430,7 +430,7 @@ void RecorderMenuRouter::select_cursor() {
 
     if (self->wave_selected) {
     redraw_selection_box();
-  } 
+  }
   dm.setTextSize(1);
   dm.setTextColor(SSD1306_INVERSE);
   dm.setCursor(60,12);
@@ -456,9 +456,9 @@ void RecorderMenuRouter::draw_editor_zones(){
 }
 
 void RecorderMenuRouter::redraw_selection_box(){
-  dm.fillRect(lv.sublevels[self->relative_navlevel +2], 8, 
+  dm.fillRect(lv.sublevels[self->relative_navlevel +2], 8,
                       lv.sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
-  
+
 }
 
 void RecorderMenuRouter::zoomRange(float subStart,float subEnd) {
@@ -522,7 +522,7 @@ void RecorderMenuRouter::reverseSection(float startPos, float endPos) {
   lv.locked_fileing = 0 ;
   self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
 }
-     
+
 void RecorderMenuRouter::pitchSection(float startPos, float endPos, float speed) {
   self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
@@ -627,7 +627,7 @@ void RecorderMenuRouter::trimSection(float start_pos, float end_pos) {
   lv.locked_fileing = 0 ;
   self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
 }
-   
+
 void RecorderMenuRouter::normalizeSection(float startPos, float endPos) {
   self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
@@ -665,7 +665,7 @@ void RecorderMenuRouter::normalizeSection(float startPos, float endPos) {
     }
     remaining -= bytes;
   }
-  if (peak == 0){ 
+  if (peak == 0){
     lv.locked_fileing = 0 ;
     return;
   }
@@ -712,10 +712,10 @@ void RecorderMenuRouter::scheddule_wave_rebuild(bool noreturn,bool noreinit){
   self->start_zone = 0.0 ;
   self->wave_buffed = 0 ;
   if (!noreinit)
-    dm.reinitsublevels(self->relative_navlevel + 1); 
+    dm.reinitsublevels(self->relative_navlevel + 1);
   if (!noreturn)
     dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
-  lv.locked_fileing = 0 ; 
+  lv.locked_fileing = 0 ;
 }
 
 void RecorderMenuRouter::fadeInSection(float startPos, float endPos) {
@@ -748,7 +748,7 @@ void RecorderMenuRouter::fadeInSection(float startPos, float endPos) {
                           fadeSamples - sampleIndex);
 
     src.read((uint8_t*)buffer, samples * 2);
-    for (uint32_t i = 0; i < samples; i++) {   
+    for (uint32_t i = 0; i < samples; i++) {
       float x = (float)(sampleIndex + i) / (fadeSamples - 1);
       float gain = sinf(x * (PI/2.0));
       int32_t s = (int32_t)(buffer[i] * gain);
@@ -867,7 +867,7 @@ void RecorderMenuRouter::edit_record(){
            if (lv.navlevel == self->relative_navlevel+1) {
             if (!self->wave_buffed) {
               draw_editor_zones();
-              self->wave_buffed = 1 ; 
+              self->wave_buffed = 1 ;
               drawWaveform(self->start_zone,self->end_zone);
               dm.dodisplay();
             }
@@ -877,7 +877,7 @@ void RecorderMenuRouter::edit_record(){
             if (lv.sublevels[self->relative_navlevel + 1] == 1){
               scheddule_wave_rebuild();
             }
-            
+
             //zoom in
             if (lv.sublevels[self->relative_navlevel + 1] == 2){
               zoomRange((lv.sublevels[self->relative_navlevel + 2] / 127.0 ),((lv.sublevels[self->relative_navlevel + 2] + lv.sublevels[self->relative_navlevel + 3] ) / 127.0 ));
@@ -894,7 +894,7 @@ void RecorderMenuRouter::edit_record(){
               dm.drawFastVLine(lv.sublevels[self->relative_navlevel +2], 8, 48, SSD1306_INVERSE);
               dm.dodisplay();
             }
-            
+
             //normalize
             if (lv.sublevels[self->relative_navlevel + 1] == 3){
               normalizeSection(self->start_zone,self->end_zone);
@@ -946,7 +946,7 @@ void RecorderMenuRouter::edit_record(){
               fadeOutSection(self->start_zone,self->end_zone);
               scheddule_wave_rebuild();
             }
-            
+
             //playSection
             if (lv.sublevels[self->relative_navlevel + 1] == 8){
               playSection();
@@ -960,12 +960,12 @@ void RecorderMenuRouter::edit_record(){
               lv.navrange = 127 - lv.sublevels[self->relative_navlevel +2] ;
               dm.clearDisplay();
               dm.dodisplay();
-              dm.fillRect(lv.sublevels[self->relative_navlevel +2], 8, 
+              dm.fillRect(lv.sublevels[self->relative_navlevel +2], 8,
                                 lv.sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
               dm.display();
             //dm.returntonav(self->relative_navlevel + 1, self->home_navrange,0);
             }
-          
+
           //5 is pitch
             if (lv.sublevels[self->relative_navlevel + 1] == 5){
               start_inputting_pitch();
@@ -982,12 +982,12 @@ void RecorderMenuRouter::redo(){
 }
 
 String RecorderMenuRouter::get_current_temp_file(){
-  return (self->catalog->get_full_tmp_file_path(max(self->catalog->tmp_index,0))); 
+  return (self->catalog->get_full_tmp_file_path(max(self->catalog->tmp_index,0)));
 }
 
 void RecorderMenuRouter::Undo(){
   self->catalog->tmp_index = self->undoables[max(self->catalog->tmp_count-1,0)];
-  if (SD.exists(self->get_current_temp_file().c_str())){
+  if (SD.sdfs.exists(self->get_current_temp_file().c_str())){
     self->catalog->tmp_count--;
     self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
   } else {
@@ -1020,5 +1020,5 @@ void RecorderMenuRouter::make_temp_folders(){
           self->catalog->make_temp_folders();
         }
 
-    
-        
+
+

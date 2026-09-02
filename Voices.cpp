@@ -1,5 +1,4 @@
 #include "Voices.h"
-#include "Frequencies.h"
 #include "MenuClasses.h"
 #include "Presets.h"
 #include "SynthMenu.h"
@@ -199,7 +198,7 @@ void SynthLiner::liner_off() {
       this->length_in_arp = 0 ;
       this->arp_starter = 0 ;
       this->next_arp_note = 0 ;
-      
+
     }
 
 

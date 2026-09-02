@@ -10,8 +10,8 @@
 
 VirtualKnobs* VirtualKnobs::self = nullptr;
 
-VirtualKnobs::VirtualKnobs() { 
-            self = this;  
+VirtualKnobs::VirtualKnobs() {
+            self = this;
             self->home_navrange=VBUT_LBL_COUNT;
             self->relative_navlevel=2;
             self->max_navlevel=5;
@@ -428,7 +428,7 @@ SettingsMenuRouter::SettingsMenuRouter() {
                     self->max_navlevel=5;
                     self->sublevels_address={5,0,0};
                     }
-                  
+
 
 void SettingsMenuRouter::show() {
           if (lv.navlevel == 1) {
@@ -457,12 +457,12 @@ void SettingsMenuRouter::set_alternative_rota(){
             lv.navrange = 127;
             gg.alt_nav[lv.sublevels[2]]=lv.sublevels[3];
           }
-          
+
           lv.sublevels[3]=gg.alt_nav[lv.sublevels[2]];
           dm.clearDisplay();
           dm.setCursor(0,0);
           dm.setTextSize(1);
-         
+
           dm.print("Set Nav Controls");
           dm.println(" ");
           dm.println(" ");
@@ -483,7 +483,7 @@ void SettingsMenuRouter::set_alternative_rota(){
 
           dm.drawRoundRect(56,11+12*lv.sublevels[2], 25, 16, 3, SSD1306_WHITE);
           dm.display();
-          
+
           if (lv.navlevel > 3 ){
             apply_alt_ctl();
             dm.returntonav(2,3,lv.sublevels[2]);
@@ -690,8 +690,8 @@ void SettingsMenuRouter::OnBoardVpanel() {
         }
 
 
-        
-        
+
+
 
 void SettingsMenuRouter::arpegiatorVpanelAction() {
           if (lv.navlevel == 3) {
@@ -982,7 +982,7 @@ void SettingsMenuRouter::makesettingslist() {
             }
             // dm.canvasBIG.setTextSize(1);
           }
-          
+
           for (int filer = 0; filer < settings_labels_count - 1 - (lv.sublevels[1]);
               filer++) {
 
@@ -998,7 +998,7 @@ void SettingsMenuRouter::makesettingslist() {
         }
 
 void SettingsMenuRouter::settings_nav_one(){
-          
+
           dm.canvasBIG.setTextSize(1);
           dm.canvastitle.setTextSize(1);
           _settings_menu[lv.sublevels[1]]();
@@ -1006,7 +1006,7 @@ void SettingsMenuRouter::settings_nav_one(){
             makesettingslist();
             dm.dodisplay();
           }
-          
+
         }
 
 byte SettingsMenuRouter::getnotefromfreq(float lafreq) {
@@ -1107,13 +1107,13 @@ void SettingsMenuRouter::set_sampler_midi_ch(){
           dm.returntonav(1,self->home_navrange,3);
         }
       }
-      
+
 void SettingsMenuRouter::toggle_digital_analog(){
         gg.digitalplay = !gg.digitalplay;
         dm.returntonav(1,self->home_navrange,4);
       }
-      
-      
+
+
 void SettingsMenuRouter::set_tap_note(){
         lv.navrange = 127;
         gg.tapnote = byte(lv.sublevels[2]);
@@ -1186,7 +1186,7 @@ void (*SettingsMenuRouter::_settings_menu[settings_labels_count])() = {&toggle_e
                                                                         &set_tap_note,&set_bpms_interval,&set_chord_mode,&arpegiatorVpanel,&toggle_ext_clock,&toggle_note_spy,
                                                                         &OnBoardVpanel,&set_audio_source,&toggle_midi_out,&_vk.Vbuttonspanel,&_ka.show,&set_alternative_rota};
 
-     
+
 
      /*static void (*root_route[10])();
 void (*DisplayManager::root_route[10])() = {&_sn.show,&_lf.show,&_rd.show,&_sg.show,&_pt.show,

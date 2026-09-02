@@ -39,7 +39,7 @@ void DisplayManager::display_home() {
     }
 }
 
-  
+
 
 void DisplayManager::returntonav(byte lelevel, byte lanavrange, byte t_vraipos) {
   lv.navlevel = lelevel;
@@ -532,8 +532,8 @@ extern DisplayManager dm ;
 
 GlobalMixer* GlobalMixer::self = nullptr;
 
-GlobalMixer::GlobalMixer(){  
-    self = this; 
+GlobalMixer::GlobalMixer(){
+    self = this;
     self->home_navrange=11;
     self->relative_navlevel=2;
     self->max_navlevel=5;
@@ -709,7 +709,7 @@ void GlobalMixer::set_synth_master() {
   mixerWAll.gain(1, gg.mixlevelsM[1] / 127.0);
   mixerWAll.gain(0, gg.mixlevelsM[1] / 127.0);
 }
-  
+
 void GlobalMixer::set_flash_master() {
   // set sampler main
   flashMastermix.gain(0, gg.mixlevelsM[2] / 127.0);
@@ -753,7 +753,7 @@ void GlobalMixer::le303filterzWet() {
     les303wet[i]->gain(1, (1 - (gg.le303filterzwet / 127.0)));
   }
 }
-    
+
 void GlobalMixer::set_wmixer_buff_temp() {
           //Serial.println("buffing");
           for (int i=0; i<12; i++) {
@@ -851,7 +851,7 @@ void GlobalMixer::actionwmixer(byte vknob) {
           }
           //
         }
-        
+
 void GlobalMixer::setwavemixlevel() {
 // AudioNoInterrupts();
   for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
@@ -864,7 +864,7 @@ void GlobalMixer::Wavespreamp303controls() {
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
     Wavespreamp303[i]->gain((gg.preampleswaves / 127.0)*2);
   }
-}       
+}
 
 void GlobalMixer::setle303filterpass(int linei) {
   les303passes[linei]->gain(0,gg.le303filterzgainz[0]/127.0);
@@ -900,7 +900,7 @@ void GlobalMixer::actionwmixerM(int lebus) {
 }
 
 SequencerClocker::SequencerClocker() : AudioStream(0, nullptr) {}
-    
+
 void SequencerClocker::setBPM(float bpm)
         {
             _bpm = bpm;
@@ -974,7 +974,7 @@ void DisplayConsoler::wipe(){
     dm.setCursor(0,0);
 
     dm.display();
-    
+
 }
 size_t DisplayConsoler::write(uint8_t c){
     if (c == '\r')
