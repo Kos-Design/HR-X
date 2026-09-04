@@ -16,8 +16,8 @@ RecorderMenuRouter::RecorderMenuRouter() {
 
 
 void RecorderMenuRouter::show() {
-          _route_nav[lv.navlevel-self->relative_navlevel]();
-        }
+  _route_nav[lv.navlevel-self->relative_navlevel]();
+}
 
 void RecorderMenuRouter::Load_raw_file() {
   clear_temp_files();
@@ -63,61 +63,59 @@ void RecorderMenuRouter::startRecording() {
 
 
 void RecorderMenuRouter::auto_stop_rec(){
-          if (millis() - lv.tocker > 10000) {
-            self->rec_looping = false ;
-            stopRecording();
-
-          }
-        }
+  if (millis() - lv.tocker > 10000) {
+    self->rec_looping = false ;
+    stopRecording();
+  }
+}
 
 void RecorderMenuRouter::continue_looper() {
-          if (queue1.available() >= 2) {
-            byte rec_buffer[512];
-            memcpy(rec_buffer, queue1.readBuffer(), 256);
-            queue1.freeBuffer();
-            memcpy(rec_buffer+256, queue1.readBuffer(), 256);
-            queue1.freeBuffer();
-            // write all 512 bytes to the SD card
-            //elapsedMicros usec = 0;
-            self->looper.write(rec_buffer, 512);
-            // Uncomment these lines to see how long SD writes
-            // are taking.  A pair of audio blocks arrives every
-            // 5802 microseconds, so hopefully most of the writes
-            // take well under 5802 us.  Some will take more, as
-            // the SD library also must write to the FAT tables
-            // and the SD card controller manages media erase and
-            // wear leveling.  The queue1 object can buffer
-            // approximately 301700 us of audio, to allow time
-            // for occasional high SD card latency, as long as
-            // the average write time is under 5802 us.
+  if (queue1.available() >= 2) {
+    byte rec_buffer[512];
+    memcpy(rec_buffer, queue1.readBuffer(), 256);
+    queue1.freeBuffer();
+    memcpy(rec_buffer+256, queue1.readBuffer(), 256);
+    queue1.freeBuffer();
+    // write all 512 bytes to the SD card
+    //elapsedMicros usec = 0;
+    self->looper.write(rec_buffer, 512);
+    // Uncomment these lines to see how long SD writes
+    // are taking.  A pair of audio blocks arrives every
+    // 5802 microseconds, so hopefully most of the writes
+    // take well under 5802 us.  Some will take more, as
+    // the SD library also must write to the FAT tables
+    // and the SD card controller manages media erase and
+    // wear leveling.  The queue1 object can buffer
+    // approximately 301700 us of audio, to allow time
+    // for occasional high SD card latency, as long as
+    // the average write time is under 5802 us.
 
-          }
-          auto_stop_rec();
-        }
+  }
+  auto_stop_rec();
+}
 
 void RecorderMenuRouter::stopRecording() {
+  if (self->looper) {
+  //AudioNoInterrupts();
+  queue1.end();
+  while (queue1.available() > 0) {
+    self->looper.write((byte *)queue1.readBuffer(), 256);
+    queue1.freeBuffer();
+  }
+  self->looper.close();
+  queue1.clear();
+  //AudioInterrupts();
+  clear_temp_files();
 
-            if (self->looper) {
-            //AudioNoInterrupts();
-            queue1.end();
-            while (queue1.available() > 0) {
-              self->looper.write((byte *)queue1.readBuffer(), 256);
-              queue1.freeBuffer();
-            }
-            self->looper.close();
-            queue1.clear();
-            //AudioInterrupts();
-            clear_temp_files();
-
-            _sp.dosoundlist();
-            }
-            self->just_pressed_rec = false ;
-            self->pre_record = false;
-            if (self->autoassign) {
-             _sp.loadSampledSound();
-            }
-            lv.locked_fileing = 0 ;
-        }
+  _sp.dosoundlist();
+  }
+  self->just_pressed_rec = false ;
+  self->pre_record = false;
+  if (self->autoassign) {
+    _sp.loadSampledSound();
+  }
+  lv.locked_fileing = 0 ;
+}
 
 void RecorderMenuRouter::recordVpanelAction() {
           if (lv.navlevel == self->relative_navlevel + 2) {
@@ -264,36 +262,33 @@ void RecorderMenuRouter::playrecordsd() {
         }
 
 void RecorderMenuRouter::playrecordsd_pathed(const char* lepath) {
-            //Serial.print(lepath);
-
-          if (SD.sdfs.exists(lepath)) {
-            AudioNoInterrupts();
-            playRawL.play(lepath);
-            if (self->modestereo) {
-              playRawR.play(self->newRecpathR.c_str());
-            } else {
-              playRawR.play(lepath);
-            }
-            AudioInterrupts();
-          } else {
-            Serial.println("");
-            Serial.print("error playing ");
-            Serial.print(lepath);
-
-          }
-        }
+    //Serial.print(lepath);
+  if (SD.sdfs.exists(lepath)) {
+    AudioNoInterrupts();
+    playRawL.play(lepath);
+    if (self->modestereo) {
+      playRawR.play(self->newRecpathR.c_str());
+    } else {
+      playRawR.play(lepath);
+    }
+    AudioInterrupts();
+  } else {
+    Serial.println("");
+    Serial.print("error playing ");
+    Serial.print(lepath);
+  }
+}
 
 void RecorderMenuRouter::stopplayrecordsd() {
-          //AudioNoInterrupts();
-          playRawL.stop();
-          playRawR.stop();
-          //AudioInterrupts();
-        }
+  //AudioNoInterrupts();
+  playRawL.stop();
+  playRawR.stop();
+  //AudioInterrupts();
+}
 
 void RecorderMenuRouter::check_rec_folder_path(){
-          if (!(SD.sdfs.exists(((String)"SOUNDSET/REC").c_str())))
-            self->catalog->make_sub_folder("SOUNDSET", "REC");
-        }
+  if (!(SD.sdfs.exists(((String)"SOUNDSET/REC").c_str()))) self->catalog->make_sub_folder("SOUNDSET", "REC");
+}
 
 void RecorderMenuRouter::deleteRec() {
           self->catalog->deleteFile();
@@ -550,9 +545,9 @@ void RecorderMenuRouter::pitchSection(float startPos, float endPos, float speed)
   uint32_t samplesInBuffer = 0;
 
   auto loadBuffer = [&](uint32_t sampleIndex) {
-      bufferStart = sampleIndex;
-      src.seek(bufferStart * 2);
-      samplesInBuffer = src.read((uint8_t *)buffer, BUFFER_SAMPLES * sizeof(int16_t)) / sizeof(int16_t);
+    bufferStart = sampleIndex;
+    src.seek(bufferStart * 2);
+    samplesInBuffer = src.read((uint8_t *)buffer, BUFFER_SAMPLES * sizeof(int16_t)) / sizeof(int16_t);
   };
   loadBuffer(startSample);
   float pos = (float)startSample;
@@ -735,7 +730,6 @@ void RecorderMenuRouter::fadeInSection(float startPos, float endPos) {
   startByte &= ~1;
   endByte   &= ~1;
   src.seek(0);
-
   while (src.position() < startByte) {
     uint32_t bytes = min((uint32_t)sizeof(buffer), startByte - src.position());
     src.read((uint8_t*)buffer, bytes);
@@ -744,9 +738,7 @@ void RecorderMenuRouter::fadeInSection(float startPos, float endPos) {
   uint32_t fadeSamples = (endByte - startByte) / 2;
   uint32_t sampleIndex = 0;
   while (sampleIndex < fadeSamples){
-    uint32_t samples = min(BUFFER_SAMPLES,
-                          fadeSamples - sampleIndex);
-
+    uint32_t samples = min(BUFFER_SAMPLES, fadeSamples - sampleIndex);
     src.read((uint8_t*)buffer, samples * 2);
     for (uint32_t i = 0; i < samples; i++) {
       float x = (float)(sampleIndex + i) / (fadeSamples - 1);
@@ -862,7 +854,7 @@ void RecorderMenuRouter::deleteSection(float startPos, float endPos){
 }
 
 void RecorderMenuRouter::edit_record(){
-          make_temp_folders();
+          self->catalog->make_temp_folders();
           lv.navrange = 13 ;
            if (lv.navlevel == self->relative_navlevel+1) {
             if (!self->wave_buffed) {
@@ -1015,10 +1007,3 @@ void RecorderMenuRouter::clear_temp_files(){
   self->catalog->tmp_index = 0;
   self->catalog->tmp_count = 0;
 }
-
-void RecorderMenuRouter::make_temp_folders(){
-          self->catalog->make_temp_folders();
-        }
-
-
-

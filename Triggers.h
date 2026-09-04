@@ -69,10 +69,11 @@ class TriggerMessenger {
         void initiateasamplerliner(byte data1, byte data2);
         void inittapstime();
         void starttaptap();
+        static void show_midi(char *typemsg = (char *)"midi ", MidiEventer msg = {0,0,0}) ;
         static void arp_tick();
         static void Mytickmidi();
         void resettaptap();
-        void debugmidi(char *, MidiEventer);
+
     private:
       static TriggerMessenger* self;
 };

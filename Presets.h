@@ -13,19 +13,20 @@ struct BigBuffers {
     char pleasewaitarray[10][32];
     uint8_t pots_controllers[32][32][2];
     uint8_t recorded_ccs[32];
+    uint8_t previousely_plugged_fx[3] = {ALL_FX_TYPES-1,ALL_FX_TYPES-1,ALL_FX_TYPES-1};
+    uint16_t premixesMto_index[3] = {1000,1000,1000} ;
+    uint16_t fxcording_index[3] = {1000,1000,1000} ;
+
 };
 
 extern BigBuffers bb;
 
 class FxBus {
   public:
-
     FxBus();
-
     int delaymultiplier = 55;
     int flangeoffset = FLANGE_DELAY_LENGTH / 4;
     int flangedepth = FLANGE_DELAY_LENGTH / 4;
-
     float bqslope[STAGES_BQ] = {1.0,1.0,1.0,1.0};
     float bqgain[STAGES_BQ] = {0.0,0.0,0.0,0.0};
     float bqfreq[STAGES_BQ] = {0.0,0.0,0.0,0.0};
@@ -34,9 +35,6 @@ class FxBus {
     float filterzreso = 0.7;
     float filterzoctv = 1.0;
     double flangefreq = 0.5;
-
-    uint16_t premixesMto_index = 1000 ;
-    uint16_t fxcording_index = 1000 ;
     // [lestage] freq slope gain
     uint8_t bqVpot[STAGES_BQ][3] = {{0,0,0},{0,0,0},{0,0,0},{0,0,0}};
     uint8_t bqtype[STAGES_BQ] = {0,0,0,0};

@@ -87,7 +87,6 @@ void PresetsMenuRouter::read_preset() {
             gg.fx[i].route_fx(gg.fx[i].plugged_fx);
             lv.avoid_fx_bounce = false ;
           }
-
           setbpms();
           _ad.ApplyADSR();
           _fx.allfxcontrolled();
@@ -104,13 +103,7 @@ void PresetsMenuRouter::read_preset() {
             gg.mixlevelsL[i] = tmp_mixlevelsL[i];
             _mx.setwavemixlevel();
           }
-          for (int i = 0; i < OSCS_COUNT; i++) {
-            lv.oscillator = i ;
-            _mx.setwavemixlevel();
-            _sn.setwavetypefromlist();
-            gg.mixlevelsL[i] = tmp_mixlevelsL[i];
-            _mx.setwavemixlevel();
-          }
+          //pb
           for (int i = 0; i < 4; i++) {
             gg.WetMixMasters[i] = tmp_WetMixMasters[i];
             gg.mixlevelsM[i] = tmp_mixlevelsM[i];

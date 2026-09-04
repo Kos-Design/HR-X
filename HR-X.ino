@@ -65,6 +65,8 @@ MasterClock Tocker;
 DisplayConsoler consoler;
 EXTMEM Bounce clicked = Bounce(32, 100);
 Song ng;
+MidiMenuRouter _mr;
+
 
 #if MULTIPLEXED_PADS
 Bounce Backb = Bounce( 99, 5 );

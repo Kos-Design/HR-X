@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "SynthMenu.h"
 #include "Voices.h"
 #include "LfoMenu.h"
@@ -42,40 +43,25 @@ void GlideMenuRouter::set_glide_mode_rpatack(byte voice){
 
 void GlideMenuRouter::show(){
   lv.navrange = self->home_navrange ;
+  uint8_t local_navranges[4]={4,127,127,127};
   if (lv.navlevel == 3 ){
-    lv.navrange = 127;
-    if (!lv.sublevels[self->relative_navlevel]) lv.navrange = 4;
+    lv.navrange = local_navranges[lv.sublevels[self->relative_navlevel]];
     *self->glide_params[lv.sublevels[2]] = lv.sublevels[3];
   }
   lv.sublevels[3]=*self->glide_params[lv.sublevels[2]];
-
-  dm.clearDisplay();
-  dm.setCursor(0,0);
-  dm.setTextSize(1);
-
-  dm.print("Glide Settings");
-  dm.println(" ");
-  dm.println(" ");
-  dm.print("Mode: ");
-  dm.print(GlideModeLabels[gg.glideMode]);
-
-  dm.setCursor(0, 28);
-  dm.print("Time: ");
-  dm.print(gg.portamento_time);
-
-  dm.setCursor(0, 40);
-  dm.print("Height: ");
-  dm.print(64-gg.portamento_height);
-  dm.setCursor(0, 52);
-  dm.print("Slope:   ");
-  dm.print((64-gg.glide_slope)/64.0);
-  dm.display();
-  dm.fillRoundRect(0,11+12*lv.sublevels[2], 35, 16, 3, SSD1306_INVERSE);
-  dm.display();
-
   if (lv.navlevel > 3 ){
     dm.returntonav(self->relative_navlevel,self->home_navrange,lv.sublevels[2]);
   }
+
+  char tbuffer[4];
+  snprintf(tbuffer, sizeof(tbuffer), "%u", gg.portamento_time);
+  char pbuffer[6];
+  snprintf(pbuffer, sizeof(pbuffer), "%d", 64-gg.portamento_height);
+  char sbuffer[6];
+  snprintf(sbuffer, sizeof(sbuffer), "%.2f", (64-gg.glide_slope)/64.0);
+  const char* _lbls[4] = {"Mode   ","Time   ","Height ","Slope  "};
+  const char* _vals[4] = {(const char*)GlideModeLabels[gg.glideMode],(const char*)tbuffer,(const char*)pbuffer,(const char*)sbuffer};
+  dm.sub_menu(_lbls,_vals,39);
 }
 
 uint8_t *GlideMenuRouter::glide_params[4] = {reinterpret_cast<uint8_t*>(&gg.glideMode),&gg.portamento_time,&gg.portamento_height,&gg.glide_slope};

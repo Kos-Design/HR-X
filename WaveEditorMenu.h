@@ -71,7 +71,6 @@ class RecorderMenuRouter : public SectionHolder {
         String get_current_temp_file();
         static void Undo();
         static void clear_temp_files();
-        static void make_temp_folders();
 
         static constexpr void (*_route_nav[9])() = {&rec_nav_zero, &records_actions, &records_actions,
                                     &records_actions, &records_actions,&records_actions, &records_actions,

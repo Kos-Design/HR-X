@@ -963,7 +963,11 @@ void SamplerMenuRouter::listFlashfiles() {
           initializeFlashsamplename();
           if (!SerialFlash.begin(self->FlashChipSelect)) {
             dm.pseudoconsole((char *)"Unable to access SPI Flash chip");
+            Serial.println("Unable to access SPI Flash chip");
+
           }
+          //requireds to reset the readdir iterator
+          SerialFlash.opendir();
           char filename[13];
           uint32_t filesize;
           while (SerialFlash.readdir(filename, sizeof(filename), filesize)) {

@@ -342,7 +342,6 @@ void SongMenuRouter::writedasong() {
   lv.locked_fileing = 0;
 }
 
-
 void SongMenuRouter::parseSong(){
   if (lv.locked_fileing)
     return;
@@ -365,9 +364,7 @@ void SongMenuRouter::song_nav_zero(){
 }
 
 void SongMenuRouter::initializeSong() {
-  for (int j = 0; j < 99; j++) {
-    ng.patternonsong[j] = 0;
-  }
+  memset(ng.patternonsong,0,sizeof(ng.patternonsong));
 }
 
 void SongMenuRouter::clear_song_popup(){

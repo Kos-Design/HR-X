@@ -424,7 +424,9 @@ void TriggerMessenger::MaControlChange(byte channel, byte control, byte value) {
   bool isignored = self->noCCrecordlist(control);
 
   if (self->debugmidion) {
-    self->debugmidi((char *)("ControlChange"), (MidiEventer){channel, control, value});
+    //self->debugmidi((char *)("ControlChange"), (MidiEventer){channel, control, value});
+    self->show_midi((char *)("CC"), (MidiEventer){channel, control, value});
+    
   }
 
   if (lv.navlevel)
@@ -451,23 +453,23 @@ bool TriggerMessenger::noCCrecordlist(byte lanotee) {
   return 0;
 }
 
-void TriggerMessenger::debugmidi(char *typemsg = (char *)"midi ", MidiEventer msg = {0,0,0}) {
 
+void TriggerMessenger::show_midi(char * typemsg, MidiEventer msg) {
   dm.clearDisplay();
-  dm.canvastitle.fillScreen(SSD1306_BLACK);
-  dm.canvasBIG.fillScreen(SSD1306_BLACK);
+  dm.canvastitle.fillScreen(0);
   dm.canvastitle.setCursor(0, 0);
   dm.canvastitle.setTextSize(1);
+  //dm.canvastitle.print("Midi ");
   dm.canvastitle.print(typemsg);
-  dm.canvastitle.print(", c:");
+  dm.canvastitle.print(" c:");
   dm.canvastitle.print(msg.channel);
-  dm.canvastitle.print(", n:");
+  dm.canvastitle.print(" n:");
   dm.canvastitle.print(msg.note);
-  dm.canvastitle.print(", v:");
+  dm.canvastitle.print(" v:");
   dm.canvastitle.print(msg.velocity);
-
   dm.dodisplay();
 }
+
 void TriggerMessenger::setchordnotes(byte absolutenote, byte lachord) {
   byte relativenote = ((absolutenote + 12) % 12);
   for (int i = 0; i < 3; i++) {
@@ -547,7 +549,7 @@ void TriggerMessenger::MaNoteOn(MidiEventer msg) {
 
 void TriggerMessenger::MaProgramchange(byte channel, byte data1) {
   if (self->debugmidion) {
-    self->debugmidi((char *)"ProgramChange", (MidiEventer){channel, data1, 0});
+    self->show_midi((char *)"PC", (MidiEventer){channel, data1, 0});
   }
   /*
   int leprogchanged = (int)(data1);
@@ -677,7 +679,7 @@ void TriggerMessenger::notes_edgecases(MidiEventer msg){
     taptap();
     return;
   }
-  if (self->debugmidion) debugmidi((char *)"NoteOn", msg);
+  if (self->debugmidion) show_midi((char *)"N.On", msg);
   // control is (byte)gg.pot_assignements[11 + lv.paddered]
   //inside sample assigner
   if (lv.setting_on_board && (lv.navlevel == 2)) helper_onbard();

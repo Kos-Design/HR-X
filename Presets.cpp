@@ -301,32 +301,24 @@ const unsigned char *_img[12] = { sinewave, sawtoothwave, reversesawtoothwave, t
                                       variabletriangle, squarewave, pulsewave,arbitrarywave,
                                       samplehold,arbitrarywave,samplehold,moonwave};
 
-/* = {
-  //midiknobassigned[128]
-  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-  //Sampleassigned[128]
-  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-  //int16_t arbitrary_waveforms[OSCS_COUNT][256] ;
-  {{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}},
-  //uint16_t pot_assignements[ALL_BUTTONS];
-  {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-
-};
-*/
+//FxBus::FxBus(byte fii) : f_index(fii){}
 FxBus::FxBus() {}
 
 void FxBus::route_fx(byte selected_fx_type) {
-      if (plugged_fx != (ALL_FX_TYPES - 1)) {
-        unplug_fx_line();
-      }
+          Serial.println(f_index);
+        Serial.print("fx was ");
+        Serial.print(bb.previousely_plugged_fx[f_index]);
+      //if (bb.previousely_plugged_fx[f_index] != (ALL_FX_TYPES - 1)) unplug_fx_line();
+      if (bb.previousely_plugged_fx[f_index] != (ALL_FX_TYPES - 1)) unplug_fx_line();
       if (selected_fx_type != (ALL_FX_TYPES - 1)) {
         plug_fx_line(selected_fx_type);
         plugged_fx = selected_fx_type;
+        bb.previousely_plugged_fx[f_index] = plugged_fx;
+        Serial.println();
+        Serial.print("fx n° (+1)");
+        Serial.print(f_index+1);
+        Serial.print(" is now ");
+        Serial.print(bb.previousely_plugged_fx[f_index]);
       }
     }
 
@@ -348,12 +340,12 @@ void FxBus::plug_fx_line(byte selected_fx_type){
         chorus[f_index]->begin(bb.chorusdelayline[f_index],CHORUS_DELAY_LENGTH,this->chorusvoices) ;
         chorusR[f_index]->begin(bb.chorusdelayline[f_index],CHORUS_DELAY_LENGTH,this->chorusvoices) ;
       }
-      premixesMto_index = (selected_fx_type * FXS_COUNT) + (f_index);
-      fxcording_index = (selected_fx_type*FXS_COUNT*2*3) + (f_index*FXS_COUNT*2) + (2*f_index);
-      premixesMto[premixesMto_index]->connect();
-      premixesMtoR[premixesMto_index]->connect();
-      fxcording[fxcording_index]->connect();
-      fxcording[fxcording_index + 1]->connect();
+      bb.premixesMto_index[f_index] = (selected_fx_type * FXS_COUNT) + (f_index);
+      bb.fxcording_index[f_index] = (selected_fx_type*FXS_COUNT*2*3) + (f_index*FXS_COUNT*2) + (2*f_index);
+      premixesMto[bb.premixesMto_index[f_index]]->connect();
+      premixesMtoR[bb.premixesMto_index[f_index]]->connect();
+      fxcording[bb.fxcording_index[f_index]]->connect();
+      fxcording[bb.fxcording_index[f_index] + 1]->connect();
       AudioInterrupts();
     }
 
@@ -368,12 +360,12 @@ void FxBus::stopdelayline() {
 
 void FxBus::unplug_fx_line() {
   AudioNoInterrupts();
-  premixesMto[premixesMto_index]->disconnect();
-  premixesMtoR[premixesMto_index]->disconnect();
-  fxcording[fxcording_index]->disconnect();
-  fxcording[fxcording_index + 1]->disconnect();
-  premixesMto_index = 1000;
-  fxcording_index = 1000;
+  premixesMto[bb.premixesMto_index[f_index]]->disconnect();
+  premixesMtoR[bb.premixesMto_index[f_index]]->disconnect();
+  fxcording[bb.fxcording_index[f_index]]->disconnect();
+  fxcording[bb.fxcording_index[f_index] + 1]->disconnect();
+  bb.premixesMto_index[f_index] = 1000;
+  bb.fxcording_index[f_index] = 1000;
   stopdelayline();
   delayCords[f_index]->disconnect();
   delayCordsR[f_index]->disconnect();

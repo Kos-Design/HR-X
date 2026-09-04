@@ -7,11 +7,11 @@ class GlideMenuRouter : public SectionHolder {
   public:
     GlideMenuRouter();
         static constexpr const char* GlideModeLabels[5] = {
-            "Off",
+            "Disabled",
             "Portamento",
-            "ReversePortamento",
+            "RPortamento",
             "PitchAttack",
-            "ReversePitchAttack"
+            "RPitchAttack"
         };
 
         static uint8_t *glide_params[4];

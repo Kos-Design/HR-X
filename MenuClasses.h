@@ -1,3 +1,4 @@
+#include <stdint.h>
 #pragma once
 #include <Audio.h>
 #include "Constants.h"
@@ -46,7 +47,6 @@ struct LiveState {
     bool avoid_fx_bounce = false;
     //checking one pot per loop as it is fast as long as we call it often
     uint8_t muxer_ch_active = 1;
-
 };
 
 extern LiveState lv;
@@ -125,6 +125,8 @@ class DisplayManager : public Adafruit_SSD1306 {
         void start_spectro();
         static void oscilloscope_loop();
         void UpdateSpectrum();
+        void sub_menu(const char*[4],const char*[4],byte vals_x = 87);
+        void sub_menu(const char*[4],uint8_t[4],byte vals_x = 87);
         void DrawSpectrum64();
         void dodisplayplayhead();
         void initializelapleasewaitarray();

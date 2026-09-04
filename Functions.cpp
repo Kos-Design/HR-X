@@ -1,3 +1,4 @@
+#include "Constants.h"
 #include "Functions.h"
 #include "WaveEditorMenu.h"
 #include <USBHost_t36.h>
@@ -162,47 +163,26 @@ void initextmems() {
   memset(bb.chorusdelayline, 0, sizeof(bb.chorusdelayline));
   memset(bb.flangedelay, 0, sizeof(bb.flangedelay));
   memset(bb.rolling_queue_buff, 0, sizeof(bb.rolling_queue_buff));
-  memset(bb.Flashsamplename, 0, sizeof(bb.Flashsamplename));
+  _sp.initializeFlashsamplename();
   memset(bb.consolemsg, 0, sizeof(bb.consolemsg));
   memset(bb.pleasewaitarray, 0, sizeof(bb.pleasewaitarray));
   memset(bb.pots_controllers, 0, sizeof(bb.pots_controllers));
   memset(bb.recorded_ccs, 0, sizeof(bb.recorded_ccs));
-
+  memset(bb.previousely_plugged_fx, ALL_FX_TYPES-1, sizeof(bb.previousely_plugged_fx));
   memcpy(bb.notestofreq, tmparray, sizeof(bb.notestofreq));
   _sp.doclearassign();
+  _po.clearsynthpatternline();
+  _po.clearsamplerpatternline();
   memset(gg.midiknobassigned, 0, sizeof(gg.midiknobassigned));
   memset(gg.arbitrary_waveforms, 0, sizeof(gg.arbitrary_waveforms));
   memset(gg.pot_assignements, 0, sizeof(gg.pot_assignements));
   memset(gg.vPots, 0, sizeof(gg.vPots));
+  memset(_pe.temp_sampler_partition, 0, sizeof(_pe.temp_sampler_partition));
+  memset(pp.flash_notes_length, 0, sizeof(pp.flash_notes_length));
+  memset(_pe.temp_synth_partition, 0, sizeof(_pe.temp_synth_partition));
+  memset(pp.synth_notes_length, 0, sizeof(pp.synth_notes_length));
+  memset(pp.cc_partition, 127, sizeof(pp.cc_partition));
 
-  for (int j = 0; j < PBARS; j++) {
-    pp.sampler_off_pat[j] = {0,0,0};
-    _pe.temp_sampler_partition[j] = {0,0,0};
-    for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
-      pp.flash_notes_length[i][j] = 0;
-      pp.sampler_partition[i][j] = {0,0,0};
-    }
-    pp.track_cells[0][j] = 0;
-    pp.track_cells[1][j] = 0;
-    _pe.temp_synth_partition[j] = {0,0,0};
-    for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-      pp.synth_notes_length[i][j] = 0;
-      pp.synth_partition[i][j] = {0,0,0};
-      pp.synth_off_pat[i][j] = {0,0,0};
-    }
-
-    for (int i = 0; i < 128; i++) {
-
-      pp.cc_partition[i][j] = 127;
-    }
-  }
-  for (int i = 0; i < 32; i++) {
-    for (int j = 0; j < 32; j++) {
-      bb.pots_controllers[i][j][0] = 0;
-      bb.pots_controllers[i][j][1] = 0;
-    }
-    bb.recorded_ccs[i] = 0 ;
-  }
   gg.fx[0] = FxBus();
   gg.fx[0].f_index = 0;
   gg.fx[1] = FxBus();
@@ -271,7 +251,7 @@ void setupdefaultvalues() {
     //}
   }
 
-  _st.unplug_notefreq_from_ampL();
+  _mr.toggle_note_spy();
   for (int i = 0; i < FXS_COUNT; i++) {
     gg.fx[i].stopdelayline();
     delayCords[i]->disconnect();
@@ -356,16 +336,12 @@ void setupdefaultvalues() {
   gg.midiknobassigned[22] = 118;
   //audio In level
   //gg.midiknobassigned[22] = 97;
-
   // lv.fidx crossfader
   //gg.midiknobassigned[10] = 69;
 
   // 303 pulse
   gg.midiknobassigned[23] = 13;
   gg.midiknobassigned[24] = 15;
-
-
-
   //gg.pot_assignements[ALL_BUTTONS-10] = 108 ;
   //gg.pot_assignements[ALL_BUTTONS-9] = 107 ;
 
@@ -386,26 +362,12 @@ void setupdefaultvalues() {
   gg.midiknobassigned[gg.alt_nav[0]] = 123 ;
   gg.midiknobassigned[gg.alt_nav[1]] = 124 ;
 
-
-
   gg.pot_assignements[ALL_BUTTONS-4] = 100 ;
   gg.pot_assignements[ALL_BUTTONS-13] = 101 ;
   //osc toggles
   //midiknobs link a midi cc note to an index from ctl[]
   gg.midiknobassigned[100] = 116 ;
   gg.midiknobassigned[101] = 117 ;
-  //gg.midiknobassigned[106] = 98;
-  //granular fx toggle
-  //gg.midiknobassigned[100] = 78;
-    //phase
-  //gg.midiknobassigned[17] = 76;
-  //gg.midiknobassigned[18] = 77;
-  //gg.midiknobassigned[19] = 81;
-
- // gg.midiknobassigned[14] = 93;
- // gg.midiknobassigned[15] = 94;
- // gg.midiknobassigned[16] = 95;
-
 
   //note: WetMixMasterLs[0] is the dry channel
   for (int i = 0; i < OSCS_COUNT; i++) {
@@ -521,8 +483,8 @@ void loopusbHub() {
 }
 
 void control_me(){
-  if (_st.noteprint)
-    _st.printlanote();
+  if (_mr.noteprint)
+    _mr.printlanote();
   if (MULTIPLEXED_PADS){
     _tt.check_pads();
     _tt.check_pots();
@@ -661,7 +623,7 @@ void setup() {
   for (int i=0;i<OSCS_COUNT;i++) {
     _fx.unpluglfoonfilterz(i);
   }
-  delay(500);
+  delay(50);
   // metrodrum1.frequency(100);
   // metrodrum1.length(50);
   _rg.init_synth_liners();
@@ -699,10 +661,7 @@ void setup() {
   consoler.println((char *)"SD Card OK !");
   Padded.begin();
   consoler.println((char *)"Setting up I/O");
-
   pinMode(MULTIPLEXER_PIN, INPUT_PULLUP);
-
-
   consoler.println((char *)"I/O Set !");
   consoler.println((char *)"Loading Defaults");
   Tocker.stopticker();

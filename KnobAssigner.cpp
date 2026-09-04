@@ -177,6 +177,8 @@ void AdsrMenuRouter::resync_tmp(){
 }
 
 void AdsrMenuRouter::slice_adsr(){
+  const uint16_t local_navranges[6] = {100,1024,100,512,100,1024};
+
   lv.navleveloverwrite = 2;
   if (lv.navlevel == lv.navleveloverwrite ) {
     self->tmp_adsrlevels[lv.sublevels[lv.navleveloverwrite]] = gg.adsrlevels[lv.sublevels[lv.navleveloverwrite]];

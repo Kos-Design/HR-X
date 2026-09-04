@@ -35,7 +35,6 @@ class AdsrMenuRouter : public SectionHolder {
             "Sustain ",
             "Release "
     };
-    static constexpr uint16_t local_navranges[6] = {100,1024,100,512,100,1024};
     static void show();
     static void ApplyADSR();
     static void slice_adsr();

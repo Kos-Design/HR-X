@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 #include "MenuClasses.h"
 
 class VirtualKnobs : public SectionHolder {
@@ -14,12 +15,36 @@ class VirtualKnobs : public SectionHolder {
 
 extern VirtualKnobs _vk;
 
+class MidiMenuRouter : public SectionHolder {
+  public:
+    MidiMenuRouter();
+    bool spying_notes = 0;
+    bool noteprint = 0;
+    static void show();
+    static void options();
+    static void set_synth_midi_ch();
+    static void arm_note_spy();
+    static void toggle_freeze_midi();
+    static void printlanote();
+    static void set_sampler_midi_ch();
+    static void set_tap_note();
+    static void toggle_note_spy();
+    static void toggle_ext_clock();
+    static void toggle_digital_analog();
+    static void toggle_midi_out();
+  private:
+    static MidiMenuRouter* self;
+    static void (*_midi_options[4])();
+    static void (*_midi_menu[4])();
+};
+
+extern MidiMenuRouter _mr;
+
 class SettingsMenuRouter : public SectionHolder {
     public:
         SettingsMenuRouter();
 
         static constexpr uint8_t settings_labels_count = 17;
-        bool noteprint = 0;
         char usnotes[12][5] = {"C",  "C#", "D",  "Eb", "E",  "F",
                        "F#", "G",  "G#", "A",  "Bb", "B"};
 
@@ -82,17 +107,9 @@ class SettingsMenuRouter : public SectionHolder {
       static void settings_nav_one();
       byte getnotefromfreq(float lafreq);
       byte getclosestnote(byte lei, float lafreq);
-      static void printlanote();
       //TODO: unused
       static void metronomer();
-      void unplug_notefreq_from_ampL();
-      void replug_notefreq_from_ampL();
-      static void toggle_echo_midi();
       static void toggle_freeze_midi();
-      static void set_synth_midi_ch();
-      static void set_sampler_midi_ch();
-      static void toggle_digital_analog();
-      static void set_tap_note();
       static void set_bpms_interval();
       static void set_chord_mode();
       static void toggle_ext_clock();

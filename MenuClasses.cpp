@@ -349,6 +349,34 @@ void DisplayManager::main_panel(const char* const* menulabels, int lvl, int menu
   }
 }
 
+void DisplayManager::sub_menu( const char* lbls[4], const char* vals[4], byte vals_x ){
+  clearDisplay();
+  canvasBIG.fillScreen(0);
+  canvasBIG.setTextSize(1);
+  for (int i = 0; i < 4; i++) {
+    canvasBIG.setCursor(0, 16 + 12*i);
+    canvasBIG.print(lbls[i]);
+    canvasBIG.print(vals[i]);
+  }
+  dodisplay();
+  fillRoundRect(vals_x,15+12*lv.sublevels[2], 6+strlen(vals[lv.sublevels[2]])*6, 10, 2, SSD1306_INVERSE);
+  display();
+}
+
+void DisplayManager::sub_menu( const char* lbls[4], byte vals[4], byte vals_x ){
+  clearDisplay();
+  canvasBIG.fillScreen(0);
+  canvasBIG.setTextSize(1);
+  for (int i = 0; i < 4; i++) {
+    canvasBIG.setCursor(0, 16 + 12*i);
+    canvasBIG.print(lbls[i]);
+    canvasBIG.print(vals[i]);
+  }
+  dodisplay();
+  fillRoundRect(vals_x,15+12*lv.sublevels[2], 23, 10, 2, SSD1306_INVERSE);
+  display();
+}
+
 void DisplayManager::display_oscilloscope(){
   dm.clear_buffs();
   for (int x = 0; x < 128; x++) {
@@ -718,6 +746,7 @@ void GlobalMixer::set_flash_master() {
 
 void GlobalMixer::setmastersmixlevel(byte lebus) {
       //AudioNoInterrupts();
+      if (lebus > 2) return;
       _master_mixers[lebus]();
       //AudioInterrupts();
     }
@@ -924,7 +953,7 @@ void SequencerClocker::update(){
   while (_sampleAccumulator >= _samplesPerTick) {
     _sampleAccumulator -= _samplesPerTick;
     //Tricker.click();
-    if (_callback_96 && !gg.externalticker){
+    if (_callback_96){
       _callback_96();
     }
   }

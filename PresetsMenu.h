@@ -7,14 +7,13 @@ class PresetsMenuRouter {
         PresetsMenuRouter();
         FilesLister *catalog;
         static constexpr byte ps_labels_count = 5;
-        static void copypreset();
         static void route_navlevel();
         static void presets_nav_zero();
         static void show();
         static void presets_menu();
         static void write_preset();
         static void read_preset();
-        static void preset();
+        static void copypreset();
         static void deletepreset();
         static void setbpms();
         static void remove_preset();

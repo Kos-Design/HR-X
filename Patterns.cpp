@@ -35,7 +35,7 @@ void MasterClock::dispatch_ticks() {
       self->tic_toc[2] = false;
       _callback_2();
     }
-    if ((self->tick96 % 24) == 0 && self->tic_toc[3]) {
+    if ((self->tick96 % 24) == 0 && self->tic_toc[3] && !gg.externalticker) {
       self->tic_toc[3] = false;
 
       if (!self->stop) {
