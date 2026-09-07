@@ -82,8 +82,9 @@ void SynthLiner::liner_on(byte data1, byte data2) {
     this->activated=true;
     this->note=data1;
     this->velocity=data2;
+    //should be conditioned
     this->f303=1;
-
+    //_mx.set_303_wetness(this->l_index,1.0);
     this->targetFreq = bb.notestofreq[this->note];
     this->note_diff = ((this->note + (64 - gg.portamento_height)) % 127 + 127) % 127;
     _gd.glide_mode_setter[gg.glideMode](this->l_index);
@@ -189,15 +190,12 @@ void SynthLiner::liner_off() {
       this->activated = false;
       _rg.remove_inactive_synth(this);
       this->previous_note = this->note ;
-      /*
-      Serial.println();
-      Serial.print(" note offed = ");
-      Serial.print(this->note);
-      */
       this->note = 0 ;
       this->length_in_arp = 0 ;
       this->arp_starter = 0 ;
       this->next_arp_note = 0 ;
+      this->sloper_step = 0 ;
+      this->slope_normalized = 0.0;
 
     }
 

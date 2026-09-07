@@ -20,6 +20,7 @@ class MidiMenuRouter : public SectionHolder {
     MidiMenuRouter();
     bool spying_notes = 0;
     bool noteprint = 0;
+    uint8_t AudioInSource = 2;
     static void show();
     static void options();
     static void set_synth_midi_ch();
@@ -31,7 +32,9 @@ class MidiMenuRouter : public SectionHolder {
     static void toggle_note_spy();
     static void toggle_ext_clock();
     static void toggle_digital_analog();
-    static void toggle_midi_out();
+    static void toggle_midi_out();     
+    static void set_in_source();
+    static void set_audio_source();
   private:
     static MidiMenuRouter* self;
     static void (*_midi_options[4])();
@@ -44,13 +47,12 @@ class SettingsMenuRouter : public SectionHolder {
     public:
         SettingsMenuRouter();
 
-        static constexpr uint8_t settings_labels_count = 17;
+        static constexpr uint8_t settings_labels_count = 9;
         char usnotes[12][5] = {"C",  "C#", "D",  "Eb", "E",  "F",
                        "F#", "G",  "G#", "A",  "Bb", "B"};
 
         char eunotes[12][5] = {"Do",  "Do#", "Re",   "Mib", "Mi",  "Fa",
                               "Fa#", "Sol", "Sol#", "La",  "Sib", "Si"};
-        uint8_t AudioInSource = 2;
 
         float freqtonotes[128] = {
           8.21, 8.70, 9.22, 9.77, 10.35, 10.96, 11.61, 12.31,
@@ -81,21 +83,10 @@ class SettingsMenuRouter : public SectionHolder {
           "But 15", "But 16", "But 17", "But 18", "Cfd",    "Jk X",   "Jk Y"};
 
         char ch_lbl_buffer[4]{};
-      /*
-        //TODO: implement in notespy
-        void notefreqloop() {
-          if (notefreq1.available()) {
-            float notep = notefreq1.read();
-            float probz = notefreq1.probability();
-            //  dm.pseudoconsole("Note: %3.2f | Probability: %.2f\n", notep, probz);
-          }
-        }
-        */
 
       static void show();
       static void apply_alt_ctl();
       static void set_alternative_rota();
-      static void set_in_source();
       static void settings_nav_zero();
       static void OnBoardVpanelAction();
       static void OnBoardVpanelSelector();
@@ -109,13 +100,8 @@ class SettingsMenuRouter : public SectionHolder {
       byte getclosestnote(byte lei, float lafreq);
       //TODO: unused
       static void metronomer();
-      static void toggle_freeze_midi();
       static void set_bpms_interval();
       static void set_chord_mode();
-      static void toggle_ext_clock();
-      static void toggle_note_spy();
-      static void set_audio_source();
-      static void toggle_midi_out();
       static void (*_settings_menu[settings_labels_count])();
       //static constexpr void (*_nav_fx[SP_LABELS_COUNT])() = {&fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one};
 

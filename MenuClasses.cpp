@@ -745,51 +745,56 @@ void GlobalMixer::set_flash_master() {
 }
 
 void GlobalMixer::setmastersmixlevel(byte lebus) {
-      //AudioNoInterrupts();
-      if (lebus > 2) return;
-      _master_mixers[lebus]();
-      //AudioInterrupts();
-    }
+  //AudioNoInterrupts();
+  if (lebus > 2) return;
+  _master_mixers[lebus]();
+  //AudioInterrupts();
+}
 
 void GlobalMixer::wetmixmastercontrols() {
-      for (byte i = 0; i < 4; i++) {
-        WetMixMasterL.gain(i, gg.WetMixMasters[i]/127.0);
-        WetMixMasterR.gain(i, gg.WetMixMasters[i]/127.0);
-      }
-    }
+  for (byte i = 0; i < 4; i++) {
+    WetMixMasterL.gain(i, gg.WetMixMasters[i]/127.0);
+    WetMixMasterR.gain(i, gg.WetMixMasters[i]/127.0);
+  }
+}
+
 void GlobalMixer::restore_wmixer_from_temp() {
-          for (int i=0; i<12; i++) {
-            lv.sublevels[3] = self->wmixer_tmp_values[i];
-            if (i < 3) {
-              actionwmixerM(i);
-            }
-            if (i > 2 && i < 6) {
-              actionwet1mixer(i - 3);
-            }
-            if (i > 5 && i < 9) {
-              action_dry_mix(i - 6);
-            }
-            if (i > 8 && i < 12) {
-              actionwmixer(i - 9);
-            }
-            *self->wmixer_tmp_pointers[i] = self->wmixer_tmp_values[i] ;
-          }
-           lv.temp_buff_armed = 0 ;
-        }
-void GlobalMixer::le303filterzWet() {
+  for (int i=0; i<12; i++) {
+    lv.sublevels[3] = self->wmixer_tmp_values[i];
+    if (i < 3) {
+      actionwmixerM(i);
+    }
+    if (i > 2 && i < 6) {
+      actionwet1mixer(i - 3);
+    }
+    if (i > 5 && i < 9) {
+      action_dry_mix(i - 6);
+    }
+    if (i > 8 && i < 12) {
+      actionwmixer(i - 9);
+    }
+    *self->wmixer_tmp_pointers[i] = self->wmixer_tmp_values[i] ;
+  }
+  lv.temp_buff_armed = 0 ;
+}
+
+void GlobalMixer::set_303_wetness(byte line,float wetness){
+  les303wet[line]->gain(0, wetness);
+  les303wet[line]->gain(1, 1.0-wetness);
+}
+
+void GlobalMixer::apply_303_wet() {
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-    les303wet[i]->gain(0, gg.le303filterzwet / 127.0);
-    les303wet[i]->gain(1, (1 - (gg.le303filterzwet / 127.0)));
+    set_303_wetness(i,gg.le303filterzwet / 127.0);
   }
 }
 
 void GlobalMixer::set_wmixer_buff_temp() {
-          //Serial.println("buffing");
-          for (int i=0; i<12; i++) {
-            self->wmixer_tmp_values[i] = *self->wmixer_tmp_pointers[i] ;
-          }
+  for (int i=0; i<12; i++) {
+    self->wmixer_tmp_values[i] = *self->wmixer_tmp_pointers[i] ;
+  }
+}
 
-        }
 void GlobalMixer::set_synth_wet() {
   MasterL1.gain(2, gg.wetins[0] / 127.0);
   MasterR1.gain(2, gg.wetins[0] / 127.0);
@@ -816,27 +821,25 @@ void GlobalMixer::set_dry_mix(byte lebus) {
 }
 
 void GlobalMixer::actionwet1mixer(int linstru) {
-
-          if (lv.navlevel == 2) {
-            lv.sublevels[3] = gg.WetMixMasters[linstru + 1];
-          }
-          if (lv.navlevel == 3) {
-            lv.navrange = 127;
-            lv.retroaction = lv.sublevels[2];
-            if (!lv.temp_buff_armed) {
-              set_wmixer_buff_temp();
-              lv.temp_buff_armed = 1 ;
-            }
-            // wetmain[lafxline] = lv.sublevels[3];
-            gg.WetMixMasters[linstru + 1] = lv.sublevels[3] ;
-            wetmixmastercontrols();
-          }
-          if (lv.navlevel == 4) {
-            lv.temp_buff_armed = 0 ;
-            dm.returntonav(2, 3, lv.sublevels[2]);
-          }
-          //
-        }
+  if (lv.navlevel == 2) {
+    lv.sublevels[3] = gg.WetMixMasters[linstru + 1];
+  }
+  if (lv.navlevel == 3) {
+    lv.navrange = 127;
+    lv.retroaction = lv.sublevels[2];
+    if (!lv.temp_buff_armed) {
+      set_wmixer_buff_temp();
+      lv.temp_buff_armed = 1 ;
+    }
+    // wetmain[lafxline] = lv.sublevels[3];
+    gg.WetMixMasters[linstru + 1] = lv.sublevels[3] ;
+    wetmixmastercontrols();
+  }
+  if (lv.navlevel == 4) {
+    lv.temp_buff_armed = 0 ;
+    dm.returntonav(2, 3, lv.sublevels[2]);
+  }
+}
 
 void GlobalMixer::action_dry_mix(int linstru) {
 

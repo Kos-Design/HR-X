@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include "SettingsMenu.h"
 #include "Triggers.h"
 #include "pads.h"
@@ -26,17 +25,6 @@ void MidiMenuRouter::show(){
   dm.sub_menu(midi_lbls,midi_vals);
 }
 
-        /*
-        //TODO: implement in notespy
-        void notefreqloop() {
-          if (notefreq1.available()) {
-            float notep = notefreq1.read();
-            float probz = notefreq1.probability();
-            //  dm.pseudoconsole("Note: %3.2f | Probability: %.2f\n", notep, probz);
-          }
-        }
-        */
-
 void MidiMenuRouter::printlanote() {
   if (notefreq1.available()) {
     float notep = notefreq1.read();
@@ -56,6 +44,7 @@ void MidiMenuRouter::printlanote() {
     dm.dodisplay();
   }
 }
+
 void MidiMenuRouter::arm_note_spy(){
   if ((self->noteprint && !self->spying_notes)||(!self->noteprint && self->spying_notes)){
     self->spying_notes = !self->spying_notes ;
@@ -70,10 +59,42 @@ void MidiMenuRouter::options(){
   if (lv.navlevel >= 3 ) _midi_options[lv.sublevels[2]]();
   char tbuffer[4];
   snprintf(tbuffer, sizeof(tbuffer), "%u", gg.tapnote);
-  const char* _lbls[4] = {"TempoTap note: ","Analog Touch: ","Midi Panik:  ","FREE:    "};
-  const char* _vals[4] = {(const char*)tbuffer,((const char*[2]){"Off","On"})[gg.digitalplay],"Kalm",((const char*[2]){"Off","On"})[0]};
-  if (lv.navlevel == 2 ) lv.sublevels[3] = (int)(byte[4]){gg.tapnote,(byte)0,(byte)gg.digitalplay,(byte)0}[lv.sublevels[2]];
-  dm.sub_menu(_lbls,_vals);
+  const char* audio_source_lbl[3]= {"Mic","Line","Off"};
+
+  const char* _lbls[4] = {"TempoTap note ","Analog Touch  ","Midi Panik    ","Audio Source  "};
+  const char* _vals[4] = {(const char*)tbuffer,((const char*[2]){"On","Off"})[gg.digitalplay],"Kalm",audio_source_lbl[self->AudioInSource]};
+  if (lv.navlevel == 2 ) lv.sublevels[3] = (int)(byte[4]){gg.tapnote,(byte)0,(byte)gg.digitalplay,self->AudioInSource}[lv.sublevels[2]];
+  dm.sub_menu(_lbls,_vals,81);
+}
+void MidiMenuRouter::set_audio_source(){
+  lv.navrange = 2 ;
+  self->AudioInSource = lv.sublevels[3] ;
+  if (lv.navlevel > 3) {
+    set_in_source();
+    dm.returntonav(2,self->home_navrange,3);
+  }
+}
+
+void MidiMenuRouter::set_in_source(){
+  switch (self->AudioInSource) {
+    case 0 :
+      AudioShield.inputSelect(AUDIO_INPUT_MIC);
+      InMixL.gain(1, 0.01);
+      InMixR.gain(1, 0.01);
+      break;
+    case 1 :
+      AudioShield.inputSelect(AUDIO_INPUT_LINEIN);
+      InMixL.gain(1,1.0);
+      InMixR.gain(1, 1.0);
+      break;
+    case 2 :
+      InMixL.gain(1, 0.0);
+      InMixR.gain(1, 0.0);
+      break;
+
+    default :
+    break;
+  }
 }
 
 void MidiMenuRouter::set_tap_note(){
@@ -97,7 +118,7 @@ void MidiMenuRouter::toggle_note_spy(){
 }
 
 void MidiMenuRouter::toggle_digital_analog(){
-  gg.digitalplay = !gg.digitalplay;
+  AnalogTouch_Toggle_ctl(0);
   dm.returntonav(2,self->home_navrange,1);
 }
 
@@ -126,14 +147,15 @@ void MidiMenuRouter::toggle_midi_out(){
   gg.SendMidiOut = !gg.SendMidiOut ;
   dm.returntonav(2,self->home_navrange,2);
 }
+
 void MidiMenuRouter::toggle_freeze_midi(){
-  lv.freezemidicc = !lv.freezemidicc;
-  dm.returntonav(2,self->home_navrange,1);
+  _tt.stopallnotes();
+  dm.returntonav(2,self->home_navrange,2);
 }
 
 void (*MidiMenuRouter::_midi_menu[4])() = {&set_synth_midi_ch,&set_sampler_midi_ch,&toggle_midi_out,&toggle_ext_clock};
 
-void (*MidiMenuRouter::_midi_options[4])() = {&set_tap_note,&toggle_digital_analog,&toggle_freeze_midi,nullptr};
+void (*MidiMenuRouter::_midi_options[4])() = {&set_tap_note,&toggle_digital_analog,&toggle_freeze_midi,&set_audio_source};
 
 SettingsMenuRouter* SettingsMenuRouter::self = nullptr;
 
@@ -148,11 +170,9 @@ SettingsMenuRouter::SettingsMenuRouter() {
 
 void SettingsMenuRouter::show() {
           if (lv.navlevel == 1) {
-            lv.setting_on_board = false ;
             settings_nav_zero();
           }
 
-          // arpegiator has its own panel -> 8 , same for 11 which is OnboardPanel
           if (lv.navlevel >= 2) {
             settings_nav_one();
           }
@@ -182,59 +202,37 @@ void SettingsMenuRouter::set_alternative_rota(){
   dm.sub_menu(midi_lbls,gg.alt_nav,58);
 }
 
-void SettingsMenuRouter::set_in_source(){
-          switch (self->AudioInSource) {
-            case 0 :
-              AudioShield.inputSelect(AUDIO_INPUT_MIC);
-              InMixL.gain(1, 0.01);
-              InMixR.gain(1, 0.01);
-              break;
-            case 1 :
-              AudioShield.inputSelect(AUDIO_INPUT_LINEIN);
-              InMixL.gain(1,1.0);
-              InMixR.gain(1, 1.0);
-              break;
-            case 2 :
-              InMixL.gain(1, 0.0);
-              InMixR.gain(1, 0.0);
-              break;
+char usnotes[12][5] = {"C",  "C#", "D",  "Eb", "E",  "F",
+                "F#", "G",  "G#", "A",  "Bb", "B"};
 
-            default :
-            break;
-          }
-        }
+char eunotes[12][5] = {"Do",  "Do#", "Re",   "Mib", "Mi",  "Fa",
+                      "Fa#", "Sol", "Sol#", "La",  "Sib", "Si"};
 
-        char usnotes[12][5] = {"C",  "C#", "D",  "Eb", "E",  "F",
-                       "F#", "G",  "G#", "A",  "Bb", "B"};
-
-        char eunotes[12][5] = {"Do",  "Do#", "Re",   "Mib", "Mi",  "Fa",
-                              "Fa#", "Sol", "Sol#", "La",  "Sib", "Si"};
-        int AudioInSource = 2;
-
-        float freqtonotes[128] = {
-          8.21, 8.70, 9.22, 9.77, 10.35, 10.96, 11.61, 12.31,
-          13.04, 13.81, 14.63, 15.50, 16.43, 17.40, 18.44, 19.53,
-          20.70, 21.93, 23.23, 24.61, 26.07, 27.63, 29.27, 31.01,
-          32.85, 34.81, 36.87, 39.07, 41.39, 43.85, 46.46, 49.22,
-          52.15, 55.25, 58.54, 62.02, 65.70, 69.61, 73.75, 78.14,
-          82.78, 87.70, 92.92, 98.44, 104.30, 110.50, 117.07, 124.03,
-          131.41, 139.22, 147.50, 156.27, 165.56, 175.41, 185.84, 196.89,
-          208.60, 221.00, 234.14, 248.06, 262.81, 278.44, 295.00, 312.54,
-          331.13, 350.82, 371.68, 393.78, 417.19, 442.00, 468.28, 496.13,
-          525.63, 556.89, 590.00, 625.08, 662.25, 701.63, 743.35, 787.55,
-          834.38, 884.00, 936.57, 992.26, 1051.26, 1113.77, 1180.00, 1250.16,
-          1324.50, 1403.26, 1486.70, 1575.11, 1668.77, 1768.00, 1873.13, 1984.51,
-          2102.52, 2227.54, 2360.00, 2500.33, 2649.01, 2806.53, 2973.41, 3150.22,
-          3337.54, 3536.00, 3746.26, 3969.03, 4205.04, 4455.08, 4719.99, 5000.66,
-          5298.01, 5613.05, 5946.82, 6300.44, 6675.08, 7072.00, 7492.52, 7938.05,
-          8410.07, 8910.16, 9439.99, 10001.32, 10596.03, 11226.10, 11893.64, 12600.87
-        };
+float freqtonotes[128] = {
+  8.21, 8.70, 9.22, 9.77, 10.35, 10.96, 11.61, 12.31,
+  13.04, 13.81, 14.63, 15.50, 16.43, 17.40, 18.44, 19.53,
+  20.70, 21.93, 23.23, 24.61, 26.07, 27.63, 29.27, 31.01,
+  32.85, 34.81, 36.87, 39.07, 41.39, 43.85, 46.46, 49.22,
+  52.15, 55.25, 58.54, 62.02, 65.70, 69.61, 73.75, 78.14,
+  82.78, 87.70, 92.92, 98.44, 104.30, 110.50, 117.07, 124.03,
+  131.41, 139.22, 147.50, 156.27, 165.56, 175.41, 185.84, 196.89,
+  208.60, 221.00, 234.14, 248.06, 262.81, 278.44, 295.00, 312.54,
+  331.13, 350.82, 371.68, 393.78, 417.19, 442.00, 468.28, 496.13,
+  525.63, 556.89, 590.00, 625.08, 662.25, 701.63, 743.35, 787.55,
+  834.38, 884.00, 936.57, 992.26, 1051.26, 1113.77, 1180.00, 1250.16,
+  1324.50, 1403.26, 1486.70, 1575.11, 1668.77, 1768.00, 1873.13, 1984.51,
+  2102.52, 2227.54, 2360.00, 2500.33, 2649.01, 2806.53, 2973.41, 3150.22,
+  3337.54, 3536.00, 3746.26, 3969.03, 4205.04, 4455.08, 4719.99, 5000.66,
+  5298.01, 5613.05, 5946.82, 6300.44, 6675.08, 7072.00, 7492.52, 7938.05,
+  8410.07, 8910.16, 9439.99, 10001.32, 10596.03, 11226.10, 11893.64, 12600.87
+};
 
 void SettingsMenuRouter::settings_nav_zero(){
           dm.reinitsublevels(2);
           dm.clean_title_1_1();
           _tt.debugmidion = 0;
           _mr.noteprint = 0;
+          lv.setting_on_board = 0 ;
           _mr.arm_note_spy();
 
           lv.navrange = settings_labels_count - 1;
@@ -549,62 +547,25 @@ void SettingsMenuRouter::arpegiatorVpanel() {
 
 
 void SettingsMenuRouter::makesettingslist() {
-          char audio_source_lbl[3][5]= {"Mic","Line","Off"};
           char chordslabels[7][12] = {"Major", "Minor", "Diminished", "Augmented",
                                       "Sus2",  "Sus4",  "None"};
           
           char displaysettingslabels[settings_labels_count][18] = {"Midi",
-                                                                "Options",
-                                                                "FREE",
-                                                                "FREE",
-                                                                "Analog touch",
-                                                                "Set Tap note",
-                                                                "Tempo",
-                                                                "Chorus",
-                                                                "Arpegiator",
-                                                                "FREE",
-                                                                "Note Spy",
-                                                                "OnBoard Knobs",
-                                                                "Audio Source",
-                                                                "FREE",
-                                                                "Virtual Knobs",
-                                                                "Knobs Setter",
-                                                                "Nav Config"};
-          dm.clearDisplay();
-          dm.canvasBIG.fillScreen(SSD1306_BLACK);
+                                                                  "Options",
+                                                                  "Arpegiator",
+                                                                  "OnBoard Knobs",
+                                                                  "Virtual Knobs",
+                                                                  "Knobs Setter",
+                                                                  "Nav Config",
+                                                                  "Tempo",
+                                                                  "Chorus"};
           int startx = 0;
           int starty = 16;
           char *textin = (char *)displaysettingslabels[lv.sublevels[1]];
-
-          dm.canvastitle.fillScreen(SSD1306_BLACK);
-          dm.canvastitle.setCursor(0, 0);
-
-          dm.canvastitle.setTextSize(1);
-
+          dm.clean_title_1_1();
           dm.canvastitle.println(textin);
 
-          if (lv.sublevels[1] == 2) {
-            dm.canvastitle.setCursor(96, 0);
-            //free
-          }
-          if (lv.sublevels[1] == 3) {
-            dm.canvastitle.setCursor(96, 0);
-            //free
-          }
-          if (lv.sublevels[1] == 4) {
-            dm.canvastitle.setCursor(96, 0);
-            if (gg.digitalplay) {
-              dm.canvastitle.println("On");
-            } else {
-              dm.canvastitle.println("Off");
-            }
-          }
-          if (lv.sublevels[1] == 5) {
-            dm.canvastitle.setCursor(96, 0);
-            dm.canvastitle.println(int(gg.tapnote));
-            lv.sublevels[2] = int(gg.tapnote);
-          }
-          if (lv.sublevels[1] == 6) {
+          if (lv.sublevels[1] == 7) {
             dm.canvastitle.setCursor(96, 0);
             //dm.canvastitle.println(lv.BPMs, 1);
             dm.canvastitle.println(15000 / gg.millitickinterval, 1);
@@ -612,13 +573,13 @@ void SettingsMenuRouter::makesettingslist() {
               lv.sublevels[2] = gg.millitickinterval;
             }
           }
-          if (lv.sublevels[1] == 7) {
+          if (lv.sublevels[1] == 8) {
             lv.sublevels[2] = gg.lasetchord;
             dm.canvasBIG.setTextSize(1);
             dm.canvasBIG.setCursor(66, 0);
             dm.canvasBIG.println(chordslabels[gg.lasetchord]);
           }
-          if (lv.sublevels[1] == 8) {
+          if (lv.sublevels[1] == 2) {
             dm.canvasBIG.setCursor(96, 0);
             if (gg.arpegiatortype != 8) {
               dm.canvasBIG.print("On");
@@ -626,34 +587,14 @@ void SettingsMenuRouter::makesettingslist() {
               dm.canvasBIG.print("Off");
             }
           }
-          if (lv.sublevels[1] == 9) {
-            dm.canvastitle.setCursor(96, 0);
-            //free
-          }
-
-          if (lv.sublevels[1] == 12) {
-            dm.canvastitle.setCursor(96, 0);
-
-            dm.canvastitle.println(audio_source_lbl[self->AudioInSource]);
-
-            // dm.canvasBIG.setTextSize(1);
-          }
-
-          if (lv.sublevels[1] == 13) {
-            dm.canvastitle.setCursor(96, 0);
-            //free
-          }
-
+          
           for (int filer = 0; filer < settings_labels_count - 1 - (lv.sublevels[1]);
               filer++) {
-
             dm.canvasBIG.setCursor(startx, starty + ((filer)*10));
             dm.canvasBIG.println(displaysettingslabels[lv.sublevels[1] + 1 + filer]);
           }
           for (int filer = 0; filer < lv.sublevels[1]; filer++) {
-
-            dm.canvasBIG.setCursor(
-                startx, (10 * (settings_labels_count - lv.sublevels[1]) + 6 + ((filer)*10)));
+            dm.canvasBIG.setCursor(startx, (10 * (settings_labels_count - lv.sublevels[1]) + 6 + ((filer)*10)));
             dm.canvasBIG.println(displaysettingslabels[filer]);
           }
         }
@@ -663,55 +604,52 @@ void SettingsMenuRouter::settings_nav_one(){
   dm.canvasBIG.setTextSize(1);
   dm.canvastitle.setTextSize(1);
   _settings_menu[lv.sublevels[1]]();
-  if (lv.sublevels[1] != 0 && lv.sublevels[1] != 1 && lv.sublevels[1] != 8 && lv.sublevels[1] != 15 && lv.sublevels[1] != 14 && lv.sublevels[1] != 16 && lv.sublevels[1] != 11 ) {
+  if (lv.sublevels[1] == 7 || lv.sublevels[1] == 8 ) {
     makesettingslist();
     dm.dodisplay();
   }
 }
 
 byte SettingsMenuRouter::getnotefromfreq(float lafreq) {
-          for (int i = 0; i < 9 * 12; i++) {
-            if (lafreq == freqtonotes[i]) {
-              return i;
-            }
-            if (lafreq < freqtonotes[i]) {
+  for (int i = 0; i < 9 * 12; i++) {
+    if (lafreq == freqtonotes[i]) {
+      return i;
+    }
+    if (lafreq < freqtonotes[i]) {
 
-              return getclosestnote(i, lafreq);
-            }
-          }
-          return 0 ;
-        }
+      return getclosestnote(i, lafreq);
+    }
+  }
+  return 0 ;
+}
 
 byte SettingsMenuRouter::getclosestnote(byte lei, float lafreq) {
-          if (lei > 0) {
-            if (abs(lafreq - freqtonotes[lei]) <= abs(lafreq - freqtonotes[lei - 1])) {
-              return lei;
-            } else {
-              return lei - 1;
-            }
-          } else {
-            return lei;
-          }
-        }
+  if (lei > 0) {
+    if (abs(lafreq - freqtonotes[lei]) <= abs(lafreq - freqtonotes[lei - 1])) {
+      return lei;
+    } else {
+      return lei - 1;
+    }
+  } else {
+    return lei;
+  }
+}
 
-      //TODO: unused, maybe fit into a menu somewhere
+//TODO: unused, maybe fit into a menu somewhere
 void SettingsMenuRouter::metronomer() {
-        if ((lv.tickposition == 0) || (lv.tickposition == 16)) {
-          metrodrum1.frequency(540);
-          metrodrum1.noteOn();
-          // printpattern();
-        }
-        if ((lv.tickposition == 4) || (lv.tickposition == 8) || (lv.tickposition == 12) ||
-            (lv.tickposition == 20) || (lv.tickposition == 24) || (lv.tickposition == 28)) {
+  if ((lv.tickposition == 0) || (lv.tickposition == 16)) {
+    metrodrum1.frequency(540);
+    metrodrum1.noteOn();
+    // printpattern();
+  }
+  if ((lv.tickposition == 4) || (lv.tickposition == 8) || (lv.tickposition == 12) ||
+      (lv.tickposition == 20) || (lv.tickposition == 24) || (lv.tickposition == 28)) {
 
-          // printpattern();
-          metrodrum1.frequency(440);
-          metrodrum1.noteOn();
-        }
-      }
-
-
-
+    // printpattern();
+    metrodrum1.frequency(440);
+    metrodrum1.noteOn();
+  }
+}
 
 void SettingsMenuRouter::set_bpms_interval(){
   lv.navrange = 620;
@@ -721,7 +659,7 @@ void SettingsMenuRouter::set_bpms_interval(){
     gg.millitickinterval = lv.sublevels[2];
     _ps.setbpms();
     //tempo = gg.millitickinterval;
-    dm.returntonav(1,self->home_navrange,6);
+    dm.returntonav(1,self->home_navrange,7);
   }
 }
 
@@ -729,31 +667,12 @@ void SettingsMenuRouter::set_chord_mode(){
   lv.navrange = 6;
   SetChords_ctl(map(lv.sublevels[2],0,6,0,127));
   if (lv.navlevel >= 3) {
-    dm.returntonav(1,self->home_navrange,7);
+    dm.returntonav(1,self->home_navrange,8);
   }
 }
 
-
-void SettingsMenuRouter::set_audio_source(){
-        lv.navrange = 2 ;
-        self->AudioInSource = lv.sublevels[2] ;
-        if (lv.navlevel >= 3) {
-          set_in_source();
-          dm.returntonav(1,self->home_navrange,12);
-        }
-      }
-
-
-void (*SettingsMenuRouter::_settings_menu[settings_labels_count])() = {&_mr.show,&_mr.options,nullptr,nullptr,nullptr,
-                                                                        nullptr,&set_bpms_interval,&set_chord_mode,&arpegiatorVpanel,nullptr,nullptr,
-                                                                        &OnBoardVpanel,&set_audio_source,nullptr,&_vk.Vbuttonspanel,&_ka.show,&set_alternative_rota};
-
-
-
-     /*static void (*root_route[10])();
-void (*DisplayManager::root_route[10])() = {&_sn.show,&_lf.show,&_rd.show,&_sg.show,&_pt.show,
-                                    &_st.show,&_fx.MainFxPanel,&_sp.show,&_wf.show,&_ps.show};
-*/
+void (*SettingsMenuRouter::_settings_menu[settings_labels_count])() = {&_mr.show,&_mr.options,&arpegiatorVpanel,&OnBoardVpanel,
+                                                                      &_vk.Vbuttonspanel,&_ka.show,&set_alternative_rota,&set_bpms_interval,&set_chord_mode};
 
 VirtualKnobs* VirtualKnobs::self = nullptr;
 
@@ -1004,8 +923,7 @@ void VirtualKnobs::actionvbuttons() {
 
         if (lv.sublevels[self->relative_navlevel] > VBUT_LBL_COUNT + 14) {
           int CClaval2 = 70 + (lv.sublevels[self->relative_navlevel] + 1 - (VBUT_LBL_COUNT));
-          _tt.moncontrollercc((byte)1, (byte)CClaval2,
-                          (byte)(gg.vPots[lv.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14]));
+          _tt.moncontrollercc((byte)1, (byte)CClaval2, (byte)(gg.vPots[lv.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14]));
         }
       }
       if (lv.navlevel >= self->relative_navlevel + 2) {
@@ -1019,90 +937,56 @@ void VirtualKnobs::actionvbuttons() {
 }
 
 void VirtualKnobs::displayonscreenbuttons() {
-
   byte centercirclex;
   byte centercircley;
   byte xcentershifter;
   byte knobradius = 7;
   // angleofknob = (0.3*360.0)-90 ;
-
   byte trianglepointx;
   byte trianglepointy;
-
   float coeffangle;
-  dm.clearDisplay();
-
-  dm.canvasBIG.fillScreen(SSD1306_BLACK);
-  dm.canvasBIG.setCursor(0, 0);
-  dm.canvasBIG.setTextSize(1);
+  dm.clean_title_1_1();
 
   for (int i = 0; i < 8; i++) {
-    // dm.canvasBIG.drawLine(0, 52, 128, 52, SSD1306_WHITE) ;
     dm.canvasBIG.drawRoundRect(108, 16 + (i * 7), 9, 6, 1, SSD1306_WHITE);
   }
 
   for (int i = 0; i < 8; i++) {
-
     dm.canvasBIG.drawRoundRect(119, 16 + (i * 7), 9, 6, 1, SSD1306_WHITE);
   }
   for (int i = 0; i < 6; i++) {
-
     coeffangle = (6.2831 - ((float)gg.vPots[16 - i] / 127.0) * 6.2831) + 3.1416;
-
-    // Serial.print(i);
-    // Serial.print(" ");
-    // Serial.print(gg.vPots[16-i]/127.0);
-    //   Serial.print(" angle ");
-    // Serial.println(angleofknob);
-
     xcentershifter = (knobradius * 2) + 4;
     centercirclex = knobradius + (xcentershifter * i);
     centercircley = 16 + knobradius;
-
-    dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
-                        SSD1306_WHITE);
+    dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius,SSD1306_WHITE);
 
     trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
     trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
 
-    dm.drawLine(centercirclex, centercircley, trianglepointx,
-                    trianglepointy, SSD1306_WHITE);
+    dm.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
   }
   centercircley += 19 - (knobradius / 2);
   for (int i = 0; i < 5; i++) {
-
-    //  float coeffangle = ((float)gg.vPots[6+i]/127.0)*0.05 ;
-    // angleofknob = ((360.0 * coeffangle ) - 45.0 );
     coeffangle = (6.2831 - ((float)gg.vPots[6 + i] / 127.0) * 6.2831) + 3.1416;
-
     xcentershifter = (knobradius * 2) + 4;
     centercirclex = knobradius + (xcentershifter * i);
 
-    trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle)))) +
-                    knobradius + 2;
+    trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle)))) + knobradius + 2;
     trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
 
-    dm.canvasBIG.drawCircle(centercirclex + knobradius + 2, centercircley,
-                        knobradius, SSD1306_WHITE);
-    dm.drawLine(centercirclex + knobradius + 2, centercircley,
-                    trianglepointx, trianglepointy, SSD1306_WHITE);
+    dm.canvasBIG.drawCircle(centercirclex + knobradius + 2, centercircley, knobradius, SSD1306_WHITE);
+    dm.drawLine(centercirclex + knobradius + 2, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
   }
   centercircley += 16;
   for (int i = 0; i < 6; i++) {
     xcentershifter = (knobradius * 2) + 4;
     centercirclex = knobradius + (xcentershifter * i);
-
-    // float coeffangle = ((float)gg.vPots[5-i]/127.0)*0.05 ;
     coeffangle = (6.2831 - ((float)gg.vPots[5 - i] / 127.0) * 6.2831) + 3.1416;
-
     trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
     trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
-
-    dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius,
-                        SSD1306_WHITE);
-
-    dm.drawLine(centercirclex, centercircley, trianglepointx,
-                    trianglepointy, SSD1306_WHITE);
+    dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+    dm.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
   }
 
   dm.drawtransport();

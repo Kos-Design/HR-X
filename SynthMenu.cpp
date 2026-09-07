@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include "Functions.h"
 #include "SynthMenu.h"
 #include "Voices.h"
 #include "LfoMenu.h"
@@ -87,11 +87,7 @@ void Filter303MenuRouter::initialize303group() {
   }
 }
 
-void Filter303MenuRouter::allpasslevels() {
-  mix303L1.gain(0, 1);
-  mix303L1.gain(1, 0);
-  mix303L1.gain(2, 0);
-}
+
 
 void Filter303MenuRouter::avg_slope(){
   for (int i=0; i<18; i++){
@@ -100,32 +96,46 @@ void Filter303MenuRouter::avg_slope(){
 }
 
 void Filter303MenuRouter::pseudo303(byte i) {
+  float letbfreq = 100.0;
+
   if (_rg.active_synths[i]->f303) {
+    
     if (_rg.active_synths[i]->sloper_step > 17) {
       _rg.active_synths[i]->f303 = 0;
-      self->letbfreq = 50 ;
       _rg.active_synths[i]->sloper_step = 0 ;
+      _rg.active_synths[i]->slope_normalized = 0.0;
       return;
     }
-    self->letbfreq = gg.le303filterzfreq + 50 - (gg.le303filterzfreq * self->sloped[_rg.active_synths[i]->sloper_step]);
-    les303filterz[_rg.active_synths[i]->l_index]->frequency(self->letbfreq);
-    //les303filterz[_rg.active_synths[i]->l_index]->resonance(0.1 + ((gg.le303filterzreso/127.0)*5) * self->sloped[_rg.active_synths[i]->sloper_step]);
-    _rg.active_synths[i]->sloper_step++;
 
+    //slope is optimized for cutoff
+    //_rg.active_synths[i]->slope_normalized += 0.0625;
+    _rg.active_synths[i]->slope_normalized += 0.0588;
+    letbfreq = gg.le303filterzfreq + 100.0 - (gg.le303filterzfreq * self->sloped[_rg.active_synths[i]->sloper_step]);
+    //sletbfreq = gg.le303filterzfreq + 100 - (gg.le303filterzfreq * map(_rg.active_synths[i]->slope_normalized*100,0,100,80,100)/100.0);
+
+    //let some unfiltered first before filter decay
+    les303filterz[_rg.active_synths[i]->l_index]->frequency(letbfreq);
+    les303filterz[_rg.active_synths[i]->l_index]->resonance(0.1 + ((gg.le303filterzreso/127.0)*5) * _rg.active_synths[i]->slope_normalized);
+    les303passes[_rg.active_synths[i]->l_index]->gain(2,1.0-_rg.active_synths[i]->slope_normalized);
+
+    //mixle303ffilterzVknobs[2]->gain(0.1 + ((gg.le303filterzreso/127.0)*5) * _rg.active_synths[i]->slope_normalized);
+    
+    //almost immediate since liner_on just set it few micro seconds before;
+    // but enough to be audible ;)
+    //_mx.set_303_wetness(_rg.active_synths[i]->l_index,gg.le303filterzwet/127.0); 
+    _rg.active_synths[i]->sloper_step++;
   }
 }
 
 void Filter303MenuRouter::filter_knob_freq(){
   lv.navrange = 127;
-  gg.le303ffilterzVknobs[0] = lv.sublevels[3];
-  gg.le303filterzfreq = lround((gg.le303ffilterzVknobs[0] / 127.0) * 14000);
+  CutOffTweak_ctl(lv.sublevels[3]);
 }
 
 void Filter303MenuRouter::filter_knob_res(){
-      lv.navrange = 127;
-      gg.le303ffilterzVknobs[1] = lv.sublevels[3];
-      gg.le303filterzreso = gg.le303ffilterzVknobs[1];
-    }
+  lv.navrange = 127;
+  ResoTweak_ctl(lv.sublevels[3]);
+}
 
 void Filter303MenuRouter::filter_knob_low(){
       gg.mixle303ffilterzVknobs[0] = lv.sublevels[3];
@@ -145,8 +155,7 @@ void Filter303MenuRouter::filter_knob_high(){
 void Filter303MenuRouter::filter_knob_wet(){
       lv.navrange = 127;
       gg.le303filterzwet = lv.sublevels[3];
-      // gg.le303filterzwet = (gg.mixle303ffilterzVknobs[2])/127.0 ;
-      _mx.le303filterzWet();
+      _mx.apply_303_wet();
     }
 
 void Filter303MenuRouter::filter_knob_preamp(){
@@ -154,13 +163,6 @@ void Filter303MenuRouter::filter_knob_preamp(){
       gg.preampleswaves = lv.sublevels[3];
       _mx.Wavespreamp303controls();
     }
-
-void Filter303MenuRouter::filter_knob_glide(){
-      lv.navrange = 127;
-      gg.portamento_time = lv.sublevels[3] ;
-
-    }
-
 
 void Filter303MenuRouter::le303filterVpanelAction() {
   if (lv.navlevel == 3) {
@@ -170,10 +172,8 @@ void Filter303MenuRouter::le303filterVpanelAction() {
       set_filter_buff_temp();
       lv.temp_buff_armed = 1 ;
     }
-    // AudioNoInterrupts();
     (filters_pointers[lv.sublevels[2]])();
     _mx.le303filtercontrols();
-
   }
   if (lv.navlevel > 3) {
     lv.temp_buff_armed = 0 ;
@@ -277,10 +277,8 @@ void Filter303MenuRouter::le303filterVpanel() {
   barsize = round((0.5 * (totbartall - 4)));
 
   dm.canvastitle.setCursor(54, 8);
-  dm.canvastitle.print("Glide: ");
-  if (!gg.portamento_time) dm.canvastitle.print("Off");
-  else dm.canvastitle.print(gg.portamento_time);
-
+  dm.canvastitle.print("Speed: ");
+  dm.canvastitle.print(gg.period_303);
   le303filterVpanelSelector();
   dm.dodisplay();
 }
@@ -350,11 +348,17 @@ void Filter303MenuRouter::le303filterVpanelSelector() {
   }
 
   if (slct == 7) {
-    lv.sublevels[3] = gg.portamento_time ;
+    lv.sublevels[3] = gg.period_303 ;
     dm.canvasBIG.setCursor(100, 8);
     dm.canvasBIG.print((char)9);
   }
 
+}
+
+void Filter303MenuRouter::set_filter_speed(){
+  lv.navrange = 127;
+  impulse_length_ctl((byte)lv.sublevels[3]);
+  if (lv.navlevel > 3 ) dm.returntonav(2);
 }
 
 void Filter303MenuRouter::restore_from_temp() {

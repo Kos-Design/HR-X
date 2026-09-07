@@ -622,7 +622,7 @@ void TriggerMessenger::moncontrollercc(byte channel, byte control, byte value) {
         usbMIDI.send_now();
 
       }
-    if (gg.midiknobassigned[control] != 0 && !lv.freezemidicc) {
+    if (gg.midiknobassigned[control] != 0) {
       ctl[gg.midiknobassigned[control]].tweaker(value);
       // AudioInterrupts();
     }

@@ -20,6 +20,7 @@ void unplugfx();
 void setupSD();
 void loop_over_303();
 void setup();
+void impulse_length_ctl(byte);
 void Volume_ctl(byte cc_value);
 void SynthVolume_ctl(byte cc_value);
 void SDPlayerVolume_ctl(byte cc_value);

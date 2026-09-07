@@ -89,8 +89,9 @@ void PresetsMenuRouter::read_preset() {
           }
           setbpms();
           _ad.ApplyADSR();
+          _ft.avg_slope();
           _fx.allfxcontrolled();
-          _mx.le303filterzWet();
+          _mx.apply_303_wet();
           _mx.Wavespreamp303controls();
           _mx.le303filtercontrols();
           _mx.set_dry_mix(0);

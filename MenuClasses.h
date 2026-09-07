@@ -36,7 +36,6 @@ struct LiveState {
     byte fidx = 0;
     float BPMs = (60000.0 / 115) / 4.0;
     bool setting_on_board = false ;
-    bool freezemidicc = 0;
     bool knobsetting = false ;
     bool assigning_sample_to_note = false ;
     int paddered = 0;
@@ -181,7 +180,8 @@ class GlobalMixer : public SectionHolder {
         static void actionwmixer(byte vknob);
         static void actionwmixerM(int lebus);
         static void setwavemixlevel();
-        static void le303filterzWet();
+        static void set_303_wetness(byte i,float wetness);
+        static void apply_303_wet();
         static void set_synth_wet();
         static void set_flash_wet();
         static void set_other_wet();

@@ -225,7 +225,7 @@ void loadsynthdefaults() {
   mixerWL5to8.gain(1, .25);
   mixerWL5to8.gain(2, 0.0);
   mixerWL5to8.gain(3, 0.0);
-  _mx.le303filterzWet();
+  _mx.apply_303_wet();
 
   _mx.le303filtercontrols();
   AudioInterrupts();
@@ -676,7 +676,7 @@ void setup() {
   AudioMemory(1200);
   AudioShield.volume(0.0);
   AudioShield.enable();
-  _st.set_in_source();
+  _mr.set_in_source();
   AudioShield.volume(1.0);
   _rd.playrecordsd_pathed("SOUNDSET/REC/LOOP22#L.RAW");
   Tocker.attach_24(_tt.advance_tick);
@@ -697,6 +697,9 @@ void setup() {
 
 }
 
+void impulse_length_ctl(byte cc_value){
+  gg.period_303 = max(cc_value,1);
+}
 
 void Volume_ctl(byte cc_value){
   // audioShield.volume(1.0);
@@ -776,7 +779,7 @@ void ArbitraryMaxF_ctl(byte cc_value){
 
 void Filter303_ctl(byte cc_value){
   gg.le303filterzwet = cc_value;
-  _mx.le303filterzWet();
+  _mx.apply_303_wet();
 }
 
 void CutOffTweak_ctl(byte cc_value){
@@ -1376,16 +1379,11 @@ void eq_display_Toggle_ctl(byte cc_value){
   lv.showing_eq = !lv.showing_eq ;
 }
 
-void set_cutoff_period_ctl(byte cc_value){
-  gg.period_303 = map(cc_value,0,127,24,96);
-}
-
-
 const CcCalls ctl[128] = {
     {"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel",&SynthVolume_ctl},{"SDLevel",&SDPlayerVolume_ctl},{"FlashLevel",&FlashVolume_ctl},
     {"FX1 Wet",&Wet1Volume_ctl},{"FX2 Wet",&Wet2Volume_ctl},{"FX3 Wet",&Wet3Volume_ctl},{"Dry Sampler",&DrySampler_ctl},{"Dry Synth",&DrySynth_ctl},
     //10 ok
-    {"Dry Audio In",&DryAudioIn_ctl},{"CutOff slp.",&Slope1_ctl},{"Reso slp.",&Slope2_ctl},{"Reso Tweak",&ResoTweak_ctl},{"Impulse length",&set_cutoff_period_ctl},
+    {"Dry Audio In",&DryAudioIn_ctl},{"CutOff slp.",&Slope1_ctl},{"Reso slp.",&Slope2_ctl},{"Reso Tweak",&ResoTweak_ctl},{"Impulse length",&impulse_length_ctl},
     {"CutOff Tweak",&CutOffTweak_ctl},{"Stereo On",toggle_stereo},{"Stereo Off",turn_off_stereo},{"Filter303 Lvl.",&Filter303_ctl},{"Portamento time",&set_Portamento_time_ctl},
     //20 ok
     {"Filter303 PreAmp",&FilterPreAmp_ctl},{"Synth Index",&SynthIndex_ctl},{"Syth X Lvl.",&SynthXLevel_ctl},{"Synth X Freq",&SynthXFreq_ctl},{"Chords type",&SetChords_ctl},

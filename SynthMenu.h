@@ -37,10 +37,8 @@ class Filter303MenuRouter : public SectionHolder {
     float fxsloper[18] = {0.85,0.88,0.91,0.92,0.93,0.95,0.95,0.96,0.97,0.97,0.98,0.98,0.99,0.99,1.00,1.00,1.00,1.00};
     int lardiff = 0;
     float sloped[18]{};
-    int letbfreq = 450;
 
     static void initialize303group();
-    static void allpasslevels();
     static void avg_slope();
     static void pseudo303(byte i);
     static void filter_knob_freq();
@@ -49,8 +47,8 @@ class Filter303MenuRouter : public SectionHolder {
     static void filter_knob_band();
     static void filter_knob_high();
     static void filter_knob_wet();
+    static void set_filter_speed();
     static void filter_knob_preamp();
-    static void filter_knob_glide();
     static void le303filterVpanelAction();
     static void le303filterVpanel();
     static void le303filterVpanelSelector();
@@ -59,7 +57,7 @@ class Filter303MenuRouter : public SectionHolder {
     static void show();
   private:
     static constexpr void (*filters_pointers[8])() = {&filter_knob_freq, &filter_knob_res, &filter_knob_low, &filter_knob_band, &filter_knob_high,
-                                            &filter_knob_wet, &filter_knob_preamp, &filter_knob_glide};
+                                            &filter_knob_wet, &filter_knob_preamp, &set_filter_speed};
                     static byte *filter_tmp_pointers[8];
                     static byte filter_tmp_values[8];
     static Filter303MenuRouter* self;

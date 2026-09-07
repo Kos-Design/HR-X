@@ -22,6 +22,7 @@ void MasterClock::click() {
         }
 
 void MasterClock::dispatch_ticks() {
+  
     if ((self->tick96 % 96) == 0 && _callback_96 && self->tic_toc[0]){
       self->tic_toc[0] = false;
       _callback_96();

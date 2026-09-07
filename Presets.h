@@ -69,7 +69,7 @@ struct Preset {
 
     int32_t millitickinterval = 115;
     //Atk Delay, Attack, Hold, Decay, Sustain, Release
-    int32_t adsrlevels[6] = {0, 5, 0, 100, 0, 50};
+    int32_t adsrlevels[6] = {0, 3, 0, 250, 0, 150};
 
     int32_t midiknobassigned[128];
     int32_t Sampleassigned[128];
@@ -95,30 +95,31 @@ struct Preset {
     uint8_t le303filterzgainz[3] = {127,0,0};
     //0 is Off, 1-> Waveform, 2-> FM Waveform, 3->Drum, 4->String
     uint8_t audio_obj_type[OSCS_COUNT] = {1,1,1};
-    uint8_t le303filterzreso = 70;
+    uint8_t le303filterzreso = 100;
     uint8_t panLs = 64;
     uint8_t phaselevelsL[OSCS_COUNT] = {0,0,0};
     uint8_t cut_off_slope = 100;
     //unused until 303 refactor
     uint8_t resonance_slope = 1;
     // cutoff, resonance, octave
-    uint8_t le303ffilterzVknobs[3] = {48,32,0};
+    uint8_t le303ffilterzVknobs[3] = {120,100,0};
     // LP BP HP
     uint8_t mixle303ffilterzVknobs[3] = {127,0,0};
-    uint8_t le303filterzwet = 127;
+    uint8_t le303filterzwet = 0;
     uint8_t preampleswaves = 64;
     //0: exponential | 64: linear | 127: log-like
     uint8_t glide_slope = 64;
     uint8_t portamento_height = 70;
     uint8_t portamento_time = 60;
-    bool arpegiatorOn = true;
-    uint8_t arpegiatortype = 7;
+    uint8_t arpegiatortype = 8;
+    bool arpegiatorOn = arpegiatortype != 8;
     uint8_t arpeglengh = 0;
     uint8_t arpegmode = 4;
     uint8_t arpegnumofnotes = 7;
     uint8_t arpegstartoffset = 0;
     uint8_t arpeggridC = 0;
     uint8_t arpeggridS = 0;
+    //TODO put in a menu
     uint8_t out_midichannel = 3 ;
     bool digitalplay = false;
     uint8_t chordson = 1;
@@ -178,9 +179,7 @@ struct Preset {
     uint8_t oscilloscope_tscale = 5;
     uint8_t osc_framerate = 33 ;
     uint8_t osc_refresher_period = 2 ;
-    uint16_t period_303 = 96;
-
-
+    uint16_t period_303 = 1;
 };
 
 extern Preset gg ;

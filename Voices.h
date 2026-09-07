@@ -1,3 +1,4 @@
+#include <stdint.h>
 #pragma once
 #include "Constants.h"
 
@@ -14,6 +15,7 @@ class SynthLiner {
     int totalUpdates = 0;
     int note_diff = 0;
     int currentUpdate = 0;
+    float slope_normalized = 0.0;
     float startFreq = 0.0;
     float targetFreq = 0.0;
     float currentFreq = 0.0;
@@ -26,7 +28,6 @@ class SynthLiner {
     uint8_t sloper_step = 0;
     uint8_t next_arp_note;
     bool arp_starter = 0;
-
     bool activated = 0 ;
     bool f303 = 0 ;
 
