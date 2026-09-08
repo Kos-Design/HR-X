@@ -12,6 +12,7 @@ struct Pattern {
   MidiEventer synth_off_pat[6][PBARS];
   MidiEventer sampler_off_pat[PBARS];
   bool track_cells[2][PBARS] ;
+
 };
 
 extern Pattern pp;
@@ -22,6 +23,7 @@ class MasterClock {
         MasterClock();
 
         bool stop = 1 ;
+        volatile int tick24 = 0 ;
         bool tic_toc[7]{};
         int timee = 0;
         static void click();
@@ -84,12 +86,13 @@ class PatEditRouter : public SectionHolder {
         byte local_line = 0;
         bool visible_tracks[6][PBARS]{};
         bool addinglength = 0;
-
+        bool preview = 0 ;
         bool paterning = false ;
 
         static void homer();
         static void set_editor_to_synth(byte liner);
         static void set_editor_to_sampler(byte liner);
+        static void play_cell_preview();
         static void show();
         static void doshownoteline();
         static void drawPatternRow();
@@ -177,7 +180,7 @@ class POptionsRouter : public SectionHolder {
         static bool *_targets[3];
         static constexpr void (*_pat_params[6])() = {&showtransposedisplays,&showShifterdisplays,&clearlapattern,
                                         &showlestargetdisplays,&toggle_interpol_cc,&merge_partitions};
-        static constexpr void (*cleaners[3])() = {&clearsynthpatternline,&clearlapattern,&clearCCline};
+        static constexpr void (*cleaners[3])() = {&clearsynthpatternline,&clearsamplerpatternline,&clearCCline};
         static constexpr void (*mergers[2])() = {&merge_synth_partition_liners,&merge_sampler_partition_liners};
         static constexpr void (*shifters[3])() = {&doShiftersynth,&doShiftersampler,&doShifterCC};
         static constexpr void (*transposers[3])() = {&dotransposesynth,&dotransposesampler,&dotransposeCC};
@@ -202,7 +205,6 @@ class PatternsMenuRouter : public SectionHolder {
         static void save_pattern();
         static void lv1_wrapper(void (*func)());
         static void addnoteoff2next(byte lanotee, byte lapos);
-        static void set_ccs();
         static void parsepattern();
         static void doPatternsmenu();
         static void deletepattern();

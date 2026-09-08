@@ -1,3 +1,5 @@
+#include "elapsedMillis.h"
+#include "Constants.h"
 #include "SongsMenu.h"
 #include "Triggers.h"
 #include "Patterns.h"
@@ -15,62 +17,64 @@ SongEditorRouter::SongEditorRouter() {
 
 
 void SongEditorRouter::light_cc_change() {
-          for (int i = 0; i < 32; i++) {
-            if (bb.recorded_ccs[i] != 0 && bb.pots_controllers[i][lv.tickposition][1] != 127){
-              _tt.moncontrollercc(1, bb.pots_controllers[i][lv.tickposition][0], bb.pots_controllers[i][lv.tickposition][1]);
-            }
-
-          }
-        /*
-          for (int i = 0; i < 128; i++) {
-            if (pp.cc_partition[i][lv.tickposition] != 127) {
-              moncontrollercc(1, i, pp.cc_partition[i][lv.tickposition]);
-            }
-          }
-          */
-        }
-
+ /*
+  for (int i = 0; i < 32; i++) {
+    if (pp.pots_controllers[i][mc.tickposition].velocity != 127){
+      //maybe directly Mycc
+      _tt.moncontrollercc(pp.pots_controllers[i][mc.tickposition]);
+    }
+  }
+ */
+ byte tpos = mc.tickposition ;
+  for (int i = 0; i < 128; i++) {
+    if (pp.cc_partition[i][tpos] != 127){
+      //maybe directly Mycc
+      _tt.moncontrollercc((MidiEventer){3,(byte)i,pp.cc_partition[i][tpos]});
+    }
+  }
+}
 void SongEditorRouter::use_pattern(){
-          light_cc_change();
-          for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-            if (pp.synth_off_pat[i][lv.tickposition].note != 0) {
-              synth_lines[i]->liner_off();
-            }
-            // if ( i < SYNTH_LINERS_COUNT ) {
-            if (pp.synth_partition[i][lv.tickposition].note != 0) {
-              play_synth_line(i);
-            }
+  
 
-          }
-          if (pp.sampler_off_pat[lv.tickposition].note != 0) {
-            _tt.shutlineroff(gg.samplermidichannel,pp.sampler_off_pat[lv.tickposition].note);
-              //flash_lines[i]->liner_off();
-            }
-          for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+  byte tpos = mc.tickposition;
+  //who sets recorded
+  light_cc_change();
+  for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+    if (i < SYNTH_LINERS_COUNT ) {
+      if (pp.synth_off_pat[i][tpos].note) {
+        synth_lines[i]->liner_off();
+      }
+      if (pp.synth_partition[i][tpos].note) {
+        play_synth_line(i);
+      }
+    }
+    if (pp.sampler_off_pat[tpos].note) {
+      _tt.shutlineroff(gg.samplermidichannel,pp.sampler_off_pat[tpos].note);
+    }
+    if (pp.sampler_partition[i][tpos].note) {
+      play_sampler_line(i);
+    }
+  }
 
-            if (pp.sampler_partition[i][lv.tickposition].note != 0) {
-              play_sampler_line(i);
-            }
-          }
-        }
+}
 
 void SongEditorRouter::playdasong() {
           //if (!gg.externalticker) {
             //metro0.reset();
           //}
-          lv.songplaying = 1;
+          mc.songplaying = 1;
           loadsongpattern();
           Tocker.startticker();
         }
 
 void SongEditorRouter::stopdasong() {
-          lv.songplaying = 0;
+          mc.songplaying = 0;
           songplayhead = 0;
           Tocker.stopticker();
         }
 
 void SongEditorRouter::pausedasong() {
-          lv.songplaying = 0;
+          mc.songplaying = 0;
           Tocker.stopticker();
         }
 void SongEditorRouter::showplayheadprogress() {
@@ -86,17 +90,17 @@ void SongEditorRouter::loadsongpattern() {
 }
 
 void SongEditorRouter::actionSongTransport() {
-          if (lv.sublevels[self->relative_navlevel] == 0) {
+          if (mc.sublevels[self->relative_navlevel] == 0) {
             stopdasong();
             playdasong();
           }
-          if (lv.sublevels[self->relative_navlevel] == 2) {
+          if (mc.sublevels[self->relative_navlevel] == 2) {
             stopdasong();
           }
-          if (lv.sublevels[self->relative_navlevel] == 3) {
+          if (mc.sublevels[self->relative_navlevel] == 3) {
             playdasong();
           }
-          dm.returntonav(self->relative_navlevel, lv.navrange,lv.sublevels[self->relative_navlevel]);
+          dm.returntonav(self->relative_navlevel, mc.navrange,mc.sublevels[self->relative_navlevel]);
         }
 
 void SongEditorRouter::showsongnavarrows() {
@@ -110,8 +114,8 @@ void SongEditorRouter::showsongnavarrows() {
           }
         }
 void SongEditorRouter::setpatterninsong() {
-          ng.patternonsong[(self->songpage * 16) + lv.sublevels[self->relative_navlevel] - 8] = lv.sublevels[self->relative_navlevel + 1];
-          dm.returntonav(self->relative_navlevel, lv.navrange,lv.sublevels[self->relative_navlevel]);
+          ng.patternonsong[(self->songpage * 16) + mc.sublevels[self->relative_navlevel] - 8] = mc.sublevels[self->relative_navlevel + 1];
+          dm.returntonav(self->relative_navlevel, mc.navrange,mc.sublevels[self->relative_navlevel]);
         }
 
 void SongEditorRouter::songmodetopbar() {
@@ -122,10 +126,10 @@ void SongEditorRouter::songmodetopbar() {
         }
 
 void SongEditorRouter::showsongcell() {
-          int lasongcell = ng.patternonsong[(self->songpage * 16) + lv.sublevels[self->relative_navlevel] - 8];
+          int lasongcell = ng.patternonsong[(self->songpage * 16) + mc.sublevels[self->relative_navlevel] - 8];
           dm.canvastitle.setCursor(0, 0);
           dm.canvastitle.setTextSize(1);
-          if (lv.navlevel == self->relative_navlevel) {
+          if (mc.navlevel == self->relative_navlevel) {
             if (lasongcell > 0) {
               dm.canvastitle.print(_pt.catalog->get_file_name(_pt.catalog->files_indexed[(lasongcell - 1)]));
             } else {
@@ -135,15 +139,15 @@ void SongEditorRouter::showsongcell() {
         }
 
 void SongEditorRouter::selectormoveX() {
-          songselectorX = 8 * (lv.sublevels[self->relative_navlevel] - 8);
+          songselectorX = 8 * (mc.sublevels[self->relative_navlevel] - 8);
         }
 
 void SongEditorRouter::songTransportSelector() {
           int startyp = 8;
           int ecart = 14;
-          dm.drawPixel(ecart * (lv.sublevels[self->relative_navlevel]) + 6, startyp + 7, SSD1306_WHITE);
-          dm.drawPixel(ecart * (lv.sublevels[self->relative_navlevel]) + 7, startyp + 6, SSD1306_WHITE);
-          dm.drawPixel(ecart * (lv.sublevels[self->relative_navlevel]) + 7, startyp + 7, SSD1306_WHITE);
+          dm.drawPixel(ecart * (mc.sublevels[self->relative_navlevel]) + 6, startyp + 7, SSD1306_WHITE);
+          dm.drawPixel(ecart * (mc.sublevels[self->relative_navlevel]) + 7, startyp + 6, SSD1306_WHITE);
+          dm.drawPixel(ecart * (mc.sublevels[self->relative_navlevel]) + 7, startyp + 7, SSD1306_WHITE);
         }
 
 void SongEditorRouter::showpatonSongGrid() {
@@ -157,19 +161,19 @@ void SongEditorRouter::showpatonSongGrid() {
         }
 
 void SongEditorRouter::selectpatterninsong() {
-          lv.navrange = _pt.catalog->files_counter;
+          mc.navrange = _pt.catalog->files_counter;
           dm.canvastitle.setCursor(0, 0);
           dm.canvastitle.setTextSize(1);
 
-          if (lv.sublevels[self->relative_navlevel + 1] > 0) {
-            dm.canvastitle.print(_pt.catalog->get_file_name(_pt.catalog->files_indexed[(lv.sublevels[self->relative_navlevel + 1] - 1)]));
+          if (mc.sublevels[self->relative_navlevel + 1] > 0) {
+            dm.canvastitle.print(_pt.catalog->get_file_name(_pt.catalog->files_indexed[(mc.sublevels[self->relative_navlevel + 1] - 1)]));
           } else {
             dm.canvastitle.print("Empty");
           }
         }
 
 void SongEditorRouter::update_song_player() {
-          if (lv.tickposition == PBARS - 1) {
+          if (mc.tickposition == PBARS - 1) {
 
               if (songplayhead < ng.numberofpatonsong - 1) {
                 songplayhead++;
@@ -183,45 +187,45 @@ void SongEditorRouter::update_song_player() {
         }
 
 void SongEditorRouter::play_synth_line(int linei) {
-          if (pp.synth_partition[linei][lv.tickposition].note != 0) {
+          if (pp.synth_partition[linei][mc.tickposition].note != 0) {
             if (!synth_lines[linei]->activated) {
-              synth_lines[linei]->liner_on(pp.synth_partition[linei][lv.tickposition].note, pp.synth_partition[linei][lv.tickposition].velocity);
+              synth_lines[linei]->liner_on(pp.synth_partition[linei][mc.tickposition].note, pp.synth_partition[linei][mc.tickposition].velocity);
             }
           }
         }
 
 void SongEditorRouter::play_sampler_line(int linei) {
-          if (pp.sampler_partition[linei][lv.tickposition].note != 0) {
-            if (gg.Sampleassigned[pp.sampler_partition[linei][lv.tickposition].note] != 0 &&
+          if (pp.sampler_partition[linei][mc.tickposition].note != 0) {
+            if (gg.Sampleassigned[pp.sampler_partition[linei][mc.tickposition].note] != 0 &&
                 ((gg.samplermidichannel == 0) ||
-                ((byte)gg.samplermidichannel == pp.sampler_partition[linei][lv.tickposition].channel))) {
-                  _tt.initiateasamplerliner(pp.sampler_partition[linei][lv.tickposition].note, pp.sampler_partition[linei][lv.tickposition].velocity);
+                ((byte)gg.samplermidichannel == pp.sampler_partition[linei][mc.tickposition].channel))) {
+                  _tt.initiateasamplerliner(pp.sampler_partition[linei][mc.tickposition].note, pp.sampler_partition[linei][mc.tickposition].velocity);
             }
           }
         }
 
 void SongEditorRouter::selectsongnavarrows() {
-          if (lv.navlevel == self->relative_navlevel) {
+          if (mc.navlevel == self->relative_navlevel) {
 
-            if (lv.sublevels[self->relative_navlevel] > 23) {
-              dm.canvasBIG.drawRoundRect(113 - (lv.sublevels[self->relative_navlevel] - 24) * 113, 49, 14,
+            if (mc.sublevels[self->relative_navlevel] > 23) {
+              dm.canvasBIG.drawRoundRect(113 - (mc.sublevels[self->relative_navlevel] - 24) * 113, 49, 14,
                                       14, 2, SSD1306_WHITE);
             }
           }
-          if (lv.navlevel == self->relative_navlevel + 1) {
-            if (lv.sublevels[self->relative_navlevel] == 25 && self->songpage > 0) {
+          if (mc.navlevel == self->relative_navlevel + 1) {
+            if (mc.sublevels[self->relative_navlevel] == 25 && self->songpage > 0) {
               self->songpage--;
             }
-            if (lv.sublevels[self->relative_navlevel] == 24 && self->songpage < 6) {
+            if (mc.sublevels[self->relative_navlevel] == 24 && self->songpage < 6) {
               self->songpage++;
             }
-            dm.returntonav(self->relative_navlevel, lv.navrange,lv.sublevels[self->relative_navlevel]);
+            dm.returntonav(self->relative_navlevel, mc.navrange,mc.sublevels[self->relative_navlevel]);
           }
         }
 
 void SongEditorRouter::songgridposselector() {
-          if (lv.sublevels[self->relative_navlevel] > 7) {
-            if (lv.sublevels[self->relative_navlevel] < 24) {
+          if (mc.sublevels[self->relative_navlevel] > 7) {
+            if (mc.sublevels[self->relative_navlevel] < 24) {
 
               // int startxp = 0 ;
               // int startyp = 16;
@@ -238,26 +242,26 @@ void SongEditorRouter::songgridposselector() {
 void SongEditorRouter::Songmodepanel() {
   self->songselectorY = 16;
   self->songmodetopbar();
-  if (lv.navlevel == self->relative_navlevel) {
+  if (mc.navlevel == self->relative_navlevel) {
     if (self->songpage > 0) {
-      lv.navrange = 8 + 16 + 1;
+      mc.navrange = 8 + 16 + 1;
     } else {
-      lv.navrange = 8 + 16;
+      mc.navrange = 8 + 16;
     }
-    if (lv.sublevels[self->relative_navlevel] > 7) {
+    if (mc.sublevels[self->relative_navlevel] > 7) {
 
-      // lv.navrange = 127/8 - 1;
+      // mc.navrange = 127/8 - 1;
       self->selectormoveX();
     }
 
     else {
-      // songselectorY = 12 * lv.sublevels[self->relative_navlevel] + 16
+      // songselectorY = 12 * mc.sublevels[self->relative_navlevel] + 16
       self->songTransportSelector();
     }
   }
-  if (lv.navlevel == self->relative_navlevel + 1) {
-    if (lv.sublevels[self->relative_navlevel] > 7) {
-      if (lv.sublevels[self->relative_navlevel] < 24) {
+  if (mc.navlevel == self->relative_navlevel + 1) {
+    if (mc.sublevels[self->relative_navlevel] > 7) {
+      if (mc.sublevels[self->relative_navlevel] < 24) {
         self->selectpatterninsong();
       } else {
         self->selectsongnavarrows();
@@ -266,17 +270,17 @@ void SongEditorRouter::Songmodepanel() {
       self->actionSongTransport();
     }
   }
-  if (lv.navlevel == self->relative_navlevel + 2) {
+  if (mc.navlevel == self->relative_navlevel + 2) {
 
     self->setpatterninsong();
-    if (ng.patternonsong[lv.sublevels[self->relative_navlevel] - 8] > 0) {
+    if (ng.patternonsong[mc.sublevels[self->relative_navlevel] - 8] > 0) {
       ng.numberofpatonsong++;
     } else {
-      ng.numberofpatonsong = lv.sublevels[self->relative_navlevel] - 8;
+      ng.numberofpatonsong = mc.sublevels[self->relative_navlevel] - 8;
     }
   }
 
-  if (lv.sublevels[self->relative_navlevel] > 7) {
+  if (mc.sublevels[self->relative_navlevel] > 7) {
     self->showsongcell();
   }
 
@@ -284,7 +288,7 @@ void SongEditorRouter::Songmodepanel() {
   self->showsongnavarrows();
   dm.dodisplay();
   self->songgridposselector();
-  if (lv.songplaying) {
+  if (mc.songplaying) {
     self->showplayheadprogress();
   }
   dm.dodisplay();
@@ -301,18 +305,18 @@ SongMenuRouter::SongMenuRouter() {
           self->sublevels_address={3,0,0};
         }
 void SongMenuRouter::show() {
-          _route_nav[lv.navlevel-1]();
+          _route_nav[mc.navlevel-1]();
         }
 
 void SongMenuRouter::route_navlevel() {
-          _nav_song[lv.sublevels[1]]();
+          _nav_song[mc.sublevels[1]]();
         }
 
 void SongMenuRouter::lv1_wrapper(void (*func)()) {
   self->catalog->nav_one(1,1);
-  if (lv.navlevel >= 3) {
+  if (mc.navlevel >= 3) {
     func();
-    dm.returntonav(1, self->home_navrange,lv.sublevels[1]);
+    dm.returntonav(1, self->home_navrange,mc.sublevels[1]);
   }
 }
 
@@ -321,9 +325,9 @@ void SongMenuRouter::save_song(){
 }
 
 void SongMenuRouter::writedasong() {
-  if (lv.locked_fileing)
+  if (mc.locked_fileing)
     return;
-  lv.locked_fileing = 1 ;
+  mc.locked_fileing = 1 ;
   self->catalog->refresh_files_names();
   FsFile song_filer ;
   if (self->catalog->new_file_mode) {
@@ -339,20 +343,20 @@ void SongMenuRouter::writedasong() {
   }
   song_filer.close();
   self->catalog->list_files();
-  lv.locked_fileing = 0;
+  mc.locked_fileing = 0;
 }
 
 void SongMenuRouter::parseSong(){
-  if (lv.locked_fileing)
+  if (mc.locked_fileing)
     return;
-  lv.locked_fileing = 1 ;
+  mc.locked_fileing = 1 ;
   self->catalog->refresh_files_names();
   FsFile song_filer = SD.sdfs.open(self->catalog->get_current_file_path(0).c_str(), O_READ);
   if (song_filer) {
     song_filer.read((uint8_t*)&ng, sizeof(ng));
   }
   song_filer.close();
-  lv.locked_fileing = 0 ;
+  mc.locked_fileing = 0 ;
 }
 
 void SongMenuRouter::load_song() {
@@ -371,11 +375,11 @@ void SongMenuRouter::clear_song_popup(){
   dm.clear_3();
   char messageconfirm[32] = "Delete Song ?";
   dm.doConfirmpanel((char *)messageconfirm);
-  if (lv.navlevel >= self->relative_navlevel + 2) {
-    if (lv.sublevels[self->relative_navlevel+1] == 1) {
+  if (mc.navlevel >= self->relative_navlevel + 2) {
+    if (mc.sublevels[self->relative_navlevel+1] == 1) {
       initializeSong();
     }
-    dm.returntonav(self->relative_navlevel, self->home_navrange,lv.sublevels[self->relative_navlevel]);
+    dm.returntonav(self->relative_navlevel, self->home_navrange,mc.sublevels[self->relative_navlevel]);
   }
 }
 
@@ -415,7 +419,7 @@ void SongMenuRouter::shiftSongleft(int leshifter) {
 }
 
 void SongMenuRouter::doSongShifter() {
-  int shifter=lv.sublevels[3];
+  int shifter=mc.sublevels[3];
   if (shifter - 16 > 0) {
     shiftSongleft(abs(shifter - 16));
   }
@@ -425,12 +429,12 @@ void SongMenuRouter::doSongShifter() {
 }
 
 void SongMenuRouter::showSongShifterdisplays() {
-  lv.navrange = 32;
+  mc.navrange = 32;
   dm.clean_title_1();
   dm.canvastitle.print("Shift Song");
   int latransposition;
-  latransposition = 16 - lv.sublevels[self->relative_navlevel + 1];
-  lv.sublevels[self->relative_navlevel + 2] = lv.sublevels[self->relative_navlevel + 1];
+  latransposition = 16 - mc.sublevels[self->relative_navlevel + 1];
+  mc.sublevels[self->relative_navlevel + 2] = mc.sublevels[self->relative_navlevel + 1];
   dm.canvasBIG.setCursor(0, 16);
   dm.canvasBIG.setTextSize(2);
   if (latransposition > 0) {
@@ -445,9 +449,9 @@ void SongMenuRouter::showSongShifterdisplays() {
 
 void SongMenuRouter::shift_song(){
     showSongShifterdisplays();
-  if (lv.navlevel >= self->relative_navlevel + 2) {
+  if (mc.navlevel >= self->relative_navlevel + 2) {
     doSongShifter();
-    dm.returntonav(self->relative_navlevel, self->home_navrange,lv.sublevels[self->relative_navlevel]);
+    dm.returntonav(self->relative_navlevel, self->home_navrange,mc.sublevels[self->relative_navlevel]);
   }
 }
 
@@ -466,12 +470,12 @@ void SongMenuRouter::fine_cursor(){
 
 void SongMenuRouter::show_some_params(){
   //placeholder
-  lv.navrange = 32;
+  mc.navrange = 32;
   dm.clean_title_1();
   dm.canvastitle.print("Params");
   //int latransposition;
-  //latransposition = 16 - lv.sublevels[self->relative_navlevel + 1];
-  //lv.sublevels[self->relative_navlevel + 2] = lv.sublevels[self->relative_navlevel + 1];
+  //latransposition = 16 - mc.sublevels[self->relative_navlevel + 1];
+  //mc.sublevels[self->relative_navlevel + 2] = mc.sublevels[self->relative_navlevel + 1];
   dm.canvasBIG.setCursor(0, 16);
   dm.canvasBIG.setTextSize(1);
   dm.canvasBIG.setCursor(8, 16);
@@ -487,8 +491,8 @@ void SongMenuRouter::show_some_params(){
 
 void SongMenuRouter::song_params_panel(){
     show_some_params();
-  if (lv.navlevel >= self->relative_navlevel + 2) {
-    dm.returntonav(self->relative_navlevel, self->home_navrange,lv.sublevels[self->relative_navlevel]);
+  if (mc.navlevel >= self->relative_navlevel + 2) {
+    dm.returntonav(self->relative_navlevel, self->home_navrange,mc.sublevels[self->relative_navlevel]);
   }
 }
 

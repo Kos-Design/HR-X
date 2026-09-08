@@ -15,7 +15,7 @@ FxMenuRouter::FxMenuRouter() {
 
       /*
 void FxMenuRouter::show() {
-        _nav_fx[lv.sublevels[1]]();
+        _nav_fx[mc.sublevels[1]]();
       }
       */
 void FxMenuRouter::peakingEQ(float freq, float gainDB, float Q, float Fs, double *c) {
@@ -65,16 +65,16 @@ void FxMenuRouter::prepare_coeffs(byte fx_idx){
 void FxMenuRouter::dolistMainFxPanel() {
         byte startx = 5;
         byte starty = 16;
-        char *textin = (char *)self->mainmenufxlist[lv.sublevels[lv.navlevel]];
+        char *textin = (char *)self->mainmenufxlist[mc.sublevels[mc.navlevel]];
         dm.clear_buffs_2_1();
         dm.canvastitle.println(textin);
 
-        for (int filer = 0; filer < lv.navrange - (lv.sublevels[lv.navlevel]); filer++) {
+        for (int filer = 0; filer < mc.navrange - (mc.sublevels[mc.navlevel]); filer++) {
           dm.canvasBIG.setCursor(startx, starty + (filer*10));
-          dm.canvasBIG.println(self->mainmenufxlist[lv.sublevels[lv.navlevel] + 1 + filer]);
+          dm.canvasBIG.println(self->mainmenufxlist[mc.sublevels[mc.navlevel] + 1 + filer]);
         }
-        for (int filer = 0; filer < lv.sublevels[lv.navlevel]; filer++) {
-          dm.canvasBIG.setCursor(startx, (10 * (lv.navrange + 1 - lv.sublevels[lv.navlevel])) + 6 + (filer*10));
+        for (int filer = 0; filer < mc.sublevels[mc.navlevel]; filer++) {
+          dm.canvasBIG.setCursor(startx, (10 * (mc.navrange + 1 - mc.sublevels[mc.navlevel])) + 6 + (filer*10));
           dm.canvasBIG.println(self->mainmenufxlist[filer]);
         }
       }
@@ -85,23 +85,23 @@ void FxMenuRouter::dolistmainfxlines() {
         byte startx = 5;
         byte starty = 16;
         String textin;
-        if (gg.fx[lv.sublevels[1]%FXS_COUNT].plugged_fx != (self->mainmenufxlistsize - 1)) {
-          textin = (String)self->mainmenufxlist[gg.fx[lv.sublevels[1]%FXS_COUNT].plugged_fx];
+        if (gg.fx[mc.sublevels[1]%FXS_COUNT].plugged_fx != (self->mainmenufxlistsize - 1)) {
+          textin = (String)self->mainmenufxlist[gg.fx[mc.sublevels[1]%FXS_COUNT].plugged_fx];
         } else {
-          textin = (String)mainfxlineslist[lv.sublevels[1]%FXS_COUNT];
+          textin = (String)mainfxlineslist[mc.sublevels[1]%FXS_COUNT];
         }
         dm.clear_buffs_2_1();
         dm.canvastitle.println(textin);
-        for (int i = 0; i < FXS_COUNT - 1 - lv.sublevels[1]; i++) {
+        for (int i = 0; i < FXS_COUNT - 1 - mc.sublevels[1]; i++) {
           dm.canvasBIG.setCursor(startx, starty + ((i)*10));
-          if (gg.fx[lv.sublevels[1]%FXS_COUNT + 1 + i].plugged_fx != self->mainmenufxlistsize-1) {
-            dm.canvasBIG.println((String)self->mainmenufxlist[gg.fx[lv.sublevels[1]%FXS_COUNT + 1 + i].plugged_fx]);
+          if (gg.fx[mc.sublevels[1]%FXS_COUNT + 1 + i].plugged_fx != self->mainmenufxlistsize-1) {
+            dm.canvasBIG.println((String)self->mainmenufxlist[gg.fx[mc.sublevels[1]%FXS_COUNT + 1 + i].plugged_fx]);
           } else {
-            dm.canvasBIG.println(mainfxlineslist[lv.sublevels[1]%FXS_COUNT + 1 + i]);
+            dm.canvasBIG.println(mainfxlineslist[mc.sublevels[1]%FXS_COUNT + 1 + i]);
           }
         }
-        for (int i = 0; i < lv.sublevels[1]%FXS_COUNT; i++) {
-          dm.canvasBIG.setCursor(startx, (10 * (FXS_COUNT - (lv.sublevels[1]%FXS_COUNT)) + 6 + ((i)*10)));
+        for (int i = 0; i < mc.sublevels[1]%FXS_COUNT; i++) {
+          dm.canvasBIG.setCursor(startx, (10 * (FXS_COUNT - (mc.sublevels[1]%FXS_COUNT)) + 6 + ((i)*10)));
           if (gg.fx[i].plugged_fx != (self->mainmenufxlistsize - 1)) {
             dm.canvasBIG.println((String)self->mainmenufxlist[gg.fx[i].plugged_fx]);
           } else {
@@ -258,32 +258,32 @@ void FxMenuRouter::changebiquadfreqvalue(byte fx_idx, int valub) {
 
 void FxMenuRouter::displayfxVcontrols(byte fxinstance) {
         //TODO:make switch
-        if (lv.sublevels[2] == 6) {
+        if (mc.sublevels[2] == 6) {
           biquadVpanel(fxinstance);
         }
-        if (lv.sublevels[2] == 7) {
+        if (mc.sublevels[2] == 7) {
           filterVpanel(fxinstance);
         }
-        if (lv.sublevels[2] == 8) {
+        if (mc.sublevels[2] == 8) {
           delayVpanel(fxinstance);
         }
-        if (lv.sublevels[2] == 1) {
+        if (mc.sublevels[2] == 1) {
           reverbVpanel(fxinstance);
         }
-        if (lv.sublevels[2] == 3) {
+        if (mc.sublevels[2] == 3) {
           bitcrusherVpanel(fxinstance);
         }
-        if (lv.sublevels[2] == 2) {
+        if (mc.sublevels[2] == 2) {
           granularVpanel(fxinstance);
         }
-        if (lv.sublevels[2] == 5) {
+        if (mc.sublevels[2] == 5) {
           chorusVpanel(fxinstance);
         }
-        if (lv.sublevels[2] == 4) {
+        if (mc.sublevels[2] == 4) {
           flangerVpanel(fxinstance);
         }
-        if (lv.sublevels[2] == 9 || lv.sublevels[2] == 0) {
-          lv.navlevel--;
+        if (mc.sublevels[2] == 9 || mc.sublevels[2] == 0) {
+          mc.navlevel--;
         }
       }
 void FxMenuRouter::flangercontrols(byte fx_idx) {
@@ -298,42 +298,42 @@ void FxMenuRouter::flangercontrols(byte fx_idx) {
          AudioInterrupts();
       }
 void FxMenuRouter::flangerVpanelAction(byte fx_idx) {
-        if (lv.navlevel == 4) {
+        if (mc.navlevel == 4) {
           // AudioNoInterrupts();
-          byte slct = lv.sublevels[3];
+          byte slct = mc.sublevels[3];
           // offset
           if (slct == 0) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].flangerVknobs[0] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].flangerVknobs[0] = mc.sublevels[4];
             flangercontrols(fx_idx);
           }
           // depth
           if (slct == 1) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].flangerVknobs[1] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].flangerVknobs[1] = mc.sublevels[4];
             flangercontrols(fx_idx);
             // apply
           }
           // delayRate
           // depth
           if (slct == 2) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].flangerVknobs[2] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].flangerVknobs[2] = mc.sublevels[4];
             flangercontrols(fx_idx);
             // apply
           }
           if (slct == 3) {
-            lv.navrange = 127;
+            mc.navrange = 127;
             set_wet_mix_at_sub4(fx_idx);
           }
         }
-        if (lv.navlevel > 4) {
+        if (mc.navlevel > 4) {
           dm.returntonav(3);
         }
       }
 
 void FxMenuRouter::set_wet_mix_at_sub4(byte i){
-        gg.WetMixMasters[i + 1] = lv.sublevels[4] ;
+        gg.WetMixMasters[i + 1] = mc.sublevels[4] ;
         _mx.wetmixmastercontrols();
       }
 
@@ -345,32 +345,32 @@ void FxMenuRouter::flangerVpanelSelector(byte fx_idx) {
         byte totbartall = 37;
         byte topwbarstart = 16;
         byte wbarwidth2 = 8;
-        if (lv.navlevel == 3) {
-          lv.navrange = 3;
+        if (mc.navlevel == 3) {
+          mc.navrange = 3;
         }
-        byte slct = lv.sublevels[3];
+        byte slct = mc.sublevels[3];
         // size
         if (slct == 0) {
-          lv.sublevels[4] = gg.fx[fx_idx].flangerVknobs[0];
+          mc.sublevels[4] = gg.fx[fx_idx].flangerVknobs[0];
           dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
-          lv.sublevels[4] = gg.fx[fx_idx].flangerVknobs[1];
+          mc.sublevels[4] = gg.fx[fx_idx].flangerVknobs[1];
           dm.canvasBIG.drawCircle(centercirclex + 40, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
 
         if (slct == 2) {
-          lv.sublevels[4] = gg.fx[fx_idx].flangerVknobs[2];
+          mc.sublevels[4] = gg.fx[fx_idx].flangerVknobs[2];
           dm.canvasBIG.drawCircle(centercirclex + 40 + 40, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
 
         // wet
         if (slct == 3) {
-          lv.sublevels[4] = gg.WetMixMasters[fx_idx+ 1];
+          mc.sublevels[4] = gg.WetMixMasters[fx_idx+ 1];
           dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -458,22 +458,22 @@ void FxMenuRouter::choruscontrols(byte fx_idx) {
       }
 
 void FxMenuRouter::chorusVpanelAction(byte fx_idx) {
-        if (lv.navlevel == 4) {
+        if (mc.navlevel == 4) {
           // AudioNoInterrupts();
-          byte slct = lv.sublevels[3];
+          byte slct = mc.sublevels[3];
           // fq
           if (slct == 0) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].chorusVknobs = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].chorusVknobs = mc.sublevels[4];
             choruscontrols(fx_idx);
           }
           // res
           if (slct == 1) {
-            lv.navrange = 127;
+            mc.navrange = 127;
             set_wet_mix_at_sub4(fx_idx);
           }
         }
-        if (lv.navlevel > 4) {
+        if (mc.navlevel > 4) {
           dm.returntonav(3);
         }
       }
@@ -487,20 +487,20 @@ void FxMenuRouter::chorusVpanelSelector(byte fx_idx) {
         byte totbartall = 37;
         byte topwbarstart = 16;
         byte wbarwidth2 = 8;
-        if (lv.navlevel == 3) {
-          lv.navrange = 1;
+        if (mc.navlevel == 3) {
+          mc.navrange = 1;
         }
-        int slct = lv.sublevels[3];
+        int slct = mc.sublevels[3];
         // size
         if (slct == 0) {
-          lv.sublevels[4] = gg.fx[fx_idx].chorusVknobs;
+          mc.sublevels[4] = gg.fx[fx_idx].chorusVknobs;
           dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2,
                               SSD1306_WHITE);
         }
 
         // wet
         if (slct == 1) {
-          lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
+          mc.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
           dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall,
                             wbarwidth2 - 4, SSD1306_WHITE);
           dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
@@ -609,16 +609,16 @@ void FxMenuRouter::granularcontrols(byte fx_idx) {
       }
 
 void FxMenuRouter::granularVpanelAction(byte fx_idx) {
-        if (lv.navlevel == 4) {
-          byte slct = lv.sublevels[3];
+        if (mc.navlevel == 4) {
+          byte slct = mc.sublevels[3];
           // g leng
           if (slct == 0) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].granularVknobs[0] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].granularVknobs[0] = mc.sublevels[4];
           }
           if (slct == 1) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].granularVknobs[1] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].granularVknobs[1] = mc.sublevels[4];
             granularcontrols(fx_idx);
           }
           // res
@@ -634,12 +634,12 @@ void FxMenuRouter::granularVpanelAction(byte fx_idx) {
           }
 
           if (slct == 4) {
-            lv.navrange = 127;
+            mc.navrange = 127;
             set_wet_mix_at_sub4(fx_idx);
           }
         }
 
-        if (lv.navlevel > 4) {
+        if (mc.navlevel > 4) {
 
           dm.returntonav(3);
         }
@@ -653,18 +653,18 @@ void FxMenuRouter::granularVpanelSelector(byte fx_idx) {
         const byte totbartall = 37;
         const byte topwbarstart = 16;
         const byte wbarwidth2 = 8;
-        if (lv.navlevel == 3) {
-          lv.navrange = 4;
+        if (mc.navlevel == 3) {
+          mc.navrange = 4;
         }
-        byte slct = lv.sublevels[3];
+        byte slct = mc.sublevels[3];
         // size
         if (slct == 0) {
-          lv.sublevels[4] = gg.fx[fx_idx].granularVknobs[0];
+          mc.sublevels[4] = gg.fx[fx_idx].granularVknobs[0];
           dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
-          lv.sublevels[4] = gg.fx[fx_idx].granularVknobs[1];
+          mc.sublevels[4] = gg.fx[fx_idx].granularVknobs[1];
           dm.canvasBIG.drawCircle(knobradius + 45, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         if (slct == 2) {
@@ -683,7 +683,7 @@ void FxMenuRouter::granularVpanelSelector(byte fx_idx) {
         }
         // wet
         if (slct == 4) {
-          lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1] ;
+          mc.sublevels[4] = gg.WetMixMasters[fx_idx + 1] ;
           dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -779,29 +779,29 @@ void FxMenuRouter::bitcrusherctrl(byte fx_idx) {
       }
 
 void FxMenuRouter::bitcrusherVpanelAction(byte fx_idx) {
-        if (lv.navlevel == 4) {
+        if (mc.navlevel == 4) {
           // AudioNoInterrupts();
-          byte slct = lv.sublevels[3];
+          byte slct = mc.sublevels[3];
           // fq
           if (slct == 0) {
-            lv.navrange = 16;
-            gg.fx[fx_idx].bitcrusherVknobs[0] = lv.sublevels[4];
+            mc.navrange = 16;
+            gg.fx[fx_idx].bitcrusherVknobs[0] = mc.sublevels[4];
             bitcrusherctrl(fx_idx);
           }
           // res
           if (slct == 1) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].bitcrusherVknobs[1] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].bitcrusherVknobs[1] = mc.sublevels[4];
             bitcrusherctrl(fx_idx);
             // apply
           }
 
           if (slct == 2) {
-            lv.navrange = 127;
+            mc.navrange = 127;
             set_wet_mix_at_sub4(fx_idx);
           }
         }
-        if (lv.navlevel > 4) {
+        if (mc.navlevel > 4) {
           dm.returntonav(3);
         }
       }
@@ -815,24 +815,24 @@ void FxMenuRouter::bitcrusherVpanelSelector(byte fx_idx) {
         byte totbartall = 37;
         byte topwbarstart = 16;
         byte wbarwidth2 = 8;
-        if (lv.navlevel == 3) {
-          lv.navrange = 2;
+        if (mc.navlevel == 3) {
+          mc.navrange = 2;
         }
-        int slct = lv.sublevels[3];
+        int slct = mc.sublevels[3];
         // size
         if (slct == 0) {
-          lv.sublevels[4] = gg.fx[fx_idx].bitcrusherVknobs[0];
+          mc.sublevels[4] = gg.fx[fx_idx].bitcrusherVknobs[0];
           dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
-          lv.sublevels[4] = gg.fx[fx_idx].bitcrusherVknobs[1];
+          mc.sublevels[4] = gg.fx[fx_idx].bitcrusherVknobs[1];
           dm.canvasBIG.drawCircle(knobradius + 68, centercircley, knobradius - 2, SSD1306_WHITE);
         }
 
         // wet
         if (slct == 2) {
-          lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1] ;
+          mc.sublevels[4] = gg.WetMixMasters[fx_idx + 1] ;
           dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -905,27 +905,27 @@ void FxMenuRouter::freeverbscontrl(byte fx_idx) {
       }
 
 void FxMenuRouter::reverbVpanelAction(byte fx_idx) {
-        if (lv.navlevel == 4) {
+        if (mc.navlevel == 4) {
           // AudioNoInterrupts();
-          byte slct = lv.sublevels[3];
+          byte slct = mc.sublevels[3];
           // fq
           if (slct == 0) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].reverbVknobs[0] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].reverbVknobs[0] = mc.sublevels[4];
             freeverbscontrl(fx_idx);
           }
           // res
           //if (slct == 1) {
-          //  lv.navrange = 127;
-          //  gg.fx[fx_idx].reverbVknobs[1] = lv.sublevels[4];
+          //  mc.navrange = 127;
+          //  gg.fx[fx_idx].reverbVknobs[1] = mc.sublevels[4];
           //  freeverbscontrl(fx_idx);
           //}
           if (slct == 1) {
-            lv.navrange = 127;
+            mc.navrange = 127;
             set_wet_mix_at_sub4(fx_idx);
           }
         }
-        if (lv.navlevel > 4) {
+        if (mc.navlevel > 4) {
 
           dm.returntonav(3);
         }
@@ -939,31 +939,31 @@ void FxMenuRouter::reverbVpanelSelector(byte fx_idx) {
         byte totbartall = 37;
         byte topwbarstart = 16;
         byte wbarwidth2 = 8;
-        if (lv.navlevel == 3) {
-          lv.navrange = 1;
+        if (mc.navlevel == 3) {
+          mc.navrange = 1;
         }
-        int slct = lv.sublevels[3];
+        int slct = mc.sublevels[3];
         // second
         if (slct == 0) {
-          lv.sublevels[4] = gg.fx[fx_idx].reverbVknobs[0];
+          mc.sublevels[4] = gg.fx[fx_idx].reverbVknobs[0];
           dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp ( disabled , from other freeverb module)
         //if (slct == 1) {
-        //  lv.sublevels[4] = gg.fx[fx_idx].reverbVknobs[1];
+        //  mc.sublevels[4] = gg.fx[fx_idx].reverbVknobs[1];
         //  dm.canvasBIG.drawCircle(knobradius + 68, centercircley, knobradius - 2, SSD1306_WHITE);
         //}
 
         // wet
         if (slct == 1) {
-          lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
+          mc.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
           dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
       }
 
 void FxMenuRouter::reverbVpanel(byte fx_idx) {
-        lv.navrange = 1;
+        mc.navrange = 1;
         reverbVpanelAction(fx_idx);
         byte knobradius = 14;
         byte centercirclex = 25 + knobradius;
@@ -1018,34 +1018,34 @@ void FxMenuRouter::reverbVpanel(byte fx_idx) {
       }
 
 void FxMenuRouter::delayVpanelAction(byte fx_idx) {
-        if (lv.navlevel == 4) {
+        if (mc.navlevel == 4) {
           // AudioNoInterrupts();
-          byte slct = lv.sublevels[3];
+          byte slct = mc.sublevels[3];
           // time
           if (slct == 0) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].delayVknobs[0] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].delayVknobs[0] = mc.sublevels[4];
             restartdelayline(fx_idx);
           }
           // timeX
           if (slct == 1) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].delayVknobs[1] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].delayVknobs[1] = mc.sublevels[4];
             restartdelayline(fx_idx);
           }
           // feedback
           if (slct == 2) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].delayVknobs[2] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].delayVknobs[2] = mc.sublevels[4];
             restartdelayline(fx_idx);
           }
           if (slct == 3) {
-            lv.navrange = 127;
-            gg.WetMixMasters[fx_idx + 1] = lv.sublevels[4] ;
+            mc.navrange = 127;
+            gg.WetMixMasters[fx_idx + 1] = mc.sublevels[4] ;
             _mx.wetmixmastercontrols();
           }
         }
-        if (lv.navlevel > 4) {
+        if (mc.navlevel > 4) {
           dm.returntonav(3);
         }
       }
@@ -1058,29 +1058,29 @@ void FxMenuRouter::delayVpanelSelector(byte fx_idx) {
         byte totbartall = 37;
         byte topwbarstart = 16;
         byte wbarwidth2 = 8;
-        if (lv.navlevel == 3) {
-          lv.navrange = 3;
+        if (mc.navlevel == 3) {
+          mc.navrange = 3;
         }
-        byte slct = lv.sublevels[3];
+        byte slct = mc.sublevels[3];
         // size
         if (slct == 0) {
-          lv.sublevels[4] = gg.fx[fx_idx].delayVknobs[0];
+          mc.sublevels[4] = gg.fx[fx_idx].delayVknobs[0];
           dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
         }
         // damp
         if (slct == 1) {
-          lv.sublevels[4] = gg.fx[fx_idx].delayVknobs[1];
+          mc.sublevels[4] = gg.fx[fx_idx].delayVknobs[1];
           dm.canvasBIG.drawCircle(centercirclex + 40, centercircley, knobradius - 2, SSD1306_WHITE);
         }
 
         if (slct == 2) {
-          lv.sublevels[4] = gg.fx[fx_idx].delayVknobs[2];
+          mc.sublevels[4] = gg.fx[fx_idx].delayVknobs[2];
           dm.canvasBIG.drawCircle(centercirclex + 40 + 40, centercircley, knobradius - 2, SSD1306_WHITE);
         }
 
         // wet
         if (slct == 3) {
-          lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
+          mc.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
           dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
           dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
         }
@@ -1160,56 +1160,56 @@ void FxMenuRouter::delayVpanel(byte fx_idx) {
       }
 
 void FxMenuRouter::filterVpanelAction(byte fx_idx) {
-        if (lv.navlevel == 3) {
+        if (mc.navlevel == 3) {
           self->filter_lfo_option = gg.fx[fx_idx].LFOonfilterz ;
         }
-        if (lv.navlevel == 4) {
-          byte slct = lv.sublevels[3];
+        if (mc.navlevel == 4) {
+          byte slct = mc.sublevels[3];
           // fq
           if (slct == 0) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].ffilterzVknobs[0] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].ffilterzVknobs[0] = mc.sublevels[4];
           }
           // res
           if (slct == 1) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].ffilterzVknobs[1] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].ffilterzVknobs[1] = mc.sublevels[4];
           }
           // octaves
           if (slct == 2) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].ffilterzVknobs[2] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].ffilterzVknobs[2] = mc.sublevels[4];
           }
           // lowpass
           if (slct == 3) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].mixffilterzVknobs[0] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].mixffilterzVknobs[0] = mc.sublevels[4];
           }
           // bandpass
           if (slct == 4) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].mixffilterzVknobs[1] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].mixffilterzVknobs[1] = mc.sublevels[4];
           }
           // high pass
           if (slct == 5) {
-            lv.navrange = 127;
-            gg.fx[fx_idx].mixffilterzVknobs[2] = lv.sublevels[4];
+            mc.navrange = 127;
+            gg.fx[fx_idx].mixffilterzVknobs[2] = mc.sublevels[4];
           }
           if (slct == 6) {
-            //lv.navrange is 3 + 1 for none
-            lv.navrange = OSCS_COUNT;
-            self->filter_lfo_option = lv.sublevels[4];
+            //mc.navrange is 3 + 1 for none
+            mc.navrange = OSCS_COUNT;
+            self->filter_lfo_option = mc.sublevels[4];
             if (self->filter_lfo_option < OSCS_COUNT) {
               gg.fx[fx_idx].LFOonfilterz = self->filter_lfo_option;
             }
           }
           if (slct == 7) {
-            lv.navrange = 127;
+            mc.navrange = 127;
             set_wet_mix_at_sub4(fx_idx);
           }
           filtercontrols(fx_idx);
         }
-        if (lv.navlevel > 4) {
+        if (mc.navlevel > 4) {
           dm.returntonav(3);
         }
       }
@@ -1244,7 +1244,7 @@ void FxMenuRouter::filtercontrols(byte fx_idx) {
         gg.fx[fx_idx].filterzgainz[1] = (gg.fx[fx_idx].mixffilterzVknobs[1]) / 127.0;
         gg.fx[fx_idx].filterzgainz[2] = (gg.fx[fx_idx].mixffilterzVknobs[2]) / 127.0;
         unpluglfoonfilterz(fx_idx);
-        if (lv.sublevels[4] < OSCS_COUNT) {
+        if (mc.sublevels[4] < OSCS_COUNT) {
           lfoonfilterreplug(fx_idx);
         }
         for (int i = 0; i < 3; i++) {
@@ -1369,83 +1369,83 @@ void FxMenuRouter::filterVpanelSelector(byte fx_idx) {
   byte wbarwidth = 9;
   int wbarwidth2 = 8;
   byte startlex2 = 67;
-  if (lv.navlevel == 3) {
-    lv.navrange = 8;
+  if (mc.navlevel == 3) {
+    mc.navrange = 8;
   }
-  byte slct = lv.sublevels[3];
+  byte slct = mc.sublevels[3];
   // fq
   if (slct == 0) {
-    lv.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[0];
+    mc.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[0];
     dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius - 2, SSD1306_WHITE);
   }
   // res
   if (slct == 1) {
-    lv.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[1];
+    mc.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[1];
     dm.canvasBIG.drawCircle(centercirclex + 25, centercircley, knobradius - 2, SSD1306_WHITE);
   }
   // oct
   if (slct == 2) {
-    lv.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[2];
+    mc.sublevels[4] = gg.fx[fx_idx].ffilterzVknobs[2];
     dm.canvasBIG.drawCircle(centercirclex + 50, centercircley, knobradius - 2, SSD1306_WHITE);
   }
   // lp
   if (slct == 3) {
-    lv.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[0];
+    mc.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[0];
     dm.canvasBIG.drawRect(83, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
   }
   // bp
   if (slct == 4) {
-    lv.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[1];
+    mc.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[1];
     dm.canvasBIG.drawRect(100, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
   }
   // hp
   if (slct == 5) {
-    lv.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[2];
+    mc.sublevels[4] = gg.fx[fx_idx].mixffilterzVknobs[2];
     dm.canvasBIG.drawRect(117, topwbarstart, wbarwidth - 4, totbartall, SSD1306_WHITE);
   }
   // Select LFO
   if (slct == 6) {
-    lv.sublevels[4] = self->filter_lfo_option;
+    mc.sublevels[4] = self->filter_lfo_option;
     dm.canvasBIG.setCursor(64, 8);
     dm.canvasBIG.print((char)9);
   }
   if (slct == 7) {
-    lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
+    mc.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
     dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0, totbartall, wbarwidth2, SSD1306_WHITE);
     dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
   }
 }
 
 void FxMenuRouter::biquadVpanelAction(byte fx_idx) {
-  if (lv.navlevel == 4) {
-    byte slct = lv.sublevels[3];
+  if (mc.navlevel == 4) {
+    byte slct = mc.sublevels[3];
     // stage
     if (slct == 0) {
-      lv.navrange = 3;
-      gg.fx[fx_idx].bqstage = lv.sublevels[4];
+      mc.navrange = 3;
+      gg.fx[fx_idx].bqstage = mc.sublevels[4];
     }
     // mode
     if (slct == 1) {
-      lv.navrange = 6;
-      gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage] = lv.sublevels[4];
+      mc.navrange = 6;
+      gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage] = mc.sublevels[4];
     }
     // freq
     if (slct == 2) {
-      lv.navrange = 127;
-      gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0] = lv.sublevels[4];
+      mc.navrange = 127;
+      gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0] = mc.sublevels[4];
       gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] =
           (((gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0]) / 127.0) * self->bqrange) + 101;
     }
     // slope or Q
     if (slct == 3) {
-      lv.navrange = 127;
-      gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1] = lv.sublevels[4];
+      mc.navrange = 127;
+      gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1] = mc.sublevels[4];
       gg.fx[fx_idx].bqslope[gg.fx[fx_idx].bqstage] = 0.001 + 5.0 * ((gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1]) / 127.0);
     }
     // gain
     if (slct == 5) {
-      lv.navrange = 127;
-      gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2] = lv.sublevels[4];
+      mc.navrange = 127;
+      gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2] = mc.sublevels[4];
       gg.fx[fx_idx].bqgain[gg.fx[fx_idx].bqstage] = 100.0 - ((gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2]) / 127.0) * 200.0 ;
     }
     // to avoid setting up a stage unconfigured while browsing
@@ -1453,11 +1453,11 @@ void FxMenuRouter::biquadVpanelAction(byte fx_idx) {
       biquadcontrols(fx_idx);
     }
     if (slct == 4) {
-      lv.navrange = 127;
+      mc.navrange = 127;
       set_wet_mix_at_sub4(fx_idx);
     }
   }
-  if (lv.navlevel > 4) {
+  if (mc.navlevel > 4) {
 
     dm.returntonav(3);
   }
@@ -1544,46 +1544,46 @@ void FxMenuRouter::biquadVpanelSelector(byte fx_idx) {
   byte totbartall = 37;
   byte topwbarstart = 16;
   byte wbarwidth2 = 7;
-  if (lv.navlevel == 3) {
-    lv.navrange = 4;
+  if (mc.navlevel == 3) {
+    mc.navrange = 4;
     if (gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage] > 3) {
-      lv.navrange = 5;
+      mc.navrange = 5;
     }
   }
-  byte slct = lv.sublevels[3];
+  byte slct = mc.sublevels[3];
   // stage
   if (slct == 0) {
-    lv.sublevels[4] = gg.fx[fx_idx].bqstage;
+    mc.sublevels[4] = gg.fx[fx_idx].bqstage;
     dm.canvasBIG.setCursor(103, 9);
     dm.canvasBIG.print((char)9);
   }
   // mode
   if (slct == 1) {
-    lv.sublevels[4] = gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage];
+    mc.sublevels[4] = gg.fx[fx_idx].bqtype[gg.fx[fx_idx].bqstage];
     dm.canvasBIG.setCursor(29, 8);
     dm.canvasBIG.print((char)9);
   }
   // freq
   if (slct == 2) {
-    lv.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0];
+    mc.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][0];
     dm.canvasBIG.setCursor(20, 36);
     dm.canvasBIG.print((char)9);
   }
   // slope
   if (slct == 3) {
-    lv.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1];
+    mc.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][1];
     dm.canvasBIG.setCursor(60, 36);
     dm.canvasBIG.print((char)9);
   }
   // gain
   if (slct == 5) {
-    lv.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2];
+    mc.sublevels[4] = gg.fx[fx_idx].bqVpot[gg.fx[fx_idx].bqstage][2];
     dm.canvasBIG.setCursor(89, 36);
     dm.canvasBIG.print((char)9);
   }
 
   if (slct == 4) {
-    lv.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
+    mc.sublevels[4] = gg.WetMixMasters[fx_idx + 1];
     dm.canvasBIG.drawRect(topwbarstart + startlex2 + 4, 0 + 2, totbartall, wbarwidth2 - 4, SSD1306_WHITE);
     dm.canvasBIG.fillRect(55, 2, 3, 3, SSD1306_WHITE);
   }
@@ -1596,41 +1596,41 @@ void FxMenuRouter::allfxcontrolled() {
 }
 
 void FxMenuRouter::fx_nav_zero(){
-  if (lv.navlevel < 2) dm.reinitsublevels(2);
-  lv.avoid_fx_bounce = false ;
-  lv.navrange = self->home_navrange;
+  if (mc.navlevel < 2) dm.reinitsublevels(2);
+  mc.avoid_fx_bounce = false ;
+  mc.navrange = self->home_navrange;
   dm.clearDisplay();
   dolistmainfxlines();
   dm.dodisplay();
-  lv.sublevels[2] = gg.fx[lv.sublevels[1]%FXS_COUNT].plugged_fx ;
+  mc.sublevels[2] = gg.fx[mc.sublevels[1]%FXS_COUNT].plugged_fx ;
 }
 
 void FxMenuRouter::fx_nav_one(){
-  if (lv.navlevel < 2) dm.reinitsublevels(2);
-  lv.avoid_fx_bounce = false ;
+  if (mc.navlevel < 2) dm.reinitsublevels(2);
+  mc.avoid_fx_bounce = false ;
   dm.clearDisplay();
-  if (lv.navlevel == 2) lv.navrange = 9;
+  if (mc.navlevel == 2) mc.navrange = 9;
   dolistMainFxPanel();
   dm.dodisplay();
 }
 
 void FxMenuRouter::fx_nav_two(){
-  //remember to manage lv.avoid_fx_bounce if plugging fx outside of menu
-  if (!lv.avoid_fx_bounce){
-    lv.avoid_fx_bounce = true ;
-    gg.fx[lv.sublevels[1]].route_fx(lv.sublevels[2]);
+  //remember to manage mc.avoid_fx_bounce if plugging fx outside of menu
+  if (!mc.avoid_fx_bounce){
+    mc.avoid_fx_bounce = true ;
+    gg.fx[mc.sublevels[1]].route_fx(mc.sublevels[2]);
   }
-    displayfxVcontrols(lv.sublevels[1]);
+    displayfxVcontrols(mc.sublevels[1]);
 }
 
 void FxMenuRouter::MainFxPanel() {
-  if (lv.navlevel == 1) {
+  if (mc.navlevel == 1) {
     fx_nav_zero();
   }
-  if (lv.navlevel == 2) {
+  if (mc.navlevel == 2) {
     fx_nav_one();
   }
-  if (lv.navlevel > 2) {
+  if (mc.navlevel > 2) {
     fx_nav_two();
   }
 }

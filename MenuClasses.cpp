@@ -42,15 +42,15 @@ void DisplayManager::display_home() {
 
 
 void DisplayManager::returntonav(byte lelevel, byte lanavrange, byte t_vraipos) {
-  lv.navlevel = lelevel;
-  lv.rota_true_pos = t_vraipos;
-  myEnc.write(lv.rota_true_pos * 4);
-  lv.navrange = lanavrange;
-  if (lv.navlevel) show();
+  mc.navlevel = lelevel;
+  mc.rota_true_pos = t_vraipos;
+  myEnc.write(mc.rota_true_pos * 4);
+  mc.navrange = lanavrange;
+  if (mc.navlevel) show();
 }
 
 void DisplayManager::dodisplayplayhead() {
-  canvasBIG.drawLine(lv.tickposition * 4, 0, lv.tickposition * 4, 64, SSD1306_INVERSE);
+  canvasBIG.drawLine(mc.tickposition * 4, 0, mc.tickposition * 4, 64, SSD1306_INVERSE);
 }
 
 void DisplayManager::initializelapleasewaitarray() {
@@ -162,7 +162,7 @@ void DisplayManager::print_memory_usage(){
 }
 
 void DisplayManager::doConfirmpanel(char *letitlemsg) {
-  lv.navrange = 1;
+  mc.navrange = 1;
   canvastitle.fillScreen(SSD1306_BLACK);
   canvastitle.setCursor(0, 0);
   canvastitle.setTextSize(1);
@@ -173,15 +173,15 @@ void DisplayManager::doConfirmpanel(char *letitlemsg) {
   canvasBIG.setCursor(20, 28);
   // canvasBIG.print((char*)text);
   canvasBIG.print("NO         YES");
-  canvasBIG.drawRect(14 + lv.sublevels[lv.navlevel] * 66, 23,
-                    23 + lv.sublevels[lv.navlevel] * 6, 17, SSD1306_WHITE);
+  canvasBIG.drawRect(14 + mc.sublevels[mc.navlevel] * 66, 23,
+                    23 + mc.sublevels[mc.navlevel] * 6, 17, SSD1306_WHITE);
   dm.dodisplay();
   display();
 }
 
 void DisplayManager::reinitsublevels(byte fromlei) {
   for (byte i = fromlei; i < 9; i++) {
-    lv.sublevels[i] = 0;
+    mc.sublevels[i] = 0;
   }
 }
 
@@ -249,21 +249,21 @@ void DisplayManager::evalrota() {
   if (rota_enc_count >= 4) {
     rota_old_Pos = rota_enc_new_pos;
     rota_enc_count = 0;
-    lv.rota_true_pos = rota_enc_new_pos / 4;
-    if (lv.rota_true_pos > lv.navrange) {
-      lv.rota_true_pos = 0;
+    mc.rota_true_pos = rota_enc_new_pos / 4;
+    if (mc.rota_true_pos > mc.navrange) {
+      mc.rota_true_pos = 0;
       myEnc.write(0);
     }
-    if (lv.rota_true_pos < 0) {
-      lv.rota_true_pos = lv.navrange;
-      myEnc.write(lv.navrange * 4);
+    if (mc.rota_true_pos < 0) {
+      mc.rota_true_pos = mc.navrange;
+      myEnc.write(mc.navrange * 4);
     }
   }
 
-  if (lv.rota_true_pos != rota_old_vrai_Pos) {
-    rota_old_vrai_Pos = lv.rota_true_pos;
-    lv.sublevels[lv.navlevel] = lv.rota_true_pos;
-    if (!lv.navlevel) {
+  if (mc.rota_true_pos != rota_old_vrai_Pos) {
+    rota_old_vrai_Pos = mc.rota_true_pos;
+    mc.sublevels[mc.navlevel] = mc.rota_true_pos;
+    if (!mc.navlevel) {
       dm.displaymenu();
       return;
     }
@@ -273,27 +273,27 @@ void DisplayManager::evalrota() {
 }
 void DisplayManager::printit() {
 
-  Serial.print(" lv.navrange: ");
-  Serial.print(lv.navrange);
-  Serial.print(" lv.navlevel: ");
-  Serial.print(lv.navlevel);
+  Serial.print(" mc.navrange: ");
+  Serial.print(mc.navrange);
+  Serial.print(" mc.navlevel: ");
+  Serial.print(mc.navlevel);
   Serial.print(" sublevel[");
-  Serial.print(lv.navlevel);
+  Serial.print(mc.navlevel);
   Serial.print("]:");
-  Serial.println(lv.sublevels[lv.navlevel]);
+  Serial.println(mc.sublevels[mc.navlevel]);
   Serial.println(" ");
   Serial.print(" s0 = ");
-  Serial.print(lv.sublevels[0]);
+  Serial.print(mc.sublevels[0]);
   Serial.print(" s1 = ");
-  Serial.print(lv.sublevels[1]);
+  Serial.print(mc.sublevels[1]);
   Serial.print(" s2 = ");
-  Serial.print(lv.sublevels[2]);
+  Serial.print(mc.sublevels[2]);
   Serial.print(" s3 = ");
-  Serial.print(lv.sublevels[3]);
+  Serial.print(mc.sublevels[3]);
   Serial.print(" s4 = ");
-  Serial.print(lv.sublevels[4]);
+  Serial.print(mc.sublevels[4]);
   Serial.print(" s5 = ");
-  Serial.println(lv.sublevels[5]);
+  Serial.println(mc.sublevels[5]);
 
 }
 
@@ -319,32 +319,32 @@ void DisplayManager::evalinputs() {
 void DisplayManager::displaymenu() {
   char menus_lbl[10][11] = {"WaveSynth", "LFOs", "CoolEditor", "Song", "Pattern", "Settings",
               "MainFX", "Sampler", "Waveformer", "Presets"};
-  if (lv.navlevel == 0) {
-      lv.previousnavlevel = 0;
-      lv.navrange = 9;
+  if (mc.navlevel == 0) {
+      mc.previousnavlevel = 0;
+      mc.navrange = 9;
       displayleBGimg(menuBG);
   }
-  drawRoundRect(5 + (lv.sublevels[0]%5)*24, 17+((lv.sublevels[0]/5)*24), 21, 21, 3, SSD1306_WHITE);
-  printlabel(menus_lbl[lv.sublevels[0]]);
+  drawRoundRect(5 + (mc.sublevels[0]%5)*24, 17+((mc.sublevels[0]/5)*24), 21, 21, 3, SSD1306_WHITE);
+  printlabel(menus_lbl[mc.sublevels[0]]);
   display();
 }
 
 void DisplayManager::main_panel(const char* const* menulabels, int lvl, int menu_lbls_count) {
-  if ( lv.navlevel == lvl ) lv.navrange = menu_lbls_count-1;
+  if ( mc.navlevel == lvl ) mc.navrange = menu_lbls_count-1;
   byte startx = 5;
   byte starty = 16;
-  char *textin = (char *)menulabels[lv.sublevels[lvl]];
+  char *textin = (char *)menulabels[mc.sublevels[lvl]];
   //dm.clean_title_2_1();
   canvastitle.setCursor(0, 0);
   canvastitle.setTextSize(2);
   canvastitle.println(textin);
 
-  for (int i = 0; i < menu_lbls_count - 1 - (lv.sublevels[lvl]); i++) {
+  for (int i = 0; i < menu_lbls_count - 1 - (mc.sublevels[lvl]); i++) {
     canvasBIG.setCursor(startx, starty + ((i)*10));
-    canvasBIG.println(menulabels[lv.sublevels[lvl] + 1 + i]);
+    canvasBIG.println(menulabels[mc.sublevels[lvl] + 1 + i]);
   }
-  for (int i = 0; i < lv.sublevels[lvl]; i++) {
-    canvasBIG.setCursor(startx, (10 * (menu_lbls_count - lv.sublevels[lvl])) + 6 + ((i)*10));
+  for (int i = 0; i < mc.sublevels[lvl]; i++) {
+    canvasBIG.setCursor(startx, (10 * (menu_lbls_count - mc.sublevels[lvl])) + 6 + ((i)*10));
     canvasBIG.println(menulabels[i]);
   }
 }
@@ -359,7 +359,7 @@ void DisplayManager::sub_menu( const char* lbls[4], const char* vals[4], byte va
     canvasBIG.print(vals[i]);
   }
   dodisplay();
-  fillRoundRect(vals_x,15+12*lv.sublevels[2], 6+strlen(vals[lv.sublevels[2]])*6, 10, 2, SSD1306_INVERSE);
+  fillRoundRect(vals_x,15+12*mc.sublevels[2], 6+strlen(vals[mc.sublevels[2]])*6, 10, 2, SSD1306_INVERSE);
   display();
 }
 
@@ -373,7 +373,7 @@ void DisplayManager::sub_menu( const char* lbls[4], byte vals[4], byte vals_x ){
     canvasBIG.print(vals[i]);
   }
   dodisplay();
-  fillRoundRect(vals_x,15+12*lv.sublevels[2], 23, 10, 2, SSD1306_INVERSE);
+  fillRoundRect(vals_x,15+12*mc.sublevels[2], 23, 10, 2, SSD1306_INVERSE);
   display();
 }
 
@@ -381,7 +381,7 @@ void DisplayManager::display_oscilloscope(){
   dm.clear_buffs();
   for (int x = 0; x < 128; x++) {
 
-    int index = (lv.queue_shift + x) & 127;
+    int index = (mc.queue_shift + x) & 127;
 
     //int y = map(bb.rolling_queue_buff[index], -32768, 32767, 63, 0);
     //dirty scalling
@@ -389,11 +389,11 @@ void DisplayManager::display_oscilloscope(){
 
     if (x > 0)
         canvasBIG.drawLine(
-            x - 1, lv.last_y_peak,
+            x - 1, mc.last_y_peak,
             x, y,
             SSD1306_WHITE);
 
-    lv.last_y_peak = y;
+    mc.last_y_peak = y;
   }
   clearDisplay();
 
@@ -410,30 +410,30 @@ void DisplayManager::start_spectro(){
 }
 
 void DisplayManager::oscilloscope_loop() {
-    if (!lv.showing_oscilloscope) return;
+    if (!mc.showing_oscilloscope) return;
     while (queue1.available()) {
 
         int16_t *samples = queue1.readBuffer();
 
         for (int i = 0; i < 128; i += gg.oscilloscope_tscale) {
 
-            bb.rolling_queue_buff[lv.queue_shift] = samples[i];
-            lv.queue_shift = (lv.queue_shift + 1) & 127;
+            bb.rolling_queue_buff[mc.queue_shift] = samples[i];
+            mc.queue_shift = (mc.queue_shift + 1) & 127;
         }
 
         queue1.freeBuffer();
     }
 
-    if (lv.frameTimer >= gg.osc_framerate) {
+    if (mc.frameTimer >= gg.osc_framerate) {
 
         self->display_oscilloscope();
 
-        lv.frameTimer = 0;
+        mc.frameTimer = 0;
     }
 }
 
 void DisplayManager::UpdateSpectrum(){
-  if (!lv.showing_eq || !fft256.available())
+  if (!mc.showing_eq || !fft256.available())
       return;
   for (int i = 0; i < NUM_BARS; i++) {
         float level = fft256.read(i + 1);
@@ -526,7 +526,7 @@ void DisplayManager::clean_title_1(){
         }
 
 void DisplayManager::show(){
-            root_route[lv.sublevels[0]]();
+            root_route[mc.sublevels[0]]();
         }
 
 void (*DisplayManager::root_route[10])() = {&_sn.show,&_lf.show,&_rd.show,&_sg.show,&_pt.show,
@@ -602,24 +602,24 @@ void GlobalMixer::showmixerwaves() {
           "Master",     "Synth",      "Sampler",    "FX1",
           "FX2",        "FX3",        "Wet Synth",  "Wet Sampler", "Wet Other",
           "Waveline 1", "Waveline 2", "Waveline 3" };
-      lv.navrange = 11;
-      byte slct = lv.sublevels[2];
+      mc.navrange = 11;
+      byte slct = mc.sublevels[2];
 
-      if (lv.navlevel == 2 && lv.temp_buff_armed) {
+      if (mc.navlevel == 2 && mc.temp_buff_armed) {
         restore_wmixer_from_temp();
       }
 
       if (slct < 3) {
-        actionwmixerM(lv.sublevels[2]);
+        actionwmixerM(mc.sublevels[2]);
       }
       if (slct > 2 && slct < 6) {
-        actionwet1mixer(lv.sublevels[2] - 3);
+        actionwet1mixer(mc.sublevels[2] - 3);
       }
       if (slct > 5 && slct < 9) {
-        action_dry_mix(lv.sublevels[2] - 6);
+        action_dry_mix(mc.sublevels[2] - 6);
       }
       if (slct > 8 && slct < 12) {
-        actionwmixer(lv.sublevels[2] - 9);
+        actionwmixer(mc.sublevels[2] - 9);
       }
 
       dm.clearDisplay();
@@ -628,7 +628,7 @@ void GlobalMixer::showmixerwaves() {
       // dm.canvastitle.setCursor(70,0);
       dm.canvasBIG.setTextSize(1);
       dm.canvasBIG.setCursor(0, 0);
-      dm.canvasBIG.print((char *)masterfulllabels[lv.sublevels[2]]);
+      dm.canvasBIG.print((char *)masterfulllabels[mc.sublevels[2]]);
 
       byte centercirclex;
       byte centercircley;
@@ -760,7 +760,7 @@ void GlobalMixer::wetmixmastercontrols() {
 
 void GlobalMixer::restore_wmixer_from_temp() {
   for (int i=0; i<12; i++) {
-    lv.sublevels[3] = self->wmixer_tmp_values[i];
+    mc.sublevels[3] = self->wmixer_tmp_values[i];
     if (i < 3) {
       actionwmixerM(i);
     }
@@ -775,7 +775,7 @@ void GlobalMixer::restore_wmixer_from_temp() {
     }
     *self->wmixer_tmp_pointers[i] = self->wmixer_tmp_values[i] ;
   }
-  lv.temp_buff_armed = 0 ;
+  mc.temp_buff_armed = 0 ;
 }
 
 void GlobalMixer::set_303_wetness(byte line,float wetness){
@@ -821,65 +821,65 @@ void GlobalMixer::set_dry_mix(byte lebus) {
 }
 
 void GlobalMixer::actionwet1mixer(int linstru) {
-  if (lv.navlevel == 2) {
-    lv.sublevels[3] = gg.WetMixMasters[linstru + 1];
+  if (mc.navlevel == 2) {
+    mc.sublevels[3] = gg.WetMixMasters[linstru + 1];
   }
-  if (lv.navlevel == 3) {
-    lv.navrange = 127;
-    lv.retroaction = lv.sublevels[2];
-    if (!lv.temp_buff_armed) {
+  if (mc.navlevel == 3) {
+    mc.navrange = 127;
+    mc.retroaction = mc.sublevels[2];
+    if (!mc.temp_buff_armed) {
       set_wmixer_buff_temp();
-      lv.temp_buff_armed = 1 ;
+      mc.temp_buff_armed = 1 ;
     }
-    // wetmain[lafxline] = lv.sublevels[3];
-    gg.WetMixMasters[linstru + 1] = lv.sublevels[3] ;
+    // wetmain[lafxline] = mc.sublevels[3];
+    gg.WetMixMasters[linstru + 1] = mc.sublevels[3] ;
     wetmixmastercontrols();
   }
-  if (lv.navlevel == 4) {
-    lv.temp_buff_armed = 0 ;
-    dm.returntonav(2, 3, lv.sublevels[2]);
+  if (mc.navlevel == 4) {
+    mc.temp_buff_armed = 0 ;
+    dm.returntonav(2, 3, mc.sublevels[2]);
   }
 }
 
 void GlobalMixer::action_dry_mix(int linstru) {
 
-          if (lv.navlevel == 2) {
-            lv.sublevels[3] = gg.wetins[linstru];
+          if (mc.navlevel == 2) {
+            mc.sublevels[3] = gg.wetins[linstru];
           }
-          if (lv.navlevel == 3) {
-            lv.retroaction = lv.sublevels[2];
-            lv.navrange = 127;
-            if (!lv.temp_buff_armed) {
+          if (mc.navlevel == 3) {
+            mc.retroaction = mc.sublevels[2];
+            mc.navrange = 127;
+            if (!mc.temp_buff_armed) {
             set_wmixer_buff_temp();
-            lv.temp_buff_armed = 1 ;
+            mc.temp_buff_armed = 1 ;
           }
-            gg.wetins[linstru] = lv.sublevels[3];
+            gg.wetins[linstru] = mc.sublevels[3];
             set_dry_mix(linstru);
           }
-          if (lv.navlevel == 4) {
-            lv.temp_buff_armed = 0 ;
-            dm.returntonav(2, 3, lv.sublevels[2]);
+          if (mc.navlevel == 4) {
+            mc.temp_buff_armed = 0 ;
+            dm.returntonav(2, 3, mc.sublevels[2]);
           }
         }
 
 void GlobalMixer::actionwmixer(byte vknob) {
 
-          if (lv.navlevel == 2) {
-            lv.sublevels[3] = gg.mixlevelsL[vknob];
+          if (mc.navlevel == 2) {
+            mc.sublevels[3] = gg.mixlevelsL[vknob];
           }
-          if (lv.navlevel == 3) {
-            lv.navrange = 127;
-            lv.retroaction = lv.sublevels[2];
-            if (!lv.temp_buff_armed) {
+          if (mc.navlevel == 3) {
+            mc.navrange = 127;
+            mc.retroaction = mc.sublevels[2];
+            if (!mc.temp_buff_armed) {
               set_wmixer_buff_temp();
-              lv.temp_buff_armed = 1 ;
+              mc.temp_buff_armed = 1 ;
             }
-            gg.mixlevelsL[vknob] = lv.sublevels[3];
+            gg.mixlevelsL[vknob] = mc.sublevels[3];
             setwavemixlevel();
           }
-          if (lv.navlevel == 4) {
-            lv.temp_buff_armed = 0 ;
-            dm.returntonav(2, 3, lv.sublevels[2]);
+          if (mc.navlevel == 4) {
+            mc.temp_buff_armed = 0 ;
+            dm.returntonav(2, 3, mc.sublevels[2]);
           }
           //
         }
@@ -887,7 +887,7 @@ void GlobalMixer::actionwmixer(byte vknob) {
 void GlobalMixer::setwavemixlevel() {
 // AudioNoInterrupts();
   for (int j = 0; j < SYNTH_LINERS_COUNT; j++) {
-    Wavesmix[j]->gain(lv.oscillator, gg.mixlevelsL[lv.oscillator]/127.0);
+    Wavesmix[j]->gain(mc.oscillator, gg.mixlevelsL[mc.oscillator]/127.0);
   }
 // AudioInterrupts();
 
@@ -910,23 +910,23 @@ void GlobalMixer::le303filtercontrols() {
 }
 void GlobalMixer::actionwmixerM(int lebus) {
 
-          if (lv.navlevel == 2) {
-            lv.sublevels[3] = gg.mixlevelsM[lebus];
+          if (mc.navlevel == 2) {
+            mc.sublevels[3] = gg.mixlevelsM[lebus];
           }
-          if (lv.navlevel == 3) {
-            lv.retroaction = lv.sublevels[2];
-            if (!lv.temp_buff_armed) {
+          if (mc.navlevel == 3) {
+            mc.retroaction = mc.sublevels[2];
+            if (!mc.temp_buff_armed) {
               set_wmixer_buff_temp();
-              lv.temp_buff_armed = 1 ;
+              mc.temp_buff_armed = 1 ;
             }
-            lv.navrange = 127;
-            gg.mixlevelsM[lebus] = lv.sublevels[3];
+            mc.navrange = 127;
+            gg.mixlevelsM[lebus] = mc.sublevels[3];
 
             setmastersmixlevel(lebus);
           }
-          if (lv.navlevel == 4) {
-            lv.temp_buff_armed = 0 ;
-            dm.returntonav(2, 3, lv.sublevels[2]);
+          if (mc.navlevel == 4) {
+            mc.temp_buff_armed = 0 ;
+            dm.returntonav(2, 3, mc.sublevels[2]);
           }
           //
 }

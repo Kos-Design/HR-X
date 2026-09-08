@@ -204,8 +204,8 @@ FlashLiner::FlashLiner(byte line_index) : l_index(line_index) {  }
 
 void FlashLiner::liner_on(byte data1, byte data2) {
 
-    if (activated)
-    return;
+    //if (activated)
+    //return;
     //liner_off();
     if (data1==note) {
     liner_off();

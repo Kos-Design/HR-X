@@ -6,6 +6,7 @@
 #include "Triggers.h"
 #include "Functions.h"
 #include "Presets.h"
+#include "SamplerMenu.h"
 
 MasterClock* MasterClock::self = nullptr;
 
@@ -14,30 +15,26 @@ MasterClock::MasterClock() {self = this;
                             }
 
 void MasterClock::click() {
-            self->tick96++;
-            memset(self->tic_toc, 1, sizeof(self->tic_toc));
-
-            //if (!(self->tick96 % 2))
-            //self->dispatch_ticks();
-        }
+  self->tick96 = self->tick96+1;
+  self->tick24 = self->tick24+1;
+  memset(self->tic_toc, 1, sizeof(self->tic_toc));
+}
 
 void MasterClock::dispatch_ticks() {
-  
+    // don't use big numbers as modulos on large ints as it may break periodicity
+
     if ((self->tick96 % 96) == 0 && _callback_96 && self->tic_toc[0]){
       self->tic_toc[0] = false;
       _callback_96();
     }
-    if ((self->tick96 % (96*4)) == 0 && _callback_long && self->tic_toc[1]){
-      self->tic_toc[1] = false;
-      _callback_long();
-
-    }
+ 
     if ((self->tick96 % 2) == 0 && _callback_2 && self->tic_toc[2]){
       self->tic_toc[2] = false;
       _callback_2();
     }
-    if ((self->tick96 % 24) == 0 && self->tic_toc[3] && !gg.externalticker) {
+    if (self->tick24 >= 24 && self->tic_toc[3] && !gg.externalticker) {
       self->tic_toc[3] = false;
+      self->tick24 = 0 ;
 
       if (!self->stop) {
           if (_callback_24){
@@ -60,7 +57,11 @@ void MasterClock::dispatch_ticks() {
       self->tic_toc[6] = false;
       _callback_3();
     }
-
+       if ((self->tick96 % (96*4)) == 0 && _callback_long && self->tic_toc[1]){
+      self->tic_toc[1] = false;
+      _callback_long();
+      self->tick96 = 0 ;
+    }
 }
 
 void MasterClock::attach_2(void (*cb)()) {
@@ -92,22 +93,22 @@ void MasterClock::attach_96(void (*cb)()) {
         }
 
 void MasterClock::stopticker() {
-            lv.stoptick = 1;
-            lv.recordCC = 0;
+            mc.stoptick = 1;
+            mc.recordCC = 0;
             self->stop = 1;
-            // if (lv.patrecord) {
+            // if (mc.patrecord) {
             // computelenghtmesureoffline();
-            lv.patternOn = 0;
-            lv.patrecord = 0;
-            // lv.tickposition = 0 ;
+            mc.patternOn = 0;
+            mc.patrecord = 0;
+            // mc.tickposition = 0 ;
         }
 
 void MasterClock::startticker() {
     //TODO: reimplement external midi clock use
     //if (!gg.externalticker) {
-    lv.stoptick = 0;
+    mc.stoptick = 0;
     self->stop = 0;
-    lv.patternOn = 1;
+    mc.patternOn = 1;
 }
 
 
@@ -122,7 +123,7 @@ CCEditor::CCEditor() {
                     }
 
 void CCEditor::show() {
-          lv.navrange = 127;
+          mc.navrange = 127;
           showleditcc();
           editlaccactionpath();
           dm.dodisplay();
@@ -146,32 +147,32 @@ void CCEditor::showleditcc() {
           dm.clearDisplay();
           dm.canvasBIG.fillScreen(SSD1306_BLACK);
 
-          if (lv.navlevel == 2) {
+          if (mc.navlevel == 2) {
             dm.canvastitle.fillScreen(SSD1306_BLACK);
             dm.canvastitle.setCursor(0, 0);
-            if (gg.midiknobassigned[lv.sublevels[2]] == 0) {
+            if (gg.midiknobassigned[mc.sublevels[2]] == 0) {
               dm.canvastitle.setTextSize(2);
               dm.canvastitle.print("Edit CC");
-              if (lv.sublevels[2] < 100) {
+              if (mc.sublevels[2] < 100) {
                 dm.canvastitle.print(" ");
               }
-              if (lv.sublevels[2] < 10) {
+              if (mc.sublevels[2] < 10) {
                 dm.canvastitle.print(" ");
               }
-              dm.canvastitle.print(lv.sublevels[2]);
+              dm.canvastitle.print(mc.sublevels[2]);
             } else {
               dm.canvastitle.setTextSize(1);
               dm.canvastitle.print("CC");
-              dm.canvastitle.print(lv.sublevels[2]);
+              dm.canvastitle.print(mc.sublevels[2]);
               dm.canvastitle.print(" ");
-              dm.canvastitle.print((char *)ctl[gg.midiknobassigned[lv.sublevels[2]]].name);
+              dm.canvastitle.print((char *)ctl[gg.midiknobassigned[mc.sublevels[2]]].name);
             }
           }
           dm.canvasBIG.drawRect(0, 16, 128, 64, SSD1306_WHITE);
 
           for (int j = 0; j < PBARS; j++) {
 
-            lavaluecc = (int)pp.cc_partition[lv.sublevels[2]][j];
+            lavaluecc = (int)pp.cc_partition[mc.sublevels[2]][j];
             lacellx = 1 + j * lacellwidth;
             lacelly = 63 - lacellratio * lavaluecc;
             lalinex1 = lacellx;
@@ -179,7 +180,7 @@ void CCEditor::showleditcc() {
             if (lavaluecc < 128) {
               dm.canvasBIG.fillRect(lacellx, lacelly, 3, 3, SSD1306_WHITE);
               if (j > 0) {
-                if ((int)pp.cc_partition[lv.sublevels[2]][j - 1] < 128) {
+                if ((int)pp.cc_partition[mc.sublevels[2]][j - 1] < 128) {
                   dm.canvasBIG.drawLine(lalinex2, laliney2, lalinex1, laliney1,
                                     SSD1306_WHITE);
                 }
@@ -197,16 +198,16 @@ void CCEditor::headerccedit() {
           dm.canvastitle.setCursor(0, 0);
           dm.canvastitle.setTextSize(1);
           dm.canvastitle.print("Edit CC ");
-          dm.canvastitle.print(lv.sublevels[2]);
+          dm.canvastitle.print(mc.sublevels[2]);
           dm.canvastitle.setCursor(0, 8);
           dm.canvastitle.print("Pos: ");
-          dm.canvastitle.print(lv.sublevels[3]);
+          dm.canvastitle.print(mc.sublevels[3]);
           dm.canvastitle.setCursor(90, 0);
           dm.canvastitle.setTextSize(2);
-          if (pp.cc_partition[lv.sublevels[2]][lv.sublevels[3]] < 128) {
-            dm.canvastitle.print(pp.cc_partition[lv.sublevels[2]][lv.sublevels[3]]);
+          if (pp.cc_partition[mc.sublevels[2]][mc.sublevels[3]] < 128) {
+            dm.canvastitle.print(pp.cc_partition[mc.sublevels[2]][mc.sublevels[3]]);
           }
-          if (pp.cc_partition[lv.sublevels[2]][lv.sublevels[3]] >= 128) {
+          if (pp.cc_partition[mc.sublevels[2]][mc.sublevels[3]] >= 128) {
             dm.canvastitle.print("Off");
           }
         }
@@ -217,22 +218,22 @@ void CCEditor::showvertlinecursor(int lavertpos) {
         }
 
 void CCEditor::editlaccactionpath() {
-          if (lv.navlevel == 3) {
+          if (mc.navlevel == 3) {
 
-            lv.navrange = PBARS - 1;
+            mc.navrange = PBARS - 1;
 
-            lv.sublevels[4] = (int)pp.cc_partition[lv.sublevels[2]][lv.sublevels[3]];
+            mc.sublevels[4] = (int)pp.cc_partition[mc.sublevels[2]][mc.sublevels[3]];
             headerccedit();
-            showvertlinecursor(lv.sublevels[3]);
+            showvertlinecursor(mc.sublevels[3]);
           }
-          if (lv.navlevel == 4) {
+          if (mc.navlevel == 4) {
 
-            lv.navrange = 127;
-            pp.cc_partition[lv.sublevels[2]][lv.sublevels[3]] = (byte)lv.sublevels[4];
+            mc.navrange = 127;
+            pp.cc_partition[mc.sublevels[2]][mc.sublevels[3]] = (byte)mc.sublevels[4];
             headerccedit();
           }
-          if (lv.navlevel > 4) {
-            dm.returntonav(3,PBARS - 1,lv.sublevels[3]);
+          if (mc.navlevel > 4) {
+            dm.returntonav(3,PBARS - 1,mc.sublevels[3]);
           }
         }
 
@@ -251,8 +252,8 @@ PatEditRouter::PatEditRouter() {
 
 
 void PatEditRouter::homer(){
-          lv.navrange = TK_TYPES - 1;
-          self->track_type = lv.sublevels[self->relative_navlevel];
+          mc.navrange = TK_TYPES - 1;
+          self->track_type = mc.sublevels[self->relative_navlevel];
 
           drawPatternRow();
           dolistpatternlineblocks();
@@ -280,7 +281,7 @@ void PatEditRouter::set_editor_to_sampler(byte liner = self->local_line){
 
 void PatEditRouter::show() {
           dm.clear_3();
-          cell_events[lv.navlevel-self->relative_navlevel]();
+          cell_events[mc.navlevel-self->relative_navlevel]();
           dm.dodisplay();
         }
 
@@ -290,13 +291,13 @@ void PatEditRouter::doshownoteline() {
           byte left_spacer = 0;
           byte top_spacer = 16;
           int ncell_x_length = 4;
-          byte note_slct = lv.sublevels[self->relative_navlevel + 2];
+          byte note_slct = mc.sublevels[self->relative_navlevel + 2];
           int ncell_y;
           dm.canvasBIG.setCursor(0, 0);
           dm.canvasBIG.print("Note:");
-          dm.canvasBIG.print(lv.sublevels[self->relative_navlevel + 2]);
+          dm.canvasBIG.print(mc.sublevels[self->relative_navlevel + 2]);
           dm.canvasBIG.print(" Pos:");
-          dm.canvasBIG.print(lv.sublevels[self->relative_navlevel + 3]);
+          dm.canvasBIG.print(mc.sublevels[self->relative_navlevel + 3]);
           for (int notelines = note_slct; notelines > note_slct - 12; notelines--) {
             for (int i = 0; i < PBARS; i++) {
 
@@ -317,13 +318,13 @@ void PatEditRouter::doshownoteline() {
 
 void PatEditRouter::drawPatternRow() {
           // rows of audio sources : synth, sampler, others
-          dm.canvasBIG.drawFastHLine(0, 16 + lv.sublevels[self->relative_navlevel] * 8 + 3, 128, SSD1306_WHITE);
+          dm.canvasBIG.drawFastHLine(0, 16 + mc.sublevels[self->relative_navlevel] * 8 + 3, 128, SSD1306_WHITE);
         }
 
 void PatEditRouter::reshift_tracks_display() {
           //6 is max visible lines of 8px in 48px
           for (int i = 0 ; i < 6 ; i++) {
-            set_editor_type[self->track_type]((i + lv.sublevels[self->relative_navlevel+1])%self->liners_count);
+            set_editor_type[self->track_type]((i + mc.sublevels[self->relative_navlevel+1])%self->liners_count);
             for (int j = 0 ; j < PBARS ; j++) {
               self->visible_tracks[i][j] = (bool)(self->_on_part[j].velocity);
             }
@@ -391,7 +392,7 @@ int PatEditRouter::grid_start_note() {
         }
 
 void PatEditRouter::terminatenotesinbetween() {
-          for (int i = min(lv.sublevels[self->relative_navlevel + 3] + 1,PBARS-1); i < lv.sublevels[self->relative_navlevel + 4]; i++) {
+          for (int i = min(mc.sublevels[self->relative_navlevel + 3] + 1,PBARS-1); i < mc.sublevels[self->relative_navlevel + 4]; i++) {
             self->_on_part[i] = {0,0,0};
             self->_off_part[i] = {0,0,0};
           }
@@ -404,19 +405,19 @@ void PatEditRouter::sync_temp() {
         }
 
 void PatEditRouter::drawCursorCol() {
-          int xpos = (lv.sublevels[lv.navlevel] * 4);
+          int xpos = (mc.sublevels[mc.navlevel] * 4);
           dm.drawLine(xpos, 0, xpos, 64-16, SSD1306_INVERSE);
         }
 
 void PatEditRouter::track_selector() {
           reshift_tracks_display();
-          lv.navrange = self->liners_count - 1;
-          self->local_line = lv.sublevels[self->relative_navlevel+1];
+          mc.navrange = self->liners_count - 1;
+          self->local_line = mc.sublevels[self->relative_navlevel+1];
           set_editor_type[self->track_type](self->local_line);
           show_track_header();
           show_lines_events();
           dm.dodisplay();
-          lv.sublevels[self->relative_navlevel + 2] = self->grid_start_note();
+          mc.sublevels[self->relative_navlevel + 2] = self->grid_start_note();
         }
 
 void PatEditRouter::show_track_header(){
@@ -432,38 +433,51 @@ void PatEditRouter::show_track_header(){
         }
 
 void PatEditRouter::note_selector() {
+          self->preview = 0 ;
           self->paterning = false ;
-
           dm.clearDisplay();
-          lv.navrange = 127;
+          mc.navrange = 127;
           sync_temp();
           doshownoteline();
           //dm.canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
           draw_velobars();
           dm.dodisplay();
-          lv.sublevels[self->relative_navlevel + 3] = lv.tickposition;
-          if (lv.sublevels[self->relative_navlevel+2] == 0 ){
-            lv.sublevels[self->relative_navlevel + 2] = self->grid_start_note();
+          mc.sublevels[self->relative_navlevel + 3] = mc.tickposition;
+          if (mc.sublevels[self->relative_navlevel+2] == 0 ){
+            mc.sublevels[self->relative_navlevel + 2] = self->grid_start_note();
           }
         }
 
-void PatEditRouter::start_cell_setter() {
-          self->paterning = true ;
+void PatEditRouter::play_cell_preview(){
+  if (self->track_type) {
+    self->preview = 1 ;
+    String playable_file = (String)bb.Flashsamplename[(mc.sublevels[self->relative_navlevel + 2]-4)%127];
+    Serial.println(playable_file);
+    if (!_sp.test_flash_sample_name(playable_file)){
+      return;
+    }
+    FlashRaw.play(playable_file.c_str());
+  }
+}
 
-          lv.previousnavlevel = lv.navlevel;
-          //last level showing the noteline and its velocity
-          dm.clearDisplay();
-          lv.navrange = 31;
-          dm.canvasBIG.fillRect(0, 32,127,64-32, SSD1306_BLACK);
-          lv.sublevels[self->relative_navlevel + 4] = lv.sublevels[self->relative_navlevel + 3];
-          sync_temp();
-          doshownoteline();
-          dm.canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_WHITE);
-          drawCursorCol();
-          draw_velobars();
-          dm.dodisplay();
-          lv.retroaction = lv.sublevels[self->relative_navlevel + 2] ;
-        }
+void PatEditRouter::start_cell_setter() {
+
+  self->paterning = true ;
+  mc.previousnavlevel = mc.navlevel;
+  //last level showing the noteline and its velocity
+  dm.clearDisplay();
+  mc.navrange = 31;
+  dm.canvasBIG.fillRect(0, 32,127,64-32, SSD1306_BLACK);
+  mc.sublevels[self->relative_navlevel + 4] = mc.sublevels[self->relative_navlevel + 3];
+  sync_temp();
+  doshownoteline();
+  dm.canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_WHITE);
+  drawCursorCol();
+  draw_velobars();
+  if (!self->preview) play_cell_preview();
+  dm.dodisplay();
+  mc.retroaction = mc.sublevels[self->relative_navlevel + 2] ;
+}
 
 void PatEditRouter::draw_velobars(){
           int velobar ;
@@ -475,23 +489,24 @@ void PatEditRouter::draw_velobars(){
 
 void PatEditRouter::stretch_cell_length() {
           self->paterning = false ;
+          self->preview = 0 ;
 
-          byte note_we_found = self->_on_part[lv.sublevels[self->relative_navlevel + 3]].velocity;
+          byte note_we_found = self->_on_part[mc.sublevels[self->relative_navlevel + 3]].velocity;
           if (note_we_found) {
             //delete previous key if present
             set_cell_at_pos(0,0,0);
-            dm.returntonav(lv.navlevel-1,127,note_we_found);
+            dm.returntonav(mc.navlevel-1,127,note_we_found);
           } else {
             self->addinglength = 1;
-            self->_temp_part[lv.sublevels[self->relative_navlevel + 3]].channel = ((int[2]){gg.synthmidichannel,gg.samplermidichannel})[self->track_type];
-            self->_temp_part[lv.sublevels[self->relative_navlevel + 3]].note = (byte)lv.sublevels[self->relative_navlevel + 2];
-            self->_temp_part[lv.sublevels[self->relative_navlevel + 3]].velocity = (byte)64;
+            self->_temp_part[mc.sublevels[self->relative_navlevel + 3]].channel = ((int[2]){gg.synthmidichannel,gg.samplermidichannel})[self->track_type];
+            self->_temp_part[mc.sublevels[self->relative_navlevel + 3]].note = (byte)mc.sublevels[self->relative_navlevel + 2];
+            self->_temp_part[mc.sublevels[self->relative_navlevel + 3]].velocity = (byte)64;
 
-            lv.navrange = 31;
-            self->_length_part[lv.sublevels[self->relative_navlevel + 3]] = max( (lv.sublevels[self->relative_navlevel + 4] - lv.sublevels[self->relative_navlevel + 3]) * 4,4);
+            mc.navrange = 31;
+            self->_length_part[mc.sublevels[self->relative_navlevel + 3]] = max( (mc.sublevels[self->relative_navlevel + 4] - mc.sublevels[self->relative_navlevel + 3]) * 4,4);
             _refresher[self->track_type]();
             dm.clearDisplay();
-            lv.sublevels[self->relative_navlevel + 5] = self->_temp_part[lv.sublevels[self->relative_navlevel + 3]].velocity;
+            mc.sublevels[self->relative_navlevel + 5] = self->_temp_part[mc.sublevels[self->relative_navlevel + 3]].velocity;
             //doshownoteline2();
             doshownoteline();
             dm.canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_INVERSE);
@@ -502,11 +517,11 @@ void PatEditRouter::stretch_cell_length() {
         }
 
 void PatEditRouter::stretch_cell_velocity() {
-          lv.navrange = 127;
+          mc.navrange = 127;
           self->paterning = true ;
 
           self->addinglength = 0;
-          self->_temp_part[lv.sublevels[self->relative_navlevel + 3]].velocity = lv.sublevels[self->relative_navlevel + 5];
+          self->_temp_part[mc.sublevels[self->relative_navlevel + 3]].velocity = mc.sublevels[self->relative_navlevel + 5];
           dm.clearDisplay();
           doshownoteline();
           dm.canvasBIG.drawLine(0, 16 + 2, 127, 16 + 2, SSD1306_INVERSE);
@@ -665,8 +680,8 @@ void PatEditRouter::sanitize_sampler_partition(){
         }
 
 void PatEditRouter::set_cell_at_pos(byte ch_, byte nt_, byte ve_){
-  byte sub3 = lv.sublevels[self->relative_navlevel + 3];
-  byte sub4 = lv.sublevels[self->relative_navlevel + 4];
+  byte sub3 = mc.sublevels[self->relative_navlevel + 3];
+  byte sub4 = mc.sublevels[self->relative_navlevel + 4];
   self->_on_part[sub3] = {ch_,nt_,ve_};
   byte laOffpos;
   self->_length_part[sub3] = max((sub4 - sub3) * 4,4);
@@ -684,10 +699,10 @@ void PatEditRouter::set_cell_at_pos(byte ch_, byte nt_, byte ve_){
 }
 
 void PatEditRouter::set_cell_velocity() {
-  lv.previousnavlevel = lv.navlevel;
-  byte sub3 = lv.sublevels[self->relative_navlevel + 3];
-  byte sub4 = lv.sublevels[self->relative_navlevel + 4] ;
-  set_cell_at_pos(((int[2]){gg.synthmidichannel,gg.samplermidichannel})[self->track_type],lv.sublevels[self->relative_navlevel + 2],self->_temp_part[sub3].velocity);
+  mc.previousnavlevel = mc.navlevel;
+  byte sub3 = mc.sublevels[self->relative_navlevel + 3];
+  byte sub4 = mc.sublevels[self->relative_navlevel + 4] ;
+  set_cell_at_pos(((int[2]){gg.synthmidichannel,gg.samplermidichannel})[self->track_type],mc.sublevels[self->relative_navlevel + 2],self->_temp_part[sub3].velocity);
   if (!self->_temp_part[sub3].velocity){
     set_cell_at_pos(0,0,0);
   }
@@ -755,12 +770,12 @@ extern PatEditRouter _pe;
 POptionsRouter* POptionsRouter::self = nullptr;
 
 POptionsRouter::POptionsRouter() {
-                    self = this;
-                    self->home_navrange = sizeofoptionspattern - 1;
-                    self->relative_navlevel=2;
-                    self->max_navlevel=5;
-                    self->sublevels_address={4,0,0};
-                    }
+  self = this;
+  self->home_navrange = sizeofoptionspattern - 1;
+  self->relative_navlevel=2;
+  self->max_navlevel=5;
+  self->sublevels_address={4,0,0};
+}
 
 bool POptionsRouter::target_sampler = 1;
 bool POptionsRouter::target_synth = 1;
@@ -769,8 +784,8 @@ bool POptionsRouter::target_ccs = 0;
 bool* POptionsRouter::_targets[3] = {&target_sampler, &target_synth, &target_ccs};
 
 void POptionsRouter::clearlapattern() {
-  for (int i=0;i<3;i++) if (*_targets[i] || lv.songplaying) cleaners[i]();
-  dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
+  for (int i=0;i<3;i++) if (*_targets[i] || mc.songplaying) cleaners[i]();
+  dm.returntonav(2, self->home_navrange,mc.sublevels[2]);
 }
 
 void POptionsRouter::clearCCline() {
@@ -785,7 +800,7 @@ void POptionsRouter::clearsynthpatternline() {
 
 void POptionsRouter::merge_partitions() {
   for (int i=0;i<2;i++) if (*_targets[i]) mergers[i]();
-  dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
+  dm.returntonav(2, self->home_navrange,mc.sublevels[2]);
 }
 
 void POptionsRouter::merge_sampler_partition_liners(){
@@ -845,47 +860,47 @@ void POptionsRouter::clearsamplerpatternline() {
 const char* POptionsRouter::optionspatternlabels[] = {"Transpose", "Shift", "Clear", "Target", "Inter CC","Merge Pat"};
 
 void POptionsRouter::show(){
-  if (lv.navlevel == 2 ){
-    lv.navrange = self->home_navrange ;
+  if (mc.navlevel == 2 ){
+    mc.navrange = self->home_navrange ;
     dm.clean_title_2_1();
     dm.main_panel(optionspatternlabels,2,self->home_navrange);
     dm.dodisplay();
   }
-  if (lv.navlevel >= 3 ){
-    _pat_params[lv.sublevels[2]]();
+  if (mc.navlevel >= 3 ){
+    _pat_params[mc.sublevels[2]]();
   }
 }
 
 void POptionsRouter::toggle_interpol_cc() {
   self->interpolOn = !self->interpolOn;
-  dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
+  dm.returntonav(2, self->home_navrange,mc.sublevels[2]);
 }
 
 void POptionsRouter::dotransposesynth() {
-  if (lv.sublevels[3] - 7 > 0) {
-    shiftnotes1down(abs(lv.sublevels[3] - 7));
+  if (mc.sublevels[3] - 7 > 0) {
+    shiftnotes1down(abs(mc.sublevels[3] - 7));
   }
-  if (lv.sublevels[3] - 7 < 0) {
-    shiftnotes1up(abs(lv.sublevels[3] - 7));
+  if (mc.sublevels[3] - 7 < 0) {
+    shiftnotes1up(abs(mc.sublevels[3] - 7));
   }
   _pe.refresh_synth_track();
 }
 
 void POptionsRouter::dotransposeCC() {
-  if (lv.sublevels[3] - 7 > 0) {
-    shiftnotesCCdown(abs(lv.sublevels[3] - 7));
+  if (mc.sublevels[3] - 7 > 0) {
+    shiftnotesCCdown(abs(mc.sublevels[3] - 7));
   }
-  if (lv.sublevels[3] - 7 < 0) {
-    shiftnotesCCup(abs(lv.sublevels[3] - 7));
+  if (mc.sublevels[3] - 7 < 0) {
+    shiftnotesCCup(abs(mc.sublevels[3] - 7));
   }
 }
 
 void POptionsRouter::doShifterCC() {
-  if (lv.sublevels[3] - 16 > 0) {
-    shiftnotesCCleft(abs(lv.sublevels[3] - 16));
+  if (mc.sublevels[3] - 16 > 0) {
+    shiftnotesCCleft(abs(mc.sublevels[3] - 16));
   }
-  if (lv.sublevels[3] - 16 < 0) {
-    shiftnotesCCright(abs(lv.sublevels[3] - 16));
+  if (mc.sublevels[3] - 16 < 0) {
+    shiftnotesCCright(abs(mc.sublevels[3] - 16));
   }
 }
 
@@ -1041,21 +1056,21 @@ void POptionsRouter::shiftnotes1left(int leshifter) {
 }
 
 void POptionsRouter::dotransposesampler() {
-  if (lv.sublevels[3] - 7 > 0) {
-    shiftnotes2down(abs(lv.sublevels[3] - 7));
+  if (mc.sublevels[3] - 7 > 0) {
+    shiftnotes2down(abs(mc.sublevels[3] - 7));
   }
-  if (lv.sublevels[3] - 7 < 0) {
-    shiftnotes2up(abs(lv.sublevels[3] - 7));
+  if (mc.sublevels[3] - 7 < 0) {
+    shiftnotes2up(abs(mc.sublevels[3] - 7));
   }
   _pe.refresh_flash_track();
 }
 
 void POptionsRouter::doShiftersampler() {
-  if (lv.sublevels[3] - 16 > 0) {
-    shiftnotes2left(abs(lv.sublevels[3] - 16));
+  if (mc.sublevels[3] - 16 > 0) {
+    shiftnotes2left(abs(mc.sublevels[3] - 16));
   }
-  if (lv.sublevels[3] - 16 < 0) {
-    shiftnotes2right(abs(lv.sublevels[3] - 16));
+  if (mc.sublevels[3] - 16 < 0) {
+    shiftnotes2right(abs(mc.sublevels[3] - 16));
   }
   _pe.refresh_flash_track();
 }
@@ -1154,18 +1169,18 @@ void POptionsRouter::shiftnotes2left(int leshifter) {
 }
 
 void POptionsRouter::showtransposedisplays() {
-  lv.navrange = 14;
-  if (lv.navlevel > 3) {
+  mc.navrange = 14;
+  if (mc.navlevel > 3) {
     for (int i=0;i<3;i++) if (*_targets[i]) transposers[i]();
-    dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
+    dm.returntonav(2, self->home_navrange,mc.sublevels[2]);
     return;
   }
 
   dm.clean_title_2();
-  dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
+  dm.canvastitle.print((char *)optionspatternlabels[mc.sublevels[2]]);
 
   int latransposition;
-  latransposition = 7 - lv.sublevels[3];
+  latransposition = 7 - mc.sublevels[3];
   dm.canvasBIG.setCursor(0, 16);
   dm.canvasBIG.setTextSize(2);
 
@@ -1180,29 +1195,29 @@ void POptionsRouter::showtransposedisplays() {
 }
 
 void POptionsRouter::doShiftersynth() {
-  if (lv.sublevels[3] - 16 > 0) {
-    shiftnotes1left(abs(lv.sublevels[3] - 16));
+  if (mc.sublevels[3] - 16 > 0) {
+    shiftnotes1left(abs(mc.sublevels[3] - 16));
   }
-  if (lv.sublevels[3] - 16 < 0) {
+  if (mc.sublevels[3] - 16 < 0) {
 
-    shiftnotes1right(abs(lv.sublevels[3] - 16));
+    shiftnotes1right(abs(mc.sublevels[3] - 16));
   }
   _pe.refresh_synth_track();
 }
 
 void POptionsRouter::showShifterdisplays() {
-  lv.navrange = 31;
-  if (lv.navlevel > 3) {
+  mc.navrange = 31;
+  if (mc.navlevel > 3) {
     for (int i=0;i<3;i++) if (*_targets[i]) shifters[i]();
-    dm.returntonav(2, self->home_navrange,lv.sublevels[2]);
+    dm.returntonav(2, self->home_navrange,mc.sublevels[2]);
     return;
   }
 
   dm.clean_title_2();
-  dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
+  dm.canvastitle.print((char *)optionspatternlabels[mc.sublevels[2]]);
 
   int latransposition;
-  latransposition = 16 - lv.sublevels[3];
+  latransposition = 16 - mc.sublevels[3];
   dm.canvasBIG.setCursor(0, 16);
   dm.canvasBIG.setTextSize(2);
 
@@ -1217,17 +1232,17 @@ void POptionsRouter::showShifterdisplays() {
 }
 
 void POptionsRouter::showlestargetdisplays() {
-  lv.navrange = 2;
+  mc.navrange = 2;
   const char* target_lbl[] = {"Synth","Sampler","CCs"};
-  int ipos = lv.sublevels[3];
+  int ipos = mc.sublevels[3];
   //Serial.println((int)*_targets[ipos]);
-  if (lv.navlevel > 3) {
+  if (mc.navlevel > 3) {
     *_targets[ipos] = !*_targets[ipos];
     dm.returntonav(3, 2,ipos);
   }
 
   dm.clean_title_1_1();
-  dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
+  dm.canvastitle.print((char *)optionspatternlabels[mc.sublevels[2]]);
   for (int i = 0; i < 3; i++) {
     dm.canvasBIG.setCursor(10, i*10 +16);
     dm.canvasBIG.print(target_lbl[i]);
@@ -1243,7 +1258,7 @@ void POptionsRouter::showlestargetdisplays() {
 
 void POptionsRouter::optionspatterndisplays() {
   dm.clean_title_2();
-  dm.canvastitle.print((char *)optionspatternlabels[lv.sublevels[2]]);
+  dm.canvastitle.print((char *)optionspatternlabels[mc.sublevels[2]]);
   dm.dodisplay();
 }
 
@@ -1260,11 +1275,11 @@ PatternsMenuRouter::PatternsMenuRouter() {
 }
 
 void PatternsMenuRouter::route_navlevel(){
-          _nav_pattern[lv.sublevels[1]]();
+          _nav_pattern[mc.sublevels[1]]();
         }
 
 void PatternsMenuRouter::show() {
-          _route_nav[lv.navlevel-1]();
+          _route_nav[mc.navlevel-1]();
         }
 
 void PatternsMenuRouter::pattern_nav_zero(){
@@ -1291,9 +1306,9 @@ void PatternsMenuRouter::save_pattern(){
 void PatternsMenuRouter::lv1_wrapper(void (*func)()) {
           self->catalog->nav_one(1,1);
 
-          if (lv.navlevel >= 3) {
+          if (mc.navlevel >= 3) {
             func();
-            dm.returntonav(1, self->home_navrange,lv.sublevels[1]);
+            dm.returntonav(1, self->home_navrange,mc.sublevels[1]);
           }
         }
 
@@ -1310,42 +1325,19 @@ void PatternsMenuRouter::addnoteoff2next(byte lanotee, byte lapos) {
           }
         }
 
-void PatternsMenuRouter::set_ccs() {
-          // has to be reinitialized first
-          for (int i = 0; i < PBARS; i++) {
-            bb.recorded_ccs[i] = 0 ;
-          }
-          for (int i = 0; i < PBARS; i++) {
-            for (int j = 0; j < 128; j++) {
-              if (pp.cc_partition[j][i] != 127){
-                for (int k = 0; k < PBARS; k++) {
-                    if (bb.recorded_ccs[k] == 0 || bb.recorded_ccs[k] == j){
-                      bb.recorded_ccs[k] = j ;
-                      bb.pots_controllers[k][i][0] = j;
-                      bb.pots_controllers[k][i][1] = pp.cc_partition[j][i];
-                    }
-                }
-              }
-
-            }
-          }
-        }
 void PatternsMenuRouter::parsepattern() {
 
-          if (lv.locked_fileing)
+          if (mc.locked_fileing)
             return;
-          lv.locked_fileing = 1 ;
+          mc.locked_fileing = 1 ;
           self->catalog->refresh_files_names();
           FsFile lepatternfile = SD.sdfs.open(self->catalog->get_current_file_path(0).c_str(), O_READ);
           if (lepatternfile) {
             lepatternfile.read((uint8_t*)&pp, sizeof(pp));
           }
           lepatternfile.close();
-
           _pe.refresh_patterns();
-            set_ccs();
-
-          lv.locked_fileing = 0 ;
+          mc.locked_fileing = 0 ;
 }
 
 void PatternsMenuRouter::doPatternsmenu() {
@@ -1364,9 +1356,9 @@ void PatternsMenuRouter::copypattern() {
 }
 
 void PatternsMenuRouter::writelemidi() {
-  if (lv.locked_fileing)
+  if (mc.locked_fileing)
     return;
-  lv.locked_fileing = 1 ;
+  mc.locked_fileing = 1 ;
   self->catalog->refresh_files_names();
   FsFile pat_filer ;
   if (self->catalog->new_file_mode) {
@@ -1383,7 +1375,7 @@ void PatternsMenuRouter::writelemidi() {
   }
   pat_filer.close();
   self->catalog->list_files();
-  lv.locked_fileing = 0;
+  mc.locked_fileing = 0;
 }
 
 void PatternsMenuRouter::set_arp_type(){

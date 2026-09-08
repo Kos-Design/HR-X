@@ -38,7 +38,7 @@ class FilesLister{
         char free_files[99][16];
         String folder_selected;
         bool new_file_mode = 0;
-        //the files list should be responding to shifting in lv.navlevel r_nav and display in r_nav-1(lv.navlevel of the menu instancer)
+        //the files list should be responding to shifting in mc.navlevel r_nav and display in r_nav-1(mc.navlevel of the menu instancer)
         uint8_t r_nav = 2;
         String get_file_name(uint8_t number);
         String get_current_file_path(uint8_t f_index);

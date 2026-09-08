@@ -11,8 +11,6 @@ struct BigBuffers {
     char Flashsamplename[999][13];
     char consolemsg[10][32];
     char pleasewaitarray[10][32];
-    uint8_t pots_controllers[32][32][2];
-    uint8_t recorded_ccs[32];
     uint8_t previousely_plugged_fx[3] = {ALL_FX_TYPES-1,ALL_FX_TYPES-1,ALL_FX_TYPES-1};
     uint16_t premixesMto_index[3] = {1000,1000,1000} ;
     uint16_t fxcording_index[3] = {1000,1000,1000} ;
@@ -69,7 +67,7 @@ struct Preset {
 
     int32_t millitickinterval = 115;
     //Atk Delay, Attack, Hold, Decay, Sustain, Release
-    int32_t adsrlevels[6] = {0, 3, 0, 250, 0, 150};
+    int32_t adsrlevels[6] = {0, 12, 0, 250, 0, 200};
 
     int32_t midiknobassigned[128];
     int32_t Sampleassigned[128];

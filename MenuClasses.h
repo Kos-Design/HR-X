@@ -48,7 +48,7 @@ struct LiveState {
     uint8_t muxer_ch_active = 1;
 };
 
-extern LiveState lv;
+extern LiveState mc;
 
 class SectionHolder{
     public:
@@ -153,7 +153,7 @@ class DisplayManager : public Adafruit_SSD1306 {
         void main_panel(const char* const*,int,int);
         void show(void);
         void dodisplay(void);
-        void returntonav(byte lelevel, byte lanavrange = lv.navrange,byte t_vraipos = lv.rota_true_pos);
+        void returntonav(byte lelevel, byte lanavrange = mc.navrange,byte t_vraipos = mc.rota_true_pos);
 
         static void (*root_route[10])();
 

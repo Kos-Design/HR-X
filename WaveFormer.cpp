@@ -13,11 +13,11 @@ WaveformsMenuRouter::WaveformsMenuRouter() {
 }
 
 void WaveformsMenuRouter::show() {
-  _route_nav[lv.navlevel-1]();
+  _route_nav[mc.navlevel-1]();
 }
 
 void WaveformsMenuRouter::waveforms_nav_zero(){
-  lv.waveforming = 0 ;
+  mc.waveforming = 0 ;
   self->catalog->nav_zero();
 }
 
@@ -37,13 +37,13 @@ void WaveformsMenuRouter::set_tracer(byte control,byte value){
 
 void WaveformsMenuRouter::WaveformParams(){
 
-  lv.navrange = 2 ;
-  if (lv.navlevel == 3 ){
-    lv.navrange = 127;
-    *self->waveform_tracers[lv.sublevels[2]]=lv.sublevels[3];
+  mc.navrange = 2 ;
+  if (mc.navlevel == 3 ){
+    mc.navrange = 127;
+    *self->waveform_tracers[mc.sublevels[2]]=mc.sublevels[3];
   }
 
-  lv.sublevels[3]=*self->waveform_tracers[lv.sublevels[2]];
+  mc.sublevels[3]=*self->waveform_tracers[mc.sublevels[2]];
   dm.clearDisplay();
   dm.setCursor(0,0);
   dm.setTextSize(1);
@@ -64,13 +64,13 @@ void WaveformsMenuRouter::WaveformParams(){
   dm.print("Tracenote: ");
   dm.print(self->trace_wave_cc);
   //note 58
-  dm.drawRoundRect(62,11+16*lv.sublevels[2], 25, 16, 3, SSD1306_WHITE);
+  dm.drawRoundRect(62,11+16*mc.sublevels[2], 25, 16, 3, SSD1306_WHITE);
   //dm.drawRoundRect(62,11+16, 25, 16, 3, SSD1306_WHITE);
   //dm.drawRoundRect(62,11+16 +16, 25, 16, 3, SSD1306_WHITE);
   dm.display();
 
-  if (lv.navlevel > 3 ){
-    dm.returntonav(2,2,lv.sublevels[2]);
+  if (mc.navlevel > 3 ){
+    dm.returntonav(2,2,mc.sublevels[2]);
   }
 }
 
@@ -146,9 +146,9 @@ void WaveformsMenuRouter::set_x_cursor_value(byte la_val){
   if (la_val > 0) {
     self->w_cursor_x = map(la_val, 0, 127, 0, 255);
     //gg.arbitrary_waveforms[self->widx][self->w_cursor_x] = map(self->cw_change, 0, 127, -32768, 32767);
-    lv.sublevels[2]=self->w_cursor_x;
-    lv.rota_true_pos = self->w_cursor_x;
-    dm.myEnc.write(lv.rota_true_pos * 4);
+    mc.sublevels[2]=self->w_cursor_x;
+    mc.rota_true_pos = self->w_cursor_x;
+    dm.myEnc.write(mc.rota_true_pos * 4);
     set_array_at_cursor();
   }
 }
@@ -166,33 +166,33 @@ void WaveformsMenuRouter::draw_wave_graph(){
 }
 
 void WaveformsMenuRouter::WaveformEditer() {
-  lv.waveforming = 1;
-  lv.navrange = 255;
+  mc.waveforming = 1;
+  mc.navrange = 255;
   dm.clean_title_1();
 
-  if (lv.navlevel > 3) {
+  if (mc.navlevel > 3) {
     self->trace_waveform = 0 ;
 
     smooth_w_graph();
-    dm.returntonav(2,255,lv.sublevels[2]);
+    dm.returntonav(2,255,mc.sublevels[2]);
   }
-  if (lv.navlevel == 3) {
+  if (mc.navlevel == 3) {
     self->trace_waveform = 1 ;
-    self->cw_change = map(lv.sublevels[3],0,255,0,127);
+    self->cw_change = map(mc.sublevels[3],0,255,0,127);
     set_array_at_cursor();
   }
   if (self->trace_waveform) {
     set_array_at_cursor();
     self->w_cursor_y = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x], -32768, 32767, 63, 0);
   }
-  if (lv.navlevel == 2) {
-    self->w_cursor_x=lv.sublevels[2];
+  if (mc.navlevel == 2) {
+    self->w_cursor_x=mc.sublevels[2];
     self->w_cursor_y = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x], -32768, 32767, 63, 0);
-    lv.sublevels[3] = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x],-32768, 32767, 0, 255 ) ;
+    mc.sublevels[3] = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x],-32768, 32767, 0, 255 ) ;
   }
-  dm.canvasBIG.drawCircle(lv.sublevels[2]/2, self->w_cursor_y, 2, SSD1306_WHITE);
+  dm.canvasBIG.drawCircle(mc.sublevels[2]/2, self->w_cursor_y, 2, SSD1306_WHITE);
   draw_wave_graph();
-  //dm.canvastitle.print(gg.arbitrary_waveforms[self->widx][lv.sublevels[2]]);
+  //dm.canvastitle.print(gg.arbitrary_waveforms[self->widx][mc.sublevels[2]]);
   dm.dodisplay();
   //smooth_w_bounds();
 }
@@ -209,18 +209,18 @@ void WaveformsMenuRouter::go_previous(){
   else
     self->widx = self->widx-1;
 
-  dm.returntonav(1,wf_labels_count-1,lv.sublevels[1]);
+  dm.returntonav(1,wf_labels_count-1,mc.sublevels[1]);
 }
 
 void WaveformsMenuRouter::go_next(){
   self->widx = (self->widx+1)%3;
-  dm.returntonav(1,wf_labels_count-1,lv.sublevels[1]);
+  dm.returntonav(1,wf_labels_count-1,mc.sublevels[1]);
 }
 
 void WaveformsMenuRouter::writewaveform() {
-  if (lv.locked_fileing)
+  if (mc.locked_fileing)
     return;
-  lv.locked_fileing = 1 ;
+  mc.locked_fileing = 1 ;
   FsFile waveform_file ;
   if (self->catalog->new_file_mode) {
     waveform_file = SD.sdfs.open(self->catalog->get_new_file_name().c_str(), O_WRITE | O_CREAT | O_TRUNC);
@@ -235,7 +235,7 @@ void WaveformsMenuRouter::writewaveform() {
   }
   waveform_file.close();
   self->catalog->list_files();
-  lv.locked_fileing = 0 ;
+  mc.locked_fileing = 0 ;
 }
 
 void WaveformsMenuRouter::copywaveform() {
@@ -247,17 +247,17 @@ void WaveformsMenuRouter::deletewaveform() {
 }
 
 void WaveformsMenuRouter::parsewaveformfile() {
-  if (lv.locked_fileing)
+  if (mc.locked_fileing)
     return;
-  lv.locked_fileing = 1 ;
+  mc.locked_fileing = 1 ;
   FsFile target_waveform = SD.sdfs.open(self->catalog->get_current_file_path(0).c_str(), O_READ);
   target_waveform.read((byte *)gg.arbitrary_waveforms, sizeof(gg.arbitrary_waveforms));
   target_waveform.close();
-  lv.locked_fileing = 0 ;
+  mc.locked_fileing = 0 ;
 }
 
 void WaveformsMenuRouter::wforms_actions(){
-  _nav_wforms[lv.sublevels[1]]();
+  _nav_wforms[mc.sublevels[1]]();
 }
 
 void WaveformsMenuRouter::remove_wform(){
@@ -278,9 +278,9 @@ void WaveformsMenuRouter::save_wform(){
 
 void WaveformsMenuRouter::lv1_wrapper(void (*func)()) {
   self->catalog->nav_one(0,1);
-  if (lv.navlevel >= 3) {
+  if (mc.navlevel >= 3) {
     func();
-    dm.returntonav(1, self->wf_labels_count - 1,lv.sublevels[1]);
+    dm.returntonav(1, self->wf_labels_count - 1,mc.sublevels[1]);
   }
 }
 

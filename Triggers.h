@@ -43,11 +43,13 @@ class TriggerMessenger {
         void MaNoteOff(MidiEventer msg);
 
         static void MaControlChange(byte channel, byte control, byte value);
+        void MaControlChange(MidiEventer msg);
         static void MaProgramchange(byte channel, byte data1);
         static void advance_tick();
         void tick();
         int clean_cursor(int pos);
         void moncontrollercc(byte channel, byte control, byte value);
+        void moncontrollercc(MidiEventer msg);
         void check_pads();
         void check_pots();
         void update_active_lines();

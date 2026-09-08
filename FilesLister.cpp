@@ -32,10 +32,10 @@ String FilesLister::get_current_file_path(byte f_index=0){
 }
 
 String FilesLister::make_full_file_name(byte number) {
-            char formatted_number[4] ;
-            sprintf(formatted_number,"%02d",number);
-            return(String)((String)this->folder_dir+(String)this->basenamer + (String)formatted_number + this->extension);
-        }
+    char formatted_number[4] ;
+    sprintf(formatted_number,"%02d",number);
+    return(String)((String)this->folder_dir+(String)this->basenamer + (String)formatted_number + this->extension);
+}
 
 String FilesLister::get_full_tmp_file_path(byte number) {
     char formatted_number[4] ;
@@ -66,30 +66,30 @@ String FilesLister::get_new_tmp_name(bool increment) {
 }
 
 void FilesLister::deleteFile() {
-  if (lv.locked_fileing)
+  if (mc.locked_fileing)
     return;
-  lv.locked_fileing = 1 ;
+  mc.locked_fileing = 1 ;
   if (SD.sdfs.exists((char *)(this->get_current_file_path(0)).c_str())) {
-    SD.remove((char *)(this->get_current_file_path(0)).c_str());
+    SD.sdfs.remove((char *)(this->get_current_file_path(0)).c_str());
   }
   this->list_files();
-  lv.locked_fileing = 0 ;
+  mc.locked_fileing = 0 ;
 }
 
 void FilesLister::deleteFileGeneric(const char* _target_file) {
-  if (lv.locked_fileing)
+  if (mc.locked_fileing)
     return;
-  lv.locked_fileing = 1 ;
+  mc.locked_fileing = 1 ;
   if (SD.sdfs.exists(_target_file)) {
-    SD.remove(_target_file);
+    SD.sdfs.remove(_target_file);
   }
-  lv.locked_fileing = 0 ;
+  mc.locked_fileing = 0 ;
 }
 
 void FilesLister::copyFile() {
-  if (lv.locked_fileing)
+  if (mc.locked_fileing)
     return;
-  lv.locked_fileing = 1 ;
+  mc.locked_fileing = 1 ;
  FsFile origin_file;
  FsFile target_file;
   String current_pathed = this->get_current_file_path(0) ;
@@ -106,7 +106,7 @@ void FilesLister::copyFile() {
   origin_file.close();
   target_file.close();
   this->list_files();
-  lv.locked_fileing = 0 ;
+  mc.locked_fileing = 0 ;
 }
 
 void FilesLister::move_file(const char* _source, const char* _dest){
@@ -132,11 +132,11 @@ void FilesLister::copyFileGeneric(const char* _origin_file,const char* _target_f
   if (SD.sdfs.exists(_origin_file)) {
     if (SD.sdfs.exists(_target_file))
       deleteFileGeneric(_target_file);
-    if (lv.locked_fileing){
+    if (mc.locked_fileing){
       Serial.println("already locked");
       return;
     }
-    lv.locked_fileing = 1 ;
+    mc.locked_fileing = 1 ;
    FsFile origin_file = SD.sdfs.open(_origin_file, O_READ);
    FsFile target_file = SD.sdfs.open(_target_file, O_WRITE | O_CREAT | O_TRUNC);
     size_t n_size;
@@ -147,7 +147,7 @@ void FilesLister::copyFileGeneric(const char* _origin_file,const char* _target_f
     }
   origin_file.close();
   target_file.close();
-  lv.locked_fileing = 0 ;
+  mc.locked_fileing = 0 ;
 
 
   } else {
@@ -167,7 +167,7 @@ void FilesLister::make_temp_folders(){
 
 void FilesLister::nav_zero(){
   dm.clear_buffs();
-  lv.navrange = this->home_navrange;
+  mc.navrange = this->home_navrange;
   this->display_files_list();
   this->home();
   dm.dodisplay();
@@ -175,13 +175,13 @@ void FilesLister::nav_zero(){
 
 void FilesLister::nav_one(byte save_lbl_idx=0,byte lbl_navlevel=1){
   this->new_file_mode = false;
-  if (lv.sublevels[lbl_navlevel] == save_lbl_idx) {
-    lv.navrange = this->files_counter + this->free_counter ;
-    if (lv.sublevels[lbl_navlevel+1] == this->files_counter + this->free_counter){
+  if (mc.sublevels[lbl_navlevel] == save_lbl_idx) {
+    mc.navrange = this->files_counter + this->free_counter ;
+    if (mc.sublevels[lbl_navlevel+1] == this->files_counter + this->free_counter){
       this->new_file_mode = true;
     }
   } else {
-    lv.navrange = max(this->files_counter + this->free_counter - 1, 0);
+    mc.navrange = max(this->files_counter + this->free_counter - 1, 0);
 
   }
 
@@ -232,8 +232,8 @@ void FilesLister::display_files_list() {
   int all_files_count = this->free_counter + this->files_counter ;
 
 
-  if (lv.navlevel == this->r_nav) {
-    this->displayable_offset = lv.sublevels[this->r_nav]  ;
+  if (mc.navlevel == this->r_nav) {
+    this->displayable_offset = mc.sublevels[this->r_nav]  ;
   }
   //% this->files_counter  ;
   refresh_files_names();
@@ -265,11 +265,11 @@ void FilesLister::display_files_list() {
 
 void FilesLister::display_folders_list() {
   dm.clean_title_1_1();
-  if (lv.navlevel == this->r_nav) {
-    this->displayable_offset = lv.sublevels[this->r_nav]  ;
+  if (mc.navlevel == this->r_nav) {
+    this->displayable_offset = mc.sublevels[this->r_nav]  ;
     Serial.println("");
     Serial.print("setted at lvl ");
-    Serial.print(lv.navlevel);
+    Serial.print(mc.navlevel);
   }
   //% this->files_counter  ;
   refresh_folders_names();

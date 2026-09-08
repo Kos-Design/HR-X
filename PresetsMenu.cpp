@@ -14,7 +14,7 @@ PresetsMenuRouter::PresetsMenuRouter() {
         }
 
 void PresetsMenuRouter::route_navlevel(){
-          _nav_presets[lv.sublevels[1]]();
+          _nav_presets[mc.sublevels[1]]();
         }
 
 void PresetsMenuRouter::presets_nav_zero(){
@@ -22,7 +22,7 @@ void PresetsMenuRouter::presets_nav_zero(){
         }
 
 void PresetsMenuRouter::show() {
-          _route_nav[lv.navlevel-1]();
+          _route_nav[mc.navlevel-1]();
         }
 
 void PresetsMenuRouter::presets_menu() {
@@ -33,15 +33,15 @@ void PresetsMenuRouter::presets_menu() {
 
 void PresetsMenuRouter::setbpms() {
   //clocker.setDivision(4);
-  //  lv.BPMs = (60000.0/gg.millitickinterval)/4.0 ;
-  lv.BPMs = 15000 / gg.millitickinterval;
-  clocker.setBPM(lv.BPMs);
+  //  mc.BPMs = (60000.0/gg.millitickinterval)/4.0 ;
+  mc.BPMs = 15000 / gg.millitickinterval;
+  clocker.setBPM(mc.BPMs);
 }
 
 void PresetsMenuRouter::write_preset() {
-          if (lv.locked_fileing)
+          if (mc.locked_fileing)
             return;
-          lv.locked_fileing = 1 ;
+          mc.locked_fileing = 1 ;
           FsFile preset_filer;
           if (self->catalog->new_file_mode) {
             String presets_base_path = "PRESETS" ;
@@ -60,14 +60,14 @@ void PresetsMenuRouter::write_preset() {
 
           }
           preset_filer.close();
-          lv.locked_fileing = 0 ;
+          mc.locked_fileing = 0 ;
           self->catalog->list_files();
         }
 
 void PresetsMenuRouter::read_preset() {
-          if (lv.locked_fileing)
+          if (mc.locked_fileing)
             return;
-          lv.locked_fileing = 1 ;
+          mc.locked_fileing = 1 ;
           FsFile preset_filer = SD.sdfs.open(self->catalog->get_current_file_path(0).c_str(), O_READ);
           if (preset_filer) {
            preset_filer.read((uint8_t*)&gg, sizeof(gg));
@@ -85,7 +85,7 @@ void PresetsMenuRouter::read_preset() {
 
           for (int i = 0; i < 3; i++) {
             gg.fx[i].route_fx(gg.fx[i].plugged_fx);
-            lv.avoid_fx_bounce = false ;
+            mc.avoid_fx_bounce = false ;
           }
           setbpms();
           _ad.ApplyADSR();
@@ -98,7 +98,7 @@ void PresetsMenuRouter::read_preset() {
           _mx.set_dry_mix(1);
 
           for (int i = 0; i < OSCS_COUNT; i++) {
-            lv.oscillator = i ;
+            mc.oscillator = i ;
             _mx.setwavemixlevel();
             _sn.setwavetypefromlist();
             gg.mixlevelsL[i] = tmp_mixlevelsL[i];
@@ -112,7 +112,7 @@ void PresetsMenuRouter::read_preset() {
             _mx.setmastersmixlevel(i);
           }
           _mx.wetmixmastercontrols();
-          lv.locked_fileing = 0 ;
+          mc.locked_fileing = 0 ;
         }
 
 void PresetsMenuRouter::copypreset() {
@@ -141,13 +141,13 @@ void PresetsMenuRouter::save_preset(){
 
 void PresetsMenuRouter::params_presets(){
           //TODO: selection filter to load only some settings
-          dm.returntonav(1, self->ps_labels_count-1,lv.sublevels[1]);
+          dm.returntonav(1, self->ps_labels_count-1,mc.sublevels[1]);
         }
 
 void PresetsMenuRouter::lv1_wrapper(void (*func)()) {
   self->catalog->nav_one(0,1);
-  if (lv.navlevel >= 3) {
+  if (mc.navlevel >= 3) {
     func();
-    dm.returntonav(1, self->ps_labels_count-1,lv.sublevels[1]);
+    dm.returntonav(1, self->ps_labels_count-1,mc.sublevels[1]);
   }
 }

@@ -16,7 +16,7 @@ RecorderMenuRouter::RecorderMenuRouter() {
 
 
 void RecorderMenuRouter::show() {
-  _route_nav[lv.navlevel-self->relative_navlevel]();
+  _route_nav[mc.navlevel-self->relative_navlevel]();
 }
 
 void RecorderMenuRouter::Load_raw_file() {
@@ -32,12 +32,12 @@ void RecorderMenuRouter::Load_raw_file() {
 
 
 void RecorderMenuRouter::startRecording() {
-  if (lv.locked_fileing) return;
-  lv.locked_fileing = 1 ;
+  if (mc.locked_fileing) return;
+  mc.locked_fileing = 1 ;
   if (!self->just_pressed_rec){
     self->just_pressed_rec = true ;
     check_rec_folder_path();
-    lv.tocker = millis();
+    mc.tocker = millis();
 
     self->newloopedpath = self->catalog->get_new_file_name();
     self->looper = SD.sdfs.open(self->newloopedpath.c_str(),O_WRITE | O_CREAT | O_TRUNC);
@@ -63,7 +63,7 @@ void RecorderMenuRouter::startRecording() {
 
 
 void RecorderMenuRouter::auto_stop_rec(){
-  if (millis() - lv.tocker > 10000) {
+  if (millis() - mc.tocker > 10000) {
     self->rec_looping = false ;
     stopRecording();
   }
@@ -114,12 +114,12 @@ void RecorderMenuRouter::stopRecording() {
   if (self->autoassign) {
     _sp.loadSampledSound();
   }
-  lv.locked_fileing = 0 ;
+  mc.locked_fileing = 0 ;
 }
 
 void RecorderMenuRouter::recordVpanelAction() {
-          if (lv.navlevel == self->relative_navlevel + 2) {
-            byte slct = lv.sublevels[self->relative_navlevel + 1];
+          if (mc.navlevel == self->relative_navlevel + 2) {
+            byte slct = mc.sublevels[self->relative_navlevel + 1];
             if (slct == 0) {
               self->recorderrecord = !self->recorderrecord;
               if (self->recorderrecord) {
@@ -163,16 +163,16 @@ void RecorderMenuRouter::recordVpanelAction() {
             }
             dm.returntonav(self->relative_navlevel + 1, 2 , 0);
           }
-          if (lv.navlevel > self->relative_navlevel + 1) {
+          if (mc.navlevel > self->relative_navlevel + 1) {
             dm.returntonav(self->relative_navlevel + 1, 2 , 0);
           }
         }
 
 void RecorderMenuRouter::recordVpanelSelector() {
-          if (lv.navlevel == self->relative_navlevel + 1) {
-            lv.navrange = 2;
+          if (mc.navlevel == self->relative_navlevel + 1) {
+            mc.navrange = 2;
           }
-          byte slct = lv.sublevels[self->relative_navlevel + 1];
+          byte slct = mc.sublevels[self->relative_navlevel + 1];
 
           if (slct == 0) {
             if (!self->recorderrecord) {
@@ -326,13 +326,13 @@ void RecorderMenuRouter::drawFoldersList(){
             //set this to false when creating new soundbank or temp
             self->catalog->folders_already_listed = true;
           }
-          lv.navrange = max(self->catalog->folders_counter - 1, 0);
+          mc.navrange = max(self->catalog->folders_counter - 1, 0);
           //
           //Serial.println(self->catalog->folder_selected );
           self->catalog->display_folders_list();
           dm.dodisplay();
           //Serial.println(self->catalog->folder_selected);
-          if (lv.navlevel > self->relative_navlevel+1){
+          if (mc.navlevel > self->relative_navlevel+1){
             String entering_dir = ((String)self->catalog->folder_dir + self->catalog->folder_selected + "/");
             if (SD.sdfs.exists(entering_dir.c_str())){
               self->catalog->folders_mode = false ;
@@ -362,16 +362,16 @@ void RecorderMenuRouter::lv1_wrapper(void (*func)()) {
           dm.clean_title_2_1();
           self->catalog->nav_one(99,1);
 
-          if (lv.navlevel >= self->relative_navlevel + 2) {
+          if (mc.navlevel >= self->relative_navlevel + 2) {
             func();
             scheddule_wave_rebuild(true);
-            dm.returntonav(self->relative_navlevel, self->home_navrange,lv.sublevels[self->relative_navlevel]);
+            dm.returntonav(self->relative_navlevel, self->home_navrange,mc.sublevels[self->relative_navlevel]);
           }
           dm.dodisplay();
         }
 
 void RecorderMenuRouter::records_actions(){
-          _nav_recs[lv.sublevels[self->relative_navlevel]%self->rec_labels_count]();
+          _nav_recs[mc.sublevels[self->relative_navlevel]%self->rec_labels_count]();
         }
 
 void RecorderMenuRouter::remove_record(){
@@ -417,10 +417,10 @@ void RecorderMenuRouter::select_cursor() {
   dm.dodisplay();
   int cursor_coords[][4] = {{0,0,18,8},{22,0,9,8},{38,0,9,8},{52,0,9,8},{64,0,9,8},{76,0,9,8},{88,0,14,8},{106,0,14,8},{0,8,128,48},
                             {23,56,14,8},{40,56,21,8},{64,56,20,8},{88,56,27,8},{116,56,12,8}};
-  dm.fillRect(cursor_coords[lv.sublevels[self->relative_navlevel+1]][0],
-                    cursor_coords[lv.sublevels[self->relative_navlevel+1]][1],
-                    cursor_coords[lv.sublevels[self->relative_navlevel+1]][2],
-                    cursor_coords[lv.sublevels[self->relative_navlevel+1]][3],
+  dm.fillRect(cursor_coords[mc.sublevels[self->relative_navlevel+1]][0],
+                    cursor_coords[mc.sublevels[self->relative_navlevel+1]][1],
+                    cursor_coords[mc.sublevels[self->relative_navlevel+1]][2],
+                    cursor_coords[mc.sublevels[self->relative_navlevel+1]][3],
                     SSD1306_INVERSE);
 
     if (self->wave_selected) {
@@ -429,7 +429,7 @@ void RecorderMenuRouter::select_cursor() {
   dm.setTextSize(1);
   dm.setTextColor(SSD1306_INVERSE);
   dm.setCursor(60,12);
-  dm.print(_legend[lv.sublevels[self->relative_navlevel +1]]);
+  dm.print(_legend[mc.sublevels[self->relative_navlevel +1]]);
   dm.display();
 }
 
@@ -451,8 +451,8 @@ void RecorderMenuRouter::draw_editor_zones(){
 }
 
 void RecorderMenuRouter::redraw_selection_box(){
-  dm.fillRect(lv.sublevels[self->relative_navlevel +2], 8,
-                      lv.sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
+  dm.fillRect(mc.sublevels[self->relative_navlevel +2], 8,
+                      mc.sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
 
 }
 
@@ -466,7 +466,7 @@ void RecorderMenuRouter::zoomRange(float subStart,float subEnd) {
 void RecorderMenuRouter::reverseSection(float startPos, float endPos) {
   self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
-  if (lv.locked_fileing) return;
+  if (mc.locked_fileing) return;
   const uint16_t sampleSize = 2;
   const uint32_t blockSamples = 512;
   uint8_t buffer[blockSamples * sampleSize];
@@ -477,7 +477,7 @@ void RecorderMenuRouter::reverseSection(float startPos, float endPos) {
     src.close();
     return;
   }
-  lv.locked_fileing = 1 ;
+  mc.locked_fileing = 1 ;
   uint32_t fileSize = src.size();
   if (startPos < 0.0f) startPos = 0.0f;
   if (endPos > 1.0f) endPos = 1.0f;
@@ -514,18 +514,18 @@ void RecorderMenuRouter::reverseSection(float startPos, float endPos) {
   while (int n = src.read(buffer, sizeof(buffer))) dst.write(buffer, n);
   src.close();
   dst.close();
-  lv.locked_fileing = 0 ;
+  mc.locked_fileing = 0 ;
   self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
 }
 
 void RecorderMenuRouter::pitchSection(float startPos, float endPos, float speed) {
   self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
-  if (lv.locked_fileing || speed <= 0.0f) return;
+  if (mc.locked_fileing || speed <= 0.0f) return;
   FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
   if (!src) return;
   FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
-  lv.locked_fileing = 1 ;
+  mc.locked_fileing = 1 ;
   const uint32_t BUFFER_SAMPLES = 1024;
   int16_t buffer[BUFFER_SAMPLES];
   uint32_t fileSize = src.size();
@@ -570,30 +570,30 @@ void RecorderMenuRouter::pitchSection(float startPos, float endPos, float speed)
   while (src.read((uint8_t *)&sample, 2) == 2) dst.write((uint8_t *)&sample, 2);
   src.close();
   dst.close();
-  lv.locked_fileing = 0 ;
+  mc.locked_fileing = 0 ;
   self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
 }
 
 void RecorderMenuRouter::trimSection(float start_pos, float end_pos) {
   self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
-  if (lv.locked_fileing) return;
+  if (mc.locked_fileing) return;
   FsFile in = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
   if (!in) return;
   FsFile out = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
   if (!out) {
     in.close();
-    lv.locked_fileing = 0 ;
+    mc.locked_fileing = 0 ;
     return;
   }
-  lv.locked_fileing = 1 ;
+  mc.locked_fileing = 1 ;
   uint32_t fileSize = in.size();
   start_pos = constrain(start_pos, 0.0f, 1.0f);
   end_pos   = constrain(end_pos,   0.0f, 1.0f);
   if (start_pos >= end_pos) {
     in.close();
     out.close();
-    lv.locked_fileing = 0 ;
+    mc.locked_fileing = 0 ;
     return;
   }
   uint32_t startByte = (uint32_t)(start_pos * fileSize);
@@ -604,7 +604,7 @@ void RecorderMenuRouter::trimSection(float start_pos, float end_pos) {
   if (startByte >= endByte) {
     in.close();
     out.close();
-    lv.locked_fileing = 0 ;
+    mc.locked_fileing = 0 ;
     return;
   }
   in.seek(startByte);
@@ -619,21 +619,21 @@ void RecorderMenuRouter::trimSection(float start_pos, float end_pos) {
   }
   out.close();
   in.close();
-  lv.locked_fileing = 0 ;
+  mc.locked_fileing = 0 ;
   self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
 }
 
 void RecorderMenuRouter::normalizeSection(float startPos, float endPos) {
   self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
-  if (lv.locked_fileing) return;
+  if (mc.locked_fileing) return;
   const uint16_t sampleSize = 2;
   const uint32_t bufferSamples = 512;
   int16_t buffer[bufferSamples];
   FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
   if (!src) return;
   FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
-  lv.locked_fileing = 1 ;
+  mc.locked_fileing = 1 ;
   uint32_t fileSize = src.size();
   if (startPos < 0.0f) startPos = 0.0f;
   if (endPos > 1.0f) endPos = 1.0f;
@@ -661,7 +661,7 @@ void RecorderMenuRouter::normalizeSection(float startPos, float endPos) {
     remaining -= bytes;
   }
   if (peak == 0){
-    lv.locked_fileing = 0 ;
+    mc.locked_fileing = 0 ;
     return;
   }
   float gain = (32767.0f * 0.99f) / peak;
@@ -692,14 +692,14 @@ void RecorderMenuRouter::normalizeSection(float startPos, float endPos) {
   while (int bn = src.read((uint8_t *)buffer, sizeof(buffer))) dst.write(buffer, bn);
   src.close();
   dst.close();
-  lv.locked_fileing = 0 ;
+  mc.locked_fileing = 0 ;
   self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
 
 }
 
 void RecorderMenuRouter::playSection(){
   PartialPlayerMono.play(self->newloopedpath.c_str(),self->start_zone,self->end_zone);
-  dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
+  dm.returntonav(self->relative_navlevel + 1,12,mc.sublevels[self->relative_navlevel + 1]);
 }
 
 void RecorderMenuRouter::scheddule_wave_rebuild(bool noreturn,bool noreinit){
@@ -709,18 +709,18 @@ void RecorderMenuRouter::scheddule_wave_rebuild(bool noreturn,bool noreinit){
   if (!noreinit)
     dm.reinitsublevels(self->relative_navlevel + 1);
   if (!noreturn)
-    dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
-  lv.locked_fileing = 0 ;
+    dm.returntonav(self->relative_navlevel + 1,12,mc.sublevels[self->relative_navlevel + 1]);
+  mc.locked_fileing = 0 ;
 }
 
 void RecorderMenuRouter::fadeInSection(float startPos, float endPos) {
   self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
-  if (lv.locked_fileing) return;
+  if (mc.locked_fileing) return;
   FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
   if (!src) return;
   FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
-  lv.locked_fileing = 1 ;
+  mc.locked_fileing = 1 ;
   //const uint16_t sampleSize = 2;
   const uint32_t BUFFER_SAMPLES = 1024;
   int16_t buffer[BUFFER_SAMPLES];
@@ -752,18 +752,18 @@ void RecorderMenuRouter::fadeInSection(float startPos, float endPos) {
   while (int bn = src.read((uint8_t *)buffer, sizeof(buffer))) dst.write((uint8_t*)buffer, bn);
   src.close();
   dst.close();
-  lv.locked_fileing = 0 ;
+  mc.locked_fileing = 0 ;
   self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
 }
 
 void RecorderMenuRouter::fadeOutSection(float startPos, float endPos) {
   self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
-  if (lv.locked_fileing) return;
+  if (mc.locked_fileing) return;
   FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
   if (!src) return;
   FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
-  lv.locked_fileing = 1 ;
+  mc.locked_fileing = 1 ;
   const uint32_t BUFFER_SAMPLES = 1024;
   int16_t buffer[BUFFER_SAMPLES];
   uint32_t fileSize = src.size();
@@ -794,21 +794,21 @@ void RecorderMenuRouter::fadeOutSection(float startPos, float endPos) {
   while (int bn = src.read((uint8_t *)buffer, sizeof(buffer))) dst.write((uint8_t*)buffer, bn);
   src.close();
   dst.close();
-  lv.locked_fileing = 0 ;
+  mc.locked_fileing = 0 ;
   self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
 }
 
 void RecorderMenuRouter::start_inputting_pitch(){
-  lv.navrange = 127 ;
+  mc.navrange = 127 ;
   dm.setCursor(104,12);
   dm.fillRect(104, 12, 30, 10, SSD1306_BLACK);
-  self->pitcher = (lv.sublevels[self->relative_navlevel + 2]/127.0) * 2.0;
+  self->pitcher = (mc.sublevels[self->relative_navlevel + 2]/127.0) * 2.0;
   dm.print(self->pitcher);
   dm.dodisplay();
-  if (lv.navlevel >= self->relative_navlevel+3) {
+  if (mc.navlevel >= self->relative_navlevel+3) {
     pitchSection(self->start_zone,self->end_zone,self->pitcher);
     scheddule_wave_rebuild();
-    dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
+    dm.returntonav(self->relative_navlevel + 1,12,mc.sublevels[self->relative_navlevel + 1]);
 
   }
 }
@@ -816,11 +816,11 @@ void RecorderMenuRouter::start_inputting_pitch(){
 void RecorderMenuRouter::deleteSection(float startPos, float endPos){
   self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
-  if (lv.locked_fileing) return;
+  if (mc.locked_fileing) return;
   FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
   if (!src) return;
   FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
-  lv.locked_fileing = 1 ;
+  mc.locked_fileing = 1 ;
   const uint32_t BUFFER_SIZE = 2048;
   uint8_t buffer[BUFFER_SIZE];
   uint32_t fileSize = src.size();
@@ -849,14 +849,14 @@ void RecorderMenuRouter::deleteSection(float startPos, float endPos){
   while (int bn = src.read(buffer, BUFFER_SIZE)) dst.write(buffer, bn);
   src.close();
   dst.close();
-  lv.locked_fileing = 0 ;
+  mc.locked_fileing = 0 ;
   self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
 }
 
 void RecorderMenuRouter::edit_record(){
           self->catalog->make_temp_folders();
-          lv.navrange = 13 ;
-           if (lv.navlevel == self->relative_navlevel+1) {
+          mc.navrange = 13 ;
+           if (mc.navlevel == self->relative_navlevel+1) {
             if (!self->wave_buffed) {
               draw_editor_zones();
               self->wave_buffed = 1 ;
@@ -865,106 +865,106 @@ void RecorderMenuRouter::edit_record(){
             }
             select_cursor();
            }
-          if (lv.navlevel == self->relative_navlevel + 2) {
-            if (lv.sublevels[self->relative_navlevel + 1] == 1){
+          if (mc.navlevel == self->relative_navlevel + 2) {
+            if (mc.sublevels[self->relative_navlevel + 1] == 1){
               scheddule_wave_rebuild();
             }
 
             //zoom in
-            if (lv.sublevels[self->relative_navlevel + 1] == 2){
-              zoomRange((lv.sublevels[self->relative_navlevel + 2] / 127.0 ),((lv.sublevels[self->relative_navlevel + 2] + lv.sublevels[self->relative_navlevel + 3] ) / 127.0 ));
+            if (mc.sublevels[self->relative_navlevel + 1] == 2){
+              zoomRange((mc.sublevels[self->relative_navlevel + 2] / 127.0 ),((mc.sublevels[self->relative_navlevel + 2] + mc.sublevels[self->relative_navlevel + 3] ) / 127.0 ));
               self->wave_buffed = 0 ;
               dm.reinitsublevels(self->relative_navlevel + 2);
-              dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
+              dm.returntonav(self->relative_navlevel + 1,12,mc.sublevels[self->relative_navlevel + 1]);
             }
 
             //select
-            if (lv.sublevels[self->relative_navlevel + 1] == 0){
+            if (mc.sublevels[self->relative_navlevel + 1] == 0){
               self->wave_selected = 0;
-              lv.navrange = 127 ;
+              mc.navrange = 127 ;
               dm.clearDisplay();
-              dm.drawFastVLine(lv.sublevels[self->relative_navlevel +2], 8, 48, SSD1306_INVERSE);
+              dm.drawFastVLine(mc.sublevels[self->relative_navlevel +2], 8, 48, SSD1306_INVERSE);
               dm.dodisplay();
             }
 
             //normalize
-            if (lv.sublevels[self->relative_navlevel + 1] == 3){
+            if (mc.sublevels[self->relative_navlevel + 1] == 3){
               normalizeSection(self->start_zone,self->end_zone);
               scheddule_wave_rebuild();
             }
 
             //reverse
-            if (lv.sublevels[self->relative_navlevel + 1] == 4){
+            if (mc.sublevels[self->relative_navlevel + 1] == 4){
               reverseSection(self->start_zone,self->end_zone);
               scheddule_wave_rebuild();
             }
             //pitching
-            if (lv.sublevels[self->relative_navlevel + 1] == 5){
+            if (mc.sublevels[self->relative_navlevel + 1] == 5){
               start_inputting_pitch();
             }
 
             //trim in
-            if (lv.sublevels[self->relative_navlevel + 1] == 9){
+            if (mc.sublevels[self->relative_navlevel + 1] == 9){
               trimSection(self->start_zone,1.0);
               scheddule_wave_rebuild();
             }
             //trim out
-            if (lv.sublevels[self->relative_navlevel + 1] == 10){
+            if (mc.sublevels[self->relative_navlevel + 1] == 10){
               trimSection(0.0,self->end_zone);
               scheddule_wave_rebuild();
             }
             //del selected
-            if (lv.sublevels[self->relative_navlevel + 1] == 11){
+            if (mc.sublevels[self->relative_navlevel + 1] == 11){
               deleteSection(self->start_zone,self->end_zone);
               scheddule_wave_rebuild();
             }
             //keep selected
-            if (lv.sublevels[self->relative_navlevel + 1] == 12){
+            if (mc.sublevels[self->relative_navlevel + 1] == 12){
               trimSection(self->start_zone,self->end_zone);
               scheddule_wave_rebuild();
             }
             //save selected
-            if (lv.sublevels[self->relative_navlevel + 1] == 13){
+            if (mc.sublevels[self->relative_navlevel + 1] == 13){
               Undo();
               scheddule_wave_rebuild();
             }
             //fadein
-            if (lv.sublevels[self->relative_navlevel + 1] == 6){
+            if (mc.sublevels[self->relative_navlevel + 1] == 6){
               fadeInSection(self->start_zone,self->end_zone);
               scheddule_wave_rebuild();
             }
             //fadeout
-            if (lv.sublevels[self->relative_navlevel + 1] == 7){
+            if (mc.sublevels[self->relative_navlevel + 1] == 7){
               fadeOutSection(self->start_zone,self->end_zone);
               scheddule_wave_rebuild();
             }
 
             //playSection
-            if (lv.sublevels[self->relative_navlevel + 1] == 8){
+            if (mc.sublevels[self->relative_navlevel + 1] == 8){
               playSection();
-              dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
+              dm.returntonav(self->relative_navlevel + 1,12,mc.sublevels[self->relative_navlevel + 1]);
             }
 
           }
           //select end
-          if (lv.navlevel == self->relative_navlevel + 3) {
-            if (lv.sublevels[self->relative_navlevel + 1] == 0){
-              lv.navrange = 127 - lv.sublevels[self->relative_navlevel +2] ;
+          if (mc.navlevel == self->relative_navlevel + 3) {
+            if (mc.sublevels[self->relative_navlevel + 1] == 0){
+              mc.navrange = 127 - mc.sublevels[self->relative_navlevel +2] ;
               dm.clearDisplay();
               dm.dodisplay();
-              dm.fillRect(lv.sublevels[self->relative_navlevel +2], 8,
-                                lv.sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
+              dm.fillRect(mc.sublevels[self->relative_navlevel +2], 8,
+                                mc.sublevels[self->relative_navlevel +3],48, SSD1306_INVERSE);
               dm.display();
             //dm.returntonav(self->relative_navlevel + 1, self->home_navrange,0);
             }
 
           //5 is pitch
-            if (lv.sublevels[self->relative_navlevel + 1] == 5){
+            if (mc.sublevels[self->relative_navlevel + 1] == 5){
               start_inputting_pitch();
             }
           }
-          if (lv.navlevel > self->relative_navlevel +3 ) {
-              dm.returntonav(self->relative_navlevel + 1,12,lv.sublevels[self->relative_navlevel + 1]);
+          if (mc.navlevel > self->relative_navlevel +3 ) {
+              dm.returntonav(self->relative_navlevel + 1,12,mc.sublevels[self->relative_navlevel + 1]);
               self->wave_selected = 1;
               }
         }
@@ -995,12 +995,7 @@ void RecorderMenuRouter::clear_temp_files(){
       FsFile entry = opened_dir.openNextFile();
       if (!entry) break;
       if (!entry.isDirectory()) {
-        char namer_[16];
-        entry.getName(namer_, 16);
-        namer_[15] = '\0';
-        char apathe[37];
-        snprintf(apathe, sizeof(apathe), "%s%s",self->catalog->tmp_folder, namer_);
-        SD.sdfs.remove(apathe);
+        entry.remove();
       }
     }
   }

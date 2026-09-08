@@ -14,14 +14,14 @@ KnobAssigner::KnobAssigner() {
                     }
 
 void KnobAssigner::KnobAssigner::show() {
-  lv.knobsetting = false ;
-  _actionable[lv.navlevel-self->relative_navlevel]();
+  mc.knobsetting = false ;
+  _actionable[mc.navlevel-self->relative_navlevel]();
 }
 
 void KnobAssigner::learn_midi(byte captured){
-  lv.sublevels[self->relative_navlevel+1] = captured ;
-  gg.midiknobassigned[lv.sublevels[self->relative_navlevel+1]] = lv.sublevels[self->relative_navlevel];
-  dm.returntonav(self->relative_navlevel,self->home_navrange,lv.sublevels[self->relative_navlevel]);
+  mc.sublevels[self->relative_navlevel+1] = captured ;
+  gg.midiknobassigned[mc.sublevels[self->relative_navlevel+1]] = mc.sublevels[self->relative_navlevel];
+  dm.returntonav(self->relative_navlevel,self->home_navrange,mc.sublevels[self->relative_navlevel]);
 }
 
 int KnobAssigner::find_assigned_knob(int k){
@@ -34,7 +34,7 @@ int KnobAssigner::find_assigned_knob(int k){
 }
 
 void KnobAssigner::show_assignements(){
-  if (lv.sublevels[self->relative_navlevel+1] != 0) {
+  if (mc.sublevels[self->relative_navlevel+1] != 0) {
     dm.canvasBIG.print("Midi");
     dm.canvasBIG.setTextSize(1);
     dm.canvasBIG.setCursor(50, 47);
@@ -44,20 +44,20 @@ void KnobAssigner::show_assignements(){
     dm.canvasBIG.print(":");
     dm.canvasBIG.setTextSize(2);
     dm.canvasBIG.setCursor(85, 40);
-    dm.canvasBIG.print(lv.sublevels[self->relative_navlevel+1]);
+    dm.canvasBIG.print(mc.sublevels[self->relative_navlevel+1]);
   } else {
     dm.canvasBIG.println("Unassigned");
   }
 }
 
 void KnobAssigner::kb_home(){
-  lv.navrange = self->home_navrange;
+  mc.navrange = self->home_navrange;
   dm.clean_title_1_2();
-  if (lv.sublevels[self->relative_navlevel] != 0) {
-    dm.canvastitle.println(ctl[lv.sublevels[self->relative_navlevel]].name);
+  if (mc.sublevels[self->relative_navlevel] != 0) {
+    dm.canvastitle.println(ctl[mc.sublevels[self->relative_navlevel]].name);
     dm.canvasBIG.setTextSize(2);
     dm.canvasBIG.setCursor(0, 40);
-    lv.sublevels[self->relative_navlevel+1] = find_assigned_knob(lv.sublevels[self->relative_navlevel]) ;
+    mc.sublevels[self->relative_navlevel+1] = find_assigned_knob(mc.sublevels[self->relative_navlevel]) ;
     show_assignements();
   } else {
     dm.canvastitle.setTextSize(2);
@@ -70,13 +70,13 @@ void KnobAssigner::kb_home(){
 }
 
 void KnobAssigner::assigner(){
-  lv.knobsetting = true ;
-  lv.navrange = 127;
-  if (lv.sublevels[self->relative_navlevel] == 0 ) {
-    dm.returntonav(self->relative_navlevel,self->home_navrange,lv.sublevels[self->relative_navlevel]);
+  mc.knobsetting = true ;
+  mc.navrange = 127;
+  if (mc.sublevels[self->relative_navlevel] == 0 ) {
+    dm.returntonav(self->relative_navlevel,self->home_navrange,mc.sublevels[self->relative_navlevel]);
   } else {
     dm.clean_title_1_2();
-    dm.canvastitle.println(ctl[lv.sublevels[self->relative_navlevel]].name);
+    dm.canvastitle.println(ctl[mc.sublevels[self->relative_navlevel]].name);
     dm.canvasBIG.setCursor(0, 40);
     show_assignements();
   }
@@ -88,10 +88,10 @@ void KnobAssigner::set_midi_cc_to_ctl(byte cc_nt, int cc_cl){
 }
 
 void KnobAssigner::set_it(){
-  lv.knobsetting = false ;
-  set_midi_cc_to_ctl(find_assigned_knob(lv.sublevels[self->relative_navlevel]), 0);
-  set_midi_cc_to_ctl(lv.sublevels[self->relative_navlevel+1] , lv.sublevels[self->relative_navlevel]);
-  dm.returntonav(self->relative_navlevel,self->home_navrange, lv.sublevels[self->relative_navlevel]);
+  mc.knobsetting = false ;
+  set_midi_cc_to_ctl(find_assigned_knob(mc.sublevels[self->relative_navlevel]), 0);
+  set_midi_cc_to_ctl(mc.sublevels[self->relative_navlevel+1] , mc.sublevels[self->relative_navlevel]);
+  dm.returntonav(self->relative_navlevel,self->home_navrange, mc.sublevels[self->relative_navlevel]);
 }
 
 AdsrMenuRouter* AdsrMenuRouter::self = nullptr;
@@ -105,9 +105,9 @@ AdsrMenuRouter::AdsrMenuRouter() {
                     }
 
 void AdsrMenuRouter::show(){
-  lv.navrange = 5 ;
+  mc.navrange = 5 ;
   slice_adsr();
-  uint16_t lvx = lv.sublevels[lv.navleveloverwrite] ;
+  uint16_t lvx = mc.sublevels[mc.navleveloverwrite] ;
   dm.clean_title_1_1();
   draw_frame();
   print_adsr_echo(AdsrLabels[lvx],self->tmp_adsrlevels[lvx]);
@@ -179,18 +179,18 @@ void AdsrMenuRouter::resync_tmp(){
 void AdsrMenuRouter::slice_adsr(){
   const uint16_t local_navranges[6] = {100,1024,100,512,100,1024};
 
-  lv.navleveloverwrite = 2;
-  if (lv.navlevel == lv.navleveloverwrite ) {
-    self->tmp_adsrlevels[lv.sublevels[lv.navleveloverwrite]] = gg.adsrlevels[lv.sublevels[lv.navleveloverwrite]];
-    lv.sublevels[lv.navlevel + 1] = self->tmp_adsrlevels[lv.sublevels[lv.navleveloverwrite]];
+  mc.navleveloverwrite = 2;
+  if (mc.navlevel == mc.navleveloverwrite ) {
+    self->tmp_adsrlevels[mc.sublevels[mc.navleveloverwrite]] = gg.adsrlevels[mc.sublevels[mc.navleveloverwrite]];
+    mc.sublevels[mc.navlevel + 1] = self->tmp_adsrlevels[mc.sublevels[mc.navleveloverwrite]];
   }
-  if (lv.navlevel == lv.navleveloverwrite + 1) {
-    lv.navrange = local_navranges[lv.sublevels[lv.navleveloverwrite]];
-    self->tmp_adsrlevels[lv.sublevels[lv.navleveloverwrite]] = lv.sublevels[lv.navleveloverwrite + 1];
+  if (mc.navlevel == mc.navleveloverwrite + 1) {
+    mc.navrange = local_navranges[mc.sublevels[mc.navleveloverwrite]];
+    self->tmp_adsrlevels[mc.sublevels[mc.navleveloverwrite]] = mc.sublevels[mc.navleveloverwrite + 1];
   }
-  if (lv.navlevel == lv.navleveloverwrite + 2) {
+  if (mc.navlevel == mc.navleveloverwrite + 2) {
     GlobalADSR();
-    dm.returntonav(lv.navleveloverwrite, 5,lv.sublevels[lv.navleveloverwrite]);
+    dm.returntonav(mc.navleveloverwrite, 5,mc.sublevels[mc.navleveloverwrite]);
   }
 }
 

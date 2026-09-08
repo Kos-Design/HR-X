@@ -95,7 +95,7 @@ void Arpegiator::initiatearpegesynthliner(byte start_voice, MidiEventer msg) {
   if (note_in_arp(msg.note)) return;
   byte free_line = _tt.get_free_synth(msg.note);
   if (free_line == SYNTH_LINERS_COUNT) return;
-  if (lv.patrecord) {
+  if (mc.patrecord) {
     md.recordmidinotes(free_line, msg.channel, msg.note, msg.velocity);
   }
   synth_lines[free_line]->length_in_arp = gg.arpeglengh + 2;
@@ -319,7 +319,7 @@ void Arpegiator::decrementcrementns(byte larpegeline) {
 MidiRecorder::MidiRecorder() { }
 
 void MidiRecorder::record_synth_notesOff(int liner, byte channel, byte lenote, byte velocity) {
-  int pos = this->tick_for_that(lv.tickposition);
+  int pos = this->tick_for_that(mc.tickposition);
   if (synth_start_tpos[liner] != pos) {
     pp.synth_off_pat[liner][pos] = {channel, lenote, 0};
 
@@ -339,9 +339,9 @@ int  MidiRecorder::tick_for_that(int ticko){
   return ticko ;
 }
 void MidiRecorder::recordmidinotes(int liner, byte channel, byte lenote, byte velocity) {
-  int pos = this->tick_for_that(lv.tickposition);
+  int pos = this->tick_for_that(mc.tickposition);
   synth_start_tpos[liner] = pos;
-  pp.track_cells[Synth][lv.tickposition] = 1;
+  pp.track_cells[Synth][mc.tickposition] = 1;
   pp.synth_partition[liner][pos] = {channel, lenote, velocity};
 }
 
@@ -355,7 +355,7 @@ bool MidiRecorder::isalreadysameSamplerinpat(byte lenote,int ticko) {
 }
 
 void MidiRecorder::recordmidinotes2(int liner, byte channel, byte lenote, byte velocity) {
-  int pos = this->tick_for_that(lv.tickposition);
+  int pos = this->tick_for_that(mc.tickposition);
   if (!isalreadysameSamplerinpat(lenote,pos)) {
     pp.track_cells[Flash][pos] = 1;
     pp.sampler_partition[liner][pos] = {channel,lenote,velocity};
@@ -363,15 +363,7 @@ void MidiRecorder::recordmidinotes2(int liner, byte channel, byte lenote, byte v
 }
 
 void MidiRecorder::recordCCmidinotes(byte channel, byte lanote, byte leccval) {
-  int pos = this->tick_for_that(lv.tickposition);
-  for (int i = 0 ; i < 32 ; i++){
-    if (bb.recorded_ccs[i] == 0 || bb.recorded_ccs[i] == lanote ) {
-        bb.recorded_ccs[i] = lanote ;
-        bb.pots_controllers[i][pos][0] = lanote;
-        bb.pots_controllers[i][pos][0] = leccval;
-        break;
-    }
-  }
+  int pos = this->tick_for_that(mc.tickposition);
   pp.cc_partition[lanote][pos] = leccval;
 }
 
@@ -396,9 +388,9 @@ int TriggerMessenger::clean_cursor(int pos){
 }
 
 void TriggerMessenger::advance_tick(){
-  lv.tickposition = self->clean_cursor(lv.tickposition+1);
-  //TODO : remove lv.tickerlasttick logic
-  lv.tickerlasttick = millis();
+  mc.tickposition = self->clean_cursor(mc.tickposition+1);
+  //TODO : remove mc.tickerlasttick logic
+  mc.tickerlasttick = millis();
   self->tick();
 }
 
@@ -408,9 +400,9 @@ void TriggerMessenger::arp_tick() {
 
 void TriggerMessenger::tick() {
 
-  if (lv.patternOn) _se.use_pattern();
+  if (mc.patternOn) _se.use_pattern();
 
-  if (lv.songplaying) _se.update_song_player();
+  if (mc.songplaying) _se.update_song_player();
 
 }
 
@@ -422,18 +414,15 @@ void TriggerMessenger::Mytickmidi() {
 
 void TriggerMessenger::MaControlChange(byte channel, byte control, byte value) {
   bool isignored = self->noCCrecordlist(control);
-
   if (self->debugmidion) {
-    //self->debugmidi((char *)("ControlChange"), (MidiEventer){channel, control, value});
     self->show_midi((char *)("CC"), (MidiEventer){channel, control, value});
-    
   }
 
-  if (lv.navlevel)
+  if (mc.navlevel)
     self->cc_edgecases(control, value);
 
   self->moncontrollercc(channel, control, value);
-  if ((lv.patrecord || lv.recordCC) && !lv.stoptick && !isignored) {
+  if ((mc.patrecord || mc.recordCC) && !mc.stoptick && !isignored) {
     md.recordCCmidinotes(channel, control, value);
   }
 }
@@ -491,28 +480,28 @@ void TriggerMessenger::update_active_lines() {
   }
 }
 void TriggerMessenger::check_pots() {
-  int c_change = muxer.read_val(lv.muxer_ch_active);
-  if (c_change >= 0 && lv.muxer_ch_active !=9) {
-    _tt.MaControlChange(gg.muxed_channels[lv.muxer_ch_active], (byte)gg.ordered_pots[lv.muxer_ch_active], (byte)((c_change / 1024.0) * 127));
+  int c_change = muxer.read_val(mc.muxer_ch_active);
+  if (c_change >= 0 && mc.muxer_ch_active !=9) {
+    _tt.MaControlChange(gg.muxed_channels[mc.muxer_ch_active], (byte)gg.ordered_pots[mc.muxer_ch_active], (byte)((c_change / 1024.0) * 127));
   }
-  lv.muxer_ch_active = (lv.muxer_ch_active+1)%15; // mux_ch 16 is broken (pot in 9 as well)
+  mc.muxer_ch_active = (mc.muxer_ch_active+1)%15; // mux_ch 16 is broken (pot in 9 as well)
 }
 
 void TriggerMessenger::check_pads() {
   PadResult padder = Padded.padloop();
-  lv.paddered = Padded.arranged_buttons[padder.pad_result[0]][padder.pad_result[1]];
-  byte chan_received = gg.but_channel[11 + lv.paddered];
-  int cc_note_num = gg.pot_assignements[11 + lv.paddered] - 128;
+  mc.paddered = Padded.arranged_buttons[padder.pad_result[0]][padder.pad_result[1]];
+  byte chan_received = gg.but_channel[11 + mc.paddered];
+  int cc_note_num = gg.pot_assignements[11 + mc.paddered] - 128;
   //if multiplexed condition || 36 is the cancel button when in multiplexed mode, should not trigger another note or control.
-  if ((padder.pad_result[2] == 1) && (lv.paddered != 36)) {
+  if ((padder.pad_result[2] == 1) && (mc.paddered != 36)) {
     if (cc_note_num < 0) {
-      MaControlChange(chan_received,(byte)gg.pot_assignements[11 + lv.paddered], 64);
+      MaControlChange(chan_received,(byte)gg.pot_assignements[11 + mc.paddered], 64);
     }
     else {
-      MaNoteOn((MidiEventer){chan_received, (byte)cc_note_num, gg.but_velocity[11 + lv.paddered]});
+      MaNoteOn((MidiEventer){chan_received, (byte)cc_note_num, gg.but_velocity[11 + mc.paddered]});
     }
   }
-  else if ((padder.pad_result[2] == 0) && (lv.paddered != 36) && (cc_note_num > 0)) {
+  else if ((padder.pad_result[2] == 0) && (mc.paddered != 36) && (cc_note_num > 0)) {
     MaNoteOff(chan_received, cc_note_num, 0);
   }
 }
@@ -531,7 +520,7 @@ void TriggerMessenger::MaNoteOn(MidiEventer msg) {
   int lachordon;
   setchordnotes(msg.note, gg.lasetchord);
 
-  if (lv.navlevel) notes_edgecases(msg);
+  if (mc.navlevel) notes_edgecases(msg);
   if ((msg.channel == gg.synthmidichannel) or (gg.synthmidichannel == 0)) {
     for (int i = 0; i < gg.chordson ; i++) {
       lachordon = chordnotes[i] + ((int(msg.note / 12)) * 12);
@@ -572,11 +561,11 @@ void TriggerMessenger::shut_used_synth_notes(byte data1) {
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
     if (data1 == synth_lines[i]->note) {
       synth_lines[i]->liner_off();
-      if (lv.patrecord)
-        md.record_synth_notesOff(i, gg.synthmidichannel, data1, 0);
+      if (mc.patrecord) md.record_synth_notesOff(i, gg.synthmidichannel, data1, 0);
     }
   }
 }
+
 void TriggerMessenger::MaNoteOff(uint8_t ch_,uint8_t nt_,uint8_t ve_) {
   MidiEventer msg = {ch_,nt_,ve_};
   self->MaNoteOff(msg);
@@ -629,10 +618,13 @@ void TriggerMessenger::moncontrollercc(byte channel, byte control, byte value) {
   }
 }
 
+void TriggerMessenger::moncontrollercc(MidiEventer msg) {
+  moncontrollercc(msg.channel, msg.note, msg.velocity);
+}
 void TriggerMessenger::cc_edgecases(byte control, byte value){
 
   //inside Knobs Setter panel
-  if (lv.knobsetting){
+  if (mc.knobsetting){
     _ka.learn_midi(control);
   }
   //set this control == 19 optional in settings
@@ -640,36 +632,36 @@ void TriggerMessenger::cc_edgecases(byte control, byte value){
   //inside pattern mode
   if (_pe.paterning && control == 19) {
     if (_pe.track_type == 0) {
-      pp.synth_partition[lv.sublevels[2]][lv.sublevels[5]].velocity = value;
+      pp.synth_partition[mc.sublevels[2]][mc.sublevels[5]].velocity = value;
     } else if (_pe.track_type == 1) {
-      pp.sampler_partition[lv.sublevels[2]][lv.sublevels[5]].velocity = value;
+      pp.sampler_partition[mc.sublevels[2]][mc.sublevels[5]].velocity = value;
     }
   }
 
-  if (lv.setting_on_board) {
-    if (lv.navlevel == 2) {
+  if (mc.setting_on_board) {
+    if (mc.navlevel == 2) {
 
       if (control == 19)  {
-        gg.but_channel[lv.sublevels[2]] = (gg.but_channel[lv.sublevels[2]] + 1) % 17;
+        gg.but_channel[mc.sublevels[2]] = (gg.but_channel[mc.sublevels[2]] + 1) % 17;
       }
       if (control == 28) {
-        gg.but_channel[lv.sublevels[2]] = (gg.but_channel[lv.sublevels[2]] + 16) % 17;
+        gg.but_channel[mc.sublevels[2]] = (gg.but_channel[mc.sublevels[2]] + 16) % 17;
       }
     }
-    if (lv.navlevel == 3) {
+    if (mc.navlevel == 3) {
       //should be another or check above
       if (control == 19) {
-        gg.but_velocity[lv.sublevels[2]] = value;
+        gg.but_velocity[mc.sublevels[2]] = value;
       }
     }
   }
 
   //inside waveform tracer
-  if (lv.waveforming) {
+  if (mc.waveforming) {
     _wf.set_tracer(control,value);
   }
 
-  if (!lv.songplaying && !self->noCCrecordlist(control) && !self->debugmidion) {
+  if (!mc.songplaying && !self->noCCrecordlist(control) && !self->debugmidion) {
     dm.show();
   }
 }
@@ -680,20 +672,20 @@ void TriggerMessenger::notes_edgecases(MidiEventer msg){
     return;
   }
   if (self->debugmidion) show_midi((char *)"N.On", msg);
-  // control is (byte)gg.pot_assignements[11 + lv.paddered]
+  // control is (byte)gg.pot_assignements[11 + mc.paddered]
   //inside sample assigner
-  if (lv.setting_on_board && (lv.navlevel == 2)) helper_onbard();
+  if (mc.setting_on_board && (mc.navlevel == 2)) helper_onbard();
 
-  if (lv.assigning_sample_to_note) dm.returntonav(3,127,msg.note);
+  if (mc.assigning_sample_to_note) dm.returntonav(3,127,msg.note);
     //sets the navigation wheel to the captured note position for easier selection when assigning Flashsamples
 }
 
 void TriggerMessenger::helper_onbard(){
-  if (Padded.potsboards[lv.sublevels[2]] >= 0) {
-    gg.muxed_channels[Padded.potsboards[lv.sublevels[2]]] = gg.but_channel[lv.sublevels[2]];
+  if (Padded.potsboards[mc.sublevels[2]] >= 0) {
+    gg.muxed_channels[Padded.potsboards[mc.sublevels[2]]] = gg.but_channel[mc.sublevels[2]];
   }
-  if ((lv.paddered != 26) && (lv.paddered != 17)) {
-    dm.returntonav(lv.navlevel,lv.navrange,lv.paddered + 11);
+  if ((mc.paddered != 26) && (mc.paddered != 17)) {
+    dm.returntonav(mc.navlevel,mc.navrange,mc.paddered + 11);
   }
 }
 
@@ -718,13 +710,13 @@ byte TriggerMessenger::get_free_sampler(byte note) {
       return i;
     }
   }
-  return 0;
+  return FLASH_LINERS_COUNT;
 }
 
 void TriggerMessenger::initiateasynthliner(MidiEventer msg) {
   byte free_line = self->get_free_synth(msg.note);
   if (free_line == SYNTH_LINERS_COUNT) return;
-  if (lv.patrecord) {
+  if (mc.patrecord) {
     md.recordmidinotes(free_line, gg.synthmidichannel, msg.note, msg.velocity);
   }
   if (gg.arpegiatorOn)  {
@@ -738,10 +730,9 @@ void TriggerMessenger::initiateasynthliner(MidiEventer msg) {
 void TriggerMessenger::initiateasamplerliner(byte data1, byte data2) {
   byte free_line = self->get_free_sampler(data1);
   if (free_line < FLASH_LINERS_COUNT) {
-    if (lv.patrecord) {
+    if (mc.patrecord) {
       md.recordmidinotes(free_line, gg.samplermidichannel, data1, data2);
     }
-
     flash_lines[free_line]->liner_on(data1, data2);
   }
 }

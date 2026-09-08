@@ -50,7 +50,6 @@ class Filter303MenuRouter : public SectionHolder {
     static void set_filter_speed();
     static void filter_knob_preamp();
     static void le303filterVpanelAction();
-    static void le303filterVpanel();
     static void le303filterVpanelSelector();
     static void restore_from_temp();
     static void set_filter_buff_temp();

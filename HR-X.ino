@@ -28,7 +28,7 @@ MIDIDevice midi3(myusb);
 
 FlashLiner *flash_lines[FLASH_LINERS_COUNT] = {nullptr};
 SynthLiner *synth_lines[SYNTH_LINERS_COUNT] = {nullptr};
-LiveState lv;
+LiveState mc;
 EXTMEM Preset gg;
 AdsrMenuRouter _ad;
 EXTMEM BigBuffers bb;
