@@ -20,12 +20,18 @@ void MasterClock::click() {
   memset(self->tic_toc, 1, sizeof(self->tic_toc));
 }
 
+void MasterClock::disarm_one_shot() {
+  one_shot = nullptr;
+  armed = 0 ;
+}
+
 void MasterClock::dispatch_ticks() {
     // don't use big numbers as modulos on large ints as it may break periodicity
 
     if ((self->tick96 % 96) == 0 && _callback_96 && self->tic_toc[0]){
       self->tic_toc[0] = false;
       _callback_96();
+    
     }
  
     if ((self->tick96 % 2) == 0 && _callback_2 && self->tic_toc[2]){
@@ -42,8 +48,13 @@ void MasterClock::dispatch_ticks() {
           }
       }
       if (_callback_24_bis){
-              _callback_24_bis();
+            _callback_24_bis();
           }
+      if (armed && one_shot) {
+        one_shot();
+        disarm_one_shot();
+      }
+
     }
     if ((self->tick96 % gg.period_303 == 0) && _callback_303 && self->tic_toc[4]){
       self->tic_toc[4] = false;
@@ -64,18 +75,26 @@ void MasterClock::dispatch_ticks() {
     }
 }
 
+void MasterClock::attach_one_shot(void (*cb)()) {
+  one_shot = cb;
+  armed = 1;
+}
+
 void MasterClock::attach_2(void (*cb)()) {
-            _callback_2 = cb;
-        }
+  _callback_2 = cb;
+}
+
 void MasterClock::attach_3(void (*cb)()) {
-            _callback_3 = cb;
-        }
+  _callback_3 = cb;
+}
+
 void MasterClock::attach_oscilloscope(void (*cb)()) {
-            _callback_oscilloscope = cb;
-        }
+  _callback_oscilloscope = cb;
+}
+
 void MasterClock::attach_303(void (*cb)()) {
-            _callback_303 = cb;
-        }
+  _callback_303 = cb;
+}
 
 void MasterClock::attach_long(void (*cb)()) {
             _callback_long = cb;
@@ -457,6 +476,12 @@ void PatEditRouter::play_cell_preview(){
       return;
     }
     FlashRaw.play(playable_file.c_str());
+  }
+  else {
+    if (!Tocker.one_shot){
+      _tt.MaNoteOn((MidiEventer){gg.synthmidichannel,(byte)mc.sublevels[self->relative_navlevel + 2],127});
+      Tocker.attach_one_shot(_tt.stopallnotes);
+    }
   }
 }
 

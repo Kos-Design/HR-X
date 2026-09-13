@@ -3,7 +3,7 @@
 #include "FxMenu.h"
 #include "SynthMenu.h"
 #include "Presets.h"
-
+#include "SettingsMenu.h"
 
 PresetsMenuRouter* PresetsMenuRouter::self = nullptr;
 
@@ -96,7 +96,7 @@ void PresetsMenuRouter::read_preset() {
           _mx.le303filtercontrols();
           _mx.set_dry_mix(0);
           _mx.set_dry_mix(1);
-
+          _st.set_synth_stereo();
           for (int i = 0; i < OSCS_COUNT; i++) {
             mc.oscillator = i ;
             _mx.setwavemixlevel();

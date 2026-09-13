@@ -63,38 +63,13 @@ POptionsRouter _po;
 PatternsMenuRouter _pt;
 MasterClock Tocker;
 DisplayConsoler consoler;
-EXTMEM Bounce clicked = Bounce(32, 100);
 Song ng;
 MidiMenuRouter _mr;
+StereoDualFilter stereoWidth;
 
-
+Bounce clicked = Bounce(32, 100);
 #if MULTIPLEXED_PADS
 Bounce Backb = Bounce( 99, 5 );
 #else
 Bounce Backb = Bounce( 33, 5 );
 #endif
-
-//in progress TODO: make options in a menu
-StereoDualFilter stereoWidth( mixerWAll,
-
-    MasterL1,
-    MasterR1,
-    FXBusL,
-    FXBusR,
-
-    stereoFilterL,
-    stereoFilterR,
-
-    stereoPatch1,
-    stereoPatch2,
-    stereoPatch3,
-    stereoPatch4,
-    stereoPatch5,
-    stereoPatch6
-);
-
-/*
-stereoWidth.connect();
-stereoWidth.setCutoff(1800,1950);
-stereoWidth.setResonance(0.7f,0.8f);
-*/

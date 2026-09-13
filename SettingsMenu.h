@@ -47,7 +47,7 @@ class SettingsMenuRouter : public SectionHolder {
     public:
         SettingsMenuRouter();
 
-        static constexpr uint8_t settings_labels_count = 9;
+        static constexpr uint8_t settings_labels_count = 8;
         char usnotes[12][5] = {"C",  "C#", "D",  "Eb", "E",  "F",
                        "F#", "G",  "G#", "A",  "Bb", "B"};
 
@@ -91,6 +91,9 @@ class SettingsMenuRouter : public SectionHolder {
       static void OnBoardVpanelAction();
       static void OnBoardVpanelSelector();
       static void OnBoardVpanel();
+      static void extra_menu();      
+      static void set_synth_stereo();
+      static void synth_stereo_selector();
       static void arpegiatorVpanelAction();
       static void arpegiatorVpanelSelector();
       static void arpegiatorVpanel();
@@ -102,6 +105,7 @@ class SettingsMenuRouter : public SectionHolder {
       static void metronomer();
       static void set_bpms_interval();
       static void set_chord_mode();
+      static void (*_extra_menu[4])();
       static void (*_settings_menu[settings_labels_count])();
       //static constexpr void (*_nav_fx[SP_LABELS_COUNT])() = {&fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one, &fx_nav_one};
 

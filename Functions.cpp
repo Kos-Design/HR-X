@@ -212,17 +212,17 @@ void loadsynthdefaults() {
   }
 
   //ch 0 is the sum of signals sent to fx should stay at 1
-  FXBusL.gain(0,1.0);
-  FXBusR.gain(0,1.0);
+  WetBusL.gain(0,1.0);
+  WetBusR.gain(0,1.0);
   //1 = dry flash
-  FXBusL.gain(1,1.0);
-  FXBusR.gain(1,1.0);
+  WetBusL.gain(1,1.0);
+  WetBusR.gain(1,1.0);
   //2 = dry synth
-  FXBusL.gain(2,1.0);
-  FXBusR.gain(2,1.0);
+  WetBusL.gain(2,1.0);
+  WetBusR.gain(2,1.0);
   //3 = dry others ( IN, metro, SDWav)
-  FXBusL.gain(3,1.0);
-  FXBusR.gain(3,1.0);
+  WetBusL.gain(3,1.0);
+  WetBusR.gain(3,1.0);
 
   mixerWL1to4.gain(0, .25);
   mixerWL1to4.gain(1, .25);
@@ -291,17 +291,17 @@ void setupdefaultvalues() {
     AudioInterrupts();
   }
   //mixed others wet
-  MasterL1.gain(0, 0);
-  MasterR1.gain(0, 0);
+  DryBusL.gain(0, 0);
+  DryBusR.gain(0, 0);
   //nothing
-  MasterL1.gain(1, 0);
-  MasterR1.gain(1, 0);
+  DryBusL.gain(1, 0);
+  DryBusR.gain(1, 0);
   //synth wet
-  MasterL1.gain(2, 0);
-  MasterR1.gain(2, 0);
+  DryBusL.gain(2, 0);
+  DryBusR.gain(2, 0);
   //flash wet
-  MasterL1.gain(3, 0);
-  MasterR1.gain(3, 0);
+  DryBusL.gain(3, 0);
+  DryBusR.gain(3, 0);
   // Wavplayer
   MasterL.gain(0, 1.0);
   MasterR.gain(0, 1.0);
@@ -315,8 +315,8 @@ void setupdefaultvalues() {
   MasterL.gain(3, 1.0);
   MasterR.gain(3, 1.0);
 
-  WetMixMasterL.gain(0, 1);
-  WetMixMasterR.gain(0, 1);
+  FXBusL.gain(0, 1);
+  FXBusR.gain(0, 1);
 
 
   //needed to level fxBus & gg.wetins
@@ -1319,10 +1319,26 @@ void USB_In_Volume_ctl(byte cc_value){
   InMixR.gain(0,cc_value/127.0) ;
 }
 
-void toggle_stereo(byte cc_value){
+void set_s_mode_phase(byte cc_value){
   if (!stereoWidth.stereo_toggled) {
     stereoWidth.stereo_toggled = true ;
-    stereoWidth.connect();
+    stereoWidth.connect_phase();
+  }
+}
+
+void set_s_mode_freq(byte cc_value){
+  if (!stereoWidth.stereo_toggled) {
+    stereoWidth.stereo_toggled = true ;
+    stereoWidth.connect_freq();
+    stereoWidth.setCutoff(1950,1800.5);
+    stereoWidth.setResonance(0.8,0.8);
+  }
+}
+
+void set_s_mode_delay(byte cc_value){
+  if (!stereoWidth.stereo_toggled) {
+    stereoWidth.stereo_toggled = true ;
+    stereoWidth.connect_delay();
     stereoWidth.setCutoff(1950,1800.5);
     stereoWidth.setResonance(0.8,0.8);
   }
@@ -1403,7 +1419,7 @@ const CcCalls ctl[128] = {
     {"FX1 Wet",&Wet1Volume_ctl},{"FX2 Wet",&Wet2Volume_ctl},{"FX3 Wet",&Wet3Volume_ctl},{"Dry Sampler",&DrySampler_ctl},{"Dry Synth",&DrySynth_ctl},
     //10 ok
     {"Dry Audio In",&DryAudioIn_ctl},{"CutOff slp.",&Slope1_ctl},{"Reso slp.",&Slope2_ctl},{"Reso Tweak",&ResoTweak_ctl},{"Impulse length",&impulse_length_ctl},
-    {"CutOff Tweak",&CutOffTweak_ctl},{"Stereo On",toggle_stereo},{"Stereo Off",turn_off_stereo},{"Filter303 Lvl.",&Filter303_ctl},{"Portamento time",&set_Portamento_time_ctl},
+    {"CutOff Tweak",&CutOffTweak_ctl},{"Stereo On",set_s_mode_phase},{"Stereo Off",turn_off_stereo},{"Filter303 Lvl.",&Filter303_ctl},{"Portamento time",&set_Portamento_time_ctl},
     //20 ok
     {"Filter303 PreAmp",&FilterPreAmp_ctl},{"Synth Index",&SynthIndex_ctl},{"Syth X Lvl.",&SynthXLevel_ctl},{"Synth X Freq",&SynthXFreq_ctl},{"Chords type",&SetChords_ctl},
     {"Pans Levels",&PansLevels_ctl},{"Metronome Level",&MetroDrumLevel_ctl},{"Play Song",&PlaySong_Trigger_ctl},{"Stop Song",&StopSong_Trigger_ctl},{"Pause Song",&PauseSong_Trigger_ctl},

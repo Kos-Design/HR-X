@@ -209,13 +209,13 @@ extern AudioMixer4              flashMastermix; //xy=2504,142
 extern AudioMixer4              mixerWAll;      //xy=2506,931
 extern AudioMixer4              MasterL;        //xy=2579,371
 extern AudioMixer4              MasterR;        //xy=2598,562
-extern AudioMixer4              MasterR1;       //xy=2830.666618347168,493.3333225250244
+extern AudioMixer4              DryBusR;       //xy=2830.666618347168,493.3333225250244
 extern AudioEffectFlange        flange1;        //xy=2833,989
 extern AudioEffectBitcrusher    bitcrusher1;    //xy=2837,941
 extern AudioEffectChorus        chorus1;        //xy=2842,1032
 extern AudioFilterBiquad        biquad1;        //xy=2843,1080
 extern AudioEffectGranular      granular1;      //xy=2850,875
-extern AudioMixer4              MasterL1;       //xy=2856,411
+extern AudioMixer4              DryBusL;       //xy=2856,411
 extern AudioEffectReverb        freeverbs1;     //xy=2855,833
 extern AudioEffectBitcrusher    bitcrusher1R;    //xy=2859.9999389648438,1540.000020980835
 extern AudioEffectFlange        flange1R; //xy=2866.66650390625,1591.6666259765625
@@ -241,8 +241,8 @@ extern AudioFilterStateVariable filter3R; //xy=3032.66650390625,1920.66662597656
 extern AudioFilterStateVariable filter1R; //xy=3034.66650390625,1777.6666259765625
 extern AudioEffectGranular      granular2R;      //xy=3036.6665420532227,1496.6666450500488
 extern AudioFilterStateVariable filter2R; //xy=3037.66650390625,1848.6666259765625
-extern AudioMixer4              WetMixMasterR;  //xy=3112.3333740234375,530.6666469573975
-extern AudioMixer4              WetMixMasterL;  //xy=3113,434
+extern AudioMixer4              FXBusR;  //xy=3112.3333740234375,530.6666469573975
+extern AudioMixer4              FXBusL;  //xy=3113,434
 extern AudioEffectGranular      granular3;      //xy=3132,886
 extern AudioEffectFlange        flange3;        //xy=3132,1000
 extern AudioEffectChorus        chorus3;        //xy=3135,1043
@@ -261,8 +261,8 @@ extern AudioEffectGranular      granular3R;      //xy=3188.333333333333,1498.333
 extern AudioMixer4              mixfilter1R; //xy=3190.66650390625,1783.6666259765625
 extern AudioMixer4              mixfilter3R; //xy=3195.66650390625,1920.6666259765625
 extern AudioMixer4              mixfilter2R; //xy=3197.66650390625,1851.6666259765625
-extern AudioMixer4              FXBusL;         //xy=3453,329
-extern AudioMixer4              FXBusR;         //xy=3468,506
+extern AudioMixer4              WetBusL;         //xy=3453,329
+extern AudioMixer4              WetBusR;         //xy=3468,506
 extern AudioAmplifier           ampL;           //xy=3633,458
 extern AudioAmplifier           ampR;           //xy=3633,506
 extern AudioMixer4              feedbackdelay1R; //xy=3746.333335876465,1183.3333339691162
@@ -299,6 +299,10 @@ extern AudioMixer4              delaymix1;      //xy=4272,618.6666870117188
 extern AudioMixer4              delaymix3R; //xy=4277.66650390625,1463.6666259765625
 extern AudioMixer4              delaymix2R; //xy=4282.66650390625,1335.6666259765625
 extern AudioMixer4              delaymix1R; //xy=4298.66650390625,1173.6666259765625
+extern AudioMixer4              SynthWMixerL; //xy=2718.7500381469727,948.7500152587891
+extern AudioMixer4              SynthWMixerR; //xy=2721.2500381469727,1026.250015258789
+extern AudioConnection          patchCordSML;
+extern AudioConnection          patchCordSMR;
 
 extern AudioConnection          patchCord1;
 extern AudioConnection          patchCord2;
@@ -1110,11 +1114,9 @@ extern AudioFilterStateVariable stereoFilterR;
 extern AudioSynthWaveform stereoLFOL;
 extern AudioSynthWaveform stereoLFOR;
 
-extern AudioConnection stereoPatch1;
-extern AudioConnection stereoPatch2;
-extern AudioConnection stereoPatch3;
-extern AudioConnection stereoPatch4;
-extern AudioConnection stereoPatch5;
-extern AudioConnection stereoPatch6;
+extern AudioConnection patchInL;
+extern AudioConnection patchInR;
+extern AudioConnection patchOutL;
+extern AudioConnection patchOutR;
 extern AudioConnection lfo_stereoL;
 extern AudioConnection lfo_stereoR;

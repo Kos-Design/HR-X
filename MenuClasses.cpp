@@ -385,7 +385,7 @@ void DisplayManager::display_oscilloscope(){
 
     //int y = map(bb.rolling_queue_buff[index], -32768, 32767, 63, 0);
     //dirty scalling
-    int y = map(bb.rolling_queue_buff[index], -32768/4, 32767/4, 0, 63);
+    int y = map(bb.rolling_queue_buff[index], -32768/2, 32767/2, 0, 63);
 
     if (x > 0)
         canvasBIG.drawLine(
@@ -753,8 +753,8 @@ void GlobalMixer::setmastersmixlevel(byte lebus) {
 
 void GlobalMixer::wetmixmastercontrols() {
   for (byte i = 0; i < 4; i++) {
-    WetMixMasterL.gain(i, gg.WetMixMasters[i]/127.0);
-    WetMixMasterR.gain(i, gg.WetMixMasters[i]/127.0);
+    FXBusL.gain(i, gg.WetMixMasters[i]/127.0);
+    FXBusR.gain(i, gg.WetMixMasters[i]/127.0);
   }
 }
 
@@ -796,24 +796,24 @@ void GlobalMixer::set_wmixer_buff_temp() {
 }
 
 void GlobalMixer::set_synth_wet() {
-  MasterL1.gain(2, gg.wetins[0] / 127.0);
-  MasterR1.gain(2, gg.wetins[0] / 127.0);
-  FXBusL.gain(2, 1 - (gg.wetins[0] / 127.0));
-  FXBusR.gain(2, 1 - (gg.wetins[0] / 127.0));
+  DryBusL.gain(2, gg.wetins[0] / 127.0);
+  DryBusR.gain(2, gg.wetins[0] / 127.0);
+  WetBusL.gain(2, 1 - (gg.wetins[0] / 127.0));
+  WetBusR.gain(2, 1 - (gg.wetins[0] / 127.0));
 }
 
 void GlobalMixer::set_flash_wet() {
-  MasterL1.gain(3, gg.wetins[1] / 127.0);
-  MasterR1.gain(3, gg.wetins[1] / 127.0);
-  FXBusL.gain(1, 1 - (gg.wetins[1] / 127.0));
-  FXBusR.gain(1, 1 - (gg.wetins[1] / 127.0));
+  DryBusL.gain(3, gg.wetins[1] / 127.0);
+  DryBusR.gain(3, gg.wetins[1] / 127.0);
+  WetBusL.gain(1, 1 - (gg.wetins[1] / 127.0));
+  WetBusR.gain(1, 1 - (gg.wetins[1] / 127.0));
 }
 
 void GlobalMixer::set_other_wet() {
-  MasterL1.gain(0 ,gg.wetins[2] / 127.0);
-  MasterR1.gain(0, gg.wetins[2] / 127.0);
-  FXBusL.gain(3, 1 - (gg.wetins[2] / 127.0));
-  FXBusR.gain(3, 1 - (gg.wetins[2] / 127.0));
+  DryBusL.gain(0 ,gg.wetins[2] / 127.0);
+  DryBusR.gain(0, gg.wetins[2] / 127.0);
+  WetBusL.gain(3, 1 - (gg.wetins[2] / 127.0));
+  WetBusR.gain(3, 1 - (gg.wetins[2] / 127.0));
 }
 
 void GlobalMixer::set_dry_mix(byte lebus) {

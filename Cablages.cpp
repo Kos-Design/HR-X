@@ -200,13 +200,13 @@ EXTMEM AudioMixer4              flashMastermix; //xy=2504,142
 EXTMEM AudioMixer4              mixerWAll;      //xy=2506,931
 EXTMEM AudioMixer4              MasterL;        //xy=2579,371
 EXTMEM AudioMixer4              MasterR;        //xy=2598,562
-EXTMEM AudioMixer4              MasterR1;       //xy=2830.666618347168,493.3333225250244
+EXTMEM AudioMixer4              DryBusR;       //xy=2830.666618347168,493.3333225250244
 EXTMEM AudioEffectFlange        flange1;        //xy=2833,989
 EXTMEM AudioEffectBitcrusher    bitcrusher1;    //xy=2837,941
 EXTMEM AudioEffectChorus        chorus1;        //xy=2842,1032
 EXTMEM AudioFilterBiquad        biquad1;        //xy=2843,1080
 EXTMEM AudioEffectGranular      granular1;      //xy=2850,875
-EXTMEM AudioMixer4              MasterL1;       //xy=2856,411
+EXTMEM AudioMixer4              DryBusL;       //xy=2856,411
 EXTMEM AudioEffectReverb        freeverbs1;     //xy=2855,833
 EXTMEM AudioEffectBitcrusher    bitcrusher1R;    //xy=2859.9999389648438,1540.000020980835
 EXTMEM AudioEffectFlange        flange1R; //xy=2866.66650390625,1591.6666259765625
@@ -232,8 +232,8 @@ EXTMEM AudioFilterStateVariable filter3R; //xy=3032.66650390625,1920.66662597656
 EXTMEM AudioFilterStateVariable filter1R; //xy=3034.66650390625,1777.6666259765625
 EXTMEM AudioEffectGranular      granular2R;      //xy=3036.6665420532227,1496.6666450500488
 EXTMEM AudioFilterStateVariable filter2R; //xy=3037.66650390625,1848.6666259765625
-EXTMEM AudioMixer4              WetMixMasterR;  //xy=3112.3333740234375,530.6666469573975
-EXTMEM AudioMixer4              WetMixMasterL;  //xy=3113,434
+EXTMEM AudioMixer4              FXBusR;  //xy=3112.3333740234375,530.6666469573975
+EXTMEM AudioMixer4              FXBusL;  //xy=3113,434
 EXTMEM AudioEffectGranular      granular3;      //xy=3132,886
 EXTMEM AudioEffectFlange        flange3;        //xy=3132,1000
 EXTMEM AudioEffectChorus        chorus3;        //xy=3135,1043
@@ -252,8 +252,8 @@ EXTMEM AudioEffectGranular      granular3R;      //xy=3188.333333333333,1498.333
 EXTMEM AudioMixer4              mixfilter1R; //xy=3190.66650390625,1783.6666259765625
 EXTMEM AudioMixer4              mixfilter3R; //xy=3195.66650390625,1920.6666259765625
 EXTMEM AudioMixer4              mixfilter2R; //xy=3197.66650390625,1851.6666259765625
-EXTMEM AudioMixer4              FXBusL;         //xy=3453,329
-EXTMEM AudioMixer4              FXBusR;         //xy=3468,506
+EXTMEM AudioMixer4              WetBusL;         //xy=3453,329
+EXTMEM AudioMixer4              WetBusR;         //xy=3468,506
 EXTMEM AudioAmplifier           ampL;           //xy=3633,458
 EXTMEM AudioAmplifier           ampR;           //xy=3633,506
 EXTMEM AudioMixer4              feedbackdelay1R; //xy=3746.333335876465,1183.3333339691162
@@ -290,6 +290,8 @@ EXTMEM AudioMixer4              delaymix1;      //xy=4272,618.6666870117188
 EXTMEM AudioMixer4              delaymix3R; //xy=4277.66650390625,1463.6666259765625
 EXTMEM AudioMixer4              delaymix2R; //xy=4282.66650390625,1335.6666259765625
 EXTMEM AudioMixer4              delaymix1R; //xy=4298.66650390625,1173.6666259765625
+EXTMEM AudioMixer4              SynthWMixerL; //xy=2718.7500381469727,948.7500152587891
+EXTMEM AudioMixer4              SynthWMixerR; //xy=2721.2500381469727,1026.250015258789
 
 EXTMEM AudioConnection          patchCord1(LFOrm2, 0, FMWaveform2L2, 0);
 EXTMEM AudioConnection          patchCord2(LFOrm2, 0, FMWaveform2L1, 0);
@@ -408,20 +410,20 @@ EXTMEM AudioConnection          patchCord111(metrodrum1, 0, MasterL, 1);
 EXTMEM AudioConnection          patchCord112(metrodrum1, 0, MasterR, 1);
 EXTMEM AudioConnection          patchCord113(LineInPreAmpL, 0, MasterL, 2);
 EXTMEM AudioConnection          patchCord114(LineInPreAmpR, 0, MasterR, 2);
-EXTMEM AudioConnection          patchCord115(flashMastermix, 0, MasterL1, 3);
-EXTMEM AudioConnection          patchCord116(flashMastermix, 0, MasterR1, 3);
-EXTMEM AudioConnection          patchCord117(flashMastermix, 0, FXBusL, 1);
-EXTMEM AudioConnection          patchCord118(flashMastermix, 0, FXBusR, 1);
-EXTMEM AudioConnection          patchCord119(mixerWAll, 0, FXBusR, 2);
-EXTMEM AudioConnection          patchCord120(mixerWAll, 0, FXBusL, 2);
-EXTMEM AudioConnection          patchCord121(mixerWAll, 0, MasterL1, 2);
-EXTMEM AudioConnection          patchCord122(mixerWAll, 0, MasterR1, 2);
-EXTMEM AudioConnection          patchCord123(MasterL, 0, MasterL1, 0);
-EXTMEM AudioConnection          patchCord124(MasterL, 0, FXBusL, 3);
-EXTMEM AudioConnection          patchCord125(MasterR, 0, MasterR1, 0);
-EXTMEM AudioConnection          patchCord126(MasterR, 0, FXBusR, 3);
-EXTMEM AudioConnection          patchCord128(MasterR1, 0, WetMixMasterR, 0);
-EXTMEM AudioConnection          patchCord131(MasterL1, 0, WetMixMasterL, 0);
+EXTMEM AudioConnection          patchCord115(flashMastermix, 0, DryBusL, 3);
+EXTMEM AudioConnection          patchCord116(flashMastermix, 0, DryBusR, 3);
+EXTMEM AudioConnection          patchCord117(flashMastermix, 0, WetBusL, 1);
+EXTMEM AudioConnection          patchCord118(flashMastermix, 0, WetBusR, 1);
+EXTMEM AudioConnection          patchCord119(SynthWMixerR, 0, WetBusR, 2);
+EXTMEM AudioConnection          patchCord120(SynthWMixerL, 0, WetBusL, 2);
+EXTMEM AudioConnection          patchCord121(SynthWMixerL, 0, DryBusL, 2);
+EXTMEM AudioConnection          patchCord122(SynthWMixerR, 0, DryBusR, 2);
+EXTMEM AudioConnection          patchCord123(MasterL, 0, DryBusL, 0);
+EXTMEM AudioConnection          patchCord124(MasterL, 0, WetBusL, 3);
+EXTMEM AudioConnection          patchCord125(MasterR, 0, DryBusR, 0);
+EXTMEM AudioConnection          patchCord126(MasterR, 0, WetBusR, 3);
+EXTMEM AudioConnection          patchCord128(DryBusR, 0, FXBusR, 0);
+EXTMEM AudioConnection          patchCord131(DryBusL, 0, FXBusL, 0);
 EXTMEM AudioConnection          patchCord132(filter3, 0, mixfilter3, 0);
 EXTMEM AudioConnection          patchCord133(filter3, 1, mixfilter3, 1);
 EXTMEM AudioConnection          patchCord134(filter3, 2, mixfilter3, 2);
@@ -440,16 +442,16 @@ EXTMEM AudioConnection          patchCord146(filter1R, 2, mixfilter1R, 2);
 EXTMEM AudioConnection          patchCord147(filter2R, 0, mixfilter2R, 0);
 EXTMEM AudioConnection          patchCord148(filter2R, 1, mixfilter2R, 1);
 EXTMEM AudioConnection          patchCord149(filter2R, 2, mixfilter2R, 2);
-EXTMEM AudioConnection          patchCord150(WetMixMasterR, 0, FXBusR, 0);
-EXTMEM AudioConnection          patchCord151(WetMixMasterR, 0, feedbackdelay1R, 1);
-EXTMEM AudioConnection          patchCord152(WetMixMasterR, 0, feedbackdelay2R, 1);
-EXTMEM AudioConnection          patchCord153(WetMixMasterR, 0, feedbackdelay3R, 1);
-EXTMEM AudioConnection          patchCord154(WetMixMasterL, 0, FXBusL, 0);
-EXTMEM AudioConnection          patchCord155(WetMixMasterL, 0, feedbackdelay1, 1);
-EXTMEM AudioConnection          patchCord156(WetMixMasterL, 0, feedbackdelay3, 1);
-EXTMEM AudioConnection          patchCord157(WetMixMasterL, 0, feedbackdelay2, 1);
-EXTMEM AudioConnection          patchCord158(FXBusL, ampL);
-EXTMEM AudioConnection          patchCord159(FXBusR, ampR);
+EXTMEM AudioConnection          patchCord150(FXBusR, 0, WetBusR, 0);
+EXTMEM AudioConnection          patchCord151(FXBusR, 0, feedbackdelay1R, 1);
+EXTMEM AudioConnection          patchCord152(FXBusR, 0, feedbackdelay2R, 1);
+EXTMEM AudioConnection          patchCord153(FXBusR, 0, feedbackdelay3R, 1);
+EXTMEM AudioConnection          patchCord154(FXBusL, 0, WetBusL, 0);
+EXTMEM AudioConnection          patchCord155(FXBusL, 0, feedbackdelay1, 1);
+EXTMEM AudioConnection          patchCord156(FXBusL, 0, feedbackdelay3, 1);
+EXTMEM AudioConnection          patchCord157(FXBusL, 0, feedbackdelay2, 1);
+EXTMEM AudioConnection          patchCord158(WetBusL, ampL);
+EXTMEM AudioConnection          patchCord159(WetBusR, ampR);
 EXTMEM AudioConnection          patchCord160(ampL, queue1);
 EXTMEM AudioConnection          patchCord161(ampL, 0, AudioOutput, 0);
 EXTMEM AudioConnection          patchCord162(ampR, queue2);
@@ -514,6 +516,8 @@ EXTMEM AudioConnection          patchCord220(delay3pre1R, 0, delaymix3R, 0);
 EXTMEM AudioConnection          patchCord221(delay2pre2R, 0, delaymix2R, 1);
 EXTMEM AudioConnection          patchCord222(delay3pre2R, 0, delaymix3R, 1);
 EXTMEM AudioConnection          patchCord223(delay1pre1R, 0, delaymix1R, 0);
+EXTMEM AudioConnection          patchCordSML(mixerWAll, 0, SynthWMixerL, 0);
+EXTMEM AudioConnection          patchCordSMR(mixerWAll, 0, SynthWMixerR, 0);
 
 AudioControlSGTL5000     AudioShield;    //xy=4016,485
 // GUItool: end automatically generated code
@@ -533,256 +537,256 @@ EXTMEM AudioConnection delayCord3(feedbackdelay3, delay3);
 EXTMEM AudioConnection delayCord1R(feedbackdelay1R, delay1R);
 EXTMEM AudioConnection delayCord2R(feedbackdelay2R, delay2R);
 EXTMEM AudioConnection delayCord3R(feedbackdelay3R, delay3R);
-EXTMEM AudioConnection premixMtom1(MasterL1, 0, multiply1, 0);
-EXTMEM AudioConnection premixMtom2(MasterL1, 0, multiply2, 0);
-EXTMEM AudioConnection premixMtom3(MasterL1, 0, multiply3, 0);
-EXTMEM AudioConnection premixMtog1(MasterL1, 0, granular1, 0);
-EXTMEM AudioConnection premixMtog2(MasterL1, 0, granular2, 0);
-EXTMEM AudioConnection premixMtog3(MasterL1, 0, granular3, 0);
-EXTMEM AudioConnection premixMtobt1(MasterL1, 0, bitcrusher1, 0);
-EXTMEM AudioConnection premixMtobt2(MasterL1, 0, bitcrusher2, 0);
-EXTMEM AudioConnection premixMtobt3(MasterL1, 0, bitcrusher3, 0);
-EXTMEM AudioConnection premixMtorev1(MasterL1, 0, freeverbs1, 0);
-EXTMEM AudioConnection premixMtorev2(MasterL1, 0, freeverbs2, 0);
-EXTMEM AudioConnection premixMtorev3(MasterL1, 0, freeverbs3, 0);
-EXTMEM AudioConnection premixMtofl1(MasterL1, 0, flange1, 0);
-EXTMEM AudioConnection premixMtofl2(MasterL1, 0, flange2, 0);
-EXTMEM AudioConnection premixMtofl3(MasterL1, 0, flange3, 0);
-EXTMEM AudioConnection premixMtoch1(MasterL1, 0, chorus1, 0);
-EXTMEM AudioConnection premixMtoch2(MasterL1, 0, chorus2, 0);
-EXTMEM AudioConnection premixMtoch3(MasterL1, 0, chorus3, 0);
-EXTMEM AudioConnection premixMtoff1(MasterL1, 0, filter1, 0);
-EXTMEM AudioConnection premixMtobq1(MasterL1, 0, biquad1, 0);
-EXTMEM AudioConnection premixMtobq2(MasterL1, 0, biquad2, 0);
-EXTMEM AudioConnection premixMtobq3(MasterL1, 0, biquad3, 0);
-EXTMEM AudioConnection premixMtoff2(MasterL1, 0, filter2, 0);
-EXTMEM AudioConnection premixMtoff3(MasterL1, 0, filter3, 0);
-EXTMEM AudioConnection premixMtode1(MasterL1, 0, feedbackdelay1, 0);
-EXTMEM AudioConnection premixMtode2(MasterL1, 0, feedbackdelay2, 0);
-EXTMEM AudioConnection premixMtode3(MasterL1, 0, feedbackdelay3, 0);
+EXTMEM AudioConnection premixMtom1(DryBusL, 0, multiply1, 0);
+EXTMEM AudioConnection premixMtom2(DryBusL, 0, multiply2, 0);
+EXTMEM AudioConnection premixMtom3(DryBusL, 0, multiply3, 0);
+EXTMEM AudioConnection premixMtog1(DryBusL, 0, granular1, 0);
+EXTMEM AudioConnection premixMtog2(DryBusL, 0, granular2, 0);
+EXTMEM AudioConnection premixMtog3(DryBusL, 0, granular3, 0);
+EXTMEM AudioConnection premixMtobt1(DryBusL, 0, bitcrusher1, 0);
+EXTMEM AudioConnection premixMtobt2(DryBusL, 0, bitcrusher2, 0);
+EXTMEM AudioConnection premixMtobt3(DryBusL, 0, bitcrusher3, 0);
+EXTMEM AudioConnection premixMtorev1(DryBusL, 0, freeverbs1, 0);
+EXTMEM AudioConnection premixMtorev2(DryBusL, 0, freeverbs2, 0);
+EXTMEM AudioConnection premixMtorev3(DryBusL, 0, freeverbs3, 0);
+EXTMEM AudioConnection premixMtofl1(DryBusL, 0, flange1, 0);
+EXTMEM AudioConnection premixMtofl2(DryBusL, 0, flange2, 0);
+EXTMEM AudioConnection premixMtofl3(DryBusL, 0, flange3, 0);
+EXTMEM AudioConnection premixMtoch1(DryBusL, 0, chorus1, 0);
+EXTMEM AudioConnection premixMtoch2(DryBusL, 0, chorus2, 0);
+EXTMEM AudioConnection premixMtoch3(DryBusL, 0, chorus3, 0);
+EXTMEM AudioConnection premixMtoff1(DryBusL, 0, filter1, 0);
+EXTMEM AudioConnection premixMtobq1(DryBusL, 0, biquad1, 0);
+EXTMEM AudioConnection premixMtobq2(DryBusL, 0, biquad2, 0);
+EXTMEM AudioConnection premixMtobq3(DryBusL, 0, biquad3, 0);
+EXTMEM AudioConnection premixMtoff2(DryBusL, 0, filter2, 0);
+EXTMEM AudioConnection premixMtoff3(DryBusL, 0, filter3, 0);
+EXTMEM AudioConnection premixMtode1(DryBusL, 0, feedbackdelay1, 0);
+EXTMEM AudioConnection premixMtode2(DryBusL, 0, feedbackdelay2, 0);
+EXTMEM AudioConnection premixMtode3(DryBusL, 0, feedbackdelay3, 0);
 
-EXTMEM AudioConnection premixMtom1R(MasterR1, 0, multiply1R, 0);
-EXTMEM AudioConnection premixMtom2R(MasterR1, 0, multiply2R, 0);
-EXTMEM AudioConnection premixMtom3R(MasterR1, 0, multiply3R, 0);
-EXTMEM AudioConnection premixMtog1R(MasterR1, 0, granular1R, 0);
-EXTMEM AudioConnection premixMtog2R(MasterR1, 0, granular2R, 0);
-EXTMEM AudioConnection premixMtog3R(MasterR1, 0, granular3R, 0);
-EXTMEM AudioConnection premixMtobt1R(MasterR1, 0, bitcrusher1R, 0);
-EXTMEM AudioConnection premixMtobt2R(MasterR1, 0, bitcrusher2R, 0);
-EXTMEM AudioConnection premixMtobt3R(MasterR1, 0, bitcrusher3R, 0);
-EXTMEM AudioConnection premixMtorev1R(MasterR1, 0, freeverbs1R, 0);
-EXTMEM AudioConnection premixMtorev2R(MasterR1, 0, freeverbs2R, 0);
-EXTMEM AudioConnection premixMtorev3R(MasterR1, 0, freeverbs3R, 0);
-EXTMEM AudioConnection premixMtofl1R(MasterR1, 0, flange1R, 0);
-EXTMEM AudioConnection premixMtofl2R(MasterR1, 0, flange2R, 0);
-EXTMEM AudioConnection premixMtofl3R(MasterR1, 0, flange3R, 0);
-EXTMEM AudioConnection premixMtoch1R(MasterR1, 0, chorus1R, 0);
-EXTMEM AudioConnection premixMtoch2R(MasterR1, 0, chorus2R, 0);
-EXTMEM AudioConnection premixMtoch3R(MasterR1, 0, chorus3R, 0);
-EXTMEM AudioConnection premixMtoff1R(MasterR1, 0, filter1R, 0);
-EXTMEM AudioConnection premixMtobq1R(MasterR1, 0, biquad1R, 0);
-EXTMEM AudioConnection premixMtobq2R(MasterR1, 0, biquad2R, 0);
-EXTMEM AudioConnection premixMtobq3R(MasterR1, 0, biquad3R, 0);
-EXTMEM AudioConnection premixMtoff2R(MasterR1, 0, filter2R, 0);
-EXTMEM AudioConnection premixMtoff3R(MasterR1, 0, filter3R, 0);
-EXTMEM AudioConnection premixMtode1R(MasterR1, 0, feedbackdelay1R, 0);
-EXTMEM AudioConnection premixMtode2R(MasterR1, 0, feedbackdelay2R, 0);
-EXTMEM AudioConnection premixMtode3R(MasterR1, 0, feedbackdelay3R, 0);
+EXTMEM AudioConnection premixMtom1R(DryBusR, 0, multiply1R, 0);
+EXTMEM AudioConnection premixMtom2R(DryBusR, 0, multiply2R, 0);
+EXTMEM AudioConnection premixMtom3R(DryBusR, 0, multiply3R, 0);
+EXTMEM AudioConnection premixMtog1R(DryBusR, 0, granular1R, 0);
+EXTMEM AudioConnection premixMtog2R(DryBusR, 0, granular2R, 0);
+EXTMEM AudioConnection premixMtog3R(DryBusR, 0, granular3R, 0);
+EXTMEM AudioConnection premixMtobt1R(DryBusR, 0, bitcrusher1R, 0);
+EXTMEM AudioConnection premixMtobt2R(DryBusR, 0, bitcrusher2R, 0);
+EXTMEM AudioConnection premixMtobt3R(DryBusR, 0, bitcrusher3R, 0);
+EXTMEM AudioConnection premixMtorev1R(DryBusR, 0, freeverbs1R, 0);
+EXTMEM AudioConnection premixMtorev2R(DryBusR, 0, freeverbs2R, 0);
+EXTMEM AudioConnection premixMtorev3R(DryBusR, 0, freeverbs3R, 0);
+EXTMEM AudioConnection premixMtofl1R(DryBusR, 0, flange1R, 0);
+EXTMEM AudioConnection premixMtofl2R(DryBusR, 0, flange2R, 0);
+EXTMEM AudioConnection premixMtofl3R(DryBusR, 0, flange3R, 0);
+EXTMEM AudioConnection premixMtoch1R(DryBusR, 0, chorus1R, 0);
+EXTMEM AudioConnection premixMtoch2R(DryBusR, 0, chorus2R, 0);
+EXTMEM AudioConnection premixMtoch3R(DryBusR, 0, chorus3R, 0);
+EXTMEM AudioConnection premixMtoff1R(DryBusR, 0, filter1R, 0);
+EXTMEM AudioConnection premixMtobq1R(DryBusR, 0, biquad1R, 0);
+EXTMEM AudioConnection premixMtobq2R(DryBusR, 0, biquad2R, 0);
+EXTMEM AudioConnection premixMtobq3R(DryBusR, 0, biquad3R, 0);
+EXTMEM AudioConnection premixMtoff2R(DryBusR, 0, filter2R, 0);
+EXTMEM AudioConnection premixMtoff3R(DryBusR, 0, filter3R, 0);
+EXTMEM AudioConnection premixMtode1R(DryBusR, 0, feedbackdelay1R, 0);
+EXTMEM AudioConnection premixMtode2R(DryBusR, 0, feedbackdelay2R, 0);
+EXTMEM AudioConnection premixMtode3R(DryBusR, 0, feedbackdelay3R, 0);
 
-EXTMEM AudioConnection mul1towetL1(multiply1, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection mul1towetR1(multiply1R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection mul2towetL1(multiply2, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection mul2towetR1(multiply2R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection mul3towetL1(multiply3, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection mul3towetR1(multiply3R, 0, WetMixMasterR, 1);
+EXTMEM AudioConnection mul1towetL1(multiply1, 0, FXBusL, 1);
+EXTMEM AudioConnection mul1towetR1(multiply1R, 0, FXBusR, 1);
+EXTMEM AudioConnection mul2towetL1(multiply2, 0, FXBusL, 1);
+EXTMEM AudioConnection mul2towetR1(multiply2R, 0, FXBusR, 1);
+EXTMEM AudioConnection mul3towetL1(multiply3, 0, FXBusL, 1);
+EXTMEM AudioConnection mul3towetR1(multiply3R, 0, FXBusR, 1);
 
-EXTMEM AudioConnection mul1towetL2(multiply1, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection mul1towetR2(multiply1R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection mul2towetL2(multiply2, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection mul2towetR2(multiply2R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection mul3towetL2(multiply3, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection mul3towetR2(multiply3R, 0, WetMixMasterR, 2);
+EXTMEM AudioConnection mul1towetL2(multiply1, 0, FXBusL, 2);
+EXTMEM AudioConnection mul1towetR2(multiply1R, 0, FXBusR, 2);
+EXTMEM AudioConnection mul2towetL2(multiply2, 0, FXBusL, 2);
+EXTMEM AudioConnection mul2towetR2(multiply2R, 0, FXBusR, 2);
+EXTMEM AudioConnection mul3towetL2(multiply3, 0, FXBusL, 2);
+EXTMEM AudioConnection mul3towetR2(multiply3R, 0, FXBusR, 2);
 
-EXTMEM AudioConnection mul1towetL3(multiply1, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection mul1towetR3(multiply1R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection mul2towetL3(multiply2, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection mul2towetR3(multiply2R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection mul3towetL3(multiply3, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection mul3towetR3(multiply3R, 0, WetMixMasterR, 3);
-
-
-EXTMEM AudioConnection g1towetL1(granular1, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection g1towetR1(granular1R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection g2towetL1(granular2, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection g2towetR1(granular2R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection g3towetL1(granular3, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection g3towetR1(granular3R, 0, WetMixMasterR, 1);
-
-EXTMEM AudioConnection g1towetL2(granular1, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection g1towetR2(granular1R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection g2towetL2(granular2, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection g2towetR2(granular2R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection g3towetL2(granular3, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection g3towetR2(granular3R, 0, WetMixMasterR, 2);
-
-EXTMEM AudioConnection g1towetL3(granular1, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection g1towetR3(granular1R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection g2towetL3(granular2, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection g2towetR3(granular2R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection g3towetL3(granular3, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection g3towetR3(granular3R, 0, WetMixMasterR, 3);
+EXTMEM AudioConnection mul1towetL3(multiply1, 0, FXBusL, 3);
+EXTMEM AudioConnection mul1towetR3(multiply1R, 0, FXBusR, 3);
+EXTMEM AudioConnection mul2towetL3(multiply2, 0, FXBusL, 3);
+EXTMEM AudioConnection mul2towetR3(multiply2R, 0, FXBusR, 3);
+EXTMEM AudioConnection mul3towetL3(multiply3, 0, FXBusL, 3);
+EXTMEM AudioConnection mul3towetR3(multiply3R, 0, FXBusR, 3);
 
 
-EXTMEM AudioConnection bt1towetL1(bitcrusher1, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection bt1towetR1(bitcrusher1R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection bt2towetL1(bitcrusher2, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection bt2towetR1(bitcrusher2R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection bt3towetL1(bitcrusher3, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection bt3towetR1(bitcrusher3R, 0, WetMixMasterR, 1);
+EXTMEM AudioConnection g1towetL1(granular1, 0, FXBusL, 1);
+EXTMEM AudioConnection g1towetR1(granular1R, 0, FXBusR, 1);
+EXTMEM AudioConnection g2towetL1(granular2, 0, FXBusL, 1);
+EXTMEM AudioConnection g2towetR1(granular2R, 0, FXBusR, 1);
+EXTMEM AudioConnection g3towetL1(granular3, 0, FXBusL, 1);
+EXTMEM AudioConnection g3towetR1(granular3R, 0, FXBusR, 1);
 
-EXTMEM AudioConnection bt1towetL2(bitcrusher1, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection bt1towetR2(bitcrusher1R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection bt2towetL2(bitcrusher2, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection bt2towetR2(bitcrusher2R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection bt3towetL2(bitcrusher3, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection bt3towetR2(bitcrusher3R, 0, WetMixMasterR, 2);
+EXTMEM AudioConnection g1towetL2(granular1, 0, FXBusL, 2);
+EXTMEM AudioConnection g1towetR2(granular1R, 0, FXBusR, 2);
+EXTMEM AudioConnection g2towetL2(granular2, 0, FXBusL, 2);
+EXTMEM AudioConnection g2towetR2(granular2R, 0, FXBusR, 2);
+EXTMEM AudioConnection g3towetL2(granular3, 0, FXBusL, 2);
+EXTMEM AudioConnection g3towetR2(granular3R, 0, FXBusR, 2);
 
-EXTMEM AudioConnection bt1towetL3(bitcrusher1, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection bt1towetR3(bitcrusher1R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection bt2towetL3(bitcrusher2, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection bt2towetR3(bitcrusher2R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection bt3towetL3(bitcrusher3, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection bt3towetR3(bitcrusher3R, 0, WetMixMasterR, 3);
-
-
-EXTMEM AudioConnection rev1towetL1(freeverbs1, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection rev1towetR1(freeverbs1R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection rev2towetL1(freeverbs2, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection rev2towetR1(freeverbs2R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection rev3towetL1(freeverbs3, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection rev3towetR1(freeverbs3R, 0, WetMixMasterR, 1);
-
-EXTMEM AudioConnection rev1towetL2(freeverbs1, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection rev1towetR2(freeverbs1R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection rev2towetL2(freeverbs2, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection rev2towetR2(freeverbs2R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection rev3towetL2(freeverbs3, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection rev3towetR2(freeverbs3R, 0, WetMixMasterR, 2);
-
-EXTMEM AudioConnection rev1towetL3(freeverbs1, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection rev1towetR3(freeverbs1R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection rev2towetL3(freeverbs2, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection rev2towetR3(freeverbs2R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection rev3towetL3(freeverbs3, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection rev3towetR3(freeverbs3R, 0, WetMixMasterR, 3);
+EXTMEM AudioConnection g1towetL3(granular1, 0, FXBusL, 3);
+EXTMEM AudioConnection g1towetR3(granular1R, 0, FXBusR, 3);
+EXTMEM AudioConnection g2towetL3(granular2, 0, FXBusL, 3);
+EXTMEM AudioConnection g2towetR3(granular2R, 0, FXBusR, 3);
+EXTMEM AudioConnection g3towetL3(granular3, 0, FXBusL, 3);
+EXTMEM AudioConnection g3towetR3(granular3R, 0, FXBusR, 3);
 
 
-AudioConnection fl1towetL1(flange1, 0, WetMixMasterL, 1);
-AudioConnection fl1towetR1(flange1R, 0, WetMixMasterR, 1);
-AudioConnection fl2towetL1(flange2, 0, WetMixMasterL, 1);
-AudioConnection fl2towetR1(flange2R, 0, WetMixMasterR, 1);
-AudioConnection fl3towetL1(flange3, 0, WetMixMasterL, 1);
-AudioConnection fl3towetR1(flange3R, 0, WetMixMasterR, 1);
+EXTMEM AudioConnection bt1towetL1(bitcrusher1, 0, FXBusL, 1);
+EXTMEM AudioConnection bt1towetR1(bitcrusher1R, 0, FXBusR, 1);
+EXTMEM AudioConnection bt2towetL1(bitcrusher2, 0, FXBusL, 1);
+EXTMEM AudioConnection bt2towetR1(bitcrusher2R, 0, FXBusR, 1);
+EXTMEM AudioConnection bt3towetL1(bitcrusher3, 0, FXBusL, 1);
+EXTMEM AudioConnection bt3towetR1(bitcrusher3R, 0, FXBusR, 1);
 
-EXTMEM AudioConnection fl1towetL2(flange1, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection fl1towetR2(flange1R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection fl2towetL2(flange2, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection fl2towetR2(flange2R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection fl3towetL2(flange3, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection fl3towetR2(flange3R, 0, WetMixMasterR, 2);
+EXTMEM AudioConnection bt1towetL2(bitcrusher1, 0, FXBusL, 2);
+EXTMEM AudioConnection bt1towetR2(bitcrusher1R, 0, FXBusR, 2);
+EXTMEM AudioConnection bt2towetL2(bitcrusher2, 0, FXBusL, 2);
+EXTMEM AudioConnection bt2towetR2(bitcrusher2R, 0, FXBusR, 2);
+EXTMEM AudioConnection bt3towetL2(bitcrusher3, 0, FXBusL, 2);
+EXTMEM AudioConnection bt3towetR2(bitcrusher3R, 0, FXBusR, 2);
 
-EXTMEM AudioConnection fl1towetL3(flange1, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection fl1towetR3(flange1R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection fl2towetL3(flange2, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection fl2towetR3(flange2R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection fl3towetL3(flange3, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection fl3towetR3(flange3R, 0, WetMixMasterR, 3);
-
-
-EXTMEM AudioConnection ch1towetL1(chorus1, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection ch1towetR1(chorus1R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection ch2towetL1(chorus2, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection ch2towetR1(chorus2R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection ch3towetL1(chorus3, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection ch3towetR1(chorus3R, 0, WetMixMasterR, 1);
-
-EXTMEM AudioConnection ch1towetL2(chorus1, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection ch1towetR2(chorus1R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection ch2towetL2(chorus2, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection ch2towetR2(chorus2R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection ch3towetL2(chorus3, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection ch3towetR2(chorus3R, 0, WetMixMasterR, 2);
-
-EXTMEM AudioConnection ch1towetL3(chorus1, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection ch1towetR3(chorus1R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection ch2towetL3(chorus2, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection ch2towetR3(chorus2R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection ch3towetL3(chorus3, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection ch3towetR3(chorus3R, 0, WetMixMasterR, 3);
-
-EXTMEM AudioConnection bq1towetL1(biquad1, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection bq1towetR1(biquad1R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection bq2towetL1(biquad2, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection bq2towetR1(biquad2R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection bq3towetL1(biquad3, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection bq3towetR1(biquad3R, 0, WetMixMasterR, 1);
-
-EXTMEM AudioConnection bq1towetL2(biquad1, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection bq1towetR2(biquad1R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection bq2towetL2(biquad2, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection bq2towetR2(biquad2R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection bq3towetL2(biquad3, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection bq3towetR2(biquad3R, 0, WetMixMasterR, 2);
-
-EXTMEM AudioConnection bq1towetL3(biquad1, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection bq1towetR3(biquad1R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection bq2towetL3(biquad2, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection bq2towetR3(biquad2R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection bq3towetL3(biquad3, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection bq3towetR3(biquad3R, 0, WetMixMasterR, 3);
+EXTMEM AudioConnection bt1towetL3(bitcrusher1, 0, FXBusL, 3);
+EXTMEM AudioConnection bt1towetR3(bitcrusher1R, 0, FXBusR, 3);
+EXTMEM AudioConnection bt2towetL3(bitcrusher2, 0, FXBusL, 3);
+EXTMEM AudioConnection bt2towetR3(bitcrusher2R, 0, FXBusR, 3);
+EXTMEM AudioConnection bt3towetL3(bitcrusher3, 0, FXBusL, 3);
+EXTMEM AudioConnection bt3towetR3(bitcrusher3R, 0, FXBusR, 3);
 
 
-EXTMEM AudioConnection ff1towetL1(mixfilter1, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection ff1towetR1(mixfilter1R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection ff2towetL1(mixfilter2, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection ff2towetR1(mixfilter2R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection ff3towetL1(mixfilter3, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection ff3towetR1(mixfilter3R, 0, WetMixMasterR, 1);
+EXTMEM AudioConnection rev1towetL1(freeverbs1, 0, FXBusL, 1);
+EXTMEM AudioConnection rev1towetR1(freeverbs1R, 0, FXBusR, 1);
+EXTMEM AudioConnection rev2towetL1(freeverbs2, 0, FXBusL, 1);
+EXTMEM AudioConnection rev2towetR1(freeverbs2R, 0, FXBusR, 1);
+EXTMEM AudioConnection rev3towetL1(freeverbs3, 0, FXBusL, 1);
+EXTMEM AudioConnection rev3towetR1(freeverbs3R, 0, FXBusR, 1);
 
-EXTMEM AudioConnection ff1towetL2(mixfilter1, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection ff1towetR2(mixfilter1R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection ff2towetL2(mixfilter2, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection ff2towetR2(mixfilter2R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection ff3towetL2(mixfilter3, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection ff3towetR2(mixfilter3R, 0, WetMixMasterR, 2);
+EXTMEM AudioConnection rev1towetL2(freeverbs1, 0, FXBusL, 2);
+EXTMEM AudioConnection rev1towetR2(freeverbs1R, 0, FXBusR, 2);
+EXTMEM AudioConnection rev2towetL2(freeverbs2, 0, FXBusL, 2);
+EXTMEM AudioConnection rev2towetR2(freeverbs2R, 0, FXBusR, 2);
+EXTMEM AudioConnection rev3towetL2(freeverbs3, 0, FXBusL, 2);
+EXTMEM AudioConnection rev3towetR2(freeverbs3R, 0, FXBusR, 2);
 
-EXTMEM AudioConnection ff1towetL3(mixfilter1, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection ff1towetR3(mixfilter1R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection ff2towetL3(mixfilter2, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection ff2towetR3(mixfilter2R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection ff3towetL3(mixfilter3, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection ff3towetR3(mixfilter3R, 0, WetMixMasterR, 3);
+EXTMEM AudioConnection rev1towetL3(freeverbs1, 0, FXBusL, 3);
+EXTMEM AudioConnection rev1towetR3(freeverbs1R, 0, FXBusR, 3);
+EXTMEM AudioConnection rev2towetL3(freeverbs2, 0, FXBusL, 3);
+EXTMEM AudioConnection rev2towetR3(freeverbs2R, 0, FXBusR, 3);
+EXTMEM AudioConnection rev3towetL3(freeverbs3, 0, FXBusL, 3);
+EXTMEM AudioConnection rev3towetR3(freeverbs3R, 0, FXBusR, 3);
 
-EXTMEM AudioConnection de1towetL1(delaymix1, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection de1towetR1(delaymix1R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection de2towetL1(delaymix2, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection de2towetR1(delaymix2R, 0, WetMixMasterR, 1);
-EXTMEM AudioConnection de3towetL1(delaymix3, 0, WetMixMasterL, 1);
-EXTMEM AudioConnection de3towetR1(delaymix3R, 0, WetMixMasterR, 1);
 
-EXTMEM AudioConnection de1towetL2(delaymix1, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection de1towetR2(delaymix1R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection de2towetL2(delaymix2, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection de2towetR2(delaymix2R, 0, WetMixMasterR, 2);
-EXTMEM AudioConnection de3towetL2(delaymix3, 0, WetMixMasterL, 2);
-EXTMEM AudioConnection de3towetR2(delaymix3R, 0, WetMixMasterR, 2);
+AudioConnection fl1towetL1(flange1, 0, FXBusL, 1);
+AudioConnection fl1towetR1(flange1R, 0, FXBusR, 1);
+AudioConnection fl2towetL1(flange2, 0, FXBusL, 1);
+AudioConnection fl2towetR1(flange2R, 0, FXBusR, 1);
+AudioConnection fl3towetL1(flange3, 0, FXBusL, 1);
+AudioConnection fl3towetR1(flange3R, 0, FXBusR, 1);
 
-EXTMEM AudioConnection de1towetL3(delaymix1, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection de1towetR3(delaymix1R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection de2towetL3(delaymix2, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection de2towetR3(delaymix2R, 0, WetMixMasterR, 3);
-EXTMEM AudioConnection de3towetL3(delaymix3, 0, WetMixMasterL, 3);
-EXTMEM AudioConnection de3towetR3(delaymix3R, 0, WetMixMasterR, 3);
+EXTMEM AudioConnection fl1towetL2(flange1, 0, FXBusL, 2);
+EXTMEM AudioConnection fl1towetR2(flange1R, 0, FXBusR, 2);
+EXTMEM AudioConnection fl2towetL2(flange2, 0, FXBusL, 2);
+EXTMEM AudioConnection fl2towetR2(flange2R, 0, FXBusR, 2);
+EXTMEM AudioConnection fl3towetL2(flange3, 0, FXBusL, 2);
+EXTMEM AudioConnection fl3towetR2(flange3R, 0, FXBusR, 2);
+
+EXTMEM AudioConnection fl1towetL3(flange1, 0, FXBusL, 3);
+EXTMEM AudioConnection fl1towetR3(flange1R, 0, FXBusR, 3);
+EXTMEM AudioConnection fl2towetL3(flange2, 0, FXBusL, 3);
+EXTMEM AudioConnection fl2towetR3(flange2R, 0, FXBusR, 3);
+EXTMEM AudioConnection fl3towetL3(flange3, 0, FXBusL, 3);
+EXTMEM AudioConnection fl3towetR3(flange3R, 0, FXBusR, 3);
+
+
+EXTMEM AudioConnection ch1towetL1(chorus1, 0, FXBusL, 1);
+EXTMEM AudioConnection ch1towetR1(chorus1R, 0, FXBusR, 1);
+EXTMEM AudioConnection ch2towetL1(chorus2, 0, FXBusL, 1);
+EXTMEM AudioConnection ch2towetR1(chorus2R, 0, FXBusR, 1);
+EXTMEM AudioConnection ch3towetL1(chorus3, 0, FXBusL, 1);
+EXTMEM AudioConnection ch3towetR1(chorus3R, 0, FXBusR, 1);
+
+EXTMEM AudioConnection ch1towetL2(chorus1, 0, FXBusL, 2);
+EXTMEM AudioConnection ch1towetR2(chorus1R, 0, FXBusR, 2);
+EXTMEM AudioConnection ch2towetL2(chorus2, 0, FXBusL, 2);
+EXTMEM AudioConnection ch2towetR2(chorus2R, 0, FXBusR, 2);
+EXTMEM AudioConnection ch3towetL2(chorus3, 0, FXBusL, 2);
+EXTMEM AudioConnection ch3towetR2(chorus3R, 0, FXBusR, 2);
+
+EXTMEM AudioConnection ch1towetL3(chorus1, 0, FXBusL, 3);
+EXTMEM AudioConnection ch1towetR3(chorus1R, 0, FXBusR, 3);
+EXTMEM AudioConnection ch2towetL3(chorus2, 0, FXBusL, 3);
+EXTMEM AudioConnection ch2towetR3(chorus2R, 0, FXBusR, 3);
+EXTMEM AudioConnection ch3towetL3(chorus3, 0, FXBusL, 3);
+EXTMEM AudioConnection ch3towetR3(chorus3R, 0, FXBusR, 3);
+
+EXTMEM AudioConnection bq1towetL1(biquad1, 0, FXBusL, 1);
+EXTMEM AudioConnection bq1towetR1(biquad1R, 0, FXBusR, 1);
+EXTMEM AudioConnection bq2towetL1(biquad2, 0, FXBusL, 1);
+EXTMEM AudioConnection bq2towetR1(biquad2R, 0, FXBusR, 1);
+EXTMEM AudioConnection bq3towetL1(biquad3, 0, FXBusL, 1);
+EXTMEM AudioConnection bq3towetR1(biquad3R, 0, FXBusR, 1);
+
+EXTMEM AudioConnection bq1towetL2(biquad1, 0, FXBusL, 2);
+EXTMEM AudioConnection bq1towetR2(biquad1R, 0, FXBusR, 2);
+EXTMEM AudioConnection bq2towetL2(biquad2, 0, FXBusL, 2);
+EXTMEM AudioConnection bq2towetR2(biquad2R, 0, FXBusR, 2);
+EXTMEM AudioConnection bq3towetL2(biquad3, 0, FXBusL, 2);
+EXTMEM AudioConnection bq3towetR2(biquad3R, 0, FXBusR, 2);
+
+EXTMEM AudioConnection bq1towetL3(biquad1, 0, FXBusL, 3);
+EXTMEM AudioConnection bq1towetR3(biquad1R, 0, FXBusR, 3);
+EXTMEM AudioConnection bq2towetL3(biquad2, 0, FXBusL, 3);
+EXTMEM AudioConnection bq2towetR3(biquad2R, 0, FXBusR, 3);
+EXTMEM AudioConnection bq3towetL3(biquad3, 0, FXBusL, 3);
+EXTMEM AudioConnection bq3towetR3(biquad3R, 0, FXBusR, 3);
+
+
+EXTMEM AudioConnection ff1towetL1(mixfilter1, 0, FXBusL, 1);
+EXTMEM AudioConnection ff1towetR1(mixfilter1R, 0, FXBusR, 1);
+EXTMEM AudioConnection ff2towetL1(mixfilter2, 0, FXBusL, 1);
+EXTMEM AudioConnection ff2towetR1(mixfilter2R, 0, FXBusR, 1);
+EXTMEM AudioConnection ff3towetL1(mixfilter3, 0, FXBusL, 1);
+EXTMEM AudioConnection ff3towetR1(mixfilter3R, 0, FXBusR, 1);
+
+EXTMEM AudioConnection ff1towetL2(mixfilter1, 0, FXBusL, 2);
+EXTMEM AudioConnection ff1towetR2(mixfilter1R, 0, FXBusR, 2);
+EXTMEM AudioConnection ff2towetL2(mixfilter2, 0, FXBusL, 2);
+EXTMEM AudioConnection ff2towetR2(mixfilter2R, 0, FXBusR, 2);
+EXTMEM AudioConnection ff3towetL2(mixfilter3, 0, FXBusL, 2);
+EXTMEM AudioConnection ff3towetR2(mixfilter3R, 0, FXBusR, 2);
+
+EXTMEM AudioConnection ff1towetL3(mixfilter1, 0, FXBusL, 3);
+EXTMEM AudioConnection ff1towetR3(mixfilter1R, 0, FXBusR, 3);
+EXTMEM AudioConnection ff2towetL3(mixfilter2, 0, FXBusL, 3);
+EXTMEM AudioConnection ff2towetR3(mixfilter2R, 0, FXBusR, 3);
+EXTMEM AudioConnection ff3towetL3(mixfilter3, 0, FXBusL, 3);
+EXTMEM AudioConnection ff3towetR3(mixfilter3R, 0, FXBusR, 3);
+
+EXTMEM AudioConnection de1towetL1(delaymix1, 0, FXBusL, 1);
+EXTMEM AudioConnection de1towetR1(delaymix1R, 0, FXBusR, 1);
+EXTMEM AudioConnection de2towetL1(delaymix2, 0, FXBusL, 1);
+EXTMEM AudioConnection de2towetR1(delaymix2R, 0, FXBusR, 1);
+EXTMEM AudioConnection de3towetL1(delaymix3, 0, FXBusL, 1);
+EXTMEM AudioConnection de3towetR1(delaymix3R, 0, FXBusR, 1);
+
+EXTMEM AudioConnection de1towetL2(delaymix1, 0, FXBusL, 2);
+EXTMEM AudioConnection de1towetR2(delaymix1R, 0, FXBusR, 2);
+EXTMEM AudioConnection de2towetL2(delaymix2, 0, FXBusL, 2);
+EXTMEM AudioConnection de2towetR2(delaymix2R, 0, FXBusR, 2);
+EXTMEM AudioConnection de3towetL2(delaymix3, 0, FXBusL, 2);
+EXTMEM AudioConnection de3towetR2(delaymix3R, 0, FXBusR, 2);
+
+EXTMEM AudioConnection de1towetL3(delaymix1, 0, FXBusL, 3);
+EXTMEM AudioConnection de1towetR3(delaymix1R, 0, FXBusR, 3);
+EXTMEM AudioConnection de2towetL3(delaymix2, 0, FXBusL, 3);
+EXTMEM AudioConnection de2towetR3(delaymix2R, 0, FXBusR, 3);
+EXTMEM AudioConnection de3towetL3(delaymix3, 0, FXBusL, 3);
+EXTMEM AudioConnection de3towetR3(delaymix3R, 0, FXBusR, 3);
 
 EXTMEM AudioConnection LFO1toFilter1(LFOrm1, 0, filter1, 1);
 EXTMEM AudioConnection LFO1toFilter2(LFOrm1, 0, filter2, 1);
@@ -932,7 +936,8 @@ AudioMixer4 *les303wet[SYNTH_LINERS_COUNT] = {&mixerWet303L1, &mixerWet303L2, &m
 AudioFilterStateVariable *les303filterz[SYNTH_LINERS_COUNT] = {
     &filter303L1, &filter303L2, &filter303L3, &filter303L4, &filter303L5, &filter303L6};
 
-
+EXTMEM AudioFilterStateVariable stereoFilterL;
+EXTMEM AudioFilterStateVariable stereoFilterR;
 
 EXTMEM AudioConnection Notespy_cable(ampL, notefreq1);
 
@@ -1103,7 +1108,6 @@ EXTMEM AudioConnection MDstringCord20(string3L4, 0, modulate3L4, 0);
 EXTMEM AudioConnection MDstringCord21(string3L5, 0, modulate3L5, 0);
 EXTMEM AudioConnection MDstringCord22(string3L6, 0, modulate3L6, 0);
 
-
 AudioConnection *stringcords1[SYNTH_LINERS_COUNT*OSCS_COUNT] = {
     &stringCord01, &stringCord02, &stringCord03, &stringCord04, &stringCord05, &stringCord06,
     &stringCord09, &stringCord10, &stringCord11, &stringCord12, &stringCord13, &stringCord14,
@@ -1198,19 +1202,15 @@ EXTMEM AudioConnection          sd_mix_mp3R(playMp31, 1, sd_mixerR, 1);
 EXTMEM AudioConnection          sd_mix_flacL(playFlac1, 0, sd_mixerL, 2);
 EXTMEM AudioConnection          sd_mix_flacR(playFlac1, 1, sd_mixerR, 2);
 
-AudioFilterStateVariable stereoFilterL;
-AudioFilterStateVariable stereoFilterR;
-
+EXTMEM AudioConnection patchInL(mixerWAll,0,stereoFilterL,0);
+EXTMEM AudioConnection patchInR(mixerWAll,0,stereoFilterR,0);
 // Optional modulation
-AudioSynthWaveform stereoLFOL;
-AudioSynthWaveform stereoLFOR;
+EXTMEM AudioSynthWaveform stereoLFOL;
+EXTMEM AudioSynthWaveform stereoLFOR;
 
-AudioConnection stereoPatch1;
-AudioConnection stereoPatch2;
-AudioConnection stereoPatch3;
-AudioConnection stereoPatch4;
-AudioConnection stereoPatch5;
-AudioConnection stereoPatch6;
-AudioConnection lfo_stereoL(stereoLFOL,0,stereoFilterL,1);
-AudioConnection lfo_stereoR(stereoLFOR,0,stereoFilterR,1);
+EXTMEM AudioConnection patchOutL(stereoFilterL,0,SynthWMixerL,1);
+EXTMEM AudioConnection patchOutR(stereoFilterR,0,SynthWMixerR,1);
+
+EXTMEM AudioConnection lfo_stereoL(stereoLFOL,0,stereoFilterL,1);
+EXTMEM AudioConnection lfo_stereoR(stereoLFOR,0,stereoFilterR,1);
 

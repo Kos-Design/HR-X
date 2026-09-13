@@ -429,7 +429,7 @@ void TriggerMessenger::MaControlChange(byte channel, byte control, byte value) {
 void TriggerMessenger::stopallnotes() {
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
     if (synth_lines[i]->note) {
-      MaNoteOff(gg.synthmidichannel, synth_lines[i]->note, 0);
+      self->MaNoteOff(gg.synthmidichannel, synth_lines[i]->note, 0);
     }
   }
 }

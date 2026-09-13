@@ -105,6 +105,8 @@ struct Preset {
     uint8_t mixle303ffilterzVknobs[3] = {127,0,0};
     uint8_t le303filterzwet = 0;
     uint8_t preampleswaves = 64;
+    uint8_t stereo_widener = 0 ;
+
     //0: exponential | 64: linear | 127: log-like
     uint8_t glide_slope = 64;
     uint8_t portamento_height = 70;

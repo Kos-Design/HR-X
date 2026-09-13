@@ -64,7 +64,7 @@ class TriggerMessenger {
         void dotapaverage();
         void shut_used_synth_notes(byte data1);
         void shut_used_flash_notes(byte data1);
-        void stopallnotes();
+        static void stopallnotes();
         byte get_free_synth(byte note);
         byte get_free_sampler(byte note);
         void initiateasynthliner(MidiEventer msg);

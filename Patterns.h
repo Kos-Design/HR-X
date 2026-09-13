@@ -23,14 +23,17 @@ class MasterClock {
         MasterClock();
 
         bool stop = 1 ;
+        bool armed = 0 ;
         volatile int tick24 = 0 ;
         bool tic_toc[7]{};
         int timee = 0;
         static void click();
+        void disarm_one_shot();
         void dispatch_ticks();
         void attach_2(void (*cb)());
         void attach_3(void (*cb)());
         void attach_long(void (*cb)());
+        void attach_one_shot(void (*cb)());
         void attach_24(void (*cb)());
         void attach_24_bis(void (*cb)());
         void attach_96(void (*cb)());
@@ -38,6 +41,7 @@ class MasterClock {
         void attach_303(void (*cb)());
         void stopticker();
         void startticker();
+        void (*one_shot)() = nullptr;
 
     private:
 
@@ -50,6 +54,7 @@ class MasterClock {
         void (*_callback_long)() = nullptr;
         void (*_callback_oscilloscope)() = nullptr;
         void (*_callback_303)() = nullptr;
+        
         static MasterClock* self;
 };
 

@@ -544,49 +544,69 @@ void SettingsMenuRouter::arpegiatorVpanel() {
           dm.dodisplay();
         }
 
+void SettingsMenuRouter::synth_stereo_selector() {
+  mc.navrange = 2 ;
+  gg.stereo_widener = (byte)mc.sublevels[3];
+  if (mc.navlevel > 3) {
+    set_synth_stereo();
+    dm.returntonav(2,2,2);
+  }
+}
 
+void SettingsMenuRouter::set_synth_stereo() {
+  //TODO: make remeining modes
+  switch (gg.stereo_widener) {
+    case 0:
+      turn_off_stereo(0);
+    break;
+
+    case 1:
+      set_s_mode_phase(0);
+    break;
+
+    case 2:
+      set_s_mode_freq(0);
+
+    break;
+
+    case 3:
+    break;
+
+    default:
+    break;
+ }
+}
+
+void SettingsMenuRouter::extra_menu() {
+  char chordslabels[7][12] = {"Major", "Minor", "Diminished", "Augmented", "Sus2",  "Sus4",  "None"};
+  mc.navrange = 2 ;
+  if (mc.navlevel >= 3 ) _extra_menu[mc.sublevels[2]]();
+  char tbuffer[6];
+  snprintf(tbuffer, sizeof(tbuffer), "%d.%d", (int)(15000.0 / gg.millitickinterval), (int)((15000.0 / gg.millitickinterval) * 10) % 10);
+  const char* _lbls[4] = {"Tempo        ","Chords       ","Synth Stereo ","FREE  "};
+  const char* _vals[4] = {(const char*)tbuffer,chordslabels[gg.lasetchord],stereoWidth.stereo_mode_lbls[gg.stereo_widener]," "};
+  if (mc.navlevel == 2 ) mc.sublevels[3] = (int[4]){gg.millitickinterval,gg.lasetchord,gg.stereo_widener,0}[mc.sublevels[2]];
+  dm.sub_menu(_lbls,_vals,76);
+}
 
 void SettingsMenuRouter::makesettingslist() {
-          char chordslabels[7][12] = {"Major", "Minor", "Diminished", "Augmented",
-                                      "Sus2",  "Sus4",  "None"};
-          
+
           char displaysettingslabels[settings_labels_count][18] = {"Midi",
                                                                   "Options",
-                                                                  "Arpegiator",
+                                                                  "Arpegiator Text",
                                                                   "OnBoard Knobs",
                                                                   "Virtual Knobs",
                                                                   "Knobs Setter",
                                                                   "Nav Config",
-                                                                  "Tempo",
-                                                                  "Chorus"};
+                                                                  "Parameters"};
+
+          snprintf(displaysettingslabels[2], 18, "Arpegiator %s", ((char[2][4]){"Off", "On"})[(int)(gg.arpegiatortype != 8)]);
+
           int startx = 0;
           int starty = 16;
           char *textin = (char *)displaysettingslabels[mc.sublevels[1]];
           dm.clean_title_1_1();
           dm.canvastitle.println(textin);
-
-          if (mc.sublevels[1] == 7) {
-            dm.canvastitle.setCursor(96, 0);
-            //dm.canvastitle.println(mc.BPMs, 1);
-            dm.canvastitle.println(15000 / gg.millitickinterval, 1);
-            if (mc.navlevel <= 2) {
-              mc.sublevels[2] = gg.millitickinterval;
-            }
-          }
-          if (mc.sublevels[1] == 8) {
-            mc.sublevels[2] = gg.lasetchord;
-            dm.canvasBIG.setTextSize(1);
-            dm.canvasBIG.setCursor(66, 0);
-            dm.canvasBIG.println(chordslabels[gg.lasetchord]);
-          }
-          if (mc.sublevels[1] == 2) {
-            dm.canvasBIG.setCursor(96, 0);
-            if (gg.arpegiatortype != 8) {
-              dm.canvasBIG.print("On");
-            } else {
-              dm.canvasBIG.print("Off");
-            }
-          }
           
           for (int filer = 0; filer < settings_labels_count - 1 - (mc.sublevels[1]);
               filer++) {
@@ -600,14 +620,9 @@ void SettingsMenuRouter::makesettingslist() {
         }
 
 void SettingsMenuRouter::settings_nav_one(){
-
   dm.canvasBIG.setTextSize(1);
   dm.canvastitle.setTextSize(1);
   _settings_menu[mc.sublevels[1]]();
-  if (mc.sublevels[1] == 7 || mc.sublevels[1] == 8 ) {
-    makesettingslist();
-    dm.dodisplay();
-  }
 }
 
 byte SettingsMenuRouter::getnotefromfreq(float lafreq) {
@@ -653,26 +668,22 @@ void SettingsMenuRouter::metronomer() {
 
 void SettingsMenuRouter::set_bpms_interval(){
   mc.navrange = 620;
-  gg.millitickinterval = mc.sublevels[2];
-  //setbpms();
-  if (mc.navlevel >= 3) {
-    gg.millitickinterval = mc.sublevels[2];
+  gg.millitickinterval = mc.sublevels[3];
+  if (mc.navlevel > 3) {
     _ps.setbpms();
-    //tempo = gg.millitickinterval;
-    dm.returntonav(1,self->home_navrange,7);
+    dm.returntonav(2,3,0);
   }
 }
 
 void SettingsMenuRouter::set_chord_mode(){
   mc.navrange = 6;
-  SetChords_ctl(map(mc.sublevels[2],0,6,0,127));
-  if (mc.navlevel >= 3) {
-    dm.returntonav(1,self->home_navrange,8);
-  }
+  SetChords_ctl(map(mc.sublevels[3],0,6,0,127));
+  if (mc.navlevel > 3) dm.returntonav(2,3,1);
 }
+void (*SettingsMenuRouter::_extra_menu[4])() = {&set_bpms_interval,&set_chord_mode,&synth_stereo_selector,nullptr};
 
 void (*SettingsMenuRouter::_settings_menu[settings_labels_count])() = {&_mr.show,&_mr.options,&arpegiatorVpanel,&OnBoardVpanel,
-                                                                      &_vk.Vbuttonspanel,&_ka.show,&set_alternative_rota,&set_bpms_interval,&set_chord_mode};
+                                                                      &_vk.Vbuttonspanel,&_ka.show,&set_alternative_rota,&extra_menu};
 
 VirtualKnobs* VirtualKnobs::self = nullptr;
 
@@ -698,8 +709,7 @@ void VirtualKnobs::doposkselector() {
   if (mc.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT) {
     dm.canvastitle.fillScreen(SSD1306_BLACK);
     dm.canvasBIG.setTextSize(1);
-    if (gg.midiknobassigned[(70 + mc.sublevels[self->relative_navlevel] + 1 + (14 + 17))] !=
-        0) {
+    if (gg.midiknobassigned[(70 + mc.sublevels[self->relative_navlevel] + 1 + (14 + 17))]) {
       dm.printassignedmidi(
           gg.midiknobassigned[(70 + mc.sublevels[self->relative_navlevel] + 1 + (14 + 17))]);
 
