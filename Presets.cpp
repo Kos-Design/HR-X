@@ -301,26 +301,16 @@ const unsigned char *_img[12] = { sinewave, sawtoothwave, reversesawtoothwave, t
                                       variabletriangle, squarewave, pulsewave,arbitrarywave,
                                       samplehold,arbitrarywave,samplehold,moonwave};
 
-//FxBus::FxBus(byte fii) : f_index(fii){}
 FxBus::FxBus() {}
 
 void FxBus::route_fx(byte selected_fx_type) {
-          Serial.println(f_index);
-        Serial.print("fx was ");
-        Serial.print(bb.previousely_plugged_fx[f_index]);
-      //if (bb.previousely_plugged_fx[f_index] != (ALL_FX_TYPES - 1)) unplug_fx_line();
-      if (bb.previousely_plugged_fx[f_index] != (ALL_FX_TYPES - 1)) unplug_fx_line();
-      if (selected_fx_type != (ALL_FX_TYPES - 1)) {
-        plug_fx_line(selected_fx_type);
-        plugged_fx = selected_fx_type;
-        bb.previousely_plugged_fx[f_index] = plugged_fx;
-        Serial.println();
-        Serial.print("fx n° (+1)");
-        Serial.print(f_index+1);
-        Serial.print(" is now ");
-        Serial.print(bb.previousely_plugged_fx[f_index]);
-      }
-    }
+  if (bb.previousely_plugged_fx[f_index] != (ALL_FX_TYPES - 1)) unplug_fx_line();
+  if (selected_fx_type != (ALL_FX_TYPES - 1)) {
+    plug_fx_line(selected_fx_type);
+    plugged_fx = selected_fx_type;
+  }
+  bb.previousely_plugged_fx[f_index] = plugged_fx;
+}
 
 void FxBus::plug_fx_line(byte selected_fx_type){
 

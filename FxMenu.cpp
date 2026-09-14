@@ -251,52 +251,25 @@ void FxMenuRouter::restartdelayline(byte fx_idx) {
       }
 
 void FxMenuRouter::changebiquadfreqvalue(byte fx_idx, int valub) {
-        // valub range 1024
-        gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] = valub * 3;
-        biquadcontrols(fx_idx);
-      }
+  // valub range 1024
+  gg.fx[fx_idx].bqfreq[gg.fx[fx_idx].bqstage] = valub * 3;
+  biquadcontrols(fx_idx);
+}
 
-void FxMenuRouter::displayfxVcontrols(byte fxinstance) {
-        //TODO:make switch
-        if (mc.sublevels[2] == 6) {
-          biquadVpanel(fxinstance);
-        }
-        if (mc.sublevels[2] == 7) {
-          filterVpanel(fxinstance);
-        }
-        if (mc.sublevels[2] == 8) {
-          delayVpanel(fxinstance);
-        }
-        if (mc.sublevels[2] == 1) {
-          reverbVpanel(fxinstance);
-        }
-        if (mc.sublevels[2] == 3) {
-          bitcrusherVpanel(fxinstance);
-        }
-        if (mc.sublevels[2] == 2) {
-          granularVpanel(fxinstance);
-        }
-        if (mc.sublevels[2] == 5) {
-          chorusVpanel(fxinstance);
-        }
-        if (mc.sublevels[2] == 4) {
-          flangerVpanel(fxinstance);
-        }
-        if (mc.sublevels[2] == 9 || mc.sublevels[2] == 0) {
-          mc.navlevel--;
-        }
-      }
+void FxMenuRouter::no_panel(byte fxinstance){
+  mc.navlevel--;
+}
+
 void FxMenuRouter::flangercontrols(byte fx_idx) {
-        gg.fx[fx_idx].flangeoffset =
-            round((gg.fx[fx_idx].flangerVknobs[0] / 127.0) * FLANGE_DELAY_LENGTH / 4);
-        gg.fx[fx_idx].flangedepth =
-            round((gg.fx[fx_idx].flangerVknobs[1] / 127.0) * FLANGE_DELAY_LENGTH / 4);
-        gg.fx[fx_idx].flangefreq = (double)(gg.fx[fx_idx].flangerVknobs[2] / 127.0) * 2;
-         AudioNoInterrupts();
-        flange[fx_idx]->voices(gg.fx[fx_idx].flangeoffset, gg.fx[fx_idx].flangedepth, gg.fx[fx_idx].flangefreq);
-        flangeR[fx_idx]->voices(gg.fx[fx_idx].flangeoffset, gg.fx[fx_idx].flangedepth, gg.fx[fx_idx].flangefreq);
-         AudioInterrupts();
-      }
+  gg.fx[fx_idx].flangeoffset = round((gg.fx[fx_idx].flangerVknobs[0] / 127.0) * FLANGE_DELAY_LENGTH / 4);
+  gg.fx[fx_idx].flangedepth = round((gg.fx[fx_idx].flangerVknobs[1] / 127.0) * FLANGE_DELAY_LENGTH / 4);
+  gg.fx[fx_idx].flangefreq = (double)(gg.fx[fx_idx].flangerVknobs[2] / 127.0) * 2;
+    AudioNoInterrupts();
+  flange[fx_idx]->voices(gg.fx[fx_idx].flangeoffset, gg.fx[fx_idx].flangedepth, gg.fx[fx_idx].flangefreq);
+  flangeR[fx_idx]->voices(gg.fx[fx_idx].flangeoffset, gg.fx[fx_idx].flangedepth, gg.fx[fx_idx].flangefreq);
+    AudioInterrupts();
+}
+
 void FxMenuRouter::flangerVpanelAction(byte fx_idx) {
         if (mc.navlevel == 4) {
           // AudioNoInterrupts();
@@ -690,7 +663,7 @@ void FxMenuRouter::granularVpanelSelector(byte fx_idx) {
       }
 
 void FxMenuRouter::granularVpanel(byte fx_idx) {
-
+        Serial.println("gran");
         granularVpanelAction(fx_idx);
         const byte knobradius = 13;
         byte centercirclex = 10 + knobradius;
@@ -767,6 +740,8 @@ void FxMenuRouter::granularVpanel(byte fx_idx) {
         dm.canvasBIG.fillRect((topwbarstart + startlex2 + 6), 2, barsize, wbarwidth2 - 4, SSD1306_WHITE);
         dm.canvasBIG.setCursor(startlex2 - 6, 0);
         dm.canvasBIG.print("Wet:");
+        Serial.println("granend");
+
         granularVpanelSelector(fx_idx);
         dm.dodisplay();
       }
@@ -1606,7 +1581,7 @@ void FxMenuRouter::fx_nav_zero(){
 }
 
 void FxMenuRouter::fx_nav_one(){
-  if (mc.navlevel < 2) dm.reinitsublevels(2);
+  if (mc.navlevel < 3) dm.reinitsublevels(3);
   mc.avoid_fx_bounce = false ;
   dm.clearDisplay();
   if (mc.navlevel == 2) mc.navrange = 9;
@@ -1617,10 +1592,12 @@ void FxMenuRouter::fx_nav_one(){
 void FxMenuRouter::fx_nav_two(){
   //remember to manage mc.avoid_fx_bounce if plugging fx outside of menu
   if (!mc.avoid_fx_bounce){
+        Serial.println("routing");
     mc.avoid_fx_bounce = true ;
     gg.fx[mc.sublevels[1]].route_fx(mc.sublevels[2]);
   }
-    displayfxVcontrols(mc.sublevels[1]);
+  Serial.println("showing fx ctls");
+  fx_controls_panels[mc.sublevels[2]](mc.sublevels[1]);
 }
 
 void FxMenuRouter::MainFxPanel() {
@@ -1634,5 +1611,3 @@ void FxMenuRouter::MainFxPanel() {
     fx_nav_two();
   }
 }
-
-

@@ -32,6 +32,7 @@ class RecorderMenuRouter : public SectionHolder {
         static void show();
         static void Load_raw_file();
         static void startRecording();
+        static void disarm_pre_record();
         static void auto_stop_rec();
         static void continue_looper();
         static void stopRecording();

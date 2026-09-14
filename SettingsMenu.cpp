@@ -19,8 +19,10 @@ void MidiMenuRouter::show(){
   _tt.debugmidion = 1 ;
   if (mc.navlevel >= 3 ) _midi_menu[mc.sublevels[2]]();
   char midichlist[17][4] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "All"};
+  char midoutlist[17][4] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "Off"};
   const char* midi_lbls[4] = {"Synth Channel: ","Flash Channel: ","Send midi Out: ","External tick: "};
-  const char* midi_vals[4] = {midichlist[gg.synthmidichannel],midichlist[gg.samplermidichannel],((const char*[2]){"Off","On"})[gg.SendMidiOut],((const char*[2]){"Off","On"})[gg.externalticker]};
+  
+  const char* midi_vals[4] = {midichlist[gg.synthmidichannel],midichlist[gg.samplermidichannel],midoutlist[gg.SendMidiOut],((const char*[2]){"Off","On"})[gg.externalticker]};
   if (mc.navlevel == 2 ) mc.sublevels[3] = (int)(byte[4]){(byte)gg.synthmidichannel,(byte)gg.samplermidichannel,(byte)gg.SendMidiOut,(byte)gg.externalticker}[mc.sublevels[2]];
   dm.sub_menu(midi_lbls,midi_vals);
 }
@@ -119,14 +121,14 @@ void MidiMenuRouter::toggle_note_spy(){
 
 void MidiMenuRouter::toggle_digital_analog(){
   AnalogTouch_Toggle_ctl(0);
-  dm.returntonav(2,self->home_navrange,1);
+  dm.returntonav(2,3,1);
 }
 
 void MidiMenuRouter::set_synth_midi_ch(){
   mc.navrange = 16;
   gg.synthmidichannel = (byte)mc.sublevels[3];
   if (mc.navlevel > 3) {
-    dm.returntonav(2,self->home_navrange,0);
+    dm.returntonav(2,3,0);
   }
 }
 
@@ -134,26 +136,29 @@ void MidiMenuRouter::set_sampler_midi_ch(){
   mc.navrange = 16;
   gg.samplermidichannel = (byte)mc.sublevels[3];
   if (mc.navlevel > 3) {
-    dm.returntonav(2,self->home_navrange,1);
+    dm.returntonav(2,3,1);
   }
 }
 
 void MidiMenuRouter::toggle_ext_clock(){
   gg.externalticker = !gg.externalticker;
-  dm.returntonav(2,self->home_navrange,3);
+  dm.returntonav(2,3,3);
 }
 
-void MidiMenuRouter::toggle_midi_out(){
-  gg.SendMidiOut = !gg.SendMidiOut ;
-  dm.returntonav(2,self->home_navrange,2);
+void MidiMenuRouter::set_midi_out_ch(){
+  mc.navrange = 16;
+  gg.SendMidiOut = (byte)mc.sublevels[3];
+  if (mc.navlevel > 3) {
+    dm.returntonav(2,3,2);
+  }
 }
 
 void MidiMenuRouter::toggle_freeze_midi(){
   _tt.stopallnotes();
-  dm.returntonav(2,self->home_navrange,2);
+  dm.returntonav(2,3,2);
 }
 
-void (*MidiMenuRouter::_midi_menu[4])() = {&set_synth_midi_ch,&set_sampler_midi_ch,&toggle_midi_out,&toggle_ext_clock};
+void (*MidiMenuRouter::_midi_menu[4])() = {&set_synth_midi_ch,&set_sampler_midi_ch,&set_midi_out_ch,&toggle_ext_clock};
 
 void (*MidiMenuRouter::_midi_options[4])() = {&set_tap_note,&toggle_digital_analog,&toggle_freeze_midi,&set_audio_source};
 
@@ -554,7 +559,7 @@ void SettingsMenuRouter::synth_stereo_selector() {
 }
 
 void SettingsMenuRouter::set_synth_stereo() {
-  //TODO: make remeining modes
+  //TODO: make freq, res & mix ctl
   switch (gg.stereo_widener) {
     case 0:
       turn_off_stereo(0);
@@ -567,9 +572,6 @@ void SettingsMenuRouter::set_synth_stereo() {
     case 2:
       set_s_mode_freq(0);
 
-    break;
-
-    case 3:
     break;
 
     default:

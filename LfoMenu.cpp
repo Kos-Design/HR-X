@@ -264,7 +264,7 @@ void LFOMenuRouter::restartLFO(int leLFO) {
             LFOwaveforms1[leLFO]->begin((float)(gg.LFOlevel[leLFO]/127.00), gg.LFOHz[leLFO]*2, lesformes[gg.LFOformstype[leLFO]]);
           }
           if (gg.LFOformstype[leLFO] == 7) {
-            LFOwaveforms1[leLFO]->arbitraryWaveform(gg.arbitrary_waveforms[leLFO],gg.arbitrary_maxF[leLFO]);
+            LFOwaveforms1[leLFO]->arbitraryWaveform(gg.arbitrary_waveforms[leLFO],123.0);
           }
 
           for (byte i = 0; i < SYNTH_LINERS_COUNT; i++) {
@@ -308,9 +308,8 @@ void LFOMenuRouter::LFOlineBG() {
         }
 
 void LFOMenuRouter::lfo_zero(){
-            mc.navrange = OSCS_COUNT-1;
-            //TODO:remove maybe
-            dm.reinitsublevels(2);
-            LFOlineBG();
-        }
+    mc.navrange = OSCS_COUNT-1;
+    dm.reinitsublevels(2);
+    LFOlineBG();
+}
 

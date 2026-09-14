@@ -1,3 +1,4 @@
+#include "Patterns.h"
 #include "WaveEditorMenu.h"
 #include "SamplerMenu.h"
 #include "Presets.h"
@@ -29,7 +30,10 @@ void RecorderMenuRouter::Load_raw_file() {
   //self->newRecpathR = self->newRecpathL ;
 }
 
-
+void RecorderMenuRouter::disarm_pre_record(){
+  self->rec_looping = true ;
+  self->pre_record = false ;
+}
 
 void RecorderMenuRouter::startRecording() {
   if (mc.locked_fileing) return;
@@ -42,11 +46,10 @@ void RecorderMenuRouter::startRecording() {
     self->newloopedpath = self->catalog->get_new_file_name();
     self->looper = SD.sdfs.open(self->newloopedpath.c_str(),O_WRITE | O_CREAT | O_TRUNC);
     if (self->looper) {
-      //AudioNoInterrupts();
       queue1.begin();
       self->pre_record = true;
-      //AudioInterrupts();
-      //self->rec_looping = true ;
+      Tocker.attach_one_shot(disarm_pre_record);
+     
     } else {
       self->rec_looping = false ;
     }

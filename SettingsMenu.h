@@ -32,7 +32,7 @@ class MidiMenuRouter : public SectionHolder {
     static void toggle_note_spy();
     static void toggle_ext_clock();
     static void toggle_digital_analog();
-    static void toggle_midi_out();     
+    static void set_midi_out_ch();     
     static void set_in_source();
     static void set_audio_source();
   private:

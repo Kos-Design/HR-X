@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "Constants.h"
 #include <cstring>
 #include "core_pins.h"
@@ -27,6 +28,10 @@ void MasterClock::disarm_one_shot() {
 
 void MasterClock::dispatch_ticks() {
     // don't use big numbers as modulos on large ints as it may break periodicity
+    if (_callback_1 && self->tic_toc[7]){
+      self->tic_toc[7] = false;
+      _callback_1();
+    }
 
     if ((self->tick96 % 96) == 0 && _callback_96 && self->tic_toc[0]){
       self->tic_toc[0] = false;
@@ -82,6 +87,10 @@ void MasterClock::attach_one_shot(void (*cb)()) {
 
 void MasterClock::attach_2(void (*cb)()) {
   _callback_2 = cb;
+}
+
+void MasterClock::attach_1(void (*cb)()) {
+  _callback_1 = cb;
 }
 
 void MasterClock::attach_3(void (*cb)()) {
@@ -370,7 +379,7 @@ void PatEditRouter::refresh_synth_track() {
           clearevented0(0);
           for (int linerrd = 0; linerrd < SYNTH_LINERS_COUNT; linerrd++) {
             for (int i = 0; i < PBARS; i++) {
-              if (pp.synth_partition[linerrd][i].note != 0) {
+              if (pp.synth_partition[linerrd][i].note) {
                 pp.track_cells[Synth][i] = true;
               }
             }
@@ -383,7 +392,7 @@ void PatEditRouter::refresh_flash_track() {
 
             for (int i = 0; i < PBARS; i++) {
 
-              if (pp.sampler_partition[linerrd][i].note != 0) {
+              if (pp.sampler_partition[linerrd][i].note) {
                 pp.track_cells[Flash][i] = true;
               }
             }
@@ -400,15 +409,17 @@ void PatEditRouter::dolistpatternlineblocks() {
           }
         }
 
-int PatEditRouter::grid_start_note() {
-          /*
-          byte min_note = 127 ;
-          int averagenoteevent = 0;
-          int nombrofnoteonliner = 0;
-          //TODO: get the most visible notes range to set starting note val
-          */
-          return 45;
-        }
+byte PatEditRouter::grid_start_note() {
+  byte min_note = 127;
+  byte max_note = 0;
+  for (int i = 0; i < PBARS; i++) {
+    if (self->_on_part[i].note){
+      min_note = min(min_note,self->_on_part[i].note);
+      max_note = max(max_note,self->_on_part[i].note);
+    }
+  }
+  return (max_note + min_note) / 2;
+}
 
 void PatEditRouter::terminatenotesinbetween() {
           for (int i = min(mc.sublevels[self->relative_navlevel + 3] + 1,PBARS-1); i < mc.sublevels[self->relative_navlevel + 4]; i++) {
@@ -452,20 +463,19 @@ void PatEditRouter::show_track_header(){
         }
 
 void PatEditRouter::note_selector() {
-          self->preview = 0 ;
-          self->paterning = false ;
-          dm.clearDisplay();
-          mc.navrange = 127;
-          sync_temp();
-          doshownoteline();
-          //dm.canvasBIG.drawLine(0, starty + 2, 127, starty + 2, SSD1306_INVERSE);
-          draw_velobars();
-          dm.dodisplay();
-          mc.sublevels[self->relative_navlevel + 3] = mc.tickposition;
-          if (mc.sublevels[self->relative_navlevel+2] == 0 ){
-            mc.sublevels[self->relative_navlevel + 2] = self->grid_start_note();
-          }
-        }
+  self->preview = 0 ;
+  self->paterning = false ;
+  dm.clearDisplay();
+  mc.navrange = 127;
+  sync_temp();
+  doshownoteline();
+  draw_velobars();
+  dm.dodisplay();
+  mc.sublevels[self->relative_navlevel + 3] = mc.tickposition;
+  if (mc.sublevels[self->relative_navlevel+2] == 0 ){
+    mc.sublevels[self->relative_navlevel + 2] = self->grid_start_note();
+  }
+}
 
 void PatEditRouter::play_cell_preview(){
   if (self->track_type) {
@@ -738,7 +748,7 @@ void PatEditRouter::set_cell_velocity() {
 void PatEditRouter::computelenghtmesureoffline_synth() {
   for (int linei = 0; linei < SYNTH_LINERS_COUNT; linei++) {
     for (int i = 0; i < PBARS; i++) {
-      if (pp.synth_partition[linei][i].note != 0) {
+      if (pp.synth_partition[linei][i].note) {
         int laposof = self->getnextposofevent1Off_synth(linei, pp.synth_partition[linei][i].note, i);
         if (laposof < PBARS - 1) {
           pp.synth_notes_length[linei][i] = (laposof - i) * 4;
@@ -771,7 +781,7 @@ int PatEditRouter::getnextposofevent1Off_sampler(int linei, byte lanote, int fro
 void PatEditRouter::computelenghtmesureoffline_sampler() {
   for (int linei = 0; linei < FLASH_LINERS_COUNT; linei++) {
     for (int i = 0; i < PBARS; i++) {
-      if (pp.sampler_partition[linei][i].note != 0) {
+      if (pp.sampler_partition[linei][i].note) {
         int laposof = self->getnextposofevent1Off_sampler(linei, pp.sampler_partition[linei][i].note, i);
         if (laposof < PBARS - 1) {
           pp.flash_notes_length[linei][i] = (laposof - i) * 4;
@@ -808,8 +818,12 @@ bool POptionsRouter::target_ccs = 0;
 
 bool* POptionsRouter::_targets[3] = {&target_sampler, &target_synth, &target_ccs};
 
-void POptionsRouter::clearlapattern() {
+void POptionsRouter::pattern_cleaners() {
   for (int i=0;i<3;i++) if (*_targets[i] || mc.songplaying) cleaners[i]();
+}
+
+void POptionsRouter::clearlapattern() {
+  pattern_cleaners();
   dm.returntonav(2, self->home_navrange,mc.sublevels[2]);
 }
 
@@ -1327,6 +1341,11 @@ void PatternsMenuRouter::load_pattern(){
 void PatternsMenuRouter::save_pattern(){
           lv1_wrapper(self->writelemidi);
         }
+        
+void PatternsMenuRouter::clear_pattern(){
+  _po.pattern_cleaners();
+  dm.returntonav(1, self->home_navrange,mc.sublevels[1]);
+}
 
 void PatternsMenuRouter::lv1_wrapper(void (*func)()) {
           self->catalog->nav_one(1,1);
@@ -1351,26 +1370,25 @@ void PatternsMenuRouter::addnoteoff2next(byte lanotee, byte lapos) {
         }
 
 void PatternsMenuRouter::parsepattern() {
-
-          if (mc.locked_fileing)
-            return;
-          mc.locked_fileing = 1 ;
-          self->catalog->refresh_files_names();
-          FsFile lepatternfile = SD.sdfs.open(self->catalog->get_current_file_path(0).c_str(), O_READ);
-          if (lepatternfile) {
-            lepatternfile.read((uint8_t*)&pp, sizeof(pp));
-          }
-          lepatternfile.close();
-          _pe.refresh_patterns();
-          mc.locked_fileing = 0 ;
+  if (mc.locked_fileing)
+    return;
+  mc.locked_fileing = 1 ;
+  self->catalog->refresh_files_names();
+  FsFile lepatternfile = SD.sdfs.open(self->catalog->get_current_file_path(0).c_str(), O_READ);
+  if (lepatternfile) {
+    lepatternfile.read((uint8_t*)&pp, sizeof(pp));
+  }
+  lepatternfile.close();
+  _pe.refresh_patterns();
+  mc.locked_fileing = 0 ;
 }
 
 void PatternsMenuRouter::doPatternsmenu() {
-          const char* patternlistlabels[] = {
-              "Edit", "Save", "Load", "Copy", "Delete", "Params", "Clear", "C-Edit"};
+  const char* patternlistlabels[] = {
+      "Edit", "Save", "Load", "Copy", "Delete", "Params", "Clear", "C-Edit"};
 
-          dm.main_panel(patternlistlabels,1,self->home_navrange);
-        }
+  dm.main_panel(patternlistlabels,1,self->home_navrange);
+}
 
 void PatternsMenuRouter::deletepattern() {
   self->catalog->deleteFile();

@@ -434,6 +434,10 @@ void once_in_a_while(){
   }
 }
 
+void each_tick(){
+  if (_rd.rec_looping) _rd.continue_looper();
+}
+
 void refresh_mp3_player(){
   if (!playFlac1.isPlaying() && !playMp31.isPlaying()) {
     _mp.mp3_player_next();
@@ -445,8 +449,7 @@ void loopusbHub() {
 
   //works without .Task() but task seems to do other things too
   myusb.Task();
-  //for multi devices in hub or devices with multiple IDs
-  //TODO: check notes, may double trigger
+  //TODO check multi devices in hub or devices with multiple IDs
   midi1.read();
   //if (!midi1){
    // midi2.read();
@@ -509,23 +512,9 @@ void control_me(){
 }
 
 void loop() {
-
   //loops in millis cn occur multiple times per milli, set a tic_tacker to throttle or attach to clock
   loopusbHub();
-  //if (millis() % 2 == 0) {
-    Tocker.dispatch_ticks();
-  //}
-  //TODO: make one shot system instead or remove this
-  if (_rd.pre_record) {
-    if (millis() - mc.tocker > 500) {
-      _rd.rec_looping = true ;
-      _rd.pre_record = false ;
-    }
-  }
-  if ( _rd.rec_looping && (millis() % 2 == 0)) {
-    _rd.continue_looper();
-  }
-  
+  Tocker.dispatch_ticks();
 }
 
 void loop_over_303(){
@@ -699,6 +688,8 @@ void setup() {
   Tocker.attach_24_bis(_tt.arp_tick);
   Tocker.attach_long(once_in_a_while);
   Tocker.attach_2(at_a_paced_rate);
+  Tocker.attach_1(each_tick);
+
   Tocker.attach_3(fairly_often);
   Tocker.attach_oscilloscope(dm.oscilloscope_loop);
   Tocker.attach_303(loop_over_303);
@@ -791,10 +782,6 @@ void Slope2_ctl(byte cc_value){
   gg.resonance_slope = cc_value;
 }
 
-void ArbitraryMaxF_ctl(byte cc_value){
-  //TODO restart arb and synth
- gg.arbitrary_maxF[mc.oscillator] = (cc_value / 127.0) * 172.0 ;
-}
 
 void Filter303_ctl(byte cc_value){
   gg.le303filterzwet = cc_value;
@@ -1191,28 +1178,28 @@ void SetBPMs_ctl(byte cc_value){
 }
 
 void SaveToNewPattern_Trigger_ctl(byte cc_value){
-  //to save in a new pattern
-  // TODO reenable
-  _pt.catalog->displayable_offset = _pt.catalog->files_counter ;
-  //_pt.writelemidi();
+  bool bkp = _pt.catalog->new_file_mode;
+  _pt.catalog->new_file_mode = 1 ;
+  _pt.writelemidi();
+  _pt.catalog->new_file_mode = bkp ;
 }
 
-void LoadFirstPattern_Trigger_ctl(byte cc_value){
-  _po.clearlapattern();
-  //loads 1st pattern, increment patterns_names_offset for a different one
-  _pt.catalog->displayable_offset = 0 ;
+void LoadNextPattern_Trigger_ctl(byte cc_value){
+  _pt.catalog->displayable_offset = (_pt.catalog->displayable_offset + 1 ) % _pt.catalog->files_counter ;
+  _pt.parsepattern();
+}
+
+void LoadPreviousPattern_Trigger_ctl(byte cc_value){
+  if (_pt.catalog->displayable_offset - 1 < 0) _pt.catalog->displayable_offset = max(0,_pt.catalog->files_counter - 1) ;
+  else _pt.catalog->displayable_offset = _pt.catalog->displayable_offset - 1;
   _pt.parsepattern();
 }
 
 void RecordAudio_Trigger_ctl(byte cc_value){
   // Recorder record
   _rd.recorderrecord = 1;
-  if (_rd.recorderstop) {
-    _rd.recorderstop = 0;
-  }
-  if (_rd.recorderplay) {
-    _rd.recorderplay = 0;
-  }
+  _rd.recorderstop = 0;
+  _rd.recorderplay = 0;
   _rd.startRecording();
 }
 
@@ -1442,8 +1429,8 @@ const CcCalls ctl[128] = {
     {"Reverb Size",&ReverbSize_ctl},{"BitCrusher Samples",&BitCrusherSamples_ctl},{"BitCrusher Bits",&BitCrusherBits_ctl},{"Flanger Offset",&FlangerOffset_Knob1_ctl},{"Flanger Depth",&FlangerDepth_Knob2_ctl},
     {"Flanger Delay",&FlangerDelay_Knob3_ctl},{"Delay Time sel.",&DelayTimeSelection_Knob1_ctl},{"Delay Multiplier",&DelayTimeMultiplier_Knob2_ctl},{"Delay Feedback",&DelayFeedback_Knob3_ctl},{"Audio In Volume",&AudioInVolume_ctl},
     //100ok
-    {"FREE",nullptr},{"Set BPMs",&SetBPMs_ctl},{"Save New Pattern",&SaveToNewPattern_Trigger_ctl},{"Load First Pattern",&LoadFirstPattern_Trigger_ctl},{"Record Audio",&RecordAudio_Trigger_ctl},
-    {"Play Record",&PlayLoadedAudio_Trigger_ctl},{"Stop Recording",&StopRecording_Trigger_ctl},{"Load First Preset",&LoadFirstPreset_Toggle_ctl},{"Arb[] MaxF",&ArbitraryMaxF_ctl},{"Merge Patterns",&MergeSynthPatterns_Trigger_ctl},
+    {"FREE",nullptr},{"Set BPMs",&SetBPMs_ctl},{"Save New Pattern",&SaveToNewPattern_Trigger_ctl},{"Load Next Pattern",&LoadNextPattern_Trigger_ctl},{"Record Audio",&RecordAudio_Trigger_ctl},
+    {"Play Record",&PlayLoadedAudio_Trigger_ctl},{"Stop Recording",&StopRecording_Trigger_ctl},{"Load First Preset",&LoadFirstPreset_Toggle_ctl},{"Load Prev Pattern",&LoadPreviousPattern_Trigger_ctl},{"Merge Patterns",&MergeSynthPatterns_Trigger_ctl},
     //120 ok
     {"Flash Line1 Level",&FlashLineVolume_Knob1_ctl},{"Flash Line2 Level",&FlashLineVolume_Knob2_ctl},{"Flash Line3 Level",&FlashLineVolume_Knob3_ctl},{"Flash Line4 Level",&FlashLineVolume_Knob4_ctl},{"Flash Line5 Level",&FlashLineVolume_Knob5_ctl},
     {"Flash Line6 Level",&FlashLineVolume_Knob6_ctl},{"Flash Line7 Level",&FlashLineVolume_Knob7_ctl},{"Flash Line8 Level",&FlashLineVolume_Knob8_ctl},{"Flash Line9 Level",&FlashLineVolume_Knob9_ctl},{"Flash Line10 Level",&FlashLineVolume_Knob10_ctl},

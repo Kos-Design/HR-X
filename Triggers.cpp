@@ -507,13 +507,12 @@ void TriggerMessenger::check_pads() {
 }
 
 void TriggerMessenger::MaNoteOn(MidiEventer msg) {
-  if (gg.SendMidiOut) {
+  if (gg.SendMidiOut<16) {
     // TODO: send midi during sound trigger to use arpegiators (+ note offs if
-    // arpegiator doesn't already send Off notes ?)
     // MidiUSB.sendMIDI({0x09, statusByte, msg.note, msg.velocity});
     // MidiUSB.flush();
     //usbMIDI.send((uint8_t)0x09, (uint8_t)msg.note, (uint8_t)msg.velocity, (uint8_t)msg.channel,(uint8_t)0);
-    usbMIDI.sendNoteOn(msg.note, msg.velocity, gg.out_midichannel);
+    usbMIDI.sendNoteOn(msg.note, msg.velocity, gg.SendMidiOut);
     usbMIDI.send_now();
   }
   //uint8_t statusByte = static_cast<uint8_t>(0x90 | channel);
@@ -574,11 +573,11 @@ void TriggerMessenger::MaNoteOff(uint8_t ch_,uint8_t nt_,uint8_t ve_) {
 void TriggerMessenger::MaNoteOff(MidiEventer msg) {
   //uint8_t statusByte = static_cast<uint8_t>(0x80 | channel);
   int lachordnote;
-  if (gg.SendMidiOut) {
+  if (gg.SendMidiOut<16) {
     //MidiUSB.sendMIDI({0x08, statusByte, data1, data2});
     //MidiUSB.flush();
     //usbMIDI.send((uint8_t)0x09, (uint8_t)data1, (uint8_t)data2, (uint8_t)channel,(uint8_t)0);
-    usbMIDI.sendNoteOff(msg.note, msg.velocity, gg.out_midichannel);
+    usbMIDI.sendNoteOff(msg.note, msg.velocity, gg.SendMidiOut);
     usbMIDI.send_now();
   }
   //if (!gg.arpegiatorOn) {
@@ -602,12 +601,11 @@ void TriggerMessenger::shutlineroff(byte chan,byte data1) {
 
 void TriggerMessenger::moncontrollercc(byte channel, byte control, byte value) {
   if (value < 128) {
-    if (gg.SendMidiOut) {
+    if (gg.SendMidiOut<16) {
         //uint8_t statusByte = static_cast<uint8_t>(0xB0 | channel);
         //MidiUSB.sendMIDI({0x0B, statusByte, control, value});
         //MidiUSB.flush();
-        //FIXED CC OUTPUT TO CH 3
-        usbMIDI.sendControlChange(control,value,gg.out_midichannel);
+        usbMIDI.sendControlChange(control,value,gg.SendMidiOut);
         usbMIDI.send_now();
 
       }

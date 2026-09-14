@@ -227,17 +227,13 @@ void FilesLister::make_sub_folder(const char *base_folder, const char *subfoldee
 
 void FilesLister::display_files_list() {
   dm.clean_title_1_1();
-  //TODO: dangerous use of global
-  dm.canvasBIG.setCursor(left_margin,0);
+  dm.canvasBIG.setCursor(this->left_margin,0);
   int all_files_count = this->free_counter + this->files_counter ;
-
-
   if (mc.navlevel == this->r_nav) {
     this->displayable_offset = mc.sublevels[this->r_nav]  ;
   }
-  //% this->files_counter  ;
   refresh_files_names();
-  dm.canvastitle.setCursor(left_margin, 0);
+  dm.canvastitle.setCursor(this->left_margin, 0);
   //activate new_file_mode from instancer file actions selector
   if (this->displayable_offset == all_files_count && this->new_file_mode) {
     dm.canvastitle.print("New()");
@@ -248,13 +244,13 @@ void FilesLister::display_files_list() {
   if (this->displayable_offset == all_files_count) {
     //if cursor is on new(), the size-1 elements are displayed below.
     for (int i = 0; i < max_displayables-1; i++) {
-      dm.canvasBIG.setCursor(left_margin, (v_spacer * (all_files_count - this->displayable_offset)) + top_margin + ((i)*v_spacer));
+      dm.canvasBIG.setCursor(this->left_margin, (this->v_spacer * (all_files_count - this->displayable_offset)) + this->top_margin + ((i)*this->v_spacer));
       dm.canvasBIG.println(this->files_displayable[i]);
     }
   } else {
     //rest of indexes after title (refresh_names handles list population)
     for (int i = 0; i < max_displayables - 1 ; i++) {
-      dm.canvasBIG.setCursor(left_margin, top_margin + i*v_spacer);
+      dm.canvasBIG.setCursor(this->left_margin, this->top_margin + i*this->v_spacer);
       dm.canvasBIG.println(this->files_displayable[1 + i]);
     }
   }
@@ -277,10 +273,10 @@ void FilesLister::display_folders_list() {
 
        // strncpy(this->folder_selected, this->folders_displayable[0], 15);
         //this->folder_selected[15] = '\0';
-  dm.canvastitle.setCursor(left_margin, 0);
+  dm.canvastitle.setCursor(this->left_margin, 0);
   dm.canvastitle.print(this->folders_displayable[0]);
   for (int i = 0; i < max_displayables - 1 ; i++) {
-    dm.canvasBIG.setCursor(left_margin, top_margin + i*v_spacer);
+    dm.canvasBIG.setCursor(this->left_margin, this->top_margin + i*this->v_spacer);
     dm.canvasBIG.println(this->folders_displayable[1 + i]);
   }
 
@@ -322,6 +318,7 @@ void FilesLister::list_files() {
         this->files_indexed[this->files_counter] = atoi((char*)named+this->base_char_count);
         this->files_counter++;
       } else {
+        //TODO securize name length
         //lets hope folders names aare below 15 chars
         //strncpy(this->folders_indexed[this->folders_counter], entry_name, 15);
         entry.getName(this->folders_indexed[this->folders_counter], 16);

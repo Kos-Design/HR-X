@@ -25,11 +25,12 @@ class MasterClock {
         bool stop = 1 ;
         bool armed = 0 ;
         volatile int tick24 = 0 ;
-        bool tic_toc[7]{};
+        bool tic_toc[8]{};
         int timee = 0;
         static void click();
         void disarm_one_shot();
         void dispatch_ticks();
+        void attach_1(void (*cb)());
         void attach_2(void (*cb)());
         void attach_3(void (*cb)());
         void attach_long(void (*cb)());
@@ -46,6 +47,7 @@ class MasterClock {
     private:
 
         volatile uint32_t tick96 = 0;
+        void (*_callback_1)() = nullptr;
         void (*_callback_24)() = nullptr;
         void (*_callback_24_bis)() = nullptr;
         void (*_callback_96)() = nullptr;
@@ -107,7 +109,7 @@ class PatEditRouter : public SectionHolder {
         static void refresh_synth_track();
         static void refresh_flash_track();
         static void dolistpatternlineblocks();
-        int grid_start_note();
+        byte grid_start_note();
 
         int getnextposofevent1Off_synth(int linei, byte lanote, int fromi);
         int getnextposofevent1Off_sampler(int linei, byte lanote, int fromi);
@@ -152,6 +154,7 @@ class POptionsRouter : public SectionHolder {
         bool interpolOn = 1;
 
         static void clearlapattern();
+        static void pattern_cleaners();
         static void clearCCline();
         static void clearsynthpatternline();
         static void merge_partitions();
@@ -205,6 +208,8 @@ class PatternsMenuRouter : public SectionHolder {
         static void show();
         static void pattern_nav_zero();
         static void remove_pattern();
+        static void clear_pattern();
+
         static void duplicate_pattern();
         static void load_pattern();
         static void save_pattern();
@@ -223,7 +228,7 @@ class PatternsMenuRouter : public SectionHolder {
 
         static constexpr void (*_nav_pattern[8])() = {&_pe.show,&save_pattern,
                                             &load_pattern, &duplicate_pattern,&remove_pattern,
-                                            &_po.show,&_po.clearlapattern,&_ce.show};
+                                            &_po.show,&clear_pattern,&_ce.show};
   private:
       static PatternsMenuRouter* self;
 };

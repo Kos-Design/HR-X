@@ -77,9 +77,6 @@ struct Preset {
     //individual frequency multipliers for the oscillators
     float wavesfreqs[OSCS_COUNT] = {1.0f, 1.0f, 0.5f};
 
-    //doesn't seem to affect arbitrary waveforms... :(
-    float arbitrary_maxF[OSCS_COUNT] = { 172.0, 172.0, 172.0} ;
-
     //individual frequency multipliers for the LFOs
     float LFOHz[OSCS_COUNT] = {1.0f,1.0f,1.0f};
 
@@ -119,11 +116,9 @@ struct Preset {
     uint8_t arpegstartoffset = 0;
     uint8_t arpeggridC = 0;
     uint8_t arpeggridS = 0;
-    //TODO put in a menu
-    uint8_t out_midichannel = 3 ;
     bool digitalplay = false;
     uint8_t chordson = 1;
-    bool SendMidiOut = true;
+    uint8_t SendMidiOut = 3;
 
     // 6 is Off
     uint8_t lasetchord = 6;

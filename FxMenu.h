@@ -25,12 +25,12 @@ class FxMenuRouter : public SectionHolder {
     static void delaytimingselect(int fx_idx, int leselecta);
     static void restartdelayline(byte fx_idx);
     static void changebiquadfreqvalue(byte fx_idx, int valub);
-    static void displayfxVcontrols(byte fxinstance);
     static void flangercontrols(byte fx_idx);
     static void flangerVpanelAction(byte fx_idx);
     static void set_wet_mix_at_sub4(byte i);
     static void biquad_all_stages_controls(byte fx_idx);
     static void flangerVpanelSelector(byte fx_idx);
+    static void no_panel(byte fx_idx);
     static void flangerVpanel(byte fx_idx);
     static void choruscontrols(byte fx_idx);
     static void chorusVpanelAction(byte fx_idx);
@@ -71,8 +71,11 @@ class FxMenuRouter : public SectionHolder {
     static constexpr void (*all_fx_controls[ALL_FX_TYPES])(uint8_t) = {
                                                                     nullptr, &freeverbscontrl, &granularcontrols,
                                                                     &bitcrusherctrl, &flangercontrols, &choruscontrols,
-                                                                    &biquad_all_stages_controls, &filtercontrols, &restartdelayline
-                                                                    };
+                                                                    &biquad_all_stages_controls, &filtercontrols, &restartdelayline};
+    static constexpr void (*fx_controls_panels[ALL_FX_TYPES])(uint8_t) = {&no_panel,&reverbVpanel,&granularVpanel,
+                                                                      &bitcrusherVpanel, &flangerVpanel,&chorusVpanel,
+                                                                      &biquadVpanel,&filterVpanel, &delayVpanel,&no_panel};
+                                                                    
 
   private:
     static FxMenuRouter* self;

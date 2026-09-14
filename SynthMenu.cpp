@@ -702,6 +702,7 @@ void SynthMenuRouter::displayfreqbars(){
 }
 
 void SynthMenuRouter::freqbars_panel() {
+  if (mc.navlevel == 3) mc.sublevels[4] = 0 ;
   if (mc.navlevel >= 4) {
     mc.retroaction = mc.sublevels[3];
     if (mc.navlevel == 4) {
@@ -779,6 +780,8 @@ void SynthMenuRouter::wavelineModulatedbool() {
   if (mc.navlevel == 3) {
     mc.retroaction = mc.sublevels[2];
     mc.navrange = self->synth_params_count - 1;
+    mc.sublevels[4] = gg.FMmodulated[mc.oscillator];
+
   }
   if (mc.navlevel == 4) {
     mc.navrange = 3;
@@ -813,9 +816,6 @@ void SynthMenuRouter::displaywaveformicon(){
     dm.returntonav(3,self->synth_params_count-1,mc.sublevels[3]);
     return;
   }
-
-
-
   dm.drawBitmap(74, 20, _img[mc.sublevels[4]], 32, 32, SSD1306_WHITE);
   dm.setTextSize(1);
   dm.setTextColor(SSD1306_WHITE);
@@ -832,6 +832,7 @@ void SynthMenuRouter::displayLFOpanel() {
   if (mc.navlevel == 3 ) {
     mc.retroaction = mc.sublevels[2];
     mc.navrange = self->synth_params_count - 1;
+    
   }
   draw_synth_params();
     dm.dodisplay();
@@ -953,8 +954,8 @@ void SynthMenuRouter::plug_waves(){
     MDwavecords1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->disconnect();
     drumcords1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->disconnect();
     wavelinescords[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->connect();
-    if (gg.Waveformstyped[mc.oscillator] == WAVEFORM_ARBITRARY) {
-      waveforms1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->arbitraryWaveform(gg.arbitrary_waveforms[mc.oscillator],gg.arbitrary_maxF[mc.oscillator]);
+    if (gg.Waveformstyped[mc.oscillator] == 7) {
+      waveforms1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->arbitraryWaveform(gg.arbitrary_waveforms[mc.oscillator],123.0);
     }
     waveforms1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->begin(lesformes[gg.Waveformstyped[mc.oscillator]]);
   }
@@ -970,8 +971,8 @@ void SynthMenuRouter::plug_moded_waves(){
     drumcords1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->disconnect();
     MDwavecords1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->disconnect();
     FMwavecords1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->connect();
-    if (gg.Waveformstyped[mc.oscillator] == WAVEFORM_ARBITRARY) {
-      FMwaveforms1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->arbitraryWaveform(gg.arbitrary_waveforms[mc.oscillator],gg.arbitrary_maxF[mc.oscillator]);
+    if (gg.Waveformstyped[mc.oscillator] == 7) {
+      FMwaveforms1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->arbitraryWaveform(gg.arbitrary_waveforms[mc.oscillator],123.0);
     }
     FMwaveforms1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->begin(lesformes[gg.Waveformstyped[mc.oscillator]]);
   }
@@ -988,8 +989,8 @@ void SynthMenuRouter::plug_ampl_moded_waves(){
     FMwavecords1[i + (mc.oscillator * SYNTH_LINERS_COUNT)]->disconnect();
     MDwavecords1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->connect();
     modulatecords1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->connect();
-    if (gg.Waveformstyped[mc.oscillator] == WAVEFORM_ARBITRARY) {
-      waveforms1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->arbitraryWaveform(gg.arbitrary_waveforms[mc.oscillator],gg.arbitrary_maxF[mc.oscillator]);
+    if (gg.Waveformstyped[mc.oscillator] == 7) {
+      waveforms1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->arbitraryWaveform(gg.arbitrary_waveforms[mc.oscillator],123.0);
     }
     waveforms1[i + (SYNTH_LINERS_COUNT * mc.oscillator)]->begin(lesformes[gg.Waveformstyped[mc.oscillator]]);
   }
