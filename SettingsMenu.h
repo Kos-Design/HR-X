@@ -101,8 +101,7 @@ class SettingsMenuRouter : public SectionHolder {
       static void settings_nav_one();
       byte getnotefromfreq(float lafreq);
       byte getclosestnote(byte lei, float lafreq);
-      //TODO: unused
-      static void metronomer();
+
       static void set_bpms_interval();
       static void set_chord_mode();
       static void (*_extra_menu[4])();

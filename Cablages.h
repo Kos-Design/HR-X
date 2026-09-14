@@ -202,7 +202,6 @@ extern AudioPlaySdRaw           playRawL;       //xy=2325,376
 extern AudioPlaySdRaw           playRawR;       //xy=2356,697
 extern AudioPlaySdWav           playSdWav1;     //xy=2365,488
 extern AudioMixer4              mixerWL5to8;    //xy=2370,1348
-extern AudioSynthSimpleDrum     metrodrum1;     //xy=2374,608
 extern AudioAmplifier           LineInPreAmpL;  //xy=2397,437
 extern AudioAmplifier           LineInPreAmpR;  //xy=2412,544
 extern AudioMixer4              flashMastermix; //xy=2504,142

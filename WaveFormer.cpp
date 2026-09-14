@@ -1,3 +1,5 @@
+#include "SerialFlash.h"
+#include <stdint.h>
 #include "WaveFormer.h"
 #include "Presets.h"
 
@@ -12,6 +14,8 @@ WaveformsMenuRouter::WaveformsMenuRouter() {
   self->sublevels_address={8,0,0};
 }
 
+
+
 void WaveformsMenuRouter::show() {
   _route_nav[mc.navlevel-1]();
 }
@@ -22,56 +26,43 @@ void WaveformsMenuRouter::waveforms_nav_zero(){
 }
 
 void WaveformsMenuRouter::set_tracer(byte control,byte value){
-  if (control == self->trace_wave_cc) {
+  if (control == gg.waveform_tracers.trace) {
+
     self->trace_waveform = !self->trace_waveform;
+      Serial.println(self->trace_waveform );
+
   }
   if (self->trace_waveform){
-    if (control == self->y_axis_cc ) {
+    if (control == gg.waveform_tracers.y_poser ) {
+      Serial.println("ysett");
       set_y_cursor_value(value);
     }
-    if (control == self->x_axis_cc ) {
+    if (control == gg.waveform_tracers.x_poser ) {
+      Serial.println("xsett");
       set_x_cursor_value(value);
     }
   }
 }
 
 void WaveformsMenuRouter::WaveformParams(){
-
-  mc.navrange = 2 ;
+  dm.clean_title_1_1();
+  mc.navrange = 3 ;
+  uint8_t* wf_helper = reinterpret_cast<uint8_t*>(&gg.waveform_tracers);
   if (mc.navlevel == 3 ){
     mc.navrange = 127;
-    *self->waveform_tracers[mc.sublevels[2]]=mc.sublevels[3];
+    wf_helper[mc.sublevels[2]]=(uint8_t)mc.sublevels[3];
   }
-
-  mc.sublevels[3]=*self->waveform_tracers[mc.sublevels[2]];
-  dm.clearDisplay();
-  dm.setCursor(0,0);
-  dm.setTextSize(1);
-  //println adds new line each iteration!!!
-  dm.print("Params");
-  dm.println(" ");
-  dm.println(" ");
-  dm.print("X-Axis CC: ");
-  //17
-  dm.print(self->x_axis_cc);
-  dm.println(" ");
-  dm.println(" ");
-  dm.print("Y-Axis CC: ");
-  dm.print(self->y_axis_cc);
-  //18
-  dm.println(" ");
-  dm.println(" ");
-  dm.print("Tracenote: ");
-  dm.print(self->trace_wave_cc);
-  //note 58
-  dm.drawRoundRect(62,11+16*mc.sublevels[2], 25, 16, 3, SSD1306_WHITE);
-  //dm.drawRoundRect(62,11+16, 25, 16, 3, SSD1306_WHITE);
-  //dm.drawRoundRect(62,11+16 +16, 25, 16, 3, SSD1306_WHITE);
-  dm.display();
-
+  
+  mc.sublevels[3]=wf_helper[mc.sublevels[2]];
+ 
   if (mc.navlevel > 3 ){
-    dm.returntonav(2,2,mc.sublevels[2]);
+    dm.returntonav(2,3,mc.sublevels[2]);
   }
+  //uint8_t wtt[4];
+  //memcpy(wtt, &gg.waveform_tracers, sizeof(wtt));
+  const char* _lbls[4] = {"X-Axis CC ","Y-Axis CC ","Tracenote ","Blur Radius "};
+  dm.sub_menu(_lbls,wf_helper,79);
+
 }
 
 void WaveformsMenuRouter::set_y_cursor_value(byte la_val){
@@ -82,10 +73,8 @@ void WaveformsMenuRouter::set_y_cursor_value(byte la_val){
 }
 
 void WaveformsMenuRouter::blur_w_graph_region(int16_t *arr, int index, uint8_t intensity) {
-    int range = (intensity / 255.0)*self->max_blur;
+    int range = (intensity / 127.0)*self->max_blur;
     int temp[2 * self->max_blur + 1];
-    if (range > self->max_blur)
-        range = self->max_blur;
     for (int d = -range; d <= range; d++){
         int pos = index + d;
         if ((unsigned)pos >= 256)
@@ -129,11 +118,11 @@ void WaveformsMenuRouter::blur_w_graph_boundary( int16_t *arr,int range) {
 }
 
 void WaveformsMenuRouter::smooth_w_bounds(){
-  blur_w_graph_boundary(gg.arbitrary_waveforms[self->widx], 32);
+  blur_w_graph_boundary(gg.arbitrary_waveforms[self->widx], gg.waveform_tracers.blur_radius/2);
 }
 
 void WaveformsMenuRouter::smooth_w_graph(){
-  blur_w_graph_region(gg.arbitrary_waveforms[self->widx], self->w_cursor_x, 64);
+  blur_w_graph_region(gg.arbitrary_waveforms[self->widx], self->w_cursor_x, gg.waveform_tracers.blur_radius);
 }
 
 void WaveformsMenuRouter::set_array_at_cursor(int c_pos_w){
@@ -166,35 +155,37 @@ void WaveformsMenuRouter::draw_wave_graph(){
 }
 
 void WaveformsMenuRouter::WaveformEditer() {
-  mc.waveforming = 1;
   mc.navrange = 255;
   dm.clean_title_1();
+  mc.waveforming = 0;
 
   if (mc.navlevel > 3) {
     self->trace_waveform = 0 ;
-
+    mc.waveforming = 0;
     smooth_w_graph();
+    smooth_w_bounds();
     dm.returntonav(2,255,mc.sublevels[2]);
   }
   if (mc.navlevel == 3) {
-    self->trace_waveform = 1 ;
-    self->cw_change = map(mc.sublevels[3],0,255,0,127);
-    set_array_at_cursor();
-  }
-  if (self->trace_waveform) {
-    set_array_at_cursor();
-    self->w_cursor_y = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x], -32768, 32767, 63, 0);
+    mc.waveforming = 1;
+    if (self->trace_waveform) {
+      set_array_at_cursor();
+      self->w_cursor_y = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x], -32768, 32767, 63, 0);
+    } else {
+      self->cw_change = map(mc.sublevels[3],0,255,0,127);
+      set_array_at_cursor();
+    }
   }
   if (mc.navlevel == 2) {
+    self->trace_waveform = 0 ;
     self->w_cursor_x=mc.sublevels[2];
     self->w_cursor_y = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x], -32768, 32767, 63, 0);
     mc.sublevels[3] = map(gg.arbitrary_waveforms[self->widx][self->w_cursor_x],-32768, 32767, 0, 255 ) ;
   }
   dm.canvasBIG.drawCircle(mc.sublevels[2]/2, self->w_cursor_y, 2, SSD1306_WHITE);
   draw_wave_graph();
-  //dm.canvastitle.print(gg.arbitrary_waveforms[self->widx][mc.sublevels[2]]);
   dm.dodisplay();
-  //smooth_w_bounds();
+  
 }
 
 void WaveformsMenuRouter::wforms_menu() {

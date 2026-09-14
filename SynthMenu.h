@@ -111,7 +111,6 @@ class SynthMenuRouter : public SectionHolder {
         int unit = 1;
         int tenth = 0;
         int hundredth = 0;
-        //TODO give default value based on wformtype
         static constexpr byte synth_params_count = 8;
         static void show();
         static void route_navlevel_1();
@@ -124,7 +123,7 @@ class SynthMenuRouter : public SectionHolder {
         static void displayphasebars();
         static void displayModulatedbool();
         static void setfmtophase();
-        void setfmtofreq();
+        static void setfmtofreq();
         static void wavelineModulatedbool();
         static void displaywaveformicon();
         static void displayLFOpanel();

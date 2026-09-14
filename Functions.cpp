@@ -630,17 +630,11 @@ void setup() {
     _fx.unpluglfoonfilterz(i);
   }
   delay(50);
-  // metrodrum1.frequency(100);
-  // metrodrum1.length(50);
   _rg.init_synth_liners();
   _rg.init_flash_liners();
-  // metrodrum1.pitchMod(0.9);
   AudioInterrupts();
-
   initextmems();
-  // setupmemtest();
   Serial.begin(9600);
-
   dm.initializeconsolemsg();
   dm.setupscreen();
   consoler.wipe();

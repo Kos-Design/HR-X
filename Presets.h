@@ -62,6 +62,13 @@ class FxBus {
 
 };
 
+struct TracerHelper{
+    uint8_t x_poser;
+    uint8_t y_poser;
+    uint8_t trace;
+    uint8_t blur_radius;
+};
+
 struct Preset {
     FxBus fx[FXS_COUNT];
 
@@ -129,7 +136,6 @@ struct Preset {
     uint8_t synthmidichannel = 16;
     uint8_t samplermidichannel = 8;
     uint8_t tapnote = 3;
-
     uint8_t vPots[17];
     uint8_t smixervknobs[16] = {
         127,127,127,127,
@@ -137,7 +143,8 @@ struct Preset {
         127,127,127,127,
         127,127,127,127
     };
-
+    //midi cc for tracing waveforms in the editor
+    TracerHelper waveform_tracers = {17,18,109,64};
     uint8_t WetMixMasters[4] = {0,0,0,0};
     uint8_t mixlevelsM[4] = {127,127,38,127};
     uint8_t FMmodulated[OSCS_COUNT] = {0,0,0};

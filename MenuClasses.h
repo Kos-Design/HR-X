@@ -28,7 +28,6 @@ struct LiveState {
     int navrange = 9;
     int rota_true_pos = 0;
     bool temp_buff_armed = 0 ;
-    int tickerlasttick = 0;
     int tickposition = 0;
     byte oscillator = 0;
     byte cclfoselector = 0 ;

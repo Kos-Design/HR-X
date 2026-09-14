@@ -2,6 +2,7 @@
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
+
 class WaveformsMenuRouter : public SectionHolder {
     public:
 
@@ -17,7 +18,7 @@ class WaveformsMenuRouter : public SectionHolder {
         };
         static const byte wf_labels_count = 8;
         static const byte wfn_size = 6; //displayables lines
-        static const byte max_blur = 32 ;
+        static const byte max_blur = 127 ;
 
         int cw_change = 64;
         int w_cursor_y = 32;
@@ -28,14 +29,8 @@ class WaveformsMenuRouter : public SectionHolder {
         byte widx = 0 ;
 
         byte wforms_names_offset = 0 ;
-        byte trace_wave_cc = 58 ;
-        byte x_axis_cc = 17 ;
-        byte y_axis_cc = 18 ;
+
         bool trace_waveform = false;
-
-
-        byte *waveform_tracers[3]= {&x_axis_cc,&y_axis_cc,&trace_wave_cc};
-
         static void show();
         static void waveforms_nav_zero();
 

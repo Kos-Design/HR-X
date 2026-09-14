@@ -652,22 +652,6 @@ byte SettingsMenuRouter::getclosestnote(byte lei, float lafreq) {
   }
 }
 
-//TODO: unused, maybe fit into a menu somewhere
-void SettingsMenuRouter::metronomer() {
-  if ((mc.tickposition == 0) || (mc.tickposition == 16)) {
-    metrodrum1.frequency(540);
-    metrodrum1.noteOn();
-    // printpattern();
-  }
-  if ((mc.tickposition == 4) || (mc.tickposition == 8) || (mc.tickposition == 12) ||
-      (mc.tickposition == 20) || (mc.tickposition == 24) || (mc.tickposition == 28)) {
-
-    // printpattern();
-    metrodrum1.frequency(440);
-    metrodrum1.noteOn();
-  }
-}
-
 void SettingsMenuRouter::set_bpms_interval(){
   mc.navrange = 620;
   gg.millitickinterval = mc.sublevels[3];

@@ -1,5 +1,4 @@
 #include "KnobAssigner.h"
-#include "avr/pgmspace.h"
 #include "Functions.h"
 #include "Presets.h"
 

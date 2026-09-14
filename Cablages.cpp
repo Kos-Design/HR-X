@@ -193,7 +193,6 @@ EXTMEM AudioPlaySdRaw           playRawL;       //xy=2325,376
 EXTMEM AudioPlaySdRaw           playRawR;       //xy=2356,697
 EXTMEM AudioPlaySdWav           playSdWav1;     //xy=2365,488
 EXTMEM AudioMixer4              mixerWL5to8;    //xy=2370,1348
-EXTMEM AudioSynthSimpleDrum     metrodrum1;     //xy=2374,608
 EXTMEM AudioAmplifier           LineInPreAmpL;  //xy=2397,437
 EXTMEM AudioAmplifier           LineInPreAmpR;  //xy=2412,544
 EXTMEM AudioMixer4              flashMastermix; //xy=2504,142
@@ -406,8 +405,7 @@ EXTMEM AudioConnection          patchCord107(playRawR, 0, MasterR, 3);
 EXTMEM AudioConnection          patchCord108(playSdWav1, 0, MasterL, 0);
 EXTMEM AudioConnection          patchCord109(playSdWav1, 1, MasterR, 0);
 EXTMEM AudioConnection          patchCord110(mixerWL5to8, 0, mixerWAll, 1);
-EXTMEM AudioConnection          patchCord111(metrodrum1, 0, MasterL, 1);
-EXTMEM AudioConnection          patchCord112(metrodrum1, 0, MasterR, 1);
+
 EXTMEM AudioConnection          patchCord113(LineInPreAmpL, 0, MasterL, 2);
 EXTMEM AudioConnection          patchCord114(LineInPreAmpR, 0, MasterR, 2);
 EXTMEM AudioConnection          patchCord115(flashMastermix, 0, DryBusL, 3);

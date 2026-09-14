@@ -363,7 +363,7 @@ void DisplayManager::sub_menu( const char* lbls[4], const char* vals[4], byte va
   display();
 }
 
-void DisplayManager::sub_menu( const char* lbls[4], byte vals[4], byte vals_x ){
+void DisplayManager::sub_menu( const char* lbls[4], uint8_t vals[4], byte vals_x ){
   clearDisplay();
   canvasBIG.fillScreen(0);
   canvasBIG.setTextSize(1);

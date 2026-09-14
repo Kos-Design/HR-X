@@ -389,8 +389,6 @@ int TriggerMessenger::clean_cursor(int pos){
 
 void TriggerMessenger::advance_tick(){
   mc.tickposition = self->clean_cursor(mc.tickposition+1);
-  //TODO : remove mc.tickerlasttick logic
-  mc.tickerlasttick = millis();
   self->tick();
 }
 
@@ -655,7 +653,7 @@ void TriggerMessenger::cc_edgecases(byte control, byte value){
   }
 
   //inside waveform tracer
-  if (mc.waveforming) {
+  if ( mc.waveforming && (control == gg.waveform_tracers.trace || control == gg.waveform_tracers.x_poser || control == gg.waveform_tracers.y_poser )) {
     _wf.set_tracer(control,value);
   }
 

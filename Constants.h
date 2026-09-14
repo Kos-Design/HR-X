@@ -52,6 +52,7 @@ struct MidiEventer{
     uint8_t velocity;
 };
 
+
 enum TrackTypes : uint8_t  {
     Synth,
     Flash
