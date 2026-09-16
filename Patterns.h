@@ -1,18 +1,17 @@
+#include "Constants.h"
 #pragma once
-#include "elapsedMillis.h"
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
 struct Pattern {
-  int flash_notes_length[16][PBARS];
-  int synth_notes_length[6][PBARS];
+  int flash_notes_length[FLASH_LINERS_COUNT][PBARS];
+  int synth_notes_length[SYNTH_LINERS_COUNT][PBARS];
   uint8_t cc_partition[128][PBARS];
-  MidiEventer sampler_partition[16][PBARS];
-  MidiEventer synth_partition[6][PBARS];
-  MidiEventer synth_off_pat[6][PBARS];
-  MidiEventer sampler_off_pat[PBARS];
+  MidiEventer sampler_partition[FLASH_LINERS_COUNT][PBARS];
+  MidiEventer synth_partition[SYNTH_LINERS_COUNT][PBARS];
+  MidiEventer synth_off_pat[SYNTH_LINERS_COUNT][PBARS];
+  MidiEventer flash_off_pat[FLASH_LINERS_COUNT][PBARS];
   bool track_cells[2][PBARS] ;
-
 };
 
 extern Pattern pp;
@@ -134,10 +133,11 @@ class PatEditRouter : public SectionHolder {
         static constexpr void (*cell_events[7])() = {&homer,&track_selector, &note_selector,
                                                     &start_cell_setter, &stretch_cell_length,
                                                     &stretch_cell_velocity, &set_cell_velocity};
-    private:
       static constexpr void (*_refresher[2])() = {&refresh_synth_track, &refresh_flash_track};
-      static constexpr void (*set_editor_type[2])(byte) = { &set_editor_to_synth, &set_editor_to_sampler};
       static constexpr void (*_sanitizer[2])() = {&sanitize_synth_partition,&sanitize_sampler_partition};
+    private:
+      static constexpr void (*set_editor_type[2])(byte) = { &set_editor_to_synth, &set_editor_to_sampler};
+
       static PatEditRouter* self;
 };
 
@@ -187,7 +187,7 @@ class POptionsRouter : public SectionHolder {
         static void optionspatterndisplays();
         static bool *_targets[3];
         static constexpr void (*_pat_params[6])() = {&showtransposedisplays,&showShifterdisplays,&clearlapattern,
-                                        &showlestargetdisplays,&toggle_interpol_cc,&merge_partitions};
+                                        &showlestargetdisplays,&merge_partitions,&toggle_interpol_cc};
         static constexpr void (*cleaners[3])() = {&clearsynthpatternline,&clearsamplerpatternline,&clearCCline};
         static constexpr void (*mergers[2])() = {&merge_synth_partition_liners,&merge_sampler_partition_liners};
         static constexpr void (*shifters[3])() = {&doShiftersynth,&doShiftersampler,&doShifterCC};
@@ -214,7 +214,6 @@ class PatternsMenuRouter : public SectionHolder {
         static void load_pattern();
         static void save_pattern();
         static void lv1_wrapper(void (*func)());
-        static void addnoteoff2next(byte lanotee, byte lapos);
         static void parsepattern();
         static void doPatternsmenu();
         static void deletepattern();

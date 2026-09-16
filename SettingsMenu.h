@@ -9,6 +9,8 @@ class VirtualKnobs : public SectionHolder {
     static void Vbuttonspanel();
     void actionvbuttons();
     void displayonscreenbuttons();
+
+    static void (*t_butts[VBUT_LBL_COUNT])(byte);
   private:
     static VirtualKnobs* self;
 };

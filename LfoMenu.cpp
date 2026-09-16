@@ -255,8 +255,8 @@ void LFOMenuRouter::restartLFO(int leLFO) {
           AudioNoInterrupts();
           if (gg.LFOsync[leLFO]) {
             float syncher = 1.0 ;
-            if (gg.millitickinterval) {
-              syncher = (1000.00/(gg.millitickinterval+1));
+            if (gg.millis_period) {
+              syncher = (1000.00/(gg.millis_period+1));
             }
 
             LFOwaveforms1[leLFO]->begin((float)(gg.LFOlevel[leLFO]/127.00), gg.LFOHz[leLFO]*syncher, lesformes[gg.LFOformstype[leLFO]]);

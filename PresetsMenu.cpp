@@ -32,9 +32,9 @@ void PresetsMenuRouter::presets_menu() {
         }
 
 void PresetsMenuRouter::setbpms() {
-  //clocker.setDivision(4);
-  //  mc.BPMs = (60000.0/gg.millitickinterval)/4.0 ;
-  mc.BPMs = 15000 / gg.millitickinterval;
+  if ( gg.millis_period < 200 )gg.millis_period = 200 ;
+  else if ( gg.millis_period > 1000 )gg.millis_period = 1000 ;
+  mc.BPMs = 60000.0f / gg.millis_period;
   clocker.setBPM(mc.BPMs);
 }
 

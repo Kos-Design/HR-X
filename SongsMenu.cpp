@@ -1,4 +1,3 @@
-#include "elapsedMillis.h"
 #include "Constants.h"
 #include "SongsMenu.h"
 #include "Triggers.h"
@@ -20,7 +19,6 @@ void SongEditorRouter::light_cc_change() {
  /*
   for (int i = 0; i < 32; i++) {
     if (pp.pots_controllers[i][mc.tickposition].velocity != 127){
-      //maybe directly Mycc
       _tt.moncontrollercc(pp.pots_controllers[i][mc.tickposition]);
     }
   }
@@ -28,16 +26,14 @@ void SongEditorRouter::light_cc_change() {
  byte tpos = mc.tickposition ;
   for (int i = 0; i < 128; i++) {
     if (pp.cc_partition[i][tpos] != 127){
-      //maybe directly Mycc
+      //not directly Mycc to not recapture midi 
       _tt.moncontrollercc((MidiEventer){3,(byte)i,pp.cc_partition[i][tpos]});
     }
   }
 }
-void SongEditorRouter::use_pattern(){
-  
 
+void SongEditorRouter::use_pattern(){
   byte tpos = mc.tickposition;
-  //who sets recorded
   light_cc_change();
   for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
     if (i < SYNTH_LINERS_COUNT ) {
@@ -48,14 +44,13 @@ void SongEditorRouter::use_pattern(){
         play_synth_line(i);
       }
     }
-    if (pp.sampler_off_pat[tpos].note) {
-      _tt.shutlineroff(gg.samplermidichannel,pp.sampler_off_pat[tpos].note);
+    if (pp.flash_off_pat[i][tpos].note) {
+        flash_lines[i]->liner_off();
     }
     if (pp.sampler_partition[i][tpos].note) {
       play_sampler_line(i);
     }
   }
-
 }
 
 void SongEditorRouter::playdasong() {

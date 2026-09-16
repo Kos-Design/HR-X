@@ -45,24 +45,21 @@ void WaveformsMenuRouter::set_tracer(byte control,byte value){
 }
 
 void WaveformsMenuRouter::WaveformParams(){
+  if (mc.navlevel > 3 ){
+    dm.returntonav(2,3,mc.sublevels[2]);
+  }
   dm.clean_title_1_1();
-  mc.navrange = 3 ;
   uint8_t* wf_helper = reinterpret_cast<uint8_t*>(&gg.waveform_tracers);
   if (mc.navlevel == 3 ){
     mc.navrange = 127;
     wf_helper[mc.sublevels[2]]=(uint8_t)mc.sublevels[3];
   }
-  
-  mc.sublevels[3]=wf_helper[mc.sublevels[2]];
- 
-  if (mc.navlevel > 3 ){
-    dm.returntonav(2,3,mc.sublevels[2]);
+  if (mc.navlevel == 2 ){
+    mc.navrange = 3 ;
+    mc.sublevels[3]=wf_helper[mc.sublevels[2]];
   }
-  //uint8_t wtt[4];
-  //memcpy(wtt, &gg.waveform_tracers, sizeof(wtt));
   const char* _lbls[4] = {"X-Axis CC ","Y-Axis CC ","Tracenote ","Blur Radius "};
   dm.sub_menu(_lbls,wf_helper,79);
-
 }
 
 void WaveformsMenuRouter::set_y_cursor_value(byte la_val){
@@ -73,45 +70,39 @@ void WaveformsMenuRouter::set_y_cursor_value(byte la_val){
 }
 
 void WaveformsMenuRouter::blur_w_graph_region(int16_t *arr, int index, uint8_t intensity) {
-    int range = (intensity / 127.0)*self->max_blur;
-    int temp[2 * self->max_blur + 1];
-    for (int d = -range; d <= range; d++){
-        int pos = index + d;
-        if ((unsigned)pos >= 256)
-            continue;
-        int64_t sum = 0;
-        uint32_t wsum = 0;
-        for (int k = -range; k <= range; k++){
-            int src = pos + k;
-            if ((unsigned)src >= 256)
-                continue;
-            int ak = k < 0 ? -k : k;
-            int ki = (ak * 16) / range;
-            uint32_t w = fake_gauss_kernel[16 - ki];
-            sum += (int64_t)arr[src] * w;
-            wsum += w;
-        }
-        temp[d + range] = (int)(sum / wsum);
+  int range = (intensity / 127.0)*self->max_blur;
+  int temp[2 * self->max_blur + 1];
+  for (int d = -range; d <= range; d++){
+    int pos = index + d;
+    if ((unsigned)pos >= 256) continue;
+    int64_t sum = 0;
+    uint32_t wsum = 0;
+    for (int k = -range; k <= range; k++){
+      int src = pos + k;
+      if ((unsigned)src >= 256) continue;
+      int ak = k < 0 ? -k : k;
+      int ki = (ak * 16) / range;
+      uint32_t w = fake_gauss_kernel[16 - ki];
+      sum += (int64_t)arr[src] * w;
+      wsum += w;
     }
-    for (int d = -range; d <= range; d++)
-    {
-        int pos = index + d;
-        if ((unsigned)pos >= 256)
-            continue;
-        int blurred = temp[d + range];
-        arr[pos] += ((blurred - arr[pos]) * intensity) >> 8;
-    }
+    temp[d + range] = (int)(sum / wsum);
+  }
+  for (int d = -range; d <= range; d++) {
+    int pos = index + d;
+    if ((unsigned)pos >= 256) continue;
+    int blurred = temp[d + range];
+    arr[pos] += ((blurred - arr[pos]) * intensity) >> 8;
+  }
 }
 
 void WaveformsMenuRouter::blur_w_graph_boundary( int16_t *arr,int range) {
   for (int i = 1; i < range; i++)  {
-      // 255 at edge, 0 at end of range
-      int pull = ((range - i) * 255) / range;
-
-      arr[i] -= (arr[i] * pull) >> 8;
-
-      int j = 255 - i;
-      arr[j] -= (arr[j] * pull) >> 8;
+    // 255 at edge, 0 at end of range
+    int pull = ((range - i) * 255) / range;
+    arr[i] -= (arr[i] * pull) >> 8;
+    int j = 255 - i;
+    arr[j] -= (arr[j] * pull) >> 8;
   }
   arr[0]   = 0;
   arr[255] = 0;

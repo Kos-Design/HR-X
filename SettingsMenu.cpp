@@ -1,3 +1,5 @@
+#include <stdint.h>
+#include "Constants.h"
 #include "SettingsMenu.h"
 #include "Triggers.h"
 #include "pads.h"
@@ -584,42 +586,40 @@ void SettingsMenuRouter::extra_menu() {
   mc.navrange = 2 ;
   if (mc.navlevel >= 3 ) _extra_menu[mc.sublevels[2]]();
   char tbuffer[6];
-  snprintf(tbuffer, sizeof(tbuffer), "%d.%d", (int)(15000.0 / gg.millitickinterval), (int)((15000.0 / gg.millitickinterval) * 10) % 10);
+  snprintf(tbuffer, sizeof(tbuffer), "%d.%d", (int)(60000.0 / gg.millis_period), (int)((60000.0 / gg.millis_period) * 10) % 10);
   const char* _lbls[4] = {"Tempo        ","Chords       ","Synth Stereo ","FREE  "};
   const char* _vals[4] = {(const char*)tbuffer,chordslabels[gg.lasetchord],stereoWidth.stereo_mode_lbls[gg.stereo_widener]," "};
-  if (mc.navlevel == 2 ) mc.sublevels[3] = (int[4]){gg.millitickinterval,gg.lasetchord,gg.stereo_widener,0}[mc.sublevels[2]];
+  if (mc.navlevel == 2 ) mc.sublevels[3] = (int[4]){gg.millis_period-200,gg.lasetchord,gg.stereo_widener,0}[mc.sublevels[2]];
   dm.sub_menu(_lbls,_vals,76);
 }
 
 void SettingsMenuRouter::makesettingslist() {
+  char displaysettingslabels[settings_labels_count][18] = {"Midi",
+                                                          "Options",
+                                                          "Arpegiator Text",
+                                                          "OnBoard Knobs",
+                                                          "Virtual Knobs",
+                                                          "Knobs Setter",
+                                                          "Nav Config",
+                                                          "Parameters"};
 
-          char displaysettingslabels[settings_labels_count][18] = {"Midi",
-                                                                  "Options",
-                                                                  "Arpegiator Text",
-                                                                  "OnBoard Knobs",
-                                                                  "Virtual Knobs",
-                                                                  "Knobs Setter",
-                                                                  "Nav Config",
-                                                                  "Parameters"};
+  snprintf(displaysettingslabels[2], 18, "Arpegiator %s", ((char[2][4]){"Off", "On"})[(int)(gg.arpegiatortype != 8)]);
 
-          snprintf(displaysettingslabels[2], 18, "Arpegiator %s", ((char[2][4]){"Off", "On"})[(int)(gg.arpegiatortype != 8)]);
-
-          int startx = 0;
-          int starty = 16;
-          char *textin = (char *)displaysettingslabels[mc.sublevels[1]];
-          dm.clean_title_1_1();
-          dm.canvastitle.println(textin);
-          
-          for (int filer = 0; filer < settings_labels_count - 1 - (mc.sublevels[1]);
-              filer++) {
-            dm.canvasBIG.setCursor(startx, starty + ((filer)*10));
-            dm.canvasBIG.println(displaysettingslabels[mc.sublevels[1] + 1 + filer]);
-          }
-          for (int filer = 0; filer < mc.sublevels[1]; filer++) {
-            dm.canvasBIG.setCursor(startx, (10 * (settings_labels_count - mc.sublevels[1]) + 6 + ((filer)*10)));
-            dm.canvasBIG.println(displaysettingslabels[filer]);
-          }
-        }
+  int startx = 0;
+  int starty = 16;
+  char *textin = (char *)displaysettingslabels[mc.sublevels[1]];
+  dm.clean_title_1_1();
+  dm.canvastitle.println(textin);
+  
+  for (int i = 0; i < settings_labels_count - 1 - (mc.sublevels[1]); i++) {
+    dm.canvasBIG.setCursor(startx, starty + ((i)*10));
+    dm.canvasBIG.println(displaysettingslabels[mc.sublevels[1] + 1 + i]);
+  }
+  for (int i = 0; i < mc.sublevels[1]; i++) {
+    dm.canvasBIG.setCursor(startx, (10 * (settings_labels_count - mc.sublevels[1]) + 6 + ((i)*10)));
+    dm.canvasBIG.println(displaysettingslabels[i]);
+  }
+}
 
 void SettingsMenuRouter::settings_nav_one(){
   dm.canvasBIG.setTextSize(1);
@@ -653,8 +653,10 @@ byte SettingsMenuRouter::getclosestnote(byte lei, float lafreq) {
 }
 
 void SettingsMenuRouter::set_bpms_interval(){
-  mc.navrange = 620;
-  gg.millitickinterval = mc.sublevels[3];
+  mc.navrange = 800;
+  //200min ->300bpm
+  //1000max -> 60bpm
+  gg.millis_period = mc.sublevels[3]+200;
   if (mc.navlevel > 3) {
     _ps.setbpms();
     dm.returntonav(2,3,0);
@@ -681,10 +683,164 @@ VirtualKnobs::VirtualKnobs() {
             //self->sublevels_address={9,0,0};
         }
 
+
+void (*VirtualKnobs::t_butts[VBUT_LBL_COUNT])(byte) = {&TickFromStart_Trigger_ctl,nullptr,&StopTicking_Trigger_ctl,&StartTicking_Trigger_ctl,nullptr,&RecordPattern_Trigger_ctl,&RecordCCPatern_Trigger_ctl,nullptr};
+
+void VirtualKnobs::Vbuttonspanel() {
+  self->actionvbuttons();
+  self->displayonscreenbuttons();
+  self->doposkselector();
+  dm.dodisplay();
+}
+
+void VirtualKnobs::actionvbuttons() {
+  if (mc.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT + 14) {
+    if (mc.navlevel == self->relative_navlevel) {
+      mc.navrange = VBUT_LBL_COUNT - 1 + 17 + 14;
+    }
+    if (mc.navlevel == self->relative_navlevel + 1) {
+      if (mc.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT) {
+        t_butts[mc.sublevels[self->relative_navlevel]](0);
+      }
+
+      if (mc.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT + 14 &&
+          mc.sublevels[self->relative_navlevel] >= VBUT_LBL_COUNT) {
+        int CClaval = 70 + (mc.sublevels[self->relative_navlevel] + 1 - (VBUT_LBL_COUNT));
+                
+        _tt.moncontrollercc((MidiEventer){(byte)1, (byte)CClaval, (byte)127});
+      }
+
+      dm.returntonav(self->relative_navlevel);
+    }
+
+  } else {
+
+    if (mc.navlevel == self->relative_navlevel) {
+
+      mc.navrange = VBUT_LBL_COUNT - 1 + 17 + 14;
+      mc.sublevels[self->relative_navlevel + 1] = gg.vPots[mc.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14];
+      mc.sublevels[self->relative_navlevel + 2] = gg.vPots[mc.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14];
+    } else {
+
+      if (mc.navlevel == self->relative_navlevel + 1) {
+
+        mc.navrange = 127;
+        gg.vPots[mc.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14] =
+            mc.sublevels[self->relative_navlevel + 1];
+
+        if (mc.sublevels[self->relative_navlevel] > VBUT_LBL_COUNT + 14) {
+          int CClaval2 = 70 + (mc.sublevels[self->relative_navlevel] + 1 - (VBUT_LBL_COUNT));
+          
+          _tt.moncontrollercc((byte)1, (byte)CClaval2, (byte)(gg.vPots[mc.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14]));
+        }
+      }
+      if (mc.navlevel >= self->relative_navlevel + 2) {
+        gg.vPots[mc.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14] = mc.sublevels[self->relative_navlevel + 1];
+        mc.sublevels[self->relative_navlevel + 2] = mc.sublevels[self->relative_navlevel];
+        dm.returntonav(self->relative_navlevel);
+      }
+    }
+  }
+}
+
+void VirtualKnobs::displayonscreenbuttons() {
+  byte centercirclex;
+  byte centercircley;
+  byte xcentershifter;
+  byte knobradius = 7;
+  // angleofknob = (0.3*360.0)-90 ;
+  byte trianglepointx;
+  byte trianglepointy;
+  float coeffangle;
+  dm.clean_title_1_1();
+
+  for (int i = 0; i < 8; i++) {
+    dm.canvasBIG.drawRoundRect(108, 16 + (i * 7), 9, 6, 1, SSD1306_WHITE);
+  }
+
+  for (int i = 0; i < 8; i++) {
+    dm.canvasBIG.drawRoundRect(119, 16 + (i * 7), 9, 6, 1, SSD1306_WHITE);
+  }
+  for (int i = 0; i < 6; i++) {
+    coeffangle = (6.2831 - ((float)gg.vPots[16 - i] / 127.0) * 6.2831) + 3.1416;
+    xcentershifter = (knobradius * 2) + 4;
+    centercirclex = knobradius + (xcentershifter * i);
+    centercircley = 16 + knobradius;
+    dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius,SSD1306_WHITE);
+
+    trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
+    trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
+
+    dm.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
+  }
+  centercircley += 19 - (knobradius / 2);
+  for (int i = 0; i < 5; i++) {
+    coeffangle = (6.2831 - ((float)gg.vPots[6 + i] / 127.0) * 6.2831) + 3.1416;
+    xcentershifter = (knobradius * 2) + 4;
+    centercirclex = knobradius + (xcentershifter * i);
+
+    trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle)))) + knobradius + 2;
+    trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
+
+    dm.canvasBIG.drawCircle(centercirclex + knobradius + 2, centercircley, knobradius, SSD1306_WHITE);
+    dm.drawLine(centercirclex + knobradius + 2, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
+  }
+  centercircley += 16;
+  for (int i = 0; i < 6; i++) {
+    xcentershifter = (knobradius * 2) + 4;
+    centercirclex = knobradius + (xcentershifter * i);
+    coeffangle = (6.2831 - ((float)gg.vPots[5 - i] / 127.0) * 6.2831) + 3.1416;
+    trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
+    trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
+    dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
+    dm.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
+  }
+
+  dm.drawtransport();
+  // maison - cursor upsidedown (char)127)
+  // ç (char)128
+  // fleche haut bas (char)18
+  // sortede s bizarre (char)21
+  // ankh (char)12
+  // sorte de rond (char) 9
+  // porte percee  (char)8
+  // trefle (char)5
+  // fleche hautbas underscoree  (char)23
+  // fleche droite (char)26
+  // fleche droitegauche (char)29
+  // rien  (char)32
+
+  // u trema  (char)129)
+  // sorte de rectangle petit (char200
+  // !! doublexclamation(char)19
+  // pi (char)20
+  // rien (char)13
+  // rien (char)10
+  // rondplein (char)7
+  // losange  (char)4
+  // face unhappy  (char)1
+  // fleche bas (char)25
+  // sortede L (char)28
+  // cursor bas  (char)31
+
+  // megastar (char)15)
+  // playbutton (char)16
+  // play backward button (char)17
+  // underscore (char)22
+  // music double  (char)14
+  // male (char)11
+  // pique  (char)6
+  // coeur (char)3
+  // face happy (char)2
+  // fleche haut (char)24
+  // fleche gauche  (char)27
+  // cursor haut  (char)30
+}
+
 void VirtualKnobs::doposkselector() {
   char vbuttonslabels[VBUT_LBL_COUNT][12] = {
       "CuePlay",    "Backward -1", "Stop",   "Play",
-      "Forward +1", "Record",      "Thingy", "Exit"};
+      "Forward +1", "Record",      "Rec CCs", "Exit"};
   byte startyp = 8;
   byte ecart = 14;
   byte knobradius = 7;
@@ -695,26 +851,12 @@ void VirtualKnobs::doposkselector() {
   if (mc.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT) {
     dm.canvastitle.fillScreen(SSD1306_BLACK);
     dm.canvasBIG.setTextSize(1);
-    if (gg.midiknobassigned[(70 + mc.sublevels[self->relative_navlevel] + 1 + (14 + 17))]) {
-      dm.printassignedmidi(
-          gg.midiknobassigned[(70 + mc.sublevels[self->relative_navlevel] + 1 + (14 + 17))]);
-
-    } else {
-      dm.canvasBIG.setCursor(0, 0);
-
-      dm.canvasBIG.print((char *)vbuttonslabels[mc.sublevels[self->relative_navlevel]]);
-    }
-    dm.canvasBIG.setCursor(97, 0);
-    dm.canvasBIG.print("CC");
-    dm.canvasBIG.print(70 + mc.sublevels[self->relative_navlevel] + 1 + (14 + 17));
-    dm.canvasBIG.setCursor(110, 8);
-    dm.canvasBIG.print(0);
-    dm.canvasBIG.drawPixel(ecart * mc.sublevels[self->relative_navlevel] + 6, startyp + 7,
-                        SSD1306_WHITE);
-    dm.canvasBIG.drawPixel(ecart * mc.sublevels[self->relative_navlevel] + 7, startyp + 6,
-                        SSD1306_WHITE);
-    dm.canvasBIG.drawPixel(ecart * mc.sublevels[self->relative_navlevel] + 7, startyp + 7,
-                        SSD1306_WHITE);
+    dm.canvasBIG.setCursor(0, 0);
+    dm.canvasBIG.print((char *)vbuttonslabels[mc.sublevels[self->relative_navlevel]]);
+    
+    dm.canvasBIG.drawPixel(ecart * mc.sublevels[self->relative_navlevel] + 6, startyp + 7, SSD1306_WHITE);
+    dm.canvasBIG.drawPixel(ecart * mc.sublevels[self->relative_navlevel] + 7, startyp + 6, SSD1306_WHITE);
+    dm.canvasBIG.drawPixel(ecart * mc.sublevels[self->relative_navlevel] + 7, startyp + 7, SSD1306_WHITE);
   } else {
 
     if (mc.sublevels[self->relative_navlevel] >= VBUT_LBL_COUNT &&
@@ -870,158 +1012,4 @@ void VirtualKnobs::doposkselector() {
   }
   dm.canvasBIG.setCursor(65, 0);
   dm.canvasBIG.print(mc.BPMs, 1);
-}
-
-void VirtualKnobs::Vbuttonspanel() {
-  self->actionvbuttons();
-  self->displayonscreenbuttons();
-  self->doposkselector();
-  dm.dodisplay();
-}
-
-void VirtualKnobs::actionvbuttons() {
-  if (mc.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT + 14) {
-    if (mc.navlevel == self->relative_navlevel) {
-      mc.navrange = VBUT_LBL_COUNT - 1 + 17 + 14;
-    }
-    if (mc.navlevel == self->relative_navlevel + 1) {
-
-      if (mc.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT) {
-        int CClaval0 = 70 + (mc.sublevels[self->relative_navlevel] + 1 + (14 + 17));
-        _tt.moncontrollercc((byte)1, (byte)CClaval0, (byte)127);
-      }
-
-      if (mc.sublevels[self->relative_navlevel] < VBUT_LBL_COUNT + 14 &&
-          mc.sublevels[self->relative_navlevel] >= VBUT_LBL_COUNT) {
-        int CClaval = 70 + (mc.sublevels[self->relative_navlevel] + 1 - (VBUT_LBL_COUNT));
-        _tt.moncontrollercc((byte)1, (byte)CClaval, (byte)127);
-      }
-
-      dm.returntonav(self->relative_navlevel);
-    }
-
-  } else {
-
-    if (mc.navlevel == self->relative_navlevel) {
-
-      mc.navrange = VBUT_LBL_COUNT - 1 + 17 + 14;
-      mc.sublevels[self->relative_navlevel + 1] =
-          gg.vPots[mc.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14];
-      mc.sublevels[self->relative_navlevel + 2] =
-          gg.vPots[mc.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14];
-    } else {
-
-      if (mc.navlevel == self->relative_navlevel + 1) {
-
-        mc.navrange = 127;
-        gg.vPots[mc.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14] =
-            mc.sublevels[self->relative_navlevel + 1];
-
-        if (mc.sublevels[self->relative_navlevel] > VBUT_LBL_COUNT + 14) {
-          int CClaval2 = 70 + (mc.sublevels[self->relative_navlevel] + 1 - (VBUT_LBL_COUNT));
-          _tt.moncontrollercc((byte)1, (byte)CClaval2, (byte)(gg.vPots[mc.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14]));
-        }
-      }
-      if (mc.navlevel >= self->relative_navlevel + 2) {
-        gg.vPots[mc.sublevels[self->relative_navlevel] - VBUT_LBL_COUNT - 14] =
-            mc.sublevels[self->relative_navlevel + 1];
-        mc.sublevels[self->relative_navlevel + 2] = mc.sublevels[self->relative_navlevel];
-        dm.returntonav(self->relative_navlevel);
-      }
-    }
-  }
-}
-
-void VirtualKnobs::displayonscreenbuttons() {
-  byte centercirclex;
-  byte centercircley;
-  byte xcentershifter;
-  byte knobradius = 7;
-  // angleofknob = (0.3*360.0)-90 ;
-  byte trianglepointx;
-  byte trianglepointy;
-  float coeffangle;
-  dm.clean_title_1_1();
-
-  for (int i = 0; i < 8; i++) {
-    dm.canvasBIG.drawRoundRect(108, 16 + (i * 7), 9, 6, 1, SSD1306_WHITE);
-  }
-
-  for (int i = 0; i < 8; i++) {
-    dm.canvasBIG.drawRoundRect(119, 16 + (i * 7), 9, 6, 1, SSD1306_WHITE);
-  }
-  for (int i = 0; i < 6; i++) {
-    coeffangle = (6.2831 - ((float)gg.vPots[16 - i] / 127.0) * 6.2831) + 3.1416;
-    xcentershifter = (knobradius * 2) + 4;
-    centercirclex = knobradius + (xcentershifter * i);
-    centercircley = 16 + knobradius;
-    dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius,SSD1306_WHITE);
-
-    trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
-    trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
-
-    dm.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
-  }
-  centercircley += 19 - (knobradius / 2);
-  for (int i = 0; i < 5; i++) {
-    coeffangle = (6.2831 - ((float)gg.vPots[6 + i] / 127.0) * 6.2831) + 3.1416;
-    xcentershifter = (knobradius * 2) + 4;
-    centercirclex = knobradius + (xcentershifter * i);
-
-    trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle)))) + knobradius + 2;
-    trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
-
-    dm.canvasBIG.drawCircle(centercirclex + knobradius + 2, centercircley, knobradius, SSD1306_WHITE);
-    dm.drawLine(centercirclex + knobradius + 2, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
-  }
-  centercircley += 16;
-  for (int i = 0; i < 6; i++) {
-    xcentershifter = (knobradius * 2) + 4;
-    centercirclex = knobradius + (xcentershifter * i);
-    coeffangle = (6.2831 - ((float)gg.vPots[5 - i] / 127.0) * 6.2831) + 3.1416;
-    trianglepointx = round(centercirclex + (knobradius * (cos(coeffangle))));
-    trianglepointy = round(centercircley - (knobradius * (sin(coeffangle))));
-    dm.canvasBIG.drawCircle(centercirclex, centercircley, knobradius, SSD1306_WHITE);
-    dm.drawLine(centercirclex, centercircley, trianglepointx, trianglepointy, SSD1306_WHITE);
-  }
-
-  dm.drawtransport();
-  // maison - cursor upsidedown (char)127)
-  // ç (char)128
-  // fleche haut bas (char)18
-  // sortede s bizarre (char)21
-  // ankh (char)12
-  // sorte de rond (char) 9
-  // porte percee  (char)8
-  // trefle (char)5
-  // fleche hautbas underscoree  (char)23
-  // fleche droite (char)26
-  // fleche droitegauche (char)29
-  // rien  (char)32
-
-  // u trema  (char)129)
-  // sorte de rectangle petit (char200
-  // !! doublexclamation(char)19
-  // pi (char)20
-  // rien (char)13
-  // rien (char)10
-  // rondplein (char)7
-  // losange  (char)4
-  // face unhappy  (char)1
-  // fleche bas (char)25
-  // sortede L (char)28
-  // cursor bas  (char)31
-
-  // megastar (char)15)
-  // playbutton (char)16
-  // play backward button (char)17
-  // underscore (char)22
-  // music double  (char)14
-  // male (char)11
-  // pique  (char)6
-  // coeur (char)3
-  // face happy (char)2
-  // fleche haut (char)24
-  // fleche gauche  (char)27
-  // cursor haut  (char)30
 }

@@ -13,7 +13,6 @@ class KnobAssigner : public SectionHolder {
       static void assigner();
       static void set_midi_cc_to_ctl(byte cc_nt, int cc_cl);
       static void set_it();
-      static constexpr uint16_t CtlCount = 128;
       //sizeof(ctl) / sizeof(ctl[0]);
 
   private:

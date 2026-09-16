@@ -121,15 +121,12 @@ void MasterClock::attach_96(void (*cb)()) {
         }
 
 void MasterClock::stopticker() {
-            mc.stoptick = 1;
-            mc.recordCC = 0;
-            self->stop = 1;
-            // if (mc.patrecord) {
-            // computelenghtmesureoffline();
-            mc.patternOn = 0;
-            mc.patrecord = 0;
-            // mc.tickposition = 0 ;
-        }
+    mc.stoptick = 1;
+    mc.recordCC = 0;
+    self->stop = 1;
+    mc.patternOn = 0;
+    mc.patrecord = 0;
+}
 
 void MasterClock::startticker() {
     //TODO: reimplement external midi clock use
@@ -301,7 +298,7 @@ void PatEditRouter::set_editor_to_synth(byte liner = self->local_line){
 
 void PatEditRouter::set_editor_to_sampler(byte liner = self->local_line){
          self->_on_part = pp.sampler_partition[liner] ;
-          self->_off_part = pp.sampler_off_pat;
+          self->_off_part = pp.flash_off_pat[liner];
           self->_temp_part = self->temp_sampler_partition;
           self->liners_count = FLASH_LINERS_COUNT;
           self->_length_part = pp.flash_notes_length[liner] ;
@@ -565,154 +562,148 @@ void PatEditRouter::stretch_cell_velocity() {
         }
 
 void PatEditRouter::sanitize_synth_partition(){
-          bool offUsed[SYNTH_LINERS_COUNT][PBARS] = {false};
-          for (int line = 0; line < SYNTH_LINERS_COUNT; line++){
-            for (int onStep = 0; onStep < PBARS; onStep++){
-              // Skip empty Note On
-              if (pp.synth_partition[line][onStep].velocity == 0)
-                  continue;
-              uint8_t note = pp.synth_partition[line][onStep].note;
-              int latestStep = (onStep + (PBARS-1)) & (PBARS-1);
-              for (int i = 1; i < PBARS; i++){
-                int s = (onStep + i) & (PBARS-1);
-                if (pp.synth_partition[line][s].velocity && pp.synth_partition[line][s].note == note) {
-                  latestStep = (s + (PBARS-1)) & (PBARS-1);
-                  break;
-                }
-              }
-              int foundLine = -1;
-              int foundStep = -1;
-              bool found = false;
-              int s = (onStep + 1) & (PBARS-1);
-              while (!found) {
-                for (int l = 0; l < SYNTH_LINERS_COUNT; l++) {
-                  if (offUsed[l][s])
-                    continue;
+  bool offUsed[SYNTH_LINERS_COUNT][PBARS] = {false};
+  for (int line = 0; line < SYNTH_LINERS_COUNT; line++){
+    for (int onStep = 0; onStep < PBARS; onStep++){
+      // Skip empty Note On
+      if (pp.synth_partition[line][onStep].velocity == 0)
+          continue;
+      uint8_t note = pp.synth_partition[line][onStep].note;
+      int latestStep = (onStep + (PBARS-1)) & (PBARS-1);
+      for (int i = 1; i < PBARS; i++){
+        int s = (onStep + i) & (PBARS-1);
+        if (pp.synth_partition[line][s].velocity && pp.synth_partition[line][s].note == note) {
+          latestStep = (s + (PBARS-1)) & (PBARS-1);
+          break;
+        }
+      }
+      int foundLine = -1;
+      int foundStep = -1;
+      bool found = false;
+      int s = (onStep + 1) & (PBARS-1);
+      while (!found) {
+        for (int l = 0; l < SYNTH_LINERS_COUNT; l++) {
+          if (offUsed[l][s])
+            continue;
 
-                  if (pp.synth_off_pat[l][s].note == note){
-                    found = true;
-                    foundLine = l;
-                    foundStep = s;
-                    break;
-                  }
-                }
-
-                if (found || s == latestStep)
-                    break;
-                s = (s + 1) & (PBARS-1);
-              }
-              int targetStep = latestStep;
-              while (targetStep != onStep) {
-                if (pp.synth_off_pat[line][targetStep].note == 0 ||
-                  (found && targetStep == foundStep && line == foundLine))
-                  break;
-
-                targetStep = (targetStep + (PBARS-1)) & (PBARS-1);
-              }
-              if (found){
-                if (foundLine != line || foundStep != targetStep){
-                  pp.synth_off_pat[foundLine][foundStep].channel = 0;
-                  pp.synth_off_pat[foundLine][foundStep].note = 0;
-                  pp.synth_off_pat[line][targetStep].channel = pp.synth_partition[line][onStep].channel;
-                  pp.synth_off_pat[line][targetStep].note = note;
-                }
-
-                offUsed[line][targetStep] = true;
-              }
-              else {
-                pp.synth_off_pat[line][targetStep].channel = pp.synth_partition[line][onStep].channel;
-                pp.synth_off_pat[line][targetStep].note = note;
-                offUsed[line][targetStep] = true;
-              }
-            }
-          }
-          for (int line = 0; line < SYNTH_LINERS_COUNT; line++) {
-            for (int step = 0; step < PBARS; step++) {
-              if (!offUsed[line][step]) {
-                pp.synth_off_pat[line][step].channel = 0;
-                pp.synth_off_pat[line][step].note = 0;
-              }
-            }
+          if (pp.synth_off_pat[l][s].note == note){
+            found = true;
+            foundLine = l;
+            foundStep = s;
+            break;
           }
         }
+
+        if (found || s == latestStep)
+            break;
+        s = (s + 1) & (PBARS-1);
+      }
+      int targetStep = latestStep;
+      while (targetStep != onStep) {
+        if (pp.synth_off_pat[line][targetStep].note == 0 ||
+          (found && targetStep == foundStep && line == foundLine))
+          break;
+
+        targetStep = (targetStep + (PBARS-1)) & (PBARS-1);
+      }
+      if (found){
+        if (foundLine != line || foundStep != targetStep){
+          pp.synth_off_pat[foundLine][foundStep].channel = 0;
+          pp.synth_off_pat[foundLine][foundStep].note = 0;
+          pp.synth_off_pat[line][targetStep].channel = pp.synth_partition[line][onStep].channel;
+          pp.synth_off_pat[line][targetStep].note = note;
+        }
+
+        offUsed[line][targetStep] = true;
+      }
+      else {
+        pp.synth_off_pat[line][targetStep].channel = pp.synth_partition[line][onStep].channel;
+        pp.synth_off_pat[line][targetStep].note = note;
+        offUsed[line][targetStep] = true;
+      }
+    }
+  }
+  for (int line = 0; line < SYNTH_LINERS_COUNT; line++) {
+    for (int step = 0; step < PBARS; step++) {
+      if (!offUsed[line][step]) {
+        pp.synth_off_pat[line][step].channel = 0;
+        pp.synth_off_pat[line][step].note = 0;
+      }
+    }
+  }
+}
 
 void PatEditRouter::sanitize_sampler_partition(){
+  bool offUsed[FLASH_LINERS_COUNT][PBARS]{};
+  for (int line = 0; line < FLASH_LINERS_COUNT; line++){
+    for (int onStep = 0; onStep < PBARS; onStep++){
+      // Skip empty Note On
+      if (pp.sampler_partition[line][onStep].velocity == 0)
+          continue;
+      uint8_t note = pp.sampler_partition[line][onStep].note;
+      int latestStep = (onStep + (PBARS-1)) & (PBARS-1);
+      for (int i = 1; i < PBARS; i++){
+        int s = (onStep + i) & (PBARS-1);
+        if (pp.sampler_partition[line][s].velocity && pp.sampler_partition[line][s].note == note) {
+          latestStep = (s + (PBARS-1)) & (PBARS-1);
+          break;
+        }
+      }
+      int foundLine = -1;
+      int foundStep = -1;
+      bool found = false;
+      int s = (onStep + 1) & (PBARS-1);
+      while (!found) {
+        for (int l = 0; l < FLASH_LINERS_COUNT; l++) {
+          if (offUsed[l][s])
+            continue;
 
-          bool offUsed[FLASH_LINERS_COUNT][PBARS] = {false};
-
-          for (int line = 0; line < FLASH_LINERS_COUNT; line++) {
-            for (int onStep = 0; onStep < PBARS; onStep++){
-              // Skip empty Note On
-              if (pp.sampler_partition[line][onStep].velocity == 0)
-                  continue;
-
-              uint8_t note = pp.sampler_partition[line][onStep].note;
-              int latestStep = (onStep + (PBARS-1)) & (PBARS-1);
-
-              for (int i = 1; i < PBARS; i++){
-                int s = (onStep + i) & (PBARS-1);
-                if (pp.sampler_partition[line][s].velocity && pp.sampler_partition[line][s].note == note) {
-                  latestStep = (s + (PBARS-1)) & (PBARS-1);
-                  break;
-                }
-              }
-              int foundLine = -1;
-              int foundStep = -1;
-              bool found = false;
-
-              int s = (onStep + 1) & (PBARS-1);
-
-              while (!found) {
-                for (int l = 0; l < FLASH_LINERS_COUNT; l++) {
-                  if (offUsed[l][s])
-                    continue;
-
-                  if (pp.sampler_off_pat[s].note == note){
-                    found = true;
-                    foundLine = l;
-                    foundStep = s;
-                    break;
-                  }
-                }
-
-                if (found || s == latestStep)
-                    break;
-                s = (s + 1) & (PBARS-1);
-              }
-
-              int targetStep = latestStep;
-              while (targetStep != onStep){
-                if (pp.sampler_off_pat[targetStep].note == 0 ||
-                    (found && targetStep == foundStep && line == foundLine))
-                    break;
-
-                targetStep = (targetStep + (PBARS-1)) & (PBARS-1);
-              }
-              if (found){
-                if (foundLine != line || foundStep != targetStep) {
-                  pp.sampler_off_pat[foundStep].channel = 0;
-                  pp.sampler_off_pat[foundStep].note = 0;
-                  pp.sampler_off_pat[targetStep].channel = pp.sampler_partition[line][onStep].channel;
-                  pp.sampler_off_pat[targetStep].note = note;
-                }
-                offUsed[line][targetStep] = true;
-              }
-              else {
-                pp.sampler_off_pat[targetStep].channel = pp.sampler_partition[line][onStep].channel;
-                pp.sampler_off_pat[targetStep].note = note;
-                offUsed[line][targetStep] = true;
-              }
-            }
-          }
-          for (int line = 0; line < FLASH_LINERS_COUNT; line++) {
-            for (int step = 0; step < PBARS; step++) {
-              if (!offUsed[line][step]) {
-                pp.sampler_off_pat[step].channel = 0;
-                pp.sampler_off_pat[step].note = 0;
-              }
-            }
+          if (pp.flash_off_pat[l][s].note == note){
+            found = true;
+            foundLine = l;
+            foundStep = s;
+            break;
           }
         }
+
+        if (found || s == latestStep)
+            break;
+        s = (s + 1) & (PBARS-1);
+      }
+      int targetStep = latestStep;
+      while (targetStep != onStep) {
+        if (pp.flash_off_pat[line][targetStep].note == 0 ||
+          (found && targetStep == foundStep && line == foundLine))
+          break;
+
+        targetStep = (targetStep + (PBARS-1)) & (PBARS-1);
+      }
+      if (found){
+        if (foundLine != line || foundStep != targetStep){
+          pp.flash_off_pat[foundLine][foundStep].channel = 0;
+          pp.flash_off_pat[foundLine][foundStep].note = 0;
+          pp.flash_off_pat[line][targetStep].channel = pp.sampler_partition[line][onStep].channel;
+          pp.flash_off_pat[line][targetStep].note = note;
+        }
+
+        offUsed[line][targetStep] = true;
+      }
+      else {
+        pp.flash_off_pat[line][targetStep].channel = pp.sampler_partition[line][onStep].channel;
+        pp.flash_off_pat[line][targetStep].note = note;
+        offUsed[line][targetStep] = true;
+      }
+    }
+  }
+  for (int line = 0; line < FLASH_LINERS_COUNT; line++) {
+    for (int step = 0; step < PBARS; step++) {
+      if (!offUsed[line][step]) {
+        pp.flash_off_pat[line][step].channel = 0;
+        pp.flash_off_pat[line][step].note = 0;
+      }
+    }
+  }
+}
 
 void PatEditRouter::set_cell_at_pos(byte ch_, byte nt_, byte ve_){
   byte sub3 = mc.sublevels[self->relative_navlevel + 3];
@@ -771,7 +762,7 @@ int PatEditRouter::getnextposofevent1Off_synth(int linei, byte lanote, int fromi
 
 int PatEditRouter::getnextposofevent1Off_sampler(int linei, byte lanote, int fromi) {
   for (int i = fromi + 1; i < PBARS; i++) {
-    if (pp.sampler_off_pat[i].note == lanote) {
+    if (pp.flash_off_pat[linei][i].note == lanote) {
       return i;
     }
   }
@@ -843,48 +834,70 @@ void POptionsRouter::merge_partitions() {
 }
 
 void POptionsRouter::merge_sampler_partition_liners(){
-  byte note_encoutered ;
-  byte liner_encoutered[FLASH_LINERS_COUNT] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} ;
-
+  byte note_encoutered = 0;
+  byte liner_encoutered[FLASH_LINERS_COUNT]{};
+  byte off_encoutered = 0;
+  byte off_found[FLASH_LINERS_COUNT]{};
   for (int j=0;j<PBARS;j++){
     note_encoutered = 0 ;
+    off_encoutered = 0;
     for (int i=0;i<FLASH_LINERS_COUNT;i++){
       if(pp.sampler_partition[i][j].note && pp.sampler_partition[i][j].velocity){
         liner_encoutered[note_encoutered] = i ;
         note_encoutered++;
-      //si note on same tickpos, open new line, otherwise merge all liners count if one line only is noteon
+      }
+      if(pp.flash_off_pat[i][j].note){
+        off_found[off_encoutered] = i ;
+        off_encoutered++;
       }
     }
     for (int i=0;i<note_encoutered;i++){
       if (liner_encoutered[i]!=i){
-        //to avoid clearing current stage
-        pp.sampler_partition[i][j].note = pp.sampler_partition[liner_encoutered[i]][j].note ;
-        pp.sampler_partition[i][j].velocity = pp.sampler_partition[liner_encoutered[i]][j].velocity ;
+        pp.sampler_partition[i][j] = pp.sampler_partition[liner_encoutered[i]][j];
         pp.sampler_partition[liner_encoutered[i]][j] = {0,0,0};
+        pp.flash_notes_length[i][j] = pp.flash_notes_length[liner_encoutered[i]][j];
+        pp.flash_notes_length[liner_encoutered[i]][j] = 0;
+      }
+    }
+    for (int i=0;i<off_encoutered;i++){
+      if (off_found[i]!=i){
+        pp.flash_off_pat[i][j] = pp.flash_off_pat[off_found[i]][j];
+        pp.flash_off_pat[off_found[i]][j] = {0,0,0};
       }
     }
   }
 }
 
 void POptionsRouter::merge_synth_partition_liners(){
-  byte note_encoutered ;
-  byte liner_encoutered[SYNTH_LINERS_COUNT] = {0,0,0,0,0,0} ;
-
+  byte note_encoutered = 0;
+  byte liner_encoutered[SYNTH_LINERS_COUNT]{};
+  byte off_encoutered = 0;
+  byte off_found[SYNTH_LINERS_COUNT]{};
   for (int j=0;j<PBARS;j++){
     note_encoutered = 0 ;
+    off_encoutered = 0;
     for (int i=0;i<SYNTH_LINERS_COUNT;i++){
       if(pp.synth_partition[i][j].note && pp.synth_partition[i][j].velocity){
         liner_encoutered[note_encoutered] = i ;
         note_encoutered++;
-      //si note on same tickpos, open new line, otherwise merge all liners count if one line only is noteon
+      }
+      if(pp.synth_off_pat[i][j].note){
+        off_found[off_encoutered] = i ;
+        off_encoutered++;
       }
     }
     for (int i=0;i<note_encoutered;i++){
       if (liner_encoutered[i]!=i){
-        //to avoid clearing current stage
-        pp.synth_partition[i][j].note = pp.synth_partition[liner_encoutered[i]][j].note ;
-        pp.synth_partition[i][j].velocity = pp.synth_partition[liner_encoutered[i]][j].velocity ;
+        pp.synth_partition[i][j] = pp.synth_partition[liner_encoutered[i]][j];
         pp.synth_partition[liner_encoutered[i]][j] = {0,0,0};
+        pp.synth_notes_length[i][j] = pp.synth_notes_length[liner_encoutered[i]][j];
+        pp.synth_notes_length[liner_encoutered[i]][j] = 0;
+      }
+    }
+    for (int i=0;i<off_encoutered;i++){
+      if (off_found[i]!=i){
+        pp.synth_off_pat[i][j] = pp.synth_off_pat[off_found[i]][j];
+        pp.synth_off_pat[off_found[i]][j] = {0,0,0};
       }
     }
   }
@@ -892,11 +905,11 @@ void POptionsRouter::merge_synth_partition_liners(){
 
 void POptionsRouter::clearsamplerpatternline() {
   memset(pp.sampler_partition, 0, sizeof(pp.sampler_partition));
-  memset(pp.sampler_off_pat, 0, sizeof(pp.sampler_off_pat));
+  memset(pp.flash_off_pat, 0, sizeof(pp.flash_off_pat));
   memset(pp.track_cells[Flash], 0, sizeof(pp.track_cells[Flash]));
 }
 
-const char* POptionsRouter::optionspatternlabels[] = {"Transpose", "Shift", "Clear", "Target", "Inter CC","Merge Pat"};
+const char* POptionsRouter::optionspatternlabels[sizeofoptionspattern] = {"Transpose", "Shift", "Clear", "Target","Merge Pat","Inter CC"};
 
 void POptionsRouter::show(){
   if (mc.navlevel == 2 ){
@@ -1048,22 +1061,27 @@ void POptionsRouter::shiftnotes1down(int leshifter) {
 
 void POptionsRouter::shiftnotes1right(int leshifter) {
   MidiEventer letempevent1[2];
+  int tmp_length;
+  bool tmp_trk;
   for (int shifts = 0; shifts < leshifter; shifts++) {
     for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+      letempevent1[0] = pp.synth_partition[i][PBARS - 1];
+      letempevent1[1] = pp.synth_off_pat[i][PBARS - 1];
+      tmp_length = pp.synth_notes_length[i][PBARS - 1];
+      tmp_trk = pp.track_cells[Synth][PBARS - 1];
+
       for (int j = PBARS - 1; j >= 0; j--) {
-        if (j == PBARS - 1) {
-          pp.synth_partition[i][j] = pp.synth_partition[i][j - 1];
-          letempevent1[0] = pp.synth_partition[i][PBARS - 1];
-          letempevent1[1] = pp.synth_off_pat[i][PBARS - 1];
-          pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j - 1];
-        }
-        if ((j > 0) && (j < PBARS - 1)) {
+        if (j) {
           pp.synth_partition[i][j] = pp.synth_partition[i][j - 1];
           pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j - 1];
-        }
-        if (j == 0) {
+          pp.synth_notes_length[i][j] = pp.synth_notes_length[i][j - 1];
+          pp.track_cells[Synth][j] = pp.track_cells[Synth][j - 1];
+        } else {
           pp.synth_partition[i][j] = letempevent1[0];
           pp.synth_off_pat[i][j] = letempevent1[1];
+          pp.synth_notes_length[i][j] = tmp_length;
+          pp.track_cells[Synth][j] = tmp_trk ;
+
         }
       }
     }
@@ -1072,22 +1090,25 @@ void POptionsRouter::shiftnotes1right(int leshifter) {
 
 void POptionsRouter::shiftnotes1left(int leshifter) {
   MidiEventer letempevent1[2];
+  int tmp_length;
+  bool tmp_trk;
   for (int shifts = 0; shifts < leshifter; shifts++) {
     for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
+      letempevent1[0] = pp.synth_partition[i][0];
+      letempevent1[1] = pp.synth_off_pat[i][0];
+      tmp_length = pp.synth_notes_length[i][0];
+      tmp_trk = pp.track_cells[Synth][0];
       for (int j = 0; j < PBARS; j++) {
-        if (j == 0) {
-          letempevent1[0] = pp.synth_partition[i][0];
-          pp.synth_partition[i][j] = pp.synth_partition[i][j + 1];
-          letempevent1[1] = pp.synth_off_pat[i][0];
-          pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j + 1];
-        }
-        if ((j > 0) && (j < PBARS - 1)) {
-          pp.synth_partition[i][j] = pp.synth_partition[i][j + 1];
-          pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j + 1];
-        }
         if (j == PBARS - 1) {
           pp.synth_partition[i][j] = letempevent1[0];
           pp.synth_off_pat[i][j] = letempevent1[1];
+          pp.synth_notes_length[i][j] = tmp_length;
+          pp.track_cells[Synth][j] = tmp_trk ;
+        } else {
+          pp.synth_partition[i][j] = pp.synth_partition[i][j + 1];
+          pp.synth_off_pat[i][j] = pp.synth_off_pat[i][j + 1];
+          pp.synth_notes_length[i][j] = pp.synth_notes_length[i][j + 1];
+          pp.track_cells[Synth][j] = pp.track_cells[Synth][j + 1];
         }
       }
     }
@@ -1116,15 +1137,15 @@ void POptionsRouter::doShiftersampler() {
 
 void POptionsRouter::shiftnotes2up(int leshifter) {
   for (int shifts = 0; shifts < leshifter; shifts++) {
-    for (int j = 0; j < PBARS; j++) {
-      if (((int)pp.sampler_off_pat[j].note < 127) &&
-          ((int)pp.sampler_off_pat[j].note > 2)) {
-        pp.sampler_off_pat[j].note++;
-      }
-      for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+    for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+      for (int j = 0; j < PBARS; j++) {
         if (((int)pp.sampler_partition[i][j].note < 127) &&
             ((int)pp.sampler_partition[i][j].note > 2)) {
           pp.sampler_partition[i][j].note++;
+        }
+        if (((int)pp.flash_off_pat[i][j].note < 127) &&
+            ((int)pp.flash_off_pat[i][j].note > 2)) {
+          pp.flash_off_pat[i][j].note++;
         }
       }
     }
@@ -1133,14 +1154,13 @@ void POptionsRouter::shiftnotes2up(int leshifter) {
 
 void POptionsRouter::shiftnotes2down(int leshifter) {
   for (int shifts = 0; shifts < leshifter; shifts++) {
-    for (int j = 0; j < PBARS; j++) {
-      if ((int)pp.sampler_off_pat[j].note > 1) {
-        pp.sampler_off_pat[j].note--;
-      }
-      for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+    for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+      for (int j = 0; j < PBARS; j++) {
         if ((int)pp.sampler_partition[i][j].note > 1) {
-
           pp.sampler_partition[i][j].note--;
+        }
+        if ((int)pp.flash_off_pat[i][j].note > 1) {
+          pp.flash_off_pat[i][j].note--;
         }
       }
     }
@@ -1148,29 +1168,28 @@ void POptionsRouter::shiftnotes2down(int leshifter) {
 }
 
 void POptionsRouter::shiftnotes2right(int leshifter) {
-  MidiEventer letempevent2[2];
+  MidiEventer letempevent1[2];
+  int tmp_length;
+  bool tmp_trk;
   for (int shifts = 0; shifts < leshifter; shifts++) {
-    for (int j = PBARS - 1; j >= 0; j--) {
-      if (j == PBARS - 1) {
-        letempevent2[1] = pp.sampler_off_pat[PBARS - 1];
-        pp.sampler_off_pat[j] = pp.sampler_off_pat[j - 1];
-      }
-      if ((j > 0) && (j < PBARS - 1)) {
-        pp.sampler_off_pat[j] = pp.sampler_off_pat[j - 1];
-      }
-      if (j == 0) {
-        pp.sampler_off_pat[j] = letempevent2[1];
-      }
-      for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
-        if (j == PBARS - 1) {
-          letempevent2[0] = pp.sampler_partition[i][PBARS - 1];
+    for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+      letempevent1[0] = pp.sampler_partition[i][PBARS - 1];
+      letempevent1[1] = pp.flash_off_pat[i][PBARS - 1];
+      tmp_length = pp.flash_notes_length[i][PBARS - 1];
+      tmp_trk = pp.track_cells[Flash][PBARS - 1];
+
+      for (int j = PBARS - 1; j >= 0; j--) {
+        if (j) {
           pp.sampler_partition[i][j] = pp.sampler_partition[i][j - 1];
-        }
-        if ((j > 0) && (j < PBARS - 1)) {
-            pp.sampler_partition[i][j] = pp.sampler_partition[i][j - 1];
-        }
-        if (j == 0) {
-          pp.sampler_partition[i][j] = letempevent2[0];
+          pp.flash_off_pat[i][j] = pp.flash_off_pat[i][j - 1];
+          pp.flash_notes_length[i][j] = pp.flash_notes_length[i][j - 1];
+          pp.track_cells[Flash][j] = pp.track_cells[Flash][j - 1];
+        } else {
+          pp.sampler_partition[i][j] = letempevent1[0];
+          pp.flash_off_pat[i][j] = letempevent1[1];
+          pp.flash_notes_length[i][j] = tmp_length;
+          pp.track_cells[Flash][j] = tmp_trk ;
+
         }
       }
     }
@@ -1178,29 +1197,26 @@ void POptionsRouter::shiftnotes2right(int leshifter) {
 }
 
 void POptionsRouter::shiftnotes2left(int leshifter) {
-  MidiEventer letempevent2[2];
+  MidiEventer letempevent1[2];
+  int tmp_length;
+  bool tmp_trk;
   for (int shifts = 0; shifts < leshifter; shifts++) {
-    for (int j = 0; j < PBARS; j++) {
-      if (j == 0) {
-        letempevent2[1] = pp.sampler_off_pat[0];
-        pp.sampler_off_pat[j] = pp.sampler_off_pat[j + 1];
-      }
-      if ((j > 0) && (j < PBARS - 1)) {
-        pp.sampler_off_pat[j] = pp.sampler_off_pat[j + 1];
-      }
-      if (j == PBARS - 1) {
-        pp.sampler_off_pat[j] = letempevent2[1];
-      }
-      for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
-        if (j == 0) {
-          letempevent2[0] = pp.sampler_partition[i][0];
-          pp.sampler_partition[i][j] = pp.sampler_partition[i][j + 1];
-        }
-        if ((j > 0) && (j < PBARS - 1)) {
-          pp.sampler_partition[i][j] = pp.sampler_partition[i][j + 1];
-        }
+    for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
+      letempevent1[0] = pp.sampler_partition[i][0];
+      letempevent1[1] = pp.flash_off_pat[i][0];
+      tmp_length = pp.flash_notes_length[i][0];
+      tmp_trk = pp.track_cells[Flash][0];
+      for (int j = 0; j < PBARS; j++) {
         if (j == PBARS - 1) {
-          pp.sampler_partition[i][j] = letempevent2[0];
+          pp.sampler_partition[i][j] = letempevent1[0];
+          pp.flash_off_pat[i][j] = letempevent1[1];
+          pp.flash_notes_length[i][j] = tmp_length;
+          pp.track_cells[Flash][j] = tmp_trk ;
+        } else {
+          pp.sampler_partition[i][j] = pp.sampler_partition[i][j + 1];
+          pp.flash_off_pat[i][j] = pp.flash_off_pat[i][j + 1];
+          pp.flash_notes_length[i][j] = pp.flash_notes_length[i][j + 1];
+          pp.track_cells[Flash][j] = pp.track_cells[Flash][j + 1];
         }
       }
     }
@@ -1353,19 +1369,6 @@ void PatternsMenuRouter::lv1_wrapper(void (*func)()) {
           if (mc.navlevel >= 3) {
             func();
             dm.returntonav(1, self->home_navrange,mc.sublevels[1]);
-          }
-        }
-
-void PatternsMenuRouter::addnoteoff2next(byte lanotee, byte lapos) {
-          if (lapos < PBARS - 1) {
-            pp.sampler_off_pat[lapos + 1].channel = gg.samplermidichannel;
-            pp.sampler_off_pat[lapos + 1].note = lanotee;
-            pp.sampler_off_pat[lapos + 1].velocity = 0;
-          }
-          if (lapos == PBARS - 1) {
-            pp.sampler_off_pat[0].channel = gg.samplermidichannel;
-            pp.sampler_off_pat[0].note = lanotee;
-            pp.sampler_off_pat[0].velocity = 0;
           }
         }
 

@@ -1,4 +1,4 @@
-#include "elapsedMillis.h"
+//#include "elapsedMillis.h"
 #include "Constants.h"
 #include "Functions.h"
 #include "WaveEditorMenu.h"
@@ -188,17 +188,7 @@ void initextmems() {
   gg.fx[2] = FxBus();
   gg.fx[2].f_index = 2;
 }
-void make_test_pattern(){
-  byte tposes[8] = {0,4,8,12,16,20,24,28};
-  for (int i = 0; i < 8; i++) {
-    pp.synth_partition[0][tposes[i]] = {gg.synthmidichannel,65,128};
-    pp.synth_partition[0][(tposes[i]+2)%32] = {gg.synthmidichannel,65,128};
-    pp.synth_off_pat[0][(tposes[i]+1)%32] = {gg.synthmidichannel,65,0};
-    pp.synth_off_pat[0][(tposes[i]+3)%32] = {gg.synthmidichannel,65,0};
-    pp.sampler_partition[0][tposes[i]] = {gg.samplermidichannel,46,32};
-    pp.sampler_off_pat[(tposes[i]+1)%32] = {gg.samplermidichannel,46,0};
-  }
-}
+
 void loadsynthdefaults() {
   AudioNoInterrupts();
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
@@ -382,9 +372,6 @@ void setupdefaultvalues() {
   gg.midiknobassigned[75] = 30 ;
   gg.midiknobassigned[100] = 32 ;
 
-  //make_test_pattern();
-
-  //note: WetMixMasterLs[0] is the dry channel
   for (int i = 0; i < OSCS_COUNT; i++) {
     mc.oscillator = i;
     _sn.setwavetypefromlist();
@@ -618,6 +605,14 @@ void setupSD() {
 }
 
 void setup() {
+//TODO: check why startup emits
+/*
+ 28:0   Control change          2, controller 12, value 124
+ 28:0   Control change          2, controller 11, value 124
+ 28:0   Control change          2, controller 16, value 124
+ 28:0   Control change          2, controller 15, value 101
+
+*/
 
   // consoler.println((char*)"initializing...");
   // settime();
@@ -1165,12 +1160,6 @@ void AudioInVolume_ctl(byte cc_value){
   MasterR.gain(2, (cc_value / 127.0));
 }
 
-void SetBPMs_ctl(byte cc_value){
-  // bpms
-  gg.millitickinterval = map(cc_value, 0, 127, 250, 63);
-  _ps.setbpms();
-}
-
 void SaveToNewPattern_Trigger_ctl(byte cc_value){
   bool bkp = _pt.catalog->new_file_mode;
   _pt.catalog->new_file_mode = 1 ;
@@ -1395,7 +1384,7 @@ void eq_display_Toggle_ctl(byte cc_value){
   mc.showing_eq = !mc.showing_eq ;
 }
 
-const CcCalls ctl[128] = {
+const CcCalls ctl[] = {
     {"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel",&SynthVolume_ctl},{"SDLevel",&SDPlayerVolume_ctl},{"FlashLevel",&FlashVolume_ctl},
     {"FX1 Wet",&Wet1Volume_ctl},{"FX2 Wet",&Wet2Volume_ctl},{"FX3 Wet",&Wet3Volume_ctl},{"Dry Sampler",&DrySampler_ctl},{"Dry Synth",&DrySynth_ctl},
     //10 ok
@@ -1423,7 +1412,7 @@ const CcCalls ctl[128] = {
     {"Reverb Size",&ReverbSize_ctl},{"BitCrusher Samples",&BitCrusherSamples_ctl},{"BitCrusher Bits",&BitCrusherBits_ctl},{"Flanger Offset",&FlangerOffset_Knob1_ctl},{"Flanger Depth",&FlangerDepth_Knob2_ctl},
     {"Flanger Delay",&FlangerDelay_Knob3_ctl},{"Delay Time sel.",&DelayTimeSelection_Knob1_ctl},{"Delay Multiplier",&DelayTimeMultiplier_Knob2_ctl},{"Delay Feedback",&DelayFeedback_Knob3_ctl},{"Audio In Volume",&AudioInVolume_ctl},
     //100ok
-    {"FREE",nullptr},{"Set BPMs",&SetBPMs_ctl},{"Save New Pattern",&SaveToNewPattern_Trigger_ctl},{"Load Next Pattern",&LoadNextPattern_Trigger_ctl},{"Record Audio",&RecordAudio_Trigger_ctl},
+    {"FREE",nullptr},{"FREE",nullptr},{"Save New Pattern",&SaveToNewPattern_Trigger_ctl},{"Load Next Pattern",&LoadNextPattern_Trigger_ctl},{"Record Audio",&RecordAudio_Trigger_ctl},
     {"Play Record",&PlayLoadedAudio_Trigger_ctl},{"Stop Recording",&StopRecording_Trigger_ctl},{"Load First Preset",&LoadFirstPreset_Toggle_ctl},{"Load Prev Pattern",&LoadPreviousPattern_Trigger_ctl},{"Merge Patterns",&MergeSynthPatterns_Trigger_ctl},
     //120 ok
     {"Flash Line1 Level",&FlashLineVolume_Knob1_ctl},{"Flash Line2 Level",&FlashLineVolume_Knob2_ctl},{"Flash Line3 Level",&FlashLineVolume_Knob3_ctl},{"Flash Line4 Level",&FlashLineVolume_Knob4_ctl},{"Flash Line5 Level",&FlashLineVolume_Knob5_ctl},
@@ -1435,3 +1424,5 @@ const CcCalls ctl[128] = {
     {"Time oscilloscope",&adjust_osc_timee_ctl},{"refresh OscScope",&adjust_osc_refresher_period_ctl},{"Wav Editor Pitch",&adjust_waveEditor_pitch_ctl},{"Rota Nav +",&rota_increase_ctl}, {"Rota Nav -",&adjust_rota_decrease_ctl},
     {"Validate Nav",&validate_pushed_ctl},{"Cancel Nav",&cancel_pushed_ctl},{"Pitch Attack",&set_Portamento_height_ctl}
 };
+
+const uint16_t CtlCount = sizeof(ctl) / sizeof(ctl[0]);

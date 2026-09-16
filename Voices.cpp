@@ -93,7 +93,7 @@ void SynthLiner::liner_on(byte data1, byte data2) {
     //this->steps = (this->targetFreq - this->currentFreq) / this->totalUpdates;
     this->currentUpdate = 0;
     setfreqWavelines();
-    enveloppesL[this->l_index]->hold(gg.millitickinterval - gg.adsrlevels[3]);
+    enveloppesL[this->l_index]->hold(gg.adsrlevels[3]);
     enveloppesL[this->l_index]->noteOn();
     _rg.add_active_synth(this);
     /*

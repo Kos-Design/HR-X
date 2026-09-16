@@ -3,6 +3,7 @@
 #include "MenuClasses.h"
 
 extern const CcCalls ctl[] ;
+extern const uint16_t CtlCount;
 
 void fairly_often();
 void at_a_paced_rate();
@@ -108,7 +109,6 @@ void DelayTimeSelection_Knob1_ctl(byte cc_value);
 void DelayTimeMultiplier_Knob2_ctl(byte cc_value);
 void DelayFeedback_Knob3_ctl(byte cc_value);
 void AudioInVolume_ctl(byte cc_value);
-void SetBPMs_ctl(byte cc_value);
 void SaveToNewPattern_Trigger_ctl(byte cc_value);
 void LoadNextPattern_Trigger_ctl(byte cc_value);
 void LoadPreviousPattern_Trigger_ctl(byte cc_value);

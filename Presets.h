@@ -72,7 +72,7 @@ struct TracerHelper{
 struct Preset {
     FxBus fx[FXS_COUNT];
 
-    int32_t millitickinterval = 115;
+    int millis_period = 500;
     //Atk Delay, Attack, Hold, Decay, Sustain, Release
     int32_t adsrlevels[6] = {0, 12, 0, 250, 0, 200};
 
@@ -86,7 +86,6 @@ struct Preset {
 
     //individual frequency multipliers for the LFOs
     float LFOHz[OSCS_COUNT] = {1.0f,1.0f,1.0f};
-
     uint16_t ordered_pots[15] = {
         10, 12, 11, 16, 15, 14, 19, 18, 17, 13,
         24, 22, 23, 21, 20
@@ -135,7 +134,8 @@ struct Preset {
     uint8_t wetins[3] = {64,64,64};
     uint8_t synthmidichannel = 16;
     uint8_t samplermidichannel = 8;
-    uint8_t tapnote = 3;
+    //note used to tap the tempo while in settings
+    uint8_t tapnote = 42;
     uint8_t vPots[17];
     uint8_t smixervknobs[16] = {
         127,127,127,127,

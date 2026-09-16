@@ -1,3 +1,4 @@
+#include "core_pins.h"
 #include <sys/_stdint.h>
 #include "Constants.h"
 #include "MenuClasses.h"
@@ -315,22 +316,22 @@ void Arpegiator::decrementcrementns(byte larpegeline) {
   }
 }
 
-
 MidiRecorder::MidiRecorder() { }
+
+void MidiRecorder::record_sampler_notesOff(int liner, byte channel, byte lenote, byte velocity) {
+  int pos = this->tick_for_that(mc.tickposition);
+  if (sampler_start_tpos[liner] != pos) pp.flash_off_pat[liner][pos] = {channel, lenote, 0};
+  else pp.flash_off_pat[liner][(pos + 1)%PBARS] = {channel, lenote, 0};
+  pp.flash_notes_length[liner][sampler_start_tpos[liner]] = max(4,4*(pos-sampler_start_tpos[liner]));
+}
 
 void MidiRecorder::record_synth_notesOff(int liner, byte channel, byte lenote, byte velocity) {
   int pos = this->tick_for_that(mc.tickposition);
-  if (synth_start_tpos[liner] != pos) {
-    pp.synth_off_pat[liner][pos] = {channel, lenote, 0};
-
-  } else {
-    if (pos == PBARS - 1) {
-      pp.synth_off_pat[liner][0] = {channel, lenote, 0};
-    } else {
-      pp.synth_off_pat[liner][pos + 1] = {channel, lenote, 0};
-    }
-  }
+  if (synth_start_tpos[liner] != pos) pp.synth_off_pat[liner][pos] = {channel, lenote, 0};
+  else pp.synth_off_pat[liner][(pos + 1)%PBARS] = {channel, lenote, 0};
+  pp.synth_notes_length[liner][synth_start_tpos[liner]] = max(4,4*(pos-synth_start_tpos[liner]));
 }
+
 int  MidiRecorder::tick_for_that(int ticko){
   ticko -= 1 ;
   if (ticko < 0 ){
@@ -356,10 +357,11 @@ bool MidiRecorder::isalreadysameSamplerinpat(byte lenote,int ticko) {
 
 void MidiRecorder::recordmidinotes2(int liner, byte channel, byte lenote, byte velocity) {
   int pos = this->tick_for_that(mc.tickposition);
-  if (!isalreadysameSamplerinpat(lenote,pos)) {
-    pp.track_cells[Flash][pos] = 1;
-    pp.sampler_partition[liner][pos] = {channel,lenote,velocity};
-  }
+  //if (!isalreadysameSamplerinpat(lenote,pos)) {
+  pp.track_cells[Flash][pos] = 1;
+  pp.sampler_partition[liner][pos] = {channel,lenote,velocity};
+  sampler_start_tpos[liner] = pos;
+  //}
 }
 
 void MidiRecorder::recordCCmidinotes(byte channel, byte lanote, byte leccval) {
@@ -415,7 +417,7 @@ void TriggerMessenger::MaControlChange(byte channel, byte control, byte value) {
   if (self->debugmidion) {
     self->show_midi((char *)("CC"), (MidiEventer){channel, control, value});
   }
-
+  //TODO: should this be always On instead ?
   if (mc.navlevel)
     self->cc_edgecases(control, value);
 
@@ -473,18 +475,21 @@ void TriggerMessenger::setchordnotesOff(byte absolutenote, byte lachord) {
 void TriggerMessenger::update_active_lines() {
   for (int i = 0; i < _rg.synth_lines_active; i++) {
     _rg.active_synths[i]->update_line();
-    //_ft.pseudo303(i);
-
   }
 }
+
+//TODO: separate from main project
+//extra internal knobs
 void TriggerMessenger::check_pots() {
   int c_change = muxer.read_val(mc.muxer_ch_active);
   if (c_change >= 0 && mc.muxer_ch_active !=9) {
-    _tt.MaControlChange(gg.muxed_channels[mc.muxer_ch_active], (byte)gg.ordered_pots[mc.muxer_ch_active], (byte)((c_change / 1024.0) * 127));
+    MaControlChange(gg.muxed_channels[mc.muxer_ch_active], (byte)gg.ordered_pots[mc.muxer_ch_active], (byte)((c_change / 1024.0) * 127));
   }
   mc.muxer_ch_active = (mc.muxer_ch_active+1)%15; // mux_ch 16 is broken (pot in 9 as well)
 }
 
+//TODO: separate from main project
+//extra internal buttons
 void TriggerMessenger::check_pads() {
   PadResult padder = Padded.padloop();
   mc.paddered = Padded.arranged_buttons[padder.pad_result[0]][padder.pad_result[1]];
@@ -550,6 +555,7 @@ void TriggerMessenger::shut_used_flash_notes(byte data1) {
   for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
     if (data1 == flash_lines[i]->note) {
       flash_lines[i]->liner_off();
+      if (mc.patrecord) md.record_sampler_notesOff(i, gg.samplermidichannel, data1, 0);
     }
   }
 }
@@ -727,42 +733,45 @@ void TriggerMessenger::initiateasamplerliner(byte data1, byte data2) {
   byte free_line = self->get_free_sampler(data1);
   if (free_line < FLASH_LINERS_COUNT) {
     if (mc.patrecord) {
-      md.recordmidinotes(free_line, gg.samplermidichannel, data1, data2);
+      md.recordmidinotes2(free_line, gg.samplermidichannel, data1, data2);
     }
     flash_lines[free_line]->liner_on(data1, data2);
   }
 }
 
 void TriggerMessenger::starttaptap() {
-          tapstarted = 1;
-          starttaptime = millis();
-        }
+  tapstarted = 1;
+  numberoftaps = 0;
+  starttaptime = millis();
+}
 
 void TriggerMessenger::resettaptap() {
-
   tapstarted = 0;
   numberoftaps = 0;
   inittapstime();
 }
 
 void TriggerMessenger::dotapaverage() {
-  int tottaptime = 0;
+  uint32_t total = 0;
   for (int i = 0; i < numberoftaps; i++) {
-    tottaptime += (tapstime[i] - starttaptime);
+    total += tapstime[i];
   }
-  tapaverage = tottaptime / numberoftaps;
-  gg.millitickinterval = round(tapaverage / 10.0);
+  uint32_t tapaverage = total / numberoftaps;
+  gg.millis_period = tapaverage ;
   _ps.setbpms();
 }
 
 void TriggerMessenger::taptap() {
+  uint32_t now = millis();
   if (!tapstarted) {
     starttaptap();
   } else {
-    tapstime[numberoftaps] = millis();
+    uint32_t interval = now - starttaptime;
+    tapstime[numberoftaps] = interval;
     numberoftaps++;
+    starttaptime = now;
   }
-  if (millis() - starttaptime > 2000 || numberoftaps >= 4) {
+  if (numberoftaps >= 4) {
     dotapaverage();
     resettaptap();
   }

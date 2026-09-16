@@ -8,11 +8,13 @@ class MidiRecorder {
   public:
     MidiRecorder();
     byte synth_start_tpos[SYNTH_LINERS_COUNT]{};
+    byte sampler_start_tpos[FLASH_LINERS_COUNT]{};
     void recordmidinotes(int liner, byte channel, byte lenote, byte velocity);
     void recordCCmidinotes(byte channel, byte lanote, byte leccval);
     bool isalreadysameSamplerinpat(byte lenote,int ticko);
     int tick_for_that(int ticko);
     void recordmidinotes2(int liner, byte channel, byte lenote, byte velocity);
+    void record_sampler_notesOff(int liner, byte channel, byte lenote, byte velocity);
     void record_synth_notesOff(int liner, byte channel, byte lenote, byte velocity);
 };
 
@@ -21,8 +23,8 @@ extern MidiRecorder md;
 class TriggerMessenger {
     public:
         TriggerMessenger();
-        int tapstime[5] = {0,0,0,0,0};
-        int starttaptime;
+        uint32_t tapstime[5] = {0,0,0,0,0};
+        uint32_t starttaptime;
         float tapaverage;
 
         byte chordnotes[3]{};
