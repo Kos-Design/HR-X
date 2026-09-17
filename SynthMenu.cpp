@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "Functions.h"
 #include "SynthMenu.h"
 #include "Voices.h"
@@ -371,7 +372,7 @@ Mp3PlayerRouter* Mp3PlayerRouter::self = nullptr;
 
 Mp3PlayerRouter::Mp3PlayerRouter() {
   self = this;
-  self->home_navrange=8;
+  self->home_navrange=9;
   self->catalog = new FilesLister("MP3/","LONGFILE#",".MP3",mp3_player_panel,self->home_navrange);
   self->relative_navlevel=2;
   self->max_navlevel=5;
@@ -400,55 +401,57 @@ void Mp3PlayerRouter::mp3_player_pause(){
     }
 
 void Mp3PlayerRouter::mp3_player_next(){
-
-      Serial.println("");
-      Serial.print("previous =");
-      Serial.print(self->previous_mp3);
-
-      if (!self->mp3_looped) {
-        if (self->mp3_shuffle) {
-          self->previous_mp3 = self->next_mp3;
-
-          Serial.println("");
-          Serial.print("previous after next =");
-          Serial.print(self->previous_mp3);
-
-          self->next_mp3 = rand() % self->mp3_count ;
-          Serial.println(self->mp3_count);
-          Serial.println(self->next_mp3);
-        } else {
-          self->next_mp3++;
-        }
-      }
-      get_next_mp3();
-    }
+  if (!self->mp3_looped) {
+    if (self->next_mp3 < self->mp3_count) self->next_mp3++;
+    else self->next_mp3 = 0 ;
+  }
+  get_next_mp3();
+}
 
 void Mp3PlayerRouter::mp3_player_previous(){
+  if (!self->mp3_looped){
+    if (self->next_mp3) self->next_mp3--;
+    else self->next_mp3 = max(0,self->mp3_count-1 );
+  }
+  get_next_mp3();
+}
 
-      Serial.println("");
-      Serial.print("previous =");
-      Serial.print(self->previous_mp3);
+void Mp3PlayerRouter::normalize_list(){
+  for (int i = 0; i < self->mp3_count; i++) self->mp3_idx_list[i] = i;
+}
 
-      if (!self->mp3_looped){
-        if (self->mp3_shuffle){
-          self->next_mp3 = self->previous_mp3 ;
-        } else {
-          self->next_mp3 -= 2;
-        }
-      }
-      get_next_mp3();
-    }
+void Mp3PlayerRouter::delete_mp3(){
+  if (!SD.sdfs.exists((char*)self->mp3_name.c_str())) return;
+  mp3_player_stop();
+  SD.sdfs.remove((char*)self->mp3_name.c_str());
+  if (self->mp3_count - 1 > 0) self->mp3_count--;
+  if (self->next_mp3 > max(0,self->mp3_count - 1)) self->next_mp3 = max(0,self->mp3_count - 1);
+  if (self->mp3_shuffle) self->make_shuffled_list();
+  else self->normalize_list();
+  get_next_mp3();
+}
 
-void Mp3PlayerRouter::mp3_player_shuffle(){
-  //TODO: make whole list of shuffled numbers the size of their folder files count
-  // allow next and previous
-  //regenerate on stop / and shuffle toggle
-  self->mp3_shuffle = !self->mp3_shuffle ;
-  if (self->mp3_shuffle) {
-    self->previous_mp3 = self->next_mp3;
-
+void Mp3PlayerRouter::make_shuffled_list(){
+  self->normalize_list();
+  // Fisher-Yates shuffle
+  for (int i = self->mp3_count - 1; i > 0; i--) {
+    int j = random(i + 1);
+    int temp = self->mp3_idx_list[i];
+    self->mp3_idx_list[i] = self->mp3_idx_list[j];
+    self->mp3_idx_list[j] = temp;
   }
 }
+
+void Mp3PlayerRouter::mp3_player_shuffle(){
+  self->mp3_shuffle = !self->mp3_shuffle ;
+  if (self->mp3_shuffle) {
+    self->make_shuffled_list();
+  } else {
+    self->next_mp3 = self->mp3_idx_list[self->next_mp3];
+    self->normalize_list();
+  }
+}
+
 void Mp3PlayerRouter::mp3_loop_setter(){
   self->mp3_looped = !self->mp3_looped ;
   self->mp3_continue = self->mp3_looped ;
@@ -465,18 +468,10 @@ void Mp3PlayerRouter::mp3_player_actions() {
 }
 
 void Mp3PlayerRouter::get_file_type(){
-  /*
-  int dot = self->mp3_name.lastIndexOf('.');
-  if (dot >= 0) {
-    String extension = self->mp3_name.substring(dot + 1);
-  }
-  */
   String filenamed = self->mp3_name ;
   filenamed.toLowerCase();
-  if (filenamed.endsWith(".mp3"))
-      self->mp3_ext = 0 ;
-    if (filenamed.endsWith(".flac"))
-      self->mp3_ext = 1 ;
+  if (filenamed.endsWith(".mp3")) self->mp3_ext = 0 ;
+  else if (filenamed.endsWith(".flac")) self->mp3_ext = 1 ;
 }
 
 void Mp3PlayerRouter::playFile(const char *mp3_file) {
@@ -496,48 +491,39 @@ void Mp3PlayerRouter::playFile(const char *mp3_file) {
 }
 
 void Mp3PlayerRouter::get_next_mp3() {
-  if (SD.sdfs.exists("MP3") ) {
-    FsFile susudir = SD.sdfs.open("MP3");
-    char mpname[32]{};
-    if (!self->mp3_looped) {
-      while (self->file_index <= self->next_mp3) {
-        FsFile subentry = susudir.openNextFile();
-        if (!subentry) {
-          self->file_index = 0 ;
-          self->next_mp3 = 0 ;
-          return;
-        }
-
-        if (!subentry.isDirectory()) {
-          self->file_index++;
-          subentry.getName(mpname, 32);
-          self->mp3_name = self->mp3_dir + (String)mpname;
-        }
-        subentry.close();
-      }
-      self->next_mp3++;
-    } else {
-      while (self->file_index < self->next_mp3) {
-        FsFile subentry = susudir.openNextFile();
-        if (!subentry) {
-          self->file_index = 0 ;
-          return;
-        }
-
-        if (!subentry.isDirectory()) {
-          self->file_index++;
-          subentry.getName(mpname, 32);
-          self->mp3_name = self->mp3_dir + (String)mpname;
-        }
-        subentry.close();
-      }
-    }
-    self->file_index = 0 ;
-    susudir.close();
+  if (!SD.sdfs.exists("MP3")) return ;
+  FsFile susudir = SD.sdfs.open("MP3");
+  char mpname[32]{};
+  FsFile subentry;
+  uint16_t mp_n = 0 ;
+  while (mp_n <= self->mp3_idx_list[self->next_mp3]) {
+    subentry = susudir.openNextFile();
+    if (!subentry) break;
+    if (!subentry.isDirectory()) mp_n++;
   }
-  if (self->mp3_shuffle) {
-    self->next_mp3 = rand() % self->mp3_count ;
+  if (!subentry.isDirectory()) {
+    subentry.getName(mpname, 32);
+    self->mp3_name = self->mp3_dir + (String)mpname;
   }
+  subentry.close();
+  susudir.close();
+}
+
+bool Mp3PlayerRouter::sanitizeFilename(FsFile &file){
+  constexpr size_t MAX_LEN = 28;
+  char name[256];
+  if (file.getName(name, sizeof(name)) == 0) return false;
+  size_t len = strlen(name);
+  if (len <= MAX_LEN) return true;
+  char *dot = strrchr(name, '.');
+  if (dot == nullptr) name[MAX_LEN] = '\0';
+  else {
+    size_t extensionLen = strlen(dot);
+    size_t baseLen = MAX_LEN - extensionLen;
+    if (baseLen < 1) return false;
+    name[baseLen] = '\0';
+  }
+  return file.rename(name);
 }
 
 void Mp3PlayerRouter::count_mp3s() {
@@ -545,19 +531,21 @@ void Mp3PlayerRouter::count_mp3s() {
 
   if (SD.sdfs.exists("MP3") ) {
     FsFile susudir = SD.sdfs.open("MP3");
-
     while (true) {
       FsFile subentry = susudir.openNextFile();
       if (!subentry) {
-        return;
+        break;
       }
       if (!subentry.isDirectory()) {
         self->mp3_count++;
+        self->sanitizeFilename(subentry);
       }
       subentry.close();
     }
   susudir.close();
   }
+  self->normalize_list();
+
 }
 
 void Mp3PlayerRouter::selector_clues(){
@@ -569,7 +557,7 @@ void Mp3PlayerRouter::selector_clues(){
 }
 
 void Mp3PlayerRouter::transport_selector() {
-  String _legend[] = {"Play All","Previous","Pause","Play file","Next","Shuffle","Loop","Stop"," "};
+  String _legend[] = {"Play All","Previous","Pause","Play file","Next","Shuffle","Loop","Stop","Delete"};
   int startyp = 8;
   int ecart = 14;
   dm.fillRect(ecart * (mc.sublevels[mc.navlevel])-3, startyp-2, ecart-1, startyp*1.5, SSD1306_INVERSE);
@@ -894,14 +882,14 @@ void SynthMenuRouter::wavelining() {
 void SynthMenuRouter::draw_synth_params() {
   const char* wavelineslabels[] = {
       "Type", "Mod", "LFO", "Freq", "Offset", "Phase", "<-  ", "  ->"};
-  dm.main_panel(wavelineslabels,3,self->synth_params_count);
+  dm.main_panel(wavelineslabels,3);
   dm.canvasBIG.setCursor(120, 57);
   dm.canvasBIG.print(mc.oscillator + 1);
 }
 
 void SynthMenuRouter::dolistsyntmenu() {
   const char* synthmenulabels[] = {"Synths", "Mixer", "ADSR", "MP3 Player", "Filter", "Glider"};
-  dm.main_panel(synthmenulabels,1,SN_MENU_LABELS_COUNT);
+  dm.main_panel(synthmenulabels,1);
 }
 
 void SynthMenuRouter::synths_switcher(){
@@ -1053,7 +1041,7 @@ void SynthMenuRouter::plug_ampl_moded_drums(){
 void SynthMenuRouter::no_modulation(){
   byte letype = gg.Waveformstyped[mc.oscillator];
   if (letype < 9) {
-    gg.audio_obj_type[mc.oscillator] = 1; //       9*4 + drums *2 + string *2 + off
+    gg.audio_obj_type[mc.oscillator] = 1;
     plug_waves();
   }
   else if (letype == 9) {

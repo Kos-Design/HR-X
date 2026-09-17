@@ -214,7 +214,7 @@ void LFOMenuRouter::dolistLFOparams() {
           const char* LFOlabels[] = {"Type",  "Level",  "Sync",
                                                 "Freq",  "Offset", "Phase",
                                                 "Synth", "<-  ",   "  ->"};
-          dm.main_panel(LFOlabels, 2, self->sizeofLFOlabels);
+          dm.main_panel(LFOlabels, 2);
 
         }
 
@@ -255,6 +255,7 @@ void LFOMenuRouter::restartLFO(int leLFO) {
           AudioNoInterrupts();
           if (gg.LFOsync[leLFO]) {
             float syncher = 1.0 ;
+            //TODO: sense (make some)
             if (gg.millis_period) {
               syncher = (1000.00/(gg.millis_period+1));
             }

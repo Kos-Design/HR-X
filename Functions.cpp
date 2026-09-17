@@ -644,7 +644,7 @@ void setup() {
   //audioShield.autoVolumeDisable();
   //audioShield.audioPostProcessorEnable();
   consoler.println((char *)"Setting USB Host...");
-  delay(100);
+  delay(10);
 
   setuphubusb();
   consoler.println((char *)"USB Host Ready !");

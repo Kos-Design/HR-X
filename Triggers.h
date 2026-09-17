@@ -10,7 +10,7 @@ class MidiRecorder {
     byte synth_start_tpos[SYNTH_LINERS_COUNT]{};
     byte sampler_start_tpos[FLASH_LINERS_COUNT]{};
     void recordmidinotes(int liner, byte channel, byte lenote, byte velocity);
-    void recordCCmidinotes(byte channel, byte lanote, byte leccval);
+    void recordCCmidinotes(MidiEventer msg);
     bool isalreadysameSamplerinpat(byte lenote,int ticko);
     int tick_for_that(int ticko);
     void recordmidinotes2(int liner, byte channel, byte lenote, byte velocity);
@@ -56,7 +56,7 @@ class TriggerMessenger {
         void check_pots();
         void update_active_lines();
         void shutlineroff(byte chan,byte data1);
-        void cc_edgecases(byte control, byte value);
+        void cc_edgecases(MidiEventer msg);
         void notes_edgecases(MidiEventer msg);
         void setchordnotes(byte absolutenote, byte lachord);
         void setchordnotesOff(byte absolutenote, byte lachord);

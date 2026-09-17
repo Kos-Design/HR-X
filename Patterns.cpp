@@ -915,7 +915,7 @@ void POptionsRouter::show(){
   if (mc.navlevel == 2 ){
     mc.navrange = self->home_navrange ;
     dm.clean_title_2_1();
-    dm.main_panel(optionspatternlabels,2,self->home_navrange);
+    dm.main_panel(optionspatternlabels,2);
     dm.dodisplay();
   }
   if (mc.navlevel >= 3 ){
@@ -1390,7 +1390,7 @@ void PatternsMenuRouter::doPatternsmenu() {
   const char* patternlistlabels[] = {
       "Edit", "Save", "Load", "Copy", "Delete", "Params", "Clear", "C-Edit"};
 
-  dm.main_panel(patternlistlabels,1,self->home_navrange);
+  dm.main_panel(patternlistlabels,1);
 }
 
 void PatternsMenuRouter::deletepattern() {

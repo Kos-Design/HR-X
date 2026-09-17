@@ -301,7 +301,7 @@ void RecorderMenuRouter::recorder_menu() {
           self->catalog->folders_mode = false ;
           scheddule_wave_rebuild(1,1);
           const char* Recmenulabels[] = {"Record", "Load", "Delete", "Params","Edit","../"};
-          dm.main_panel(Recmenulabels,1,self->rec_labels_count);
+          dm.main_panel(Recmenulabels,1);
         }
 
 void RecorderMenuRouter::rec_params(){
@@ -998,7 +998,12 @@ void RecorderMenuRouter::clear_temp_files(){
       FsFile entry = opened_dir.openNextFile();
       if (!entry) break;
       if (!entry.isDirectory()) {
-        entry.remove();
+        Serial.println();
+
+        Serial.print(" tmp removed = ");
+
+        Serial.print(entry.remove());
+        //entry.remove()
       }
     }
   }

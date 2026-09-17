@@ -364,9 +364,9 @@ void MidiRecorder::recordmidinotes2(int liner, byte channel, byte lenote, byte v
   //}
 }
 
-void MidiRecorder::recordCCmidinotes(byte channel, byte lanote, byte leccval) {
+void MidiRecorder::recordCCmidinotes(MidiEventer msg) {
   int pos = this->tick_for_that(mc.tickposition);
-  pp.cc_partition[lanote][pos] = leccval;
+  pp.cc_partition[msg.note][pos] = msg.velocity;
 }
 
 TriggerMessenger* TriggerMessenger::self = nullptr;
@@ -413,18 +413,14 @@ void TriggerMessenger::Mytickmidi() {
 }
 
 void TriggerMessenger::MaControlChange(byte channel, byte control, byte value) {
-  bool isignored = self->noCCrecordlist(control);
+  MidiEventer msg = {channel, control, value};
   if (self->debugmidion) {
     self->show_midi((char *)("CC"), (MidiEventer){channel, control, value});
   }
-  //TODO: should this be always On instead ?
-  if (mc.navlevel)
-    self->cc_edgecases(control, value);
+  self->cc_edgecases(msg);
 
   self->moncontrollercc(channel, control, value);
-  if ((mc.patrecord || mc.recordCC) && !mc.stoptick && !isignored) {
-    md.recordCCmidinotes(channel, control, value);
-  }
+  
 }
 void TriggerMessenger::stopallnotes() {
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
@@ -623,47 +619,51 @@ void TriggerMessenger::moncontrollercc(byte channel, byte control, byte value) {
 void TriggerMessenger::moncontrollercc(MidiEventer msg) {
   moncontrollercc(msg.channel, msg.note, msg.velocity);
 }
-void TriggerMessenger::cc_edgecases(byte control, byte value){
+void TriggerMessenger::cc_edgecases(MidiEventer msg){
 
   //inside Knobs Setter panel
   if (mc.knobsetting){
-    _ka.learn_midi(control);
+    _ka.learn_midi(msg.note);
   }
-  //set this control == 19 optional in settings
+  //set this msg.note == 19 optional in settings
 
   //inside pattern mode
-  if (_pe.paterning && control == 19) {
+  if (_pe.paterning && msg.note == 19) {
     if (_pe.track_type == 0) {
-      pp.synth_partition[mc.sublevels[2]][mc.sublevels[5]].velocity = value;
+      pp.synth_partition[mc.sublevels[2]][mc.sublevels[5]].velocity = msg.velocity;
     } else if (_pe.track_type == 1) {
-      pp.sampler_partition[mc.sublevels[2]][mc.sublevels[5]].velocity = value;
+      pp.sampler_partition[mc.sublevels[2]][mc.sublevels[5]].velocity = msg.velocity;
     }
   }
 
   if (mc.setting_on_board) {
     if (mc.navlevel == 2) {
 
-      if (control == 19)  {
+      if (msg.note == 19)  {
         gg.but_channel[mc.sublevels[2]] = (gg.but_channel[mc.sublevels[2]] + 1) % 17;
       }
-      if (control == 28) {
+      if (msg.note == 28) {
         gg.but_channel[mc.sublevels[2]] = (gg.but_channel[mc.sublevels[2]] + 16) % 17;
       }
     }
     if (mc.navlevel == 3) {
       //should be another or check above
-      if (control == 19) {
-        gg.but_velocity[mc.sublevels[2]] = value;
+      if (msg.note == 19) {
+        gg.but_velocity[mc.sublevels[2]] = msg.velocity;
       }
     }
   }
 
   //inside waveform tracer
-  if ( mc.waveforming && (control == gg.waveform_tracers.trace || control == gg.waveform_tracers.x_poser || control == gg.waveform_tracers.y_poser )) {
-    _wf.set_tracer(control,value);
+  if ( mc.waveforming && (msg.note == gg.waveform_tracers.trace || msg.note == gg.waveform_tracers.x_poser || msg.note == gg.waveform_tracers.y_poser )) {
+    _wf.set_tracer(msg.note,msg.velocity);
   }
 
-  if (!mc.songplaying && !self->noCCrecordlist(control) && !self->debugmidion) {
+  if ((mc.patrecord || mc.recordCC) && !mc.stoptick && !self->noCCrecordlist(msg.note)) {
+    md.recordCCmidinotes(msg);
+  }
+
+  if (mc.navlevel && !mc.songplaying && !self->noCCrecordlist(msg.note) && !self->debugmidion) {
     dm.show();
   }
 }

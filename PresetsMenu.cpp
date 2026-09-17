@@ -28,7 +28,7 @@ void PresetsMenuRouter::show() {
 void PresetsMenuRouter::presets_menu() {
           const char* presetmenulabels[] = {
               "Save", "Load", "Copy", "Delete", "Params"};
-          dm.main_panel(presetmenulabels,1,self->ps_labels_count);
+          dm.main_panel(presetmenulabels,1);
         }
 
 void PresetsMenuRouter::setbpms() {

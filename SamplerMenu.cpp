@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <cstring>
 #include "SamplerMenu.h"
 #include "WaveEditorMenu.h"
@@ -320,6 +321,54 @@ void SamplerMenuRouter::Assingexplorer() {
           }
         }
 
+void SamplerMenuRouter::add_file_selection(uint16_t folder_,uint16_t file_){
+  self->samples_selected[self->samples_selected_count] = {folder_,file_};
+  self->samples_selected_count++;
+}
+
+bool SamplerMenuRouter::is_selected_in_folder(uint16_t folder_,uint16_t file_){
+  if (!self->samples_selected_count) return 0;
+  for (uint8_t i = 0; i < self->samples_selected_count; i++) {
+    if (self->samples_selected[i].folder_n == folder_ && self->samples_selected[i].file_n == file_ ) return 1;
+  }
+  return 0;
+}
+
+void SamplerMenuRouter::remove_file_from_selection(uint16_t folder_,uint16_t file_){
+  if (!self->samples_selected_count) return;
+  for (uint8_t i = 0; i < self->samples_selected_count; i++) {
+    if (self->samples_selected[i].folder_n == folder_ && self->samples_selected[i].file_n == file_ ) {
+      memmove(&self->samples_selected[i], &self->samples_selected[i + 1], (self->samples_selected_count - i - 1) * sizeof(self->samples_selected[0]));
+      self->samples_selected_count--;
+      break;
+    }
+  }
+}
+
+void SamplerMenuRouter::add_folder_selection(uint16_t folder_){
+  self->folders_selected[self->folders_selected_count] = folder_;
+  self->folders_selected_count++;
+}
+
+bool SamplerMenuRouter::is_folder_selected(uint16_t folder_){
+  if (!self->folders_selected_count) return 0;
+  for (uint8_t i = 0; i < self->folders_selected_count; i++) {
+    if (self->folders_selected[i] == folder_) return 1;
+  }
+  return 0;
+}
+
+void SamplerMenuRouter::remove_folder_from_selection(uint16_t folder_){
+  if (!self->folders_selected_count) return;
+  for (uint8_t i = 0; i < self->folders_selected_count; i++) {
+    if (self->folders_selected[i] == folder_) {
+      memmove(&self->folders_selected[i], &self->folders_selected[i + 1], (self->folders_selected_count - i - 1) * sizeof(self->folders_selected[0]));
+      self->folders_selected_count--;
+      break;
+    }
+  }
+}
+
 void SamplerMenuRouter::samplerexplorer() {
           if (mc.navlevel > 3) {
             if (mc.sublevels[2] == 1) {
@@ -340,12 +389,10 @@ void SamplerMenuRouter::samplerexplorer() {
             }
 
             if (mc.sublevels[2] == 1) {
-              if (!self->samplesfoldersselected[mc.sublevels[3]]) {
-                self->samplesfoldersselected[mc.sublevels[3]] = 1;
-                self->numofsamplesfoldersselected++;
+              if (!self->is_folder_selected(mc.sublevels[3])) {
+                self->add_folder_selection(mc.sublevels[3]);
               } else {
-                self->samplesfoldersselected[mc.sublevels[3]] = 0;
-                self->numofsamplesfoldersselected--;
+                self->remove_folder_from_selection(mc.sublevels[3]);
               }
               dm.returntonav(3);
             }
@@ -354,17 +401,15 @@ void SamplerMenuRouter::samplerexplorer() {
 
               if (mc.previousnavlevel != mc.navlevel) {
                 mc.previousnavlevel = mc.navlevel;
-                mc.navrange = self->sizeofsamplefolder[mc.sublevels[3]] - 1;
+                mc.navrange = max(0,self->sizeofsamplefolder[mc.sublevels[3]] - 1);
               }
 
               if (mc.navlevel > 4) {
-                if (self->samplesselected[mc.sublevels[3]][mc.sublevels[4]] == 0) {
-                  self->samplesselected[mc.sublevels[3]][mc.sublevels[4]] = 1;
-                  self->numberofsamplesselected[mc.sublevels[3]]++;
+                if (!self->is_selected_in_folder(mc.sublevels[3],mc.sublevels[4])) {
+                  self->add_file_selection(mc.sublevels[3],mc.sublevels[4]);
                   playsamplepreview();
                 } else {
-                  self->samplesselected[mc.sublevels[3]][mc.sublevels[4]] = 0;
-                  self->numberofsamplesselected[mc.sublevels[3]]--;
+                  self->remove_file_from_selection(mc.sublevels[3],mc.sublevels[4]);
                 }
               dm.returntonav(4,mc.navrange,mc.sublevels[4]);
               }
@@ -483,7 +528,7 @@ void SamplerMenuRouter::drawtickboxflashtitle(int lestartx, int lestarty, int la
 
 void SamplerMenuRouter::drawtickboxfolderBIG(int lestartx, int lestarty, int lasizex, int lasizey,
                                   int lacolor, int lefolder) {
-          if (self->samplesfoldersselected[lefolder]) {
+          if (self->is_folder_selected(lefolder)) {
             dm.canvasBIG.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
           } else {
             dm.canvasBIG.drawRect(lestartx, lestarty, lasizex, lasizey, lacolor);
@@ -492,7 +537,7 @@ void SamplerMenuRouter::drawtickboxfolderBIG(int lestartx, int lestarty, int las
 void SamplerMenuRouter::drawtickboxfoldertitle(int lestartx, int lestarty, int lasizex,
                                     int lasizey, int lacolor,
                                     int lefolder) {
-          if (self->samplesfoldersselected[lefolder]) {
+          if (self->is_folder_selected(lefolder)) {
             dm.canvastitle.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
           } else {
             dm.canvastitle.drawRect(lestartx, lestarty, lasizex, lasizey, lacolor);
@@ -502,16 +547,16 @@ void SamplerMenuRouter::drawtickboxfoldertitle(int lestartx, int lestarty, int l
 void SamplerMenuRouter::drawtickboxincanvasBIG(int lestartx, int lestarty, int lasizex,
                                     int lasizey, int lacolor,
                                     int lefolder, int lefile) {
-          if (self->samplesselected[lefolder][lefile] == 1) {
-            dm.canvasBIG.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
-          } else {
-            dm.canvasBIG.drawRect(lestartx, lestarty, lasizex, lasizey, lacolor);
-          }
-        }
+  if (self->is_selected_in_folder(lefolder,lefile)) {
+    dm.canvasBIG.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
+  } else {
+    dm.canvasBIG.drawRect(lestartx, lestarty, lasizex, lasizey, lacolor);
+  }
+}
 void SamplerMenuRouter::drawtickboxincanvastitle(int lestartx, int lestarty, int lasizex,
                                       int lasizey, int lacolor,
                                       int lefolder, int lefile) {
-          if (self->samplesselected[lefolder][lefile] == 1) {
+          if (self->is_selected_in_folder(lefolder,lefile)) {
             dm.canvastitle.fillRect(lestartx, lestarty, lasizex, lasizey, lacolor);
           } else {
             dm.canvastitle.drawRect(lestartx, lestarty, lasizex, lasizey, lacolor);
@@ -538,8 +583,8 @@ void SamplerMenuRouter::initializeFlashsamplename() {
 }
 
 void SamplerMenuRouter::initializesamplesfoldersselectedlist() {
-  memset(self->samplesfoldersselected, 0, sizeof(self->samplesfoldersselected));
-  self->numofsamplesfoldersselected = 0;
+  memset(self->folders_selected, 0, sizeof(self->folders_selected));
+  self->folders_selected_count = 0;
 }
 
 void SamplerMenuRouter::initializeFlashsamplesselected() {
@@ -548,8 +593,8 @@ void SamplerMenuRouter::initializeFlashsamplesselected() {
 }
 
 void SamplerMenuRouter::initializesamplesselectedlist() {
-  memset(self->numberofsamplesselected, 0, sizeof(self->numberofsamplesselected));
-  memset(self->samplesselected, 0, sizeof(self->samplesselected));
+  memset(self->samples_selected, 0, sizeof(self->samples_selected));
+  self->samples_selected_count = 0;
 }
 
 void SamplerMenuRouter::drawFlashSamplesList() {
@@ -594,11 +639,8 @@ void SamplerMenuRouter::drawsamplerfilesList() {
           drawtickboxincanvastitle(startx - 13, 0, 6, 6, SSD1306_WHITE, mc.sublevels[3], mc.sublevels[mc.navlevel]);
           dm.canvasBIG.setTextSize(1);
           dm.canvasBIG.fillScreen(SSD1306_BLACK);
-          int maxsizefirstpart =
-              self->sizeofsamplefolder[mc.sublevels[3]] - 1 - (mc.sublevels[mc.navlevel]);
-          if (maxsizefirstpart > 6) {
-            maxsizefirstpart = 6;
-          }
+          int maxsizefirstpart = self->sizeofsamplefolder[mc.sublevels[3]] - 1 - (mc.sublevels[mc.navlevel]);
+          if (maxsizefirstpart > 6) maxsizefirstpart = 6;
           for (int i = 0; i < maxsizefirstpart; i++) {
             dm.canvasBIG.setCursor(startx, starty + ((i)*10));
             dm.canvasBIG.println((char *)self->samplebase[mc.sublevels[3]][mc.sublevels[mc.navlevel] + 1 + i]);
@@ -646,10 +688,7 @@ void SamplerMenuRouter::drawSamplerFoldersList() {
           for (int i = 0; i < maxsizelastpart; i++) {
             dm.canvasBIG.setCursor(startx, (10 * (self->sampledirsregistered - mc.sublevels[mc.navlevel])) + 6 + ((i)*10));
             dm.canvasBIG.println((char *)self->samplefoldersregistered[i]);
-            if (mc.sublevels[2] == 1) {
-              //TODO: check if all is ok here, was previousely (10 * (keepcount - mc.sublevels[mc.navlevel])) + 6 + ((i)*10)
-              drawtickboxfolderBIG(startx - 13, (10 * (mc.sublevels[mc.navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, i);
-            }
+            if (mc.sublevels[2] == 1) drawtickboxfolderBIG(startx - 13, (10 * (self->sampledirsregistered - mc.sublevels[mc.navlevel])) + 6 + ((i)*10), 6, 6, SSD1306_WHITE, i);
           }
         }
 
@@ -849,11 +888,13 @@ void SamplerMenuRouter::DelSelectedFlashSamples() {
         }
 
 void SamplerMenuRouter::addfolderstoselectionset() {
-          if (self->numofsamplesfoldersselected > 0) {
-            for (int i = 0; i < 99; i++) {
-              if (self->samplesfoldersselected[i]) {
-                for (int j = 0; j < 999; j++) {
-                  self->samplesselected[i][j] = 1;
+  
+          if (self->folders_selected_count) {
+            
+            for (int i = 0; i < self->sampledirsregistered; i++) {
+              if (self->is_folder_selected(i)) {
+                for (int j = 0; j < self->sizeofsamplefolder[i]; j++) {
+                  self->add_file_selection(i,j);
                 }
               }
             }
@@ -871,48 +912,44 @@ void SamplerMenuRouter::loadSelectedSamples() {
             dm.pseudoconsole((char *)"Unable to access SPI Flash chip");
           }
           char currentflashname[12];
-          for (int i = 0; i < 99; i++) {
-            //dm.pleasewait(i, 99);
-            for (int j = 0; j < 999; j++) {
-              if (self->samplesselected[i][j]) {
-                currentsample = SD.sdfs.open(self->samplefullpath(i,j).c_str());
-                //was break instead of continue
-                if (!currentsample) continue;
 
-                currentsample.getName(currentflashname, 12);
-                if (strlen(currentflashname) > 12) {
-                  Serial.print(" Skipping ");
-                  Serial.print(currentflashname);
-                  Serial.print(" <--- name too long !");
-                  continue;
-                }
-                lengthz = currentsample.size();
-                dm.pseudoconsole(currentflashname);
-                if (SerialFlash.exists((const char*)currentflashname)) continue;
+          if (!self->samples_selected_count) return ;
+            for (uint8_t i = 0; i < self->samples_selected_count; i++) {
+              currentsample = SD.sdfs.open(self->samplefullpath(self->samples_selected[i].folder_n,self->samples_selected[i].file_n).c_str());
+              if (!currentsample) continue;
 
-                if (SerialFlash.create((const char*)currentflashname, lengthz)) {
-                  SerialFlashFile currentFlashfile = SerialFlash.open((const char*)currentflashname);
-                  if (currentFlashfile) {
-                    unsigned long count = 0;
-                    unsigned char dotcount = 9;
-                    while (count < lengthz) {
-                      char buf[256];
-                      unsigned int n;
-                      n = currentsample.read(buf, 256);
-                      currentFlashfile.write(buf, n);
-                      count += n;
-                      if (++dotcount > 100) {
-                        dotcount = 0;
-                      }
-                    }
-                    currentFlashfile.close();
-                  }
-                }
-                currentsample.close();
+              currentsample.getName(currentflashname, 12);
+              if (strlen(currentflashname) > 12) {
+                Serial.print(" Skipping ");
+                Serial.print(currentflashname);
+                Serial.print(" <--- name too long !");
+                continue;
               }
+              lengthz = currentsample.size();
+              dm.pseudoconsole(currentflashname);
+              if (SerialFlash.exists((const char*)currentflashname)) continue;
+
+              if (SerialFlash.create((const char*)currentflashname, lengthz)) {
+                SerialFlashFile currentFlashfile = SerialFlash.open((const char*)currentflashname);
+                if (currentFlashfile) {
+                  unsigned long count = 0;
+                  unsigned char dotcount = 9;
+                  while (count < lengthz) {
+                    char buf[256];
+                    unsigned int n;
+                    n = currentsample.read(buf, 256);
+                    currentFlashfile.write(buf, n);
+                    count += n;
+                    if (++dotcount > 100) {
+                      dotcount = 0;
+                    }
+                  }
+                  currentFlashfile.close();
+                }
+              }
+              currentsample.close();
             }
-            delay(10);
-          }
+            
           initializesamplesselectedlist();
           initializesamplesfoldersselectedlist();
           listFlashfiles();

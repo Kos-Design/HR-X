@@ -182,7 +182,7 @@ void WaveformsMenuRouter::WaveformEditer() {
 void WaveformsMenuRouter::wforms_menu() {
   const char* waveformsmenulabels[] = {
       "Save", "Load", "Copy", "Delete", "Edit", "-->", "<--","Params"};
-  dm.main_panel(waveformsmenulabels, 1, wf_labels_count);
+  dm.main_panel(waveformsmenulabels, 1);
 }
 
 void WaveformsMenuRouter::go_previous(){

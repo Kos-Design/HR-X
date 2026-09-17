@@ -494,7 +494,7 @@ void SongMenuRouter::song_params_panel(){
 void SongMenuRouter::draw_song_menu(){
   const char* Songmenulabels[] = {
       "Edit", "Save", "Load", "Copy", "Delete", "Clear", "Params", "Shift"};
-  dm.main_panel(Songmenulabels,1,sg_labels_count);
+  dm.main_panel(Songmenulabels,1);
 }
 
 

@@ -40,7 +40,6 @@ PadResult Pads::padloop() {
     PadResult result = {e.bit.ROW, e.bit.COL, uint8_t(state)};
 
     return result;
-    //delay(1);
   }
   return (PadResult){(uint8_t)99, (uint8_t)99, (uint8_t)99};
 }

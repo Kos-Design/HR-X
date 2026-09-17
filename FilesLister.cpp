@@ -77,8 +77,7 @@ void FilesLister::deleteFile() {
 }
 
 void FilesLister::deleteFileGeneric(const char* _target_file) {
-  if (mc.locked_fileing)
-    return;
+  if (mc.locked_fileing) return;
   mc.locked_fileing = 1 ;
   if (SD.sdfs.exists(_target_file)) {
     SD.sdfs.remove(_target_file);

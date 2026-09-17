@@ -67,18 +67,9 @@ extern Filter303MenuRouter _ft;
 class Mp3PlayerRouter : public SectionHolder {
     public:
         Mp3PlayerRouter();
-        FilesLister *catalog;
-        String mp3_name = "MP3/Addict.mp3";
-        String mp3_dir = "MP3/";
-        uint16_t mp3_count = 0;
-        uint16_t file_index = 0 ;
-        uint16_t next_mp3 = 0 ;
-        uint16_t previous_mp3 = 0 ;
-        byte mp3_ext = 0 ;
-        bool mp3_looped = 0 ;
-        bool mp3_paused = 0 ;
-        bool mp3_shuffle = 0 ;
-        bool mp3_continue = 0 ;
+        static void make_shuffled_list();
+        bool sanitizeFilename(FsFile &file);
+        static void normalize_list();
         static void selector_clues();
         static void mp3_player_play();
         static void mp3_player_stop();
@@ -92,13 +83,25 @@ class Mp3PlayerRouter : public SectionHolder {
         static void get_file_type();
         static void playFile(const char *mp3_file);
         static void get_next_mp3();
+        static void delete_mp3();
         static void count_mp3s();
         static void transport_selector();
         static void play_flac_file(const char *flac_file);
         static void display_mp3_title();
         static void mp3_player_panel();
-        static constexpr void (*_mp3_actions[8])() = {&mp3_player_continous,&mp3_player_previous,&mp3_player_pause,&mp3_player_play,
-                                                      &mp3_player_next,&mp3_player_shuffle,&mp3_loop_setter,&mp3_player_stop};
+        static constexpr void (*_mp3_actions[9])() = {&mp3_player_continous,&mp3_player_previous,&mp3_player_pause,&mp3_player_play,
+                                                      &mp3_player_next,&mp3_player_shuffle,&mp3_loop_setter,&mp3_player_stop,&delete_mp3};
+        FilesLister *catalog;
+        String mp3_name = "MP3/Addict.mp3";
+        String mp3_dir = "MP3/";
+        uint16_t mp3_count = 0;
+        uint16_t next_mp3 = 0 ;
+        byte mp3_ext = 0 ;
+        bool mp3_looped = 0 ;
+        bool mp3_paused = 0 ;
+        bool mp3_shuffle = 0 ;
+        bool mp3_continue = 0 ;                                              
+        uint16_t mp3_idx_list[];
   private:
       static Mp3PlayerRouter* self;
 };
