@@ -1,6 +1,5 @@
-#include <stdint.h>
-#include "Constants.h"
 #include "SettingsMenu.h"
+#include "Constants.h"
 #include "Triggers.h"
 #include "pads.h"
 #include "Patterns.h"
@@ -14,10 +13,17 @@ MidiMenuRouter* MidiMenuRouter::self = nullptr;
 
 MidiMenuRouter::MidiMenuRouter() {self = this;
                                   self->home_navrange = 3;
+                                  self->relative_navlevel = 2 ;
                                   }
 
 void MidiMenuRouter::show(){
-  mc.navrange = self->home_navrange ;
+  Serial.println();
+  Serial.print("MidiMenuRouter relative should be 2 :");
+  Serial.print(self->relative_navlevel);
+  Serial.print(" and home navrange should be 3 :");
+  Serial.print(self->home_navrange);
+
+  mc.navrange = 3;
   _tt.debugmidion = 1 ;
   if (mc.navlevel >= 3 ) _midi_menu[mc.sublevels[2]]();
   char midichlist[17][4] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "All"};
@@ -56,7 +62,7 @@ void MidiMenuRouter::arm_note_spy(){
   }
 }
 void MidiMenuRouter::options(){
-  mc.navrange = self->home_navrange ;
+  mc.navrange = 3 ;
   self->noteprint = 1 ;
   self->arm_note_spy();
 
@@ -176,7 +182,13 @@ SettingsMenuRouter::SettingsMenuRouter() {
 
 
 void SettingsMenuRouter::show() {
+
           if (mc.navlevel == 1) {
+                  Serial.println();
+  Serial.print("SettingsMenuRouter relative should be 2 :");
+  Serial.print(self->relative_navlevel);
+  Serial.print(" and home navrange should be 7 :");
+  Serial.print(self->home_navrange);
             settings_nav_zero();
           }
 

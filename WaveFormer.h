@@ -19,21 +19,15 @@ class WaveformsMenuRouter : public SectionHolder {
         static const byte wf_labels_count = 8;
         static const byte wfn_size = 6; //displayables lines
         static const byte max_blur = 127 ;
-
         int cw_change = 64;
         int w_cursor_y = 32;
         int w_cursor_x = 0;
-        String wforms_names[wfn_size];
         byte wforms_indexes[99];
         byte wforms_count = 0 ;
         byte widx = 0 ;
-
-        byte wforms_names_offset = 0 ;
-
         bool trace_waveform = false;
         static void show();
         static void waveforms_nav_zero();
-
         static void set_tracer(byte control,byte value);
         static void WaveformParams();
         static void set_y_cursor_value(byte la_val);
@@ -43,9 +37,7 @@ class WaveformsMenuRouter : public SectionHolder {
         static void smooth_w_graph();
         static void set_array_at_cursor(int c_pos_w=self->w_cursor_x);
         static void set_x_cursor_value(byte la_val);
-
         static void draw_wave_graph();
-
         static void WaveformEditer();
         static void wforms_menu();
         static void go_previous();

@@ -38,11 +38,11 @@ class TriggerMessenger {
 
         static void MaNoteOn(uint8_t ch_,uint8_t nt_,uint8_t ve_);
 
-        void MaNoteOn(MidiEventer msg);
+        void MaNoteOn(MidiEventer msg, bool from_partition = false);
 
         static void MaNoteOff(uint8_t ch_,uint8_t nt_,uint8_t ve_);
 
-        void MaNoteOff(MidiEventer msg);
+        void MaNoteOff(MidiEventer msg,bool from_partition = false);
 
         static void MaControlChange(byte channel, byte control, byte value);
         void MaControlChange(MidiEventer msg);
@@ -55,7 +55,7 @@ class TriggerMessenger {
         void check_pads();
         void check_pots();
         void update_active_lines();
-        void shutlineroff(byte chan,byte data1);
+        void shutlineroff(byte chan,byte data1, bool from_partition = false);
         void cc_edgecases(MidiEventer msg);
         void notes_edgecases(MidiEventer msg);
         void setchordnotes(byte absolutenote, byte lachord);
@@ -69,8 +69,8 @@ class TriggerMessenger {
         static void stopallnotes();
         byte get_free_synth(byte note);
         byte get_free_sampler(byte note);
-        void initiateasynthliner(MidiEventer msg);
-        void initiateasamplerliner(byte data1, byte data2);
+        void initiateasynthliner(MidiEventer msg, bool from_partition = false);
+        void initiateasamplerliner(byte data1, byte data2, bool from_partition = false);
         void inittapstime();
         void starttaptap();
         static void show_midi(char *typemsg = (char *)"midi ", MidiEventer msg = {0,0,0}) ;

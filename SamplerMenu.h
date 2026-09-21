@@ -1,4 +1,3 @@
-#include <stdint.h>
 #pragma once
 #include "MenuClasses.h"
 #include "FilesLister.h"
@@ -14,21 +13,20 @@ class SamplerMenuRouter : public SectionHolder {
         
         static void voidsampledirpath();
         bool is_selected_in_folder(uint16_t);
-        String make_full_dir_name(byte number,String base_path_dir);
+        bool make_full_dir_name(const char *base_path_dir, char *buffer, size_t buffer_size,byte number=0);
         static void sampler_nav_two();
         static void sampler_nav_one();
         static void sampler_nav_zero();
         static void show();
-        String get_new_dir_name(String base_path_dir);
+        bool get_new_dir_name(const char *base_path_dir, char *buffer, size_t buffer_size);
         static void smixerVpanelAction();
         static void clearsizeofsamplefolder();
         static void initializesamplebase();
-        String lower_extension_case(String f_name);
-        bool test_flash_sample_name(String f_s_name);
+        bool lower_RAW_extension_case(const char *f_name, char *buffer, size_t buffer_size);
         static void listSoundset();
         static void smixerVpanel();
         static void dolistsamplermenu();
-        String samplefullpath(int lefolder, int lefile);
+        bool samplefullpath(int lefolder, int lefile, char *buffer, size_t buffer_size);
         static void addtofolderix(char *lepathtoadd, int ix);
         static void setupsamplefoldersregistered();
         static void setlefilenamed(int lefolder, int lefile, char *lefname);
@@ -103,12 +101,12 @@ class SamplerMenuRouter : public SectionHolder {
         static void listSoundsetsubdir(int ledir);
         static void makesoundsetfullpathfromchars(int eldir);
         static void dosoundlist();
-  //TODO: refactor nav routing after using fileslister
+        //TODO: refactor nav routing after using fileslister
         static constexpr void (*_route_nav[7])() = {&sampler_nav_zero, &sampler_nav_one, &sampler_nav_two,
                                                     &sampler_nav_two, &sampler_nav_two,&sampler_nav_two, &sampler_nav_two};
 
         FilesLister *catalog;
-        String newmkdirpath = "SOUNDSET/MABANK01" ;
+        char newmkdirpath[32] = "SOUNDSET/MABANK01" ;
         const byte FlashChipSelect = 6;
         char samplefoldersregistered[99][SP_NAME_MAX]{};
         char sampledirpath[99] = {"SOUNDSET/"};

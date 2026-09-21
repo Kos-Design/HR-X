@@ -1,5 +1,3 @@
-#include <stdint.h>
-#include <cstring>
 #include "SamplerMenu.h"
 #include "WaveEditorMenu.h"
 #include "Presets.h"
@@ -76,15 +74,11 @@ void SamplerMenuRouter::initializesamplebase() {
   memset(self->samplebase,0,sizeof(self->samplebase));
 }
 
-String SamplerMenuRouter::lower_extension_case(String f_name){
-  char named[50];  // Ensure the array is large enough
-  strcpy(named, f_name.c_str());
-  named[strlen(named) - 4] = '\0';
-  return (String)named + ".raw";
-}
-
-bool SamplerMenuRouter::test_flash_sample_name(String f_s_name){
-  return SerialFlash.exists(f_s_name.c_str());
+bool SamplerMenuRouter::lower_RAW_extension_case(const char *f_name, char *buffer, size_t buffer_size){
+  size_t len = strlen(f_name);
+  if (len < 4) return false;
+  int written = snprintf( buffer, buffer_size, "%.*s.raw", (int)(len - 4), f_name);
+  return written >= 0 && (size_t)written < buffer_size;
 }
 
 void SamplerMenuRouter::listSoundset() {
@@ -156,30 +150,15 @@ void SamplerMenuRouter::smixerVpanel() {
 }
 
 void SamplerMenuRouter::dolistsamplermenu() {
-  char samplerlabels[SP_LABELS_COUNT][12] = {"Load", "Delete", "Assign", "Mixer"};
-  int startx = 5;
-  int starty = 16;
-  char *textin = (char *)samplerlabels[mc.sublevels[1]];
-  dm.canvastitle.fillScreen(SSD1306_BLACK);
-  dm.canvastitle.setCursor(0, 0);
-  dm.canvastitle.setTextSize(2);
-  dm.canvastitle.println(textin);
-  dm.canvasBIG.setTextSize(1);
-  dm.canvasBIG.fillScreen(SSD1306_BLACK);
-  for (int i = 0; i < SP_LABELS_COUNT - 1 - (mc.sublevels[1]); i++) {
-      dm.canvasBIG.setCursor(startx, starty + ((i)*10));
-      dm.canvasBIG.println(samplerlabels[mc.sublevels[1] + 1 + i]);
-  }
-  for (int i = 0; i < mc.sublevels[1]; i++) {
-      dm.canvasBIG.setCursor(startx, (10 * (SP_LABELS_COUNT - mc.sublevels[1]) + 6 + ((i)*10)));
-      dm.canvasBIG.println(samplerlabels[i]);
-  }
+  dm.clean_title_2_1();
+  mc.navrange = SP_LABELS_COUNT - 1 ;
+  const char* samplerlabels[SP_LABELS_COUNT] = {"Load", "Delete", "Assign", "Mixer"};
+  dm.main_panel(samplerlabels,1,SP_LABELS_COUNT);
 }
 
-String SamplerMenuRouter::samplefullpath(int lefolder, int lefile){
-  String based = self->samplebase[lefolder][lefile];
-  String folded = self->samplefoldersregistered[lefolder] ;
-  return "SOUNDSET/" + folded + "/" + based +".RAW";
+bool SamplerMenuRouter::samplefullpath(int lefolder, int lefile, char *buffer, size_t buffer_size){
+  int written = snprintf( buffer, buffer_size, "SOUNDSET/%s/%s.RAW", self->samplefoldersregistered[lefolder], self->samplebase[lefolder][lefile]);
+  return written >= 0 && (size_t)written < buffer_size;
 }
 
 void SamplerMenuRouter::addtofolderix(char *lepathtoadd, int ix) {
@@ -204,33 +183,36 @@ void SamplerMenuRouter::setlefilenamed(int lefolder, int lefile, char *lefname) 
   self->samplebase[lefolder][lefile][fnamesize - 4] = (char)'\0';
 }
 
-void SamplerMenuRouter::playsamplepreview() {
-  String playable_file = self->samplefullpath(mc.sublevels[3],mc.sublevels[4]);
-  if (!self->test_flash_sample_name(playable_file)){
-    playable_file = self->lower_extension_case(playable_file);
+void SamplerMenuRouter::playsamplepreview(){
+  char sample_path[64];
+  if (!self->samplefullpath(mc.sublevels[3], mc.sublevels[4],sample_path, sizeof(sample_path))) return;
+  if (!SerialFlash.exists(sample_path)) {
+    char lowered_raw_name[64];
+    if (!self->lower_RAW_extension_case(sample_path, lowered_raw_name, sizeof(lowered_raw_name))) return;
+    strcpy(sample_path, lowered_raw_name);
   }
-  if (!SD.sdfs.exists(playable_file.c_str())){
-    return;
-  }
-  playRawL.play(playable_file.c_str());
-  playRawR.play(playable_file.c_str());
+  if (!SD.sdfs.exists(sample_path)) return;
+  playRawL.play(sample_path);
+  playRawR.play(sample_path);
 }
 
 void SamplerMenuRouter::preview_flash_assignee() {
-  String playable_file = (String)bb.Flashsamplename[mc.sublevels[4]];
-  if (!self->test_flash_sample_name(playable_file)){
-    playable_file = self->lower_extension_case(playable_file);
+  char playable_file[64];
+  strcpy(playable_file, bb.Flashsamplename[mc.sublevels[4]]);
+  if (!SerialFlash.exists((const char*)playable_file)) {
+    char lowered_raw_name[64];
+    if (!self->lower_RAW_extension_case(playable_file, lowered_raw_name, sizeof(lowered_raw_name))) return;
+    strcpy(playable_file, lowered_raw_name);
   }
-  if (!self->test_flash_sample_name(playable_file)){
-    return;
-  }
-  FlashRaw.play(playable_file.c_str());
+  if (!SerialFlash.exists((const char*)playable_file)) return;
+  FlashRaw.play((const char*)playable_file);
 }
 
 void SamplerMenuRouter::copybacklaflashfile(int leflashfile) {
   SerialFlashFile originflashfile = SerialFlash.open((const char *)bb.Flashsamplename[leflashfile]);
-  String new_name = self->newmkdirpath + "/" + (String)bb.Flashsamplename[leflashfile];
-  FsFile mynewsample = SD.sdfs.open(new_name.c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  char new_name[64];
+  snprintf(new_name, sizeof(new_name), "%s/%s",  self->newmkdirpath, bb.Flashsamplename[leflashfile]);
+  FsFile mynewsample = SD.sdfs.open(new_name, O_WRITE | O_CREAT | O_TRUNC);
   size_t n_size;
   uint8_t buf[512];
   while ((n_size = originflashfile.read(buf, sizeof(buf))) > 0) {
@@ -248,26 +230,30 @@ void SamplerMenuRouter::copyflashtoSD() {
   }
 }
 
-String SamplerMenuRouter::make_full_dir_name(byte number,String base_path_dir) {
-  char formatted_number[4] ;
-  sprintf(formatted_number,"%02d",number);
-  return(String)(base_path_dir + (String)formatted_number);
+bool SamplerMenuRouter::make_full_dir_name(const char *base_path_dir, char *buffer, size_t buffer_size,byte number){
+    int written = snprintf(
+        buffer,
+        buffer_size,
+        "%s%02u",
+        base_path_dir,
+        number
+    );
+
+    return written >= 0 && (size_t)written < buffer_size;
 }
 
 
-String SamplerMenuRouter::get_new_dir_name(String base_path_dir) {
-  byte file_number = 0 ;
-  String new_path = base_path_dir + "00";
-  while (SD.sdfs.exists(new_path.c_str())) {
-    new_path = self->make_full_dir_name(file_number,base_path_dir);
-    file_number++;
+bool SamplerMenuRouter::get_new_dir_name(const char *base_path_dir, char *buffer, size_t buffer_size){
+  for (byte file_number = 0; file_number < 255; file_number++) {
+    if (!self->make_full_dir_name(base_path_dir, buffer, buffer_size,file_number)) return false;
+    if (!SD.sdfs.exists(buffer)) return true;
   }
-  return new_path ;
+  return false;
 }
 
 void SamplerMenuRouter::domkdir() {
-  self->newmkdirpath = self->get_new_dir_name("SOUNDSET/MABANK") ;
-  self->catalog->make_sub_folder("SOUNDSET", self->newmkdirpath.c_str());
+  if (!self->get_new_dir_name("SOUNDSET/MABANK", self->newmkdirpath,sizeof(self->newmkdirpath))) return;
+  self->catalog->make_sub_folder("SOUNDSET", self->newmkdirpath);
   copyflashtoSD();
   dosoundlist();
 }
@@ -328,7 +314,7 @@ void SamplerMenuRouter::add_file_selection(uint16_t folder_,uint16_t file_){
 
 bool SamplerMenuRouter::is_selected_in_folder(uint16_t folder_,uint16_t file_){
   if (!self->samples_selected_count) return 0;
-  for (uint8_t i = 0; i < self->samples_selected_count; i++) {
+  for (uint16_t i = 0; i < self->samples_selected_count; i++) {
     if (self->samples_selected[i].folder_n == folder_ && self->samples_selected[i].file_n == file_ ) return 1;
   }
   return 0;
@@ -336,7 +322,7 @@ bool SamplerMenuRouter::is_selected_in_folder(uint16_t folder_,uint16_t file_){
 
 void SamplerMenuRouter::remove_file_from_selection(uint16_t folder_,uint16_t file_){
   if (!self->samples_selected_count) return;
-  for (uint8_t i = 0; i < self->samples_selected_count; i++) {
+  for (uint16_t i = 0; i < self->samples_selected_count; i++) {
     if (self->samples_selected[i].folder_n == folder_ && self->samples_selected[i].file_n == file_ ) {
       memmove(&self->samples_selected[i], &self->samples_selected[i + 1], (self->samples_selected_count - i - 1) * sizeof(self->samples_selected[0]));
       self->samples_selected_count--;
@@ -352,7 +338,7 @@ void SamplerMenuRouter::add_folder_selection(uint16_t folder_){
 
 bool SamplerMenuRouter::is_folder_selected(uint16_t folder_){
   if (!self->folders_selected_count) return 0;
-  for (uint8_t i = 0; i < self->folders_selected_count; i++) {
+  for (uint16_t i = 0; i < self->folders_selected_count; i++) {
     if (self->folders_selected[i] == folder_) return 1;
   }
   return 0;
@@ -360,7 +346,7 @@ bool SamplerMenuRouter::is_folder_selected(uint16_t folder_){
 
 void SamplerMenuRouter::remove_folder_from_selection(uint16_t folder_){
   if (!self->folders_selected_count) return;
-  for (uint8_t i = 0; i < self->folders_selected_count; i++) {
+  for (uint16_t i = 0; i < self->folders_selected_count; i++) {
     if (self->folders_selected[i] == folder_) {
       memmove(&self->folders_selected[i], &self->folders_selected[i + 1], (self->folders_selected_count - i - 1) * sizeof(self->folders_selected[0]));
       self->folders_selected_count--;
@@ -457,9 +443,7 @@ void SamplerMenuRouter::Flashsamplerexplorer() {
               dm.returntonav(2,3,mc.sublevels[2]);
 
             }
-            //if (!test_flash_sample_name(playable_file)){
-            //  playable_file = lower_extension_case(playable_file);
-            //}
+
             if (mc.sublevels[2] == 0) {
               if (self->Flashsamplesselected[mc.sublevels[3]] == 0) {
                 self->Flashsamplesselected[mc.sublevels[3]] = 1;
@@ -912,10 +896,11 @@ void SamplerMenuRouter::loadSelectedSamples() {
             dm.pseudoconsole((char *)"Unable to access SPI Flash chip");
           }
           char currentflashname[12];
-
+          char sample_path[64];
           if (!self->samples_selected_count) return ;
             for (uint8_t i = 0; i < self->samples_selected_count; i++) {
-              currentsample = SD.sdfs.open(self->samplefullpath(self->samples_selected[i].folder_n,self->samples_selected[i].file_n).c_str());
+              if (!self->samplefullpath(self->samples_selected[i].folder_n, self->samples_selected[i].file_n, sample_path, sizeof(sample_path))) return;
+              currentsample = SD.sdfs.open(sample_path);
               if (!currentsample) continue;
 
               currentsample.getName(currentflashname, 12);
@@ -1077,6 +1062,7 @@ void SamplerMenuRouter::listsamplesassigner2() {
   dm.canvasBIG.println((char *)self->Flashsamplebase[mc.sublevels[4]]);
 }
 
+//TODO: check
 void SamplerMenuRouter::listSoundsetsubdir(int ledir) {
   if (SD.sdfs.exists((const char *)self->sampledirpath)) {
     FsFile susudir = SD.sdfs.open((const char *)self->sampledirpath);
@@ -1088,20 +1074,6 @@ void SamplerMenuRouter::listSoundsetsubdir(int ledir) {
       char shorter_name[13];
       subentry.getName(shorter_name, 13);
       shorter_name[12] = (char)'\0';
-
-      //int fnamesize = strlen((char *)subentry.name());
-      /*
-      if (fnamesize > 12) {
-        for (int i=fnamesize-11; i < fnamesize; i++) {
-          shorter_name[i-fnamesize+11] = new_namer[i];
-        }
-        shorter_name[11] = (char)'\0';
-        String full_file = (String)self->sampledirpath + subentry.name();
-        String full_new_file = (String)self->sampledirpath + (String)shorter_name;
-        SD.rename(full_file.c_str(), full_new_file.c_str());
-        continue;
-      }
-      */
       if (!subentry.isDirectory()) {
           setlefilenamed(ledir, self->sizeofsamplefolder[ledir], (char*)shorter_name);
         (self->sizeofsamplefolder[ledir])++;

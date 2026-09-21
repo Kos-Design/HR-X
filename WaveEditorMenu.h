@@ -68,8 +68,9 @@ class RecorderMenuRouter : public SectionHolder {
         static void start_inputting_pitch();
         static void deleteSection(float startPos, float endPos);
         static void edit_record();
+        static void apply_to_file();
+        static void backup_current();
         static void redo();
-        String get_current_temp_file();
         static void Undo();
         static void clear_temp_files();
 

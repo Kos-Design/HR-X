@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "PresetsMenu.h"
 #include "KnobAssigner.h"
 #include "FxMenu.h"
@@ -10,7 +11,8 @@ PresetsMenuRouter* PresetsMenuRouter::self = nullptr;
 PresetsMenuRouter::PresetsMenuRouter() {
           self = this;
           self->catalog = new FilesLister("PRESETS/SYNTH/","SYNSET",".TXT",presets_menu,self->ps_labels_count-1);
-
+          self->home_navrange = self->ps_labels_count-1 ;
+          self->relative_navlevel = 1 ;
         }
 
 void PresetsMenuRouter::route_navlevel(){
@@ -18,17 +20,24 @@ void PresetsMenuRouter::route_navlevel(){
         }
 
 void PresetsMenuRouter::presets_nav_zero(){
-          self->catalog->nav_zero();
-        }
+  Serial.print("PresetsMenuRouter relative should be 1 :");
+  Serial.print(self->relative_navlevel);
+  Serial.print(" and home navrange should be 4 :");
+  Serial.print(self->home_navrange);
+
+  mc.navrange = self->home_navrange;
+
+  self->catalog->nav_zero();
+}
 
 void PresetsMenuRouter::show() {
           _route_nav[mc.navlevel-1]();
         }
 
 void PresetsMenuRouter::presets_menu() {
-          const char* presetmenulabels[] = {
+          const char* presetmenulabels[5] = {
               "Save", "Load", "Copy", "Delete", "Params"};
-          dm.main_panel(presetmenulabels,1);
+          dm.main_panel(presetmenulabels,1,5);
         }
 
 void PresetsMenuRouter::setbpms() {
@@ -47,12 +56,14 @@ void PresetsMenuRouter::write_preset() {
             String presets_base_path = "PRESETS" ;
             String presets_sub_path = "SYNTH" ;
             self->catalog->make_sub_folder("PRESETS", "SYNTH");
-            String new_preset_name = self->catalog->get_new_file_name() ;
-            preset_filer = SD.sdfs.open(new_preset_name.c_str(), O_WRITE | O_CREAT | O_TRUNC);
+            char new_file_name[64];
+            if (!self->catalog->get_new_file_name(new_file_name, sizeof(new_file_name))) return;
+            preset_filer = SD.sdfs.open(new_file_name, O_WRITE | O_CREAT | O_TRUNC);
           } else {
-            const char* overwritee = self->catalog->get_current_file_path(0).c_str();
+            char current_file_path[64];
+            if (!self->catalog->get_current_file_path(current_file_path, sizeof(current_file_path))) return;
             self->catalog->deleteFile();
-            preset_filer = SD.sdfs.open(overwritee, O_WRITE | O_CREAT | O_TRUNC);
+            preset_filer = SD.sdfs.open(current_file_path, O_WRITE | O_CREAT | O_TRUNC);
           }
           if (preset_filer) {
             preset_filer.write((uint8_t*)&gg, sizeof(gg));
@@ -68,7 +79,9 @@ void PresetsMenuRouter::read_preset() {
           if (mc.locked_fileing)
             return;
           mc.locked_fileing = 1 ;
-          FsFile preset_filer = SD.sdfs.open(self->catalog->get_current_file_path(0).c_str(), O_READ);
+          char current_file_path[64];
+          if (!self->catalog->get_current_file_path(current_file_path, sizeof(current_file_path))) return;
+          FsFile preset_filer = SD.sdfs.open(current_file_path, O_READ);
           if (preset_filer) {
            preset_filer.read((uint8_t*)&gg, sizeof(gg));
           } else {
@@ -76,9 +89,9 @@ void PresetsMenuRouter::read_preset() {
             return ;
           }
           preset_filer.close();
-          byte tmp_mixlevelsM[4];
-          byte tmp_mixlevelsL[OSCS_COUNT];
-          byte tmp_WetMixMasters[4];
+          uint8_t tmp_mixlevelsM[4];
+          uint8_t tmp_mixlevelsL[OSCS_COUNT];
+          uint8_t tmp_WetMixMasters[4];
           memcpy(&tmp_mixlevelsM, &gg.mixlevelsM, sizeof(gg.mixlevelsM));
           memcpy(&tmp_mixlevelsL, &gg.mixlevelsL, sizeof(gg.mixlevelsL));
           memcpy(&tmp_WetMixMasters, &gg.WetMixMasters, sizeof(gg.WetMixMasters));

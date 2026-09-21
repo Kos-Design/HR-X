@@ -1,9 +1,8 @@
-#include <stdint.h>
-#include "Constants.h"
-#include <cstring>
-#include "core_pins.h"
-#include "Voices.h"
 #include "Patterns.h"
+//#include <stdint.h>
+//#include <cstring>
+//#include "core_pins.h"
+#include "Voices.h"
 #include "Triggers.h"
 #include "Functions.h"
 #include "Presets.h"
@@ -271,22 +270,38 @@ PatEditRouter::PatEditRouter() {
                     self = this;
                     self->home_navrange=3;
                     self->relative_navlevel=2;
-                    self->max_navlevel=5;
-                    self->sublevels_address={4,7,0};
+                    //self->max_navlevel=5;
+                    //self->sublevels_address={4,7,0};
                     }
 
+void PatEditRouter::show() {
+    Serial.println();
+  Serial.print("PatEditRouter relative should be 2 :");
+  Serial.print(self->relative_navlevel);
+  Serial.print(" and home navrange should be 3 :");
+  Serial.print(self->home_navrange);
+          dm.clear_3();
+          Serial.println("calling Homer");
+          self->relative_navlevel = 2 ;
+ 
+  // TODO : WHY IS relative_navlevel BROKEN!!!
+          //cell_events[mc.navlevel-self->relative_navlevel]();
+          cell_events[mc.navlevel-2]();
+          dm.dodisplay();
+        }
 
 void PatEditRouter::homer(){
-          mc.navrange = TK_TYPES - 1;
-          self->track_type = mc.sublevels[self->relative_navlevel];
+  mc.navrange = TK_TYPES - 1;
 
-          drawPatternRow();
-          dolistpatternlineblocks();
-          dm.setCursor(0, 0);
-          String _t_type[TK_TYPES] = {"Synth","Sampler"};
-          dm.print(_t_type[self->track_type]);
+  self->track_type = mc.sublevels[self->relative_navlevel];
+  Serial.println("got here");
+  drawPatternRow();
+  dolistpatternlineblocks();
+  dm.setCursor(0, 0);
+  String _t_type[TK_TYPES] = {"Synth","Sampler"};
+  dm.print(_t_type[self->track_type]);
 
-        }
+}
 
 void PatEditRouter::set_editor_to_synth(byte liner = self->local_line){
           self->_on_part = pp.synth_partition[liner] ;
@@ -302,12 +317,6 @@ void PatEditRouter::set_editor_to_sampler(byte liner = self->local_line){
           self->_temp_part = self->temp_sampler_partition;
           self->liners_count = FLASH_LINERS_COUNT;
           self->_length_part = pp.flash_notes_length[liner] ;
-        }
-
-void PatEditRouter::show() {
-          dm.clear_3();
-          cell_events[mc.navlevel-self->relative_navlevel]();
-          dm.dodisplay();
         }
 
 void PatEditRouter::doshownoteline() {
@@ -479,9 +488,7 @@ void PatEditRouter::play_cell_preview(){
     self->preview = 1 ;
     String playable_file = (String)bb.Flashsamplename[(mc.sublevels[self->relative_navlevel + 2]-4)%127];
     Serial.println(playable_file);
-    if (!_sp.test_flash_sample_name(playable_file)){
-      return;
-    }
+    if (!SerialFlash.exists(playable_file.c_str())) return;
     FlashRaw.play(playable_file.c_str());
   }
   else {
@@ -803,6 +810,24 @@ POptionsRouter::POptionsRouter() {
   self->sublevels_address={4,0,0};
 }
 
+void POptionsRouter::show(){
+  if (mc.navlevel == 2 ){
+      Serial.println();
+  Serial.print("POptionsRouter relative should be 2 :");
+  Serial.print(self->relative_navlevel);
+  Serial.print(" and home navrange should be 5 :");
+  Serial.print(self->home_navrange);
+
+    mc.navrange = self->home_navrange ;
+    dm.clean_title_2_1();
+    dm.main_panel(optionspatternlabels,2,sizeofoptionspattern);
+    dm.dodisplay();
+  }
+  if (mc.navlevel >= 3 ){
+    _pat_params[mc.sublevels[2]]();
+  }
+}
+
 bool POptionsRouter::target_sampler = 1;
 bool POptionsRouter::target_synth = 1;
 bool POptionsRouter::target_ccs = 0;
@@ -910,18 +935,6 @@ void POptionsRouter::clearsamplerpatternline() {
 }
 
 const char* POptionsRouter::optionspatternlabels[sizeofoptionspattern] = {"Transpose", "Shift", "Clear", "Target","Merge Pat","Inter CC"};
-
-void POptionsRouter::show(){
-  if (mc.navlevel == 2 ){
-    mc.navrange = self->home_navrange ;
-    dm.clean_title_2_1();
-    dm.main_panel(optionspatternlabels,2);
-    dm.dodisplay();
-  }
-  if (mc.navlevel >= 3 ){
-    _pat_params[mc.sublevels[2]]();
-  }
-}
 
 void POptionsRouter::toggle_interpol_cc() {
   self->interpolOn = !self->interpolOn;
@@ -1325,8 +1338,6 @@ PatternsMenuRouter::PatternsMenuRouter() {
   self->catalog = new FilesLister("PATTERNS/","PATTERN",".TXT",doPatternsmenu,self->home_navrange);
   self->catalog->left_margin = 73;
   self->relative_navlevel=1;
-  self->max_navlevel=5;
-  self->sublevels_address={4,0,0};
 }
 
 void PatternsMenuRouter::route_navlevel(){
@@ -1339,6 +1350,7 @@ void PatternsMenuRouter::show() {
 
 void PatternsMenuRouter::pattern_nav_zero(){
           _pe.paterning = false ;
+          mc.navrange = self->home_navrange;
           self->catalog->nav_zero();
         }
 
@@ -1377,7 +1389,9 @@ void PatternsMenuRouter::parsepattern() {
     return;
   mc.locked_fileing = 1 ;
   self->catalog->refresh_files_names();
-  FsFile lepatternfile = SD.sdfs.open(self->catalog->get_current_file_path(0).c_str(), O_READ);
+  char current_file_path[64];
+  if (!self->catalog->get_current_file_path(current_file_path, sizeof(current_file_path))) return;
+  FsFile lepatternfile = SD.sdfs.open(current_file_path, O_READ);
   if (lepatternfile) {
     lepatternfile.read((uint8_t*)&pp, sizeof(pp));
   }
@@ -1387,10 +1401,10 @@ void PatternsMenuRouter::parsepattern() {
 }
 
 void PatternsMenuRouter::doPatternsmenu() {
-  const char* patternlistlabels[] = {
+  const char* patternlistlabels[8] = {
       "Edit", "Save", "Load", "Copy", "Delete", "Params", "Clear", "C-Edit"};
 
-  dm.main_panel(patternlistlabels,1);
+  dm.main_panel(patternlistlabels,1,8);
 }
 
 void PatternsMenuRouter::deletepattern() {
@@ -1408,11 +1422,14 @@ void PatternsMenuRouter::writelemidi() {
   self->catalog->refresh_files_names();
   FsFile pat_filer ;
   if (self->catalog->new_file_mode) {
-    pat_filer = SD.sdfs.open(self->catalog->get_new_file_name().c_str(), O_WRITE | O_CREAT | O_TRUNC);
+    char new_file_name[64];
+    if (!self->catalog->get_new_file_name(new_file_name, sizeof(new_file_name))) return;
+    pat_filer = SD.sdfs.open(new_file_name, O_WRITE | O_CREAT | O_TRUNC);
   } else {
-    const char* overwritee = self->catalog->get_current_file_path(0).c_str();
+    char current_file_path[64];
+    if (!self->catalog->get_current_file_path(current_file_path, sizeof(current_file_path), 0)) return;
     self->catalog->deleteFile();
-    pat_filer = SD.sdfs.open(overwritee, O_WRITE | O_CREAT | O_TRUNC);
+    pat_filer = SD.sdfs.open(current_file_path, O_WRITE | O_CREAT | O_TRUNC);
   }
   if (pat_filer) {
     pat_filer.write((uint8_t*)&pp, sizeof(pp));

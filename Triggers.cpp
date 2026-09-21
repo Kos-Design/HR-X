@@ -111,16 +111,6 @@ bool Arpegiator::same_3_notes(){
 }
 
 void Arpegiator::arpegiate_synth() {
-  //
-  /*SynthLiner* _rg.active_synths[6];
-  memcpy(_rg.active_synths, _rg.active_synths, sizeof(_rg.active_synths));
-  int currently_actives = _rg.synth_lines_active ;
-  */
-  //incrementcs(larpegeline);
-  //if (gg.arpegmode == 4) {
-  //  arpegioticker(larpegeline);
-  //}
-  //things get weird with more than one arp line arpegiating
   for (int i = 0; i < _rg.synth_lines_active; i++) {
     last_indexer = (last_indexer + 1) % 3 ;
     if (_rg.active_synths[i]->arp_starter) {
@@ -414,9 +404,7 @@ void TriggerMessenger::Mytickmidi() {
 
 void TriggerMessenger::MaControlChange(byte channel, byte control, byte value) {
   MidiEventer msg = {channel, control, value};
-  if (self->debugmidion) {
-    self->show_midi((char *)("CC"), (MidiEventer){channel, control, value});
-  }
+
   self->cc_edgecases(msg);
 
   self->moncontrollercc(channel, control, value);
@@ -505,7 +493,7 @@ void TriggerMessenger::check_pads() {
   }
 }
 
-void TriggerMessenger::MaNoteOn(MidiEventer msg) {
+void TriggerMessenger::MaNoteOn(MidiEventer msg,bool from_partition) {
   if (gg.SendMidiOut<16) {
     // TODO: send midi during sound trigger to use arpegiators (+ note offs if
     // MidiUSB.sendMIDI({0x09, statusByte, msg.note, msg.velocity});
@@ -522,14 +510,14 @@ void TriggerMessenger::MaNoteOn(MidiEventer msg) {
   if ((msg.channel == gg.synthmidichannel) or (gg.synthmidichannel == 0)) {
     for (int i = 0; i < gg.chordson ; i++) {
       lachordon = chordnotes[i] + ((int(msg.note / 12)) * 12);
-      initiateasynthliner((MidiEventer){gg.synthmidichannel,(byte)lachordon, msg.velocity});
+      initiateasynthliner((MidiEventer){gg.synthmidichannel,(byte)lachordon, msg.velocity},from_partition);
     }
   }
 
   if ((msg.channel == gg.samplermidichannel) or (gg.samplermidichannel == 0)) {
     for (int i = 0; i < gg.chordson; i++) {
       lachordon = chordnotes[i] + ((int(msg.note / 12)) * 12);
-      initiateasamplerliner(lachordon, msg.velocity);
+      initiateasamplerliner(lachordon, msg.velocity,from_partition);
     }
   }
 }
@@ -570,7 +558,7 @@ void TriggerMessenger::MaNoteOff(uint8_t ch_,uint8_t nt_,uint8_t ve_) {
   self->MaNoteOff(msg);
 }
 
-void TriggerMessenger::MaNoteOff(MidiEventer msg) {
+void TriggerMessenger::MaNoteOff(MidiEventer msg, bool from_partition) {
   //uint8_t statusByte = static_cast<uint8_t>(0x80 | channel);
   int lachordnote;
   if (gg.SendMidiOut<16) {
@@ -585,11 +573,11 @@ void TriggerMessenger::MaNoteOff(MidiEventer msg) {
   setchordnotesOff(msg.note, gg.lasetchord);
   for (int i = 0; i < gg.chordson; i++) {
     lachordnote = chordnotesoff[i] + ((int(msg.note / 12)) * 12);
-    shutlineroff(msg.channel,lachordnote);
+    shutlineroff(msg.channel,lachordnote,from_partition);
   }
 }
 
-void TriggerMessenger::shutlineroff(byte chan,byte data1) {
+void TriggerMessenger::shutlineroff(byte chan,byte data1,bool from_partition) {
 
     if ((chan == gg.synthmidichannel) or ( gg.synthmidichannel == 0))
       shut_used_synth_notes(data1);
@@ -601,14 +589,7 @@ void TriggerMessenger::shutlineroff(byte chan,byte data1) {
 
 void TriggerMessenger::moncontrollercc(byte channel, byte control, byte value) {
   if (value < 128) {
-    if (gg.SendMidiOut<16) {
-        //uint8_t statusByte = static_cast<uint8_t>(0xB0 | channel);
-        //MidiUSB.sendMIDI({0x0B, statusByte, control, value});
-        //MidiUSB.flush();
-        usbMIDI.sendControlChange(control,value,gg.SendMidiOut);
-        usbMIDI.send_now();
-
-      }
+ 
     if (gg.midiknobassigned[control] != 0) {
       ctl[gg.midiknobassigned[control]].tweaker(value);
       // AudioInterrupts();
@@ -620,7 +601,9 @@ void TriggerMessenger::moncontrollercc(MidiEventer msg) {
   moncontrollercc(msg.channel, msg.note, msg.velocity);
 }
 void TriggerMessenger::cc_edgecases(MidiEventer msg){
-
+  if (self->debugmidion) {
+    self->show_midi((char *)("CC"), msg);
+  }
   //inside Knobs Setter panel
   if (mc.knobsetting){
     _ka.learn_midi(msg.note);
@@ -635,6 +618,13 @@ void TriggerMessenger::cc_edgecases(MidiEventer msg){
       pp.sampler_partition[mc.sublevels[2]][mc.sublevels[5]].velocity = msg.velocity;
     }
   }
+   if (gg.SendMidiOut<16) {
+      //uint8_t statusByte = static_cast<uint8_t>(0xB0 | channel);
+      //MidiUSB.sendMIDI({0x0B, statusByte, control, value});
+      //MidiUSB.flush();
+      usbMIDI.sendControlChange(msg.note,msg.velocity,gg.SendMidiOut);
+      usbMIDI.send_now();
+    }
 
   if (mc.setting_on_board) {
     if (mc.navlevel == 2) {
@@ -715,10 +705,10 @@ byte TriggerMessenger::get_free_sampler(byte note) {
   return FLASH_LINERS_COUNT;
 }
 
-void TriggerMessenger::initiateasynthliner(MidiEventer msg) {
+void TriggerMessenger::initiateasynthliner(MidiEventer msg, bool from_partition) {
   byte free_line = self->get_free_synth(msg.note);
   if (free_line == SYNTH_LINERS_COUNT) return;
-  if (mc.patrecord) {
+  if (mc.patrecord && !from_partition) {
     md.recordmidinotes(free_line, gg.synthmidichannel, msg.note, msg.velocity);
   }
   if (gg.arpegiatorOn)  {
@@ -729,10 +719,10 @@ void TriggerMessenger::initiateasynthliner(MidiEventer msg) {
   synth_lines[free_line]->liner_on(msg.note, msg.velocity);
 }
 
-void TriggerMessenger::initiateasamplerliner(byte data1, byte data2) {
+void TriggerMessenger::initiateasamplerliner(byte data1, byte data2, bool from_partition) {
   byte free_line = self->get_free_sampler(data1);
   if (free_line < FLASH_LINERS_COUNT) {
-    if (mc.patrecord) {
+    if (mc.patrecord && !from_partition) {
       md.recordmidinotes2(free_line, gg.samplermidichannel, data1, data2);
     }
     flash_lines[free_line]->liner_on(data1, data2);

@@ -29,21 +29,21 @@ class FilesLister{
         uint8_t folders_counter = 0 ;
         uint8_t free_counter = 0 ;
         uint8_t displayable_offset = 0 ;
-        String files_displayable[max_displayables];
-        String folders_displayable[max_displayables];
+        char files_displayable[max_displayables][32]{};
+        char folders_displayable[max_displayables][32]{};
 
         //stores files suffixes numbers only
-        uint8_t files_indexed[99];
-        char folders_indexed[99][16];
-        char free_files[99][16];
-        String folder_selected;
+        uint8_t files_indexed[99]{};
+        char folders_indexed[99][16]{};
+        char free_files[99][16]{};
+        char folder_selected[32]{};
         bool new_file_mode = 0;
         //the files list should be responding to shifting in mc.navlevel r_nav and display in r_nav-1(mc.navlevel of the menu instancer)
         uint8_t r_nav = 2;
-        String get_file_name(uint8_t number);
-        String get_current_file_path(uint8_t f_index);
-        String make_full_file_name(uint8_t number);
-        String get_new_file_name();
+        bool get_file_name(char *buffer, size_t buffer_size, byte number=0);
+        bool get_current_file_path(char *buffer, size_t buffer_size, int f_index=0);
+        bool make_full_file_name(byte number, char *buffer, size_t buffer_size);
+        bool get_new_file_name(char *buffer, size_t buffer_size);
         void deleteFile();
         void deleteFileGeneric(const char*);
         void copyFile();
@@ -51,8 +51,8 @@ class FilesLister{
         void move_file(const char*,const char* );
         void nav_zero();
         void make_temp_folders();
-        String get_full_tmp_file_path(uint8_t);
-        String get_new_tmp_name(bool increment = true);
+        bool get_full_tmp_file_path(char *buffer, size_t buffer_size, byte number);
+        bool get_new_tmp_name(char *buffer, size_t buffer_size, bool increment = true);
         void nav_one(uint8_t save_lbl_idx,uint8_t lbl_navlevel);
         void refresh_files_names();
         void refresh_folders_names();

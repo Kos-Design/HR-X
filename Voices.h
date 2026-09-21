@@ -1,5 +1,5 @@
-#include <stdint.h>
 #pragma once
+#include <stdint.h>
 #include "Constants.h"
 
 void waveformize(uint8_t l_index,uint8_t osc_idx,float currentFreq,float targetFreq,uint8_t velocity);

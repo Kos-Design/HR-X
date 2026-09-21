@@ -1,5 +1,5 @@
-#include <stdint.h>
 #pragma once
+#include <stdint.h>
 #include <Audio.h>
 #include "Constants.h"
 #include <Encoder.h>
@@ -53,10 +53,9 @@ class SectionHolder{
     public:
         struct MenuPager{ byte value1; byte value3; byte value2; };
         byte relative_navlevel;
-        //max absolute as it should be tested against the relative one
         byte max_navlevel = 5;
         MenuPager sublevels_address = {0,0,0};
-        byte home_navrange ;
+        byte home_navrange;
         void set_home(void (*_cb)());
 
     private:
@@ -147,25 +146,7 @@ class DisplayManager : public Adafruit_SSD1306 {
         void evalrota();
         void evalinputs();
         void printassignedmidi(int lemidiassknob);
-        template <int N>
-        void main_panel(const char* const (&menulabels)[N], int lvl){
-            int menu_lbls_count = N;
-            if ( mc.navlevel == lvl ) mc.navrange = menu_lbls_count-1;
-            byte startx = 5;
-            byte starty = 16;
-            char *textin = (char *)menulabels[mc.sublevels[lvl]];
-            canvastitle.setCursor(0, 0);
-            canvastitle.setTextSize(2);
-            canvastitle.println(textin);
-            for (int i = 0; i < menu_lbls_count - 1 - (mc.sublevels[lvl]); i++) {
-                canvasBIG.setCursor(startx, starty + ((i)*10));
-                canvasBIG.println(menulabels[mc.sublevels[lvl] + 1 + i]);
-            }
-            for (int i = 0; i < mc.sublevels[lvl]; i++) {
-                canvasBIG.setCursor(startx, (10 * (menu_lbls_count - mc.sublevels[lvl])) + 6 + ((i)*10));
-                canvasBIG.println(menulabels[i]);
-            }
-        }
+        void main_panel(const char* const* menulabels, int lvl, int menu_lbls_count);
         void show(void);
         void dodisplay(void);
         void returntonav(byte lelevel, byte lanavrange = mc.navrange,byte t_vraipos = mc.rota_true_pos);

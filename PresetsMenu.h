@@ -2,7 +2,7 @@
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
-class PresetsMenuRouter {
+class PresetsMenuRouter: public SectionHolder {
     public:
         PresetsMenuRouter();
         FilesLister *catalog;

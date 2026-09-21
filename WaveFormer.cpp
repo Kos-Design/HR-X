@@ -1,6 +1,6 @@
+#include "WaveFormer.h"
 #include "SerialFlash.h"
 #include <stdint.h>
-#include "WaveFormer.h"
 #include "Presets.h"
 
 WaveformsMenuRouter* WaveformsMenuRouter::self = nullptr;
@@ -21,6 +21,7 @@ void WaveformsMenuRouter::show() {
 }
 
 void WaveformsMenuRouter::waveforms_nav_zero(){
+  mc.navrange = self->home_navrange;
   mc.waveforming = 0 ;
   self->catalog->nav_zero();
 }
@@ -180,9 +181,9 @@ void WaveformsMenuRouter::WaveformEditer() {
 }
 
 void WaveformsMenuRouter::wforms_menu() {
-  const char* waveformsmenulabels[] = {
+  const char* waveformsmenulabels[8] = {
       "Save", "Load", "Copy", "Delete", "Edit", "-->", "<--","Params"};
-  dm.main_panel(waveformsmenulabels, 1);
+  dm.main_panel(waveformsmenulabels, 1,8);
 }
 
 void WaveformsMenuRouter::go_previous(){
@@ -205,11 +206,14 @@ void WaveformsMenuRouter::writewaveform() {
   mc.locked_fileing = 1 ;
   FsFile waveform_file ;
   if (self->catalog->new_file_mode) {
-    waveform_file = SD.sdfs.open(self->catalog->get_new_file_name().c_str(), O_WRITE | O_CREAT | O_TRUNC);
+    char new_file_name[64];
+    if (!self->catalog->get_new_file_name(new_file_name, sizeof(new_file_name))) return;
+    waveform_file = SD.sdfs.open(new_file_name, O_WRITE | O_CREAT | O_TRUNC);
   } else {
-    const char* overwritee = self->catalog->get_current_file_path(0).c_str();
+    char current_file_path[64];
+    if (!self->catalog->get_current_file_path(current_file_path, sizeof(current_file_path))) return;
     self->catalog->deleteFile();
-    waveform_file = SD.sdfs.open(overwritee, O_WRITE | O_CREAT | O_TRUNC);
+    waveform_file = SD.sdfs.open(current_file_path, O_WRITE | O_CREAT | O_TRUNC);
   }
   if (waveform_file) {
     waveform_file.write((byte *)gg.arbitrary_waveforms, sizeof(gg.arbitrary_waveforms));
@@ -232,7 +236,9 @@ void WaveformsMenuRouter::parsewaveformfile() {
   if (mc.locked_fileing)
     return;
   mc.locked_fileing = 1 ;
-  FsFile target_waveform = SD.sdfs.open(self->catalog->get_current_file_path(0).c_str(), O_READ);
+  char current_file_path[64];
+  if (!self->catalog->get_current_file_path(current_file_path, sizeof(current_file_path))) return;
+  FsFile target_waveform = SD.sdfs.open(current_file_path, O_READ);
   target_waveform.read((byte *)gg.arbitrary_waveforms, sizeof(gg.arbitrary_waveforms));
   target_waveform.close();
   mc.locked_fileing = 0 ;

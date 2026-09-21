@@ -37,7 +37,9 @@ ActiveLinesRegister _rg;
 Arpegiator ap;
 MidiRecorder md;
 VirtualKnobs _vk;
+MidiMenuRouter _mr;
 SettingsMenuRouter _st;
+
 PresetsMenuRouter _ps;
 EXTMEM Pattern pp ;
 LFOMenuRouter _lf;
@@ -64,7 +66,7 @@ PatternsMenuRouter _pt;
 MasterClock Tocker;
 DisplayConsoler consoler;
 Song ng;
-MidiMenuRouter _mr;
+
 StereoDualFilter stereoWidth;
 
 Bounce clicked = Bounce(32, 100);

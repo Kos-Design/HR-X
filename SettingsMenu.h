@@ -17,12 +17,14 @@ class VirtualKnobs : public SectionHolder {
 
 extern VirtualKnobs _vk;
 
-class MidiMenuRouter : public SectionHolder {
+class MidiMenuRouter: public SectionHolder {
   public:
     MidiMenuRouter();
     bool spying_notes = 0;
     bool noteprint = 0;
     uint8_t AudioInSource = 2;
+    //uint8_t home_navrange = 3;
+    //uint8_t relative_navlevel = 2 ;
     static void show();
     static void options();
     static void set_synth_midi_ch();

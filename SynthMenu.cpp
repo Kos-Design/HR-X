@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include "Functions.h"
 #include "SynthMenu.h"
 #include "Voices.h"
@@ -508,22 +507,28 @@ void Mp3PlayerRouter::get_next_mp3() {
   subentry.close();
   susudir.close();
 }
-
+//moves the files on SD root and renames them if their names are too big
 bool Mp3PlayerRouter::sanitizeFilename(FsFile &file){
-  constexpr size_t MAX_LEN = 28;
-  char name[256];
-  if (file.getName(name, sizeof(name)) == 0) return false;
-  size_t len = strlen(name);
-  if (len <= MAX_LEN) return true;
-  char *dot = strrchr(name, '.');
-  if (dot == nullptr) name[MAX_LEN] = '\0';
-  else {
-    size_t extensionLen = strlen(dot);
-    size_t baseLen = MAX_LEN - extensionLen;
-    if (baseLen < 1) return false;
-    name[baseLen] = '\0';
-  }
-  return file.rename(name);
+    constexpr size_t MAX_LEN = 25;
+    char name[256];
+    if (!file.getName(name, sizeof(name)))
+        return false;
+    size_t len = strlen(name);
+    if (len <= MAX_LEN) return true;
+    char *dot = strrchr(name, '.');
+    if (dot == nullptr) {
+      name[MAX_LEN] = '\0';
+    }
+    else {
+      size_t extensionLen = strlen(dot);
+      if (extensionLen >= MAX_LEN) return false;
+      size_t baseLen = MAX_LEN - extensionLen;
+      // Move the extension to its new position
+      memmove(&name[baseLen], dot, extensionLen + 1);
+    }
+    Serial.print("renaming to ");
+    Serial.println(name);
+    return file.rename(name);
 }
 
 void Mp3PlayerRouter::count_mp3s() {
@@ -880,16 +885,16 @@ void SynthMenuRouter::wavelining() {
 }
 
 void SynthMenuRouter::draw_synth_params() {
-  const char* wavelineslabels[] = {
+  const char* wavelineslabels[8] = {
       "Type", "Mod", "LFO", "Freq", "Offset", "Phase", "<-  ", "  ->"};
-  dm.main_panel(wavelineslabels,3);
+  dm.main_panel(wavelineslabels,3,8);
   dm.canvasBIG.setCursor(120, 57);
   dm.canvasBIG.print(mc.oscillator + 1);
 }
 
 void SynthMenuRouter::dolistsyntmenu() {
-  const char* synthmenulabels[] = {"Synths", "Mixer", "ADSR", "MP3 Player", "Filter", "Glider"};
-  dm.main_panel(synthmenulabels,1);
+  const char* synthmenulabels[6] = {"Synths", "Mixer", "ADSR", "MP3 Player", "Filter", "Glider"};
+  dm.main_panel(synthmenulabels,1,6);
 }
 
 void SynthMenuRouter::synths_switcher(){

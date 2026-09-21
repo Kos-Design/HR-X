@@ -1,3 +1,5 @@
+#include <sys/_stdint.h>
+#include <stdint.h>
 #include "Patterns.h"
 #include "WaveEditorMenu.h"
 #include "SamplerMenu.h"
@@ -22,7 +24,9 @@ void RecorderMenuRouter::show() {
 
 void RecorderMenuRouter::Load_raw_file() {
   clear_temp_files();
-  self->newRecpathL = self->catalog->get_current_file_path(0);
+  char current_file_path[64];
+  if (!self->catalog->get_current_file_path(current_file_path, sizeof(current_file_path))) return;
+  self->newRecpathL = current_file_path;
   self->newloopedpath = self->newRecpathL ;
   Serial.println(self->newloopedpath);
 
@@ -42,9 +46,10 @@ void RecorderMenuRouter::startRecording() {
     self->just_pressed_rec = true ;
     check_rec_folder_path();
     mc.tocker = millis();
-
-    self->newloopedpath = self->catalog->get_new_file_name();
-    self->looper = SD.sdfs.open(self->newloopedpath.c_str(),O_WRITE | O_CREAT | O_TRUNC);
+    char new_file_name[64];
+    if (!self->catalog->get_new_file_name(new_file_name, sizeof(new_file_name))) return;
+    self->newloopedpath = new_file_name;
+    self->looper = SD.sdfs.open((const char*)new_file_name,O_WRITE | O_CREAT | O_TRUNC);
     if (self->looper) {
       queue1.begin();
       self->pre_record = true;
@@ -300,8 +305,8 @@ void RecorderMenuRouter::deleteRec() {
 void RecorderMenuRouter::recorder_menu() {
           self->catalog->folders_mode = false ;
           scheddule_wave_rebuild(1,1);
-          const char* Recmenulabels[] = {"Record", "Load", "Delete", "Params","Edit","../"};
-          dm.main_panel(Recmenulabels,1);
+          const char* Recmenulabels[6] = {"Record", "Load", "Delete", "Params","Edit","../"};
+          dm.main_panel(Recmenulabels,1,6);
         }
 
 void RecorderMenuRouter::rec_params(){
@@ -312,8 +317,9 @@ void RecorderMenuRouter::rec_params(){
         }
 
 void RecorderMenuRouter::rec_nav_zero(){
-          self->catalog->nav_zero();
-        }
+  mc.navrange = self->home_navrange;
+  self->catalog->nav_zero();
+}
 
 void RecorderMenuRouter::drawFoldersList(){
 
@@ -336,20 +342,14 @@ void RecorderMenuRouter::drawFoldersList(){
           dm.dodisplay();
           //Serial.println(self->catalog->folder_selected);
           if (mc.navlevel > self->relative_navlevel+1){
-            String entering_dir = ((String)self->catalog->folder_dir + self->catalog->folder_selected + "/");
-            if (SD.sdfs.exists(entering_dir.c_str())){
-              self->catalog->folders_mode = false ;
-              //self->catalog->folder_dir = (entering_dir).c_str();
-              strncpy(self->catalog->folder_dir, entering_dir.c_str(), 31);
-              self->catalog->folder_dir[31] = '\0';
-
-              //self->catalog->folder_dir[strlen(entering_dir.c_str())-1] = '\0';
-
-              if (strcmp(self->catalog->folder_selected.c_str(), "REC") == 0 ) {
-                self->catalog->extension = "#L.RAW" ;
-              }
-
-            } else {
+            char entering_dir[64];
+            snprintf(entering_dir, sizeof(entering_dir), "%s%s/", self->catalog->folder_dir, self->catalog->folder_selected);
+            if (SD.sdfs.exists(entering_dir)) {
+              self->catalog->folders_mode = false;
+              strncpy(self->catalog->folder_dir, entering_dir, sizeof(self->catalog->folder_dir) - 1);
+              self->catalog->folder_dir[sizeof(self->catalog->folder_dir) - 1] = '\0';
+              if (!strcmp(self->catalog->folder_selected, "REC")) self->catalog->extension = "#L.RAW";
+            }else {
               Serial.println("error with dir");
               Serial.println(self->catalog->folder_selected);
               dm.returntonav(self->relative_navlevel,self->home_navrange,0);
@@ -414,12 +414,12 @@ void RecorderMenuRouter::drawWaveform(float startPos,float endPos, uint16_t widt
 }
 
 void RecorderMenuRouter::select_cursor() {
-  String _legend[] = {"Select","Zoom Out","Zoom In","Normalize","Reverse","Pitch x","Fade In","Fade Out",
+  const char* _legend[15] = {"Select","Zoom Out","Zoom In","Normalize","Reverse","Pitch x","Fade In","Fade Out",
                       "Preview","Del before","Del after","Del zone","Keep zone","Undo"," "};
   dm.clearDisplay();
   dm.dodisplay();
-  int cursor_coords[][4] = {{0,0,18,8},{22,0,9,8},{38,0,9,8},{52,0,9,8},{64,0,9,8},{76,0,9,8},{88,0,14,8},{106,0,14,8},{0,8,128,48},
-                            {23,56,14,8},{40,56,21,8},{64,56,20,8},{88,56,27,8},{116,56,12,8}};
+  int cursor_coords[15][4] = {{0,0,18,8},{22,0,9,8},{38,0,9,8},{52,0,9,8},{64,0,9,8},{76,0,9,8},{88,0,14,8},{106,0,14,8},{0,8,128,48},
+                            {23,56,14,8},{40,56,21,8},{64,56,20,8},{88,56,27,8},{116,56,12,8},{128,128,128,128}};
   dm.fillRect(cursor_coords[mc.sublevels[self->relative_navlevel+1]][0],
                     cursor_coords[mc.sublevels[self->relative_navlevel+1]][1],
                     cursor_coords[mc.sublevels[self->relative_navlevel+1]][2],
@@ -467,7 +467,13 @@ void RecorderMenuRouter::zoomRange(float subStart,float subEnd) {
 }
 
 void RecorderMenuRouter::reverseSection(float startPos, float endPos) {
-  self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+  self->backup_current();
+  //TODO: manage undoables
+    Serial.println();
+  Serial.print(" setting undoable at index ");
+  Serial.print(max(self->catalog->tmp_count-1,0));  
+  Serial.print(" to ");
+  Serial.print(self->catalog->tmp_index);
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
   if (mc.locked_fileing) return;
   const uint16_t sampleSize = 2;
@@ -475,7 +481,10 @@ void RecorderMenuRouter::reverseSection(float startPos, float endPos) {
   uint8_t buffer[blockSamples * sampleSize];
   FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
   if (!src) return;
-  FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  char new_tmp_path2[64];
+  if (!self->catalog->get_new_tmp_name(new_tmp_path2, sizeof(new_tmp_path2),0)) return;
+
+  FsFile dst = SD.sdfs.open(new_tmp_path2, O_WRITE | O_CREAT | O_TRUNC);
   if (!dst) {
     src.close();
     return;
@@ -518,16 +527,18 @@ void RecorderMenuRouter::reverseSection(float startPos, float endPos) {
   src.close();
   dst.close();
   mc.locked_fileing = 0 ;
-  self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
+  self->apply_to_file();
 }
 
 void RecorderMenuRouter::pitchSection(float startPos, float endPos, float speed) {
-  self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+  self->backup_current();
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
   if (mc.locked_fileing || speed <= 0.0f) return;
   FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
   if (!src) return;
-  FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  char new_tmp_path2[64];
+  if (!self->catalog->get_new_tmp_name(new_tmp_path2, sizeof(new_tmp_path2),0)) return;
+  FsFile dst = SD.sdfs.open(new_tmp_path2, O_WRITE | O_CREAT | O_TRUNC);
   mc.locked_fileing = 1 ;
   const uint32_t BUFFER_SAMPLES = 1024;
   int16_t buffer[BUFFER_SAMPLES];
@@ -574,16 +585,40 @@ void RecorderMenuRouter::pitchSection(float startPos, float endPos, float speed)
   src.close();
   dst.close();
   mc.locked_fileing = 0 ;
-  self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
+  self->apply_to_file();
+}
+
+void RecorderMenuRouter::backup_current(){
+  char new_tmp_path[64];
+  if (!self->catalog->get_new_tmp_name(new_tmp_path, sizeof(new_tmp_path))) return;
+  Serial.println();
+  Serial.print("Backuping from ");
+  Serial.print(self->newloopedpath.c_str());  
+  Serial.print(" to ");
+  Serial.print(new_tmp_path);
+  self->catalog->copyFileGeneric(self->newloopedpath.c_str(), new_tmp_path);
+}
+
+void RecorderMenuRouter::apply_to_file(){
+  char current_tmp_path[64];
+  if (!self->catalog->get_full_tmp_file_path(current_tmp_path, sizeof(current_tmp_path),max(self->catalog->tmp_index,0))) return;
+  Serial.println();
+  Serial.print("Applying to ");
+  Serial.print(self->newloopedpath.c_str());  
+  Serial.print(" from ");
+  Serial.print(current_tmp_path);
+  self->catalog->move_file(current_tmp_path, self->newloopedpath.c_str());
 }
 
 void RecorderMenuRouter::trimSection(float start_pos, float end_pos) {
-  self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+  self->backup_current();
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
   if (mc.locked_fileing) return;
   FsFile in = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
   if (!in) return;
-  FsFile out = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  char _tmp_path[64];
+  if (!self->catalog->get_new_tmp_name(_tmp_path, sizeof(_tmp_path),max(self->catalog->tmp_index,0))) return;
+  FsFile out = SD.sdfs.open(_tmp_path, O_WRITE | O_CREAT | O_TRUNC);
   if (!out) {
     in.close();
     mc.locked_fileing = 0 ;
@@ -623,11 +658,11 @@ void RecorderMenuRouter::trimSection(float start_pos, float end_pos) {
   out.close();
   in.close();
   mc.locked_fileing = 0 ;
-  self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
+  self->apply_to_file();
 }
 
 void RecorderMenuRouter::normalizeSection(float startPos, float endPos) {
-  self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+  self->backup_current();
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
   if (mc.locked_fileing) return;
   const uint16_t sampleSize = 2;
@@ -635,7 +670,9 @@ void RecorderMenuRouter::normalizeSection(float startPos, float endPos) {
   int16_t buffer[bufferSamples];
   FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
   if (!src) return;
-  FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  char _tmp_path[64];
+  if (!self->catalog->get_new_tmp_name(_tmp_path, sizeof(_tmp_path),max(self->catalog->tmp_index,0))) return;
+  FsFile dst = SD.sdfs.open(_tmp_path, O_WRITE | O_CREAT | O_TRUNC);
   mc.locked_fileing = 1 ;
   uint32_t fileSize = src.size();
   if (startPos < 0.0f) startPos = 0.0f;
@@ -696,8 +733,7 @@ void RecorderMenuRouter::normalizeSection(float startPos, float endPos) {
   src.close();
   dst.close();
   mc.locked_fileing = 0 ;
-  self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
-
+  self->apply_to_file();
 }
 
 void RecorderMenuRouter::playSection(){
@@ -717,12 +753,14 @@ void RecorderMenuRouter::scheddule_wave_rebuild(bool noreturn,bool noreinit){
 }
 
 void RecorderMenuRouter::fadeInSection(float startPos, float endPos) {
-  self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+  self->backup_current();
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
   if (mc.locked_fileing) return;
   FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
   if (!src) return;
-  FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  char _tmp_path[64];
+  if (!self->catalog->get_new_tmp_name(_tmp_path, sizeof(_tmp_path),max(self->catalog->tmp_index,0))) return;
+  FsFile dst = SD.sdfs.open(_tmp_path, O_WRITE | O_CREAT | O_TRUNC);
   mc.locked_fileing = 1 ;
   //const uint16_t sampleSize = 2;
   const uint32_t BUFFER_SAMPLES = 1024;
@@ -756,16 +794,18 @@ void RecorderMenuRouter::fadeInSection(float startPos, float endPos) {
   src.close();
   dst.close();
   mc.locked_fileing = 0 ;
-  self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
+  self->apply_to_file();
 }
 
 void RecorderMenuRouter::fadeOutSection(float startPos, float endPos) {
-  self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+  self->backup_current();
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
   if (mc.locked_fileing) return;
   FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
   if (!src) return;
-  FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  char _tmp_path[64];
+  if (!self->catalog->get_new_tmp_name(_tmp_path, sizeof(_tmp_path),max(self->catalog->tmp_index,0))) return;
+  FsFile dst = SD.sdfs.open(_tmp_path, O_WRITE | O_CREAT | O_TRUNC);
   mc.locked_fileing = 1 ;
   const uint32_t BUFFER_SAMPLES = 1024;
   int16_t buffer[BUFFER_SAMPLES];
@@ -798,7 +838,7 @@ void RecorderMenuRouter::fadeOutSection(float startPos, float endPos) {
   src.close();
   dst.close();
   mc.locked_fileing = 0 ;
-  self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
+  self->apply_to_file();
 }
 
 void RecorderMenuRouter::start_inputting_pitch(){
@@ -817,12 +857,14 @@ void RecorderMenuRouter::start_inputting_pitch(){
 }
 
 void RecorderMenuRouter::deleteSection(float startPos, float endPos){
-  self->catalog->copyFileGeneric(self->newloopedpath.c_str(), self->catalog->get_new_tmp_name().c_str());
+  self->backup_current();
   self->undoables[max(self->catalog->tmp_count-1,0)] = self->catalog->tmp_index;
   if (mc.locked_fileing) return;
   FsFile src = SD.sdfs.open(self->newloopedpath.c_str(), O_READ);
   if (!src) return;
-  FsFile dst = SD.sdfs.open(self->catalog->get_new_tmp_name(false).c_str(), O_WRITE | O_CREAT | O_TRUNC);
+  char _tmp_path[64];
+  if (!self->catalog->get_new_tmp_name(_tmp_path, sizeof(_tmp_path),max(self->catalog->tmp_index,0))) return;
+  FsFile dst = SD.sdfs.open(_tmp_path, O_WRITE | O_CREAT | O_TRUNC);
   mc.locked_fileing = 1 ;
   const uint32_t BUFFER_SIZE = 2048;
   uint8_t buffer[BUFFER_SIZE];
@@ -853,7 +895,7 @@ void RecorderMenuRouter::deleteSection(float startPos, float endPos){
   src.close();
   dst.close();
   mc.locked_fileing = 0 ;
-  self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
+  self->apply_to_file();
 }
 
 void RecorderMenuRouter::edit_record(){
@@ -976,15 +1018,23 @@ void RecorderMenuRouter::redo(){
 
 }
 
-String RecorderMenuRouter::get_current_temp_file(){
-  return (self->catalog->get_full_tmp_file_path(max(self->catalog->tmp_index,0)));
-}
-
 void RecorderMenuRouter::Undo(){
+
   self->catalog->tmp_index = self->undoables[max(self->catalog->tmp_count-1,0)];
-  if (SD.sdfs.exists(self->get_current_temp_file().c_str())){
+  Serial.println();
+  Serial.print(" using undoable from index ");
+  Serial.print(max(self->catalog->tmp_count-1,0));  
+  Serial.print(" currently: ");
+  Serial.print(self->catalog->tmp_index);
+
+
+  char current_tmp_path[64];
+  if (!self->catalog->get_full_tmp_file_path(current_tmp_path, sizeof(current_tmp_path),max(self->catalog->tmp_index,0))) return;
+  if (SD.sdfs.exists(current_tmp_path)){
+      Serial.print(" thus using ( and decrementing tmp_count ) ");
+    Serial.print(current_tmp_path);
     self->catalog->tmp_count--;
-    self->catalog->move_file(self->get_current_temp_file().c_str(), self->newloopedpath.c_str());
+    self->catalog->move_file(current_tmp_path, self->newloopedpath.c_str());
   } else {
     Serial.println(" no bkp yet");
   }
@@ -997,14 +1047,15 @@ void RecorderMenuRouter::clear_temp_files(){
     while (true) {
       FsFile entry = opened_dir.openNextFile();
       if (!entry) break;
-      if (!entry.isDirectory()) {
-        Serial.println();
-
-        Serial.print(" tmp removed = ");
-
-        Serial.print(entry.remove());
-        //entry.remove()
-      }
+      if (entry.isDirectory()) continue;
+      char name[32];
+      entry.getName(name, sizeof(name));
+      char fullpath[96];
+      snprintf(fullpath, sizeof(fullpath), "%s%s", self->catalog->tmp_folder, name);
+      entry.close();
+      if (SD.sdfs.exists(fullpath)) SD.sdfs.remove(fullpath);
+      //this does not work unfortunately
+      //entry.remove()
     }
   }
   self->catalog->tmp_index = 0;

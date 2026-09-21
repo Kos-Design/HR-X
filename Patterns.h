@@ -1,5 +1,5 @@
-#include "Constants.h"
 #pragma once
+#include "Constants.h"
 #include "MenuClasses.h"
 #include "FilesLister.h"
 
@@ -77,7 +77,7 @@ class CCEditor : public SectionHolder {
 
 extern CCEditor _ce;
 
-class PatEditRouter : public SectionHolder {
+class PatEditRouter: public SectionHolder {
     public:
         PatEditRouter();
         int *_length_part;
@@ -93,7 +93,9 @@ class PatEditRouter : public SectionHolder {
         bool visible_tracks[6][PBARS]{};
         bool addinglength = 0;
         bool preview = 0 ;
-        bool paterning = false ;
+        bool paterning = false ;        
+        //uint8_t home_navrange = 1;
+        //uint8_t relative_navlevel = 2 ;
 
         static void homer();
         static void set_editor_to_synth(byte liner);
@@ -198,12 +200,13 @@ class POptionsRouter : public SectionHolder {
 
 extern POptionsRouter _po;
 
-class PatternsMenuRouter : public SectionHolder {
+class PatternsMenuRouter: public SectionHolder {
   public:
         PatternsMenuRouter();
         FilesLister *catalog;
         static constexpr byte sizeofpatternlistlabels = 8;
-
+        //uint8_t home_navrange = 7;
+        //uint8_t relative_navlevel = 1 ;
         static void route_navlevel();
         static void show();
         static void pattern_nav_zero();

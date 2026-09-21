@@ -211,10 +211,10 @@ void LFOMenuRouter::freqbars_panel() {
 
 
 void LFOMenuRouter::dolistLFOparams() {
-          const char* LFOlabels[] = {"Type",  "Level",  "Sync",
-                                                "Freq",  "Offset", "Phase",
-                                                "Synth", "<-  ",   "  ->"};
-          dm.main_panel(LFOlabels, 2);
+          const char* LFOlabels[9] = {"Type",  "Level",  "Sync",
+                                      "Freq",  "Offset", "Phase",
+                                      "Synth", "<-  ",   "  ->"};
+          dm.main_panel(LFOlabels, 2, 9);
 
         }
 
