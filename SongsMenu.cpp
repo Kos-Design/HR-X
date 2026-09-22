@@ -38,7 +38,7 @@ void SongEditorRouter::use_pattern(){
   for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
     if (i < SYNTH_LINERS_COUNT ) {
       if (pp.synth_off_pat[i][tpos].note) {
-        synth_lines[i]->liner_off();
+        synth_lines[i].liner_off();
       }
       if (pp.synth_partition[i][tpos].note) {
       Serial.println(SYNTH_LINERS_COUNT - 1 - i);
@@ -47,7 +47,7 @@ void SongEditorRouter::use_pattern(){
       }
     }
     if (pp.flash_off_pat[i][tpos].note) {
-        flash_lines[i]->liner_off();
+        flash_lines[i].liner_off();
     }
     if (pp.sampler_partition[i][tpos].note) {
       Serial.println(FLASH_LINERS_COUNT - 1 - i);
@@ -103,7 +103,7 @@ void SongEditorRouter::showplayheadprogress() {
         }
 void SongEditorRouter::loadsongpattern() {
   if (ng.patternonsong[songplayhead] > 0) {
-    _pt.catalog->displayable_offset = ng.patternonsong[songplayhead] - 1  ;
+    _pt.catalog.displayable_offset = ng.patternonsong[songplayhead] - 1  ;
     _pt.parsepattern();
   } else {
     stopdasong();
@@ -153,7 +153,7 @@ void SongEditorRouter::showsongcell() {
           if (mc.navlevel == self->relative_navlevel) {
             if (lasongcell > 0) {
               char filename[64];
-              if (!_pt.catalog->get_file_name(filename, sizeof(filename),_pt.catalog->files_indexed[(lasongcell - 1)])) return;
+              if (!_pt.catalog.get_file_name(filename, sizeof(filename),_pt.catalog.files_indexed[(lasongcell - 1)])) return;
               dm.canvastitle.print(filename);
             } else {
               dm.canvastitle.print("Empty");
@@ -184,13 +184,13 @@ void SongEditorRouter::showpatonSongGrid() {
         }
 
 void SongEditorRouter::selectpatterninsong() {
-          mc.navrange = _pt.catalog->files_counter;
+          mc.navrange = _pt.catalog.files_counter;
           dm.canvastitle.setCursor(0, 0);
           dm.canvastitle.setTextSize(1);
 
           if (mc.sublevels[self->relative_navlevel + 1] > 0) {
             char filename[64];
-            if (!_pt.catalog->get_file_name(filename, sizeof(filename),_pt.catalog->files_indexed[(mc.sublevels[self->relative_navlevel + 1] - 1)])) return;
+            if (!_pt.catalog.get_file_name(filename, sizeof(filename),_pt.catalog.files_indexed[(mc.sublevels[self->relative_navlevel + 1] - 1)])) return;
             dm.canvastitle.print(filename);
           } else {
             dm.canvastitle.print("Empty");
@@ -213,8 +213,8 @@ void SongEditorRouter::update_song_player() {
 //TODO: should play on liner 6 or inverse from max
 void SongEditorRouter::play_synth_line(int linei) {
           if (pp.synth_partition[linei][mc.tickposition].note != 0) {
-            if (!synth_lines[linei]->activated) {
-              synth_lines[linei]->liner_on(pp.synth_partition[linei][mc.tickposition].note, pp.synth_partition[linei][mc.tickposition].velocity);
+            if (!synth_lines[linei].activated) {
+              synth_lines[linei].liner_on(pp.synth_partition[linei][mc.tickposition].note, pp.synth_partition[linei][mc.tickposition].velocity);
             }
           }
         }
@@ -321,14 +321,14 @@ void SongEditorRouter::Songmodepanel() {
 
 SongMenuRouter* SongMenuRouter::self = nullptr;
 
-SongMenuRouter::SongMenuRouter() {
-          self = this;
-          self->home_navrange=sg_labels_count-1;
-          self->catalog = new FilesLister("SONGS/","SONG#",".TXT",draw_song_menu,self->home_navrange);
-          self->relative_navlevel=1;
-          self->max_navlevel=5;
-          self->sublevels_address={3,0,0};
-        }
+SongMenuRouter::SongMenuRouter() : catalog("SONGS/","SONG#",".TXT",draw_song_menu,sg_labels_count-1) {
+  self = this;
+  self->home_navrange=sg_labels_count-1;
+  self->relative_navlevel=1;
+  self->max_navlevel=5;
+  self->sublevels_address={3,0,0};
+}
+
 void SongMenuRouter::show() {
           _route_nav[mc.navlevel-1]();
         }
@@ -338,7 +338,7 @@ void SongMenuRouter::route_navlevel() {
         }
 
 void SongMenuRouter::lv1_wrapper(void (*func)()) {
-  self->catalog->nav_one(1,1);
+  self->catalog.nav_one(1,1);
   if (mc.navlevel >= 3) {
     func();
     dm.returntonav(1, self->home_navrange,mc.sublevels[1]);
@@ -353,16 +353,16 @@ void SongMenuRouter::writedasong() {
   if (mc.locked_fileing)
     return;
   mc.locked_fileing = 1 ;
-  self->catalog->refresh_files_names();
+  self->catalog.refresh_files_names();
   FsFile song_filer ;
-  if (self->catalog->new_file_mode) {
+  if (self->catalog.new_file_mode) {
     char new_file_name[64];
-    if (!self->catalog->get_new_file_name(new_file_name, sizeof(new_file_name))) return;
+    if (!self->catalog.get_new_file_name(new_file_name, sizeof(new_file_name))) return;
     song_filer = SD.sdfs.open(new_file_name, O_WRITE | O_CREAT | O_TRUNC);
   } else {
     char current_file_path[64];
-    if (!self->catalog->get_current_file_path(current_file_path, sizeof(current_file_path))) return;
-    self->catalog->deleteFile();
+    if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))) return;
+    self->catalog.deleteFile();
     song_filer = SD.sdfs.open(current_file_path, O_WRITE | O_CREAT | O_TRUNC);
   }
   if (song_filer) {
@@ -370,7 +370,7 @@ void SongMenuRouter::writedasong() {
     song_filer.close();
   }
   song_filer.close();
-  self->catalog->list_files();
+  self->catalog.list_files();
   mc.locked_fileing = 0;
 }
 
@@ -378,9 +378,9 @@ void SongMenuRouter::parseSong(){
   if (mc.locked_fileing)
     return;
   mc.locked_fileing = 1 ;
-  self->catalog->refresh_files_names();
+  self->catalog.refresh_files_names();
   char current_file_path[64];
-  if (!self->catalog->get_current_file_path(current_file_path, sizeof(current_file_path))) return;
+  if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))) return;
   FsFile song_filer = SD.sdfs.open(current_file_path, O_READ);
   if (song_filer) {
     song_filer.read((uint8_t*)&ng, sizeof(ng));
@@ -395,7 +395,7 @@ void SongMenuRouter::load_song() {
 
 void SongMenuRouter::song_nav_zero(){
   mc.navrange = self->home_navrange;
-  self->catalog->nav_zero();
+  self->catalog.nav_zero();
 }
 
 void SongMenuRouter::initializeSong() {
@@ -419,7 +419,7 @@ void SongMenuRouter::duplicate_song(){
 }
 
 void SongMenuRouter::copySong() {
-  self->catalog->copyFile();
+  self->catalog.copyFile();
 }
 
 void SongMenuRouter::remove_song(){
@@ -427,7 +427,7 @@ void SongMenuRouter::remove_song(){
 }
 
 void SongMenuRouter::deleteSong() {
-  self->catalog->deleteFile();
+  self->catalog.deleteFile();
 }
 
 

@@ -1,6 +1,5 @@
 #include "Patterns.h"
-//#include <stdint.h>
-//#include <cstring>
+#include "Constants.h"
 //#include "core_pins.h"
 #include "Voices.h"
 #include "Triggers.h"
@@ -298,9 +297,8 @@ void PatEditRouter::homer(){
   drawPatternRow();
   dolistpatternlineblocks();
   dm.setCursor(0, 0);
-  String _t_type[TK_TYPES] = {"Synth","Sampler"};
+  const char _t_type[TK_TYPES][16] = {"Synth","Sampler"};
   dm.print(_t_type[self->track_type]);
-
 }
 
 void PatEditRouter::set_editor_to_synth(byte liner = self->local_line){
@@ -460,7 +458,7 @@ void PatEditRouter::show_track_header(){
           self->paterning = false ;
 
           dm.clearDisplay();
-          String head_title[2]={"Synth","Flash"};
+          const char head_title[TK_TYPES][16]={"Synth","Flash"};
           dm.canvastitle.setCursor(0, 0);
           dm.canvastitle.setTextSize(1);
           dm.canvastitle.print(head_title[self->track_type]);
@@ -486,10 +484,8 @@ void PatEditRouter::note_selector() {
 void PatEditRouter::play_cell_preview(){
   if (self->track_type) {
     self->preview = 1 ;
-    String playable_file = (String)bb.Flashsamplename[(mc.sublevels[self->relative_navlevel + 2]-4)%127];
-    Serial.println(playable_file);
-    if (!SerialFlash.exists(playable_file.c_str())) return;
-    FlashRaw.play(playable_file.c_str());
+    if (!SerialFlash.exists(bb.Flashsamplename[(mc.sublevels[self->relative_navlevel + 2]-4)%127])) return;
+    FlashRaw.play(bb.Flashsamplename[(mc.sublevels[self->relative_navlevel + 2]-4)%127]);
   }
   else {
     if (!Tocker.one_shot){
@@ -1301,7 +1297,7 @@ void POptionsRouter::showShifterdisplays() {
 
 void POptionsRouter::showlestargetdisplays() {
   mc.navrange = 2;
-  const char* target_lbl[] = {"Synth","Sampler","CCs"};
+  const char* target_lbl[3] = {"Synth","Sampler","CCs"};
   int ipos = mc.sublevels[3];
   //Serial.println((int)*_targets[ipos]);
   if (mc.navlevel > 3) {
@@ -1332,11 +1328,11 @@ void POptionsRouter::optionspatterndisplays() {
 
 extern POptionsRouter _po;
 
-PatternsMenuRouter::PatternsMenuRouter() {
+PatternsMenuRouter::PatternsMenuRouter() : catalog("PATTERNS/","PATTERN",".TXT",doPatternsmenu,sizeofpatternlistlabels-1) {
   self = this;
   self->home_navrange=sizeofpatternlistlabels-1;
-  self->catalog = new FilesLister("PATTERNS/","PATTERN",".TXT",doPatternsmenu,self->home_navrange);
-  self->catalog->left_margin = 73;
+
+  self->catalog.left_margin = 73;
   self->relative_navlevel=1;
 }
 
@@ -1351,7 +1347,7 @@ void PatternsMenuRouter::show() {
 void PatternsMenuRouter::pattern_nav_zero(){
           _pe.paterning = false ;
           mc.navrange = self->home_navrange;
-          self->catalog->nav_zero();
+          self->catalog.nav_zero();
         }
 
 void PatternsMenuRouter::remove_pattern(){
@@ -1376,7 +1372,7 @@ void PatternsMenuRouter::clear_pattern(){
 }
 
 void PatternsMenuRouter::lv1_wrapper(void (*func)()) {
-          self->catalog->nav_one(1,1);
+          self->catalog.nav_one(1,1);
 
           if (mc.navlevel >= 3) {
             func();
@@ -1388,9 +1384,9 @@ void PatternsMenuRouter::parsepattern() {
   if (mc.locked_fileing)
     return;
   mc.locked_fileing = 1 ;
-  self->catalog->refresh_files_names();
+  self->catalog.refresh_files_names();
   char current_file_path[64];
-  if (!self->catalog->get_current_file_path(current_file_path, sizeof(current_file_path))) return;
+  if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))) return;
   FsFile lepatternfile = SD.sdfs.open(current_file_path, O_READ);
   if (lepatternfile) {
     lepatternfile.read((uint8_t*)&pp, sizeof(pp));
@@ -1408,27 +1404,27 @@ void PatternsMenuRouter::doPatternsmenu() {
 }
 
 void PatternsMenuRouter::deletepattern() {
-  self->catalog->deleteFile();
+  self->catalog.deleteFile();
 }
 
 void PatternsMenuRouter::copypattern() {
-  self->catalog->copyFile();
+  self->catalog.copyFile();
 }
 
 void PatternsMenuRouter::writelemidi() {
   if (mc.locked_fileing)
     return;
   mc.locked_fileing = 1 ;
-  self->catalog->refresh_files_names();
+  self->catalog.refresh_files_names();
   FsFile pat_filer ;
-  if (self->catalog->new_file_mode) {
+  if (self->catalog.new_file_mode) {
     char new_file_name[64];
-    if (!self->catalog->get_new_file_name(new_file_name, sizeof(new_file_name))) return;
+    if (!self->catalog.get_new_file_name(new_file_name, sizeof(new_file_name))) return;
     pat_filer = SD.sdfs.open(new_file_name, O_WRITE | O_CREAT | O_TRUNC);
   } else {
     char current_file_path[64];
-    if (!self->catalog->get_current_file_path(current_file_path, sizeof(current_file_path), 0)) return;
-    self->catalog->deleteFile();
+    if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path), 0)) return;
+    self->catalog.deleteFile();
     pat_filer = SD.sdfs.open(current_file_path, O_WRITE | O_CREAT | O_TRUNC);
   }
   if (pat_filer) {
@@ -1437,7 +1433,7 @@ void PatternsMenuRouter::writelemidi() {
 
   }
   pat_filer.close();
-  self->catalog->list_files();
+  self->catalog.list_files();
   mc.locked_fileing = 0;
 }
 

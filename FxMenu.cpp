@@ -84,18 +84,17 @@ void FxMenuRouter::dolistmainfxlines() {
         char mainfxlineslist[FXS_COUNT][12] = {"FX Line1", "FX Line2", "FX Line3"};
         byte startx = 5;
         byte starty = 16;
-        String textin;
-        if (gg.fx[mc.sublevels[1]%FXS_COUNT].plugged_fx != (self->mainmenufxlistsize - 1)) {
-          textin = (String)self->mainmenufxlist[gg.fx[mc.sublevels[1]%FXS_COUNT].plugged_fx];
-        } else {
-          textin = (String)mainfxlineslist[mc.sublevels[1]%FXS_COUNT];
-        }
         dm.clear_buffs_2_1();
-        dm.canvastitle.println(textin);
+
+        if (gg.fx[mc.sublevels[1]%FXS_COUNT].plugged_fx != (self->mainmenufxlistsize - 1)) {
+          dm.canvastitle.println(self->mainmenufxlist[gg.fx[mc.sublevels[1]%FXS_COUNT].plugged_fx]);
+        } else {
+          dm.canvastitle.println(mainfxlineslist[mc.sublevels[1]%FXS_COUNT]);
+        }
         for (int i = 0; i < FXS_COUNT - 1 - mc.sublevels[1]; i++) {
           dm.canvasBIG.setCursor(startx, starty + ((i)*10));
           if (gg.fx[mc.sublevels[1]%FXS_COUNT + 1 + i].plugged_fx != self->mainmenufxlistsize-1) {
-            dm.canvasBIG.println((String)self->mainmenufxlist[gg.fx[mc.sublevels[1]%FXS_COUNT + 1 + i].plugged_fx]);
+            dm.canvasBIG.println(self->mainmenufxlist[gg.fx[mc.sublevels[1]%FXS_COUNT + 1 + i].plugged_fx]);
           } else {
             dm.canvasBIG.println(mainfxlineslist[mc.sublevels[1]%FXS_COUNT + 1 + i]);
           }
@@ -103,7 +102,7 @@ void FxMenuRouter::dolistmainfxlines() {
         for (int i = 0; i < mc.sublevels[1]%FXS_COUNT; i++) {
           dm.canvasBIG.setCursor(startx, (10 * (FXS_COUNT - (mc.sublevels[1]%FXS_COUNT)) + 6 + ((i)*10)));
           if (gg.fx[i].plugged_fx != (self->mainmenufxlistsize - 1)) {
-            dm.canvasBIG.println((String)self->mainmenufxlist[gg.fx[i].plugged_fx]);
+            dm.canvasBIG.println(self->mainmenufxlist[gg.fx[i].plugged_fx]);
           } else {
             dm.canvasBIG.println(mainfxlineslist[i]);
           }

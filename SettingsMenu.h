@@ -86,8 +86,6 @@ class SettingsMenuRouter : public SectionHolder {
           "But 08", "But 09", "But 10", "But 11", "But 12", "But 13", "But 14",
           "But 15", "But 16", "But 17", "But 18", "Cfd",    "Jk X",   "Jk Y"};
 
-        char ch_lbl_buffer[4]{};
-
       static void show();
       static void apply_alt_ctl();
       static void set_alternative_rota();

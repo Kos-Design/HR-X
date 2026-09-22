@@ -2,7 +2,7 @@
 
 #include "MenuClasses.h"
 
-extern const CcCalls ctl[] ;
+extern const CcCalls ctl[128] ;
 extern const uint16_t CtlCount;
 
 void fairly_often();

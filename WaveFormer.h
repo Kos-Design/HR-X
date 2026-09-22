@@ -8,7 +8,7 @@ class WaveformsMenuRouter : public SectionHolder {
 
         WaveformsMenuRouter();
 
-        FilesLister *catalog;
+        FilesLister catalog;
         static constexpr uint8_t fake_gauss_kernel[17] = {
               0,   2,   5,  11,
             22,  40,  66, 100,

@@ -99,8 +99,8 @@ void Arpegiator::initiatearpegesynthliner(byte start_voice, MidiEventer msg) {
   if (mc.patrecord) {
     md.recordmidinotes(free_line, msg.channel, msg.note, msg.velocity);
   }
-  synth_lines[free_line]->length_in_arp = gg.arpeglengh + 2;
-  synth_lines[free_line]->liner_on(msg.note, msg.velocity);
+  synth_lines[free_line].length_in_arp = gg.arpeglengh + 2;
+  synth_lines[free_line].liner_on(msg.note, msg.velocity);
 }
 
 bool Arpegiator::same_3_notes(){
@@ -412,8 +412,8 @@ void TriggerMessenger::MaControlChange(byte channel, byte control, byte value) {
 }
 void TriggerMessenger::stopallnotes() {
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-    if (synth_lines[i]->note) {
-      self->MaNoteOff(gg.synthmidichannel, synth_lines[i]->note, 0);
+    if (synth_lines[i].note) {
+      self->MaNoteOff(gg.synthmidichannel, synth_lines[i].note, 0);
     }
   }
 }
@@ -528,17 +528,17 @@ void TriggerMessenger::MaProgramchange(byte channel, byte data1) {
   }
   /*
   int leprogchanged = (int)(data1);
-  if (leprogchanged < _ps.catalog->files_counter) {
-    _ps.catalog->displayable_offset = leprogchanged ;
-    _ps.catalog->refresh_files_names();
+  if (leprogchanged < _ps.catalog.files_counter) {
+    _ps.catalog.displayable_offset = leprogchanged ;
+    _ps.catalog.refresh_files_names();
     _ps.read_preset();
   }*/
 }
 
 void TriggerMessenger::shut_used_flash_notes(byte data1) {
   for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
-    if (data1 == flash_lines[i]->note) {
-      flash_lines[i]->liner_off();
+    if (data1 == flash_lines[i].note) {
+      flash_lines[i].liner_off();
       if (mc.patrecord) md.record_sampler_notesOff(i, gg.samplermidichannel, data1, 0);
     }
   }
@@ -546,8 +546,8 @@ void TriggerMessenger::shut_used_flash_notes(byte data1) {
 
 void TriggerMessenger::shut_used_synth_notes(byte data1) {
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
-    if (data1 == synth_lines[i]->note) {
-      synth_lines[i]->liner_off();
+    if (data1 == synth_lines[i].note) {
+      synth_lines[i].liner_off();
       if (mc.patrecord) md.record_synth_notesOff(i, gg.synthmidichannel, data1, 0);
     }
   }
@@ -712,11 +712,11 @@ void TriggerMessenger::initiateasynthliner(MidiEventer msg, bool from_partition)
     md.recordmidinotes(free_line, gg.synthmidichannel, msg.note, msg.velocity);
   }
   if (gg.arpegiatorOn)  {
-    synth_lines[free_line]->arp_starter = 1;
-    ap.synth_arpegiator_ticker(synth_lines[free_line]->l_index);
+    synth_lines[free_line].arp_starter = 1;
+    ap.synth_arpegiator_ticker(synth_lines[free_line].l_index);
   }
 
-  synth_lines[free_line]->liner_on(msg.note, msg.velocity);
+  synth_lines[free_line].liner_on(msg.note, msg.velocity);
 }
 
 void TriggerMessenger::initiateasamplerliner(byte data1, byte data2, bool from_partition) {
@@ -725,7 +725,7 @@ void TriggerMessenger::initiateasamplerliner(byte data1, byte data2, bool from_p
     if (mc.patrecord && !from_partition) {
       md.recordmidinotes2(free_line, gg.samplermidichannel, data1, data2);
     }
-    flash_lines[free_line]->liner_on(data1, data2);
+    flash_lines[free_line].liner_on(data1, data2);
   }
 }
 

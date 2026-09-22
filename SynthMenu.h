@@ -91,9 +91,9 @@ class Mp3PlayerRouter : public SectionHolder {
         static void mp3_player_panel();
         static constexpr void (*_mp3_actions[9])() = {&mp3_player_continous,&mp3_player_previous,&mp3_player_pause,&mp3_player_play,
                                                       &mp3_player_next,&mp3_player_shuffle,&mp3_loop_setter,&mp3_player_stop,&delete_mp3};
-        FilesLister *catalog;
-        String mp3_name = "MP3/Addict.mp3";
-        String mp3_dir = "MP3/";
+        //unused yet
+        FilesLister catalog;
+        char mp3_name[36] = "MP3/Addict.mp3";
         uint16_t mp3_count = 0;
         uint16_t next_mp3 = 0 ;
         byte mp3_ext = 0 ;
@@ -101,7 +101,7 @@ class Mp3PlayerRouter : public SectionHolder {
         bool mp3_paused = 0 ;
         bool mp3_shuffle = 0 ;
         bool mp3_continue = 0 ;                                              
-        uint16_t mp3_idx_list[];
+        uint16_t mp3_idx_list[1024];
   private:
       static Mp3PlayerRouter* self;
 };

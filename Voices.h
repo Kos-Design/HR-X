@@ -45,7 +45,7 @@ class SynthLiner {
 
 };
 
-extern SynthLiner *synth_lines[SYNTH_LINERS_COUNT];
+extern SynthLiner synth_lines[SYNTH_LINERS_COUNT];
 
 class FlashLiner {
   public:
@@ -59,7 +59,7 @@ class FlashLiner {
     void liner_off();
 };
 
-extern FlashLiner *flash_lines[FLASH_LINERS_COUNT];
+extern FlashLiner flash_lines[FLASH_LINERS_COUNT];
 
 class ActiveLinesRegister {
     public:
@@ -68,8 +68,6 @@ class ActiveLinesRegister {
 
       void add_active_synth(SynthLiner *snth);
       void remove_inactive_synth(SynthLiner *snth);
-      void init_synth_liners();
-      void init_flash_liners();
       SynthLiner *active_synths[SYNTH_LINERS_COUNT];
 };
 

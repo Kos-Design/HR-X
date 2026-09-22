@@ -4,10 +4,9 @@
 
 SamplerMenuRouter* SamplerMenuRouter::self = nullptr;
 
-SamplerMenuRouter::SamplerMenuRouter() {
+SamplerMenuRouter::SamplerMenuRouter() : catalog("SOUNDSET/","SAMPLE#",".RAW",show,SP_LABELS_COUNT-1) {
                     self = this ;
                     self->home_navrange=SP_LABELS_COUNT-1;
-                    self->catalog = new FilesLister("SOUNDSET/","SAMPLE#",".RAW",show,self->home_navrange);
                     self->relative_navlevel=1;
                     self->max_navlevel=5;
                     self->sublevels_address={7,0,0};
@@ -253,7 +252,7 @@ bool SamplerMenuRouter::get_new_dir_name(const char *base_path_dir, char *buffer
 
 void SamplerMenuRouter::domkdir() {
   if (!self->get_new_dir_name("SOUNDSET/MABANK", self->newmkdirpath,sizeof(self->newmkdirpath))) return;
-  self->catalog->make_sub_folder("SOUNDSET", self->newmkdirpath);
+  self->catalog.make_sub_folder("SOUNDSET", self->newmkdirpath);
   copyflashtoSD();
   dosoundlist();
 }
@@ -940,7 +939,6 @@ void SamplerMenuRouter::loadSelectedSamples() {
           listFlashfiles();
         }
 
-
 void SamplerMenuRouter::loadSampledSound() {
           unsigned long lengthz;
           FsFile currentsample;
@@ -949,7 +947,7 @@ void SamplerMenuRouter::loadSampledSound() {
           if (!SerialFlash.begin(self->FlashChipSelect)) {
             dm.pseudoconsole("Unable to access SPI Flash chip");
           }
-          currentsample = SD.sdfs.open(_rd.newloopedpath.c_str());
+          currentsample = SD.sdfs.open(_rd.newloopedpath);
           char currentflashname[12];
           currentsample.getName(currentflashname, 12);
           lengthz = currentsample.size();

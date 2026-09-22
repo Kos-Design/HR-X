@@ -41,7 +41,7 @@ class AdsrMenuRouter : public SectionHolder {
     static void resync_tmp();
     static void SetADSR();
     static void GlobalADSR();
-    static void print_adsr_echo(String titre, int niveau);
+    static void print_adsr_echo(const char* titre, int niveau);
     int32_t tmp_adsrlevels[6] = {0, 5, 0, 100, 0, 50};
 
   private:

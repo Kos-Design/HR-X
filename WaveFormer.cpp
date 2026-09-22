@@ -5,16 +5,13 @@
 
 WaveformsMenuRouter* WaveformsMenuRouter::self = nullptr;
 
-WaveformsMenuRouter::WaveformsMenuRouter() {
+WaveformsMenuRouter::WaveformsMenuRouter() : catalog("WAVEFORM/","WFORM-",".TXT",wforms_menu,7) {
   self = this;
   self->home_navrange=self->wf_labels_count-1;
-  self->catalog = new FilesLister("WAVEFORM/","WFORM-",".TXT",wforms_menu,self->home_navrange);
   self->relative_navlevel=1;
   self->max_navlevel=5;
   self->sublevels_address={8,0,0};
 }
-
-
 
 void WaveformsMenuRouter::show() {
   _route_nav[mc.navlevel-1]();
@@ -23,16 +20,11 @@ void WaveformsMenuRouter::show() {
 void WaveformsMenuRouter::waveforms_nav_zero(){
   mc.navrange = self->home_navrange;
   mc.waveforming = 0 ;
-  self->catalog->nav_zero();
+  self->catalog.nav_zero();
 }
 
 void WaveformsMenuRouter::set_tracer(byte control,byte value){
-  if (control == gg.waveform_tracers.trace) {
-
-    self->trace_waveform = !self->trace_waveform;
-      Serial.println(self->trace_waveform );
-
-  }
+  if (control == gg.waveform_tracers.trace) self->trace_waveform = !self->trace_waveform;
   if (self->trace_waveform){
     if (control == gg.waveform_tracers.y_poser ) {
       Serial.println("ysett");
@@ -205,14 +197,14 @@ void WaveformsMenuRouter::writewaveform() {
     return;
   mc.locked_fileing = 1 ;
   FsFile waveform_file ;
-  if (self->catalog->new_file_mode) {
+  if (self->catalog.new_file_mode) {
     char new_file_name[64];
-    if (!self->catalog->get_new_file_name(new_file_name, sizeof(new_file_name))) return;
+    if (!self->catalog.get_new_file_name(new_file_name, sizeof(new_file_name))) return;
     waveform_file = SD.sdfs.open(new_file_name, O_WRITE | O_CREAT | O_TRUNC);
   } else {
     char current_file_path[64];
-    if (!self->catalog->get_current_file_path(current_file_path, sizeof(current_file_path))) return;
-    self->catalog->deleteFile();
+    if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))) return;
+    self->catalog.deleteFile();
     waveform_file = SD.sdfs.open(current_file_path, O_WRITE | O_CREAT | O_TRUNC);
   }
   if (waveform_file) {
@@ -220,16 +212,16 @@ void WaveformsMenuRouter::writewaveform() {
     waveform_file.close();
   }
   waveform_file.close();
-  self->catalog->list_files();
+  self->catalog.list_files();
   mc.locked_fileing = 0 ;
 }
 
 void WaveformsMenuRouter::copywaveform() {
-  self->catalog->copyFile();
+  self->catalog.copyFile();
 }
 
 void WaveformsMenuRouter::deletewaveform() {
-  self->catalog->deleteFile();
+  self->catalog.deleteFile();
 }
 
 void WaveformsMenuRouter::parsewaveformfile() {
@@ -237,7 +229,7 @@ void WaveformsMenuRouter::parsewaveformfile() {
     return;
   mc.locked_fileing = 1 ;
   char current_file_path[64];
-  if (!self->catalog->get_current_file_path(current_file_path, sizeof(current_file_path))) return;
+  if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))) return;
   FsFile target_waveform = SD.sdfs.open(current_file_path, O_READ);
   target_waveform.read((byte *)gg.arbitrary_waveforms, sizeof(gg.arbitrary_waveforms));
   target_waveform.close();
@@ -265,7 +257,7 @@ void WaveformsMenuRouter::save_wform(){
 }
 
 void WaveformsMenuRouter::lv1_wrapper(void (*func)()) {
-  self->catalog->nav_one(0,1);
+  self->catalog.nav_one(0,1);
   if (mc.navlevel >= 3) {
     func();
     dm.returntonav(1, self->wf_labels_count - 1,mc.sublevels[1]);

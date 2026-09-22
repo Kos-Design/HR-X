@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include "Constants.h"
 class Adafruit_Keypad;
 
 struct PadResult {
@@ -37,7 +38,7 @@ public:
                                {17, 18, 19, 20, 21,  22}
                                };
   //array should be the same size as ALL_BUTTONS
-  static constexpr int potsboards[] = {
+  static constexpr int potsboards[ALL_BUTTONS] = {
     2,  1,  9,  5,  4,  3,  8,  7,  6,  14, 13, 11, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 0,  12, 10};

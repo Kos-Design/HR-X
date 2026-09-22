@@ -62,7 +62,7 @@ class SongMenuRouter : public SectionHolder {
         SongMenuRouter();
         static constexpr uint8_t sg_labels_count = 8;
 
-        FilesLister *catalog;
+        FilesLister catalog;
         int x_ = 0 ;
         int t_ = 0 ;
         static void show();

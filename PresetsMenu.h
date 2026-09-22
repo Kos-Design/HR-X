@@ -5,7 +5,7 @@
 class PresetsMenuRouter: public SectionHolder {
     public:
         PresetsMenuRouter();
-        FilesLister *catalog;
+        FilesLister catalog;
         static constexpr byte ps_labels_count = 5;
         static void route_navlevel();
         static void presets_nav_zero();

@@ -162,7 +162,7 @@ void AdsrMenuRouter::GlobalADSR() {
   ApplyADSR();
 }
 
-void AdsrMenuRouter::print_adsr_echo(String titre, int niveau){
+void AdsrMenuRouter::print_adsr_echo(const char* titre, int niveau){
   dm.canvastitle.setTextSize(1);
   dm.canvastitle.setCursor(0, 0);
   dm.canvastitle.fillScreen(SSD1306_BLACK);

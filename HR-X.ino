@@ -25,9 +25,32 @@ USBHub hub3(myusb);
 MIDIDevice midi1(myusb);
 MIDIDevice midi2(myusb);
 MIDIDevice midi3(myusb);
-
-FlashLiner *flash_lines[FLASH_LINERS_COUNT] = {nullptr};
-SynthLiner *synth_lines[SYNTH_LINERS_COUNT] = {nullptr};
+FlashLiner flash_lines[FLASH_LINERS_COUNT] = {
+    FlashLiner(0),
+    FlashLiner(1),
+    FlashLiner(2),
+    FlashLiner(3),
+    FlashLiner(4),
+    FlashLiner(5),
+    FlashLiner(6),
+    FlashLiner(7),
+    FlashLiner(8),
+    FlashLiner(9),
+    FlashLiner(10),
+    FlashLiner(11),
+    FlashLiner(12),
+    FlashLiner(13),
+    FlashLiner(14),
+    FlashLiner(15)
+};
+SynthLiner synth_lines[SYNTH_LINERS_COUNT] = {
+  SynthLiner(0),
+  SynthLiner(1),
+  SynthLiner(2),
+  SynthLiner(3),
+  SynthLiner(4),
+  SynthLiner(5)
+};
 LiveState mc;
 EXTMEM Preset gg;
 AdsrMenuRouter _ad;
@@ -38,14 +61,13 @@ Arpegiator ap;
 MidiRecorder md;
 VirtualKnobs _vk;
 MidiMenuRouter _mr;
-SettingsMenuRouter _st;
 
 PresetsMenuRouter _ps;
 EXTMEM Pattern pp ;
 LFOMenuRouter _lf;
 GlideMenuRouter _gd;
 Filter303MenuRouter _ft;
-Mp3PlayerRouter _mp;
+EXTMEM Mp3PlayerRouter _mp;
 SynthMenuRouter _sn;
 KnobAssigner _ka;
 RecorderMenuRouter _rd;
@@ -66,6 +88,7 @@ PatternsMenuRouter _pt;
 MasterClock Tocker;
 DisplayConsoler consoler;
 Song ng;
+SettingsMenuRouter _st;
 
 StereoDualFilter stereoWidth;
 

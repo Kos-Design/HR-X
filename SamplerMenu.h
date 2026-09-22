@@ -105,7 +105,7 @@ class SamplerMenuRouter : public SectionHolder {
         static constexpr void (*_route_nav[7])() = {&sampler_nav_zero, &sampler_nav_one, &sampler_nav_two,
                                                     &sampler_nav_two, &sampler_nav_two,&sampler_nav_two, &sampler_nav_two};
 
-        FilesLister *catalog;
+        FilesLister catalog;
         char newmkdirpath[32] = "SOUNDSET/MABANK01" ;
         const byte FlashChipSelect = 6;
         char samplefoldersregistered[99][SP_NAME_MAX]{};

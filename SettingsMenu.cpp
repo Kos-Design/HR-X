@@ -271,7 +271,7 @@ void SettingsMenuRouter::OnBoardVpanelAction() {
 void SettingsMenuRouter::OnBoardVpanelSelector() {
 
           int selecta = mc.sublevels[2];
-          if (mc.navlevel == 2) {
+          if (mc.navlevel == 2 && mc.sublevels[1] == 3 && mc.sublevels[0] == 5) {
             mc.navrange = ALL_BUTTONS - 1;
             mc.sublevels[3] = gg.pot_assignements[mc.sublevels[2]];
           }
@@ -310,8 +310,9 @@ void SettingsMenuRouter::OnBoardVpanelSelector() {
 
           dm.canvasBIG.setCursor(8, 24);
           // dm.canvasBIG.setTextSize(1);
-          sprintf(self->ch_lbl_buffer, "%02d", gg.but_channel[mc.sublevels[2]]);
-          dm.canvasBIG.print(self->ch_lbl_buffer);
+          char ch_lbl_buffer[4];
+          sprintf(ch_lbl_buffer, "%02d", gg.but_channel[mc.sublevels[2]]);
+          dm.canvasBIG.print(ch_lbl_buffer);
 
           if (mc.navlevel == 3) {
             mc.sublevels[4] = gg.pot_assignements[mc.sublevels[2]];

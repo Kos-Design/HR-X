@@ -591,15 +591,15 @@ void setupSD() {
   consoler.println((char *)"Scanning Samples");
   _sp.dosoundlist();
   consoler.println((char *)"Scanning Presets");
-  _ps.catalog->list_files();
+  _ps.catalog.list_files();
   consoler.println((char *)"Scanning Patterns");
-  _pt.catalog->list_files();
+  _pt.catalog.list_files();
   consoler.println((char *)"Scanning Waveforms");
-  _wf.catalog->list_files();
+  _wf.catalog.list_files();
   consoler.println((char *)"Scanning Songs");
-  _sg.catalog->list_files();
+  _sg.catalog.list_files();
     consoler.println((char *)"Scanning Records");
-  _rd.catalog->list_files();
+  _rd.catalog.list_files();
   consoler.println((char *)"Scanning MP3s");
   _mp.count_mp3s();
 }
@@ -625,8 +625,6 @@ void setup() {
     _fx.unpluglfoonfilterz(i);
   }
   delay(50);
-  _rg.init_synth_liners();
-  _rg.init_flash_liners();
   AudioInterrupts();
   initextmems();
   Serial.begin(9600);
@@ -1161,20 +1159,20 @@ void AudioInVolume_ctl(byte cc_value){
 }
 
 void SaveToNewPattern_Trigger_ctl(byte cc_value){
-  bool bkp = _pt.catalog->new_file_mode;
-  _pt.catalog->new_file_mode = 1 ;
+  bool bkp = _pt.catalog.new_file_mode;
+  _pt.catalog.new_file_mode = 1 ;
   _pt.writelemidi();
-  _pt.catalog->new_file_mode = bkp ;
+  _pt.catalog.new_file_mode = bkp ;
 }
 
 void LoadNextPattern_Trigger_ctl(byte cc_value){
-  _pt.catalog->displayable_offset = (_pt.catalog->displayable_offset + 1 ) % _pt.catalog->files_counter ;
+  _pt.catalog.displayable_offset = (_pt.catalog.displayable_offset + 1 ) % _pt.catalog.files_counter ;
   _pt.parsepattern();
 }
 
 void LoadPreviousPattern_Trigger_ctl(byte cc_value){
-  if (_pt.catalog->displayable_offset - 1 < 0) _pt.catalog->displayable_offset = max(0,_pt.catalog->files_counter - 1) ;
-  else _pt.catalog->displayable_offset = _pt.catalog->displayable_offset - 1;
+  if (_pt.catalog.displayable_offset - 1 < 0) _pt.catalog.displayable_offset = max(0,_pt.catalog.files_counter - 1) ;
+  else _pt.catalog.displayable_offset = _pt.catalog.displayable_offset - 1;
   _pt.parsepattern();
 }
 
@@ -1210,8 +1208,8 @@ void StopRecording_Trigger_ctl(byte cc_value){
 }
 
 void LoadFirstPreset_Toggle_ctl(byte cc_value){
-  _ps.catalog->displayable_offset = 0 ;
-  _ps.catalog->refresh_files_names();
+  _ps.catalog.displayable_offset = 0 ;
+  _ps.catalog.refresh_files_names();
   _ps.read_preset();
 }
 
@@ -1384,7 +1382,7 @@ void eq_display_Toggle_ctl(byte cc_value){
   mc.showing_eq = !mc.showing_eq ;
 }
 
-const CcCalls ctl[] = {
+const CcCalls ctl[128] = {
     {"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel",&SynthVolume_ctl},{"SDLevel",&SDPlayerVolume_ctl},{"FlashLevel",&FlashVolume_ctl},
     {"FX1 Wet",&Wet1Volume_ctl},{"FX2 Wet",&Wet2Volume_ctl},{"FX3 Wet",&Wet3Volume_ctl},{"Dry Sampler",&DrySampler_ctl},{"Dry Synth",&DrySynth_ctl},
     //10 ok

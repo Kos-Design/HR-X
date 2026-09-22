@@ -139,7 +139,6 @@ class PatEditRouter: public SectionHolder {
       static constexpr void (*_sanitizer[2])() = {&sanitize_synth_partition,&sanitize_sampler_partition};
     private:
       static constexpr void (*set_editor_type[2])(byte) = { &set_editor_to_synth, &set_editor_to_sampler};
-
       static PatEditRouter* self;
 };
 
@@ -149,7 +148,7 @@ class POptionsRouter : public SectionHolder {
     public:
         POptionsRouter();
         static constexpr byte sizeofoptionspattern = 6;
-        static const char* optionspatternlabels[];
+        static const char* optionspatternlabels[sizeofoptionspattern];
         static bool target_sampler;
         static bool target_synth;
         static bool target_ccs;
@@ -203,7 +202,7 @@ extern POptionsRouter _po;
 class PatternsMenuRouter: public SectionHolder {
   public:
         PatternsMenuRouter();
-        FilesLister *catalog;
+        FilesLister catalog;
         static constexpr byte sizeofpatternlistlabels = 8;
         //uint8_t home_navrange = 7;
         //uint8_t relative_navlevel = 1 ;

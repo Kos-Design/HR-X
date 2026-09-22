@@ -6,7 +6,7 @@
 class RecorderMenuRouter : public SectionHolder {
     public:
         RecorderMenuRouter();
-        FilesLister *catalog;
+        FilesLister catalog;
         FsFile looper;
         const byte rec_labels_count = 6;
         float pitcher = 1.0;
@@ -16,9 +16,9 @@ class RecorderMenuRouter : public SectionHolder {
         bool rec_looping = false ;
         bool pre_record = false ;
         bool just_pressed_rec = false ;
-        String newloopedpath = "SOUNDSET/REC/LOOP00#L.RAW";
-        String newRecpathL = "SOUNDSET/REC/RECZ00#L.RAW";
-        String newRecpathR = "SOUNDSET/REC/RECZ00#R.RAW";
+        char newloopedpath[64] = "SOUNDSET/REC/LOOP00#L.RAW";
+        char newRecpathL[64] = "SOUNDSET/REC/RECZ00#L.RAW";
+        char newRecpathR[64] = "SOUNDSET/REC/RECZ00#R.RAW";
         bool autoassign = 0;
         bool modestereo = 0;
         bool temp_ops = 0;

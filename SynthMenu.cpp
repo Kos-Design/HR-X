@@ -16,29 +16,29 @@ GlideMenuRouter::GlideMenuRouter() {
 }
 
 void GlideMenuRouter::set_glide_mode_off(byte voice){
-  synth_lines[voice]->currentFreq = synth_lines[voice]->targetFreq ;
+  synth_lines[voice].currentFreq = synth_lines[voice].targetFreq ;
 }
 
 void GlideMenuRouter::set_glide_mode_porta(byte voice){
   if (gg.portamento_time)  {
-    synth_lines[voice]->currentFreq = bb.notestofreq[synth_lines[voice]->previous_note];
+    synth_lines[voice].currentFreq = bb.notestofreq[synth_lines[voice].previous_note];
   }
 }
 
 void GlideMenuRouter::set_glide_mode_rporta(byte voice){
   if (gg.portamento_time)  {
-    synth_lines[voice]->targetFreq = bb.notestofreq[synth_lines[voice]->previous_note];
-    synth_lines[voice]->currentFreq = bb.notestofreq[synth_lines[voice]->note];
+    synth_lines[voice].targetFreq = bb.notestofreq[synth_lines[voice].previous_note];
+    synth_lines[voice].currentFreq = bb.notestofreq[synth_lines[voice].note];
   }
 }
 
 void GlideMenuRouter::set_glide_mode_patack(byte voice){
-  synth_lines[voice]->currentFreq = bb.notestofreq[synth_lines[voice]->note_diff];
+  synth_lines[voice].currentFreq = bb.notestofreq[synth_lines[voice].note_diff];
 }
 
 void GlideMenuRouter::set_glide_mode_rpatack(byte voice){
-  synth_lines[voice]->currentFreq = synth_lines[voice]->targetFreq;
-  synth_lines[voice]->targetFreq = bb.notestofreq[synth_lines[voice]->note_diff];
+  synth_lines[voice].currentFreq = synth_lines[voice].targetFreq;
+  synth_lines[voice].targetFreq = bb.notestofreq[synth_lines[voice].note_diff];
 }
 
 void GlideMenuRouter::show(){
@@ -369,20 +369,19 @@ byte Filter303MenuRouter::filter_tmp_values[8] = {gg.le303ffilterzVknobs[0],gg.l
 
 Mp3PlayerRouter* Mp3PlayerRouter::self = nullptr;
 
-Mp3PlayerRouter::Mp3PlayerRouter() {
+Mp3PlayerRouter::Mp3PlayerRouter() : catalog("MP3/","LONGFILE#",".MP3",mp3_player_panel,9) {
   self = this;
   self->home_navrange=9;
-  self->catalog = new FilesLister("MP3/","LONGFILE#",".MP3",mp3_player_panel,self->home_navrange);
   self->relative_navlevel=2;
   self->max_navlevel=5;
   self->sublevels_address={7,0,0};
 }
 
 void Mp3PlayerRouter::mp3_player_play(){
-      if (!SD.sdfs.exists((char*)self->mp3_name.c_str())) {
+      if (!SD.sdfs.exists((const char*)self->mp3_name)) {
         get_next_mp3();
       }
-      playFile((char*)self->mp3_name.c_str());
+      playFile((const char*)self->mp3_name);
     }
 
 void Mp3PlayerRouter::mp3_player_stop(){
@@ -420,9 +419,9 @@ void Mp3PlayerRouter::normalize_list(){
 }
 
 void Mp3PlayerRouter::delete_mp3(){
-  if (!SD.sdfs.exists((char*)self->mp3_name.c_str())) return;
+  if (!SD.sdfs.exists((const char*)self->mp3_name)) return;
   mp3_player_stop();
-  SD.sdfs.remove((char*)self->mp3_name.c_str());
+  SD.sdfs.remove((const char*)self->mp3_name);
   if (self->mp3_count - 1 > 0) self->mp3_count--;
   if (self->next_mp3 > max(0,self->mp3_count - 1)) self->next_mp3 = max(0,self->mp3_count - 1);
   if (self->mp3_shuffle) self->make_shuffled_list();
@@ -467,10 +466,10 @@ void Mp3PlayerRouter::mp3_player_actions() {
 }
 
 void Mp3PlayerRouter::get_file_type(){
-  String filenamed = self->mp3_name ;
-  filenamed.toLowerCase();
-  if (filenamed.endsWith(".mp3")) self->mp3_ext = 0 ;
-  else if (filenamed.endsWith(".flac")) self->mp3_ext = 1 ;
+  const char *dot = strrchr(self->mp3_name, '.');
+  if (!dot) return;
+  if (!(strcasecmp(dot, ".mp3"))) self->mp3_ext = 0;
+  else if (!(strcasecmp(dot, ".flac"))) self->mp3_ext = 1;
 }
 
 void Mp3PlayerRouter::playFile(const char *mp3_file) {
@@ -489,24 +488,25 @@ void Mp3PlayerRouter::playFile(const char *mp3_file) {
   }
 }
 
-void Mp3PlayerRouter::get_next_mp3() {
-  if (!SD.sdfs.exists("MP3")) return ;
-  FsFile susudir = SD.sdfs.open("MP3");
-  char mpname[32]{};
-  FsFile subentry;
-  uint16_t mp_n = 0 ;
-  while (mp_n <= self->mp3_idx_list[self->next_mp3]) {
-    subentry = susudir.openNextFile();
-    if (!subentry) break;
-    if (!subentry.isDirectory()) mp_n++;
-  }
-  if (!subentry.isDirectory()) {
-    subentry.getName(mpname, 32);
-    self->mp3_name = self->mp3_dir + (String)mpname;
-  }
-  subentry.close();
-  susudir.close();
+void Mp3PlayerRouter::get_next_mp3(){
+    if (!SD.sdfs.exists("MP3")) return;
+    FsFile susudir = SD.sdfs.open("MP3");
+    char mpname[32]{};
+    FsFile subentry;
+    uint16_t mp_n = 0;
+    while (mp_n <= self->mp3_idx_list[self->next_mp3]) {
+      subentry = susudir.openNextFile();
+      if (!subentry) break;
+      if (!subentry.isDirectory()) mp_n++;
+    }
+    if (subentry && !subentry.isDirectory()) {
+      subentry.getName(mpname, sizeof(mpname));
+      snprintf(self->mp3_name, sizeof(self->mp3_name), "MP3/%s", mpname);
+    }
+    subentry.close();
+    susudir.close();
 }
+
 //moves the files on SD root and renames them if their names are too big
 bool Mp3PlayerRouter::sanitizeFilename(FsFile &file){
     constexpr size_t MAX_LEN = 25;
@@ -562,7 +562,7 @@ void Mp3PlayerRouter::selector_clues(){
 }
 
 void Mp3PlayerRouter::transport_selector() {
-  String _legend[] = {"Play All","Previous","Pause","Play file","Next","Shuffle","Loop","Stop","Delete"};
+  const char _legend[9][16] = {"Play All","Previous","Pause","Play file","Next","Shuffle","Loop","Stop","Delete"};
   int startyp = 8;
   int ecart = 14;
   dm.fillRect(ecart * (mc.sublevels[mc.navlevel])-3, startyp-2, ecart-1, startyp*1.5, SSD1306_INVERSE);
@@ -579,9 +579,7 @@ void Mp3PlayerRouter::play_flac_file(const char *flac_file) {
 
 void Mp3PlayerRouter::display_mp3_title(){
   dm.canvasBIG.setCursor(0,40);
-  String titler = self->mp3_name;
-  titler.remove(0, 4);
-  dm.canvasBIG.print((char*)titler.c_str());
+  dm.canvasBIG.print(self->mp3_name + 4);
 }
 
 void Mp3PlayerRouter::mp3_player_panel() {
@@ -898,16 +896,21 @@ void SynthMenuRouter::dolistsyntmenu() {
 }
 
 void SynthMenuRouter::synths_switcher(){
-  String titled = "Waveline ";
-  mc.oscillator = mc.sublevels[2]%OSCS_COUNT;
-  String synth_num = mc.oscillator + 1 ;
-  mc.navrange = OSCS_COUNT-1;
-  String leprintlabel = titled + synth_num ;
-  wavelinesBG();
-  mc.sublevels[3] = 0;
-  dm.fillRect(0+(mc.oscillator%2)*64, 16+(24*(mc.oscillator/2)), 64, 24, SSD1306_INVERSE);
-  dm.printlabel((char*)leprintlabel.c_str());
-  dm.display();
+    mc.oscillator = mc.sublevels[2] % OSCS_COUNT;
+    mc.navrange = OSCS_COUNT - 1;
+    char leprintlabel[16];
+    snprintf(leprintlabel, sizeof(leprintlabel), "Waveline %u", mc.oscillator + 1);
+    wavelinesBG();
+    mc.sublevels[3] = 0;
+    dm.fillRect(
+        (mc.oscillator % 2) * 64,
+        16 + (24 * (mc.oscillator / 2)),
+        64,
+        24,
+        SSD1306_INVERSE
+    );
+    dm.printlabel(leprintlabel);
+    dm.display();
 }
 
 void SynthMenuRouter::wavesline_selector(){
