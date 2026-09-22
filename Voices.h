@@ -65,10 +65,9 @@ class ActiveLinesRegister {
     public:
       ActiveLinesRegister();
       int synth_lines_active = 0 ;
-
-      void add_active_synth(SynthLiner *snth);
-      void remove_inactive_synth(SynthLiner *snth);
-      SynthLiner *active_synths[SYNTH_LINERS_COUNT];
+      uint8_t active_indexes[SYNTH_LINERS_COUNT] = {6,6,6,6,6,6};
+      void remove_active_index(uint8_t value);
+      void add_active_index(uint8_t value);
 };
 
 extern ActiveLinesRegister _rg;

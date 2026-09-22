@@ -95,42 +95,49 @@ bool FilesLister::get_new_tmp_name(char *buffer, size_t buffer_size,bool increme
   return true;
 }
 
-void FilesLister::deleteFile() {
-  if (mc.locked_fileing)
-    return;
+bool FilesLister::deleteFile() {
+  if (mc.locked_fileing) return false;
   mc.locked_fileing = 1 ;
   char current_file_path[64];
-  if (!this->get_current_file_path(current_file_path, sizeof(current_file_path), 0)) return;
-  Serial.println();
-  Serial.print("deleting ");
-  Serial.print(current_file_path);
-
+  if (!this->get_current_file_path(current_file_path, sizeof(current_file_path), 0)) {
+    mc.locked_fileing = 0 ;
+    return false;
+  }
+  bool result = 0;
   if (SD.sdfs.exists(current_file_path)) {
-    SD.sdfs.remove(current_file_path);
+    result = SD.sdfs.remove(current_file_path);
   }
   this->list_files();
   mc.locked_fileing = 0 ;
+  return result;
 }
 
-void FilesLister::deleteFileGeneric(const char* _target_file) {
-  if (mc.locked_fileing) return;
+bool FilesLister::deleteFileGeneric(const char* _target_file) {
+  if (mc.locked_fileing) return false;
   mc.locked_fileing = 1 ;
+  bool result = false ;
   if (SD.sdfs.exists(_target_file)) {
-    SD.sdfs.remove(_target_file);
+   result = SD.sdfs.remove(_target_file);
   }
   mc.locked_fileing = 0 ;
+  return result;
 }
 
 void FilesLister::copyFile() {
-  if (mc.locked_fileing)
-    return;
+  if (mc.locked_fileing) return;
   mc.locked_fileing = 1 ;
   FsFile origin_file;
   FsFile target_file;
   char current_file_path[64];
-  if (!this->get_current_file_path(current_file_path, sizeof(current_file_path), 0)) return;
+  if (!this->get_current_file_path(current_file_path, sizeof(current_file_path), 0)){
+    mc.locked_fileing = 0 ;
+    return;
+  }
   char new_file_name[64];
-  if (!this->get_new_file_name(new_file_name, sizeof(new_file_name))) return;
+  if (!this->get_new_file_name(new_file_name, sizeof(new_file_name))){
+    mc.locked_fileing = 0 ;
+    return;
+  }
   if (SD.sdfs.exists(current_file_path)) {
     target_file = SD.sdfs.open(new_file_name, O_WRITE | O_CREAT | O_TRUNC);
     origin_file = SD.sdfs.open(current_file_path, O_READ);

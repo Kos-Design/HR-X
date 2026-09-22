@@ -88,7 +88,7 @@ Arpegiator* Arpegiator::self = nullptr;
 Arpegiator::Arpegiator() { self = this; };
 
 bool Arpegiator::note_in_arp(uint8_t note){
-  for (auto* synth : _rg.active_synths) if (synth && synth->note == note) return true ;
+  for (int i = 0; i < _rg.synth_lines_active; i++) if (synth_lines[_rg.active_indexes[i]].note == note) return true ;
   return false;
 }
 
@@ -111,25 +111,27 @@ bool Arpegiator::same_3_notes(){
 }
 
 void Arpegiator::arpegiate_synth() {
+  uint8_t line_idx;
   for (int i = 0; i < _rg.synth_lines_active; i++) {
+    line_idx = _rg.active_indexes[i] ;
     last_indexer = (last_indexer + 1) % 3 ;
-    if (_rg.active_synths[i]->arp_starter) {
+    if (synth_lines[line_idx].arp_starter) {
       //check increment & decrement
-        if (arpegemptyticks[_rg.active_synths[i]->l_index] > 0) {
-          decrementcrementns(_rg.active_synths[i]->l_index);
+        if (arpegemptyticks[synth_lines[line_idx].l_index] > 0) {
+          decrementcrementns(synth_lines[line_idx].l_index);
           return;
         }
-      incrementcs(_rg.active_synths[i]->l_index);
-      arpegioticker(_rg.active_synths[i]->l_index);
+      incrementcs(synth_lines[line_idx].l_index);
+      arpegioticker(synth_lines[line_idx].l_index);
       last_3_notes[last_indexer] = all_arpegios[gg.arpegiatortype][tickgamme[i]][ticktriplet[i]];
-      _rg.active_synths[i]->next_arp_note = _rg.active_synths[i]->note + last_3_notes[last_indexer];
-      if (!same_3_notes()) initiatearpegesynthliner(_rg.active_synths[i]->l_index,(MidiEventer){gg.synthmidichannel,_rg.active_synths[i]->next_arp_note,127});
-      else synth_arpegiator_ticker(_rg.active_synths[i]->l_index);
+      synth_lines[line_idx].next_arp_note = synth_lines[line_idx].note + last_3_notes[last_indexer];
+      if (!same_3_notes()) initiatearpegesynthliner(synth_lines[line_idx].l_index,(MidiEventer){gg.synthmidichannel,synth_lines[line_idx].next_arp_note,127});
+      else synth_arpegiator_ticker(synth_lines[line_idx].l_index);
       //continue;
     } else {
-      if (_rg.active_synths[i]->length_in_arp >= 2) _rg.active_synths[i]->length_in_arp--;
-      else if (_rg.active_synths[i]->length_in_arp) _rg.active_synths[i]->liner_off();
-      else if (_rg.active_synths[i]->activated && !_rg.active_synths[i]->length_in_arp) _rg.active_synths[i]->liner_off();
+      if (synth_lines[line_idx].length_in_arp >= 2) synth_lines[line_idx].length_in_arp--;
+      else if (synth_lines[line_idx].length_in_arp) synth_lines[line_idx].liner_off();
+      else if (synth_lines[line_idx].activated && !synth_lines[line_idx].length_in_arp) synth_lines[line_idx].liner_off();
       }
   }
 }
@@ -458,7 +460,7 @@ void TriggerMessenger::setchordnotesOff(byte absolutenote, byte lachord) {
 }
 void TriggerMessenger::update_active_lines() {
   for (int i = 0; i < _rg.synth_lines_active; i++) {
-    _rg.active_synths[i]->update_line();
+    synth_lines[_rg.active_indexes[i]].update_line();
   }
 }
 

@@ -83,37 +83,12 @@ void AudioPlayPartialSdRaw::stop(void){
 
 void AudioPlayPartialSdRaw::update(void){
 	unsigned int i, n;
-	audio_block_t *block;
-
-	// only update if we're playing
 	if (!playing) return;
-
-	// allocate the audio blocks to transmit
-	block = allocate();
-	if (block == NULL) return;
-
-	if (rawfile.available()) {
-		// we can read more data from the file...
-		uint32_t remaining = endByte - currentByte;
-
-		if (remaining == 0)
-		{
-			stop();
-			return;
-		}
-
-		uint32_t bytesToRead = min(remaining,
-								(uint32_t)(AUDIO_BLOCK_SAMPLES * 2));
-
-		n = rawfile.read(block->data, bytesToRead);
-
-		currentByte += n;
-		file_offset += n;
-		for (i=n/2; i < AUDIO_BLOCK_SAMPLES; i++) {
-			block->data[i] = 0;
-		}
-		transmit(block);
-	} else {
+	audio_block_t *block = allocate();
+	if (!block) return;
+	if (!rawfile.available()) {
+		release(block);
+		stop();
 		rawfile.close();
 		#if defined(HAS_KINETIS_SDHC)
 			if (!(SIM_SCGC3 & SIM_SCGC3_SDHC)) AudioStopUsingSPI();
@@ -121,7 +96,22 @@ void AudioPlayPartialSdRaw::update(void){
 			AudioStopUsingSPI();
 		#endif
 		playing = false;
+		return;
 	}
+	uint32_t remaining = endByte - currentByte;
+	if (remaining == 0) {
+			release(block);
+			stop();
+			return;
+	}
+	uint32_t bytesToRead = min(remaining,(uint32_t)(AUDIO_BLOCK_SAMPLES * 2));
+	n = rawfile.read(block->data, bytesToRead);
+	currentByte += n;
+	file_offset += n;
+	for (i=n/2; i < AUDIO_BLOCK_SAMPLES; i++) {
+		block->data[i] = 0;
+	}
+	transmit(block);
 	release(block);
 }
 

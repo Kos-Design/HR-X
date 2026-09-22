@@ -19,9 +19,7 @@ struct BigBuffers {
 
 extern BigBuffers bb;
 
-class FxBus {
-  public:
-    FxBus();
+struct FxVars {
     int delaymultiplier = 55;
     int flangeoffset = FLANGE_DELAY_LENGTH / 4;
     int flangedepth = FLANGE_DELAY_LENGTH / 4;
@@ -42,25 +40,32 @@ class FxBus {
     uint8_t delayVknobs[3] = {0,0,0};
     //LowPass, BandPass, HighPass levels
     uint8_t mixffilterzVknobs[3] = {0,0,0};
+
     uint8_t reverbVknobs[2] = {0,0};
     uint8_t bitcrusherVknobs[2] = {0,0};
     uint8_t granularVknobs[2] = {0,0};
-    uint8_t bqstage = 0;
+     uint8_t bqstage = 0;
     uint8_t chorusvoices = 2;
     uint8_t LFOonfilterz = 3;
     uint8_t chorusVknobs = 0;
     uint8_t plugged_fx = ALL_FX_TYPES-1;
-    uint8_t f_index = 0 ;
     bool granular_shifting = 0;
     bool granular_freezing = 0;
-    bool active = 0 ;
+};
 
+class FxBus {
+  public:
+    FxBus(FxVars& vars, uint8_t index);
+    FxVars& vars;
+    uint8_t f_index = 0 ;
     void route_fx(byte selected_fx_type);
     void plug_fx_line(byte selected_fx_type);
     void stopdelayline();
     void unplug_fx_line();
 
 };
+
+extern FxBus fx_hook[FXS_COUNT];
 
 struct TracerHelper{
     uint8_t x_poser;
@@ -70,8 +75,7 @@ struct TracerHelper{
 };
 
 struct Preset {
-    FxBus fx[FXS_COUNT];
-
+    FxVars fx_vars[FXS_COUNT]{};
     int millis_period = 500;
     //Atk Delay, Attack, Hold, Decay, Sustain, Release
     int32_t adsrlevels[6] = {0, 12, 0, 250, 0, 200};

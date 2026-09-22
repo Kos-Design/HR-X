@@ -45,19 +45,23 @@ void drum_refresh(byte l_index,byte osc_idx,float currentFreq,byte velocity){
 
 ActiveLinesRegister::ActiveLinesRegister() { }
 
-void ActiveLinesRegister::add_active_synth(SynthLiner *snth){
-    active_synths[synth_lines_active] = snth ;
-    synth_lines_active++;
+
+
+void ActiveLinesRegister::add_active_index(uint8_t value){
+  if (synth_lines_active > SYNTH_LINERS_COUNT-2) return ;
+  active_indexes[synth_lines_active] = value ;
+  synth_lines_active++;
 }
 
-void ActiveLinesRegister::remove_inactive_synth(SynthLiner *snth){
-    for (uint8_t i = 0; i < synth_lines_active; i++) {
-        if (active_synths[i] == snth) {
-          active_synths[i] = active_synths[synth_lines_active - 1];
-          synth_lines_active--;
-          return;
-        }
+void ActiveLinesRegister::remove_active_index(uint8_t value){
+  for (uint8_t i = 0; i < synth_lines_active; i++) {
+    if (active_indexes[i] == value) {
+      memmove(&active_indexes[i], &active_indexes[i + 1], synth_lines_active - i - 1);
+      synth_lines_active--;
+      active_indexes[synth_lines_active] = SYNTH_LINERS_COUNT;
+      return;
     }
+  }
 }
 
 SynthLiner::SynthLiner(byte line_index ) : l_index(line_index) { }
@@ -83,7 +87,8 @@ void SynthLiner::liner_on(byte data1, byte data2) {
     setfreqWavelines();
     enveloppesL[this->l_index]->hold(gg.adsrlevels[3]);
     enveloppesL[this->l_index]->noteOn();
-    _rg.add_active_synth(this);
+    _rg.add_active_index(this->l_index);
+    
     /*
     Serial.println();
     Serial.print("liner played = ");
@@ -176,7 +181,7 @@ void SynthLiner::liner_off() {
       enveloppesL[this->l_index]->noteOff();
       this->f303 = 0;
       this->activated = false;
-      _rg.remove_inactive_synth(this);
+      _rg.remove_active_index(this->l_index);
       this->previous_note = this->note ;
       this->note = 0 ;
       this->length_in_arp = 0 ;

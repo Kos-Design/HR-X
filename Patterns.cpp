@@ -1381,12 +1381,14 @@ void PatternsMenuRouter::lv1_wrapper(void (*func)()) {
         }
 
 void PatternsMenuRouter::parsepattern() {
-  if (mc.locked_fileing)
-    return;
+  if (mc.locked_fileing) return;
   mc.locked_fileing = 1 ;
   self->catalog.refresh_files_names();
   char current_file_path[64];
-  if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))) return;
+  if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))){
+    mc.locked_fileing = 0 ;
+    return;
+  }
   FsFile lepatternfile = SD.sdfs.open(current_file_path, O_READ);
   if (lepatternfile) {
     lepatternfile.read((uint8_t*)&pp, sizeof(pp));
@@ -1412,25 +1414,31 @@ void PatternsMenuRouter::copypattern() {
 }
 
 void PatternsMenuRouter::writelemidi() {
-  if (mc.locked_fileing)
-    return;
+  if (mc.locked_fileing) return;
   mc.locked_fileing = 1 ;
   self->catalog.refresh_files_names();
   FsFile pat_filer ;
   if (self->catalog.new_file_mode) {
     char new_file_name[64];
-    if (!self->catalog.get_new_file_name(new_file_name, sizeof(new_file_name))) return;
+    if (!self->catalog.get_new_file_name(new_file_name, sizeof(new_file_name))){
+      mc.locked_fileing = 0;
+      return;
+    }
     pat_filer = SD.sdfs.open(new_file_name, O_WRITE | O_CREAT | O_TRUNC);
   } else {
     char current_file_path[64];
-    if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path), 0)) return;
+    if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path), 0)){
+      mc.locked_fileing = 0;
+      return;
+    }
+    mc.locked_fileing = 0 ;
     self->catalog.deleteFile();
+    mc.locked_fileing = 1 ;
     pat_filer = SD.sdfs.open(current_file_path, O_WRITE | O_CREAT | O_TRUNC);
   }
   if (pat_filer) {
     pat_filer.write((uint8_t*)&pp, sizeof(pp));
     pat_filer.close();
-
   }
   pat_filer.close();
   self->catalog.list_files();

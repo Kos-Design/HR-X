@@ -181,12 +181,6 @@ void initextmems() {
   memset(pp.synth_notes_length, 0, sizeof(pp.synth_notes_length));
   memset(pp.cc_partition, 127, sizeof(pp.cc_partition));
 
-  gg.fx[0] = FxBus();
-  gg.fx[0].f_index = 0;
-  gg.fx[1] = FxBus();
-  gg.fx[1].f_index = 1;
-  gg.fx[2] = FxBus();
-  gg.fx[2].f_index = 2;
 }
 
 void loadsynthdefaults() {
@@ -250,7 +244,7 @@ void setupdefaultvalues() {
 
   _mr.toggle_note_spy();
   for (int i = 0; i < FXS_COUNT; i++) {
-    gg.fx[i].stopdelayline();
+    fx_hook[i].stopdelayline();
     delayCords[i]->disconnect();
     delayCordsR[i]->disconnect();
 
@@ -1012,143 +1006,143 @@ void FXBusSelector_ctl(byte cc_value){
 }
 
 void ChorusVoices_ctl(byte cc_value){
-  gg.fx[mc.fidx].chorusVknobs = cc_value;
+  fx_hook[mc.fidx].vars.chorusVknobs = cc_value;
 }
 
 void LFOonFilter_ctl(byte cc_value){
-  gg.fx[mc.fidx].LFOonfilterz = round((cc_value / 127.0) * 3.0);
+  fx_hook[mc.fidx].vars.LFOonfilterz = round((cc_value / 127.0) * 3.0);
   _fx.filtercontrols(mc.fidx);
 }
 
 void BiQuadStage_ctl(byte cc_value){
-  gg.fx[mc.fidx].bqstage = round((cc_value / 127.0) * 3.0);
+  fx_hook[mc.fidx].vars.bqstage = round((cc_value / 127.0) * 3.0);
 }
 
 void BiQuadFreq_ctl(byte cc_value){
-  gg.fx[mc.fidx].bqVpot[gg.fx[mc.fidx].bqstage][0] = cc_value;
-  gg.fx[mc.fidx].bqfreq[gg.fx[mc.fidx].bqstage] = ((cc_value / 127.0) * _fx.bqrange) + 101;
-  if (gg.fx[mc.fidx].bqfreq[gg.fx[mc.fidx].bqstage] >= 101) {
+  fx_hook[mc.fidx].vars.bqVpot[fx_hook[mc.fidx].vars.bqstage][0] = cc_value;
+  fx_hook[mc.fidx].vars.bqfreq[fx_hook[mc.fidx].vars.bqstage] = ((cc_value / 127.0) * _fx.bqrange) + 101;
+  if (fx_hook[mc.fidx].vars.bqfreq[fx_hook[mc.fidx].vars.bqstage] >= 101) {
     _fx.biquadcontrols(mc.fidx);
   }
 }
 
 void BiQuadSlope_ctl(byte cc_value){
-  gg.fx[mc.fidx].bqVpot[gg.fx[mc.fidx].bqstage][1] = cc_value;
-  gg.fx[mc.fidx].bqslope[gg.fx[mc.fidx].bqstage] = 0.001+(cc_value / 127.0)*5.0;
-  if (gg.fx[mc.fidx].bqfreq[gg.fx[mc.fidx].bqstage] >= 101) {
+  fx_hook[mc.fidx].vars.bqVpot[fx_hook[mc.fidx].vars.bqstage][1] = cc_value;
+  fx_hook[mc.fidx].vars.bqslope[fx_hook[mc.fidx].vars.bqstage] = 0.001+(cc_value / 127.0)*5.0;
+  if (fx_hook[mc.fidx].vars.bqfreq[fx_hook[mc.fidx].vars.bqstage] >= 101) {
     _fx.biquadcontrols(mc.fidx);
   }
 }
 
 void BiQuadGain_ctl(byte cc_value){
-  gg.fx[mc.fidx].bqVpot[gg.fx[mc.fidx].bqstage][2] = cc_value;
-  gg.fx[mc.fidx].bqgain[gg.fx[mc.fidx].bqstage] = 100.0 - (cc_value / 127.0)*200.0;
-  if (gg.fx[mc.fidx].bqfreq[gg.fx[mc.fidx].bqstage] >= 101) {
+  fx_hook[mc.fidx].vars.bqVpot[fx_hook[mc.fidx].vars.bqstage][2] = cc_value;
+  fx_hook[mc.fidx].vars.bqgain[fx_hook[mc.fidx].vars.bqstage] = 100.0 - (cc_value / 127.0)*200.0;
+  if (fx_hook[mc.fidx].vars.bqfreq[fx_hook[mc.fidx].vars.bqstage] >= 101) {
     _fx.biquadcontrols(mc.fidx);
   }
 }
 
 void BiQuadType_ctl(byte cc_value){
    // type
-  gg.fx[mc.fidx].bqtype[gg.fx[mc.fidx].bqstage] = round((cc_value / 127.0) * 6.0);
-  if (gg.fx[mc.fidx].bqfreq[gg.fx[mc.fidx].bqstage] >= 101) {
+  fx_hook[mc.fidx].vars.bqtype[fx_hook[mc.fidx].vars.bqstage] = round((cc_value / 127.0) * 6.0);
+  if (fx_hook[mc.fidx].vars.bqfreq[fx_hook[mc.fidx].vars.bqstage] >= 101) {
     _fx.biquadcontrols(mc.fidx);
   }
 }
 
 void GranularGrains_Knob1_ctl(byte cc_value){
   //granular grains
-  gg.fx[mc.fidx].granularVknobs[0] = cc_value;
+  fx_hook[mc.fidx].vars.granularVknobs[0] = cc_value;
 }
 
 void GranularSpeed_Knob2_ctl(byte cc_value){
   //granular speed ratio
-  gg.fx[mc.fidx].granularVknobs[1] = cc_value;
+  fx_hook[mc.fidx].vars.granularVknobs[1] = cc_value;
   _fx.granularcontrols(mc.fidx);
 }
 
 void GranularShifting_Toggle_ctl(byte cc_value){
-  gg.fx[mc.fidx].granular_shifting = !gg.fx[mc.fidx].granular_shifting;
+  fx_hook[mc.fidx].vars.granular_shifting = !fx_hook[mc.fidx].vars.granular_shifting;
   _fx.granular_pitch_shift(mc.fidx);
 }
 
 void GranularFreeze_Toggle_ctl(byte cc_value){
-  gg.fx[mc.fidx].granular_freezing = !gg.fx[mc.fidx].granular_freezing;
+  fx_hook[mc.fidx].vars.granular_freezing = !fx_hook[mc.fidx].vars.granular_freezing;
   _fx.granular_freeze(mc.fidx);
 }
 
 void ReverbSize_ctl(byte cc_value){
-  gg.fx[mc.fidx].reverbVknobs[0] = cc_value;
+  fx_hook[mc.fidx].vars.reverbVknobs[0] = cc_value;
   _fx.freeverbscontrl(mc.fidx);
 }
 
 void BitCrusherSamples_ctl(byte cc_value){
-  gg.fx[mc.fidx].bitcrusherVknobs[0] = round((cc_value / 127.0) * 16.0);
+  fx_hook[mc.fidx].vars.bitcrusherVknobs[0] = round((cc_value / 127.0) * 16.0);
   _fx.bitcrusherctrl(mc.fidx);
 }
 
 void BitCrusherBits_ctl(byte cc_value){
-  gg.fx[mc.fidx].bitcrusherVknobs[1] = cc_value;
+  fx_hook[mc.fidx].vars.bitcrusherVknobs[1] = cc_value;
   _fx.bitcrusherctrl(mc.fidx);
 }
 
 void FFilter_Cutoff_Knob1_ctl(byte cc_value){
-  gg.fx[mc.fidx].mixffilterzVknobs[0] = cc_value;
+  fx_hook[mc.fidx].vars.mixffilterzVknobs[0] = cc_value;
   _fx.filtercontrols(mc.fidx);
 }
 
 void FFilter_Reso_Knob2_ctl(byte cc_value){
-  gg.fx[mc.fidx].mixffilterzVknobs[1] = cc_value;
+  fx_hook[mc.fidx].vars.mixffilterzVknobs[1] = cc_value;
       _fx.filtercontrols(mc.fidx);
 }
 
 void FFilter_Oct_Knob3_ctl(byte cc_value){
-   gg.fx[mc.fidx].mixffilterzVknobs[2] = cc_value;
+   fx_hook[mc.fidx].vars.mixffilterzVknobs[2] = cc_value;
       _fx.filtercontrols(mc.fidx);
 }
 
 void FFilter_LowPass_Knob4_ctl(byte cc_value){
-  gg.fx[mc.fidx].ffilterzVknobs[0] = cc_value;
+  fx_hook[mc.fidx].vars.ffilterzVknobs[0] = cc_value;
   _fx.filtercontrols(mc.fidx);
 }
 
 void FFilter_BandPass_Knob5_ctl(byte cc_value){
- gg.fx[mc.fidx].ffilterzVknobs[1] = cc_value;
+ fx_hook[mc.fidx].vars.ffilterzVknobs[1] = cc_value;
   _fx.filtercontrols(mc.fidx);
 }
 
 void FFilter_HighPass_Knob6_ctl(byte cc_value){
-  gg.fx[mc.fidx].ffilterzVknobs[2] = cc_value;
+  fx_hook[mc.fidx].vars.ffilterzVknobs[2] = cc_value;
   _fx.filtercontrols(mc.fidx);
 }
 
 void FlangerOffset_Knob1_ctl(byte cc_value){
-  gg.fx[mc.fidx].flangerVknobs[0] = cc_value;
+  fx_hook[mc.fidx].vars.flangerVknobs[0] = cc_value;
   _fx.flangercontrols(mc.fidx);
 }
 
 void FlangerDepth_Knob2_ctl(byte cc_value){
-  gg.fx[mc.fidx].flangerVknobs[1] = cc_value;
+  fx_hook[mc.fidx].vars.flangerVknobs[1] = cc_value;
   _fx.flangercontrols(mc.fidx);
 }
 
 void FlangerDelay_Knob3_ctl(byte cc_value){
-  gg.fx[mc.fidx].flangerVknobs[2] = cc_value;
+  fx_hook[mc.fidx].vars.flangerVknobs[2] = cc_value;
   _fx.flangercontrols(mc.fidx);
 }
 
 void DelayTimeSelection_Knob1_ctl(byte cc_value){
-  gg.fx[mc.fidx].delayVknobs[0] = cc_value;
+  fx_hook[mc.fidx].vars.delayVknobs[0] = cc_value;
   _fx.restartdelayline(mc.fidx);
 }
 
 void DelayTimeMultiplier_Knob2_ctl(byte cc_value){
-  gg.fx[mc.fidx].delayVknobs[1] = cc_value;
+  fx_hook[mc.fidx].vars.delayVknobs[1] = cc_value;
   _fx.restartdelayline(mc.fidx);
 }
 
 void DelayFeedback_Knob3_ctl(byte cc_value){
-  gg.fx[mc.fidx].delayVknobs[2] = cc_value;
+  fx_hook[mc.fidx].vars.delayVknobs[2] = cc_value;
   _fx.restartdelayline(mc.fidx);
 }
 

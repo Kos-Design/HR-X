@@ -44,8 +44,8 @@ class FilesLister{
         bool get_current_file_path(char *buffer, size_t buffer_size, int f_index=0);
         bool make_full_file_name(byte number, char *buffer, size_t buffer_size);
         bool get_new_file_name(char *buffer, size_t buffer_size);
-        void deleteFile();
-        void deleteFileGeneric(const char*);
+        bool deleteFile();
+        bool deleteFileGeneric(const char*);
         void copyFile();
         void copyFileGeneric(const char*,const char*);
         void move_file(const char*,const char* );

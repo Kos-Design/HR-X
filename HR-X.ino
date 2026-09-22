@@ -51,6 +51,9 @@ SynthLiner synth_lines[SYNTH_LINERS_COUNT] = {
   SynthLiner(4),
   SynthLiner(5)
 };
+
+
+
 LiveState mc;
 EXTMEM Preset gg;
 AdsrMenuRouter _ad;
@@ -89,6 +92,12 @@ MasterClock Tocker;
 DisplayConsoler consoler;
 Song ng;
 SettingsMenuRouter _st;
+
+FxBus fx_hook[FXS_COUNT] = {
+    FxBus(gg.fx_vars[0], 0),
+    FxBus(gg.fx_vars[1], 1),
+    FxBus(gg.fx_vars[2], 2)
+};
 
 StereoDualFilter stereoWidth;
 

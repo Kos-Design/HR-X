@@ -54,12 +54,20 @@ void PresetsMenuRouter::write_preset() {
           if (self->catalog.new_file_mode) {
             self->catalog.make_sub_folder("PRESETS", "SYNTH");
             char new_file_name[64];
-            if (!self->catalog.get_new_file_name(new_file_name, sizeof(new_file_name))) return;
+            if (!self->catalog.get_new_file_name(new_file_name, sizeof(new_file_name))){
+              mc.locked_fileing = 0 ;
+              return;
+            }
             preset_filer = SD.sdfs.open(new_file_name, O_WRITE | O_CREAT | O_TRUNC);
           } else {
             char current_file_path[64];
-            if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))) return;
+            if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))){
+              mc.locked_fileing = 0 ;
+              return;
+            }
+            mc.locked_fileing = 0 ;
             self->catalog.deleteFile();
+            mc.locked_fileing = 1 ;
             preset_filer = SD.sdfs.open(current_file_path, O_WRITE | O_CREAT | O_TRUNC);
           }
           if (preset_filer) {
@@ -73,16 +81,19 @@ void PresetsMenuRouter::write_preset() {
         }
 
 void PresetsMenuRouter::read_preset() {
-          if (mc.locked_fileing)
-            return;
+          if (mc.locked_fileing) return;
           mc.locked_fileing = 1 ;
           char current_file_path[64];
-          if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))) return;
+          if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))){
+            mc.locked_fileing = 0 ;
+            return;
+          }
           FsFile preset_filer = SD.sdfs.open(current_file_path, O_READ);
           if (preset_filer) {
            preset_filer.read((uint8_t*)&gg, sizeof(gg));
           } else {
             dm.pseudoconsole("Error with preset file");
+            mc.locked_fileing = 0 ;
             return ;
           }
           preset_filer.close();
@@ -94,7 +105,7 @@ void PresetsMenuRouter::read_preset() {
           memcpy(&tmp_WetMixMasters, &gg.WetMixMasters, sizeof(gg.WetMixMasters));
 
           for (int i = 0; i < 3; i++) {
-            gg.fx[i].route_fx(gg.fx[i].plugged_fx);
+            fx_hook[i].route_fx(fx_hook[i].vars.plugged_fx);
             mc.avoid_fx_bounce = false ;
           }
           setbpms();

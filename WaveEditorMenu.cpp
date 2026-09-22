@@ -292,8 +292,8 @@ void RecorderMenuRouter::check_rec_folder_path(){
 }
 
 void RecorderMenuRouter::deleteRec() {
-          self->catalog.deleteFile();
-        }
+  self->catalog.deleteFile();
+}
 
 void RecorderMenuRouter::recorder_menu() {
           self->catalog.folders_mode = false ;

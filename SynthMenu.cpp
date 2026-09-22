@@ -97,33 +97,33 @@ void Filter303MenuRouter::avg_slope(){
 
 void Filter303MenuRouter::pseudo303(byte i) {
   float letbfreq = 100.0;
-
-  if (_rg.active_synths[i]->f303) {
+  uint8_t line_idx = _rg.active_indexes[i] ;
+  if (synth_lines[line_idx].f303) {
     
-    if (_rg.active_synths[i]->sloper_step > 17) {
-      _rg.active_synths[i]->f303 = 0;
-      _rg.active_synths[i]->sloper_step = 0 ;
-      _rg.active_synths[i]->slope_normalized = 0.0;
+    if (synth_lines[line_idx].sloper_step > 17) {
+      synth_lines[line_idx].f303 = 0;
+      synth_lines[line_idx].sloper_step = 0 ;
+      synth_lines[line_idx].slope_normalized = 0.0;
       return;
     }
 
     //slope is optimized for cutoff
-    //_rg.active_synths[i]->slope_normalized += 0.0625;
-    _rg.active_synths[i]->slope_normalized += 0.0588;
-    letbfreq = gg.le303filterzfreq + 100.0 - (gg.le303filterzfreq * self->sloped[_rg.active_synths[i]->sloper_step]);
-    //sletbfreq = gg.le303filterzfreq + 100 - (gg.le303filterzfreq * map(_rg.active_synths[i]->slope_normalized*100,0,100,80,100)/100.0);
+    //synth_lines[line_idx].slope_normalized += 0.0625;
+    synth_lines[line_idx].slope_normalized += 0.0588;
+    letbfreq = gg.le303filterzfreq + 100.0 - (gg.le303filterzfreq * self->sloped[synth_lines[line_idx].sloper_step]);
+    //sletbfreq = gg.le303filterzfreq + 100 - (gg.le303filterzfreq * map(synth_lines[line_idx].slope_normalized*100,0,100,80,100)/100.0);
 
     //let some unfiltered first before filter decay
-    les303filterz[_rg.active_synths[i]->l_index]->frequency(letbfreq);
-    les303filterz[_rg.active_synths[i]->l_index]->resonance(0.1 + ((gg.le303filterzreso/127.0)*5) * _rg.active_synths[i]->slope_normalized);
-    les303passes[_rg.active_synths[i]->l_index]->gain(2,1.0-_rg.active_synths[i]->slope_normalized);
+    les303filterz[synth_lines[line_idx].l_index]->frequency(letbfreq);
+    les303filterz[synth_lines[line_idx].l_index]->resonance(0.1 + ((gg.le303filterzreso/127.0)*5) * synth_lines[line_idx].slope_normalized);
+    les303passes[synth_lines[line_idx].l_index]->gain(2,1.0-synth_lines[line_idx].slope_normalized);
 
-    //mixle303ffilterzVknobs[2]->gain(0.1 + ((gg.le303filterzreso/127.0)*5) * _rg.active_synths[i]->slope_normalized);
+    //mixle303ffilterzVknobs[2]->gain(0.1 + ((gg.le303filterzreso/127.0)*5) * synth_lines[line_idx].slope_normalized);
     
     //almost immediate since liner_on just set it few micro seconds before;
     // but enough to be audible ;)
-    //_mx.set_303_wetness(_rg.active_synths[i]->l_index,gg.le303filterzwet/127.0); 
-    _rg.active_synths[i]->sloper_step++;
+    //_mx.set_303_wetness(synth_lines[line_idx].l_index,gg.le303filterzwet/127.0); 
+    synth_lines[line_idx].sloper_step++;
   }
 }
 

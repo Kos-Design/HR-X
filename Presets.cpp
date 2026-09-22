@@ -300,15 +300,15 @@ const unsigned char *_img[12] = { sinewave, sawtoothwave, reversesawtoothwave, t
                                       variabletriangle, squarewave, pulsewave,arbitrarywave,
                                       samplehold,arbitrarywave,samplehold,moonwave};
 
-FxBus::FxBus() {}
+FxBus::FxBus(FxVars& vars, uint8_t index) : vars(vars), f_index(index) {};
 
 void FxBus::route_fx(byte selected_fx_type) {
   if (bb.previousely_plugged_fx[f_index] != (ALL_FX_TYPES - 1)) unplug_fx_line();
   if (selected_fx_type != (ALL_FX_TYPES - 1)) {
     plug_fx_line(selected_fx_type);
-    plugged_fx = selected_fx_type;
+    vars.plugged_fx = selected_fx_type;
   }
-  bb.previousely_plugged_fx[f_index] = plugged_fx;
+  bb.previousely_plugged_fx[f_index] = vars.plugged_fx;
 }
 
 void FxBus::plug_fx_line(byte selected_fx_type){
@@ -320,14 +320,14 @@ void FxBus::plug_fx_line(byte selected_fx_type){
         delayCordsR[f_index]->connect();
       }
       if (selected_fx_type == 4) {
-        flange[f_index]->begin(bb.flangedelay[f_index],FLANGE_DELAY_LENGTH,this->flangeoffset,this->flangedepth,this->flangefreq);
+        flange[f_index]->begin(bb.flangedelay[f_index],FLANGE_DELAY_LENGTH,this->vars.flangeoffset,this->vars.flangedepth,this->vars.flangefreq);
         flange[f_index]->voices(FLANGE_DELAY_PASSTHRU,0,0);
-        flangeR[f_index]->begin(bb.flangedelay[f_index],FLANGE_DELAY_LENGTH,this->flangeoffset,this->flangedepth,this->flangefreq);
+        flangeR[f_index]->begin(bb.flangedelay[f_index],FLANGE_DELAY_LENGTH,this->vars.flangeoffset,this->vars.flangedepth,this->vars.flangefreq);
         flangeR[f_index]->voices(FLANGE_DELAY_PASSTHRU,0,0);
       }
       if (selected_fx_type == 5) {
-        chorus[f_index]->begin(bb.chorusdelayline[f_index],CHORUS_DELAY_LENGTH,this->chorusvoices) ;
-        chorusR[f_index]->begin(bb.chorusdelayline[f_index],CHORUS_DELAY_LENGTH,this->chorusvoices) ;
+        chorus[f_index]->begin(bb.chorusdelayline[f_index],CHORUS_DELAY_LENGTH,this->vars.chorusvoices) ;
+        chorusR[f_index]->begin(bb.chorusdelayline[f_index],CHORUS_DELAY_LENGTH,this->vars.chorusvoices) ;
       }
       bb.premixesMto_index[f_index] = (selected_fx_type * FXS_COUNT) + (f_index);
       bb.fxcording_index[f_index] = (selected_fx_type*FXS_COUNT*2*3) + (f_index*FXS_COUNT*2) + (2*f_index);
@@ -359,6 +359,6 @@ void FxBus::unplug_fx_line() {
   delayCords[f_index]->disconnect();
   delayCordsR[f_index]->disconnect();
   AudioInterrupts();
-  plugged_fx = ALL_FX_TYPES-1;
+  vars.plugged_fx = ALL_FX_TYPES-1;
 }
 

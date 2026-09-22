@@ -193,18 +193,25 @@ void WaveformsMenuRouter::go_next(){
 }
 
 void WaveformsMenuRouter::writewaveform() {
-  if (mc.locked_fileing)
-    return;
+  if (mc.locked_fileing) return;
   mc.locked_fileing = 1 ;
   FsFile waveform_file ;
   if (self->catalog.new_file_mode) {
     char new_file_name[64];
-    if (!self->catalog.get_new_file_name(new_file_name, sizeof(new_file_name))) return;
+    if (!self->catalog.get_new_file_name(new_file_name, sizeof(new_file_name))){
+      mc.locked_fileing = 0 ;
+      return;
+    }
     waveform_file = SD.sdfs.open(new_file_name, O_WRITE | O_CREAT | O_TRUNC);
   } else {
     char current_file_path[64];
-    if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))) return;
+    if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))){
+      mc.locked_fileing = 0 ;
+      return;
+    }
+    mc.locked_fileing = 0 ;
     self->catalog.deleteFile();
+    mc.locked_fileing = 1 ;
     waveform_file = SD.sdfs.open(current_file_path, O_WRITE | O_CREAT | O_TRUNC);
   }
   if (waveform_file) {
@@ -225,12 +232,18 @@ void WaveformsMenuRouter::deletewaveform() {
 }
 
 void WaveformsMenuRouter::parsewaveformfile() {
-  if (mc.locked_fileing)
-    return;
+  if (mc.locked_fileing) return;
   mc.locked_fileing = 1 ;
   char current_file_path[64];
-  if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))) return;
+  if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))){
+    mc.locked_fileing = 0 ;
+    return;
+  }
   FsFile target_waveform = SD.sdfs.open(current_file_path, O_READ);
+  if (!target_waveform){
+    mc.locked_fileing = 0 ;
+    return;
+  }
   target_waveform.read((byte *)gg.arbitrary_waveforms, sizeof(gg.arbitrary_waveforms));
   target_waveform.close();
   mc.locked_fileing = 0 ;
