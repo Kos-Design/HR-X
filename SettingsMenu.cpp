@@ -27,7 +27,7 @@ void MidiMenuRouter::show(){
   _tt.debugmidion = 1 ;
   if (mc.navlevel >= 3 ) _midi_menu[mc.sublevels[2]]();
   char midichlist[17][4] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "All"};
-  char midoutlist[17][4] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "Off"};
+  char midoutlist[17][4] = { "Off", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15"};
   const char* midi_lbls[4] = {"Synth Channel: ","Flash Channel: ","Send midi Out: ","External tick: "};
   
   const char* midi_vals[4] = {midichlist[gg.synthmidichannel],midichlist[gg.samplermidichannel],midoutlist[gg.SendMidiOut],((const char*[2]){"Off","On"})[gg.externalticker]};

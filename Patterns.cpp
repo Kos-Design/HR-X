@@ -1328,11 +1328,11 @@ void POptionsRouter::optionspatterndisplays() {
 
 extern POptionsRouter _po;
 
-PatternsMenuRouter::PatternsMenuRouter() : catalog("PATTERNS/","PATTERN",".TXT",doPatternsmenu,sizeofpatternlistlabels-1) {
+PatternsMenuRouter::PatternsMenuRouter() : catalog("PATTERNS/","PART",".TXT",doPatternsmenu,sizeofpatternlistlabels-1) {
   self = this;
   self->home_navrange=sizeofpatternlistlabels-1;
 
-  self->catalog.left_margin = 73;
+  //self->catalog.left_margin = 73;
   self->relative_navlevel=1;
 }
 
@@ -1390,9 +1390,11 @@ void PatternsMenuRouter::parsepattern() {
     return;
   }
   FsFile lepatternfile = SD.sdfs.open(current_file_path, O_READ);
-  if (lepatternfile) {
-    lepatternfile.read((uint8_t*)&pp, sizeof(pp));
-  }
+  if (!lepatternfile){
+    mc.locked_fileing = 0 ;
+    return;
+  } 
+  lepatternfile.read((uint8_t*)&pp, sizeof(pp));
   lepatternfile.close();
   _pe.refresh_patterns();
   mc.locked_fileing = 0 ;
@@ -1436,10 +1438,12 @@ void PatternsMenuRouter::writelemidi() {
     mc.locked_fileing = 1 ;
     pat_filer = SD.sdfs.open(current_file_path, O_WRITE | O_CREAT | O_TRUNC);
   }
-  if (pat_filer) {
-    pat_filer.write((uint8_t*)&pp, sizeof(pp));
-    pat_filer.close();
+  if (!pat_filer) {
+    mc.locked_fileing = 0;
+    return;
   }
+
+  pat_filer.write((uint8_t*)&pp, sizeof(pp));
   pat_filer.close();
   self->catalog.list_files();
   mc.locked_fileing = 0;

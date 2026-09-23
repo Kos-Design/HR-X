@@ -11,10 +11,7 @@ struct BigBuffers {
     char Flashsamplename[999][13];
     char consolemsg[10][32];
     char pleasewaitarray[10][32];
-    uint8_t previousely_plugged_fx[3] = {ALL_FX_TYPES-1,ALL_FX_TYPES-1,ALL_FX_TYPES-1};
-    uint16_t premixesMto_index[3] = {1000,1000,1000} ;
-    uint16_t fxcording_index[3] = {1000,1000,1000} ;
-
+    uint8_t fx_live_type[3] = {ALL_FX_TYPES-1,ALL_FX_TYPES-1,ALL_FX_TYPES-1};
 };
 
 extern BigBuffers bb;
@@ -48,7 +45,7 @@ struct FxVars {
     uint8_t chorusvoices = 2;
     uint8_t LFOonfilterz = 3;
     uint8_t chorusVknobs = 0;
-    uint8_t plugged_fx = ALL_FX_TYPES-1;
+    uint8_t fx_selected = ALL_FX_TYPES-1;
     bool granular_shifting = 0;
     bool granular_freezing = 0;
 };
@@ -58,8 +55,8 @@ class FxBus {
     FxBus(FxVars& vars, uint8_t index);
     FxVars& vars;
     uint8_t f_index = 0 ;
-    void route_fx(byte selected_fx_type);
-    void plug_fx_line(byte selected_fx_type);
+    void route_fx(byte desired_fx);
+    void plug_fx_line(byte desired_fx);
     void stopdelayline();
     void unplug_fx_line();
 
@@ -128,7 +125,8 @@ struct Preset {
     uint8_t arpeggridS = 0;
     bool digitalplay = false;
     uint8_t chordson = 1;
-    uint8_t SendMidiOut = 3;
+    //midi out channel or 0 to disable
+    uint8_t SendMidiOut = 0;
 
     // 6 is Off
     uint8_t lasetchord = 6;

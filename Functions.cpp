@@ -166,7 +166,7 @@ void initextmems() {
   _sp.initializeFlashsamplename();
   memset(bb.consolemsg, 0, sizeof(bb.consolemsg));
   memset(bb.pleasewaitarray, 0, sizeof(bb.pleasewaitarray));
-  memset(bb.previousely_plugged_fx, ALL_FX_TYPES-1, sizeof(bb.previousely_plugged_fx));
+  memset(bb.fx_live_type, ALL_FX_TYPES-1, sizeof(bb.fx_live_type));
   memcpy(bb.notestofreq, tmparray, sizeof(bb.notestofreq));
   _sp.doclearassign();
   _po.clearsynthpatternline();
@@ -660,7 +660,7 @@ void setup() {
 
   muxer.start();
   //queue1.begin();
-  AudioMemory(1200);
+  AudioMemory(512);
   AudioShield.volume(0.0);
   AudioShield.enable();
   _mr.set_in_source();
@@ -684,7 +684,7 @@ void setup() {
   consoler.refresh();
   AudioShield.enable();
 
-  _rd.playrecordsd_pathed("SOUNDSET/REC/LOOP22#L.RAW");
+  _rd.playrecordsd_pathed("SOUNDSET/REC/LOOP000#L.RAW");
 
 }
 
@@ -1160,11 +1160,13 @@ void SaveToNewPattern_Trigger_ctl(byte cc_value){
 }
 
 void LoadNextPattern_Trigger_ctl(byte cc_value){
+  if (!_pt.catalog.files_counter) return;
   _pt.catalog.displayable_offset = (_pt.catalog.displayable_offset + 1 ) % _pt.catalog.files_counter ;
   _pt.parsepattern();
 }
 
 void LoadPreviousPattern_Trigger_ctl(byte cc_value){
+  if (!_pt.catalog.files_counter) return;
   if (_pt.catalog.displayable_offset - 1 < 0) _pt.catalog.displayable_offset = max(0,_pt.catalog.files_counter - 1) ;
   else _pt.catalog.displayable_offset = _pt.catalog.displayable_offset - 1;
   _pt.parsepattern();

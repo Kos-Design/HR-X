@@ -209,9 +209,14 @@ void SamplerMenuRouter::preview_flash_assignee() {
 
 void SamplerMenuRouter::copybacklaflashfile(int leflashfile) {
   SerialFlashFile originflashfile = SerialFlash.open((const char *)bb.Flashsamplename[leflashfile]);
+  if (!originflashfile) return;
   char new_name[64];
   snprintf(new_name, sizeof(new_name), "%s/%s",  self->newmkdirpath, bb.Flashsamplename[leflashfile]);
   FsFile mynewsample = SD.sdfs.open(new_name, O_WRITE | O_CREAT | O_TRUNC);
+  if (!mynewsample) {
+    originflashfile.close();
+    return;
+  }
   size_t n_size;
   uint8_t buf[512];
   while ((n_size = originflashfile.read(buf, sizeof(buf))) > 0) {
@@ -233,7 +238,7 @@ bool SamplerMenuRouter::make_full_dir_name(const char *base_path_dir, char *buff
     int written = snprintf(
         buffer,
         buffer_size,
-        "%s%02u",
+        "%s%03u",
         base_path_dir,
         number
     );
@@ -307,6 +312,7 @@ void SamplerMenuRouter::Assingexplorer() {
         }
 
 void SamplerMenuRouter::add_file_selection(uint16_t folder_,uint16_t file_){
+  if (self->samples_selected_count > 254) return ;
   self->samples_selected[self->samples_selected_count] = {folder_,file_};
   self->samples_selected_count++;
 }
@@ -907,11 +913,15 @@ void SamplerMenuRouter::loadSelectedSamples() {
                 Serial.print(" Skipping ");
                 Serial.print(currentflashname);
                 Serial.print(" <--- name too long !");
+                currentsample.close();
                 continue;
               }
               lengthz = currentsample.size();
               dm.pseudoconsole(currentflashname);
-              if (SerialFlash.exists((const char*)currentflashname)) continue;
+              if (SerialFlash.exists((const char*)currentflashname)){
+                currentsample.close();
+                continue;
+              }
 
               if (SerialFlash.create((const char*)currentflashname, lengthz)) {
                 SerialFlashFile currentFlashfile = SerialFlash.open((const char*)currentflashname);
@@ -952,7 +962,10 @@ void SamplerMenuRouter::loadSampledSound() {
           currentsample.getName(currentflashname, 12);
           lengthz = currentsample.size();
 
-          if (SerialFlash.exists((const char*)currentflashname)) return;
+          if (SerialFlash.exists((const char*)currentflashname)){
+            currentsample.close();
+            return;
+          }
 
           if (SerialFlash.create((const char*)currentflashname, lengthz)) {
             SerialFlashFile currentFlashfile = SerialFlash.open(currentflashname);
@@ -1062,24 +1075,21 @@ void SamplerMenuRouter::listsamplesassigner2() {
 
 //TODO: check
 void SamplerMenuRouter::listSoundsetsubdir(int ledir) {
-  if (SD.sdfs.exists((const char *)self->sampledirpath)) {
-    FsFile susudir = SD.sdfs.open((const char *)self->sampledirpath);
-    while (true) {
-      FsFile subentry = susudir.openNextFile();
-      if (!subentry) {
-        break;
-      }
-      char shorter_name[13];
-      subentry.getName(shorter_name, 13);
-      shorter_name[12] = (char)'\0';
-      if (!subentry.isDirectory()) {
-          setlefilenamed(ledir, self->sizeofsamplefolder[ledir], (char*)shorter_name);
-        (self->sizeofsamplefolder[ledir])++;
-      }
-      subentry.close();
+  if (!SD.sdfs.exists((const char *)self->sampledirpath)) return;
+  FsFile susudir = SD.sdfs.open((const char *)self->sampledirpath);
+  while (true) {
+    FsFile subentry = susudir.openNextFile();
+    if (!subentry) break;
+    char shorter_name[13];
+    subentry.getName(shorter_name, 13);
+    shorter_name[12] = (char)'\0';
+    if (!subentry.isDirectory()) {
+        setlefilenamed(ledir, self->sizeofsamplefolder[ledir], (char*)shorter_name);
+      (self->sizeofsamplefolder[ledir])++;
     }
-    susudir.close();
+    subentry.close();
   }
+  susudir.close();
 }
 
 void SamplerMenuRouter::makesoundsetfullpathfromchars(int eldir) {

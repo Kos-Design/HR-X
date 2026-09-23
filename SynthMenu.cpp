@@ -489,22 +489,25 @@ void Mp3PlayerRouter::playFile(const char *mp3_file) {
 }
 
 void Mp3PlayerRouter::get_next_mp3(){
-    if (!SD.sdfs.exists("MP3")) return;
-    FsFile susudir = SD.sdfs.open("MP3");
-    char mpname[32]{};
-    FsFile subentry;
-    uint16_t mp_n = 0;
-    while (mp_n <= self->mp3_idx_list[self->next_mp3]) {
-      subentry = susudir.openNextFile();
-      if (!subentry) break;
-      if (!subentry.isDirectory()) mp_n++;
-    }
-    if (subentry && !subentry.isDirectory()) {
+  if (!SD.sdfs.exists("MP3")) return;
+  FsFile susudir = SD.sdfs.open("MP3");
+  if (!susudir) return;
+  char mpname[32]{};
+  FsFile subentry;
+  uint16_t mp_n = 0;
+  while (mp_n <= self->mp3_idx_list[self->next_mp3]) {
+    subentry = susudir.openNextFile();
+    if (!subentry) break;
+    if (!subentry.isDirectory()) mp_n++;
+  }
+  if (subentry) {
+    if (!subentry.isDirectory()) {
       subentry.getName(mpname, sizeof(mpname));
       snprintf(self->mp3_name, sizeof(self->mp3_name), "MP3/%s", mpname);
     }
     subentry.close();
-    susudir.close();
+  }
+  susudir.close();
 }
 
 //moves the files on SD root and renames them if their names are too big
@@ -533,14 +536,12 @@ bool Mp3PlayerRouter::sanitizeFilename(FsFile &file){
 
 void Mp3PlayerRouter::count_mp3s() {
   self->mp3_count=0;
-
   if (SD.sdfs.exists("MP3") ) {
     FsFile susudir = SD.sdfs.open("MP3");
+    if (!susudir) return;
     while (true) {
       FsFile subentry = susudir.openNextFile();
-      if (!subentry) {
-        break;
-      }
+      if (!subentry) break;
       if (!subentry.isDirectory()) {
         self->mp3_count++;
         self->sanitizeFilename(subentry);

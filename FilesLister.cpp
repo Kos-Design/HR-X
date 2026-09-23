@@ -17,7 +17,7 @@ bool FilesLister::get_file_name(char *buffer, size_t buffer_size,byte number){
     int written = snprintf(
         buffer,
         buffer_size,
-        "%s%02u",
+        "%s%03u",
         this->basenamer,
         number
     );
@@ -52,7 +52,7 @@ bool FilesLister::make_full_file_name(byte number, char *buffer, size_t buffer_s
     int written = snprintf(
         buffer,
         buffer_size,
-        "%s%s%02u%s",
+        "%s%s%03u%s",
         this->folder_dir,
         this->basenamer,
         number,
@@ -63,12 +63,12 @@ bool FilesLister::make_full_file_name(byte number, char *buffer, size_t buffer_s
 }
 
 bool FilesLister::get_new_file_name(char *buffer, size_t buffer_size){
+  if (this->files_counter > 254) return false;
+
   byte file_number = this->files_counter;
   while (file_number < 255) {
-    if (!make_full_file_name(file_number, buffer, buffer_size))
-        return false;
-    if (!SD.sdfs.exists(buffer))
-        return true;
+    if (!make_full_file_name(file_number, buffer, buffer_size)) return false;
+    if (!SD.sdfs.exists(buffer)) return true;
     file_number++;
   }
   return false;
@@ -76,7 +76,7 @@ bool FilesLister::get_new_file_name(char *buffer, size_t buffer_size){
 
 bool FilesLister::get_full_tmp_file_path(char *buffer, size_t buffer_size,byte number){
     int n = snprintf(buffer, buffer_size,
-                     "%s%02u",
+                     "%s%03u",
                      this->tmp_folder,
                      number);
 
@@ -84,15 +84,21 @@ bool FilesLister::get_full_tmp_file_path(char *buffer, size_t buffer_size,byte n
 }
 
 bool FilesLister::get_new_tmp_name(char *buffer, size_t buffer_size,bool increment){
+  if (this->tmp_index > 254) return false;
+
   byte tmp_file_number = this->tmp_index;
-  while (true) {
+  while (tmp_file_number < 255) {
     if (!get_full_tmp_file_path(buffer, buffer_size,tmp_file_number)) return false;
     if (!SD.sdfs.exists(buffer)) break;
     tmp_file_number++;
   }
-  this->tmp_index = tmp_file_number;
-  if (increment) this->tmp_count++;
-  return true;
+  if (tmp_file_number < 255){
+    this->tmp_index = tmp_file_number;
+    if (increment) this->tmp_count++;
+    return true;
+  }
+  
+  return false;
 }
 
 bool FilesLister::deleteFile() {
@@ -112,14 +118,9 @@ bool FilesLister::deleteFile() {
   return result;
 }
 
-bool FilesLister::deleteFileGeneric(const char* _target_file) {
-  if (mc.locked_fileing) return false;
-  mc.locked_fileing = 1 ;
+bool FilesLister::delete_file_reserved(const char* _target_file) {
   bool result = false ;
-  if (SD.sdfs.exists(_target_file)) {
-   result = SD.sdfs.remove(_target_file);
-  }
-  mc.locked_fileing = 0 ;
+  if (SD.sdfs.exists(_target_file)) result = SD.sdfs.remove(_target_file);
   return result;
 }
 
@@ -140,7 +141,16 @@ void FilesLister::copyFile() {
   }
   if (SD.sdfs.exists(current_file_path)) {
     target_file = SD.sdfs.open(new_file_name, O_WRITE | O_CREAT | O_TRUNC);
+    if (!target_file) {
+      mc.locked_fileing = 0 ;
+      return;
+    }
     origin_file = SD.sdfs.open(current_file_path, O_READ);
+    if (!origin_file) {
+      target_file.close();
+      mc.locked_fileing = 0 ;
+      return;
+    }
     size_t n_size;
     uint8_t buf[512];
     while ((n_size = origin_file.read(buf, sizeof(buf))) > 0) {
@@ -154,53 +164,33 @@ void FilesLister::copyFile() {
   mc.locked_fileing = 0 ;
 }
 
-void FilesLister::move_file(const char* _source, const char* _dest){
+void FilesLister::move_file_reserved(const char* _source, const char* _dest){
   FsFile file;
-     Serial.println(" ");
-        Serial.print("movying ");
-        Serial.print(_source);
-        Serial.print(" to ");
-        Serial.print(_dest);
   if (SD.sdfs.exists(_dest)) SD.sdfs.remove(_dest);
   file.open(_source, O_READ);
-  if (file.rename(_dest)) Serial.println(" movyed !");
-
+  if (file){
+    file.rename(_dest);
+    file.close();
+  } 
 }
 
-void FilesLister::copyFileGeneric(const char* _origin_file,const char* _target_file) {
-        Serial.println(" ");
-        Serial.print("copy_ing ");
-        Serial.print(_origin_file);
-        Serial.print(" to ");
-        Serial.print(_target_file);
-
-  if (SD.sdfs.exists(_origin_file)) {
-    if (SD.sdfs.exists(_target_file))
-      deleteFileGeneric(_target_file);
-    if (mc.locked_fileing){
-      Serial.println("already locked");
-      return;
-    }
-    mc.locked_fileing = 1 ;
-   FsFile origin_file = SD.sdfs.open(_origin_file, O_READ);
-   FsFile target_file = SD.sdfs.open(_target_file, O_WRITE | O_CREAT | O_TRUNC);
-    size_t n_size;
-    //uint8_t buf[64];
-    uint8_t buf[512];
-    while ((n_size = origin_file.read(buf, sizeof(buf))) > 0) {
-      target_file.write(buf, n_size);
-    }
+void FilesLister::copy_file_reserved(const char* _origin_file,const char* _target_file) {
+  if (!SD.sdfs.exists(_origin_file) || !SD.sdfs.exists(_target_file)) return;
+  FsFile origin_file = SD.sdfs.open(_origin_file, O_READ);
+  if (!origin_file) return;
+  delete_file_reserved(_target_file);
+  FsFile target_file = SD.sdfs.open(_target_file, O_WRITE | O_CREAT | O_TRUNC);
+  if (!target_file) {
+    origin_file.close();
+    return;
+  }
+  size_t n_size;
+  uint8_t buf[512];
+  while ((n_size = origin_file.read(buf, sizeof(buf))) > 0) {
+    target_file.write(buf, n_size);
+  }
   origin_file.close();
   target_file.close();
-  mc.locked_fileing = 0 ;
-
-
-  } else {
-    Serial.println("origin file error");
-  }
-  Serial.println(" ");
-  Serial.print("copy_ok ");
-
 }
 
 void FilesLister::make_temp_folders(){
@@ -338,53 +328,47 @@ void FilesLister::list_files() {
   this->files_counter = 0;
   this->folders_counter = 0;
   this->free_counter = 0 ;
-  if (SD.sdfs.exists((const char*)this->folder_dir)) {
-   FsFile opened_dir = SD.sdfs.open((const char*)this->folder_dir);
-    while (this->files_counter < 99 && this->folders_counter < 99 && this->free_counter < 99) {
-     FsFile entry = opened_dir.openNextFile();
-      if (!entry) {
-          break;
+  if (!SD.sdfs.exists((const char*)this->folder_dir)) return;
+  FsFile opened_dir = SD.sdfs.open((const char*)this->folder_dir);
+  if (!opened_dir) return;
+  while (this->files_counter < 99 && this->folders_counter < 99 && this->free_counter < 99) {
+    FsFile entry = opened_dir.openNextFile();
+    if (!entry) break;
+    char entry_name[16];
+    if (!entry.isDirectory()) {
+      char named[16];
+      entry.getName(entry_name, 16);
+      strncpy(named, entry_name, 15);
+      named[15] = '\0';
+      if (strlen(named)>strlen(this->extension)){
+        named[strlen((char*)named) - strlen(this->extension)] = '\0';
       }
-      char entry_name[16];
-      if (!entry.isDirectory()) {
-        char named[16];
-
-        entry.getName(entry_name, 16);
-        strncpy(named, entry_name, 15);
-        named[15] = '\0';
-        if (strlen(named)>strlen(this->extension)){
-          named[strlen((char*)named) - strlen(this->extension)] = '\0';
-        }
-        bool good_base = (bool)(strncmp((char*)named, this->basenamer, this->base_char_count) == 0) ;
-        if (strlen((char*)named) != this->base_char_count+2 || !good_base ){
-            //strncpy(this->free_files[this->free_counter], entry_name, 15);
-            entry.getName(this->free_files[this->free_counter], 16);
-
-            this->free_files[this->free_counter][15] = '\0';
-            this->free_counter++;
-            entry.close();
-            continue;
-        }
-        //keep only last 2 digits assuming a basename of 8 chars
-        this->files_indexed[this->files_counter] = atoi((char*)named+this->base_char_count);
-        this->files_counter++;
-      } else {
-        //TODO securize name length
-        //lets hope folders names aare below 15 chars
-        //strncpy(this->folders_indexed[this->folders_counter], entry_name, 15);
-        entry.getName(this->folders_indexed[this->folders_counter], 16);
-
-        this->folders_indexed[this->folders_counter][15] = '\0';
-        this->folders_counter++;
+      bool good_base = (bool)(strncmp((char*)named, this->basenamer, this->base_char_count) == 0) ;
+      if (strlen((char*)named) != this->base_char_count+3 || !good_base ){
+        entry.getName(this->free_files[this->free_counter], 16);
+        this->free_files[this->free_counter][15] = '\0';
+        this->free_counter++;
+        entry.close();
+        continue;
       }
-      entry.close();
-    }
-    opened_dir.close();
-    if (!this->folders_mode) {
-      refresh_files_names();
+      //keep only last 3 digits assuming a basename of 8 chars
+      this->files_indexed[this->files_counter] = atoi((char*)named+this->base_char_count);
+      this->files_counter++;
     } else {
-      refresh_folders_names();
+      // Directory:
+      //TODO securize name length
+      entry.getName(this->folders_indexed[this->folders_counter], 16);
+      this->folders_indexed[this->folders_counter][15] = '\0';
+      this->folders_counter++;
     }
+    entry.close();
   }
+  opened_dir.close();
+  if (!this->folders_mode) {
+    refresh_files_names();
+  } else {
+    refresh_folders_names();
+  }
+
 }
 

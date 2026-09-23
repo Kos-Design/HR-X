@@ -496,7 +496,7 @@ void TriggerMessenger::check_pads() {
 }
 
 void TriggerMessenger::MaNoteOn(MidiEventer msg,bool from_partition) {
-  if (gg.SendMidiOut<16) {
+  if (gg.SendMidiOut) {
     // TODO: send midi during sound trigger to use arpegiators (+ note offs if
     // MidiUSB.sendMIDI({0x09, statusByte, msg.note, msg.velocity});
     // MidiUSB.flush();
@@ -563,7 +563,7 @@ void TriggerMessenger::MaNoteOff(uint8_t ch_,uint8_t nt_,uint8_t ve_) {
 void TriggerMessenger::MaNoteOff(MidiEventer msg, bool from_partition) {
   //uint8_t statusByte = static_cast<uint8_t>(0x80 | channel);
   int lachordnote;
-  if (gg.SendMidiOut<16) {
+  if (gg.SendMidiOut) {
     //MidiUSB.sendMIDI({0x08, statusByte, data1, data2});
     //MidiUSB.flush();
     //usbMIDI.send((uint8_t)0x09, (uint8_t)data1, (uint8_t)data2, (uint8_t)channel,(uint8_t)0);
@@ -620,7 +620,7 @@ void TriggerMessenger::cc_edgecases(MidiEventer msg){
       pp.sampler_partition[mc.sublevels[2]][mc.sublevels[5]].velocity = msg.velocity;
     }
   }
-   if (gg.SendMidiOut<16) {
+   if (gg.SendMidiOut) {
       //uint8_t statusByte = static_cast<uint8_t>(0xB0 | channel);
       //MidiUSB.sendMIDI({0x0B, statusByte, control, value});
       //MidiUSB.flush();

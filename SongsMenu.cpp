@@ -321,7 +321,7 @@ void SongEditorRouter::Songmodepanel() {
 
 SongMenuRouter* SongMenuRouter::self = nullptr;
 
-SongMenuRouter::SongMenuRouter() : catalog("SONGS/","SONG#",".TXT",draw_song_menu,sg_labels_count-1) {
+SongMenuRouter::SongMenuRouter() : catalog("SONGS/","SONG",".TXT",draw_song_menu,sg_labels_count-1) {
   self = this;
   self->home_navrange=sg_labels_count-1;
   self->relative_navlevel=1;
@@ -372,10 +372,11 @@ void SongMenuRouter::writedasong() {
     mc.locked_fileing = 1 ;
     song_filer = SD.sdfs.open(current_file_path, O_WRITE | O_CREAT | O_TRUNC);
   }
-  if (song_filer) {
-    song_filer.write((uint8_t*)&ng, sizeof(ng));
-    song_filer.close();
+  if (!song_filer) {
+    mc.locked_fileing = 0 ;
+    return;
   }
+  song_filer.write((uint8_t*)&ng, sizeof(ng));
   song_filer.close();
   self->catalog.list_files();
   mc.locked_fileing = 0;
@@ -391,9 +392,11 @@ void SongMenuRouter::parseSong(){
     return;
   }
   FsFile song_filer = SD.sdfs.open(current_file_path, O_READ);
-  if (song_filer) {
-    song_filer.read((uint8_t*)&ng, sizeof(ng));
+  if (!song_filer) {
+    mc.locked_fileing = 0 ;
+    return;
   }
+  song_filer.read((uint8_t*)&ng, sizeof(ng));
   song_filer.close();
   mc.locked_fileing = 0 ;
 }

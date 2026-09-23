@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "Presets.h"
 constexpr unsigned char menuBG[] = {
     // 'menuBG', 128x64px
@@ -286,7 +287,6 @@ constexpr unsigned char sinewave[] PROGMEM = {
     0x60, 0x00, 0x00, 0x06, 0x3f, 0xff, 0xff, 0xfc
 };
 
-
 constexpr uint8_t lesformes[9] PROGMEM = {
     WAVEFORM_SINE,     WAVEFORM_SAWTOOTH,          WAVEFORM_SAWTOOTH_REVERSE,
     WAVEFORM_TRIANGLE, WAVEFORM_TRIANGLE_VARIABLE, WAVEFORM_SQUARE,
@@ -302,63 +302,62 @@ const unsigned char *_img[12] = { sinewave, sawtoothwave, reversesawtoothwave, t
 
 FxBus::FxBus(FxVars& vars, uint8_t index) : vars(vars), f_index(index) {};
 
-void FxBus::route_fx(byte selected_fx_type) {
-  if (bb.previousely_plugged_fx[f_index] != (ALL_FX_TYPES - 1)) unplug_fx_line();
-  if (selected_fx_type != (ALL_FX_TYPES - 1)) {
-    plug_fx_line(selected_fx_type);
-    vars.plugged_fx = selected_fx_type;
+void FxBus::route_fx(byte desired_fx) {
+  if (bb.fx_live_type[f_index] != (ALL_FX_TYPES - 1)){
+    unplug_fx_line();
+    vars.fx_selected = ALL_FX_TYPES-1;
   }
-  bb.previousely_plugged_fx[f_index] = vars.plugged_fx;
+  if (desired_fx != (ALL_FX_TYPES - 1)) {
+    plug_fx_line(desired_fx);
+    vars.fx_selected = desired_fx;
+  }
+  bb.fx_live_type[f_index] = vars.fx_selected;
 }
 
-void FxBus::plug_fx_line(byte selected_fx_type){
-
-      AudioNoInterrupts();
-      //delay
-      if (selected_fx_type == 8) {
-        delayCords[f_index]->connect();
-        delayCordsR[f_index]->connect();
-      }
-      if (selected_fx_type == 4) {
-        flange[f_index]->begin(bb.flangedelay[f_index],FLANGE_DELAY_LENGTH,this->vars.flangeoffset,this->vars.flangedepth,this->vars.flangefreq);
-        flange[f_index]->voices(FLANGE_DELAY_PASSTHRU,0,0);
-        flangeR[f_index]->begin(bb.flangedelay[f_index],FLANGE_DELAY_LENGTH,this->vars.flangeoffset,this->vars.flangedepth,this->vars.flangefreq);
-        flangeR[f_index]->voices(FLANGE_DELAY_PASSTHRU,0,0);
-      }
-      if (selected_fx_type == 5) {
-        chorus[f_index]->begin(bb.chorusdelayline[f_index],CHORUS_DELAY_LENGTH,this->vars.chorusvoices) ;
-        chorusR[f_index]->begin(bb.chorusdelayline[f_index],CHORUS_DELAY_LENGTH,this->vars.chorusvoices) ;
-      }
-      bb.premixesMto_index[f_index] = (selected_fx_type * FXS_COUNT) + (f_index);
-      bb.fxcording_index[f_index] = (selected_fx_type*FXS_COUNT*2*3) + (f_index*FXS_COUNT*2) + (2*f_index);
-      premixesMto[bb.premixesMto_index[f_index]]->connect();
-      premixesMtoR[bb.premixesMto_index[f_index]]->connect();
-      fxcording[bb.fxcording_index[f_index]]->connect();
-      fxcording[bb.fxcording_index[f_index] + 1]->connect();
-      AudioInterrupts();
-    }
+void FxBus::plug_fx_line(byte desired_fx){
+  AudioNoInterrupts();
+  //delay
+  if (desired_fx == 8) {
+    delayCords[f_index]->connect();
+    delayCordsR[f_index]->connect();
+  }
+  if (desired_fx == 4) {
+    flange[f_index]->begin(bb.flangedelay[f_index],FLANGE_DELAY_LENGTH,this->vars.flangeoffset,this->vars.flangedepth,this->vars.flangefreq);
+    flange[f_index]->voices(FLANGE_DELAY_PASSTHRU,0,0);
+    flangeR[f_index]->begin(bb.flangedelay[f_index],FLANGE_DELAY_LENGTH,this->vars.flangeoffset,this->vars.flangedepth,this->vars.flangefreq);
+    flangeR[f_index]->voices(FLANGE_DELAY_PASSTHRU,0,0);
+  }
+  if (desired_fx == 5) {
+    chorus[f_index]->begin(bb.chorusdelayline[f_index],CHORUS_DELAY_LENGTH,this->vars.chorusvoices) ;
+    chorusR[f_index]->begin(bb.chorusdelayline[f_index],CHORUS_DELAY_LENGTH,this->vars.chorusvoices) ;
+  }
+  uint16_t Mto_index = (desired_fx * FXS_COUNT) + (f_index);
+  uint16_t cording_index = (desired_fx*FXS_COUNT*2*3) + (f_index*FXS_COUNT*2) + (2*f_index);
+  premixesMto[Mto_index]->connect();
+  premixesMtoR[Mto_index]->connect();
+  fxcording[cording_index]->connect();
+  fxcording[cording_index + 1]->connect();
+  AudioInterrupts();
+}
 
 void FxBus::stopdelayline() {
-
-      for (int j = 0; j < 8; j++) {
-        lesdelays[f_index]->disable(j);
-        lesdelaysR[f_index]->disable(j);
-
-      }
-    }
+  for (int j = 0; j < 8; j++) {
+    lesdelays[f_index]->disable(j);
+    lesdelaysR[f_index]->disable(j);
+  }
+}
 
 void FxBus::unplug_fx_line() {
+  uint16_t Mto_index = (bb.fx_live_type[f_index] * FXS_COUNT) + (f_index);
+  uint16_t cording_index = (bb.fx_live_type[f_index]*FXS_COUNT*2*3) + (f_index*FXS_COUNT*2) + (2*f_index);
   AudioNoInterrupts();
-  premixesMto[bb.premixesMto_index[f_index]]->disconnect();
-  premixesMtoR[bb.premixesMto_index[f_index]]->disconnect();
-  fxcording[bb.fxcording_index[f_index]]->disconnect();
-  fxcording[bb.fxcording_index[f_index] + 1]->disconnect();
-  bb.premixesMto_index[f_index] = 1000;
-  bb.fxcording_index[f_index] = 1000;
+  premixesMto[Mto_index]->disconnect();
+  premixesMtoR[Mto_index]->disconnect();
+  fxcording[cording_index]->disconnect();
+  fxcording[cording_index + 1]->disconnect();
   stopdelayline();
   delayCords[f_index]->disconnect();
   delayCordsR[f_index]->disconnect();
   AudioInterrupts();
-  vars.plugged_fx = ALL_FX_TYPES-1;
 }
 

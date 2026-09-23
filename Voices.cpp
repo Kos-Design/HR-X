@@ -45,12 +45,12 @@ void drum_refresh(byte l_index,byte osc_idx,float currentFreq,byte velocity){
 
 ActiveLinesRegister::ActiveLinesRegister() { }
 
-
-
 void ActiveLinesRegister::add_active_index(uint8_t value){
-  if (synth_lines_active > SYNTH_LINERS_COUNT-2) return ;
-  active_indexes[synth_lines_active] = value ;
-  synth_lines_active++;
+  if (value > SYNTH_LINERS_COUNT-1) return;
+  for (uint8_t i = 0; i < synth_lines_active; ++i)
+    if (active_indexes[i] == value) return;
+  if (synth_lines_active > SYNTH_LINERS_COUNT-1) return;
+  active_indexes[synth_lines_active++] = value;
 }
 
 void ActiveLinesRegister::remove_active_index(uint8_t value){
@@ -67,7 +67,7 @@ void ActiveLinesRegister::remove_active_index(uint8_t value){
 SynthLiner::SynthLiner(byte line_index ) : l_index(line_index) { }
 
 void SynthLiner::liner_on(byte data1, byte data2) {
-    if (this->activated||data1==this->note) {
+    if (this->activated) {
       liner_off();
       return;
     }
@@ -107,48 +107,43 @@ void SynthLiner::liner_on(byte data1, byte data2) {
 }
 
 void SynthLiner::update_line_old(){
-    // float t = (float)this->currentUpdate / this->totalUpdates;
-    this->currentFreq += this->steps;
-    if ((this->steps > 0 && this->currentFreq >= this->targetFreq) ||
-    (this->steps < 0 && this->currentFreq <= this->targetFreq) ) {
-    this->currentFreq = this->targetFreq;
-    }
-    refreshWavelines();
-    this->currentUpdate++;
+  // float t = (float)this->currentUpdate / this->totalUpdates;
+  this->currentFreq += this->steps;
+  if ((this->steps > 0 && this->currentFreq >= this->targetFreq) ||
+  (this->steps < 0 && this->currentFreq <= this->targetFreq) ) {
+  this->currentFreq = this->targetFreq;
+  }
+  refreshWavelines();
+  this->currentUpdate++;
 }
 
 void SynthLiner::update_line(){
-    float glide_curve = (64 - gg.glide_slope) / 64.0f ;
-    if (this->currentUpdate < this->totalUpdates)
-    {
-        float t = (float)this->currentUpdate / (float)this->totalUpdates;
-        float s = t;
-        if (glide_curve > 0.0f) {
-            float exp = 1.0f + 4.0f * glide_curve;
-            s = powf(t, exp);
-        }
-        else if (glide_curve < 0.0f)  {
-            float exp = 1.0f - 4.0f * glide_curve;
-            s = 1.0f - powf(1.0f - t, exp);
-        }
-
-        this->currentFreq = this->startFreq + (this->targetFreq - this->startFreq) * s;
-
-        this->currentUpdate++;
-
-        if (this->currentUpdate >= this->totalUpdates)
-            this->currentFreq = this->targetFreq;
+  float glide_curve = (64 - gg.glide_slope) / 64.0f ;
+  if (this->currentUpdate < this->totalUpdates) {
+    float t = (float)this->currentUpdate / (float)this->totalUpdates;
+    float s = t;
+    if (glide_curve > 0.0f) {
+      float exp = 1.0f + 4.0f * glide_curve;
+      s = powf(t, exp);
     }
-
-    refreshWavelines();
+    else if (glide_curve < 0.0f)  {
+      float exp = 1.0f - 4.0f * glide_curve;
+      s = 1.0f - powf(1.0f - t, exp);
+    }
+    this->currentFreq = this->startFreq + (this->targetFreq - this->startFreq) * s;
+    this->currentUpdate++;
+    if (this->currentUpdate >= this->totalUpdates) this->currentFreq = this->targetFreq;
+  }
+  refreshWavelines();
 }
+
 void SynthLiner::setPortamentoTime(){
-    //float dt = AUDIO_BLOCK_SAMPLES * 1000.0f / AUDIO_SAMPLE_RATE_EXACT;
-    //128*1000 / 44100.0f = 2,902494331 ms if we update every audio sample
-    //porta is scaled 20x so 2.9 becomes 0.145 since aproximations are fine
-    this->totalUpdates = max(1, (int)(gg.portamento_time / 0.145));
-    this->steps = (this->targetFreq - this->currentFreq) / this->totalUpdates;
-    this->currentUpdate = 0;
+  //float dt = AUDIO_BLOCK_SAMPLES * 1000.0f / AUDIO_SAMPLE_RATE_EXACT;
+  //128*1000 / 44100.0f = 2,902494331 ms if we update every audio sample
+  //porta is scaled 20x so 2.9 becomes 0.145 since aproximations are fine
+  this->totalUpdates = max(1, (int)(gg.portamento_time / 0.145));
+  this->steps = (this->targetFreq - this->currentFreq) / this->totalUpdates;
+  this->currentUpdate = 0;
 }
 
 void SynthLiner::setfreqWavelines() {
@@ -158,7 +153,6 @@ void SynthLiner::setfreqWavelines() {
 
 void SynthLiner::activateWavelines() {
     static constexpr void (*audio_obj_starter[4])(byte,byte,float,float,byte) = {&waveformize, &FMformize, &drumize, &stringize};
-
     //Sample & Hold waveform does not support phase modulation. Attempting to modulate its phase may give random or inconsistent results.
     for (int i = 0; i < OSCS_COUNT; i++) {
         if (gg.audio_obj_type[i]) audio_obj_starter[gg.audio_obj_type[i]-1](this->l_index,i,this->currentFreq,this->targetFreq,this->velocity);
@@ -175,22 +169,19 @@ void SynthLiner::refreshWavelines() {
 }
 
 void SynthLiner::liner_off() {
-      // AudioNoInterrupts();
-      //if (enveloppesL[this->l_index]->isActive()) {
-      enveloppesL[this->l_index]->hold(0);
-      enveloppesL[this->l_index]->noteOff();
-      this->f303 = 0;
-      this->activated = false;
-      _rg.remove_active_index(this->l_index);
-      this->previous_note = this->note ;
-      this->note = 0 ;
-      this->length_in_arp = 0 ;
-      this->arp_starter = 0 ;
-      this->next_arp_note = 0 ;
-      this->sloper_step = 0 ;
-      this->slope_normalized = 0.0;
-
-    }
+  enveloppesL[this->l_index]->hold(0);
+  enveloppesL[this->l_index]->noteOff();
+  this->f303 = 0;
+  _rg.remove_active_index(this->l_index);
+  this->previous_note = this->note ;
+  this->note = 0 ;
+  this->length_in_arp = 0 ;
+  this->arp_starter = 0 ;
+  this->next_arp_note = 0 ;
+  this->sloper_step = 0 ;
+  this->slope_normalized = 0.0;
+  this->activated = false;
+}
 
 
 FlashLiner::FlashLiner(byte line_index) : l_index(line_index) {  }

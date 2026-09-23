@@ -86,23 +86,23 @@ void FxMenuRouter::dolistmainfxlines() {
         byte starty = 16;
         dm.clear_buffs_2_1();
 
-        if (fx_hook[mc.sublevels[1]%FXS_COUNT].vars.plugged_fx != (self->mainmenufxlistsize - 1)) {
-          dm.canvastitle.println(self->mainmenufxlist[fx_hook[mc.sublevels[1]%FXS_COUNT].vars.plugged_fx]);
+        if (fx_hook[mc.sublevels[1]%FXS_COUNT].vars.fx_selected != (self->mainmenufxlistsize - 1)) {
+          dm.canvastitle.println(self->mainmenufxlist[fx_hook[mc.sublevels[1]%FXS_COUNT].vars.fx_selected]);
         } else {
           dm.canvastitle.println(mainfxlineslist[mc.sublevels[1]%FXS_COUNT]);
         }
         for (int i = 0; i < FXS_COUNT - 1 - mc.sublevels[1]; i++) {
           dm.canvasBIG.setCursor(startx, starty + ((i)*10));
-          if (fx_hook[mc.sublevels[1]%FXS_COUNT + 1 + i].vars.plugged_fx != self->mainmenufxlistsize-1) {
-            dm.canvasBIG.println(self->mainmenufxlist[fx_hook[mc.sublevels[1]%FXS_COUNT + 1 + i].vars.plugged_fx]);
+          if (fx_hook[mc.sublevels[1]%FXS_COUNT + 1 + i].vars.fx_selected != self->mainmenufxlistsize-1) {
+            dm.canvasBIG.println(self->mainmenufxlist[fx_hook[mc.sublevels[1]%FXS_COUNT + 1 + i].vars.fx_selected]);
           } else {
             dm.canvasBIG.println(mainfxlineslist[mc.sublevels[1]%FXS_COUNT + 1 + i]);
           }
         }
         for (int i = 0; i < mc.sublevels[1]%FXS_COUNT; i++) {
           dm.canvasBIG.setCursor(startx, (10 * (FXS_COUNT - (mc.sublevels[1]%FXS_COUNT)) + 6 + ((i)*10)));
-          if (fx_hook[i].vars.plugged_fx != (self->mainmenufxlistsize - 1)) {
-            dm.canvasBIG.println(self->mainmenufxlist[fx_hook[i].vars.plugged_fx]);
+          if (fx_hook[i].vars.fx_selected != (self->mainmenufxlistsize - 1)) {
+            dm.canvasBIG.println(self->mainmenufxlist[fx_hook[i].vars.fx_selected]);
           } else {
             dm.canvasBIG.println(mainfxlineslist[i]);
           }
@@ -1565,7 +1565,7 @@ void FxMenuRouter::biquadVpanelSelector(byte fx_idx) {
 
 void FxMenuRouter::allfxcontrolled() {
   for (int i = 0; i < 3; i++) {
-    if ( fx_hook[i].vars.plugged_fx < ALL_FX_TYPES-1) all_fx_controls[fx_hook[i].vars.plugged_fx](i);
+    if ( fx_hook[i].vars.fx_selected < ALL_FX_TYPES-1) all_fx_controls[fx_hook[i].vars.fx_selected](i);
   }
 }
 
@@ -1576,7 +1576,7 @@ void FxMenuRouter::fx_nav_zero(){
   dm.clearDisplay();
   dolistmainfxlines();
   dm.dodisplay();
-  mc.sublevels[2] = fx_hook[mc.sublevels[1]%FXS_COUNT].vars.plugged_fx ;
+  mc.sublevels[2] = fx_hook[mc.sublevels[1]%FXS_COUNT].vars.fx_selected ;
 }
 
 void FxMenuRouter::fx_nav_one(){

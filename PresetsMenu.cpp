@@ -8,7 +8,7 @@
 
 PresetsMenuRouter* PresetsMenuRouter::self = nullptr;
 
-PresetsMenuRouter::PresetsMenuRouter() : catalog("PRESETS/SYNTH/","SYNSET",".TXT",presets_menu,4) {
+PresetsMenuRouter::PresetsMenuRouter() : catalog("PRESETS/SYNTH/","PSET",".TXT",presets_menu,4) {
           self = this;
           self->home_navrange = self->ps_labels_count-1 ;
           self->relative_navlevel = 1 ;
@@ -47,38 +47,37 @@ void PresetsMenuRouter::setbpms() {
 }
 
 void PresetsMenuRouter::write_preset() {
-          if (mc.locked_fileing)
-            return;
-          mc.locked_fileing = 1 ;
-          FsFile preset_filer;
-          if (self->catalog.new_file_mode) {
-            self->catalog.make_sub_folder("PRESETS", "SYNTH");
-            char new_file_name[64];
-            if (!self->catalog.get_new_file_name(new_file_name, sizeof(new_file_name))){
-              mc.locked_fileing = 0 ;
-              return;
-            }
-            preset_filer = SD.sdfs.open(new_file_name, O_WRITE | O_CREAT | O_TRUNC);
-          } else {
-            char current_file_path[64];
-            if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))){
-              mc.locked_fileing = 0 ;
-              return;
-            }
-            mc.locked_fileing = 0 ;
-            self->catalog.deleteFile();
-            mc.locked_fileing = 1 ;
-            preset_filer = SD.sdfs.open(current_file_path, O_WRITE | O_CREAT | O_TRUNC);
-          }
-          if (preset_filer) {
-            preset_filer.write((uint8_t*)&gg, sizeof(gg));
-            preset_filer.close();
-
-          }
-          preset_filer.close();
-          mc.locked_fileing = 0 ;
-          self->catalog.list_files();
-        }
+  if (mc.locked_fileing) return;
+  mc.locked_fileing = 1 ;
+  FsFile preset_filer;
+  if (self->catalog.new_file_mode) {
+    self->catalog.make_sub_folder("PRESETS", "SYNTH");
+    char new_file_name[64];
+    if (!self->catalog.get_new_file_name(new_file_name, sizeof(new_file_name))){
+      mc.locked_fileing = 0 ;
+      return;
+    }
+    preset_filer = SD.sdfs.open(new_file_name, O_WRITE | O_CREAT | O_TRUNC);
+  } else {
+    char current_file_path[64];
+    if (!self->catalog.get_current_file_path(current_file_path, sizeof(current_file_path))){
+      mc.locked_fileing = 0 ;
+      return;
+    }
+    mc.locked_fileing = 0 ;
+    self->catalog.deleteFile();
+    mc.locked_fileing = 1 ;
+    preset_filer = SD.sdfs.open(current_file_path, O_WRITE | O_CREAT | O_TRUNC);
+  }
+  if (!preset_filer) {
+    mc.locked_fileing = 0 ;
+    return;
+  }
+  preset_filer.write((uint8_t*)&gg, sizeof(gg));
+  preset_filer.close();
+  mc.locked_fileing = 0 ;
+  self->catalog.list_files();
+}
 
 void PresetsMenuRouter::read_preset() {
           if (mc.locked_fileing) return;
@@ -89,13 +88,12 @@ void PresetsMenuRouter::read_preset() {
             return;
           }
           FsFile preset_filer = SD.sdfs.open(current_file_path, O_READ);
-          if (preset_filer) {
-           preset_filer.read((uint8_t*)&gg, sizeof(gg));
-          } else {
+          if (!preset_filer) {
             dm.pseudoconsole("Error with preset file");
             mc.locked_fileing = 0 ;
             return ;
           }
+          preset_filer.read((uint8_t*)&gg, sizeof(gg));
           preset_filer.close();
           uint8_t tmp_mixlevelsM[4];
           uint8_t tmp_mixlevelsL[OSCS_COUNT];
@@ -105,7 +103,7 @@ void PresetsMenuRouter::read_preset() {
           memcpy(&tmp_WetMixMasters, &gg.WetMixMasters, sizeof(gg.WetMixMasters));
 
           for (int i = 0; i < 3; i++) {
-            fx_hook[i].route_fx(fx_hook[i].vars.plugged_fx);
+            fx_hook[i].route_fx(fx_hook[i].vars.fx_selected);
             mc.avoid_fx_bounce = false ;
           }
           setbpms();

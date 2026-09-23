@@ -5,7 +5,7 @@
 
 WaveformsMenuRouter* WaveformsMenuRouter::self = nullptr;
 
-WaveformsMenuRouter::WaveformsMenuRouter() : catalog("WAVEFORM/","WFORM-",".TXT",wforms_menu,7) {
+WaveformsMenuRouter::WaveformsMenuRouter() : catalog("WAVEFORM/","FORM",".TXT",wforms_menu,7) {
   self = this;
   self->home_navrange=self->wf_labels_count-1;
   self->relative_navlevel=1;
@@ -214,10 +214,11 @@ void WaveformsMenuRouter::writewaveform() {
     mc.locked_fileing = 1 ;
     waveform_file = SD.sdfs.open(current_file_path, O_WRITE | O_CREAT | O_TRUNC);
   }
-  if (waveform_file) {
-    waveform_file.write((byte *)gg.arbitrary_waveforms, sizeof(gg.arbitrary_waveforms));
-    waveform_file.close();
+  if (!waveform_file) {
+    mc.locked_fileing = 0 ;
+    return;
   }
+  waveform_file.write((byte *)gg.arbitrary_waveforms, sizeof(gg.arbitrary_waveforms));
   waveform_file.close();
   self->catalog.list_files();
   mc.locked_fileing = 0 ;

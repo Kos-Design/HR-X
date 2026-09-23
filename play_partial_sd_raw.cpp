@@ -84,26 +84,13 @@ void AudioPlayPartialSdRaw::stop(void){
 void AudioPlayPartialSdRaw::update(void){
 	unsigned int i, n;
 	if (!playing) return;
-	audio_block_t *block = allocate();
-	if (!block) return;
-	if (!rawfile.available()) {
-		release(block);
-		stop();
-		rawfile.close();
-		#if defined(HAS_KINETIS_SDHC)
-			if (!(SIM_SCGC3 & SIM_SCGC3_SDHC)) AudioStopUsingSPI();
-		#else
-			AudioStopUsingSPI();
-		#endif
-		playing = false;
-		return;
+	if (currentByte >= endByte || !rawfile.available()) {
+    stop();
+    return;
 	}
 	uint32_t remaining = endByte - currentByte;
-	if (remaining == 0) {
-			release(block);
-			stop();
-			return;
-	}
+	audio_block_t *block = allocate();
+	if (!block) return;
 	uint32_t bytesToRead = min(remaining,(uint32_t)(AUDIO_BLOCK_SAMPLES * 2));
 	n = rawfile.read(block->data, bytesToRead);
 	currentByte += n;
