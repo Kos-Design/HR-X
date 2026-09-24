@@ -29,7 +29,7 @@ class SamplerMenuRouter : public SectionHolder {
         bool samplefullpath(int lefolder, int lefile, char *buffer, size_t buffer_size);
         static void addtofolderix(char *lepathtoadd, int ix);
         static void setupsamplefoldersregistered();
-        static void setlefilenamed(int lefolder, int lefile, char *lefname);
+        bool setlefilenamed(int lefolder, int lefile, const char *lefname);
         static void playsamplepreview();
         static void preview_flash_assignee();
         static void copybacklaflashfile(int leflashfile);
@@ -56,7 +56,7 @@ class SamplerMenuRouter : public SectionHolder {
         static void drawtickboxincanvastitle(int lestartx, int lestarty, int lasizex,
                                       int lasizey, int lacolor,
                                       int lefolder, int lefile);
-        static void addtoFlashsamplelist(char *lesample);
+        bool addtoFlashsamplelist(const char *lesample);
         static void initializeFlashsamplename();
         static void initializesamplesfoldersselectedlist();
         static void initializeFlashsamplesselected();

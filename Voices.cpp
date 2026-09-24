@@ -56,7 +56,7 @@ void ActiveLinesRegister::add_active_index(uint8_t value){
 void ActiveLinesRegister::remove_active_index(uint8_t value){
   for (uint8_t i = 0; i < synth_lines_active; i++) {
     if (active_indexes[i] == value) {
-      memmove(&active_indexes[i], &active_indexes[i + 1], synth_lines_active - i - 1);
+      memmove(&active_indexes[i], &active_indexes[i + 1], (synth_lines_active - i - 1) * sizeof(active_indexes[0]));
       synth_lines_active--;
       active_indexes[synth_lines_active] = SYNTH_LINERS_COUNT;
       return;
@@ -75,7 +75,7 @@ void SynthLiner::liner_on(byte data1, byte data2) {
     this->note=data1;
     this->velocity=data2;
     //should be conditioned
-    this->f303=1;
+    if (gg.le303filterzwet < 127) this->f303=1;
     //_mx.set_303_wetness(this->l_index,1.0);
     this->targetFreq = bb.notestofreq[this->note];
     this->note_diff = ((this->note + (64 - gg.portamento_height)) % 127 + 127) % 127;

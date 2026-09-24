@@ -172,14 +172,15 @@ void SamplerMenuRouter::setupsamplefoldersregistered() {
   self->sampledirsregistered++;
 }
 
-void SamplerMenuRouter::setlefilenamed(int lefolder, int lefile, char *lefname) {
-  int fnamesize = strlen((char *)lefname);
-  for (int i = 0; i < fnamesize; i++) {
-    if (i < fnamesize - 4) {
-      self->samplebase[lefolder][lefile][i] = lefname[i];
-    }
-  }
-  self->samplebase[lefolder][lefile][fnamesize - 4] = (char)'\0';
+bool SamplerMenuRouter::setlefilenamed( int lefolder, int lefile, const char *lefname){
+  if (lefname == nullptr) return false;
+  const size_t len = strlen(lefname);
+  if (len <= 4) return false;
+  const size_t copyLen = len - 4;
+  if (copyLen >= sizeof(self->samplebase[lefolder][lefile])) return false;
+  memcpy(self->samplebase[lefolder][lefile], lefname, copyLen);
+  self->samplebase[lefolder][lefile][copyLen] = '\0';
+  return true;
 }
 
 void SamplerMenuRouter::playsamplepreview(){
@@ -552,18 +553,25 @@ void SamplerMenuRouter::drawtickboxincanvastitle(int lestartx, int lestarty, int
           }
         }
 
-void SamplerMenuRouter::addtoFlashsamplelist(char *lesample) {
-          // files on the flashchip have to be uppercase
-          for (int i = 0; i < 13; i++) {
-            bb.Flashsamplename[self->numberofFlashfiles][i] =
-                toupper((unsigned char)(lesample[i]));
-            if (i < (int)(strlen((char *)lesample) - 4)) {
-              self->Flashsamplebase[self->numberofFlashfiles][i] =
-                  toupper((unsigned char)(lesample[i]));
-            }
-          }
-          self->numberofFlashfiles++;
-        }
+bool SamplerMenuRouter::addtoFlashsamplelist(const char *lesample){
+  if (lesample == nullptr || lesample[0] == '\0') return false;
+  const size_t index = self->numberofFlashfiles;
+  const size_t maxFiles = sizeof(bb.Flashsamplename) / sizeof(bb.Flashsamplename[0]);
+  if (index >= maxFiles) return false;
+  const size_t len = strlen(lesample);
+  if (len >= sizeof(bb.Flashsamplename[index])) return false;
+  const size_t baseLen = (len > 4) ? len - 4 : len;
+  for (size_t i = 0; i < len; i++) {
+    const char c = (char)toupper((unsigned char)lesample[i]);
+    bb.Flashsamplename[index][i] = c;
+    if (i < baseLen && i < sizeof(self->Flashsamplebase[index]) - 1) self->Flashsamplebase[index][i] = c;
+  }
+  bb.Flashsamplename[index][len] = '\0';
+  const size_t displayLen = min(baseLen, sizeof(self->Flashsamplebase[index]) - 1);
+  self->Flashsamplebase[index][displayLen] = '\0';
+  self->numberofFlashfiles++;
+  return true;
+}
 
 void SamplerMenuRouter::initializeFlashsamplename() {
   self->numberofFlashfiles = 0;
@@ -891,122 +899,112 @@ void SamplerMenuRouter::addfolderstoselectionset() {
         }
 
 void SamplerMenuRouter::loadSelectedSamples() {
-          dm.initializeconsolemsg();
-          unsigned long lengthz;
-          FsFile currentsample;
-          SerialFlashFile currentFlashfile;
-          addfolderstoselectionset();
-          delay(100);
-          if (!SerialFlash.begin(self->FlashChipSelect)) {
-            dm.pseudoconsole((char *)"Unable to access SPI Flash chip");
-          }
-          char currentflashname[12];
-          char sample_path[64];
-          if (!self->samples_selected_count) return ;
-            for (uint8_t i = 0; i < self->samples_selected_count; i++) {
-              if (!self->samplefullpath(self->samples_selected[i].folder_n, self->samples_selected[i].file_n, sample_path, sizeof(sample_path))) return;
-              currentsample = SD.sdfs.open(sample_path);
-              if (!currentsample) continue;
+  dm.initializeconsolemsg();
+  unsigned long lengthz;
+  FsFile currentsample;
+  SerialFlashFile currentFlashfile;
+  addfolderstoselectionset();
+  delay(100);
+  if (!SerialFlash.begin(self->FlashChipSelect)) {
+    dm.pseudoconsole((char *)"Unable to access SPI Flash chip");
+  }
+  char currentflashname[13];
+  char sample_path[64];
 
-              currentsample.getName(currentflashname, 12);
-              if (strlen(currentflashname) > 12) {
-                Serial.print(" Skipping ");
-                Serial.print(currentflashname);
-                Serial.print(" <--- name too long !");
-                currentsample.close();
-                continue;
-              }
-              lengthz = currentsample.size();
-              dm.pseudoconsole(currentflashname);
-              if (SerialFlash.exists((const char*)currentflashname)){
-                currentsample.close();
-                continue;
-              }
+  if (!self->samples_selected_count) return;
 
-              if (SerialFlash.create((const char*)currentflashname, lengthz)) {
-                SerialFlashFile currentFlashfile = SerialFlash.open((const char*)currentflashname);
-                if (currentFlashfile) {
-                  unsigned long count = 0;
-                  unsigned char dotcount = 9;
-                  while (count < lengthz) {
-                    char buf[256];
-                    unsigned int n;
-                    n = currentsample.read(buf, 256);
-                    currentFlashfile.write(buf, n);
-                    count += n;
-                    if (++dotcount > 100) {
-                      dotcount = 0;
-                    }
-                  }
-                  currentFlashfile.close();
-                }
-              }
-              currentsample.close();
-            }
-            
-          initializesamplesselectedlist();
-          initializesamplesfoldersselectedlist();
-          listFlashfiles();
+  for (uint8_t i = 0; i < self->samples_selected_count; i++) {
+    if (!self->samplefullpath(self->samples_selected[i].folder_n, self->samples_selected[i].file_n, sample_path, sizeof(sample_path))) return;
+    currentsample = SD.sdfs.open(sample_path);
+    if (!currentsample) continue;
+    currentsample.getName(currentflashname, sizeof(currentflashname));
+    currentflashname[sizeof(currentflashname) - 1] = '\0';
+    lengthz = currentsample.size();
+    dm.pseudoconsole(currentflashname);
+    if (SerialFlash.exists(currentflashname)) {
+      currentsample.close();
+      continue;
+    }
+    if (SerialFlash.create(currentflashname, lengthz)) {
+      SerialFlashFile currentFlashfile = SerialFlash.open(currentflashname);
+      if (currentFlashfile) {
+        unsigned long count = 0;
+        while (count < lengthz) {
+          char buf[256];
+          unsigned int n = currentsample.read(buf, sizeof(buf));
+          if (!n) break;
+          currentFlashfile.write(buf, n);
+          count += n;
         }
+        currentFlashfile.close();
+      }
+    }
+    currentsample.close();
+  }
+    
+  initializesamplesselectedlist();
+  initializesamplesfoldersselectedlist();
+  listFlashfiles();
+}
 
 void SamplerMenuRouter::loadSampledSound() {
-          unsigned long lengthz;
-          FsFile currentsample;
-          SerialFlashFile currentFlashfile;
-          delay(1);
-          if (!SerialFlash.begin(self->FlashChipSelect)) {
-            dm.pseudoconsole("Unable to access SPI Flash chip");
-          }
-          currentsample = SD.sdfs.open(_rd.newloopedpath);
-          char currentflashname[12];
-          currentsample.getName(currentflashname, 12);
-          lengthz = currentsample.size();
+  unsigned long lengthz;
+  FsFile currentsample;
+  SerialFlashFile currentFlashfile;
+  delay(1);
+  if (!SerialFlash.begin(self->FlashChipSelect)) {
+    dm.pseudoconsole("Unable to access SPI Flash chip");
+  }
+  currentsample = SD.sdfs.open(_rd.newloopedpath);
+  if (!currentsample) return;
+  char currentflashname[13];
+  if (!currentsample.getName(currentflashname, 13)) return;
+  if (currentflashname[0] == '\0') {
+    currentsample.close();
+    return;
+  }
+  currentflashname[sizeof(currentflashname) - 1] = '\0';
+  lengthz = currentsample.size();
+  if (SerialFlash.exists(currentflashname)) {
+    currentsample.close();
+    return;
+  }
 
-          if (SerialFlash.exists((const char*)currentflashname)){
-            currentsample.close();
-            return;
-          }
-
-          if (SerialFlash.create((const char*)currentflashname, lengthz)) {
-            SerialFlashFile currentFlashfile = SerialFlash.open(currentflashname);
-            if (currentFlashfile) {
-              unsigned long count = 0;
-              unsigned char dotcount = 9;
-              while (count < lengthz) {
-                char buf[256];
-                unsigned int n;
-                n = currentsample.read(buf, 256);
-                currentFlashfile.write(buf, n);
-                count = count + n;
-                if (++dotcount > 100) {
-                  dotcount = 0;
-                }
-              }
-              currentFlashfile.close();
-              }
-            }
-          currentsample.close();
-          initializesamplesselectedlist();
-          initializesamplesfoldersselectedlist();
-          listFlashfiles();
-
-        }
+  if (SerialFlash.create(currentflashname, lengthz)) {
+    SerialFlashFile currentFlashfile = SerialFlash.open(currentflashname);
+    if (currentFlashfile) {
+      unsigned long count = 0;
+      while (count < lengthz) {
+        char buf[256];
+        unsigned int n = currentsample.read(buf, sizeof(buf));
+        if (!n) break;
+        currentFlashfile.write(buf, n);
+        count += n;
+      }
+      currentFlashfile.close();
+    }
+  }
+  currentsample.close();
+  initializesamplesselectedlist();
+  initializesamplesfoldersselectedlist();
+  listFlashfiles();
+}
 
 void SamplerMenuRouter::listFlashfiles() {
-          initializeFlashsamplename();
-          if (!SerialFlash.begin(self->FlashChipSelect)) {
-            dm.pseudoconsole((char *)"Unable to access SPI Flash chip");
-            Serial.println("Unable to access SPI Flash chip");
-
-          }
-          //requireds to reset the readdir iterator
-          SerialFlash.opendir();
-          char filename[13];
-          uint32_t filesize;
-          while (SerialFlash.readdir(filename, sizeof(filename), filesize)) {
-              addtoFlashsamplelist(filename);
-          }
-        }
+  initializeFlashsamplename();
+  if (!SerialFlash.begin(self->FlashChipSelect)) {
+    dm.pseudoconsole((char *)"Unable to access SPI Flash chip");
+    Serial.println("Unable to access SPI Flash chip");
+  }
+  //requireds to reset the readdir iterator
+  SerialFlash.opendir();
+  char filename[13];
+  //unused but required
+  uint32_t filesize;
+  while (SerialFlash.readdir(filename, sizeof(filename), filesize)) {
+    if (!self->addtoFlashsamplelist(filename)) continue;
+  }
+}
 
         //unused
 void SamplerMenuRouter::getavailablespace() {
@@ -1073,7 +1071,6 @@ void SamplerMenuRouter::listsamplesassigner2() {
   dm.canvasBIG.println((char *)self->Flashsamplebase[mc.sublevels[4]]);
 }
 
-//TODO: check
 void SamplerMenuRouter::listSoundsetsubdir(int ledir) {
   if (!SD.sdfs.exists((const char *)self->sampledirpath)) return;
   FsFile susudir = SD.sdfs.open((const char *)self->sampledirpath);
@@ -1084,8 +1081,8 @@ void SamplerMenuRouter::listSoundsetsubdir(int ledir) {
     subentry.getName(shorter_name, 13);
     shorter_name[12] = (char)'\0';
     if (!subentry.isDirectory()) {
-        setlefilenamed(ledir, self->sizeofsamplefolder[ledir], (char*)shorter_name);
-      (self->sizeofsamplefolder[ledir])++;
+        if (!self->setlefilenamed(ledir, self->sizeofsamplefolder[ledir], (const char*)shorter_name)) continue;
+      self->sizeofsamplefolder[ledir]++;
     }
     subentry.close();
   }

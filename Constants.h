@@ -45,7 +45,6 @@ constexpr uint8_t  SSD1306_INVERSE = 2;
 constexpr uint8_t  ARP_LINES = 6;
 constexpr uint8_t  RECORDABLES_CCS = 32;
 
-
 struct MidiEventer{
     uint8_t channel;
     uint8_t note;

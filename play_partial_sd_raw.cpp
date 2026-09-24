@@ -93,6 +93,11 @@ void AudioPlayPartialSdRaw::update(void){
 	if (!block) return;
 	uint32_t bytesToRead = min(remaining,(uint32_t)(AUDIO_BLOCK_SAMPLES * 2));
 	n = rawfile.read(block->data, bytesToRead);
+	if (!n) {
+		release(block);
+		stop(); 
+		return; 
+	}
 	currentByte += n;
 	file_offset += n;
 	for (i=n/2; i < AUDIO_BLOCK_SAMPLES; i++) {

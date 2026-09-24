@@ -80,8 +80,8 @@ Filter303MenuRouter::Filter303MenuRouter() {
 void Filter303MenuRouter::initialize303group() {
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
     _mx.setle303filterpass(i);
-    les303wet[i]->gain(1.0, 1.0);
-    les303wet[i]->gain(0.0, 0.0);
+    les303wet[i]->gain(1, 1.0);
+    les303wet[i]->gain(0, 0.0);
     les303filterz[i]->frequency(14800.5);
     les303filterz[i]->resonance(2.5);
   }
@@ -118,8 +118,6 @@ void Filter303MenuRouter::pseudo303(byte i) {
     les303filterz[synth_lines[line_idx].l_index]->resonance(0.1 + ((gg.le303filterzreso/127.0)*5) * synth_lines[line_idx].slope_normalized);
     les303passes[synth_lines[line_idx].l_index]->gain(2,1.0-synth_lines[line_idx].slope_normalized);
 
-    //mixle303ffilterzVknobs[2]->gain(0.1 + ((gg.le303filterzreso/127.0)*5) * synth_lines[line_idx].slope_normalized);
-    
     //almost immediate since liner_on just set it few micro seconds before;
     // but enough to be audible ;)
     //_mx.set_303_wetness(synth_lines[line_idx].l_index,gg.le303filterzwet/127.0); 
@@ -512,26 +510,22 @@ void Mp3PlayerRouter::get_next_mp3(){
 
 //moves the files on SD root and renames them if their names are too big
 bool Mp3PlayerRouter::sanitizeFilename(FsFile &file){
-    constexpr size_t MAX_LEN = 25;
-    char name[256];
-    if (!file.getName(name, sizeof(name)))
-        return false;
-    size_t len = strlen(name);
-    if (len <= MAX_LEN) return true;
-    char *dot = strrchr(name, '.');
-    if (dot == nullptr) {
-      name[MAX_LEN] = '\0';
-    }
+  constexpr size_t MAX_LEN = 25;
+  char name[256];
+  if (!file.getName(name, sizeof(name))) return false;
+  const size_t len = strlen(name);
+  if (len <= MAX_LEN) return true;
+  char *dot = strrchr(name, '.');
+  if (dot == nullptr || dot == name) name[MAX_LEN] = '\0';
+  else {
+    const size_t extensionLen = strlen(dot);
+    if (extensionLen > MAX_LEN) name[MAX_LEN] = '\0';
     else {
-      size_t extensionLen = strlen(dot);
-      if (extensionLen >= MAX_LEN) return false;
-      size_t baseLen = MAX_LEN - extensionLen;
-      // Move the extension to its new position
-      memmove(&name[baseLen], dot, extensionLen + 1);
+      const size_t baseLen = MAX_LEN - extensionLen;
+      memmove( name + baseLen, dot, extensionLen + 1 );
     }
-    Serial.print("renaming to ");
-    Serial.println(name);
-    return file.rename(name);
+  }
+  return file.rename(name);
 }
 
 void Mp3PlayerRouter::count_mp3s() {
