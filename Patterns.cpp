@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "Patterns.h"
 #include "Constants.h"
 //#include "core_pins.h"
@@ -484,8 +485,11 @@ void PatEditRouter::note_selector() {
 void PatEditRouter::play_cell_preview(){
   if (self->track_type) {
     self->preview = 1 ;
-    if (!SerialFlash.exists(bb.Flashsamplename[(mc.sublevels[self->relative_navlevel + 2]-4)%127])) return;
-    FlashRaw.play(bb.Flashsamplename[(mc.sublevels[self->relative_navlevel + 2]-4)%127]);
+    //TODO: why shift Flashsample assignments by 4 ?
+    uint16_t safe_idx = ((mc.sublevels[self->relative_navlevel + 2]-4)%127 + 127 ) % 127 ;
+    //((x + (N - offset)) % N + N) % N ;
+    if (!SerialFlash.exists(bb.Flashsamplename[safe_idx])) return;
+    FlashRaw.play(bb.Flashsamplename[safe_idx]);
   }
   else {
     if (!Tocker.one_shot){

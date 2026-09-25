@@ -89,15 +89,19 @@ void MidiMenuRouter::set_in_source(){
   switch (self->AudioInSource) {
     case 0 :
       AudioShield.inputSelect(AUDIO_INPUT_MIC);
+      AudioShield.unmuteLineout();
       InMixL.gain(1, 0.01);
       InMixR.gain(1, 0.01);
       break;
     case 1 :
       AudioShield.inputSelect(AUDIO_INPUT_LINEIN);
+      AudioShield.unmuteLineout();
       InMixL.gain(1,1.0);
       InMixR.gain(1, 1.0);
       break;
     case 2 :
+      AudioShield.inputSelect(AUDIO_INPUT_LINEIN);
+      AudioShield.muteLineout();
       InMixL.gain(1, 0.0);
       InMixR.gain(1, 0.0);
       break;

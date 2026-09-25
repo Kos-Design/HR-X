@@ -89,10 +89,11 @@ void SynthLiner::liner_on(byte data1, byte data2) {
     enveloppesL[this->l_index]->noteOn();
     _rg.add_active_index(this->l_index);
     
-    /*
+      /*
     Serial.println();
     Serial.print("liner played = ");
     Serial.print(this->l_index);
+  
     Serial.print(" is arp_starter = ");
 
     Serial.print(this->arp_starter);

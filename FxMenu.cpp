@@ -1173,9 +1173,7 @@ void FxMenuRouter::filterVpanelAction(byte fx_idx) {
             //mc.navrange is 3 + 1 for none
             mc.navrange = OSCS_COUNT;
             self->filter_lfo_option = mc.sublevels[4];
-            if (self->filter_lfo_option < OSCS_COUNT) {
-              fx_hook[fx_idx].vars.LFOonfilterz = self->filter_lfo_option;
-            }
+            fx_hook[fx_idx].vars.LFOonfilterz = self->filter_lfo_option;
           }
           if (slct == 7) {
             mc.navrange = 127;
@@ -1206,7 +1204,7 @@ void FxMenuRouter::unpluglfoonfilterz(byte fx_idx) {
           LFOtoFilterzR[fx_idx*FXS_COUNT+i]->disconnect();
         }
       }
-
+/*
 void FxMenuRouter::filtercontrols(byte fx_idx) {
         fx_hook[fx_idx].vars.filterzfreq = (fx_hook[fx_idx].vars.ffilterzVknobs[0] / 127.0) * self->filterzrange;
         fx_hook[fx_idx].vars.filterzreso = ((fx_hook[fx_idx].vars.ffilterzVknobs[1]) / 127.0) * 5;
@@ -1232,6 +1230,28 @@ void FxMenuRouter::filtercontrols(byte fx_idx) {
         filterzR[fx_idx]->resonance(fx_hook[fx_idx].vars.filterzreso);
         filterzR[fx_idx]->octaveControl(fx_hook[fx_idx].vars.filterzoctv);
       }
+      */
+
+void FxMenuRouter::filtercontrols(byte fx_idx) {
+  fx_hook[fx_idx].vars.filterzfreq = (fx_hook[fx_idx].vars.ffilterzVknobs[0] / 127.0) * self->filterzrange;
+  fx_hook[fx_idx].vars.filterzreso = ((fx_hook[fx_idx].vars.ffilterzVknobs[1]) / 127.0) * 5;
+  if (fx_hook[fx_idx].vars.filterzreso < 0.7) {
+    fx_hook[fx_idx].vars.filterzreso = 0.7;
+  }
+  fx_hook[fx_idx].vars.filterzoctv = ((fx_hook[fx_idx].vars.ffilterzVknobs[2]) / 127.0) * 7;
+  fx_hook[fx_idx].vars.filterzgainz[0] = (fx_hook[fx_idx].vars.mixffilterzVknobs[0]) / 127.0;
+  fx_hook[fx_idx].vars.filterzgainz[1] = (fx_hook[fx_idx].vars.mixffilterzVknobs[1]) / 127.0;
+  fx_hook[fx_idx].vars.filterzgainz[2] = (fx_hook[fx_idx].vars.mixffilterzVknobs[2]) / 127.0;
+
+  lfoonfilterreplug(fx_idx);
+  for (int i = 0; i < 3; i++) {
+    mixfilter[fx_idx]->gain(i, fx_hook[fx_idx].vars.filterzgainz[i]);
+    mixfilterR[fx_idx]->gain(i, fx_hook[fx_idx].vars.filterzgainz[i]);
+  }
+  filterz[fx_idx]->frequency(fx_hook[fx_idx].vars.filterzfreq);
+  filterz[fx_idx]->resonance(fx_hook[fx_idx].vars.filterzreso);
+  filterz[fx_idx]->octaveControl(fx_hook[fx_idx].vars.filterzoctv);
+}      
 void FxMenuRouter::filterVpanel(byte fx_idx) {
         char LFOnamelist[4][6] = {"LFO1", "LFO2", "LFO3", "None"};
         filterVpanelAction(fx_idx);

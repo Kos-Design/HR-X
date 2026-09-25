@@ -458,6 +458,7 @@ void TriggerMessenger::setchordnotesOff(byte absolutenote, byte lachord) {
     chordnotesoff[i] = leschords[lachord%6][relativenote][i];
   }
 }
+
 void TriggerMessenger::update_active_lines() {
   for (int i = 0; i < _rg.synth_lines_active; i++) {
     synth_lines[_rg.active_indexes[i]].update_line();
@@ -496,33 +497,29 @@ void TriggerMessenger::check_pads() {
 }
 
 void TriggerMessenger::MaNoteOn(MidiEventer msg,bool from_partition) {
-  if (gg.SendMidiOut) {
-    // TODO: send midi during sound trigger to use arpegiators (+ note offs if
-    // MidiUSB.sendMIDI({0x09, statusByte, msg.note, msg.velocity});
-    // MidiUSB.flush();
-    //usbMIDI.send((uint8_t)0x09, (uint8_t)msg.note, (uint8_t)msg.velocity, (uint8_t)msg.channel,(uint8_t)0);
-    usbMIDI.sendNoteOn(msg.note, msg.velocity, gg.SendMidiOut);
-    usbMIDI.send_now();
-  }
-  //uint8_t statusByte = static_cast<uint8_t>(0x90 | channel);
-  int lachordon;
-  setchordnotes(msg.note, gg.lasetchord);
-
-  if (mc.navlevel) notes_edgecases(msg);
-  if ((msg.channel == gg.synthmidichannel) or (gg.synthmidichannel == 0)) {
-    for (int i = 0; i < gg.chordson ; i++) {
-      lachordon = chordnotes[i] + ((int(msg.note / 12)) * 12);
+if (gg.SendMidiOut) {
+  // TODO: send midi during sound trigger to use arpegiators (+ note offs if
+  usbMIDI.sendNoteOn(msg.note, msg.velocity, gg.SendMidiOut);
+  usbMIDI.send_now();
+}
+//uint8_t statusByte = static_cast<uint8_t>(0x90 | channel);
+int lachordon;
+setchordnotes(msg.note, gg.lasetchord);
+//TODO: enable for navlevel 0 as well
+if (mc.navlevel) notes_edgecases(msg);
+  for (int i = 0; i < gg.chordson ; i++) {
+    lachordon = chordnotes[i] + ((int(msg.note / 12)) * 12);
+    lachordon = min(127,lachordon);
+    lachordon = max(0,lachordon);
+    if ((msg.channel == gg.synthmidichannel) or (gg.synthmidichannel == 0)) {
       initiateasynthliner((MidiEventer){gg.synthmidichannel,(byte)lachordon, msg.velocity},from_partition);
     }
-  }
-
-  if ((msg.channel == gg.samplermidichannel) or (gg.samplermidichannel == 0)) {
-    for (int i = 0; i < gg.chordson; i++) {
-      lachordon = chordnotes[i] + ((int(msg.note / 12)) * 12);
-      initiateasamplerliner(lachordon, msg.velocity,from_partition);
+    if ((msg.channel == gg.samplermidichannel) or (gg.samplermidichannel == 0)) {
+      initiateasamplerliner((byte)lachordon, msg.velocity,from_partition);
     }
   }
 }
+
 
 void TriggerMessenger::MaProgramchange(byte channel, byte data1) {
   if (self->debugmidion) {
@@ -564,17 +561,15 @@ void TriggerMessenger::MaNoteOff(MidiEventer msg, bool from_partition) {
   //uint8_t statusByte = static_cast<uint8_t>(0x80 | channel);
   int lachordnote;
   if (gg.SendMidiOut) {
-    //MidiUSB.sendMIDI({0x08, statusByte, data1, data2});
-    //MidiUSB.flush();
-    //usbMIDI.send((uint8_t)0x09, (uint8_t)data1, (uint8_t)data2, (uint8_t)channel,(uint8_t)0);
     usbMIDI.sendNoteOff(msg.note, msg.velocity, gg.SendMidiOut);
     usbMIDI.send_now();
   }
-  //if (!gg.arpegiatorOn) {
 
   setchordnotesOff(msg.note, gg.lasetchord);
   for (int i = 0; i < gg.chordson; i++) {
     lachordnote = chordnotesoff[i] + ((int(msg.note / 12)) * 12);
+    lachordnote = min(127,lachordnote);
+    lachordnote = max(0,lachordnote);
     shutlineroff(msg.channel,lachordnote,from_partition);
   }
 }
@@ -621,9 +616,6 @@ void TriggerMessenger::cc_edgecases(MidiEventer msg){
     }
   }
    if (gg.SendMidiOut) {
-      //uint8_t statusByte = static_cast<uint8_t>(0xB0 | channel);
-      //MidiUSB.sendMIDI({0x0B, statusByte, control, value});
-      //MidiUSB.flush();
       usbMIDI.sendControlChange(msg.note,msg.velocity,gg.SendMidiOut);
       usbMIDI.send_now();
     }
