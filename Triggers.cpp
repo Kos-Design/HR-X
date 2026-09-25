@@ -1,7 +1,6 @@
-#include "core_pins.h"
-#include <sys/_stdint.h>
-#include "Constants.h"
-#include "MenuClasses.h"
+#include <stdint.h>
+//#include "core_pins.h"
+//#include <sys/_stdint.h>
 #include "Triggers.h"
 #include "Patterns.h"
 #include "Voices.h"
@@ -12,7 +11,6 @@
 #include "muxer.h"
 #include "SynthMenu.h"
 #include "Functions.h"
-#include "Presets.h"
 #include "Cablages.h"
 #include "PresetsMenu.h"
 
@@ -96,7 +94,7 @@ void Arpegiator::initiatearpegesynthliner(byte start_voice, MidiEventer msg) {
   if (note_in_arp(msg.note)) return;
   byte free_line = _tt.get_free_synth(msg.note);
   if (free_line == SYNTH_LINERS_COUNT) return;
-  if (mc.patrecord) {
+  if (mc.patrecord && _po.target_synth) {
     md.recordmidinotes(free_line, msg.channel, msg.note, msg.velocity);
   }
   synth_lines[free_line].length_in_arp = gg.arpeglengh + 2;
@@ -324,6 +322,43 @@ void MidiRecorder::record_synth_notesOff(int liner, byte channel, byte lenote, b
   pp.synth_notes_length[liner][synth_start_tpos[liner]] = max(4,4*(pos-synth_start_tpos[liner]));
 }
 
+void MidiRecorder::add_active_CC_index(uint8_t value){
+  if (value > 128-1) return;
+  for (uint8_t i = 0; i < this->active_cc_count; ++i)
+    if (this->active_ccs[i] == value) return;
+  if (this->active_cc_count > 128-1) return;
+  this->active_ccs[this->active_cc_count++] = value;
+}
+
+bool MidiRecorder::add_to_cc_list(uint8_t cc_note){
+  for (uint8_t j = 0; j < PBARS; j++) {
+    if (pp.cc_partition[cc_note][j] < 127 ) {
+      this->add_active_CC_index(cc_note);
+      return true;
+    }
+  }
+  return false ;
+}
+
+void MidiRecorder::rebuild_actives_ccs() {
+  memset(this->active_ccs, 0, sizeof(this->active_ccs));
+  this->active_cc_count = 0 ;
+  for (uint8_t i = 0; i < 128; i++) {
+    this->add_to_cc_list(i);
+  }
+}
+
+void MidiRecorder::remove_active_CC_index(uint8_t value){
+  for (uint8_t i = 0; i < this->active_cc_count; i++) {
+    if (this->active_ccs[i] == value) {
+      memmove(&this->active_ccs[i], &this->active_ccs[i + 1], (this->active_cc_count - i - 1) * sizeof(this->active_ccs[0]));
+      this->active_cc_count--;
+      this->active_ccs[this->active_cc_count] = 0;
+      return;
+    }
+  }
+}
+
 int  MidiRecorder::tick_for_that(int ticko){
   ticko -= 1 ;
   if (ticko < 0 ){
@@ -359,6 +394,7 @@ void MidiRecorder::recordmidinotes2(int liner, byte channel, byte lenote, byte v
 void MidiRecorder::recordCCmidinotes(MidiEventer msg) {
   int pos = this->tick_for_that(mc.tickposition);
   pp.cc_partition[msg.note][pos] = msg.velocity;
+  md.add_active_CC_index(msg.note);
 }
 
 TriggerMessenger* TriggerMessenger::self = nullptr;
@@ -538,7 +574,7 @@ void TriggerMessenger::shut_used_flash_notes(byte data1) {
   for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
     if (data1 == flash_lines[i].note) {
       flash_lines[i].liner_off();
-      if (mc.patrecord) md.record_sampler_notesOff(i, gg.samplermidichannel, data1, 0);
+      if (mc.patrecord && _po.target_sampler) md.record_sampler_notesOff(i, gg.samplermidichannel, data1, 0);
     }
   }
 }
@@ -547,7 +583,7 @@ void TriggerMessenger::shut_used_synth_notes(byte data1) {
   for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
     if (data1 == synth_lines[i].note) {
       synth_lines[i].liner_off();
-      if (mc.patrecord) md.record_synth_notesOff(i, gg.synthmidichannel, data1, 0);
+      if (mc.patrecord && _po.target_synth ) md.record_synth_notesOff(i, gg.synthmidichannel, data1, 0);
     }
   }
 }
@@ -564,7 +600,6 @@ void TriggerMessenger::MaNoteOff(MidiEventer msg, bool from_partition) {
     usbMIDI.sendNoteOff(msg.note, msg.velocity, gg.SendMidiOut);
     usbMIDI.send_now();
   }
-
   setchordnotesOff(msg.note, gg.lasetchord);
   for (int i = 0; i < gg.chordson; i++) {
     lachordnote = chordnotesoff[i] + ((int(msg.note / 12)) * 12);
@@ -575,28 +610,19 @@ void TriggerMessenger::MaNoteOff(MidiEventer msg, bool from_partition) {
 }
 
 void TriggerMessenger::shutlineroff(byte chan,byte data1,bool from_partition) {
-
-    if ((chan == gg.synthmidichannel) or ( gg.synthmidichannel == 0))
-      shut_used_synth_notes(data1);
-
-    if ((chan == gg.samplermidichannel) or ( gg.samplermidichannel == 0))
-      shut_used_flash_notes(data1);
+  if ((chan == gg.synthmidichannel) || (!gg.synthmidichannel)) shut_used_synth_notes(data1);
+  if ((chan == gg.samplermidichannel) || (!gg.samplermidichannel)) shut_used_flash_notes(data1);
 }
 
-
 void TriggerMessenger::moncontrollercc(byte channel, byte control, byte value) {
-  if (value < 128) {
- 
-    if (gg.midiknobassigned[control] != 0) {
-      ctl[gg.midiknobassigned[control]].tweaker(value);
-      // AudioInterrupts();
-    }
-  }
+  if (value > 127) return;
+  if (gg.midiknobassigned[control]) ctl[gg.midiknobassigned[control]].tweaker(value);
 }
 
 void TriggerMessenger::moncontrollercc(MidiEventer msg) {
   moncontrollercc(msg.channel, msg.note, msg.velocity);
 }
+
 void TriggerMessenger::cc_edgecases(MidiEventer msg){
   if (self->debugmidion) {
     self->show_midi((char *)("CC"), msg);
@@ -643,7 +669,7 @@ void TriggerMessenger::cc_edgecases(MidiEventer msg){
     _wf.set_tracer(msg.note,msg.velocity);
   }
 
-  if ((mc.patrecord || mc.recordCC) && !mc.stoptick && !self->noCCrecordlist(msg.note)) {
+  if (((mc.patrecord && _po.target_ccs) || mc.recordCC) && !mc.stoptick && !self->noCCrecordlist(msg.note)) {
     md.recordCCmidinotes(msg);
   }
 
@@ -702,7 +728,7 @@ byte TriggerMessenger::get_free_sampler(byte note) {
 void TriggerMessenger::initiateasynthliner(MidiEventer msg, bool from_partition) {
   byte free_line = self->get_free_synth(msg.note);
   if (free_line == SYNTH_LINERS_COUNT) return;
-  if (mc.patrecord && !from_partition) {
+  if (mc.patrecord && _po.target_synth && !from_partition) {
     md.recordmidinotes(free_line, gg.synthmidichannel, msg.note, msg.velocity);
   }
   if (gg.arpegiatorOn)  {
@@ -716,7 +742,7 @@ void TriggerMessenger::initiateasynthliner(MidiEventer msg, bool from_partition)
 void TriggerMessenger::initiateasamplerliner(byte data1, byte data2, bool from_partition) {
   byte free_line = self->get_free_sampler(data1);
   if (free_line < FLASH_LINERS_COUNT) {
-    if (mc.patrecord && !from_partition) {
+    if (mc.patrecord && _po.target_sampler && !from_partition) {
       md.recordmidinotes2(free_line, gg.samplermidichannel, data1, data2);
     }
     flash_lines[free_line].liner_on(data1, data2);

@@ -184,6 +184,8 @@ struct Preset {
     uint8_t osc_framerate = 33 ;
     uint8_t osc_refresher_period = 2 ;
     uint16_t period_303 = 1;
+    //TODO insert in filter menu
+    bool active_303 = 1 ;
 };
 
 extern Preset gg ;

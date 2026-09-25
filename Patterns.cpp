@@ -158,63 +158,62 @@ void CCEditor::route_navlevel_1(){
         }
 
 void CCEditor::showleditcc() {
-          int lavaluecc = 0;
-          int lacellwidth = 128 / PBARS;
-          int lestartyc = 16;
-          float lacellratio = (62 - lestartyc) / 127.0;
-          int lacellx = 0;
-          int lacelly = 0;
-          int lalinex1 = 0;
-          int lalinex2 = 0;
-          int laliney1 = 0;
-          int laliney2 = 0;
-          dm.clearDisplay();
-          dm.canvasBIG.fillScreen(SSD1306_BLACK);
-
-          if (mc.navlevel == 2) {
-            dm.canvastitle.fillScreen(SSD1306_BLACK);
-            dm.canvastitle.setCursor(0, 0);
-            if (gg.midiknobassigned[mc.sublevels[2]] == 0) {
-              dm.canvastitle.setTextSize(2);
-              dm.canvastitle.print("Edit CC");
-              if (mc.sublevels[2] < 100) {
-                dm.canvastitle.print(" ");
-              }
-              if (mc.sublevels[2] < 10) {
-                dm.canvastitle.print(" ");
-              }
-              dm.canvastitle.print(mc.sublevels[2]);
-            } else {
-              dm.canvastitle.setTextSize(1);
-              dm.canvastitle.print("CC");
-              dm.canvastitle.print(mc.sublevels[2]);
-              dm.canvastitle.print(" ");
-              dm.canvastitle.print((char *)ctl[gg.midiknobassigned[mc.sublevels[2]]].name);
-            }
-          }
-          dm.canvasBIG.drawRect(0, 16, 128, 64, SSD1306_WHITE);
-
-          for (int j = 0; j < PBARS; j++) {
-
-            lavaluecc = (int)pp.cc_partition[mc.sublevels[2]][j];
-            lacellx = 1 + j * lacellwidth;
-            lacelly = 63 - lacellratio * lavaluecc;
-            lalinex1 = lacellx;
-            laliney1 = lacelly;
-            if (lavaluecc < 128) {
-              dm.canvasBIG.fillRect(lacellx, lacelly, 3, 3, SSD1306_WHITE);
-              if (j > 0) {
-                if ((int)pp.cc_partition[mc.sublevels[2]][j - 1] < 128) {
-                  dm.canvasBIG.drawLine(lalinex2, laliney2, lalinex1, laliney1,
-                                    SSD1306_WHITE);
-                }
-              }
-            }
-            lalinex2 = lalinex1;
-            laliney2 = laliney1;
-          }
-          dm.dodisplay();
+  int lavaluecc = 0;
+  int lacellwidth = 128 / PBARS;
+  int lestartyc = 16;
+  float lacellratio = (62 - lestartyc) / 127.0;
+  int lacellx = 0;
+  int lacelly = 0;
+  int lalinex1 = 0;
+  int lalinex2 = 0;
+  int laliney1 = 0;
+  int laliney2 = 0;
+  dm.clearDisplay();
+  dm.canvasBIG.fillScreen(SSD1306_BLACK);
+  if (mc.navlevel == 2) {
+    dm.canvastitle.fillScreen(SSD1306_BLACK);
+    dm.canvastitle.setCursor(0, 0);
+    if (gg.midiknobassigned[mc.sublevels[2]] == 0) {
+      dm.canvastitle.setTextSize(2);
+      dm.canvastitle.print("Edit CC");
+      if (mc.sublevels[2] < 100) {
+        dm.canvastitle.print(" ");
+      }
+      if (mc.sublevels[2] < 10) {
+        dm.canvastitle.print(" ");
+      }
+      dm.canvastitle.print(mc.sublevels[2]);
+    } else {
+      dm.canvastitle.setTextSize(1);
+      dm.canvastitle.print("CC");
+      dm.canvastitle.print(mc.sublevels[2]);
+      dm.canvastitle.print(" ");
+      dm.canvastitle.print((char *)ctl[gg.midiknobassigned[mc.sublevels[2]]].name);
+    }
+  }
+  dm.canvasBIG.drawRect(0, 16, 128, 64, SSD1306_WHITE);
+  
+  for (int j = 0; j < PBARS; j++) {
+    if (mc.navlevel == 4 && j == mc.sublevels[3]) { 
+      lavaluecc = self->tmp_cc_val ; 
+    } else lavaluecc = pp.cc_partition[mc.sublevels[2]][j];
+    lacellx = 1 + j * lacellwidth;
+    lacelly = 63 - lacellratio * lavaluecc;
+    lalinex1 = lacellx;
+    laliney1 = lacelly;
+    dm.canvasBIG.fillRect(lacellx, lacelly, 3, 3, SSD1306_WHITE);
+    if (lavaluecc < 127) {
+      if (j) {
+        if (pp.cc_partition[mc.sublevels[2]][j - 1] < 127) {
+          dm.canvasBIG.drawLine(lalinex2, laliney2, lalinex1, laliney1, SSD1306_WHITE);
         }
+      }
+    }
+    lalinex2 = lalinex1;
+    laliney2 = laliney1;
+  }
+  dm.dodisplay();
+}
 
 void CCEditor::headerccedit() {
           dm.clearDisplay();
@@ -228,10 +227,10 @@ void CCEditor::headerccedit() {
           dm.canvastitle.print(mc.sublevels[3]);
           dm.canvastitle.setCursor(90, 0);
           dm.canvastitle.setTextSize(2);
-          if (pp.cc_partition[mc.sublevels[2]][mc.sublevels[3]] < 128) {
-            dm.canvastitle.print(pp.cc_partition[mc.sublevels[2]][mc.sublevels[3]]);
-          }
-          if (pp.cc_partition[mc.sublevels[2]][mc.sublevels[3]] >= 128) {
+          if (self->tmp_cc_val < 127) {
+            dm.canvastitle.print(self->tmp_cc_val);
+            //dm.canvastitle.print(pp.cc_partition[mc.sublevels[2]][mc.sublevels[3]]);
+          } else {
             dm.canvastitle.print("Off");
           }
         }
@@ -242,24 +241,27 @@ void CCEditor::showvertlinecursor(int lavertpos) {
         }
 
 void CCEditor::editlaccactionpath() {
-          if (mc.navlevel == 3) {
+  if (mc.navlevel == 3) {
+    mc.navrange = PBARS - 1;
+    mc.sublevels[4] = (int)pp.cc_partition[mc.sublevels[2]][mc.sublevels[3]];
+    self->tmp_cc_val = (uint8_t)mc.sublevels[4];
+    headerccedit();
+    showvertlinecursor(mc.sublevels[3]);
+  }
+  if (mc.navlevel == 4) {
 
-            mc.navrange = PBARS - 1;
+    mc.navrange = 127;
+    self->tmp_cc_val = (uint8_t)mc.sublevels[4];
 
-            mc.sublevels[4] = (int)pp.cc_partition[mc.sublevels[2]][mc.sublevels[3]];
-            headerccedit();
-            showvertlinecursor(mc.sublevels[3]);
-          }
-          if (mc.navlevel == 4) {
-
-            mc.navrange = 127;
-            pp.cc_partition[mc.sublevels[2]][mc.sublevels[3]] = (byte)mc.sublevels[4];
-            headerccedit();
-          }
-          if (mc.navlevel > 4) {
-            dm.returntonav(3,PBARS - 1,mc.sublevels[3]);
-          }
-        }
+    headerccedit();
+  }
+  if (mc.navlevel > 4) {
+    pp.cc_partition[mc.sublevels[2]][mc.sublevels[3]] = self->tmp_cc_val;
+    if (mc.sublevels[4]<127) md.add_active_CC_index((byte)mc.sublevels[4]);
+    else md.rebuild_actives_ccs();
+    dm.returntonav(3,PBARS - 1,mc.sublevels[3]);
+  }
+}
 
 
 extern CCEditor _ce;
@@ -845,6 +847,8 @@ void POptionsRouter::clearlapattern() {
 
 void POptionsRouter::clearCCline() {
   memset(pp.cc_partition, 127, sizeof(pp.cc_partition));
+  memset(md.active_ccs, 0, sizeof(md.active_ccs));
+  md.active_cc_count = 0 ;
 }
 
 void POptionsRouter::clearsynthpatternline() {
@@ -958,6 +962,7 @@ void POptionsRouter::dotransposeCC() {
   if (mc.sublevels[3] - 7 < 0) {
     shiftnotesCCup(abs(mc.sublevels[3] - 7));
   }
+  md.rebuild_actives_ccs();
 }
 
 void POptionsRouter::doShifterCC() {
@@ -1025,7 +1030,7 @@ void POptionsRouter::shiftnotesCCleft(int leshifter) {
   for (int shifts = 0; shifts < leshifter; shifts++) {
     for (int i = 0; i < 128; i++) {
       for (int j = 0; j < PBARS; j++) {
-        if (j == 0) {
+        if (!j) {
           letempevent1 = pp.cc_partition[i][0];
           pp.cc_partition[i][j] = pp.cc_partition[i][j + 1];
         }
@@ -1045,11 +1050,11 @@ void POptionsRouter::shiftnotes1up(int leshifter) {
     for (int i = 0; i < SYNTH_LINERS_COUNT; i++) {
       for (int j = 0; j < PBARS; j++) {
         if (((int)pp.synth_partition[i][j].note < 127) &&
-            ((int)pp.synth_partition[i][j].note > 2)) {
+            ((int)pp.synth_partition[i][j].note > 1)) {
           pp.synth_partition[i][j].note++;
         }
         if (((int)pp.synth_off_pat[i][j].note < 127) &&
-            ((int)pp.synth_off_pat[i][j].note > 2)) {
+            ((int)pp.synth_off_pat[i][j].note > 1)) {
           pp.synth_off_pat[i][j].note++;
         }
       }
@@ -1243,21 +1248,14 @@ void POptionsRouter::showtransposedisplays() {
     dm.returntonav(2, self->home_navrange,mc.sublevels[2]);
     return;
   }
-
   dm.clean_title_2();
   dm.canvastitle.print((char *)optionspatternlabels[mc.sublevels[2]]);
-
   int latransposition;
   latransposition = 7 - mc.sublevels[3];
   dm.canvasBIG.setCursor(0, 16);
   dm.canvasBIG.setTextSize(2);
-
-  if (latransposition > 0) {
-    dm.canvasBIG.print("+");
-  }
-  if (latransposition == 0) {
-    dm.canvasBIG.setCursor(8, 16);
-  }
+  if (latransposition > 0) dm.canvasBIG.print("+");
+  else if (!latransposition) dm.canvasBIG.setCursor(8, 16);
   dm.canvasBIG.print(latransposition);
   dm.dodisplay();
 }
@@ -1400,6 +1398,7 @@ void PatternsMenuRouter::parsepattern() {
   } 
   lepatternfile.read((uint8_t*)&pp, sizeof(pp));
   lepatternfile.close();
+  md.rebuild_actives_ccs();
   _pe.refresh_patterns();
   mc.locked_fileing = 0 ;
 }

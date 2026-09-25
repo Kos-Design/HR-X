@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "Constants.h"
 #include "SongsMenu.h"
 #include "Triggers.h"
@@ -16,18 +17,11 @@ SongEditorRouter::SongEditorRouter() {
 
 
 void SongEditorRouter::light_cc_change() {
- /*
-  for (int i = 0; i < 32; i++) {
-    if (pp.pots_controllers[i][mc.tickposition].velocity != 127){
-      _tt.moncontrollercc(pp.pots_controllers[i][mc.tickposition]);
-    }
-  }
- */
- byte tpos = mc.tickposition ;
-  for (int i = 0; i < 128; i++) {
-    if (pp.cc_partition[i][tpos] < 127){
+  byte tpos = mc.tickposition ;
+  for (int i = 0; i < md.active_cc_count; i++) {
+    if (pp.cc_partition[md.active_ccs[i]][tpos] < 127){
       //not directly Mycc to not recapture midi 
-      _tt.moncontrollercc((MidiEventer){3,(byte)i,pp.cc_partition[i][tpos]});
+      _tt.moncontrollercc((MidiEventer){3,(byte)i,pp.cc_partition[md.active_ccs[i]][tpos]});
     }
   }
 }
@@ -35,53 +29,33 @@ void SongEditorRouter::light_cc_change() {
 void SongEditorRouter::use_pattern(){
   byte tpos = mc.tickposition;
   light_cc_change();
+  uint8_t synth_last_liner ;
+  uint8_t flash_last_liner ;
+  //plays on last available liners to allow overdub
   for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
     if (i < SYNTH_LINERS_COUNT ) {
+      synth_last_liner = (((SYNTH_LINERS_COUNT - 1 - i)%SYNTH_LINERS_COUNT)+SYNTH_LINERS_COUNT)%SYNTH_LINERS_COUNT;
       if (pp.synth_off_pat[i][tpos].note) {
-        synth_lines[i].liner_off();
+        synth_lines[synth_last_liner].liner_off();
       }
       if (pp.synth_partition[i][tpos].note) {
-      Serial.println(SYNTH_LINERS_COUNT - 1 - i);
-
-        play_synth_line(i);
+        play_synth_line(synth_last_liner,i);
       }
     }
+    flash_last_liner = (((FLASH_LINERS_COUNT - 1 - i)%FLASH_LINERS_COUNT)+FLASH_LINERS_COUNT)%FLASH_LINERS_COUNT;
     if (pp.flash_off_pat[i][tpos].note) {
-        flash_lines[i].liner_off();
+      flash_lines[flash_last_liner].liner_off();
     }
     if (pp.sampler_partition[i][tpos].note) {
-      Serial.println(FLASH_LINERS_COUNT - 1 - i);
-      play_sampler_line(i);
+      play_sampler_line(flash_last_liner,i);
     }
   }
 }
-/*
+//TODO: record patterns like song from first hit
 
-void SongEditorRouter::use_pattern(){
-  byte tpos = mc.tickposition;
-  light_cc_change();
-  // play on max_line - 1 - i to give space for overdub
-  for (int i = 0; i < FLASH_LINERS_COUNT; i++) {
-    if (i < SYNTH_LINERS_COUNT ) {
-      if (pp.synth_off_pat[i][tpos].note) {
-        synth_lines[SYNTH_LINERS_COUNT-1-i]->liner_off();
-      }
-      if (pp.synth_partition[i][tpos].note) {
-        play_synth_line(SYNTH_LINERS_COUNT-1-i);
-      }
-    }
-    if (pp.flash_off_pat[i][tpos].note) {
-        flash_lines[FLASH_LINERS_COUNT-1-i]->liner_off();
-    }
-    if (pp.sampler_partition[i][tpos].note) {
-      play_sampler_line(FLASH_LINERS_COUNT-1-i);
-    }
-  }
-}
-*/
 void SongEditorRouter::playdasong() {
           //if (!gg.externalticker) {
-            //metro0.reset();
+          
           //}
           mc.songplaying = 1;
           loadsongpattern();
@@ -210,24 +184,16 @@ void SongEditorRouter::update_song_player() {
             }
 
         }
-//TODO: should play on liner 6 or inverse from max
-void SongEditorRouter::play_synth_line(int linei) {
-          if (pp.synth_partition[linei][mc.tickposition].note != 0) {
-            if (!synth_lines[linei].activated) {
-              synth_lines[linei].liner_on(pp.synth_partition[linei][mc.tickposition].note, pp.synth_partition[linei][mc.tickposition].velocity);
-            }
-          }
-        }
 
-void SongEditorRouter::play_sampler_line(int linei) {
-          if (pp.sampler_partition[linei][mc.tickposition].note != 0) {
-            if (gg.Sampleassigned[pp.sampler_partition[linei][mc.tickposition].note] != 0 &&
-                ((gg.samplermidichannel == 0) ||
-                ((byte)gg.samplermidichannel == pp.sampler_partition[linei][mc.tickposition].channel))) {
-                  _tt.initiateasamplerliner(pp.sampler_partition[linei][mc.tickposition].note, pp.sampler_partition[linei][mc.tickposition].velocity,true);
-            }
-          }
-        }
+void SongEditorRouter::play_synth_line(uint8_t linei,uint8_t pp_line) {
+  if (synth_lines[linei].activated) return;
+  synth_lines[linei].liner_on(pp.synth_partition[pp_line][mc.tickposition].note, pp.synth_partition[pp_line][mc.tickposition].velocity);
+}
+
+void SongEditorRouter::play_sampler_line(uint8_t linei,uint8_t pp_line) {
+  if (flash_lines[linei].activated) return;
+  _tt.initiateasamplerliner(pp.sampler_partition[pp_line][mc.tickposition].note, pp.sampler_partition[pp_line][mc.tickposition].velocity,true);
+}
 
 void SongEditorRouter::selectsongnavarrows() {
           if (mc.navlevel == self->relative_navlevel) {

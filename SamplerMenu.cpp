@@ -553,25 +553,21 @@ void SamplerMenuRouter::drawtickboxincanvastitle(int lestartx, int lestarty, int
           }
         }
 
-bool SamplerMenuRouter::addtoFlashsamplelist(const char *lesample){
-  if (lesample == nullptr || lesample[0] == '\0') return false;
-  const size_t index = self->numberofFlashfiles;
-  const size_t maxFiles = sizeof(bb.Flashsamplename) / sizeof(bb.Flashsamplename[0]);
-  if (index >= maxFiles) return false;
-  const size_t len = strlen(lesample);
-  if (len >= sizeof(bb.Flashsamplename[index])) return false;
-  const size_t baseLen = (len > 4) ? len - 4 : len;
-  for (size_t i = 0; i < len; i++) {
-    const char c = (char)toupper((unsigned char)lesample[i]);
-    bb.Flashsamplename[index][i] = c;
-    if (i < baseLen && i < sizeof(self->Flashsamplebase[index]) - 1) self->Flashsamplebase[index][i] = c;
-  }
-  bb.Flashsamplename[index][len] = '\0';
-  const size_t displayLen = min(baseLen, sizeof(self->Flashsamplebase[index]) - 1);
-  self->Flashsamplebase[index][displayLen] = '\0';
-  self->numberofFlashfiles++;
-  return true;
+bool SamplerMenuRouter::addtoFlashsamplelist(const char* sample){
+    if (!sample || !*sample) return false;
+    const size_t index = self->numberofFlashfiles;
+    if (index >= sizeof(bb.Flashsamplename) / sizeof(bb.Flashsamplename[0])) return false;
+    const size_t len = strlen(sample);
+    if (len >= sizeof(bb.Flashsamplename[index])) return false;
+    strcpy(bb.Flashsamplename[index], sample);
+    const size_t baseLen = (len > 4) ? len - 4 : len;
+    const size_t copyLen = min(baseLen, sizeof(self->Flashsamplebase[index]) - 1);
+    memcpy(self->Flashsamplebase[index], sample, copyLen);
+    self->Flashsamplebase[index][copyLen] = '\0';
+    self->numberofFlashfiles++;
+    return true;
 }
+
 
 void SamplerMenuRouter::initializeFlashsamplename() {
   self->numberofFlashfiles = 0;

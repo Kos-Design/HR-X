@@ -94,7 +94,7 @@ void Filter303MenuRouter::avg_slope(){
     self->sloped[i] = self->fxsloper[i]*(gg.cut_off_slope/127.0) + self->slopelinear[i]*(1-(gg.cut_off_slope/127.0)) ;
   }
 }
-
+//TODO
 void Filter303MenuRouter::pseudo303(byte i) {
   float letbfreq = 100.0;
   uint8_t line_idx = _rg.active_indexes[i] ;

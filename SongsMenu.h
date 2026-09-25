@@ -42,8 +42,8 @@ class SongEditorRouter : public SectionHolder {
 
         void update_song_player();
 
-        void play_synth_line(int linei);
-        void play_sampler_line(int linei) ;
+        void play_synth_line(uint8_t linei,uint8_t pp_line);
+        void play_sampler_line(uint8_t linei, uint8_t pp_line) ;
 
         void selectsongnavarrows();
 

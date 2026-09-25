@@ -242,7 +242,6 @@ void setupdefaultvalues() {
     //}
   }
 
-  _mr.toggle_note_spy();
   for (int i = 0; i < FXS_COUNT; i++) {
     fx_hook[i].stopdelayline();
     delayCords[i]->disconnect();
@@ -493,15 +492,14 @@ void control_me(){
 }
 
 void loop() {
-  //loops in millis cn occur multiple times per milli, set a tic_tacker to throttle or attach to clock
+  //loops in millis can occur multiple times per milli, set a tic_tacker to throttle or attach to clock
   loopusbHub();
   Tocker.dispatch_ticks();
 }
 
 void loop_over_303(){
-  for (int i = 0; i < _rg.synth_lines_active; i++) {
-      _ft.pseudo303(i);
-    }
+  if (!gg.active_303) return; 
+  for (int i = 0; i < _rg.synth_lines_active; i++) _ft.pseudo303(i);
 }
 
 void setuphubusb() {
@@ -548,7 +546,7 @@ void setuphubusb() {
 
 void unplugsynth() {
 
-  // unplugfx();
+  Notespy_cable.disconnect();
   for (int i = 0; i < SYNTH_LINERS_COUNT*OSCS_COUNT; i++) {
 
     FMwavecords1[i]->disconnect();
@@ -1378,6 +1376,10 @@ void eq_display_Toggle_ctl(byte cc_value){
   mc.showing_eq = !mc.showing_eq ;
 }
 
+void filter_303_activate_Toggle_ctl(byte cc_value){
+  gg.active_303 = !gg.active_303 ;
+}
+
 const CcCalls ctl[128] = {
     {"Disabled",nullptr},{"Volume",&Volume_ctl},{"SynthLevel",&SynthVolume_ctl},{"SDLevel",&SDPlayerVolume_ctl},{"FlashLevel",&FlashVolume_ctl},
     {"FX1 Wet",&Wet1Volume_ctl},{"FX2 Wet",&Wet2Volume_ctl},{"FX3 Wet",&Wet3Volume_ctl},{"Dry Sampler",&DrySampler_ctl},{"Dry Synth",&DrySynth_ctl},
@@ -1406,7 +1408,7 @@ const CcCalls ctl[128] = {
     {"Reverb Size",&ReverbSize_ctl},{"BitCrusher Samples",&BitCrusherSamples_ctl},{"BitCrusher Bits",&BitCrusherBits_ctl},{"Flanger Offset",&FlangerOffset_Knob1_ctl},{"Flanger Depth",&FlangerDepth_Knob2_ctl},
     {"Flanger Delay",&FlangerDelay_Knob3_ctl},{"Delay Time sel.",&DelayTimeSelection_Knob1_ctl},{"Delay Multiplier",&DelayTimeMultiplier_Knob2_ctl},{"Delay Feedback",&DelayFeedback_Knob3_ctl},{"Audio In Volume",&AudioInVolume_ctl},
     //100ok
-    {"FREE",nullptr},{"FREE",nullptr},{"Save New Pattern",&SaveToNewPattern_Trigger_ctl},{"Load Next Pattern",&LoadNextPattern_Trigger_ctl},{"Record Audio",&RecordAudio_Trigger_ctl},
+    {"Synth Filter toggle",&filter_303_activate_Toggle_ctl},{"FREE",nullptr},{"Save New Pattern",&SaveToNewPattern_Trigger_ctl},{"Load Next Pattern",&LoadNextPattern_Trigger_ctl},{"Record Audio",&RecordAudio_Trigger_ctl},
     {"Play Record",&PlayLoadedAudio_Trigger_ctl},{"Stop Recording",&StopRecording_Trigger_ctl},{"Load First Preset",&LoadFirstPreset_Toggle_ctl},{"Load Prev Pattern",&LoadPreviousPattern_Trigger_ctl},{"Merge Patterns",&MergeSynthPatterns_Trigger_ctl},
     //120 ok
     {"Flash Line1 Level",&FlashLineVolume_Knob1_ctl},{"Flash Line2 Level",&FlashLineVolume_Knob2_ctl},{"Flash Line3 Level",&FlashLineVolume_Knob3_ctl},{"Flash Line4 Level",&FlashLineVolume_Knob4_ctl},{"Flash Line5 Level",&FlashLineVolume_Knob5_ctl},

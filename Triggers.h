@@ -7,12 +7,18 @@
 class MidiRecorder {
   public:
     MidiRecorder();
-    byte synth_start_tpos[SYNTH_LINERS_COUNT]{};
-    byte sampler_start_tpos[FLASH_LINERS_COUNT]{};
+    uint8_t synth_start_tpos[SYNTH_LINERS_COUNT]{};
+    uint8_t sampler_start_tpos[FLASH_LINERS_COUNT]{};
+    uint8_t active_cc_count = 0 ;
+    uint8_t active_ccs[128] ;
     void recordmidinotes(int liner, byte channel, byte lenote, byte velocity);
     void recordCCmidinotes(MidiEventer msg);
     bool isalreadysameSamplerinpat(byte lenote,int ticko);
     int tick_for_that(int ticko);
+    void add_active_CC_index(uint8_t value);
+    bool add_to_cc_list(uint8_t value);
+    void remove_active_CC_index(uint8_t value);
+    void rebuild_actives_ccs();
     void recordmidinotes2(int liner, byte channel, byte lenote, byte velocity);
     void record_sampler_notesOff(int liner, byte channel, byte lenote, byte velocity);
     void record_synth_notesOff(int liner, byte channel, byte lenote, byte velocity);

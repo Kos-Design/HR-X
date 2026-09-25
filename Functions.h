@@ -148,3 +148,4 @@ void validate_pushed_ctl(byte cc_val);
 void adjust_waveEditor_pitch_ctl(byte cc_val);
 void spectro_Toggle_ctl(byte unused_cc);
 void eq_display_Toggle_ctl(byte cc_value);
+void filter_303_activate_Toggle_ctl(byte cc_value);

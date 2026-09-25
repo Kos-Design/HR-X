@@ -75,7 +75,7 @@ void SynthLiner::liner_on(byte data1, byte data2) {
     this->note=data1;
     this->velocity=data2;
     //should be conditioned
-    if (gg.le303filterzwet < 127) this->f303=1;
+    if (gg.active_303) this->f303=1;
     //_mx.set_303_wetness(this->l_index,1.0);
     this->targetFreq = bb.notestofreq[this->note];
     this->note_diff = ((this->note + (64 - gg.portamento_height)) % 127 + 127) % 127;

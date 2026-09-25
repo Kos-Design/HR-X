@@ -1,3 +1,4 @@
+#include <stdint.h>
 #pragma once
 #include "Constants.h"
 #include "MenuClasses.h"
@@ -64,6 +65,7 @@ extern MasterClock Tocker;
 class CCEditor : public SectionHolder {
   public:
         CCEditor();
+        uint8_t tmp_cc_val = 127;
         static void show();
         static void route_navlevel_1();
         static void showleditcc();
